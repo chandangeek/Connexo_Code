@@ -74,7 +74,7 @@ public enum EndDeviceControlTypeMapping {
         }
     },
 
-    CHANGE_STEP_TARIFF("0.20.140.13", Collections.singletonList(DeviceMessageId.CHANGE_STEP_TARIFF_CONFIGURATION)) {
+    CHANGE_STEP_TARIFF("0.20.140.13", Collections.singletonList(DeviceMessageId.CHANGE_STEP_TARIFF)) {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new ChangeStepTariffCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));

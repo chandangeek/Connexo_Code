@@ -60,7 +60,7 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.activationDateAttributeName))
+        if (propertySpec.getName().equals(DeviceMessageConstants.activationDate))
             return String.valueOf(((Date) messageAttribute).getTime());
         if (propertySpec.getName().equals(DeviceMessageConstants.passiveUnitChargeActivationTime))
             return String.valueOf(((Date) messageAttribute).getTime());

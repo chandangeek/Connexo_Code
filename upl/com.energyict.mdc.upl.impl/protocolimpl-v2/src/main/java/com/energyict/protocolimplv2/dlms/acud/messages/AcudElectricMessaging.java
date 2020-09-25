@@ -31,7 +31,8 @@ public class AcudElectricMessaging extends AcudMessaging {
                 LoadBalanceDeviceMessage.SET_LIPF_UNDER_LIMIT_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
                 LoadBalanceDeviceMessage.SET_LIPF_UNDER_LIMIT_TIME_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ChargeDeviceMessage.SWITCH_TAX_AND_STEP_TARIFF.get(getPropertySpecService(), getNlsService(), getConverter()),
-                ChargeDeviceMessage.CHANGE_STEP_TARIFF_CONFIGURATION.get(getPropertySpecService(), getNlsService(), getConverter())
+                ChargeDeviceMessage.CHANGE_STEP_TARIFF.get(getPropertySpecService(), getNlsService(), getConverter()),
+                ChargeDeviceMessage.CHANGE_TAX_RATES.get(getPropertySpecService(), getNlsService(), getConverter())
                 )
         );
         return supportedMessages;

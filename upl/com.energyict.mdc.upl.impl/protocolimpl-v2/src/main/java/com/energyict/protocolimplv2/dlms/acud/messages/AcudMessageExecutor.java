@@ -125,7 +125,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private ObisCode getCreditTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditTypeAttributeName);
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditType);
         int creditNo = CreditDeviceMessage.CreditType.entryForDescription(description).getId();
         switch (creditNo) {
             case 1:
@@ -136,7 +136,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private ObisCode getChargeTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeTypeAttributeName);
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeType);
         int chargeNo = ChargeDeviceMessage.ChargeType.entryForDescription(description).getId();
         switch (chargeNo) {
             case 1:
@@ -269,7 +269,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void switchChargeMode(OfflineDeviceMessage pendingMessage) throws IOException {
-        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activationDateAttributeName).getValue();
+        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activationDate).getValue();
         Calendar activationTime = Calendar.getInstance(getProtocol().getTimeZone());
         activationTime.setTimeInMillis(Long.valueOf(attributeTime));
         SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(CHARGE_MODE_SCHEDULER_OBIS);
@@ -281,7 +281,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private int getChargeMode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeModeAttributeName);
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeMode);
         return ChargeDeviceMessage.ChargeMode.entryForDescription(description).getId();
     }
 

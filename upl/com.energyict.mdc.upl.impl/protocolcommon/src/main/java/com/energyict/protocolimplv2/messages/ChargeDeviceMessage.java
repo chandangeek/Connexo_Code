@@ -26,7 +26,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
             );
         }
     },
@@ -34,7 +34,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.booleanSpec(service, DeviceMessageConstants.passiveImmediateActivation, DeviceMessageConstants.passiveImmediateActivationDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeCommodityScale, DeviceMessageConstants.chargeCommodityScaleDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargePriceScale, DeviceMessageConstants.chargePriceScaleDefaultTranslation),
@@ -66,7 +66,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.dateTimeSpec(service, DeviceMessageConstants.passiveUnitChargeActivationTime, DeviceMessageConstants.passiveUnitChargeActivationTimeDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeCommodityScale, DeviceMessageConstants.chargeCommodityScaleDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargePriceScale, DeviceMessageConstants.chargePriceScaleDefaultTranslation),
@@ -97,7 +97,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
             );
         }
     },
@@ -105,7 +105,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargePeriod, DeviceMessageConstants.chargePeriodDefaultTranslation)
             );
         }
@@ -114,12 +114,12 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeProportion, DeviceMessageConstants.chargeProportionDefaultTranslation)
             );
         }
     },
-    CHANGE_STEP_TARIFF_CONFIGURATION(41007, "Change Step Tariff Configuration") {
+    CHANGE_STEP_TARIFF(41007, "Change passive step tariff") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -190,21 +190,33 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    SWITCH_CHARGE_MODE(41008, "Switch charge mode prepaid - postpaid") {
+    CHANGE_TAX_RATES(41008, "Change passive tax rates") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeModeAttributeName, DeviceMessageConstants.chargeModeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeMode.getDescriptionValues()),
-                    this.dateTimeSpec(service, DeviceMessageConstants.activationDateAttributeName, DeviceMessageConstants.activationDateAttributeNameDefaultTranslation)
+                    this.bigDecimalSpec(service, DeviceMessageConstants.monthlyTax, DeviceMessageConstants.monthlyTaxDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.zeroConsumptionTax, DeviceMessageConstants.zeroConsumptionTaxDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumptionTax, DeviceMessageConstants.consumptionTaxDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumptionAmount, DeviceMessageConstants.consumptionAmountDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumptionLimit, DeviceMessageConstants.consumptionLimitDefaultTranslation)
             );
         }
     },
-    SWITCH_TAX_AND_STEP_TARIFF(41009, "Switch to passive tax and step tariff") {
+    SWITCH_CHARGE_MODE(41009, "Switch charge mode prepaid - postpaid") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.tariffTypeAttributeName, DeviceMessageConstants.tariffTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.TariffType.getDescriptionValues()),
-                    this.dateTimeSpec(service, DeviceMessageConstants.activationDateAttributeName, DeviceMessageConstants.activationDateAttributeNameDefaultTranslation)
+                    this.stringSpec(service, DeviceMessageConstants.chargeMode, DeviceMessageConstants.chargeModeDefaultTranslation, ChargeDeviceMessage.ChargeMode.getDescriptionValues()),
+                    this.dateTimeSpec(service, DeviceMessageConstants.activationDate, DeviceMessageConstants.activationDateDefaultTranslation)
+            );
+        }
+    },
+    SWITCH_TAX_AND_STEP_TARIFF(41010, "Activate the passive tax and step tariff") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.tariffType, DeviceMessageConstants.tariffTypeDefaultTranslation, ChargeDeviceMessage.TariffType.getDescriptionValues()),
+                    this.dateTimeSpec(service, DeviceMessageConstants.activationDate, DeviceMessageConstants.activationDateDefaultTranslation)
             );
         }
     },

@@ -29,7 +29,8 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     private static final ObisCode LIPF_UNDER_LIMIT_THRESHOLD = ObisCode.fromString("1.0.13.31.0.255");
     private static final ObisCode LIPF_UNDER_LIMIT_TIME_THRESHOLD = ObisCode.fromString("1.0.13.45.0.255");
 
-    public static final ObisCode STEP_TARIFF_CONFIGURATION = ObisCode.fromString("0.0.94.20.75.255");
+    public static final ObisCode PASSIVE_STEP_TARIFF_OBIS = ObisCode.fromString("0.0.94.20.75.255");
+    public static final ObisCode PASSIVE_TAX_RATES_OBIS = ObisCode.fromString("0.0.94.20.77.255");
     public static final ObisCode STEP_TARIFF_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.9.255");
     public static final ObisCode TAX_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.10.255");
 
@@ -60,8 +61,10 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
             setLiPfUnderLimitTimeThreshold(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.SWITCH_TAX_AND_STEP_TARIFF)) {
             switchTaxAndStepTariff(pendingMessage);
-        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_STEP_TARIFF_CONFIGURATION)) {
+        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_STEP_TARIFF)) {
             changeStepTariffConfig(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_TAX_RATES)) {
+            changeTaxRates(pendingMessage);
         } else
             return super.executeMessage(pendingMessage, collectedMessage);
         return collectedMessage;
@@ -97,7 +100,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     }
 
     private void switchTaxAndStepTariff(OfflineDeviceMessage pendingMessage) throws IOException {
-        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activationDateAttributeName).getValue();
+        String attributeTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.activationDate).getValue();
         Calendar activationTime = Calendar.getInstance(getProtocol().getTimeZone());
         activationTime.setTimeInMillis(Long.valueOf(attributeTime));
         SingleActionSchedule singleActionSchedule = getCosemObjectFactory().getSingleActionSchedule(STEP_TARIFF_SCHEDULER_OBIS);
@@ -114,7 +117,7 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     }
 
     private int getTariffType(OfflineDeviceMessage pendingMessage) throws ProtocolException {
-        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.tariffTypeAttributeName);
+        String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.tariffType);
         return ChargeDeviceMessage.TariffType.entryForDescription(description).getId();
     }
 
@@ -146,7 +149,22 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
             changeStepTariffArray.addDataType(changeStep);
         }
         changeStepTariff.addDataType(changeStepTariffArray);
-        getCosemObjectFactory().writeObject(STEP_TARIFF_CONFIGURATION, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), changeStepTariff.getBEREncodedByteArray());
+        getCosemObjectFactory().writeObject(PASSIVE_STEP_TARIFF_OBIS, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), changeStepTariff.getBEREncodedByteArray());
+    }
+
+    private void changeTaxRates(OfflineDeviceMessage pendingMessage) throws IOException {
+        Integer monthlyTax = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.monthlyTax));
+        Integer zeroConsumptionTax = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.zeroConsumptionTax));
+        Integer consumptionTax = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumptionTax));
+        Integer consumptionAmount = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumptionAmount));
+        Integer consumptionLimit = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.consumptionLimit));
+        Structure taxRatesStructure = new Structure();
+        taxRatesStructure.addDataType(new Unsigned32(monthlyTax));
+        taxRatesStructure.addDataType(new Unsigned32(zeroConsumptionTax));
+        taxRatesStructure.addDataType(new Unsigned32(consumptionTax));
+        taxRatesStructure.addDataType(new Unsigned16(consumptionAmount));
+        taxRatesStructure.addDataType(new Unsigned16(consumptionLimit));
+        getCosemObjectFactory().writeObject(PASSIVE_TAX_RATES_OBIS, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), taxRatesStructure.getBEREncodedByteArray());
     }
 
     protected void addStepTarifCharge(OfflineDeviceMessage pendingMessage, Structure changeStep, Integer step) throws IOException {
