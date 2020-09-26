@@ -227,7 +227,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         String errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
         String errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         try {
-            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10&sortOrder=true");
+            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions");
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processes");
@@ -269,7 +269,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10", auth);
+            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions", auth);
             if (!"".equals(jsonContent)) {
                 JSONObject jsonbject = new JSONObject(jsonContent);
                 arr = jsonbject.getJSONArray("processes");
@@ -280,8 +280,8 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
             for (int i = 0; i < arr.length(); i++) {
                 try {
                     JSONObject task = arr.getJSONObject(i);
-                    if (task.getString("deploymentId").equals(deploymentId) && task.getString("id").equals(id)) {
-                        checkProcessIsAlreadyRunning(task.getString("name"), task.getString("version"), parameters, auth);
+                    if (task.getString("container-id").equals(deploymentId) && task.getString("process-id").equals(id)) {
+                        checkProcessIsAlreadyRunning(task.getString("process-name"), task.getString("process-version"), parameters, auth);
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);

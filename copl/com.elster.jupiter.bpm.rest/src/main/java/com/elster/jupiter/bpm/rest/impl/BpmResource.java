@@ -279,7 +279,7 @@ public class BpmResource {
         if (currentUser.isPresent()) {
             String payload;
             try {
-                String rest = "/rest/tasks/toptasks";
+                String rest = "/services/rest/tasks/toptasks";
                 payload = mapper.writeValueAsString(
                         new TopTasksPayload(currentUser.get().getName(),
                                 currentUser.get().getWorkGroups().stream().map(WorkGroup::getName).collect(Collectors.toList()),
@@ -950,7 +950,7 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10&sortOrder=true", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
@@ -973,7 +973,7 @@ public class BpmResource {
         List<Errors> err = new ArrayList<>();
         ProcessDefinitionInfos processDefinitionInfos=new ProcessDefinitionInfos();
         try {
-            processjsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10&sortOrder=true", auth);
+            processjsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions", auth);
             if (processjsonContent != null && !"".equals(processjsonContent)) {
                 JSONObject jsnobject = new JSONObject(processjsonContent);
                 arr = jsnobject.getJSONArray("processes");
@@ -1058,7 +1058,7 @@ public class BpmResource {
         int total = -1;
         JSONArray arr = null;
         try {
-            String rest = "/rest/tasks/runningprocesses";
+            String rest = "/services/rest/tasks/runningprocesses";
             String req = getQueryParam(queryParameters);
             if (!"".equals(req)) {
                 rest += req;
@@ -1096,7 +1096,7 @@ public class BpmResource {
         int total = -1;
         JSONArray arr = null;
         try {
-            String rest = "/rest/tasks/process/history";
+            String rest = "/services/rest/tasks/process/history";
             String req = getQueryParam(queryParameters);
             if (!"".equals(req)) {
                 rest += req;

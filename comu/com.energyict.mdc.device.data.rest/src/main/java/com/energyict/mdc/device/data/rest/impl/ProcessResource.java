@@ -563,7 +563,7 @@ public class ProcessResource {
         JSONArray arr = null;
 
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=10&sortOrder=true", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions", auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processes");
