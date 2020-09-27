@@ -11,6 +11,7 @@ Ext.define('Mdc.store.RegisterData', {
 
     model: 'Mdc.model.RegisterData',
     storeId: 'RegisterData',
+    alias: 'RegisterData',
     autoLoad: false,
     proxy: {
         type: 'rest',
