@@ -76,6 +76,8 @@ Ext.define('Uni.view.toolbar.PagingTop', {
 
     needCustomExporter: false,
 
+    needLazyExportInit: false,
+
     initComponent: function () {
         this.callParent(arguments);
     },
