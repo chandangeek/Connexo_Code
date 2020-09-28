@@ -219,8 +219,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
 
         private MultiThreadedJobScheduler(int threadPoolSize, ThreadFactory threadFactory) {
             this.executorService = Executors.newFixedThreadPool(1);
-            multiThreadedJobCreator = new MultiThreadedJobCreator(jobQueue, MultiThreadedScheduledComPort.this.getComPort(), getDeviceCommandExecutor(), threadPoolSize, threadFactory, getServiceProvider(), getComServerDAO()
-                    .getComServerUser());
+            multiThreadedJobCreator = new MultiThreadedJobCreator(jobQueue, MultiThreadedScheduledComPort.this.getComPort(), getDeviceCommandExecutor(), threadPoolSize, threadFactory, getServiceProvider(), getComServerDAO().getComServerUser());
             executorService.submit(multiThreadedJobCreator);
         }
 
