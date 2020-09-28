@@ -407,7 +407,7 @@ public class BpmResource {
         String jsonContent;
         JSONObject jsnobject = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/" + processInstanceId + "/node", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/node", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
@@ -1244,7 +1244,7 @@ public class BpmResource {
         JSONObject obj = null;
         TaskContentInfos taskContentInfos = null;
         try {
-            String rest = "/rest/tasks/" + id + "/content";
+            String rest = "/services/rest/tasks/" + id + "/content";
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {

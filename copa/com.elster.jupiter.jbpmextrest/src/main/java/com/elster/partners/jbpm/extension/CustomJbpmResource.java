@@ -161,6 +161,53 @@ public class CustomJbpmResource {
     }
 
     @GET
+    @Path("/allprocesses")
+    @Produces("application/json")
+    public IssueProcessInfos getAllProcesses(@Context UriInfo uriInfo){
+        if (emf == null) {
+            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
+        }
+        String variableId = getQueryValue(uriInfo, "variableid");
+        String variableValue = getQueryValue(uriInfo, "variablevalue");
+        int startIndex = 0;
+        int endIndex = Integer.MAX_VALUE;
+        try {
+            startIndex = Integer.valueOf(getQueryValue(uriInfo, "start"));
+            endIndex = Integer.valueOf(getQueryValue(uriInfo, "limit"));
+            endIndex++;
+        }catch (NumberFormatException e){
+        }
+        if(variableId != null && variableValue != null) {
+            EntityManager em = emf.createEntityManager();
+            String queryString="select p.PROCESSNAME, p.START_DATE, p.PROCESSVERSION, " +
+                    "p.USER_IDENTITY, p.PROCESSINSTANCEID as processLogid, p.STATUS " +
+                    "from processinstancelog p " +
+                    "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
+                    "where UPPER (v.VARIABLEID) = UPPER (:variableid) and UPPER (v.VALUE) = UPPER (:variablevalue) " +
+                    "order by p.START_DATE";
+            Query query = em.createNativeQuery(queryString);
+            query.setParameter("variableid", variableId);
+            query.setParameter("variablevalue", variableValue);
+            query.setFirstResult(startIndex);
+            query.setMaxResults(endIndex);
+            List<Object[]> list = query.getResultList();
+            IssueProcessInfos issueProcessInfos = new IssueProcessInfos(list);
+            for(IssueProcessInfo info : issueProcessInfos.processInstances){
+                info.openTasks = info.processId == -1 ? null : getTaskForProceessInstance(info.processId);
+            }
+            if(issueProcessInfos.total == endIndex){
+                int total = startIndex + endIndex;
+                issueProcessInfos.removeLast(total);
+            }else{
+                int total = startIndex + issueProcessInfos.total;
+                issueProcessInfos.setTotal(total);
+            }
+            return issueProcessInfos;
+        }
+        return null;
+    }
+
+    @GET
     @Path("/process/instance/{processInstanceId: [0-9-]+}/node")
     @Produces("application/json")
     public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
@@ -324,6 +371,7 @@ public class CustomJbpmResource {
 
         return null;
     }
+
 
     @GET
     @Produces("application/json")
