@@ -313,7 +313,7 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
                 OfflineDevice offlineDevice = getComServerDAO().findOfflineDevice(deviceIdentifier, offlineDeviceForComTaskGroup).get();
                 DeviceProtocolPluggableClass deviceProtocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
                 DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
-                CommandRoot commandRoot = new ParallelRootScheduledJob(null, null, null, null, null, null).initCommandRoot();
+                CommandRoot commandRoot = new ParallelRootScheduledJob(null, null, null, null, null, getServiceProvider()).initCommandRoot();
                 if (DeviceProtocolCommandCreator.hasCommandsToExecute(new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null),
                         generateProtocolTaskList(comTaskExecution), comTaskExecution)) {
                     resultMap.computeIfAbsent(ExecutionType.TO_EXECUTE, key -> new ArrayList<>()).add(comTaskExecution);
