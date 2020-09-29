@@ -173,7 +173,6 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
                     ctx.close();
                 } catch (NamingException ex) {
                     LOGGER.severe(ex.getMessage());
-                    ex.printStackTrace();
                 }
             }
             if (tls != null) {

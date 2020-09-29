@@ -291,7 +291,7 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
                 try {
                     ctxs.close();
                 } catch (NamingException ex) {
-                    ex.printStackTrace();
+                    LOGGER.severe(ex.getMessage());
                 }
             }
             if (tls != null) {
