@@ -37,7 +37,13 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
@@ -75,7 +81,6 @@ public class CustomJbpmResource {
     QueryService queryService;
     UserTaskService taskService;
     FormManagerService formManagerService;
-    //ProcessRequestBean
 
     private EntityManagerFactory emf;
 
@@ -379,7 +384,6 @@ public class CustomJbpmResource {
 
         return null;
     }
-
 
     @GET
     @Produces("application/json")
@@ -707,6 +711,7 @@ public class CustomJbpmResource {
         }
         return new TaskSummaryList(runtimeDataService, new ArrayList<>());
     }
+
     @POST
     @Path("/release/{taskId: [0-9-]+}")
     public Response releaseTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
@@ -746,6 +751,7 @@ public class CustomJbpmResource {
         }
         return null;
     }
+
     @POST
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/contentstart/{username}")
@@ -788,6 +794,96 @@ public class CustomJbpmResource {
             return Response.status(409).entity(task.getName()).build();
         }
         return Response.status(400).build();
+    }
+
+    @POST
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/contentcomplete/{username}")
+    public Response completeTaskContent(TaskOutputContentInfo taskOutputContentInfo, @Context UriInfo uriInfo, @PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth) {
+        String containerId = getQueryValue(uriInfo, "containerId");
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        if(task != null) {
+            if (!task.getStatus().equals("Completed")) {
+//                ProcessRequestBean processRequestBean;
+                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+                    TaskCommand<?> cmd = new CompleteTaskCommand(taskId, task.getActualOwner(), taskOutputContentInfo.outputTaskContent);
+                    taskService.execute(containerId, cmd);
+//                    processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
+                    return Response.ok().build();
+                } else {
+                    if (auth.contains("Bearer") && task.getActualOwner().equals(context.getUserPrincipal().getName())) {
+                        TaskCommand<?> cmd = new CompleteTaskCommand(taskId, context.getUserPrincipal()
+                                .getName(), taskOutputContentInfo.outputTaskContent);
+//                        processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
+                        taskService.execute(containerId, cmd);
+                        return Response.ok().build();
+                    }
+                }
+            }
+            return Response.status(409).entity(task.getName()).build();
+        }
+        return Response.status(400).build();
+    }
+
+    @POST
+    @Path("/assigntome/{taskId: [0-9-]+}")
+    public Response assignToMeTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
+        String currentuser = getQueryValue(uriInfo, "currentuser");
+        String containerId = getQueryValue(uriInfo, "containerId");
+        Task task = taskService.getTask(taskId);
+        if(task != null) {
+            if(currentuser != null) {
+                boolean check = assignTaskToUser(currentuser, currentuser, taskId, containerId);
+                if(!check){
+                    return Response.status(403).build();
+                }
+            }
+        }
+        return Response.ok().build();
+    }
+
+    @POST
+    @Path("/{taskId: [0-9-]+}/{optLock: [0-9-]+}/assign")
+    public Response assignTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId, @PathParam("optLock") long optLock){
+        String userName = getQueryValue(uriInfo, "username");
+        String currentuser = getQueryValue(uriInfo, "currentuser");
+        String priority = getQueryValue(uriInfo, "priority");
+        String date = getQueryValue(uriInfo, "duedate");
+        String workGroupName = getQueryValue(uriInfo, "workgroupname");
+        String containerId = getQueryValue(uriInfo, "containerId");
+        Task task = taskService.getTask(taskId);
+        if(task != null) {
+            if(((TaskImpl) task).getVersion() == optLock) {
+                if(userName != null && currentuser != null) {
+                    if(!userName.equals("Unassigned")) {
+                        boolean check = assignTaskToUser(userName, currentuser, taskId, containerId);
+                        if (!check) {
+                            return Response.status(403).build();
+                        }
+                    }else {
+                        if(task.getTaskData().getActualOwner() != null){
+                            taskService.release(task.getId(), task.getTaskData().getActualOwner().getId());
+                        }
+                    }
+                }
+                if(priority != null || date != null){
+                    if (priority != null && !priority.equals("")) {
+                        setPriority(Integer.valueOf(priority), taskId);
+                    }
+                    if (date != null && !date.equals("")) {
+                        Date millis = new Date();
+                        millis.setTime(Long.valueOf(date));
+                        setDueDate(millis, taskId);
+                    }
+                }
+                if(workGroupName != null){
+                    taskService.execute(containerId, new ComplexAssigneeForwardTaskCommand(taskId, workGroupName));
+                }
+            } else {
+                return Response.status(409).entity(task.getName()).build();
+            }
+        }
+        return Response.ok().build();
     }
 
     private Map<String, JsonNode> getFilterProperties(String source, String value){
@@ -1054,6 +1150,60 @@ public class CustomJbpmResource {
         return order;
     }
 
+    private void setPriority(int priority, long taskId){
+        if(taskService.getTask(taskId) != null) {
+            ((InternalTaskService) taskService).setPriority(taskId, priority);
+        }
+    }
+
+    private void setDueDate(Date dueDate, long taskId){
+        if(taskService.getTask(taskId) != null) {
+            taskService.setExpirationDate(taskId, dueDate);
+        }
+    }
+
+    private boolean assignTaskToUser(String userName, String currentuser, long taskId, String containerId) {
+        Task task = taskService.getTask(taskId);
+        if (task != null) {
+            if (task.getTaskData().getStatus().equals(Status.Created)) {
+                List<OrganizationalEntity> businessAdministrators = task.getPeopleAssignments().getBusinessAdministrators();
+                boolean check = false;
+                for (int i = 0; i < businessAdministrators.size(); i++) {
+                    if (businessAdministrators.get(i).getId().equals(userName)) {
+                        check = true;
+                    }
+                }
+                if (check) {
+                    taskService.activate(taskId, userName);
+                    assignTaskToUser(userName, currentuser, taskId, containerId);
+                }
+                return check;
+            }
+            if (task.getTaskData().getStatus().equals(Status.Ready)) {
+                taskService.execute(containerId, new AddUserToPeopleAssigmentCommand(taskId, currentuser));
+                taskService.claim(taskId, currentuser);
+                taskService.delegate(taskId, currentuser, userName);
+            }
+            if (task.getTaskData().getStatus().equals(Status.Reserved)) {
+                if (task.getTaskData().getActualOwner() != null) {
+                    if (!userName.equals("")) {
+                        taskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
+                    }
+                }
+            }
+            if (task.getTaskData().getStatus().equals(Status.InProgress)) {
+                if (!task.getTaskData().getActualOwner().getId().equals(userName)) {
+                    if (task.getTaskData().getActualOwner() != null) {
+                        if (!userName.equals("")) {
+                            taskService.stop(taskId, task.getTaskData().getActualOwner().getId());
+                            taskService.delegate(taskId, task.getTaskData().getActualOwner().getId(), userName);
+                        }
+                    }
+                }
+            }
+        }
+        return true;
+    }
 
 //    // Supported HTTP method, path parameters, and data formats:
 //    @POST
