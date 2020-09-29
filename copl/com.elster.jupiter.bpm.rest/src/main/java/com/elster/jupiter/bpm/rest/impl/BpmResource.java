@@ -322,7 +322,7 @@ public class BpmResource {
         ObjectMapper mapper = new ObjectMapper();
         String payload;
         try {
-            String rest = "/rest/tasks";
+            String rest = "/services/rest/tasks";
             String req = getQueryParam(queryParameters);
             if (!"".equals(req)) {
                 rest += req;
@@ -362,7 +362,7 @@ public class BpmResource {
         ObjectMapper mapper = new ObjectMapper();
         String payload;
         try {
-            String rest = "/rest/tasks/";
+            String rest = "/services/rest/tasks/";
             rest += String.valueOf(id);
             payload = mapper.writeValueAsString(getAvailableProcessesByAppKey(uriInfo, auth, appKey));
             jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
@@ -578,7 +578,7 @@ public class BpmResource {
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response releaseTask(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) throws
             UnsupportedEncodingException {
-        String restURL = "/rest/tasks/release/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
+        String restURL = "/services/rest/tasks/release/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
         String response = bpmService.getBpmServer().doPost(restURL, null, auth, 0);
         if (response == null) {
             throw new BpmResourceAssignUserException(thesaurus);
@@ -950,7 +950,7 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
@@ -973,7 +973,7 @@ public class BpmResource {
         List<Errors> err = new ArrayList<>();
         ProcessDefinitionInfos processDefinitionInfos=new ProcessDefinitionInfos();
         try {
-            processjsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions", auth);
+            processjsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000", auth);
             if (processjsonContent != null && !"".equals(processjsonContent)) {
                 JSONObject jsnobject = new JSONObject(processjsonContent);
                 arr = jsnobject.getJSONArray("processes");

@@ -9,7 +9,10 @@ import org.jbpm.services.api.RuntimeDataService;
 import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.model.ProcessDefinition;
 import org.jbpm.services.api.model.ProcessInstanceDesc;
+import org.jbpm.services.api.model.UserTaskInstanceDesc;
 import org.jbpm.services.api.query.QueryService;
+import org.jbpm.services.task.commands.CompleteTaskCommand;
+import org.jbpm.services.task.commands.TaskCommand;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.kie.api.KieServices;
 import org.kie.api.command.KieCommands;
@@ -19,6 +22,7 @@ import org.kie.api.task.model.OrganizationalEntity;
 import org.kie.api.task.model.Status;
 import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskData;
+import org.kie.internal.task.api.InternalTaskService;
 import org.kie.server.services.api.KieServerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +37,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -74,6 +75,7 @@ public class CustomJbpmResource {
     QueryService queryService;
     UserTaskService taskService;
     FormManagerService formManagerService;
+    //ProcessRequestBean
 
     private EntityManagerFactory emf;
 
@@ -282,6 +284,9 @@ public class CustomJbpmResource {
     @Path("/runningprocesses")
     @Produces("application/json")
     public RunningProcessInfos getRunningProcesses(@Context UriInfo uriInfo){
+        if (emf == null) {
+            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
+        }
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         int startIndex = 0;
@@ -328,6 +333,9 @@ public class CustomJbpmResource {
     @Path("/process/history")
     @Produces("application/json")
     public ProcessHistoryInfos getProcessHistory(@Context UriInfo uriInfo){
+        if (emf == null) {
+            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
+        }
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         Map<String, JsonNode> filterProperties;
@@ -699,7 +707,88 @@ public class CustomJbpmResource {
         }
         return new TaskSummaryList(runtimeDataService, new ArrayList<>());
     }
+    @POST
+    @Path("/release/{taskId: [0-9-]+}")
+    public Response releaseTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
+        String currentuser = getQueryValue(uriInfo, "currentuser");
+        Task task = taskService.getTask(taskId);
+        if(task != null) {
+            taskService.release(task.getId(), currentuser);
+        }
+        return Response.ok().build();
+    }
 
+    @POST
+    @Path("/{taskId: [0-9-]+}/")
+    @Produces("application/json")
+    public TaskSummary getTask(ProcessDefinitionInfos processDefinitionInfos, @PathParam("taskId") long taskid){
+        Task task = taskService.getTask(taskid);
+        if(task == null){
+            return new TaskSummary(getAuditTask(taskid));
+        }else {
+            for(ProcessDefinitionInfo processDefinitionInfo : processDefinitionInfos.processes){
+                if(processDefinitionInfo.deploymentId.equals(task.getTaskData().getDeploymentId()) && processDefinitionInfo.processId.equals(task.getTaskData().getProcessId())){
+                    return new TaskSummary(task);
+                }
+            }
+            return new TaskSummary();
+        }
+    }
+
+    private Object[] getAuditTask(long taskid){
+        EntityManager em = emf.createEntityManager();
+        String queryString = "Select TASKID , ACTUALOWNER, PROCESSID, CREATEDON, STATUS, NAME from AUDITTASKIMPL where TASKID = :taskId";
+        Query query = em.createNativeQuery(queryString);
+        query.setParameter("taskId", taskid);
+        List<Object[]> list = query.getResultList();
+        if(!list.isEmpty()){
+            return list.get(0);
+        }
+        return null;
+    }
+    @POST
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/contentstart/{username}")
+    public Response startTaskContent(@PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth) {
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        if(task != null){
+            if(task.getStatus().equals("Created") || task.getStatus().equals("Ready") || task.getStatus().equals("Reserved")) {
+                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+                    taskService.start(taskId, task.getActualOwner());
+                    return Response.ok().build();
+                } else {
+                    if (auth.contains("Bearer") && task.getActualOwner().equals(context.getUserPrincipal().getName())) {
+                        taskService.start(taskId, context.getUserPrincipal().getName());
+                        return Response.ok().build();
+                    }
+                }
+            }
+            return Response.status(409).entity(task.getName()).build();
+        }
+        return Response.status(400).build();
+    }
+
+    @POST
+    @Produces("application/json")
+    @Path("/{taskId: [0-9-]+}/contentsave/{username}")
+    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth){
+        UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
+        if(task != null) {
+            if (!task.getStatus().equals("Completed")) {
+                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+                    ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
+                    return Response.ok().build();
+                } else {
+                    if (auth.contains("Bearer") && task.getActualOwner().equals(context.getUserPrincipal().getName())) {
+                        ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
+                        return Response.ok().build();
+                    }
+                }
+            }
+            return Response.status(409).entity(task.getName()).build();
+        }
+        return Response.status(400).build();
+    }
 
     private Map<String, JsonNode> getFilterProperties(String source, String value){
         LinkedHashMap<String, JsonNode> filterProperties = new LinkedHashMap<String, JsonNode>();

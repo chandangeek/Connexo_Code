@@ -98,7 +98,7 @@ public class MeteringMessageHandler implements MessageHandler {
 
     private Optional<ProcessDefinitionInfos> getDeployments() {
         try {
-            String jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions");
+            String jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000");
             if (!"".equals(jsonContent)) {
                 return Optional.ofNullable(jsonService.deserialize(jsonContent, ProcessDefinitionInfos.class));
             }

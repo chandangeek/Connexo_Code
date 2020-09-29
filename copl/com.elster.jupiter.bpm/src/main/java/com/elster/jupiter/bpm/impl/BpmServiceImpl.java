@@ -227,7 +227,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         String errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
         String errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
         try {
-            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions");
+            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000");
             if (!"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
                 arr = jsnobject.getJSONArray("processes");
@@ -269,7 +269,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions", auth);
+            jsonContent = this.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000", auth);
             if (!"".equals(jsonContent)) {
                 JSONObject jsonbject = new JSONObject(jsonContent);
                 arr = jsonbject.getJSONArray("processes");
