@@ -270,6 +270,44 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                         hidden: true
                     }
                 ]
+            },
+            {
+                xtype: 'form',
+                itemId: 'device-send-sap-notification-bulk',
+                buttonAlign: 'left',
+                hidden: true,
+                layout: {
+                    type: 'vbox',
+                    align: 'left'
+                },
+                defaults: {
+                    labelWidth: 150,
+                    width: 800
+                },
+                items: [
+                            {
+                                xtype: 'displayfield',
+                                required: true,
+                                fieldLabel: Uni.I18n.translate('sap.webserviceendpoint', 'MDC', 'Web service endpoint'),
+                                itemId: 'deviceSendSapNotificationEndpointNoItemBulk',
+                                value: Uni.I18n.translate('sap.nowebserviceendpoint', 'MDC', 'No active web service endpoints available'),
+                                fieldStyle: 'color: #ff0000;'
+                            },
+                            {
+                                xtype: 'combobox',
+                                editable: false,
+                                required: true,
+                                fieldLabel: Uni.I18n.translate('sap.webserviceendpoint', 'MDC', 'Web service endpoint'),
+                                displayField: 'name',
+                                valueField: 'id',
+                                queryMode: 'local',
+                                itemId: 'deviceSendSapNotificationEndpointComboBulk',
+                                allowBlank: false,
+                                emptyText: Uni.I18n.translate('sap.selectwebserviceendpoint', 'MDC', 'Select a web service endpoint'),
+                                width: 500,
+                                name: 'id'
+                            },
+                        ]
             }
         ];
         me.callParent(arguments);

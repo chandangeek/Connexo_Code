@@ -37,21 +37,8 @@ public class StartCommunication extends TranslatableServerMicroAction {
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        List<ComTaskExecution> comTaskExecutions = new ArrayList<>(device.getComTaskExecutions());
-        // include the 'unused' enablements
-        List<ComTaskEnablement> comTaskEnablements = device.getDeviceConfiguration().getComTaskEnablements();
-        Set<Long> usedComtaskIds =
-                comTaskExecutions
-                        .stream()
-                        .map(each -> each.getComTask().getId())
-                        .collect(Collectors.toSet());
-        for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
-            if (!usedComtaskIds.contains(comTaskEnablement.getComTask().getId())) {
-                device.newAdHocComTaskExecution(comTaskEnablement).scheduleNow().add();
-            }
-        }
-        device.save();
         device.getConnectionTasks().forEach(ConnectionTask::activate);
+        device.getComTaskExecutions().forEach(ComTaskExecution::scheduleNow);
     }
 
     @Override

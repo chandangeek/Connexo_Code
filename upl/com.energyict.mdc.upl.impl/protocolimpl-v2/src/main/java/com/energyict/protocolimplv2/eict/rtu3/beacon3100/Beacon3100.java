@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
-import com.energyict.cbo.ObservationTimestampPropertyImpl;
+import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.GeneralCipheringKeyType;
@@ -646,7 +646,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     }
 
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
-                    CollectedTopology.ObservationTimestampProperty observationTimestampProperty = new ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
+                    ObservationDateProperty observationTimestampProperty = new ObservationDateProperty(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
 
                     if (!gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {

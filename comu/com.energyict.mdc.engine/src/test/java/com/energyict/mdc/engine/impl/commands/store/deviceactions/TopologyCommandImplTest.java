@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
+import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.TopologyTask;
@@ -20,14 +21,13 @@ import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.TopologyAction;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -55,9 +55,9 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L);
         DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L);
 
-        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
-        slaveDeviceIdentifiers.put(slaveDevice1, mock(CollectedTopology.ObservationTimestampProperty.class));
-        slaveDeviceIdentifiers.put(slaveDevice2, mock(CollectedTopology.ObservationTimestampProperty.class));
+        Map<DeviceIdentifier, ObservationDateProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slaveDevice1, mock(ObservationDateProperty.class));
+        slaveDeviceIdentifiers.put(slaveDevice2, mock(ObservationDateProperty.class));
 
         CollectedTopology collectedTopology = new DeviceTopology(masterDevice, slaveDeviceIdentifiers);
         CollectedDeviceInfo additionalDeviceInfoOfMaster = getAdditionalDeviceInfoOfMaster(masterDevice);
@@ -89,9 +89,9 @@ public class TopologyCommandImplTest extends CommonCommandImplTests {
         DeviceIdentifierById slaveDevice1 = new DeviceIdentifierById(2L);
         DeviceIdentifierById slaveDevice2 = new DeviceIdentifierById(3L);
 
-        Map<DeviceIdentifier, CollectedTopology.ObservationTimestampProperty> slaveDeviceIdentifiers = new HashMap<>();
-        slaveDeviceIdentifiers.put(slaveDevice1, mock(CollectedTopology.ObservationTimestampProperty.class));
-        slaveDeviceIdentifiers.put(slaveDevice2, mock(CollectedTopology.ObservationTimestampProperty.class));
+        Map<DeviceIdentifier, ObservationDateProperty> slaveDeviceIdentifiers = new HashMap<>();
+        slaveDeviceIdentifiers.put(slaveDevice1, mock(ObservationDateProperty.class));
+        slaveDeviceIdentifiers.put(slaveDevice2, mock(ObservationDateProperty.class));
 
         CollectedTopology collectedTopology = new DeviceTopology(masterDevice, slaveDeviceIdentifiers);
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);

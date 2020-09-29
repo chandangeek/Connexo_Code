@@ -31,7 +31,7 @@ public class DeviceMessageServiceCallHandler implements ServiceCallHandler {
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
 
-        if (newState == DefaultState.CANCELLED) {
+        if (newState == DefaultState.CANCELLED || newState == DefaultState.FAILED || newState == DefaultState.REJECTED) {
             serviceCall.log(LogLevel.FINE, "Trying to revoke related device message");
             revokeRelatedDeviceMessage(serviceCall);
         }

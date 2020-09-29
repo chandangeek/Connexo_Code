@@ -28,6 +28,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
@@ -190,6 +191,9 @@ public class MultisenseHeadEndInterfaceTest {
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(any(DeviceConfiguration.class))).thenReturn(Collections.singletonList(readingType));
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(3L);
         when(device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Collections.emptyList());
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getReadingType()).thenReturn(readingType);
+        when(device.getDeviceConfiguration().getChannelSpecs()).thenReturn(Collections.singletonList(channelSpec));
         when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactorOpenEndDeviceControlType));
         when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactoCloseEndDeviceControlType));
     }

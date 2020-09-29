@@ -13,7 +13,12 @@ import com.elster.jupiter.issue.impl.records.CreationRuleBuilderImpl;
 import com.elster.jupiter.issue.impl.records.CreationRuleImpl;
 import com.elster.jupiter.issue.impl.records.OpenIssueImpl;
 import com.elster.jupiter.issue.impl.tasks.IssueActionExecutor;
-import com.elster.jupiter.issue.share.*;
+import com.elster.jupiter.issue.share.AllowsComTaskFiltering;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
+import com.elster.jupiter.issue.share.FiltrableByComTask;
+import com.elster.jupiter.issue.share.IssueCreationValidator;
+import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.issue.share.TemplateUtil;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.CreationRuleAction;
 import com.elster.jupiter.issue.share.entity.CreationRuleActionPhase;
@@ -65,6 +70,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -158,7 +164,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public List<CreationRuleAction> findActionsByMultiValueProperty(List<IssueTypes> issueTypes, String propertyKey,
-            List<String> groupIdsList) {
+                                                                    List<String> groupIdsList) {
         final List<CreationRuleAction> actionsList;
         if (issueTypes != null && !issueTypes.isEmpty()) {
             final Condition condition = Where.where("type.issueType.key")
@@ -166,7 +172,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             actionsList = dataModel.query(CreationRuleAction.class, IssueActionType.class, IssueType.class)
                     .select(condition);
         } else {
-            try(QueryStream<CreationRuleAction> actionList= dataModel.stream(CreationRuleAction.class)) {
+            try (QueryStream<CreationRuleAction> actionList = dataModel.stream(CreationRuleAction.class)) {
                 actionsList = actionList.select();
             }
         }
@@ -220,6 +226,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
                 ksession.setGlobal(EVENT_SERVICE, eventService);
                 ksession.setGlobal(LOGGER, LOG);
             } catch (RuntimeException ex) {
+                LOG.log(Level.WARNING, ex.getMessage(), ex);
                 LOG.warning("Unable to set the issue creation service as a global for all rules. This means that no " +
                         "issues will be created! Check that at least one rule contains string 'global com.elster.jupiter." +
                         "issue.share.service.IssueCreationService issueCreationService;' and this rule calls " +
@@ -258,7 +265,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             CreationRuleTemplate template = firedRule.getTemplate();
             Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
             if (existingIssue.isPresent()) {
-                OpenIssue openIssue =  existingIssue.get();
+                OpenIssue openIssue = existingIssue.get();
                 LOG.fine("Updating issue:" + openIssue.getIssueId());
                 template.updateIssue(openIssue, event);
             } else {
@@ -375,7 +382,7 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     @Override
     public void closeAllOpenIssuesResolutionEvent(long ruleId, IssueEvent event) throws OperationNotSupportedException {
-        LOG.fine( "Processing close all:" + event);
+        LOG.fine("Processing close all:" + event);
         findCreationRuleById(ruleId).get().getTemplate().closeAllOpenIssues(event);
     }
 
@@ -459,6 +466,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     private boolean canEvaluateRules() {
         createKnowledgeBase();
-        return knowledgeBase != null;
+        return knowledgeBase != null && !knowledgeBase.getKnowledgePackages().isEmpty();
     }
 }

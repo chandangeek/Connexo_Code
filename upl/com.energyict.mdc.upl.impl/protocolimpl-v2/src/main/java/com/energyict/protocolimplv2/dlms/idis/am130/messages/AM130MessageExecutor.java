@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.messages;
 
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.cosem.*;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -8,15 +11,6 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.EventPushNotificationConfig;
-import com.energyict.dlms.cosem.IPv4Setup;
-import com.energyict.dlms.cosem.ObjectDefinition;
-import com.energyict.dlms.cosem.PPPSetup;
-import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -35,13 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.whiteListPhoneNumbersAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Copyrights EnergyICT
@@ -143,7 +131,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     private CollectedMessage configurePushSetupSendDestination(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
-        pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
+        pushSetupObisCode = pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
         String transportTypeString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.transportTypeAttributeName).getValue();
@@ -161,7 +149,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     private CollectedMessage configurePushSetupObjectDefinitions(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
-        pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
+        pushSetupObisCode = pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
         String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getValue();
@@ -183,7 +171,7 @@ public class AM130MessageExecutor extends IDISMessageExecutor {
     private CollectedMessage configurePushSetup(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = EventPushNotificationConfig.getDefaultObisCode();
-        pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
+        pushSetupObisCode = pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.valueOf(setupType).getId());
         EventPushNotificationConfig eventPushNotificationConfig = getCosemObjectFactory().getEventPushNotificationConfig(pushSetupObisCode);
 
         String objectDefinitionsAttributeValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.objectDefinitionsAttributeName).getValue();

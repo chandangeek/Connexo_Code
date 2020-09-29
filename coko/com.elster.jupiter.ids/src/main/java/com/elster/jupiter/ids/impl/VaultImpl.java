@@ -293,8 +293,8 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
-    public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, ZoneId zoneId, TemporalAmount interval, int hourOffset) {
-        TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec, zoneId, interval, hourOffset);
+    public TimeSeriesImpl createRegularTimeSeries(RecordSpec spec, ZoneId zoneId, TemporalAmount interval, long offset) {
+        TimeSeriesImpl timeSeries = timeSeriesProvider.get().init(this, spec, zoneId, interval, offset);
         timeSeries.persist();
         return timeSeries;
     }

@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 
 import java.text.MessageFormat;
 import java.util.Optional;
-import java.util.logging.Logger;
 
 /**
  * @author Stijn Vanhoorelbeke
@@ -20,7 +19,6 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
     private MessageSeed messageSeed;
     private Object[] messageArguments;
     private Optional<NlsService> nlsService = Optional.empty();
-    private Throwable originalCause = null;
 
     public ProtocolRuntimeException(MessageSeed messageSeed, Object... messageArguments) {
         super(defaultFormattedMessage(messageSeed, messageArguments));
@@ -32,19 +30,16 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
         super(defaultFormattedMessage(messageSeed, new Object[]{cause.getMessage()}), cause);
         this.messageSeed = messageSeed;
         this.messageArguments = new Object[0];
-        originalCause = cause;
     }
 
     public ProtocolRuntimeException(Throwable cause, MessageSeed messageSeed, Object... messageArguments) {
         super(defaultFormattedMessage(messageSeed, messageArguments), cause);
         this.messageSeed = messageSeed;
         this.messageArguments = messageArguments;
-        originalCause = cause;
     }
 
     public ProtocolRuntimeException(Throwable cause) {
         super(cause.getMessage());
-        originalCause = cause;
     }
 
     private static String defaultFormattedMessage(MessageSeed messageSeed, Object[] messageArguments) {
@@ -89,9 +84,10 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
         return "n/a";
     }
 
-
     @Override
     public String getLocalizedMessage() {
-        return getMessage();
+        return nlsService.isPresent()
+                ? nlsService.get().getThesaurus(getMessageSeed().getModule()).getFormat(getMessageSeed()).format(getMessageArguments())
+                : super.getLocalizedMessage();
     }
 }

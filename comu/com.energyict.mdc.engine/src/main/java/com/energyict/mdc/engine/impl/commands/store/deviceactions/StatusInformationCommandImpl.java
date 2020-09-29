@@ -68,7 +68,7 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
         breakerStatus.setDataCollectionConfiguration(comTaskExecution);
         addCollectedDataItem(breakerStatus);
 
-        if(getOfflineDevice().touCalendarManagementAllowed()){
+        if (getOfflineDevice().touCalendarManagementAllowed() && getOfflineDevice().getSerialNumber().equals(deviceSerialNumber)) {
             CollectedCalendar calendar = deviceProtocol.getCollectedCalendar();
             calendar.setDataCollectionConfiguration(comTaskExecution);
             addCollectedDataItem(calendar);

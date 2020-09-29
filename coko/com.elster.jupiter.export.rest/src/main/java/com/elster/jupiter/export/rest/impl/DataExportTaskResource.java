@@ -613,7 +613,8 @@ public class DataExportTaskResource {
         ExportTask task = findTaskOrThrowException(id, appCode);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart().orElse(0))
-                .setLimit(queryParameters.getLimit().orElse(0) + 1);
+                .setLimit(queryParameters.getLimit().orElse(0) + 1)
+                .setOrder(queryParameters.getSortingColumns());
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
@@ -640,7 +641,7 @@ public class DataExportTaskResource {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
             }
         }
-
+        occurrencesFinder.setOrder(queryParameters.getSortingColumns());
         History<ExportTask> history = task.getHistory();
         List<DataExportTaskHistoryInfo> infos = occurrencesFinder.stream()
                 .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(history, occurrence))

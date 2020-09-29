@@ -4,21 +4,24 @@
 
 package com.energyict.mdc.sap.rest.impl;
 
+import com.elster.jupiter.appserver.rest.AppServerHelper;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
-
-import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.util.exception.MessageSeed;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -42,6 +45,9 @@ public class SapApplication extends Application implements MessageSeedProvider {
     private volatile UtilitiesDeviceRegisteredNotification utilitiesDeviceRegisteredNotification;
     private volatile Clock clock;
     private volatile TransactionService transactionService;
+    private volatile JsonService jsonService;
+    private volatile MessageService messageService;
+    private volatile SearchService searchService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -82,6 +88,9 @@ public class SapApplication extends Application implements MessageSeedProvider {
             bind(utilitiesDeviceRegisteredNotification).to(UtilitiesDeviceRegisteredNotification.class);
             bind(clock).to(Clock.class);
             bind(transactionService).to(TransactionService.class);
+            bind(jsonService).to(JsonService.class);
+            bind(messageService).to(MessageService.class);
+            bind(searchService).to(SearchService.class);
         }
     }
 
@@ -119,5 +128,20 @@ public class SapApplication extends Application implements MessageSeedProvider {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setJsonService(JsonService jsonService) {
+        this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setMessageService(MessageService messageService) {
+        this.messageService = messageService;
+    }
+
+    @Reference
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
     }
 }

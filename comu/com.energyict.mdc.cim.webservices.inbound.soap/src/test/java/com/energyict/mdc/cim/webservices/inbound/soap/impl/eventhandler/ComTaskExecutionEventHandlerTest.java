@@ -50,14 +50,17 @@ public class ComTaskExecutionEventHandlerTest {
     private ServiceCallService serviceCallService = mock(ServiceCallService.class);
     private ServiceCall serviceCall = mock(ServiceCall.class);
     private ComTaskExecutionEventHandler comTaskExecutionEventHandler;
+    private DeviceMessageUpdateForLoadProfileEventHandler deviceMessageUpdateForLoadProfileEventHandler;
     private ChildGetMeterReadingsDomainExtension domainExtension = mock(ChildGetMeterReadingsDomainExtension.class);
     private Device device = mock(Device.class);
+    private DeviceMessage deviceMessage = mock(DeviceMessage.class);
     private ComTaskExecution devMessageComTaskExecution = createDevMessageComTaskExecutionMock();
     private ComTaskExecution loadProfileComTaskExecution = createLoadProfileComTaskExecutionMock();
 
     @Before
     public void setUp() {
         comTaskExecutionEventHandler = new ComTaskExecutionEventHandler(clock, serviceCallService);
+        deviceMessageUpdateForLoadProfileEventHandler = new DeviceMessageUpdateForLoadProfileEventHandler(serviceCallService, clock);
         when(event.getType()).thenReturn(eventType);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED.topic());
         when(serviceCallService.getServiceCallFinder(any(ServiceCallFilter.class))).thenReturn(serviceCallFinder);
@@ -73,8 +76,8 @@ public class ComTaskExecutionEventHandlerTest {
     @Test
     public void comTaskExecutionCompleteDeviceMessageConfirmedTest() {
         createMockDeviceMessage(DeviceMessageStatus.CONFIRMED);
-        when(event.getSource()).thenReturn(devMessageComTaskExecution);
-        comTaskExecutionEventHandler.onEvent(event);
+        when(event.getSource()).thenReturn(deviceMessage);
+        deviceMessageUpdateForLoadProfileEventHandler.handle(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
         verify(serviceCall).log(LogLevel.FINE, String.format("Device message 'stub_task'(id: 0, release date: %s) is confirmed",
                 domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
@@ -104,8 +107,8 @@ public class ComTaskExecutionEventHandlerTest {
     @Test
     public void comTaskExecutionCompleteDeviceMessageFailedTest() {
         createMockDeviceMessage(DeviceMessageStatus.FAILED);
-        when(event.getSource()).thenReturn(devMessageComTaskExecution);
-        comTaskExecutionEventHandler.onEvent(event);
+        when(event.getSource()).thenReturn(deviceMessage);
+        deviceMessageUpdateForLoadProfileEventHandler.handle(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
         verify(serviceCall).log(LogLevel.SEVERE,
                 String.format("Device message 'stub_task'(id: 0, release date: %s) wasn't confirmed",
@@ -116,8 +119,8 @@ public class ComTaskExecutionEventHandlerTest {
     @Test
     public void comTaskExecutionCompleteDeviceMessageCancelledTest() {
         createMockDeviceMessage(DeviceMessageStatus.CANCELED);
-        when(event.getSource()).thenReturn(devMessageComTaskExecution);
-        comTaskExecutionEventHandler.onEvent(event);
+        when(event.getSource()).thenReturn(deviceMessage);
+        deviceMessageUpdateForLoadProfileEventHandler.handle(event);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
         verify(serviceCall).log(LogLevel.FINE, String.format("Device message 'stub_task'(id: 0, release date: %s) is canceled",
                 domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
@@ -148,7 +151,6 @@ public class ComTaskExecutionEventHandlerTest {
     }
 
     private void createMockDeviceMessage(DeviceMessageStatus deviceMessageStatus) {
-        DeviceMessage deviceMessage = mock(DeviceMessage.class);
         DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
         DeviceMessageCategory deviceMessageCategory = mock(DeviceMessageCategory.class);
         when(deviceMessageCategory.getId()).thenReturn(16);

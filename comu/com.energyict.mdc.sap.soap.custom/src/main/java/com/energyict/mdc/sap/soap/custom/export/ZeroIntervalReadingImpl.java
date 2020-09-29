@@ -19,8 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class ZeroIntervalReadingImpl implements IntervalReadingRecord {
-
+public final class ZeroIntervalReadingImpl implements IntervalReadingRecord {
     private final ReadingType readingType;
     private final Instant timeStamp;
 
