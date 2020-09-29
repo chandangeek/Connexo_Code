@@ -5,10 +5,8 @@
 package com.energyict.mdc.device.data.rest.impl;
 
 import com.elster.jupiter.properties.rest.PropertyInfo;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 

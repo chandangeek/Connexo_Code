@@ -82,14 +82,17 @@ public abstract class BaseResource {
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
                 break;
             case "MDC":
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
                 break;
             case "INS":
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
                 applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
                 break;
             default:
                 throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.INCORRECT_APPLICATION_NAME).get();

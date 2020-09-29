@@ -63,7 +63,8 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
         OVERFLOW_VALUE("overflow"),
         OVERRULED_OBISCODE("overruledObisCodeString"),
         USEMULTIPLIER("useMultiplier"),
-        CALCULATED_READINGTYPE("calculatedReadingType");
+        CALCULATED_READINGTYPE("calculatedReadingType"),
+        OFFSET("offset");
 
         private final String javaFieldName;
 
@@ -81,13 +82,14 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     private final Reference<ChannelType> channelType = ValueReference.absent();
     private final Reference<LoadProfileSpecImpl> loadProfileSpec = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_INVALID_NUMBER_OF_FRACTION_DIGITS + "}")
-    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED  + "}")
+    @Range(min = 0, max = 6, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.CHANNEL_SPEC_NUMBER_OF_FRACTION_DIGITS_LARGER_THAN_EXPECTED + "}")
     private Integer nbrOfFractionDigits = 0;
     private String overruledObisCodeString;
-    @ValidObisCode(groups = { Save.Create.class, Save.Update.class })
+    @ValidObisCode(groups = {Save.Create.class, Save.Update.class})
     private ObisCode overruledObisCode;
     private BigDecimal overflow;
     private TimeDuration interval;
+    private long offset;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -144,6 +146,15 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
     @Override
     public Optional<BigDecimal> getOverflow() {
         return Optional.ofNullable(overflow);
+    }
+
+    @Override
+    public long getOffset() {
+        return offset;
+    }
+
+    private void setOffset(long offset) {
+        this.offset = offset;
     }
 
     @Override
@@ -206,7 +217,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
 
     @Override
     public ReadingType getReadingType() {
-        return getChannelType()!=null ? getChannelType().getReadingType() : null;
+        return getChannelType() != null ? getChannelType().getReadingType() : null;
     }
 
     private void validate() {
@@ -245,8 +256,9 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
         for (ChannelSpec channelSpec : getDeviceConfiguration().getChannelSpecs()) {
             if (!isSameIdObject(this, channelSpec)) {
                 Optional<ReadingType> duplicateReadingType = findDuplicateReadingType(channelSpec, readingTypesInUseByChannelType);
-                if(duplicateReadingType.isPresent()){
-                    throw DuplicateChannelTypeException.duplicateChannelSpecOnDeviceConfiguration(channelSpec, getChannelType(), channelSpec.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC, duplicateReadingType.get());
+                if (duplicateReadingType.isPresent()) {
+                    throw DuplicateChannelTypeException.duplicateChannelSpecOnDeviceConfiguration(channelSpec, getChannelType(), channelSpec.getLoadProfileSpec(), this.getThesaurus(), MessageSeeds.CHANNEL_SPEC_DUPLICATE_CHANNEL_TYPE_IN_LOAD_PROFILE_SPEC, duplicateReadingType
+                            .get());
                 }
             }
         }
@@ -271,7 +283,7 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
         Objects.requireNonNull(readingTypeMrids);
         if (!readingTypeMrids.contains(candidate.getReadingType().getMRID())) {
             Optional<ReadingType> calculatedReadingType = getCalculatedOrOverriddenReadingType(candidate);
-            if(calculatedReadingType.isPresent() && readingTypeMrids.contains(calculatedReadingType.get().getMRID())){
+            if (calculatedReadingType.isPresent() && readingTypeMrids.contains(calculatedReadingType.get().getMRID())) {
                 return calculatedReadingType;
             } else {
                 return Optional.empty();
@@ -428,6 +440,12 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
         }
 
         @Override
+        public ChannelSpec.ChannelSpecBuilder offset(long offset) {
+            this.channelSpec.setOffset(offset);
+            return this;
+        }
+
+        @Override
         public ChannelSpec.ChannelSpecBuilder interval(TimeDuration interval) {
             this.channelSpec.setInterval(interval);
             return this;
@@ -482,6 +500,11 @@ class ChannelSpecImpl extends PersistentIdObject<ChannelSpec> implements ServerC
             return this;
         }
 
+        @Override
+        public ChannelSpec.ChannelSpecUpdater offset(long offset) {
+            this.channelSpec.setOffset(offset);
+            return this;
+        }
 
         @Override
         public ChannelSpec.ChannelSpecUpdater noMultiplier() {

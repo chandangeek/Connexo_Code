@@ -535,13 +535,13 @@ public class ServiceCallCommands {
                 }
                 Instant trigger = getTriggerDate(actualEnd, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, comTaskExecution, scheduleStrategy);
 
+                Instant actualStart = (start == null) ? getActualStart(device, readingTypes, now) : start;
                 // use schedule
                 if (scheduleStrategy == ScheduleStrategy.USE_SCHEDULE) {
                     scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
-                            start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
+                            actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
                     // wait next task execution
                 } else { // run now and run with priority
-                    Instant actualStart = (start == null) ? getActualStart(device, readingTypes, now) : start;
                     if (start == null && end == null) {
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
                                 actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);

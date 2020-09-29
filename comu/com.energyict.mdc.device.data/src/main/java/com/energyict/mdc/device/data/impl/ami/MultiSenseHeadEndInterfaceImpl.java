@@ -28,6 +28,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
@@ -83,6 +84,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -246,7 +248,16 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(mapping -> mapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll))
                 .map(this::findEndDeviceControlType)
                 .collect(Collectors.toList());
-        return new EndDeviceCapabilities(readingTypes, controlTypes, device.getZone());
+        Map<ReadingType, Long> readingTypeOffsetMap = new HashMap<>();
+        List<ChannelSpec> channelSpecs = device.getDeviceConfiguration().getChannelSpecs();
+        readingTypes.forEach(readingType -> readingTypeOffsetMap.put(
+                readingType,
+                channelSpecs.stream()
+                        .filter(channelSpec -> channelSpec.getReadingType().equals(readingType))
+                        .map(ChannelSpec::getOffset)
+                        .findFirst()
+                        .orElse(0L)));
+        return new EndDeviceCapabilities(readingTypeOffsetMap, controlTypes, device.getZone());
     }
 
     @Override
