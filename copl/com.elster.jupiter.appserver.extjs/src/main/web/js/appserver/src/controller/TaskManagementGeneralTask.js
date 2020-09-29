@@ -11,6 +11,12 @@ Ext.define('Apr.controller.TaskManagementGeneralTask', {
     views: [
         'Apr.view.taskmanagement.DetailsGeneralTask'
     ],
+    refs: [
+        {
+            ref: 'detailsPage',
+            selector: 'general-task-details'
+        }
+    ],
 
     canAdministrate: function () {
         return false;
@@ -60,7 +66,9 @@ Ext.define('Apr.controller.TaskManagementGeneralTask', {
     viewTaskManagement: function (taskId, actionMenu, taskManagementRecord) {
         var me = this,
             pageMainContent = Ext.ComponentQuery.query('viewport > #contentPanel')[0],
-            widget = Ext.widget('general-task-details'),
+            widget = Ext.widget('general-task-details',{
+                actionMenu: actionMenu
+            }),
             recurrentTask = taskManagementRecord.get('recurrentTask');
 
         pageMainContent.setLoading(true);
@@ -70,6 +78,12 @@ Ext.define('Apr.controller.TaskManagementGeneralTask', {
         widget.down('#name-field-container').setValue(recurrentTask.name);
         widget.setRecurrentTasks('#followedBy-field-container', taskManagementRecord.get('nextRecurrentTasks'));
         widget.setRecurrentTasks('#precededBy-field-container', taskManagementRecord.get('previousRecurrentTasks'));
+        if (actionMenu){
+            me.actionMenu = actionMenu;
+            var actionMenuItem = me.getDetailsPage().down('#' + actionMenu.itemId)
+            actionMenuItem.record = taskManagementRecord.getRecurrentTask();
+            actionMenuItem.setVisible(true);
+        }
         pageMainContent.setLoading(false);
     }
 });

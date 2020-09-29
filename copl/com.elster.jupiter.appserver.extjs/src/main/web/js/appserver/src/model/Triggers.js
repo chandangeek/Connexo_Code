@@ -38,6 +38,7 @@ Ext.define('Apr.model.Triggers', {
             model: 'Apr.model.Task',
             associationKey: 'recurrentTask',
             foreignKey: 'recurrentTask',
+            getterName: 'getRecurrentTask',
             getTypeDiscriminator: function (node) {
                 return 'Apr.model.Task';
             }

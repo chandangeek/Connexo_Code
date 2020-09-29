@@ -64,7 +64,8 @@ class InstallerImpl implements FullInstaller, PrivilegesProvider {
                 Arrays.asList(
                         Privileges.Constants.VIEW_TASK_OVERVIEW,
                         Privileges.Constants.SUSPEND_TASK_OVERVIEW,
-                        Privileges.Constants.ADMINISTER_TASK_OVERVIEW)));
+                        Privileges.Constants.ADMINISTER_TASK_OVERVIEW,
+                        Privileges.Constants.EXECUTE_ADD_CERTIFICATE_REQUEST_DATA_TASK)));
         return resources;
     }
 }

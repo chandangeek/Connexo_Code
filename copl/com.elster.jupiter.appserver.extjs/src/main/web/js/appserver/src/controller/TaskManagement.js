@@ -28,6 +28,9 @@ Ext.define('Apr.controller.TaskManagement', {
         'Apr.model.Triggers',
         'Apr.model.CustomTaskType'
     ],
+    requires: [
+        'Apr.privileges.AppServer'
+    ],
     refs: [
         {
             ref: 'page',
@@ -117,7 +120,15 @@ Ext.define('Apr.controller.TaskManagement', {
         else {
             var generalTask = me.getController('Apr.controller.TaskManagementGeneralTask')
             generalTask.getTask(this, taskManagementId, function (taskController, taskManagementId, task) {
-                generalTask.viewTaskManagement(taskManagementId, null, task);
+                var actionMenu = null;
+                if (task && task.get("recurrentTask") && task.get("recurrentTask").queue === "AddCertReqDataTopic" && Uni.Auth.checkPrivileges(Apr.privileges.AppServer.reccurentTaskAdmin))
+                {
+                    actionMenu = {
+                        xtype: 'task-management-action-menu',
+                        itemId: 'task-management-action-menu'
+                    }
+                }
+                generalTask.viewTaskManagement(taskManagementId, actionMenu, task);
             })
         }
     },
