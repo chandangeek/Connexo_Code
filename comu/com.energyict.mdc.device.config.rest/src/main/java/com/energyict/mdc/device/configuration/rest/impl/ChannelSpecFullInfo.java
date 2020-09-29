@@ -39,4 +39,5 @@ public class ChannelSpecFullInfo extends ChannelSpecInfo {
     public ReadingTypeInfo collectedReadingType;
     public long version;
     public VersionInfo<Long> parent;
+    public long endOfInterval;
 }

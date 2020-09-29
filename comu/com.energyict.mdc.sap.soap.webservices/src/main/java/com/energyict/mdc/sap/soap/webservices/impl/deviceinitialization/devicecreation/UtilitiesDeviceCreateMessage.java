@@ -24,7 +24,7 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
     private String materialId;
     private Instant shipmentDate;
     private String manufacturer;
-    private String modelNumber;
+    private String manufacturerSerialId;
 
     static UtilitiesDeviceCreateMessage.Builder builder() {
         return new UtilitiesDeviceCreateMessage().new Builder();
@@ -58,8 +58,8 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
         return manufacturer;
     }
 
-    public String getModelNumber() {
-        return modelNumber;
+    public String getManufacturerSerialId() {
+        return manufacturerSerialId;
     }
 
     public class Builder {
@@ -78,7 +78,7 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
 
                         setShipmentDate(request.getStartDate());
                         setManufacturer(getManufacturer(request));
-                        setModelNumber(getModelNumber(request));
+                        setManufacturerSerialId(getManufacturerSerialId(request));
                     });
             return this;
         }
@@ -94,7 +94,7 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
 
                         setShipmentDate(request.getStartDate());
                         setManufacturer(getManufacturer(request));
-                        setModelNumber(getModelNumber(request));
+                        setManufacturerSerialId(getManufacturerSerialId(request));
                     });
             return this;
         }
@@ -146,8 +146,8 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
             UtilitiesDeviceCreateMessage.this.manufacturer = manufacturer;
         }
 
-        private void setModelNumber(String modelNumber) {
-            UtilitiesDeviceCreateMessage.this.modelNumber = modelNumber;
+        private void setManufacturerSerialId(String manufacturerSerialId) {
+            UtilitiesDeviceCreateMessage.this.manufacturerSerialId = manufacturerSerialId;
         }
 
         private String getRequestId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader request) {
@@ -238,14 +238,14 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
                     .orElse(null);
         }
 
-        private String getModelNumber(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+        private String getManufacturerSerialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
             return Optional.ofNullable(msg.getIndividualMaterialManufacturerInformation())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
-        private String getModelNumber(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+        private String getManufacturerSerialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
             return Optional.ofNullable(requestMessage.getIndividualMaterialManufacturerInformation())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())

@@ -10,12 +10,14 @@ Ext.define('Mdc.model.DeviceChannel', {
     fields: [
         {name: 'id', type: 'number', useNull: true},
         {name: 'readingType', persist:false},
+        {name: 'interval', type:'auto'},
         {name: 'obisCode', type: 'string', useNull: true},
         {name: 'overruledObisCode', type: 'string', useNull: true},
         {name: 'nbrOfFractionDigits', type: 'number', useNull: true},
         {name: 'overruledNbrOfFractionDigits', type: 'number', useNull: true},
         {name: 'overflowValue', type: 'number', useNull: true},
-        {name: 'overruledOverflowValue', type: 'number', useNull: true}
+        {name: 'overruledOverflowValue', type: 'number', useNull: true},
+        {name: 'endOfInterval', type: 'number'}
     ],
     associations: [
         {

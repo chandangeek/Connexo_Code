@@ -101,12 +101,16 @@ public interface Channel {
 
     ChannelDataUpdater startEditingData();
 
+    long getOffset();
+
     interface ChannelUpdater {
         ChannelUpdater setNumberOfFractionDigits(Integer overruledNbrOfFractionDigits);
 
         ChannelUpdater setOverflowValue(BigDecimal overruledOverflowValue);
 
         ChannelUpdater setObisCode(ObisCode overruledObisCode);
+
+        ChannelUpdater setOffset(long offset);
 
         void update();
     }

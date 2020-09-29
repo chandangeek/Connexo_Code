@@ -32,6 +32,10 @@ public interface ChannelsContainer extends ReadingContainer, Effectivity, HasId 
 
     Channel createChannel(ZoneId zoneId, ReadingType main, ReadingType... readingTypes);
 
+    Channel createChannel(long offset, ReadingType main, ReadingType... readingTypes);
+
+    Channel createChannel(ZoneId zoneId, long offset, ReadingType main, ReadingType... readingTypes);
+
     List<Channel> getChannels();
 
     default Optional<Channel> getChannel(ReadingType readingType) {
