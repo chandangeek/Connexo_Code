@@ -750,7 +750,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private void createRealServices() {
         connectionTaskService = new ConnectionTaskServiceImpl(this, eventService, protocolPluggableService);
         connectionTaskReportService = new ConnectionTaskReportServiceImpl(this, meteringService);
-        priorityComTaskService = new PriorityComTaskServiceImpl(this, engineConfigurationService, connectionTaskService);
+        priorityComTaskService = new PriorityComTaskServiceImpl(this, engineConfigurationService, connectionTaskService, transactionService, threadPrincipalService);
         communicationTaskService = new CommunicationTaskServiceImpl(this, configPropertiesService, bundleContext, priorityComTaskService);
         communicationTaskReportService = new CommunicationTaskReportServiceImpl(this, meteringService);
         deviceService = new DeviceServiceImpl(this, meteringService, queryService, thesaurus, clock);

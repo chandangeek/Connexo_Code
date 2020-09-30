@@ -143,6 +143,7 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             readingType = record.get('readingType'),
             calculatedReadingTypeField = preview.down('#calculatedReadingType'),
             multiplierField = preview.down('#mdc-channel-preview-multiplier'),
+            endOfIntervalField = preview.down('#mdc-channel-preview-end-of-interval'),
             customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets'),
             router = me.getController('Uni.controller.history.Router'),
             routeParams = router.arguments;
@@ -169,6 +170,11 @@ Ext.define('Mdc.controller.setup.DeviceChannels', {
             multiplierField.show();
         } else {
             multiplierField.hide();
+        }
+        if (record.get('interval') && record.get('interval').timeUnit === "days"){
+            endOfIntervalField.show();
+        } else {
+            endOfIntervalField.hide();
         }
 
         customAttributesStore.getProxy().setParams(me.deviceId, record.get('id'));

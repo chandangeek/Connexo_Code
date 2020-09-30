@@ -133,7 +133,7 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
-                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MODEL_NUMBER.javaName(), TranslationKeys.MODEL_NUMBER)
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER_SERIAL_ID.javaName(), TranslationKeys.MANUFACTURER_SERIAL_ID)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -229,9 +229,9 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER.javaName())
                     .add();
-            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MODEL_NUMBER.databaseName())
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER_SERIAL_ID.databaseName())
                     .varChar(NAME_LENGTH)
-                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MODEL_NUMBER.javaName())
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER_SERIAL_ID.javaName())
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

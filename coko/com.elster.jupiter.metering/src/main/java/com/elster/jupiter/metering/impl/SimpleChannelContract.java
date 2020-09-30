@@ -17,6 +17,6 @@ import java.util.Optional;
  * @since 2017-02-21 (15:21)
  */
 public interface SimpleChannelContract extends ChannelContract {
-    SimpleChannelContract init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, Optional<Integer> hourOffset);
-    SimpleChannelContract init(ChannelsContainer channelsContainer, ZoneId zoneId, List<IReadingType> readingTypes, Optional<Integer> hourOffset);
+    SimpleChannelContract init(ChannelsContainer channelsContainer, List<IReadingType> readingTypes, Optional<Long> offset);
+    SimpleChannelContract init(ChannelsContainer channelsContainer, ZoneId zoneId, List<IReadingType> readingTypes, Optional<Long> offset);
 }

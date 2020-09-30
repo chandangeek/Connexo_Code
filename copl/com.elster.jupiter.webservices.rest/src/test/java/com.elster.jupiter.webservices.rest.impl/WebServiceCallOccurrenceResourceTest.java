@@ -71,6 +71,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         /* Mock webService*/
         WebService webService = mock(WebService.class);
         when(webService.getProtocol()).thenReturn(WebServiceProtocol.SOAP);
+        when(webService.getApplicationName()).thenReturn(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
         when(webServicesService.getWebService(anyString())).thenReturn(Optional.of(webService));
 
         /*Mock endPointConfiguration*/
@@ -130,7 +131,9 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         /* Mock webService*/
         WebService webService = mock(WebService.class);
         when(webService.getProtocol()).thenReturn(WebServiceProtocol.SOAP);
+        when(webService.getApplicationName()).thenReturn(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
         when(webServicesService.getWebService(anyString())).thenReturn(Optional.of(webService));
+
 
         /*Mock endPointConfiguration*/
         OutboundEndPointConfiguration ecpMock = mock(OutboundEndPointConfiguration.class);
@@ -160,6 +163,47 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         assertThat(jsonModel.<String>get("$.applicationName")).isEqualTo(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
     }
 
+    @Test
+    public void testGetOccurrenceForUndefinedApplication() throws Exception {
+        /* Mock privilege */
+        when(privilege.getName()).thenReturn(Privileges.Constants.VIEW_WEB_SERVICES);
+        when(user.hasPrivilege("MDC", Privileges.Constants.VIEW_WEB_SERVICES)).thenReturn(true);
+
+        /* Mock webService*/
+        WebService webService = mock(WebService.class);
+        when(webService.getProtocol()).thenReturn(WebServiceProtocol.SOAP);
+        when(webService.getApplicationName()).thenReturn(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
+        when(webServicesService.getWebService(anyString())).thenReturn(Optional.of(webService));
+
+
+        /*Mock endPointConfiguration*/
+        OutboundEndPointConfiguration ecpMock = mock(OutboundEndPointConfiguration.class);
+        when(ecpMock.getLogLevel()).thenReturn(LogLevel.INFO);
+        when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
+        when((ecpMock).getUsername()).thenReturn("USER");
+        when((ecpMock).getPassword()).thenReturn("PASSWORD");
+
+        WebServiceCallOccurrence occurrence = createOccurrence(
+                Instant.now(),
+                "Request1",
+                ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName(),
+                ecpMock
+        );
+        when(webServiceCallOccurrenceService.getWebServiceCallOccurrence((long) 1)).thenReturn(Optional.of(occurrence));
+
+        /*Test for "/endpointconfigurations/1/occurrences" resource is the same. So just one test for two resources */
+        Response response = target("/occurrences/1").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get();
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+
+        JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());
+        assertThat(jsonModel.<Integer>get("$.id")).isEqualTo(0);
+        assertThat(jsonModel.<Object>get("$.status")).isNotNull();
+        assertThat(jsonModel.<String>get("$.status.id")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.name());
+        assertThat(jsonModel.<String>get("$.status.name")).isEqualTo(WebServiceCallOccurrenceStatus.ONGOING.getName());
+        assertThat(jsonModel.<String>get("$.request")).isEqualTo("Request1");
+        assertThat(jsonModel.<String>get("$.applicationName")).isEqualTo(TranslationKeys.NAME_UNSPECIFIED.getDefaultFormat());
+    }
+
     private EndPointLog mockEndPointLog(long id,
                                         LogLevel level,
                                         String message,
@@ -187,6 +231,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         /* Mock webService*/
         WebService webService = mock(WebService.class);
         when(webService.getProtocol()).thenReturn(WebServiceProtocol.SOAP);
+        when(webService.getApplicationName()).thenReturn(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
         when(webServicesService.getWebService(anyString())).thenReturn(Optional.of(webService));
 
         /*Mock endPointConfiguration*/

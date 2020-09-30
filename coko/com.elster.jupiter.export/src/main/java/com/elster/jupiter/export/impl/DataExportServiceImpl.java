@@ -120,7 +120,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     static final String SUBSCRIBER_DISPLAY_NAME = "Handle data export";
     private static final String MODULE_DESCRIPTION = "Data Export";
     private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
-    private static final String COMBINE_CREATED_UPDATED_DATA_PROPERTY = "export.webservice.сombineсreatedupdateddata";
+    private static final String COMBINE_CREATED_UPDATED_DATA_PROPERTY = "export.webservice.combinecreatedupdateddata";
     private static final String COMBINE_CREATED_UPDATED_DATA_DEFAULT = "true";
     private static final Map<String, String[]> ALL_DATA_TYPES_MAP = ImmutableMap.of(DATA_TYPE_PROPERTY,
             new String[]{STANDARD_EVENT_DATA_TYPE, STANDARD_READING_DATA_TYPE, STANDARD_USAGE_POINT_DATA_TYPE});
@@ -157,7 +157,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();
-    private boolean combineCreatedAndUpdatedDataInOneWebRequest;
+    private volatile boolean combineCreatedAndUpdatedDataInOneWebRequest;
     private CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
     private CustomPropertySet<ServiceCall, WebServiceDataExportChildDomainExtension> childServiceCallCPS;
 
@@ -720,6 +720,6 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
 
     private String getProperty(String name, String defaultValue) {
         String value = bundleContext.getProperty(name);
-        return Checks.is(value).emptyOrOnlyWhiteSpace() ? defaultValue : value;
+        return Checks.is(value).emptyOrOnlyWhiteSpace() ? defaultValue : value.trim();
     }
 }
