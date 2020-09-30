@@ -1,8 +1,8 @@
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.LoadProfileReader;
@@ -10,8 +10,11 @@ import com.energyict.protocol.LoadProfileReader;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public final class CollectedLoadProfileHelper {
+
+    private static final Logger logger = Logger.getLogger(CollectedLoadProfileHelper.class.getName());
 
     /**
      * Used by the load profile commands to remove any channel intervals (and channel infos) from the collected LP that were not requested by the LP reader.
@@ -36,7 +39,16 @@ public final class CollectedLoadProfileHelper {
                                     //Remove channel data that was not requested
                                     channelInfoIterator.remove();
                                     for (IntervalData intervalData : collectedLoadProfile.getCollectedIntervalData()) {
-                                        intervalData.getIntervalValues().remove(index);
+                                        if (intervalData.getIntervalValues().size() > index) {
+                                            intervalData.getIntervalValues().remove(index);
+                                        } else {
+                                            final String errorMessage = "Error removing unwanted channel: interval values < number of channels. " +
+                                                    "Index = " + index + ", Interval values size =  " + intervalData.getIntervalValues().size() +
+                                                    ", Channel Info size = " + collectedLoadProfile.getChannelInfo().size() +
+                                                    ". Editing existing stored load profile channels can maybe cause this, you should create a new load profile for different channel numbers.";
+                                            logger.severe(errorMessage);
+                                            throw new ApplicationException(errorMessage);
+                                        }
                                     }
                                 } else {
                                     index++;
