@@ -345,7 +345,7 @@ public class ServiceCallCommands {
 
         Set<LoadProfile> loadProfilesSetByNames = getExistedOnDeviceLoadProfiles(device, index, syncReplyIssue);
         Set<ReadingType> readingTypes = getExistedOnDeviceReadingTypes(device, syncReplyIssue);
-        Set<Register> registers = getRegistersPresentOnDevice(device, readingTypes);
+        Set<Register> registers = getRegistersPresentOnDevice(device, combinedReadingTypes);
         Set<LoadProfile> allLoadProfiles = new HashSet<>();
         allLoadProfiles.addAll(loadProfilesSetByNames);
         allLoadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
