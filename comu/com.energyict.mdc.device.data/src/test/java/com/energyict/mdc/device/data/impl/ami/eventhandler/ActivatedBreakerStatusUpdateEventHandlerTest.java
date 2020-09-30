@@ -149,7 +149,7 @@ public class ActivatedBreakerStatusUpdateEventHandlerTest {
         handler.handle(localEvent);
 
         // Asserts
-        verify(serviceCall, times(1)).requestTransition(DefaultState.ONGOING);
+        verify(serviceCall, times(1)).transitionWithLockIfPossible(DefaultState.ONGOING);
     }
 
     private LocalEvent createEventFor(ActivatedBreakerStatus breakerStatus, String eventTopic) {

@@ -49,7 +49,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -68,6 +67,7 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.PathVerification;
 import com.elster.jupiter.util.conditions.Condition;
@@ -97,13 +97,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -122,6 +120,8 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     static final String SUBSCRIBER_DISPLAY_NAME = "Handle data export";
     private static final String MODULE_DESCRIPTION = "Data Export";
     private static final String JAVA_TEMP_DIR_PROPERTY = "java.io.tmpdir";
+    private static final String COMBINE_CREATED_UPDATED_DATA_PROPERTY = "export.webservice.combinecreatedupdateddata";
+    private static final String COMBINE_CREATED_UPDATED_DATA_DEFAULT = "true";
     private static final Map<String, String[]> ALL_DATA_TYPES_MAP = ImmutableMap.of(DATA_TYPE_PROPERTY,
             new String[]{STANDARD_EVENT_DATA_TYPE, STANDARD_READING_DATA_TYPE, STANDARD_USAGE_POINT_DATA_TYPE});
 
@@ -157,6 +157,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     private Map<DataSelectorFactory, String> dataSelectorFactories = new ConcurrentHashMap<>();
     private Optional<DestinationSpec> destinationSpec = Optional.empty();
     private Map<String, DataExportWebService> exportWebServices = new ConcurrentHashMap<>();
+    private volatile boolean combineCreatedAndUpdatedDataInOneWebRequest;
     private CustomPropertySet<ServiceCall, WebServiceDataExportDomainExtension> serviceCallCPS;
     private CustomPropertySet<ServiceCall, WebServiceDataExportChildDomainExtension> childServiceCallCPS;
 
@@ -433,6 +434,7 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
             } else {
                 tempDirectory = fileSystem.getPath(tempDirectoryPath);
             }
+            combineCreatedAndUpdatedDataInOneWebRequest = Boolean.parseBoolean(getProperty(COMBINE_CREATED_UPDATED_DATA_PROPERTY, COMBINE_CREATED_UPDATED_DATA_DEFAULT));
             upgradeService.register(
                     InstallIdentifier.identifier("Pulse", COMPONENTNAME),
                     dataModel,
@@ -709,5 +711,15 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                         .or(Where.where(WebServiceDestinationImpl.Fields.CHANGE_ENDPOINT.javaFieldName()).isEqualTo(endPointConfiguration)))
                 .findAny()
                 .isPresent();
+    }
+
+    @Override
+    public boolean shouldCombineCreatedAndUpdatedDataInOneWebRequest() {
+        return combineCreatedAndUpdatedDataInOneWebRequest;
+    }
+
+    private String getProperty(String name, String defaultValue) {
+        String value = bundleContext.getProperty(name);
+        return Checks.is(value).emptyOrOnlyWhiteSpace() ? defaultValue : value.trim();
     }
 }

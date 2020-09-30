@@ -31,7 +31,7 @@ public interface TimeSeries {
     TemporalAmount interval();
 
     // offset in calendar hours (excluding DST transition hour).
-    int getOffset();
+    long getOffset();
 
     Vault getVault();
 
@@ -68,6 +68,8 @@ public interface TimeSeries {
 
     ZoneId getZoneId();
 
+    void updateZoneId(ZoneId zoneId);
+
     void removeEntries(Range<Instant> range);
 
     default void removeEntry(Instant instant) {
@@ -79,4 +81,6 @@ public interface TimeSeries {
     Instant getNextDateTime(Instant instant);
 
     Instant getPreviousDateTime(Instant instant);
+
+    void updateOffset(long offset);
 }

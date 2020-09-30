@@ -126,7 +126,7 @@ public class ChannelImplTest extends EqualsContractTest {
         when(channelsContainer.getMeter()).thenReturn(Optional.empty());
         when(channelsContainer.getUsagePoint()).thenReturn(Optional.empty());
         when(dataModel.getInstance(ReadingTypeInChannel.class)).thenAnswer(invocation -> new ReadingTypeInChannel(dataModel, meteringService));
-
+        when(clock.getZone()).thenReturn(TIME_ZONE.toZoneId());
         readingType1 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID1, "1");
         readingType2 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID2, "2");
         readingType3 = new ReadingTypeImpl(dataModel, thesaurus).init(MRID3, "3");

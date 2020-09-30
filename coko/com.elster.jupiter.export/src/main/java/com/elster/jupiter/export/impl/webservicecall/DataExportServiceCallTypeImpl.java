@@ -272,12 +272,10 @@ public class DataExportServiceCallTypeImpl implements DataExportServiceCallType 
             serviceCall = lock(serviceCall);
             serviceCall.findChildren().stream().forEach(child -> {
                 try {
-                    if (successfulChildren.remove(child)) {
-                        child = lock(child);
-                        child.requestTransition(DefaultState.SUCCESSFUL);
+                    if (successfulChildren.contains(child)) {
+                        child.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
                     } else {
-                        child = lock(child);
-                        child.requestTransition(DefaultState.FAILED);
+                        child.transitionWithLockIfPossible(DefaultState.FAILED);
                     }
                 } catch (NoTransitionException e) {
                     // not intended to do anything if the service call is already closed

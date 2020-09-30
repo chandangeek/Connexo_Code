@@ -21,9 +21,9 @@ import java.util.Optional;
 public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
         DOMAIN("serviceCall", "SERVICE_CALL"),
-        CALLS_EXPECTED("expectedNumberOfCalls", "EXPECTED_CALLS"),
-        CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "SUCCESS_CALLS"),
-        CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLS"),
+        CALLS_EXPECTED("expectedNumberOfCalls", "EXPECTED_CALLS"), // up to 10.9
+        CALLS_SUCCESS("actualNumberOfSuccessfulCalls", "SUCCESS_CALLS"), // up to 10.9
+        CALLS_FAILED("actualNumberOfFailedCalls", "FAILED_CALLS"), // up to 10.9
         CALLBACK_URL("callbackURL", "CALLBACK_URL"),
         METER_STATUS_SOURCE("meterStatusSource", "METER_STATUS_SOURCE"),
         PING("ping", "PING"),
@@ -48,12 +48,6 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
 
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Long expectedNumberOfCalls;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Long actualNumberOfSuccessfulCalls;
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private Long actualNumberOfFailedCalls;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String callbackURL;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -65,30 +59,6 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
 
     public MeterConfigMasterDomainExtension() {
         super();
-    }
-
-    public Long getExpectedNumberOfCalls() {
-        return expectedNumberOfCalls;
-    }
-
-    public void setExpectedNumberOfCalls(Long expectedNumberOfCalls) {
-        this.expectedNumberOfCalls = expectedNumberOfCalls;
-    }
-
-    public Long getActualNumberOfSuccessfulCalls() {
-        return actualNumberOfSuccessfulCalls;
-    }
-
-    public void setActualNumberOfSuccessfulCalls(Long actualNumberOfSuccessfulCalls) {
-        this.actualNumberOfSuccessfulCalls = actualNumberOfSuccessfulCalls;
-    }
-
-    public Long getActualNumberOfFailedCalls() {
-        return actualNumberOfFailedCalls;
-    }
-
-    public void setActualNumberOfFailedCalls(Long actualNumberOfFailedCalls) {
-        this.actualNumberOfFailedCalls = actualNumberOfFailedCalls;
     }
 
     public String getCallbackURL() {
@@ -126,9 +96,6 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setExpectedNumberOfCalls((Long) Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_EXPECTED.javaName())).orElse(0l));
-        this.setActualNumberOfSuccessfulCalls((Long) Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_SUCCESS.javaName())).orElse(0l));
-        this.setActualNumberOfFailedCalls((Long) Optional.ofNullable(propertyValues.getProperty(FieldNames.CALLS_FAILED.javaName())).orElse(0l));
         this.setCallbackURL((String) propertyValues.getProperty(FieldNames.CALLBACK_URL.javaName()));
         this.setMeterStatusSource((String) propertyValues.getProperty(FieldNames.METER_STATUS_SOURCE.javaName()));
         this.setPing((boolean) propertyValues.getProperty(FieldNames.PING.javaName()));
@@ -137,9 +104,6 @@ public class MeterConfigMasterDomainExtension extends AbstractPersistentDomainEx
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.CALLS_EXPECTED.javaName(), this.getExpectedNumberOfCalls());
-        propertySetValues.setProperty(FieldNames.CALLS_SUCCESS.javaName(), this.getActualNumberOfSuccessfulCalls());
-        propertySetValues.setProperty(FieldNames.CALLS_FAILED.javaName(), this.getActualNumberOfFailedCalls());
         propertySetValues.setProperty(FieldNames.CALLBACK_URL.javaName(), this.getCallbackURL());
         propertySetValues.setProperty(FieldNames.METER_STATUS_SOURCE.javaName(), this.getMeterStatusSource());
         propertySetValues.setProperty(FieldNames.PING.javaName(), this.needsPing());

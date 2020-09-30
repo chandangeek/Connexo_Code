@@ -87,6 +87,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.Me
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigMasterServiceCallHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.meterconfig.MeterConfigServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
+import com.energyict.mdc.common.device.config.LoadProfileSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.device.data.Register;
@@ -130,6 +131,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -251,9 +253,6 @@ public class ServiceCallCommands {
         ServiceCallType serviceCallType = getServiceCallType(ServiceCallTypes.MASTER_METER_CONFIG);
 
         MeterConfigMasterDomainExtension meterConfigMasterDomainExtension = new MeterConfigMasterDomainExtension();
-        meterConfigMasterDomainExtension.setActualNumberOfSuccessfulCalls(0l);
-        meterConfigMasterDomainExtension.setActualNumberOfFailedCalls(0l);
-        meterConfigMasterDomainExtension.setExpectedNumberOfCalls(Long.valueOf(meterConfig.getMeter().size()));
         meterConfigMasterDomainExtension.setCorrelationId(correlationId);
         setCallBackUrl(meterConfigMasterDomainExtension, outboundEndPointConfiguration);
         meterConfigMasterDomainExtension.setMeterStatusSource(meterConfig.getMeterStatusSource());
@@ -514,13 +513,15 @@ public class ServiceCallCommands {
                         InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy, reading.getSource(), allLoadProfiles);
             }
         } else if (CollectionUtils.isNotEmpty(loadProfilesSetByNames)) {
-            Set<ReadingType> lpReadingTypes = masterDataService.findAllLoadProfileTypes().stream()
-                    .filter(loadProfilesSetByNames::contains)
+            Set<ReadingType> lpReadingTypes = loadProfilesSetByNames.stream()
+                    .map(LoadProfile::getLoadProfileSpec)
+                    .map(LoadProfileSpec::getLoadProfileType)
                     .map(LoadProfileType::getChannelTypes)
                     .flatMap(Collection::stream)
                     .map(channelType -> channelType.getReadingType())
                     .collect(Collectors.toSet());
             syncReplyIssue.addExistedReadingTypes(lpReadingTypes);
+            combinedReadingTypes.addAll(lpReadingTypes);
         }
 
         if (meterReadingRequired) {
@@ -534,25 +535,26 @@ public class ServiceCallCommands {
                 }
                 Instant trigger = getTriggerDate(actualEnd, InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, comTaskExecution, scheduleStrategy);
 
+                Instant actualStart = (start == null) ? getActualStart(device, readingTypes, now) : start;
                 // use schedule
                 if (scheduleStrategy == ScheduleStrategy.USE_SCHEDULE) {
                     scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
-                            start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
+                            actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
                     // wait next task execution
                 } else { // run now and run with priority
                     if (start == null && end == null) {
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
-                                start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
+                                actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                     } else if (start != null && end == null) { // shift the 'next reading block start' to the 'time period start'
                         updateLoadProfileNextRedingBlockStart(syncReplyIssue.getExistedReadingTypes(), device, start);
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
-                                start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
+                                actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                     } else if (!trigger.isAfter(now)) {
                         scheduleOrRunNowComTaskExecution(subParentServiceCall, comTaskExecution, trigger,
-                                start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
+                                actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS, scheduleStrategy);
                     } else if (trigger.isAfter(now)) {
                         processComTaskExecutionByRecurrentTask(subParentServiceCall, comTaskExecution, trigger,
-                                start, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
+                                actualStart, actualEnd, ServiceCallTypes.COMTASK_EXECUTION_GET_METER_READINGS);
                     }
                 }
             }
@@ -565,6 +567,21 @@ public class ServiceCallCommands {
             subParentServiceCall.log(LogLevel.SEVERE, "No child service calls have been created.");
         }
         return meterReadingRunning;
+    }
+
+    private Instant getActualStart(Device device, Set<ReadingType> readingTypes, Instant now) {
+        Instant actualStart = null;
+        Set<LoadProfile> loadProfiles = getLoadProfilesForReadingTypes(device, readingTypes);
+        for (LoadProfile loadProfile : loadProfiles) {
+            if (loadProfile.getLastReading() != null && loadProfile.getLastReading().toInstant().isBefore(now)
+                    && (actualStart == null || loadProfile.getLastReading().toInstant().isBefore(actualStart))) {
+                actualStart = loadProfile.getLastReading().toInstant();
+            }
+        }
+        if (actualStart == null) {
+            actualStart = device.getCreateTime();
+        }
+        return actualStart;
     }
 
     private void processLoadProfilesForPartialReadRequest(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue,

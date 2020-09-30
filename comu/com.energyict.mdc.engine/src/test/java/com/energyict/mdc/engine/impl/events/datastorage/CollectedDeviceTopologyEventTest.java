@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
+import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.mdc.engine.events.Category;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
@@ -76,8 +77,8 @@ public class CollectedDeviceTopologyEventTest {
         CollectedTopology topology = mock(CollectedTopology.class);
         when(topology.getDeviceIdentifier()).thenReturn(deviceIdentifier);
 
-        Map<DeviceIdentifier, com.energyict.mdc.upl.meterdata.CollectedTopology.ObservationTimestampProperty> map = new HashMap<>();
-        com.energyict.mdc.upl.meterdata.CollectedTopology.ObservationTimestampProperty date = mock(com.energyict.mdc.upl.meterdata.CollectedTopology.ObservationTimestampProperty.class);
+        Map<DeviceIdentifier, ObservationDateProperty> map = new HashMap<>();
+        ObservationDateProperty date = mock(ObservationDateProperty.class);
         map.put(slave1, date);
         map.put(slave2, date);
         when(topology.getSlaveDeviceIdentifiers()).thenReturn(map);

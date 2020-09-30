@@ -28,6 +28,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
@@ -169,6 +170,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(amrSystem.getId()).thenReturn(KnownAmrSystem.MDC.getId());
         when(amrSystem.is(KnownAmrSystem.MDC)).thenReturn(true);
         when(deviceService.findDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
+        when(deviceService.findAndLockDeviceById(DEVICE_ID)).thenReturn(Optional.of(device));
         when(device.getName()).thenReturn(DEVICE_NAME);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
@@ -189,6 +191,9 @@ public class MultisenseHeadEndInterfaceTest {
         when(deviceConfigurationService.getReadingTypesRelatedToConfiguration(any(DeviceConfiguration.class))).thenReturn(Collections.singletonList(readingType));
         when(device.getDeviceConfiguration().getDeviceType().getId()).thenReturn(3L);
         when(device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Collections.emptyList());
+        ChannelSpec channelSpec = mock(ChannelSpec.class);
+        when(channelSpec.getReadingType()).thenReturn(readingType);
+        when(device.getDeviceConfiguration().getChannelSpecs()).thenReturn(Collections.singletonList(channelSpec));
         when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactorOpenEndDeviceControlType));
         when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactoCloseEndDeviceControlType));
     }
@@ -232,8 +237,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(device.getComTaskExecutions()).thenReturn(Collections.singletonList(comTaskExecution));
         when(comTaskExecution.getId()).thenReturn(999L);
-        when(comTaskExecution.getVersion()).thenReturn(3339L);
-        when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(999L, 3339L)).thenReturn(Optional.of(comTaskExecution));
+        when(communicationTaskService.findAndLockComTaskExecutionById(999L)).thenReturn(Optional.of(comTaskExecution));
 
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class, Mockito.RETURNS_DEEP_STUBS);
         when(device.getDeviceConfiguration().getComTaskEnablements()).thenReturn(Collections.singletonList(comTaskEnablement));

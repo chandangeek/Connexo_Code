@@ -4,10 +4,10 @@
 
 package com.energyict.mdc.engine.impl.core;
 
-import com.elster.jupiter.util.exception.PersistenceException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.PersistenceException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.HighPriorityComJob;
@@ -385,6 +385,12 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         return group;
     }
 
+    ScheduledComTaskExecutionGroup newComTaskGroup(ComJob groupComJob, List<ComTaskExecution> executions) {
+        ScheduledComTaskExecutionGroup group = newComTaskGroup((ScheduledConnectionTask) groupComJob.getConnectionTask());
+        executions.forEach(group::add);
+        return group;
+    }
+
     protected HighPriorityComTaskExecutionGroup newComTaskGroup(HighPriorityComJob groupComJob) {
         ScheduledConnectionTask connectionTask = groupComJob.getConnectionTask();
         HighPriorityComTaskExecutionGroup group = newHighPriorityComTaskGroup(connectionTask);
@@ -566,5 +572,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         public DeviceMessageService deviceMessageService() {
             return serviceProvider.deviceMessageService();
         }
+    }
+
+    enum ExecutionType {
+        TO_EXECUTE, NOT_EXECUTE
     }
 }

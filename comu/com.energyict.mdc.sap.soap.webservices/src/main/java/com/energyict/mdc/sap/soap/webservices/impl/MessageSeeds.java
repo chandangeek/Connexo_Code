@@ -135,7 +135,13 @@ public enum MessageSeeds implements MessageSeed {
     EVENT_NO_ERROR_MESSAGE_PROVIDED(8002, "EventNoErrorMessageProvided", "No message provided."),
 
     // Micro checks
-    AT_LEAST_ONE_LRN_WAS_SET(10001, "AtLeastOneLrnWasSet", "No LRN has been set on the device.");
+    AT_LEAST_ONE_LRN_WAS_SET(10001, "AtLeastOneLrnWasSet", "No LRN has been set on the device."),
+
+    NO_REGISTERED_NOTIFICATION_ENDPOINT(10101, "NoRegisteredNotificationEndPoint", "No registered notification end point is found by id ''{0}''."),
+    DEVICE_ID_ATTRIBUTE_IS_NOT_SET(10102, "DeviceIdAttributeIsNotSet", "''Device identifier'' attribute isn''t set on Device SAP info CAS."),
+    NO_LRN(10103, "NoLrn", "No LRN is available on current or future data sources on the device."),
+    REQUEST_SENDING_HAS_FAILED(10104, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),
+    ;
 
     private final int number;
     private final String key;

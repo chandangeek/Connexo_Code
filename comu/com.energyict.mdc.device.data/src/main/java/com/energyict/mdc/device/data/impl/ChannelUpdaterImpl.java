@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.device.data.impl.sync.KoreMeterConfigurationUpdater;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -27,6 +28,7 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
     private Integer overruledNbrOfFractionDigits;
     private BigDecimal overruledOverflowValue;
     private ObisCode overruledObisCode;
+    private long offset;
 
     ChannelUpdaterImpl(ServerDeviceService deviceService, MdcReadingTypeUtilService readingTypeUtilService, Clock clock, Channel channel, EventService eventService) {
         this.deviceService = deviceService;
@@ -71,6 +73,12 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
     }
 
     @Override
+    public Channel.ChannelUpdater setOffset(long offset) {
+        this.offset = offset;
+        return this;
+    }
+
+    @Override
     public void update() {
         DeviceImpl device = (DeviceImpl) channel.getDevice();
         if (numberOfFractionDigitsHasChanged() || overflowValueHasChanged()) {
@@ -80,6 +88,13 @@ public class ChannelUpdaterImpl implements Channel.ChannelUpdater {
         }
         if (obisCodeHasChanged()) {
             new DeviceObisCodeUsageUpdater().update(device, getReadingType(), overruledObisCode);
+        }
+        if (this.offset != this.channel.getOffset()) {
+            device.getMeter().getChannelsContainers()
+                    .stream()
+                    .map(channelsContainer -> channelsContainer.getChannel(getReadingType()))
+                    .flatMap(Functions.asStream())
+                    .forEach(channel1 -> channel1.updateOffset(this.offset));
         }
         device.validateForUpdate();
         device.postSave();

@@ -78,6 +78,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 name: 'operation',
                 inputValue: 'changeLoadProfileStart',
                 privileges: Mdc.privileges.Device.administrateDevice
+            },
+            {
+                itemId: 'sendRegisteredSapNotification',
+                boxLabel: '<b>' + Uni.I18n.translate('deviceSendSapNotifications.title', 'MDC', 'Send registered notifications to SAP') + '</b>',
+                name: 'operation',
+                inputValue: 'sendRegisteredSapNotification',
+                privileges: Mdc.privileges.Device.sendSapRegisteredNotification
             }
         ]
     }

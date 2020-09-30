@@ -8,6 +8,8 @@ import com.elster.jupiter.metering.ReadingRecord;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.metering.readings.ReadingQuality;
+import com.elster.jupiter.util.units.Quantity;
+
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -61,7 +63,8 @@ class ReadingImpl implements Reading {
 
     @Override
     public BigDecimal getValue() {
-        return decorated.getQuantity(readingType).getValue();
+        Quantity quantity = decorated.getQuantity(readingType);
+        return quantity == null ? null : quantity.getValue();
     }
 
     @Override

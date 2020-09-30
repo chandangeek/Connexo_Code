@@ -163,11 +163,13 @@ public class BlackListTokenServiceImpl implements BlackListTokenService, Message
 
     @Override
     public Optional<BlackListToken> findToken(long userId, String token) {
-        Condition userIdCondition = Operator.EQUALIGNORECASE.compare("userId", userId);
-        Condition tokenCondition= Operator.EQUALIGNORECASE.compare("token", token);
-        List<BlackListToken> tokens = dataModel.query(BlackListToken.class).select(userIdCondition.and(tokenCondition));
-        if(!tokens.isEmpty()) {
-            return Optional.of(tokens.get(0));
+        if(null != token && userId < 0) {
+            Condition userIdCondition = Operator.EQUALIGNORECASE.compare("userId", userId);
+            Condition tokenCondition = Operator.EQUALIGNORECASE.compare("token", token);
+            List<BlackListToken> tokens = dataModel.query(BlackListToken.class).select(userIdCondition.and(tokenCondition));
+            if (!tokens.isEmpty()) {
+                return Optional.of(tokens.get(0));
+            }
         }
         return  Optional.empty();
     }

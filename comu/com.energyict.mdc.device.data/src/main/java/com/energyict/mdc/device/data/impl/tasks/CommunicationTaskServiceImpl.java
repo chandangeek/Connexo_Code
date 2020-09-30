@@ -634,6 +634,11 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     @Override
+    public Optional<ComTaskExecution> findAndLockComTaskExecutionById(long id) {
+        return Optional.ofNullable(this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lock(id));
+    }
+
+    @Override
     public Optional<ComTaskExecution> findAndLockComTaskExecutionByIdAndVersion(long id, long version) {
         return this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lockObjectIfVersion(version, id);
     }
@@ -800,16 +805,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .filter(ComPortPool::isActive)
                         .collect(Collectors.toList());
         String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
-        QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask);
-        if (factor > 0) {
-            comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
-            // one comport is starting at row 1, the other at limit + 1
-            if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
-                comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
+        try(QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)) {
+            if (factor > 0) {
+                comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
+                // one comport is starting at row 1, the other at limit + 1
+                if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
+                    comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
+                }
             }
+            initCommunicationParameters();
+            return sortComTaskExecutions(connectionTask, comTasks);
         }
-        initCommunicationParameters();
-        return sortComTaskExecutions(connectionTask, comTasks);
     }
 
     private void initCommunicationParameters() {
@@ -1025,14 +1031,12 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
             }
             Instant now = deviceDataModelService.clock().instant();
             Condition condition =
-                    where("connectionTask." + ConnectionTaskFields.COM_PORT.fieldName()).isNull()
-                            .and(where("connectionTask." + ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull())
+                    where("connectionTask.obsoleteDate").isNull()
                             .and(where("connectionTask." + ConnectionTaskFields.DEVICE.name()).isEqualTo(device.getId()))
                             .and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull())
                             .and(where(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).isEqualTo(true)
                                     .or(where(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()).isLessThanOrEqual(now)))
-                            .and(where(ComTaskExecutionFields.COMPORT.fieldName()).isNull())
-                            .and(where("connectionTask." + ConnectionTaskFields.COM_PORT_POOL.fieldName()).isEqualTo(inboundComPortPool));
+                            .and(where("connectionTask.comPortPool").isEqualTo(inboundComPortPool));
             return deviceDataModelService.dataModel().query(ComTaskExecution.class, ConnectionTask.class).select(condition,
                     Order.ascending(ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName()),
                     Order.ascending(ComTaskExecutionFields.PLANNED_PRIORITY.fieldName()),
