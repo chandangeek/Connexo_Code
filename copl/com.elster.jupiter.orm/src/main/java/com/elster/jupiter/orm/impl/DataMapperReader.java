@@ -440,11 +440,9 @@ public class DataMapperReader<T> implements TupleParser<T> {
 
     Fetcher<T> fetcher(SqlBuilder builder) throws SQLException {
         // The connection will be closed when the Fetcher is closed - so no resource leak here
-        Connection connection = getConnection(false);
-        try {
-            return builder.fetcher(connection, this);
+        try(Connection connection = getConnection(false)) {
+              return builder.fetcher(connection, this);
         } catch (SQLException ex) {
-            connection.close();
             throw ex;
         }
     }
