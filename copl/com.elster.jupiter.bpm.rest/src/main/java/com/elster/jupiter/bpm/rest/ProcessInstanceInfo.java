@@ -27,14 +27,14 @@ public class ProcessInstanceInfo {
 
     public ProcessInstanceInfo(JSONObject instance) {
         try {
-            this.id = instance.getString("process-instance-id");
-            this.name = instance.getString("process-name");
-            this.initiator = instance.getString("initiator");
-            this.version = instance.getString("process-version");
-            this.state = Integer.parseInt(instance.getString("process-instance-state"));
-            this.startDate = DateConvertor.convertTimeStamps(instance.getString("start-date"), false);
-            this.endDate = DateConvertor.convertTimeStamps(instance.getString("sla-due-date"), false);
-            this.deploymentId = instance.getString("container-id");
+            this.id = instance.getString("id");
+            this.name = instance.getString("processName");
+            this.initiator = instance.getString("identity");
+            this.version = instance.getString("processVersion");
+            this.state = Integer.parseInt(instance.getString("status"));
+            this.startDate = DateConvertor.convertTimeStamps(instance.getString("start"), false);
+            this.endDate = DateConvertor.convertTimeStamps(instance.getString("end"), false);
+            this.deploymentId = instance.getString("externalId");
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
