@@ -19,22 +19,16 @@ public class CustomJbpmKieServerApplicationComponentsService implements KieServe
 
     @Override
     public Collection<Object> getAppComponents(String extension, SupportedTransports type, Object... services) {
-        // Do not accept calls from extensions other than the owner extension:
         if ( !OWNER_EXTENSION.equals(extension) ) {
             return Collections.emptyList();
         }
 
-        KieServerRegistry context = null;
         UserTaskService taskService = null;
         RuntimeDataService runtimeDataService = null;
         QueryService queryService = null;
         FormManagerService formManagerService = null;
 
         for( Object object : services ) {
-            if( KieServerRegistry.class.isAssignableFrom(object.getClass()) ) {
-                context = (KieServerRegistry) object;
-                continue;
-            }
             if( UserTaskService.class.isAssignableFrom(object.getClass()) ) {
                 taskService = (UserTaskService) object;
                 continue;
@@ -55,7 +49,7 @@ public class CustomJbpmKieServerApplicationComponentsService implements KieServe
 
         List<Object> components = new ArrayList<Object>(1);
         if( SupportedTransports.REST.equals(type) ) {
-            components.add(new CustomJbpmResource(context, taskService, runtimeDataService, queryService, formManagerService));
+            components.add(new CustomJbpmResource(taskService, runtimeDataService, queryService, formManagerService));
         }
 
         return components;

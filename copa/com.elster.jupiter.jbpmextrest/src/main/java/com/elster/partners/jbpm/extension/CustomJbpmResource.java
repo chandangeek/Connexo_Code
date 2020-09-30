@@ -28,7 +28,6 @@ import org.kie.server.services.api.KieServerRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Query;
@@ -38,7 +37,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -54,7 +52,17 @@ import javax.xml.bind.Unmarshaller;
 import java.io.ByteArrayInputStream;
 import java.io.StringReader;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/tasks")
@@ -65,10 +73,6 @@ public class CustomJbpmResource {
 
     private static final Logger logger = LoggerFactory.getLogger(JbpmTaskResource.class);
 
-    private KieCommands commandsFactory = KieServices.Factory.get().getCommands();
-
-    private KieServerRegistry registry;
-
     RuntimeDataService runtimeDataService;
     QueryService queryService;
     UserTaskService taskService;
@@ -78,29 +82,24 @@ public class CustomJbpmResource {
 
     public CustomJbpmResource() {}
 
-    public CustomJbpmResource(KieServerRegistry registry, UserTaskService taskService, RuntimeDataService runtimeDataService, QueryService queryService, FormManagerService formManagerService) {
-        this.registry = registry;
+    public CustomJbpmResource(UserTaskService taskService, RuntimeDataService runtimeDataService, QueryService queryService, FormManagerService formManagerService) {
         this.taskService = taskService;
         this.runtimeDataService = runtimeDataService;
         this.queryService=queryService;
         this.formManagerService = formManagerService;
     }
 
-    @GET
-    @Path("/hello")
-    @Produces("application/json")
-    public Response test(@Context UriInfo uriInfo){
-        String content = "{\"Hello world KIE-SERVER\":[]}";
-        return Response.ok().entity(content).build();
+    private void initEmf() {
+        if (emf == null) {
+            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
+        }
     }
 
     @GET
     @Path("/process/allprocesses")
     @Produces("application/json")
     public ProcessHistoryGenInfos getProcessAll(@Context UriInfo uriInfo){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
+        initEmf();
 
         Map<String, JsonNode> filterProperties;
         filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
@@ -163,9 +162,7 @@ public class CustomJbpmResource {
     @Path("/allprocesses")
     @Produces("application/json")
     public IssueProcessInfos getAllProcesses(@Context UriInfo uriInfo){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
+        initEmf();
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         int startIndex = 0;
@@ -210,10 +207,7 @@ public class CustomJbpmResource {
     @Path("/process/instance/{processInstanceId: [0-9-]+}/node")
     @Produces("application/json")
     public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
-
+        initEmf();
         String processInstanceState = "";
         ProcessInstanceDesc processDesc = runtimeDataService.getProcessInstanceById(processInstanceId);
         if (processDesc != null) {
@@ -245,9 +239,7 @@ public class CustomJbpmResource {
     @Path("/process/instance/{processInstanceId: [0-9-]+}/log")
     @Produces("application/json")
     public ProcessInstanceLogInfo getProcessInstanceLog(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
+        initEmf();
         EntityManager em = emf.createEntityManager();
         String queryString = "SELECT log.processid, log.processname, log.externalid, log.processversion, log.user_identity, log.outcome, " +
                 "log.processinstancedescription, log.duration, log.parentprocessinstanceid, log.status, log.processinstanceid, log.start_date, " +
@@ -263,9 +255,7 @@ public class CustomJbpmResource {
     @Path("/process/instance/{processInstanceId: [0-9-]+}/log/child")
     @Produces("application/json")
     public ProcessInstanceLogInfos getProcessInstanceChildLog(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
+        initEmf();
         EntityManager em = emf.createEntityManager();
         String queryString = "SELECT log.processid, log.processname, log.externalid, log.processversion, log.user_identity, log.outcome, " +
                 "log.processinstancedescription, log.duration, log.parentprocessinstanceid, log.status, log.processinstanceid, log.start_date, " +
@@ -281,9 +271,7 @@ public class CustomJbpmResource {
     @Path("/runningprocesses")
     @Produces("application/json")
     public RunningProcessInfos getRunningProcesses(@Context UriInfo uriInfo){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
+        initEmf();
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         int startIndex = 0;
@@ -330,9 +318,7 @@ public class CustomJbpmResource {
     @Path("/process/history")
     @Produces("application/json")
     public ProcessHistoryInfos getProcessHistory(@Context UriInfo uriInfo){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
+        initEmf();
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         Map<String, JsonNode> filterProperties;
@@ -436,15 +422,13 @@ public class CustomJbpmResource {
     @POST
     @Produces("application/json")
     public TaskSummaryList getTasks(ProcessDefinitionInfos processDefinitionInfos, @Context UriInfo uriInfo){
+        initEmf();
         Map<String, JsonNode> filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
         Map<String, JsonNode> sortProperties = getFilterProperties(getQueryValue(uriInfo,"sort"),"direction");
         List<String> deploymentIds = processDefinitionInfos.processes.stream().map(proc -> proc.deploymentId).collect(Collectors.toList());
         List<String> processIds = processDefinitionInfos.processes.stream().map(proc -> proc.processId).collect(Collectors.toList());
 
         if(deploymentIds != null && processIds != null && !deploymentIds.isEmpty() && !processIds.isEmpty()) {
-            if (emf == null) {
-                emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-            }
             EntityManager em = emf.createEntityManager();
 
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
@@ -723,6 +707,7 @@ public class CustomJbpmResource {
     @Path("/{taskId: [0-9-]+}/")
     @Produces("application/json")
     public TaskSummary getTask(ProcessDefinitionInfos processDefinitionInfos, @PathParam("taskId") long taskid){
+        initEmf();
         Task task = taskService.getTask(taskid);
         if(task == null){
             return new TaskSummary(getAuditTask(taskid));
@@ -734,21 +719,6 @@ public class CustomJbpmResource {
             }
             return new TaskSummary();
         }
-    }
-
-    private Object[] getAuditTask(long taskid){
-        if (emf == null) {
-            emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
-        }
-        EntityManager em = emf.createEntityManager();
-        String queryString = "Select TASKID , ACTUALOWNER, PROCESSID, CREATEDON, STATUS, NAME from AUDITTASKIMPL where TASKID = :taskId";
-        Query query = em.createNativeQuery(queryString);
-        query.setParameter("taskId", taskid);
-        List<Object[]> list = query.getResultList();
-        if(!list.isEmpty()){
-            return list.get(0);
-        }
-        return null;
     }
 
     @GET
@@ -985,6 +955,7 @@ public class CustomJbpmResource {
         }
         return new TaskGroupsInfos(taskGroups);
     }
+
     @POST
     @Produces("application/json")
     @Path("/managetasks")
@@ -1104,6 +1075,32 @@ public class CustomJbpmResource {
         }
         return new TaskBulkReportInfo(total,failed);
     }
+
+    @GET
+    @Path("/proc")
+    @Produces("application/json")
+    public ProcessInstanceInfos getProc(@Context UriInfo uriInfo){
+        initEmf();
+        String variableId = getQueryValue(uriInfo, "variableid");
+        String variableValue = getQueryValue(uriInfo, "variablevalue");
+        if(variableId != null && variableValue != null) {
+            EntityManager em = emf.createEntityManager();
+            String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSID, p.PROCESSNAME, p.EXTERNALID, p.PROCESSVERSION, " +
+                    "p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION, " +
+                    "p.PARENTPROCESSINSTANCEID, v.PROCESSINSTANCEID as variableProcessId, v.LOG_DATE, v.VARIABLEID, v.OLDVALUE " +
+                    "from processinstancelog p " +
+                    "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
+                    "where v.VARIABLEID = :variableid and v.VALUE = :variablevalue " +
+                    "order by upper(p.PROCESSNAME)";
+            Query query = em.createNativeQuery(queryString);
+            query.setParameter("variableid", variableId);
+            query.setParameter("variablevalue", variableValue);
+            List<Object[]> list = query.getResultList();
+            return new ProcessInstanceInfos(list);
+        }
+        return null;
+    }
+
     private boolean hasFormMandatoryFields(ConnexoForm form){
         if(form.fields != null) {
             for (ConnexoFormField field : form.fields) {
@@ -1177,76 +1174,50 @@ public class CustomJbpmResource {
         }
         return null;
     }
+
     private String getQueryValue(UriInfo uriInfo,String key){
         return uriInfo.getQueryParameters().getFirst(key);
     }
 
     private List<TaskSummary> getTaskForProceessInstance(long processInstanceId){
-        if(emf != null) {
-            EntityManager em = emf.createEntityManager();
-            CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
+        initEmf();
 
-            final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskMinimal.class);
-            final Root taskRoot = criteriaQuery.from(TaskImpl.class);
+        EntityManager em = emf.createEntityManager();
+        CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
-            criteriaQuery.select(criteriaBuilder.construct(TaskMinimal.class,
-                    taskRoot.get("id")
-            ));
-            List<Predicate> predicatesStatus = new ArrayList<>();
-            List<Predicate> predicateList = new ArrayList<>();
-            Predicate p1 = criteriaBuilder.disjunction();
-            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
-            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
-            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
-            predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
-            Predicate predicateProcessId = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
-            p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
-            predicateList.add(p1);
-            predicateList.add(predicateProcessId);
-            criteriaQuery.where((criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]))));
-            final TypedQuery query = em.createQuery(criteriaQuery);
-            List<TaskMinimal> taskMinimals = query.getResultList();
-            List<Task> tasks = taskMinimals.stream()
-                    .map(minimal -> taskService.getTask(minimal.getId()))
-                    .collect(Collectors.toList());
+        final CriteriaQuery criteriaQuery = criteriaBuilder.createQuery(TaskMinimal.class);
+        final Root taskRoot = criteriaQuery.from(TaskImpl.class);
 
-            TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
-            taskSummaryList.getTasks().stream().forEach(taskSummary -> {
-                ProcessDefinition process = runtimeDataService.getProcessById(taskSummary.getProcessName());
-                if(process != null){
-                    taskSummary.setProcessName(process.getName());
-                }
-            });
+        criteriaQuery.select(criteriaBuilder.construct(TaskMinimal.class,
+                taskRoot.get("id")
+        ));
+        List<Predicate> predicatesStatus = new ArrayList<>();
+        List<Predicate> predicateList = new ArrayList<>();
+        Predicate p1 = criteriaBuilder.disjunction();
+        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.InProgress));
+        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Created));
+        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Ready));
+        predicatesStatus.add(criteriaBuilder.equal(taskRoot.get("taskData").get("status"), Status.Reserved));
+        Predicate predicateProcessId = criteriaBuilder.equal(taskRoot.get("taskData").get("processInstanceId"), processInstanceId);
+        p1 = criteriaBuilder.or(predicatesStatus.toArray(new Predicate[predicatesStatus.size()]));
+        predicateList.add(p1);
+        predicateList.add(predicateProcessId);
+        criteriaQuery.where((criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]))));
+        final TypedQuery query = em.createQuery(criteriaQuery);
+        List<TaskMinimal> taskMinimals = query.getResultList();
+        List<Task> tasks = taskMinimals.stream()
+                .map(minimal -> taskService.getTask(minimal.getId()))
+                .collect(Collectors.toList());
 
-            return taskSummaryList.getTasks();
-        }
-        return null;
-    }
-    @GET
-    @Path("/proc")
-    @Produces("application/json")
-    public ProcessInstanceInfos getProc(@Context UriInfo uriInfo){
-        String variableId = getQueryValue(uriInfo, "variableid");
-        String variableValue = getQueryValue(uriInfo, "variablevalue");
-        if(variableId != null && variableValue != null) {
-            if (emf == null) {
-                emf = EntityManagerFactoryManager.get().getOrCreate("org.jbpm.domain");
+        TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
+        taskSummaryList.getTasks().stream().forEach(taskSummary -> {
+            ProcessDefinition process = runtimeDataService.getProcessById(taskSummary.getProcessName());
+            if(process != null){
+                taskSummary.setProcessName(process.getName());
             }
-            EntityManager em = emf.createEntityManager();
-            String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSID, p.PROCESSNAME, p.EXTERNALID, p.PROCESSVERSION, " +
-                    "p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION, " +
-                    "p.PARENTPROCESSINSTANCEID, v.PROCESSINSTANCEID as variableProcessId, v.LOG_DATE, v.VARIABLEID, v.OLDVALUE " +
-                    "from processinstancelog p " +
-                    "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
-                    "where v.VARIABLEID = :variableid and v.VALUE = :variablevalue " +
-                    "order by upper(p.PROCESSNAME)";
-            Query query = em.createNativeQuery(queryString);
-            query.setParameter("variableid", variableId);
-            query.setParameter("variablevalue", variableValue);
-            List<Object[]> list = query.getResultList();
-            return new ProcessInstanceInfos(list);
-        }
-        return null;
+        });
+
+        return taskSummaryList.getTasks();
     }
 
     private String addProcessInstanceIdFilterToQuery(Map<String, JsonNode> filterProperties) {
@@ -1483,27 +1454,41 @@ public class CustomJbpmResource {
         }
         return true;
     }
-private List<Long> taskIdList(String source){
-    List<Long> taskIdList = new ArrayList<>();
-    try {
-        if (source != null) {
-            JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
-            if (node != null && node.isArray()) {
-                for (JsonNode singleFilter : node) {
-                    JsonNode property = singleFilter.get("id");
-                    if (property != null && property.textValue() != null)
-                        taskIdList.add(Long.parseLong(property.textValue()));
+
+    private Object[] getAuditTask(long taskid){
+        EntityManager em = emf.createEntityManager();
+        String queryString = "Select TASKID , ACTUALOWNER, PROCESSID, CREATEDON, STATUS, NAME from AUDITTASKIMPL where TASKID = :taskId";
+        Query query = em.createNativeQuery(queryString);
+        query.setParameter("taskId", taskid);
+        List<Object[]> list = query.getResultList();
+        if(!list.isEmpty()){
+            return list.get(0);
+        }
+        return null;
+    }
+
+    private List<Long> taskIdList(String source) {
+        List<Long> taskIdList = new ArrayList<>();
+        try {
+            if (source != null) {
+                JsonNode node = new ObjectMapper().readValue(new ByteArrayInputStream(source.getBytes()), JsonNode.class);
+                if (node != null && node.isArray()) {
+                    for (JsonNode singleFilter : node) {
+                        JsonNode property = singleFilter.get("id");
+                        if (property != null && property.textValue() != null)
+                            taskIdList.add(Long.parseLong(property.textValue()));
+                    }
                 }
             }
-        }
-    }catch (Exception e){
+        } catch (Exception e) {
 
+        }
+        return taskIdList;
     }
-    return taskIdList;
-}
-protected String getFormSuffix() {
-    return "-taskform" + getFormExtension();
-}
+
+    protected String getFormSuffix() {
+        return "-taskform" + getFormExtension();
+    }
 
     protected String getFormExtension() {
         return "";
