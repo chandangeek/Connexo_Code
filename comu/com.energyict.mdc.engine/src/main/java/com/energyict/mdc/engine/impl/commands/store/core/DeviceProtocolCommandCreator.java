@@ -54,7 +54,7 @@ public class DeviceProtocolCommandCreator implements CommandCreator {
         }
     }
 
-    private boolean hasCommandsToExecute(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ComTaskExecution comTaskExecution) {
+    public static boolean hasCommandsToExecute(GroupedDeviceCommand groupedDeviceCommand, List<ProtocolTask> protocolTasks, ComTaskExecution comTaskExecution) {
         GroupedDeviceCommand clonedGroupedDeviceCommand = groupedDeviceCommand.clone();
         CommandFactory.createCommandsFromTask(clonedGroupedDeviceCommand, comTaskExecution, protocolTasks);
         if (clonedGroupedDeviceCommand.getComTaskRoot(comTaskExecution).getCommands().isEmpty()) {
