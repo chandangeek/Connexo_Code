@@ -723,7 +723,6 @@ public class DeviceComTaskResourceTest extends DeviceDataRestApplicationJerseyTe
         Instant execSessionStopTime = LocalDateTime.of(2014, 10, 20, 14, 6, 30).toInstant(ZoneOffset.UTC);
         when(comTaskExecutionSession1.getStopDate()).thenReturn(execSessionStopTime);
         Finder<ComTaskExecutionSession> finder = mockFinder(Collections.singletonList(comTaskExecutionSession1));
-        //when(communicationTaskService.findSessionsByComTaskExecutionAndComTask(comTaskExecution1, comTask)).thenReturn(finder);
         when(communicationTaskService.findSessionsByDeviceAndComTask(device, comTask)).thenReturn(finder);
 
         String response = target("/devices/X9/comtasks/19/comtaskexecutionsessions").queryParam("start", 0).queryParam("limit", 10).request().get(String.class);

@@ -328,7 +328,6 @@ public class DeviceComTaskResource {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
-        //ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device); // Lau
         List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
         List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findSessionsByDeviceAndComTask(device, comTask).from(queryParameters).find();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
