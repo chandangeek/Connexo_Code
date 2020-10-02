@@ -30,9 +30,9 @@ import java.util.logging.Logger;
  */
 public class DlmsSession implements ProtocolLink {
 
+    private final Logger logger;
     private final ComChannel comChannel;
     private final DlmsSessionProperties properties;
-    private Logger logger;
     protected ApplicationServiceObjectV2 aso;
     protected DLMSMeterConfig dlmsMeterConfig;
     protected SecureConnection dlmsConnection;
@@ -45,12 +45,14 @@ public class DlmsSession implements ProtocolLink {
     public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, String calledSystemTitle) {
         this.comChannel = comChannel;
         this.properties = properties;
+        logger = Logger.getLogger(this.getClass().getName());
         init(null, "", calledSystemTitle);
     }
 
     public DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, HHUSignOnV2 hhuSignOn, String deviceId) {
         this.comChannel = comChannel;
         this.properties = properties;
+        logger = Logger.getLogger(this.getClass().getName());
         init(hhuSignOn, deviceId, null);
     }
 
@@ -186,6 +188,7 @@ public class DlmsSession implements ProtocolLink {
 
                         return clientSigningCertificate.getEncoded();
                     } catch (CertificateEncodingException e) {
+                        this.logger.severe("Certificate exception:" + e.getMessage());
                         throw DeviceConfigurationException.invalidPropertyFormat(DlmsSessionProperties.CLIENT_PRIVATE_SIGNING_KEY, "x", "Should be a private key and a valid X.509 v3 certificate");
                     }
                 }
@@ -258,9 +261,6 @@ public class DlmsSession implements ProtocolLink {
     }
 
     public Logger getLogger() {
-        if(logger == null){
-            logger = Logger.getLogger(this.getClass().getName());
-        }
         return logger;
     }
 
