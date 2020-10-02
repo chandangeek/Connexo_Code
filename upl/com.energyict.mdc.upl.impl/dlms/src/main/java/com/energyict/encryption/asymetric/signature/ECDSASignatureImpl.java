@@ -48,6 +48,7 @@ public final class ECDSASignatureImpl implements DigitalSignature {
             this.algorithm = algo;
             this.signature = Signature.getInstance(algo.getSignatureAlgoName());
         } catch (GeneralSecurityException e) {
+            this.logger.severe("Security exception:" + e.getMessage());
             throw new IllegalStateException("Error instantiating signature : [" + e.getMessage() + "]", e);
         }
     }
@@ -163,6 +164,7 @@ public final class ECDSASignatureImpl implements DigitalSignature {
 
             return this.signature.verify(this.toDEREncodedSignature(signature));
         } catch (GeneralSecurityException e) {
+            this.logger.severe("Security exception:" + e.getMessage());
             throw new IllegalStateException("Error verifying signature : [" + e.getMessage() + "]", e);
         }
     }
