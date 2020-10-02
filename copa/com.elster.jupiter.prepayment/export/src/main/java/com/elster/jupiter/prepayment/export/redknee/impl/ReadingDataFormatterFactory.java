@@ -125,6 +125,13 @@ public class ReadingDataFormatterFactory implements DataFormatterFactory {
                                 FieldSeparator.PIPE.getName())
                         .markExhaustive()
                         .finish());
+        propertySpecs.add(
+                propertySpecService
+                        .booleanSpec()
+                        .named(FormatterProperties.WITH_DEVICE_MRID)
+                        .fromThesaurus(this.thesaurus)
+                        .setDefaultValue(false)
+                        .finish());
         return propertySpecs;
     }
 

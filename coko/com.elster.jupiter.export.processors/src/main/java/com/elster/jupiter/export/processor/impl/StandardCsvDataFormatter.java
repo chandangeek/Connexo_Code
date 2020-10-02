@@ -58,6 +58,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     IdentifiedObject domainObject;
     private String tag;
     private String updateTag;
+    private String excludeMRID;
 
     @Inject
     StandardCsvDataFormatter(DataExportService dataExportService) {
@@ -73,7 +74,8 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         }
         tag = getStringProperty(propertyMap, FormatterProperties.TAG.getKey(), "export");
         updateTag = getStringProperty(propertyMap, FormatterProperties.UPDATE_TAG.getKey(), "update");
-    }
+        excludeMRID = getStringProperty(propertyMap, FormatterProperties.WITH_DEVICE_MRID.getKey(), "excludeMRID");
+        }
 
     private String getStringProperty(Map<String, Object> propertyMap, String key, String defaultValue) {
         return propertyMap.get(key) != null ? propertyMap.get(key).toString() : defaultValue;

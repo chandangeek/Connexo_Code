@@ -34,22 +34,24 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
     private String tag;
     private boolean withDeviceCode;
     private boolean withDescription;
+    private boolean withDeviceMRID;
 
     StandardCsvEventDataFormatter(DataExportService dataExportService) {
         this.dataExportService = dataExportService;
     }
 
-    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag, boolean withDeviceCode, boolean withDescription) {
+    private StandardCsvEventDataFormatter init(TranslatablePropertyValueInfo translatablePropertyValueInfo, String tag, boolean withDeviceCode, boolean withDescription, boolean withDeviceMRID) {
         this.separator = defineSeparator(translatablePropertyValueInfo);
         this.tag = tag;
         this.withDeviceCode = withDeviceCode;
         this.withDescription = withDescription;
+        this.withDeviceMRID = withDeviceMRID;
         return this;
     }
 
     static StandardCsvEventDataFormatter from(DataExportService dataExportService, TranslatablePropertyValueInfo translatablePropertyValueInfo,
-                                              String tag, boolean withDeviceCode, boolean withDescription) {
-        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag, withDeviceCode, withDescription);
+                                              String tag, boolean withDeviceCode, boolean withDescription, boolean withDeviceMRID) {
+        return new StandardCsvEventDataFormatter(dataExportService).init(translatablePropertyValueInfo, tag, withDeviceCode, withDescription, withDeviceMRID);
     }
 
     @Override
@@ -88,6 +90,10 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
         if (withDescription) {
             String description = endDeviceEvent.getDescription();
             joiner.add(description != null ? description : "");
+        }
+        if(!withDeviceMRID) {
+            String mrid = endDeviceEvent.getMRID();
+            joiner.add(mrid != null ? mrid : "");
         }
         // adding list of device identifiers; see com.elster.jupiter.export.impl.EventSelector.buildStructureMarker
         structureMarker.getStructurePath().forEach(joiner::add);
