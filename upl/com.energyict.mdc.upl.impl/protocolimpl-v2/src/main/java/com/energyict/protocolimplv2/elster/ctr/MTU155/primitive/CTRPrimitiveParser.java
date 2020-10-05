@@ -28,12 +28,7 @@ public class CTRPrimitiveParser {
     }
 
     public byte[] getBytesFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
+        return ProtocolTools.getBytesFromInt(value, length);
     }
 
     /**

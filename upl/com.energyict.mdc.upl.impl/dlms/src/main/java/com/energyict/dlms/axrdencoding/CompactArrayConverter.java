@@ -1,8 +1,7 @@
 package com.energyict.dlms.axrdencoding;
 
 import com.energyict.mdc.upl.ProtocolException;
-
-import com.energyict.dlms.DLMSUtils;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
@@ -115,8 +114,8 @@ public class CompactArrayConverter {
                     return structure;
                 default:
                     final byte[] tag = {typeTag};
-                    final byte[] subArray = DLMSUtils.getSubArray(rawCompactData, ptr);
-                    final byte[] axdrBytes = DLMSUtils.concatByteArrays(tag, subArray);
+                    final byte[] subArray = ProtocolTools.getSubArray(rawCompactData, ptr);
+                    final byte[] axdrBytes = ProtocolTools.concatByteArrays(tag, subArray);
                     return AXDRDecoder.decode(axdrBytes);
             }
         }

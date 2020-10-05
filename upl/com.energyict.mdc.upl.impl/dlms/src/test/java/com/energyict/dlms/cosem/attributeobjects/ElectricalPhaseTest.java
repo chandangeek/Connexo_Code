@@ -1,7 +1,7 @@
 package com.energyict.dlms.cosem.attributeobjects;
 
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import org.junit.Test;
 
 import static junit.framework.Assert.assertEquals;
@@ -19,7 +19,7 @@ public class ElectricalPhaseTest {
         for (int i = 0; i < 10; i++) {
             TypeEnum typeEnum = new TypeEnum(i);
             byte[] ber = typeEnum.getBEREncodedByteArray();
-            byte[] berOffset = DLMSUtils.concatByteArrays(new byte[i], ber);
+            byte[] berOffset = ProtocolTools.concatByteArrays(new byte[i], ber);
 
             assertNotNull(new ElectricalPhase(i).toString());
             assertNotNull(new ElectricalPhase(typeEnum).toString());
@@ -34,7 +34,7 @@ public class ElectricalPhaseTest {
         for (int i = 0; i < 10; i++) {
             TypeEnum typeEnum = new TypeEnum(i);
             byte[] ber = typeEnum.getBEREncodedByteArray();
-            byte[] berOffset = DLMSUtils.concatByteArrays(new byte[i], ber);
+            byte[] berOffset = ProtocolTools.concatByteArrays(new byte[i], ber);
 
             assertEquals(i, new ElectricalPhase(i).getValue());
             assertEquals(i, new ElectricalPhase(typeEnum).getValue());

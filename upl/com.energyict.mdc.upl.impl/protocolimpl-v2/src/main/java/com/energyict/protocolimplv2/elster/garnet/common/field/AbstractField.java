@@ -16,23 +16,11 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
     private static final int NR_OF_BITS_PER_BYTE = 8;
 
     protected int getIntFromBytes(byte[] rawData, int offset, int length) {
-        byte[] intBytes = ProtocolTools.getSubArray(rawData, offset, offset + length);
-        int value = 0;
-        for (int i = 0; i < intBytes.length; i++) {
-            int intByte = intBytes[i] & 0x0FF;
-            value += intByte << ((intBytes.length - (i + 1)) * 8);
-        }
-        return value;
+        return ProtocolTools.getIntFromBytes(rawData, offset, length);
     }
 
     protected int getIntFromBytesLE(byte[] rawData, int offset, int length) {
-        byte[] intBytes = ProtocolTools.getSubArray(rawData, offset, offset + length);
-        int value = 0;
-        for (int i = 0; i < intBytes.length; i++) {
-            int intByte = intBytes[i] & 0x0FF;
-            value += intByte << (i * 8);
-        }
-        return value;
+        return ProtocolTools.getIntFromBytesLE(rawData, offset, length);
     }
 
     protected String getHexStringFromBCD(byte[] rawData, int offset, int length) throws ParsingException {
@@ -40,12 +28,7 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
     }
 
     protected byte[] getBytesFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
+        return ProtocolTools.getBytesFromInt(value, length);
     }
 
     protected byte[] getBytesFromIntLE(int value, int length) {

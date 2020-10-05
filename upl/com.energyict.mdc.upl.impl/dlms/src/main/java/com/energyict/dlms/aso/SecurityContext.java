@@ -879,7 +879,7 @@ public class SecurityContext {
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
         plainArray.add(getSecurityProvider().getAuthenticationKey());
         plainArray.add(clientChallenge);
-        byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
+        byte[] associatedData = ProtocolTools.concatListOfByteArrays(plainArray);
 
         AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
         aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
@@ -1216,7 +1216,7 @@ public class SecurityContext {
         plainArray.add(new byte[]{getHLS5SecurityControlByte()});
         plainArray.add(getSecurityProvider().getAuthenticationKey());
         plainArray.add(sToCChallenge);
-        byte[] associatedData = DLMSUtils.concatListOfByteArrays(plainArray);
+        byte[] associatedData = ProtocolTools.concatListOfByteArrays(plainArray);
 
         AesGcm aesGcm = new AesGcm(getSecurityProvider().getGlobalKey(), DLMS_AUTH_TAG_SIZE);
         aesGcm.setAdditionalAuthenticationData(new BitVector(associatedData));
