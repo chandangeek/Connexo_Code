@@ -1,8 +1,18 @@
 package com.elster.jupiter.http.whiteboard.impl;
 
-import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
-import com.elster.jupiter.http.whiteboard.SamlRequestService;
-import com.elster.jupiter.http.whiteboard.impl.saml.SamlRequestServiceImpl;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.when;
+
+import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.junit.Before;
@@ -16,21 +26,12 @@ import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.xml.SAMLConstants;
 import org.opensaml.saml.saml2.core.AuthnContext;
-import org.opensaml.saml.saml2.core.AuthnContextComparisonTypeEnumeration;
 import org.opensaml.saml.saml2.core.AuthnRequest;
 import org.opensaml.saml.saml2.core.NameIDType;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.security.NoSuchAlgorithmException;
-import java.security.spec.InvalidKeySpecException;
-import java.util.Optional;
-
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
+import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import com.elster.jupiter.http.whiteboard.impl.saml.SamlRequestServiceImpl;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SamlRequestServiceImplTest extends BaseAuthenticationTest {
@@ -70,9 +71,8 @@ public class SamlRequestServiceImplTest extends BaseAuthenticationTest {
         assertEquals(authnRequest.getVersion(), SAMLVersion.VERSION_20);
         assertEquals(authnRequest.getProtocolBinding(), SAMLConstants.SAML2_POST_BINDING_URI);
         assertEquals(authnRequest.getIssuer().getValue(), issuerName);
-        assertEquals(authnRequest.getNameIDPolicy().getFormat(), NameIDType.EMAIL);
-        assertEquals(authnRequest.getRequestedAuthnContext().getComparison(), AuthnContextComparisonTypeEnumeration.EXACT);
-        assertEquals(authnRequest.getRequestedAuthnContext().getAuthnContextClassRefs().get(0).getAuthnContextClassRef(), AuthnContext.PPT_AUTHN_CTX);
+        assertEquals(authnRequest.getNameIDPolicy().getFormat(), NameIDType.UNSPECIFIED);
+        assertNull(authnRequest.getRequestedAuthnContext());
     }
 
     @Test
