@@ -1,10 +1,6 @@
-/**
- * AS230ObisMapper.java
- *
- * Created on 24-nov-2008, 11:46:49 by jme
- *
- */
 package com.energyict.protocolimpl.iec1107.a1440;
+
+import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -17,24 +13,24 @@ import java.util.Map;
 class A1440ObisCodeMapper {
 
 	public static final String ID1 = "Device ID1";
-	static final String ID2 = "Device ID2";
-	static final String ID3 = "Device ID3";
-	static final String ID4 = "Device ID4";
+	public static final String ID2 = "Device ID2";
+	public static final String ID3 = "Device ID3";
+	public static final String ID4 = "Device ID4";
 	public static final String ID5 = "Device ID5";
-	static final String ID6 = "Device ID6";
+	public static final String ID6 = "Device ID6";
 	public static final String SERIAL = "Device Serial number";
 	public static final String FIRMWARE = "Device  Firmware/Hardware information";
-	static final String FIRMWAREID = "Firmware version ID";
-	private static final String DATETIME = "Date and time (0.9.1 0.9.2)";
-	private static final String BILLINGCOUNTER = "Billing counter";
+	public static final String FIRMWAREID = "Firmware version ID";
+	public static final String DATETIME = "Date and time (0.9.1 0.9.2)";
+	public static final String BILLINGCOUNTER = "Billing counter";
     public static final String ERROR_REGISTER = "Error register";
 
-	static final String IEC1107_ID = "Device IEC1107_ID";
-	static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
-	static final String IEC1107_ADDRESS_EL = "Device IEC1107_ADDRESS_EL (electrical)";
+	public static final String IEC1107_ID = "Device IEC1107_ID";
+	public static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
+	public static final String IEC1107_ADDRESS_EL = "Device IEC1107_ADDRESS_EL (electrical)";
 
-	private Map<String, String> obisMap = new LinkedHashMap<>();
-	private A1440 a1440 = null;
+	private final Map<String, String> obisMap = new LinkedHashMap<>();
+	private final A1440 a1440;
 
 	A1440ObisCodeMapper(A1440 a1440) {
 		this.a1440 = a1440;
@@ -47,7 +43,7 @@ class A1440ObisCodeMapper {
 	private void initObisUnconnected() {
 
 		this.obisMap.put("1.1.0.1.0.255", BILLINGCOUNTER);
-		this.obisMap.put( "1.1.0.1.2.255", DATETIME );
+		this.obisMap.put("1.1.0.1.2.255", DATETIME );
 
 		this.obisMap.put("1.1.0.2.0.255", FIRMWAREID);
 
@@ -86,144 +82,51 @@ class A1440ObisCodeMapper {
         this.obisMap.put("0.0.97.97.0.255", ERROR_REGISTER);
 	}
 
-	/**
-	 * Initialize the map of obiscodes, and try to read the billing counter to
-	 * add only the used historical registers to te obismap
-	 * @throws IOException when somthing goes wrong while reading the billing counter
-	 */
-	void initObis() throws IOException {
-		{
+	public void initObis() throws IOException {
+		this.obisMap.put( "1.1.1.8.0.255", "+A, Time integral 1, T0 (1.8.0)" );
+		addBillingPoints("1.1.1.8.0.VZ", "+A, Time integral 1, T0 (1.8.0*");
 
-			String obis;
-			String dscr;
+		this.obisMap.put( "1.1.1.8.1.255", "+A, Time integral 1, T1 (1.8.1)" );
+		addBillingPoints("1.1.1.8.1.VZ", "+A, Time integral 1, T1 (1.8.1*");
 
-			this.obisMap.put( "1.1.1.8.0.255", "+A, Time integral 1, T0 (1.8.0)" );
+		this.obisMap.put( "1.1.1.8.2.255", "+A, Time integral 1, T2 (1.8.2)" );
+		addBillingPoints("1.1.1.8.2.VZ","+A, Time integral 1, T1 (1.8.2*");
 
-			obis = "1.1.1.8.0.VZ";
-			dscr = "+A, Time integral 1, T0 (1.8.0*";
+		this.obisMap.put( "1.1.2.8.0.255", "-A, Time integral 1, T0 (2.8.0)" );
+		addBillingPoints("1.1.2.8.0.VZ", "-A, Time integral 1, T0 (2.8.0*");
 
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
+		this.obisMap.put( "1.1.2.8.1.255", "-A, Time integral 1, T1 (2.8.1)" );
+		addBillingPoints("1.1.2.8.1.VZ", "-A, Time integral 1, T1 (2.8.1*");
 
-			this.obisMap.put( "1.1.1.8.1.255", "+A, Time integral 1, T1 (1.8.1)" );
+		this.obisMap.put( "1.1.2.8.2.255", "-A, Time integral 1, T2 (2.8.2)" );
+		addBillingPoints("1.1.2.8.2.VZ", "-A, Time integral 1, T2 (2.8.2*");
 
-			obis = "1.1.1.8.1.VZ";
-			dscr = "+A, Time integral 1, T1 (1.8.1*";
+		this.obisMap.put( "1.1.1.6.1.255", "+P, Max , M1 (1.6.1)" );
+		addBillingPoints("1.1.1.6.1.VZ", "+P, Max , M1 (1.6.1*");
 
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
+		this.obisMap.put( "1.1.2.6.1.255", "-P, Max , M1 (2.6.1)" );
+		addBillingPoints("1.1.2.6.1.VZ", "-P, Max , M1 (2.6.1*");
 
-			this.obisMap.put( "1.1.1.8.2.255", "+A, Time integral 1, T2 (1.8.2)" );
+		this.obisMap.put( "1.1.1.6.2.255", "+P, Max , M2 (1.6.2)" );
+		addBillingPoints("1.1.1.6.2.VZ", "+P, Max , M2 (1.6.2*");
 
-			obis = "1.1.1.8.2.VZ";
-			dscr = "+A, Time integral 1, T1 (1.8.2*";
+		this.obisMap.put( "1.1.2.6.2.255", "-P, Max , M2 (2.6.2)" );
+		addBillingPoints("1.1.2.6.2.VZ", "-P, Max , M2 (2.6.2*");
 
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
+	}
 
-			this.obisMap.put( "1.1.2.8.0.255", "-A, Time integral 1, T0 (2.8.0)" );
-
-			obis = "1.1.2.8.0.VZ";
-			dscr = "-A, Time integral 1, T0 (2.8.0*";
-
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
-
-			this.obisMap.put( "1.1.2.8.1.255", "-A, Time integral 1, T1 (2.8.1)" );
-
-			obis = "1.1.2.8.1.VZ";
-			dscr = "-A, Time integral 1, T1 (2.8.1*";
-
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
-
-			this.obisMap.put( "1.1.2.8.2.255", "-A, Time integral 1, T2 (2.8.2)" );
-
-			obis = "1.1.2.8.2.VZ";
-			dscr = "-A, Time integral 1, T2 (2.8.2*";
-
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
-
-
-
-
-
-
-			this.obisMap.put( "1.1.1.6.1.255", "+P, Max , M1 (1.6.1)" );
-
-			obis = "1.1.1.6.1.VZ";
-			dscr = "+P, Max , M1 (1.6.1*";
-
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
-
-			this.obisMap.put( "1.1.2.6.1.255", "-P, Max , M1 (2.6.1)" );
-
-			obis = "1.1.2.6.1.VZ";
-			dscr = "-P, Max , M1 (2.6.1*";
-
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
-
-			this.obisMap.put( "1.1.1.6.2.255", "+P, Max , M2 (1.6.2)" );
-
-			obis = "1.1.1.6.2.VZ";
-			dscr = "+P, Max , M2 (1.6.2*";
-
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
-
-			this.obisMap.put( "1.1.2.6.2.255", "-P, Max , M2 (2.6.2)" );
-
-			obis = "1.1.2.6.2.VZ";
-			dscr = "-P, Max , M2 (2.6.2*";
-
-			for( int i = 0; i < this.a1440.getBillingCount(); i ++ ) {
-				String bpOString = obis;
-				if( i > 0 ) {bpOString = bpOString + "-" + i;}
-				String bpDscr = dscr + (this.a1440.getBillingCount() - i) + ")";
-				this.obisMap.put(bpOString, bpDscr);
-			}
-
+	private void addBillingPoints(String obis, String dscr) throws IOException {
+		int numberOfBillingPointsInDevice = Math.min(this.a1440.getBillingCount(), 100);
+		for( int i = 0; i < numberOfBillingPointsInDevice; i ++ ) {
+			String bpOString = obis;
+			if( i > 0 ) {bpOString = bpOString + "-" + i;}
+			this.obisMap.put(bpOString, buildDescription(dscr, i, this.a1440.getBillingCount()));
 		}
-	};
+	}
+
+	private String buildDescription(String baseDescription, int index, int billingCount) {
+		return baseDescription + ProtocolUtils.buildStringDecimal( (billingCount - index)%100, 2) + ")";
+	}
 
 	/**
 	 * Get the map with obiscodes, supported by the protocol and the device.
