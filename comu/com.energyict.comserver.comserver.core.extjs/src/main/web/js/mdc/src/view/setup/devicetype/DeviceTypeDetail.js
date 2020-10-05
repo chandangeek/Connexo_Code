@@ -126,6 +126,15 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeDetail', {
                                         readOnly: true
                                     },
                                     {
+                                        xtype: 'displayfield',
+                                        name: 'deviceSharedSchedule',
+                                        fieldLabel: "Shared Schedules",
+                                        renderer: function (value) {
+                                            return value ? value : '-';
+                                        },
+                                        readOnly: true
+                                    },
+                                    {
                                         xtype: 'custom-attribute-sets-placeholder-form',
                                         itemId: 'custom-attribute-sets-placeholder-form-id',
                                         actionMenuXtype: 'device-type-action-menu',

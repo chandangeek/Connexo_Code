@@ -48,8 +48,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-@UniqueName(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}")
-@UniqueMRID(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.NOT_UNIQUE + "}")
+import static com.elster.jupiter.util.conditions.Where.where;
+
+
+@UniqueName(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
+@UniqueMRID(groups = { Save.Update.class, Save.Create.class }, message = "{"+ MessageSeeds.Keys.NOT_UNIQUE+"}")
 public final class ComScheduleImpl implements ComSchedule {
 
     private final Clock clock;
@@ -61,6 +64,7 @@ public final class ComScheduleImpl implements ComSchedule {
     enum Fields {
         NAME("name"),
         NEXT_EXECUTION_SPEC("nextExecutionSpecs"),
+        IS_DEFAULT("isDefault"),
         STATUS("schedulingStatus"),
         START_DATE("startDate"),
         OBSOLETE_DATE("obsoleteDate"),
@@ -103,6 +107,8 @@ public final class ComScheduleImpl implements ComSchedule {
     @NotNull(groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.CAN_NOT_BE_EMPTY + "}")
     private Instant startDate;
     private Instant obsoleteDate;
+    private boolean isDefault;
+
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
     @SuppressWarnings("unused") // Managed by ORM
@@ -125,6 +131,27 @@ public final class ComScheduleImpl implements ComSchedule {
     @Override
     public void setName(String name) {
         this.name = Checks.is(name).emptyOrOnlyWhiteSpace() ? null : name.trim();
+    }
+
+    @Override
+    public boolean isDefault() {
+        return this.isDefault;
+    }
+
+    @Override
+    public void setDefaultStatus(boolean value) {
+       if (value) {
+            this.clearOldDefault();
+        }
+        this.isDefault = value;
+        this.update();
+    }
+
+    private void clearOldDefault(){
+        dataModel
+                .query(ComScheduleImpl.class)
+                .select(where(Fields.IS_DEFAULT.fieldName()).isEqualTo(true))
+                .forEach(comSchedule -> comSchedule.setDefaultStatus(false));
     }
 
     @Override

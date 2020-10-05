@@ -208,7 +208,7 @@ public class DeviceTypeResource {
             case "REGULAR":
                 deviceType = deviceConfigurationService.newDeviceTypeBuilder(deviceTypeInfo.name,
                         deviceProtocolPluggableClass.isPresent() ? deviceProtocolPluggableClass.get() : null,
-                        deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null).create();
+                        deviceLifeCycleRef.isPresent() ? deviceLifeCycleRef.get() : null, deviceTypeInfo.deviceSharedSchedule).create();
                 break;
             case "DATALOGGER_SLAVE":
                 deviceType = deviceConfigurationService.newDataloggerSlaveDeviceTypeBuilder(deviceTypeInfo.name, deviceLifeCycleRef

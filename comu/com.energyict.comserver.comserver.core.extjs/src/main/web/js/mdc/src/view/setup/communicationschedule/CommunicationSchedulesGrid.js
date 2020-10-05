@@ -18,6 +18,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationSchedulesGrid', {
         me.store = Ext.getStore(me.store) || Ext.create(me.store);
         me.columns = [
             {
+                xtype: 'uni-default-column',
+                dataIndex: 'isDefault',
+                flex: 1
+            },
+            {
                 header: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                 dataIndex: 'name',
                 flex: 1

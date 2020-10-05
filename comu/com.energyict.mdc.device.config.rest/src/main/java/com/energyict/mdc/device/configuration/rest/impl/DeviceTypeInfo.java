@@ -49,6 +49,7 @@ public class DeviceTypeInfo {
     public PeriodInfo deviceLifeCycleEffectiveTimeShiftPeriod;
     public long version;
     public String deviceTypePurpose;
+    public String deviceSharedSchedule;
     public boolean fileManagementEnabled;
     public boolean isLogicalSlave;
     public boolean needsImageIdentifierForFirmware;

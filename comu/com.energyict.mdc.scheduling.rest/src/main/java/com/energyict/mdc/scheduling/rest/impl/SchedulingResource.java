@@ -195,6 +195,7 @@ public class SchedulingResource {
     public ComScheduleInfo updateSchedules(@PathParam("id") long id, ComScheduleInfo comScheduleInfo) {
         ComSchedule comSchedule = resourceHelper.lockComScheduleOrThrowException(comScheduleInfo);
         comSchedule.setName(comScheduleInfo.name);
+        comSchedule.setDefaultStatus(comScheduleInfo.isDefault);
         comSchedule.setTemporalExpression(comScheduleInfo.temporalExpression == null ? null : comScheduleInfo.temporalExpression.asTemporalExpression());
         comSchedule.setStartDate(comScheduleInfo.startDate == null ? null : comScheduleInfo.startDate);
         comSchedule.setmRID(comScheduleInfo.mRID);

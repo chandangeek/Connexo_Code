@@ -25,6 +25,12 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleActionMenu
                 itemId: 'cloneCommunicationSchedule',
                 action: 'cloneCommunicationSchedule',
                 section: this.SECTION_ACTION
+            },
+            {
+                text: Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default'),
+                itemId: 'toggleDefaultMenuItem',
+                action: 'toggleDefault',
+                section: this.SECTION_ACTION
             }
         ];
         this.callParent(arguments);

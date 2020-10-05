@@ -107,7 +107,7 @@ public interface DeviceConfigurationService {
      * @param deviceLifeCycle The DeviceLifeCycle
      * @return The newly created DeviceType
      */
-    DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle);
+    DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, String sharedSchedule);
 
     /**
      * Creates a new datalogger slave {@link DeviceType.DeviceTypeBuilder} with the specified name.

@@ -29,6 +29,7 @@ public class ComScheduleInfo {
     public Instant startDate;
     public String mRID;
     public long version;
+    public boolean isDefault;
 
     public ComScheduleInfo() {
     }
@@ -41,6 +42,7 @@ public class ComScheduleInfo {
         }
 
         comScheduleInfo.id = comSchedule.getId();
+        comScheduleInfo.isDefault = comSchedule.isDefault();
         comScheduleInfo.name = comSchedule.getName();
         comScheduleInfo.temporalExpression = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
         comScheduleInfo.startDate = comSchedule.getStartDate();

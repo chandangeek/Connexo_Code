@@ -38,6 +38,7 @@ public class DeviceSchedulesInfo {
     public boolean hasConnectionWindow;
     public String connectionStrategyKey;
     public boolean connectionDefinedOnDevice;
+    public String sharedSchedule;
 
     public DeviceSchedulesInfo() {
     }
@@ -77,6 +78,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.id = comTaskEnablement.getComTask().getId();
         deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskEnablement.getComTask());
         deviceSchedulesInfo.active = !comTaskEnablement.isSuspended();
+        deviceSchedulesInfo.sharedSchedule = device.getDeviceType().getSharedSchedule();
         deviceSchedulesInfo.type = ScheduleType.ONREQUEST;
         if (comTaskEnablement.getPartialConnectionTask().isPresent()) {
             PartialConnectionTask partialConnectionTask = comTaskEnablement.getPartialConnectionTask().get();
@@ -104,6 +106,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
         deviceSchedulesInfo.type = ScheduleType.SCHEDULED;
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
+        deviceSchedulesInfo.sharedSchedule = comTaskExecution.getDevice().getDeviceType().getSharedSchedule();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
@@ -122,6 +125,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.comTask = ComTaskInfo.from(comTaskExecution.getComTask());
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
+        deviceSchedulesInfo.sharedSchedule = comTaskExecution.getDevice().getDeviceType().getSharedSchedule();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
         setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
@@ -139,6 +143,7 @@ public class DeviceSchedulesInfo {
         deviceSchedulesInfo.version = comTaskExecution.getVersion();
         deviceSchedulesInfo.active = !comTaskExecution.isOnHold();
         deviceSchedulesInfo.hasConnectionWindow = hasCommunicationWindow(comTaskExecution);
+        deviceSchedulesInfo.sharedSchedule = comTaskExecution.getDevice().getDeviceType().getSharedSchedule();
         setConnectionTaskInfo(comTaskExecution, deviceSchedulesInfo);
         Device device = comTaskExecution.getDevice();
         deviceSchedulesInfo.parent = new VersionInfo<>(device.getName(), device.getVersion());

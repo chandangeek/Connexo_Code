@@ -47,6 +47,15 @@ import java.util.Optional;
 public interface DeviceType extends HasId, HasName {
 
     /**
+     * SharedSchedule
+     *
+     * */
+
+    void setSharedSchedule(String newSharedSchedule);
+
+    String getSharedSchedule();
+
+    /**
      * Returns number that uniquely identifies this DeviceType.
      *
      * @return the id
@@ -324,6 +333,8 @@ public interface DeviceType extends HasId, HasName {
         DeviceTypeBuilder withLogBookTypes(List<LogBookType> logBookTypes);
 
         DeviceTypeBuilder setDescription(String description);
+
+        DeviceTypeBuilder setSharedSchedule(String deviceSharedSchedule);
 
         /**
          * Enables file management for the DeviceType that is being built.
