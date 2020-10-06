@@ -8,7 +8,14 @@ import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
@@ -28,6 +35,7 @@ import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusConfig
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -457,14 +465,24 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
             if (configurationObject.isDecoded()) {
                 journal("Collected firmware configuration: " + configurationObject.getContent());
 
-                result.setActiveCommunicationFirmwareVersion(configurationObject.getAdditionalFirmware());
-                journal("Setting communication fw: " + configurationObject.getAdditionalFirmware());
-
                 result.setActiveMeterFirmwareVersion(configurationObject.getOperationalFirmware());
                 journal("Setting meter operational fw: " + configurationObject.getOperationalFirmware());
 
-                journal("Setting auxiliary fw: " + configurationObject.getAdditionalFirmware());
-                result.setActiveAuxiliaryFirmwareVersion(configurationObject.getAdditionalFirmware());
+                final Optional<? extends OfflineDevice> slave = offlineDevice.getAllSlaveDevices().stream()
+                        .filter(d -> d.getSerialNumber().equals(serialNumber)).findFirst();
+
+                if (slave.isPresent()) {
+                    final OfflineDevice offlineDevice = slave.get();
+                    if (offlineDevice.supportsCommunicationFirmwareVersion()) {
+                        result.setActiveCommunicationFirmwareVersion(configurationObject.getAdditionalFirmware());
+                        journal("Setting communication fw: " + configurationObject.getAdditionalFirmware());
+                    }
+
+                    if (offlineDevice.supportsAuxiliaryFirmwareVersion()) {
+                        journal("Setting auxiliary fw: " + configurationObject.getAdditionalFirmware());
+                        result.setActiveAuxiliaryFirmwareVersion(configurationObject.getAdditionalFirmware());
+                    }
+                }
 
             } else {
                 journal(Level.WARNING, configurationObject.getErrorMessage());

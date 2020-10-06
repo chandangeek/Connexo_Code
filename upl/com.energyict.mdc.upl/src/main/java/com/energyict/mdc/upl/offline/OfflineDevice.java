@@ -200,4 +200,12 @@ public interface OfflineDevice extends Offline {
 
     default String getProtocolName() { return ""; }
 
+    default boolean supportsCommunicationFirmwareVersion() {
+        return false;
+    }
+
+    default boolean supportsAuxiliaryFirmwareVersion() {
+        return false;
+    }
+
 }
