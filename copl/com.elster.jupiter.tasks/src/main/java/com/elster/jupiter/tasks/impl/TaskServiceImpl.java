@@ -148,6 +148,7 @@ public class TaskServiceImpl implements TaskService, TranslationKeyProvider, Mes
                         .put(Version.version(10, 7), UpgraderV10_7.class)
                         .put(Version.version(10, 7, 1), UpgraderV10_7_1.class)
                         .put(Version.version(10, 8), UpgraderV10_8.class)
+                        .put(Version.version(10, 8, 1), UpgraderV10_8_1.class)
                         .build()
         );
     }

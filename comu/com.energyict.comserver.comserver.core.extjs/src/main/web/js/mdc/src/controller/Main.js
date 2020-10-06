@@ -154,8 +154,7 @@ Ext.define('Mdc.controller.Main', {
         'Mdc.controller.setup.AutoclosureExclusions',
         'Cfg.properties.controller.ConfigProperties',
         'Mdc.controller.setup.SendRegisteredSapNotification',
-        'Apr.controller.ReccurentTask',
-        'Mdc.controller.setup.TaskManagement'
+        'Apr.controller.ReccurentTask'
     ],
 
     stores: [
