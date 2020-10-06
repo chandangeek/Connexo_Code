@@ -1072,6 +1072,9 @@ sub prepare_sso {
                 print $FH "\n";
                 print $FH "# Redirect index to login page\n";
                 print $FH "   RewriteRule ^\$ /apps/login/index.html [L]\n";
+                print $FH "\n";
+                print $FH "   RewriteCond %{REQUEST_METHOD} ^(TRACE|TRACK)\n";
+                print $FH "   RewriteRule .* - [F]\n";
                 print $FH "</VirtualHost>\n";
                 close $FH;
             }
