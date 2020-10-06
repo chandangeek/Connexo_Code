@@ -250,6 +250,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                         success: function () {
                             me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.revokeSuccess', 'MDC', 'Command revoked'));
                             router.getRoute().forward();
+                            if (Ext.isDefined(me.getDeviceCommandsGrid())) {
+                                me.getDeviceCommandsGrid().getStore().load();
+                            } else if (Ext.isDefined(me.getCommandsGrid())) {
+                                me.getCommandsGrid().getStore().load();
+                            }
                         },
                         failure: function (record, operation) {
                             record.reject();
