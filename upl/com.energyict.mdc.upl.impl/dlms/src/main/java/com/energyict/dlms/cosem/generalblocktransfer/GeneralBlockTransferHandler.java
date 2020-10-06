@@ -77,6 +77,7 @@ public class GeneralBlockTransferHandler {
             this.comServerGBTWindowSize = (dlmsConnection != null) ? dlmsConnection.getGeneralBlockTransferWindowSize() : -1;
             this.generalBlockTransferEnabled = dlmsConnection.useGeneralBlockTransfer() && (dlmsConnection.getGeneralBlockTransferWindowSize() > 0);
             this.maxRetries = dlmsConnection.getMaxRetries();
+            logger.info("Using GBT with window-size="+this.comServerGBTWindowSize+" and max-retries="+this.maxRetries);
         } else {
             this.generalBlockTransferEnabled = false;
             this.comServerGBTWindowSize = -1;
