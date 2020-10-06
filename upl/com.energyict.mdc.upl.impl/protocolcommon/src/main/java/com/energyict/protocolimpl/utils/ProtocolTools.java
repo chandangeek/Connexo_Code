@@ -9,12 +9,11 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -1581,24 +1580,20 @@ public final class ProtocolTools {
     }
 
     public static String bytesToHex(byte[] plainTextKey) {
-        return Hex.encodeHexString(plainTextKey).toUpperCase();
+        return DatatypeConverter.printHexBinary(plainTextKey).toUpperCase();
     }
 
-    public static byte[] hexToBytes(String plainTextKey) throws DataParseException {
-        try {
-            return Hex.decodeHex(plainTextKey.toCharArray());
-        } catch (DecoderException e) {
-            throw DataParseException.generalParseException(e);
-        }
+    public static byte[] hexToBytes(String plainTextKey){
+        return DatatypeConverter.parseHexBinary(plainTextKey);
     }
 
     public static String bytesToBase64(byte[] plainTextKey) {
-        return Base64.encodeBase64String(plainTextKey);
+        return String.valueOf(Base64.getEncoder().encode(plainTextKey));
     }
 
     public static byte[] base64ToBytes(String plainTextKey) throws DataParseException {
         try {
-            return Base64.decodeBase64(plainTextKey);
+            return Base64.getDecoder().decode(plainTextKey);
         } catch (Exception e) {
             throw DataParseException.generalParseException(e);
         }

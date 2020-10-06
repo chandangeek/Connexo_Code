@@ -151,12 +151,12 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import com.energyict.sercurity.KeyRenewalInfo;
 import com.google.common.io.BaseEncoding;
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.openssl.PEMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.util.Base64;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -689,7 +689,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 if (certificateWrapper.isPresent()) {
                     X509CRL crl = (X509CRL) certificateWrapperExtractor.getCRL((CertificateWrapper) certificateWrapper.get()).get();
                     try {
-                        return Base64.encodeBase64String(crl.getEncoded());
+                        return String.valueOf(Base64.getEncoder().encode(crl.getEncoded()));
                     } catch (CRLException e) {
                         throw new DataParseException(e, ProtocolExceptionMessageSeeds.GENERAL_PARSE_EXCEPTION, "Unable to get the CRL from provided certificate wrapper");
                     }
@@ -1473,7 +1473,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             throw new ProtocolException("The CertificateRevocationList with the given ID does not exist in the EIServer database");
         }
 
-        byte[] crlAsDER = Base64.decodeBase64(trustedCertCRLAsBase64);
+        byte[] crlAsDER = Base64.getDecoder().decode(trustedCertCRLAsBase64);
         try {
             CRLManagementIC crlManagementIC = getCRLManagementIC();
             crlManagementIC.updateCRL(new OctetString(crlAsDER));
