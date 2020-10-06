@@ -11,6 +11,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
     ],
     xtype: 'loadProfileConfigurationDetailSetup',
     router: null,
+    timeUnitsStore: null,
+    isDailyProfile: false,
 
     initComponent: function () {
         var me = this;
@@ -79,6 +81,8 @@ Ext.define('Mdc.view.setup.loadprofileconfigurationdetail.LoadProfileConfigurati
                 previewComponent: {
                     xtype: 'loadProfileConfigurationDetailChannelPreview',
                     itemId: 'loadProfileConfigurationDetailChannelPreview',
+                    timeUnitsStore: me.timeUnitsStore,
+                    isDailyProfile: me.isDailyProfile,
                     editActionName: 'editloadprofileconfigurationdetailchannel',
                     deleteActionName: 'deleteloadprofileconfigurationdetailchannel'
                 }

@@ -13,6 +13,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.LoadProfileSpec;
@@ -373,6 +374,17 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         @Override
         public ChannelDataUpdater startEditingData() {
             return new ChannelDataUpdaterImpl(this);
+        }
+
+        @Override
+        public long getOffset() {
+            return device.get().getMeter().getChannelsContainers()
+                    .stream()
+                    .map(channelsContainer -> channelsContainer.getChannel(getReadingType()))
+                    .flatMap(Functions.asStream())
+                    .findFirst()
+                    .map(com.elster.jupiter.metering.Channel::getOffset)
+                    .orElse(0L);
         }
     }
 

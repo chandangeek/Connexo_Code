@@ -209,6 +209,7 @@ public class LoadProfileConfigurationResource {
         ChannelSpec.ChannelSpecBuilder channelBuilder = deviceConfiguration.createChannelSpec(channelType, loadProfileSpec);
         channelBuilder.overflow(info.overflowValue);
         channelBuilder.overruledObisCode(info.overruledObisCode);
+        channelBuilder.offset(info.endOfInterval);
         channelBuilder.nbrOfFractionDigits(info.nbrOfFractionDigits);
         if(info.useMultiplier != null && info.useMultiplier){
             channelBuilder.useMultiplierWithCalculatedReadingType(findCalculatedReadingType(info).orElse(null));
@@ -247,6 +248,7 @@ public class LoadProfileConfigurationResource {
         ChannelSpec.ChannelSpecUpdater specUpdater = deviceConfiguration.getChannelSpecUpdaterFor(channelSpec);
         specUpdater.overruledObisCode(info.overruledObisCode);
         specUpdater.overflow(info.overflowValue);
+        specUpdater.offset(info.endOfInterval);
         specUpdater.nbrOfFractionDigits(info.nbrOfFractionDigits);
         if(info.useMultiplier){
             specUpdater.useMultiplierWithCalculatedReadingType(findCalculatedReadingType(info).orElse(null));

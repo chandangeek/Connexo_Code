@@ -97,13 +97,12 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private FlagIEC1107Connection flagIEC1107Connection = null;
     private A1440Registry a1440Registry = null;
     private A1440Profile a1440Profile = null;
-    private A1440Messages a1440Messages = new A1440Messages(this);
-    private A1440ObisCodeMapper a1440ObisCodeMapper = new A1440ObisCodeMapper(this);
+    private final A1440Messages a1440Messages = new A1440Messages(this);
+    private final A1440ObisCodeMapper a1440ObisCodeMapper = new A1440ObisCodeMapper(this);
 
     private byte[] dataReadout = null;
     private int billingCount = -1;
     private String firmwareVersion = null;
-    private Date meterDate = null;
     private String meterSerial = null;
     private String dateFormat = null;
     private String billingDateFormat = null;
@@ -200,8 +199,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public Date getTime() throws IOException {
-        this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
-        return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
+        Date meterDate = (Date) getA1440Registry().getRegister("TimeDate");
+        return new Date(meterDate.getTime() - this.iRoundtripCorrection);
     }
 
     @Override
@@ -328,7 +327,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-09-04$";
+        return "$Date: 2020-10-02$";
     }
 
     @Override
@@ -592,10 +591,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
                 }
 
-                int f = invertBillingOrder
-                        ? Math.abs(obis.getF())
-                        : getBillingCount() - Math.abs(obis.getF());
-                fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
+                int f = invertBillingOrder ? Math.abs(obis.getF()) : getBillingCount() - Math.abs(obis.getF());
+                fs = "*" + ProtocolUtils.buildStringDecimal(f%100, 2);
 
                 // try to read the time stamp, and us it as the register toTime.
                 try {
@@ -885,6 +882,11 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.billingCount = 0;
                 getLogger().warning(A1440.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
             }
+
+            DataParser dp = new DataParser(getTimeZone());
+            if (!"0000000000".equals(dp.parseBetweenBrackets(read("0.1.2*99")))) {
+                billingCount=billingCount+100;
+            }
         }
         return this.billingCount;
     }
@@ -967,7 +969,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             return getFirmwareVersion();
         }
         if (registerName.equals(A1440ObisCodeMapper.ERROR_REGISTER)) {
-            return new String((String) getA1440Registry().getRegister(A1440Registry.ERROR_REGISTER));
+            return (String) getA1440Registry().getRegister(A1440Registry.ERROR_REGISTER);
         }
 
         if (registerName.equals(A1440ObisCodeMapper.FIRMWARE)) {

@@ -32,7 +32,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         MATERIAL_ID("materialId", "MATERIAL_ID"),
         SHIPMENT_DATE("shipmentDate", "SHIPMENT_DATE"),
         MANUFACTURER("manufacturer", "MANUFACTURER"),
-        MODEL_NUMBER("modelNumber", "MODEL_NUMBER"),
+        MANUFACTURER_SERIAL_ID("manufacturerSerialId", "MODEL_NUMBER"),
 
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
@@ -84,7 +84,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
     private String manufacturer;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String modelNumber;
+    private String manufacturerSerialId;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorCode;
@@ -156,12 +156,12 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.manufacturer = manufacturer;
     }
 
-    public String getModelNumber() {
-        return modelNumber;
+    public String getManufacturerSerialId() {
+        return manufacturerSerialId;
     }
 
-    public void setModelNumber(String modelNumber) {
-        this.modelNumber = modelNumber;
+    public void setManufacturerSerialId(String manufacturerSerialId) {
+        this.manufacturerSerialId = manufacturerSerialId;
     }
 
     public String getErrorCode() {
@@ -200,7 +200,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.setMaterialId((String) propertyValues.getProperty(FieldNames.MATERIAL_ID.javaName()));
         this.setShipmentDate((Instant) propertyValues.getProperty(FieldNames.SHIPMENT_DATE.javaName()));
         this.setManufacturer((String) propertyValues.getProperty(FieldNames.MANUFACTURER.javaName()));
-        this.setModelNumber((String) propertyValues.getProperty(FieldNames.MODEL_NUMBER.javaName()));
+        this.setManufacturerSerialId((String) propertyValues.getProperty(FieldNames.MANUFACTURER_SERIAL_ID.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -215,7 +215,7 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         propertySetValues.setProperty(FieldNames.MATERIAL_ID.javaName(), this.getMaterialId());
         propertySetValues.setProperty(FieldNames.SHIPMENT_DATE.javaName(), this.getShipmentDate());
         propertySetValues.setProperty(FieldNames.MANUFACTURER.javaName(), this.getManufacturer());
-        propertySetValues.setProperty(FieldNames.MODEL_NUMBER.javaName(), this.getModelNumber());
+        propertySetValues.setProperty(FieldNames.MANUFACTURER_SERIAL_ID.javaName(), this.getManufacturerSerialId());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }

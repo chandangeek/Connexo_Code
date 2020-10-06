@@ -50,6 +50,7 @@ public class ChannelSpecInfoFactory {
         info.name = channelSpec.getReadingType().getFullAliasName();
         info.overruledObisCode = channelSpec.getDeviceObisCode();
         channelSpec.getOverflow().ifPresent(bigDecimal -> info.overflowValue = bigDecimal);
+        info.endOfInterval = channelSpec.getOffset();
         info.nbrOfFractionDigits = channelSpec.getNbrOfFractionDigits();
         info.measurementType = asShortInfo(channelSpec.getChannelType(), collectedReadingType, multipliedCalculatedRegisterTypes);
         info.useMultiplier = channelSpec.isUseMultiplier();

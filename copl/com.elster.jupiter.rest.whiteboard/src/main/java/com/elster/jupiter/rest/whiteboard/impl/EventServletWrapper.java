@@ -20,25 +20,26 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class EventServletWrapper extends HttpServlet {
     private static final long serialVersionUID = 1L;
-    private final HttpServlet servlet;
+    private final AtomicReference<HttpServlet> servlet;
     private final WhiteBoard whiteBoard;
 
     public EventServletWrapper(HttpServlet servlet, WhiteBoard whiteBoard) {
-        this.servlet = servlet;
+        this.servlet = new AtomicReference<>(servlet);
         this.whiteBoard = whiteBoard;
     }
 
     @Override
     public void init() throws ServletException {
         super.init();
-        servlet.init(getServletConfig());
+        servlet.get().init(getServletConfig());
     }
 
     public void destroy() {
-        servlet.destroy();
+        servlet.get().destroy();
         super.destroy();
     }
 
@@ -46,7 +47,7 @@ public class EventServletWrapper extends HttpServlet {
         Tracker tracker = new Tracker(request.getMethod(), new URL(request.getRequestURL().toString()));
         Registration threadSubscriber = whiteBoard.getPublisher().addThreadSubscriber(tracker);
         try {
-            servlet.service(request, response);
+             servlet.get().service(request, response);
         } finally {
             tracker.stop();
             threadSubscriber.unregister();

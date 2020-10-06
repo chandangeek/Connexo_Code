@@ -168,7 +168,7 @@ public class A2ProfileDataReader {
             //Timestamp should be at index 0
             if (structure.isLong(offset)) {
                 long unixTime = structure.getLong(offset);
-                timeStamp = new Date(unixTime * 1000L);
+                timeStamp = truncateSeconds(unixTime * 1000L);
                 offset++;
             }
             if (hasStatusInformation(correctedLoadProfileObisCode)) {
@@ -188,6 +188,14 @@ public class A2ProfileDataReader {
             intervalData.add(new IntervalData(timeStamp, 0, 0, 0, values));
         }
         return intervalData;
+    }
+
+    private Date truncateSeconds(long unixTime) {
+        Calendar calendar = Calendar.getInstance(protocol.getTimeZone());
+        calendar.setTimeInMillis(unixTime);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 
     protected ObisCode getCorrectedLoadProfileObisCode(LoadProfileReader loadProfileReader) {

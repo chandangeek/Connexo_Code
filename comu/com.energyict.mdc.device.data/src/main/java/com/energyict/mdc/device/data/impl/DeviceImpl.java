@@ -2246,6 +2246,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             if (meterHasData) {
                 loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
+                loadProfileReadings.removeIf(loadProfileReading -> loadProfileReading.getRange().lowerEndpoint().atZone(getZone()).getHour() != channel.getOffset() / 3600);
             }
         }
         return Lists.reverse(loadProfileReadings);
@@ -2492,34 +2493,39 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .filter(channelContainer -> channelContainer.overlaps(requestedInterval))
                 .forEach(affectedChannelContainer -> {
                     Range<Instant> requestedIntervalClippedToMeterActivation = requestedInterval.intersection(affectedChannelContainer.getRange());
-                    ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedChannelContainer.getZoneId(), requestedIntervalClippedToMeterActivation);
-                    ZonedDateTime requestEnd =
-                            ZonedDateTime.ofInstant(
-                                    requestedInterval.upperEndpoint(),
-                                    affectedChannelContainer.getZoneId());
-                    if (!requestEnd.isBefore(requestStart)) {
-                        Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
-                        while (channelContainerInterval.contains(requestStart.toInstant())) {
-                            ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
-                            // we should handle dst difference for all hours load profiles except 1-hour
-                            TimeDuration interval = loadProfile.getInterval();
-                            if (interval.getTimeUnit() == TimeDuration.TimeUnit.HOURS && interval.getCount() > 1) {
-                                readingTimestamp = readingTimestamp.plusSeconds(requestStart.getOffset().getTotalSeconds() - readingTimestamp.getOffset().getTotalSeconds());
-                            }
+                    loadProfile.getChannels().stream()
+                            .map(Channel::getOffset)
+                            .collect(Collectors.toSet())
+                            .forEach(offset -> {
+                                ZonedDateTime requestStart = this.prefilledIntervalStart(loadProfile, affectedChannelContainer.getZoneId(), requestedIntervalClippedToMeterActivation, offset);
+                                ZonedDateTime requestEnd =
+                                        ZonedDateTime.ofInstant(
+                                                requestedInterval.upperEndpoint(),
+                                                affectedChannelContainer.getZoneId());
+                                if (!requestEnd.isBefore(requestStart)) {
+                                    Range<Instant> channelContainerInterval = Range.closedOpen(requestStart.toInstant(), requestEnd.toInstant());
+                                    while (channelContainerInterval.contains(requestStart.toInstant())) {
+                                        ZonedDateTime readingTimestamp = requestStart.plus(intervalLength);
+                                        // we should handle dst difference for all hours load profiles except 1-hour
+                                        TimeDuration interval = loadProfile.getInterval();
+                                        if (interval.getTimeUnit() == TimeDuration.TimeUnit.HOURS && interval.getCount() > 1) {
+                                            readingTimestamp = readingTimestamp.plusSeconds(requestStart.getOffset().getTotalSeconds() - readingTimestamp.getOffset().getTotalSeconds());
+                                        }
 
-                            if (requestedInterval.contains(readingTimestamp.toInstant())) {
-                                LoadProfileReadingImpl value = new LoadProfileReadingImpl();
-                                value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
-                                loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
-                            }
-                            requestStart = readingTimestamp;
-                        }
-                    }
+                                        if (requestedInterval.contains(readingTimestamp.toInstant())) {
+                                            LoadProfileReadingImpl value = new LoadProfileReadingImpl();
+                                            value.setRange(Ranges.openClosed(requestStart.toInstant(), readingTimestamp.toInstant()));
+                                            loadProfileReadingMap.put(readingTimestamp.toInstant(), value);
+                                        }
+                                        requestStart = readingTimestamp;
+                                    }
+                                }
+                            });
                 });
         return loadProfileReadingMap;
     }
 
-    private ZonedDateTime prefilledIntervalStart(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation) {
+    private ZonedDateTime prefilledIntervalStart(LoadProfile loadProfile, ZoneId zoneId, Range<Instant> requestedIntervalClippedToMeterActivation, long offset) {
         switch (loadProfile.getInterval().getTimeUnit()) {
             case MINUTES: // Intentional fall-through
             case HOURS: {
@@ -2530,7 +2536,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                         .ofInstant(
                                 requestedIntervalClippedToMeterActivation.lowerEndpoint(),
                                 zoneId)
-                        .truncatedTo(this.truncationUnit(loadProfile));    // round start time to interval boundary
+                        .truncatedTo(this.truncationUnit(loadProfile))
+                        .plusHours(offset / 3600);    // round start time to interval boundary
             }
             case WEEKS: {
                 return ZonedDateTime

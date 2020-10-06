@@ -4,8 +4,11 @@
 
 package com.elster.jupiter.rest.util;
 
+import com.elster.jupiter.domain.util.HasNoBlacklistedCharacters;
+import com.elster.jupiter.domain.util.HasNotAllowedChars;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.rest.util.impl.MessageSeeds;
+import com.elster.jupiter.util.PathVerification;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -67,6 +70,7 @@ public class JsonQueryFilter {
     public JsonQueryFilter(@QueryParam("filter") String source) {
         try {
             if (source != null) {
+                validateSource(source);
                 PolymorphicTypeValidator ptv =
                         BasicPolymorphicTypeValidator.builder()
                                 .allowIfBaseType(JsonNode.class)
@@ -85,7 +89,13 @@ public class JsonQueryFilter {
                 }
             }
         } catch (Exception ex) {
-            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_INPUT_VALUE, "filter");
+        }
+    }
+
+    private void validateSource(String source) {
+        if(!PathVerification.validateInputPattern(source, HasNotAllowedChars.Constant.SCRIPT_CHARS)){
+            throw new LocalizedFieldValidationException(MessageSeeds.INVALID_INPUT_VALUE, "filter");
         }
     }
 

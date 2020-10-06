@@ -46,4 +46,5 @@ public class ChannelInfo {
 
     // optionally filled if requesting details
     public DetailedValidationInfo validationInfo;
+    public long endOfInterval;
 }

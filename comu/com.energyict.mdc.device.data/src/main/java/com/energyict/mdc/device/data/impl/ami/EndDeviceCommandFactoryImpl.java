@@ -247,7 +247,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     @Override
     public EndDeviceCommand createUpdateCreditAmountCommand(EndDevice endDevice, String creditType, BigDecimal creditAmount) throws UnsupportedCommandException {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.UPDATE_CREDIT_AMOUNT));
-        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditTypeAttributeName), creditType);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditType), creditType);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.creditAmount), creditAmount);
         return command;
     }
