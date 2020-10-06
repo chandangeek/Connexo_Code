@@ -11,14 +11,14 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     TIMEOUT_DESCRIPTION("timeout.description", "Timeout for one CSR signing"),
     IMPORT_SECURITY_ACCESSOR("importSecurityAccessor", "Import security accessor"),
     IMPORT_SECURITY_ACCESSOR_DESCRIPTION("importSecurityAccessor.description", "Security accessor used to verify the signature of imported zip. " +
-            "Must contain certificate of type RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH + '.'),
+            "Must contain certificate of type RSA 2048 or RSA 4096" ),
     EXPORT_CERTIFICATES_FOLDER("exportCertificatesFolder", "Export certificates on folder"),
     EXPORT_CERTIFICATES_FOLDER_DESCRIPTION("exportCertificatesFolder.description", "Export result certificates on folder"),
     EXPORT_CERTIFICATES_SFTP("exportCertificates", "Export certificates on SFTP"),
     EXPORT_CERTIFICATES_SFTP_DESCRIPTION("exportCertificates.description", "Export result certificates on SFTP"),
     EXPORT_SECURITY_ACCESSOR("exportSecurityAccessor", "Signing security accessor"),
     EXPORT_SECURITY_ACCESSOR_DESCRIPTION("exportSecurityAccessor.description", "Security accessor used to sign the exported zip. " +
-            "Must contain client certificate with private key of type RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH + '.'),
+            "Must contain client certificate with private key of type RSA 2048 or RSA 4096"),
     CLIENT_TRUSTSTORE_MAPPING("exportClientCertificatesMapping", "Export client trust-store mapping"),
     CLIENT_TRUSTSTORE_MAPPING_DESCRIPTION("exportClientCertificatesMapping.description","JSON string with mapping of client and trust chain certificates aliases and the exported file name"),
     EXPORT_SFTP_HOSTNAME("exportHostname", "SFTP Hostname"),

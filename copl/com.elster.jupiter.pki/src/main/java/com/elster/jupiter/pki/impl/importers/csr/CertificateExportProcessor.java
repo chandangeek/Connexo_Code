@@ -19,10 +19,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -213,14 +215,17 @@ public class CertificateExportProcessor {
         try {
             if (certificateWrapper.hasPrivateKey()
                     && ((ClientCertificateWrapper) certificateWrapper).getPrivateKeyWrapper().getPrivateKey().isPresent()) {
+                PrivateKey privateKey = ((ClientCertificateWrapper) certificateWrapper).getPrivateKeyWrapper().getPrivateKey().get();
+                int modulusLength = ((RSAPrivateKey) privateKey).getModulus().bitLength();
+                int signatureLength =  modulusLength / 8;
                 Signature signature = Signature.getInstance("SHA256withRSA");
-                signature.initSign(((ClientCertificateWrapper) certificateWrapper).getPrivateKeyWrapper().getPrivateKey().get());
+                signature.initSign(privateKey);
                 signature.update(bytes);
                 byte[] signatureBytes = signature.sign();
-                if (signatureBytes.length == CSRImporter.SIGNATURE_LENGTH) {
+                if (signatureBytes.length == signatureLength) {
                     return signatureBytes;
                 } else {
-                    throw new CSRImporterException(thesaurus, MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH);
+                    throw new CSRImporterException(thesaurus, MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + modulusLength);
                 }
             }
         } catch (InvalidKeyException | NoSuchAlgorithmException | SignatureException e) {
