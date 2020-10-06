@@ -31,6 +31,7 @@ import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -193,7 +194,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 Version.version(10, 4), UpgraderV10_4.class,
                 Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class,
                 Version.version(10, 4, 8), UpgraderV10_4_8.class,
-                Version.version(10, 7), UpgraderV10_7.class
+                Version.version(10, 7), UpgraderV10_7.class,
+                Version.version(10, 7), UpgraderV10_9.class
         ));
         this.registerRealServices(bundleContext);
     }
@@ -1075,7 +1077,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         Subquery  subQuery  = this.dataModel.query(PhysicalGatewayReferenceImpl.class).asSubquery(condition, PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
         Condition targetIsASlave = ListOperator.IN.contains(subQuery, "target");
         return this.dataModel.query(G3CommunicationPathSegment.class)
-                .select(targetIsASlave.and(where("interval").isEffective()).and(where("nextHop").isNull())).stream();
+                .select(targetIsASlave.and(where("interval").isEffective()).and(Expression.create("nexthopdevice = targetdevice"))).stream();
     }
 
     public Stream<G3CommunicationPathSegment> getAllG3CommunicationPathSegments(Device gateway) {

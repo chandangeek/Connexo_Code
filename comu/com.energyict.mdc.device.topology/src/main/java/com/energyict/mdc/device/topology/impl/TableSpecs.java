@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.energyict.mdc.common.device.data.Device;
@@ -76,10 +77,12 @@ public enum TableSpecs {
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
-            Column nextHop = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).add();
+            Column nextHop_10_4_7 = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).upTo(version(10, 4, 8)).add();
+            Column nextHop = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).notNull().since(version(10, 4, 8)).previously(nextHop_10_4_7).add();
             table.column("TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(CommunicationPathSegmentImpl.Field.TIME_TO_LIVE.fieldName()).add();
             table.column("COST").number().conversion(NUMBER2INT).map(CommunicationPathSegmentImpl.Field.COST.fieldName()).add();
-            table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0)).add();
+            PrimaryKeyConstraint pkConstraint_10_4_7 = table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0)).upTo(version(10, 4, 8)).add();
+            table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0), nextHop).since(version(10, 4, 8)).previously(pkConstraint_10_4_7).add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_SRC").
                     on(source).
                     references(Device.class).

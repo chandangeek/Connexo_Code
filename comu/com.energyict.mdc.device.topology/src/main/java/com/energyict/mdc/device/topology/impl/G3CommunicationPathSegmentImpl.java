@@ -36,6 +36,7 @@ public class G3CommunicationPathSegmentImpl extends CommunicationPathSegmentImpl
 
     G3CommunicationPathSegmentImpl createFinal(Device source, Device target, Interval interval, long timeToLiveSeconds, int cost) {
         super.init(source, target, interval);
+        this.nextHop.set(target);
         this.setTimeToLiveFromSeconds(timeToLiveSeconds);
         this.setCost(cost);
         return this;
