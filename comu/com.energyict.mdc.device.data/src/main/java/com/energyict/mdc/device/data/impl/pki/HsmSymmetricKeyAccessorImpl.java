@@ -15,7 +15,6 @@ import com.google.inject.Inject;
 
 import java.util.Optional;
 
-import java.util.Optional;
 
 public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
@@ -30,7 +29,7 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
     @Override
     public void renew() {
-        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorType());
+        Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorTypeReference());
 
         Optional<HsmKey> masterKey;
 
