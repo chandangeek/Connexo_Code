@@ -1,9 +1,3 @@
-/*
- * AbstractRegistry.java
- *
- * Created on 17 juni 2003, 8:37
- */
-
 package com.energyict.protocolimpl.iec1107.vdew;
 
 import com.energyict.protocol.MeterExceptionInfo;
@@ -27,7 +21,7 @@ public abstract class AbstractVDEWRegistry {
 
     abstract protected void initRegisters();
 
-    protected Map registers = new HashMap();
+    protected Map<String, VDEWRegister> registers = new HashMap<>();
     protected ProtocolLink protocolLink = null;
     private MeterExceptionInfo meterExceptionInfo = null;
     public int registerSet;
