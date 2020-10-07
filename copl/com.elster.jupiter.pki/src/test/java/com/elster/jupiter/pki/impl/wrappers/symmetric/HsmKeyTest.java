@@ -5,9 +5,11 @@
 package com.elster.jupiter.pki.impl.wrappers.symmetric;
 
 import com.elster.jupiter.devtools.persistence.test.rules.ExpectedConstraintViolationRule;
+import com.elster.jupiter.hsm.HsmEncryptionService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.FUAKPassiveGenerationNotSupportedException;
 import com.elster.jupiter.hsm.model.HsmBaseException;
+import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.hsm.model.keys.HsmRenewKey;
@@ -30,6 +32,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -57,6 +60,7 @@ public class HsmKeyTest {
     private static final byte[] KEY = "1234".getBytes();
 
     private HsmKeyImpl hsmKeyUnderTest;
+    private HsmReversibleKey hsmReversibleKeyUnderTest;
     private Clock clock = Clock.system(ZoneId.systemDefault());
 
     @Mock
@@ -68,12 +72,15 @@ public class HsmKeyTest {
     @Mock
     private KeyType keyType;
     @Mock
+    private KeyType passwordType;
+    @Mock
     private ValidatorFactory validatorFactory;
     @Mock
     private Validator validator;
     @Mock
     private HsmEnergyService hsmEnergyService;
-
+    @Mock
+    private HsmEncryptionService hsmEncryptionService;
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
@@ -91,6 +98,8 @@ public class HsmKeyTest {
 
         this.hsmKeyUnderTest = new HsmKeyImpl(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService);
         this.hsmKeyUnderTest.init(keyType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL, HsmJssKeyType.AES);
+        this.hsmReversibleKeyUnderTest = new HsmReversibleKey(propertySpecService, dataModel, clock, thesaurus, hsmEnergyService, hsmEncryptionService);
+        this.hsmReversibleKeyUnderTest.init(passwordType, new TimeDuration(1, TimeDuration.TimeUnit.DAYS), LABEL, HsmJssKeyType.AUTHENTICATION);
     }
 
 
@@ -126,10 +135,30 @@ public class HsmKeyTest {
     }
 
     @Test
-    public void generateValue() throws HsmBaseException, FUAKPassiveGenerationNotSupportedException {
+    public void generateNewPasswordOrHLSecret() throws HsmBaseException, HsmNotConfiguredException {
         // This is an awful test yet this is the model we have and need to mock a bunch of stuff ... my apologies :)
         SecurityAccessorType securityAccesorType = mock(SecurityAccessorType.class);
-        HsmKeyType keyType = new HsmKeyType(HsmJssKeyType.AUTHENTICATION,"label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16, false);
+        HsmKeyType keyType = new HsmKeyType(HsmJssKeyType.AUTHENTICATION,"passwordLabel", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16, false);
+        when(securityAccesorType.getHsmKeyType()).thenReturn(keyType);
+
+        HsmReversibleKey currentKey = mock(HsmReversibleKey.class);
+        byte[] cKey = "ckey".getBytes();
+        when(currentKey.getKey()).thenReturn(cKey);
+
+        when(hsmEncryptionService.symmetricEncrypt(anyObject(), any(String.class))).thenReturn("encrypted".getBytes());
+        when(hsmEncryptionService.symmetricDecrypt(anyObject(), any(String.class))).thenReturn("plaintext".getBytes());
+
+        hsmReversibleKeyUnderTest.generateValue(securityAccesorType, null);
+        Assert.assertArrayEquals("plaintext".getBytes(), hsmReversibleKeyUnderTest.getKey());
+        Assert.assertEquals(LABEL, hsmReversibleKeyUnderTest.getLabel());
+    }
+
+
+    @Test
+    public void generateNewAESkey() throws HsmBaseException, FUAKPassiveGenerationNotSupportedException {
+        // This is an awful test yet this is the model we have and need to mock a bunch of stuff ... my apologies :)
+        SecurityAccessorType securityAccesorType = mock(SecurityAccessorType.class);
+        HsmKeyType keyType = new HsmKeyType(HsmJssKeyType.AES,"label", SessionKeyCapability.DC_KEK_NONAUTHENTIC, SessionKeyCapability.DC_KEK_RENEWAL, 16, false);
         when(securityAccesorType.getHsmKeyType()).thenReturn(keyType);
 
 
@@ -140,9 +169,9 @@ public class HsmKeyTest {
         when(currentKey.getKey()).thenReturn(cKey);
 
         HsmRenewKey hsmRenewKey = new HsmRenewKey("smKey".getBytes(), "rKey".getBytes(), "rlabel");
-        when(hsmEnergyService.renewKey(new RenewKeyRequest(cKey, clabel, keyType))).thenReturn(hsmRenewKey);
+        when(hsmEnergyService.renewKey(new RenewKeyRequest(anyObject(),clabel, keyType))).thenReturn(hsmRenewKey);
 
-        hsmKeyUnderTest.generateValue(securityAccesorType, currentKey);
+        hsmKeyUnderTest.generateValue(securityAccesorType, Optional.of(currentKey));
         // new label comes from hsm key type
         Assert.assertEquals(hsmRenewKey.getLabel(), hsmKeyUnderTest.getLabel());
         Assert.assertArrayEquals(hsmRenewKey.getKey(), hsmKeyUnderTest.getKey());

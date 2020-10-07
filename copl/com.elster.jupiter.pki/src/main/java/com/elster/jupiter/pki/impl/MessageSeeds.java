@@ -103,7 +103,9 @@ public enum MessageSeeds implements MessageSeed {
     FUAK_RENEW_NOT_SUPPORTED(1088, "FUAKRenewNotSupported", "FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.", Level.INFO),
     ALIAS_NOT_FOUND_EXCEPTION(1089, "AliasNotFound", "Alias not found: {0}", Level.WARNING),
     ALIAS_NOT_UNIQUE_EXCEPTION(1090, "AliasNotUnique", "Alias {0} is not unique", Level.WARNING),
-    CANNOT_EXTRACT_COMMON_NAME(1091, "CannotExtractCommonName", "Cannot extract CN from {0}", Level.WARNING );
+    CANNOT_EXTRACT_COMMON_NAME(1090, "CannotExtractCommonName", "Cannot extract CN from {0}", Level.WARNING),
+    CANNOT_RENEW_REVERSIBLE_KEY(1091, "cannotRenewReversibleKey", "Cannot renew reversible key. Please check if the label can be used for reversible keys or any length.", Level.SEVERE),
+    NO_WRAPPER_ACTUAL_VALUE(1092, "noWrapperValue" , "A wrapper key is necessary to renew this key!", Level.SEVERE);
 
     private final int number;
     private final String key;

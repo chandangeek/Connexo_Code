@@ -802,7 +802,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
                         changePasswordUser2(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD)) {
-                        changeUserPassword(pendingMessage);
+                        changeUserPassword(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpPort)) {
                         setHttpPort(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpsPort)) {
@@ -2713,16 +2713,43 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
+     * Extract the actual password bytes from the string received from message formatter.
+     *
+     * @param rawPasswordAttribute formatted password (in clear)
+     * @return bytes to send to device
+     */
+    protected byte[] preProcessPassword(String rawPasswordAttribute){
+        return rawPasswordAttribute.getBytes(StandardCharsets.US_ASCII);
+    }
+
+    /**
      * Change the password for a particular role.
      *
      * @param pendingMessage The message.
      * @throws IOException If an IO error occurs.
      */
-    private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected CollectedMessage changeUserPassword(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
         String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getValue();
         String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getValue();
 
-        this.getWebportalSetupICv1().setPassword(Role.forName(userName), newPassword.getBytes(StandardCharsets.US_ASCII));
+        byte[] processedPassword = preProcessPassword(newPassword);
+
+        this.getWebportalSetupICv1().setPassword(Role.forName(userName), processedPassword);
+
+        //TODO: pass the key accessor name to swap it
+        //return createCollectedMessageForSwappingSecurityAccessors(collectedMessage, pendingMessage, [keyAccessorName]);
+        return collectedMessage;
+    }
+
+    /**
+     * This will create a collected message used to swap passive->active security accessor after asuccessfull change.
+     */
+    protected CollectedMessage createCollectedMessageForSwappingSecurityAccessors(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String accessorName) {
+        return getCollectedDataFactory().createCollectedMessageForSwappingSecurityAccessorKeys(
+                pendingMessage.getDeviceIdentifier(),
+                collectedMessage.getMessageIdentifier(),
+                accessorName
+        );
     }
 
     /**
@@ -2731,7 +2758,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * @return The {@link WebPortalSetupV1} instance.
      * @throws NotInObjectListException If the object is not known.
      */
-    private final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
+    protected final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
         if (this.readOldObisCodes()) {
             return this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
         } else {
