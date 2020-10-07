@@ -149,6 +149,14 @@ public final class ProtocolTools {
         return bytes;
     }
 
+    public static byte[] getBytesFromIntLE(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
+
     /**
      * Turn an long into a byte array, with a given length.
      *
@@ -617,7 +625,7 @@ public final class ProtocolTools {
         return getIntFromBytes(byteArray);
     }
 
-    public static int getIntFromBytesLE(byte[] rawdata, int offset, int length){
+    public static int getIntFromBytesLE(byte[] rawdata, int offset, int length) {
         byte[] intBytes = getSubArray(rawdata, offset, offset + length);
         int value = 0;
         for (int i = 0; i < intBytes.length; i++) {
@@ -1645,8 +1653,15 @@ public final class ProtocolTools {
             }
 
             return sb.reverse().toString();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+
+    public static byte[] getBCDFromHexString(String hexString, int length) {
+        while (hexString.length() < (length * 2)) {
+            hexString = "0" + hexString;    // Left pad with 0
+        }
+        return ProtocolTools.getBytesFromHexString(hexString, "");
     }
 }

@@ -48,18 +48,11 @@ public abstract class AbstractField<T extends Field> implements Field<T> {
     }
 
     protected byte[] getBytesFromIntLE(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
+        return ProtocolTools.getBytesFromIntLE(value, length);
     }
 
     protected byte[] getBCDFromHexString(String hexString, int length) {
-        while (hexString.length() < (length * 2)) {
-            hexString = "0" + hexString;    // Left pad with 0
-        }
-        return ProtocolTools.getBytesFromHexString(hexString, "");
+        return ProtocolTools.getBCDFromHexString(hexString, length);
     }
 
     @Override
