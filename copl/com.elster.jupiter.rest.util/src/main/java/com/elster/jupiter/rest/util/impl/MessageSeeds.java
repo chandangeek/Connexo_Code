@@ -22,7 +22,8 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_RANGE(9, "InvalidRange", "Invalid range", Level.SEVERE),
     INTERNAL_CONNEXO_ERROR(10, "internalConnexoError", "Connexo has encountered an error, please contact your system administrator", Level.SEVERE),
     MAC_ERROR(11, "MacFailure", "Message authentication check failed. Please contact your system administrator.", Level.SEVERE),
-    PERSISTENCE_ERROR(12, "persistenceError", "Persistence layer error occurred. Probable cause: wrong request, database inconsistencies or connectivity", Level.SEVERE);
+    PERSISTENCE_ERROR(12, "persistenceError", "Persistence layer error occurred. Probable cause: wrong request, database inconsistencies or connectivity", Level.SEVERE),
+    INVALID_INPUT_VALUE(13, "RUT.InvalidInputValue", "Input contains forbidden characters", Level.FINER);
 
     public static final String COMPONENT_NAME = "RUT";
 

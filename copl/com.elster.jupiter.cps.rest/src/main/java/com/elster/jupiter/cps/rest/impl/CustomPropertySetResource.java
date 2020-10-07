@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -61,6 +62,7 @@ public class CustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES})
     public PagedInfoList getCustomAttributeSets(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         String domainExtension = filter.getString("domainExtension");
         List<CustomPropertySetInfo> infos = customPropertySetService.findActiveCustomPropertySets()
                 .stream()
@@ -76,6 +78,7 @@ public class CustomPropertySetResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTER_PRIVILEGES, Privileges.Constants.VIEW_PRIVILEGES})
     public PagedInfoList getDomains(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         List<IdWithDisplayValueInfo> domainExtensions = customPropertySetService.findActiveCustomPropertySets()
                 .stream()
                 .map(m -> Pair.of(m.getCustomPropertySet().getDomainClass().getName(), m.getCustomPropertySet().getDomainClassDisplayName()))

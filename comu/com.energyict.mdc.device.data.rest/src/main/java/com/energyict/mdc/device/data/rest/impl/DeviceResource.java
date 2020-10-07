@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -1097,6 +1098,7 @@ public class DeviceResource {
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(device);
         List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);

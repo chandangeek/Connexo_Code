@@ -236,6 +236,8 @@ public interface CommunicationTaskService {
 
     Finder<ComTaskExecutionSession> findSessionsByComTaskExecution(ComTaskExecution comTaskExecution);
 
+    default Finder<ComTaskExecutionSession> findSessionsByDeviceAndComTask(Device device, ComTask comTask) { return  null;}
+
     Optional<ComTaskExecutionSession> findSession(long sessionId);
 
     Finder<ComTaskExecutionSession> findSessionsByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask);

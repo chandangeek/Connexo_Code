@@ -11,6 +11,7 @@ import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.rest.util.IdWithDisplayValueInfo;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
@@ -96,6 +97,7 @@ public class DeviceLifeCycleResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Constants.VIEW_DEVICE_LIFE_CYCLE})
     public PagedInfoList getDeviceLifeCycles(@BeanParam JsonQueryParameters queryParams) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParams);
         List<DeviceLifeCycleInfo> lifecycles = deviceLifeCycleConfigurationService.findAllDeviceLifeCycles().from(queryParams).stream()
                 .map(deviceLifeCycleFactory::from).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("deviceLifeCycles", lifecycles, queryParams);

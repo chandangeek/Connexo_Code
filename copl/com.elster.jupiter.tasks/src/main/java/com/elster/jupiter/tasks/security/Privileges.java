@@ -19,7 +19,7 @@ public enum Privileges implements TranslationKey {
     VIEW_TASK_OVERVIEW(Constants.VIEW_TASK_OVERVIEW, "View task overview"),
     SUSPEND_TASK_OVERVIEW(Constants.SUSPEND_TASK_OVERVIEW, "Suspend task overview"),
     ADMINISTER_TASK_OVERVIEW(Constants.ADMINISTER_TASK_OVERVIEW, "Administrate task overview"),
-    ;
+    EXECUTE_ADD_CERTIFICATE_REQUEST_DATA_TASK(Constants.EXECUTE_ADD_CERTIFICATE_REQUEST_DATA_TASK, "Execute add certificate request data task");
 
     private final String key;
     private final String description;
@@ -53,6 +53,7 @@ public enum Privileges implements TranslationKey {
         String VIEW_TASK_OVERVIEW = "privilege.view.ViewTaskOverview";
         String SUSPEND_TASK_OVERVIEW = "privilege.suspend.SuspendTaskOverview";
         String ADMINISTER_TASK_OVERVIEW = "privilege.edit.AdministerTaskOverview";
+        String EXECUTE_ADD_CERTIFICATE_REQUEST_DATA_TASK = "privilege.execute.add.certificate.request.data.task";
     }
 
 

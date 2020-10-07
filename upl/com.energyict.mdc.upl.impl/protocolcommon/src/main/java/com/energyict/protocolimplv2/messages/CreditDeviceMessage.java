@@ -26,7 +26,7 @@ public enum CreditDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.creditType, DeviceMessageConstants.creditTypeDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.creditAmount, DeviceMessageConstants.creditAmountDefaultTranslation)
             );
         }
@@ -35,7 +35,7 @@ public enum CreditDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.creditType, DeviceMessageConstants.creditTypeDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
                     this.stringSpec(service, DeviceMessageConstants.currency, DeviceMessageConstants.currencyDefaultTranslation, 3),
                     this.bigDecimalSpec(service, DeviceMessageConstants.remainingCreditHigh, DeviceMessageConstants.remainingCreditHighDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.remainingCreditLow, DeviceMessageConstants.remainingCreditLowDefaultTranslation)
@@ -46,7 +46,7 @@ public enum CreditDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.creditType, DeviceMessageConstants.creditTypeDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.consumedCreditHigh, DeviceMessageConstants.consumedCreditHighDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.consumedCreditLow, DeviceMessageConstants.consumedCreditLowDefaultTranslation)
             );
@@ -56,7 +56,7 @@ public enum CreditDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.creditTypeAttributeName, DeviceMessageConstants.creditTypeAttributeNameDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.creditType, DeviceMessageConstants.creditTypeDefaultTranslation, CreditDeviceMessage.CreditType.getDescriptionValues()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.remainingTimeHigh, DeviceMessageConstants.remainingTimeHighDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.remainingTimeLow, DeviceMessageConstants.remainingTimeLowDefaultTranslation)
             );
