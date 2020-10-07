@@ -2,6 +2,7 @@ package com.energyict.mdc.engine.offline;
 
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -14,27 +15,40 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OfflineComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.JSONTypeMapperProvider;
-import com.energyict.mdc.engine.config.*;
+import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.config.HostName;
 import com.energyict.mdc.engine.exceptions.DataAccessException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOfflineComServerImpl;
-import com.energyict.mdc.engine.impl.core.offline.*;
+import com.energyict.mdc.engine.impl.core.offline.ComJobExecutionModel;
+import com.energyict.mdc.engine.impl.core.offline.ComJobState;
+import com.energyict.mdc.engine.impl.core.offline.OfflineActionExecuter;
+import com.energyict.mdc.engine.impl.core.offline.OfflineActions;
+import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
 import com.energyict.mdc.engine.impl.core.online.ComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.OfflineComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteComServerDAOImpl;
 import com.energyict.mdc.engine.impl.core.remote.RemoteJSONTypeMapperProvider;
 import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
-import com.energyict.mdc.engine.offline.core.*;
+import com.energyict.mdc.engine.offline.core.ComServerEventMonitoringClientLauncher;
+import com.energyict.mdc.engine.offline.core.FormatProvider;
+import com.energyict.mdc.engine.offline.core.OfflineLogging;
+import com.energyict.mdc.engine.offline.core.StoringThread;
 import com.energyict.mdc.engine.offline.core.exception.SyncException;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
 import com.energyict.mdc.engine.offline.persist.BusinessDataPersister;
@@ -50,10 +64,12 @@ import java.io.IOException;
 import java.time.Clock;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 
 /**
@@ -493,6 +509,21 @@ public class OfflineExecuter implements OfflineActionExecuter {
 
     private void queryPendingComJobs() throws InterruptedException {
         UiHelper.getMainWindow().getOfflineWorker().getTaskManager().queryPendingComJobs(UiHelper.getMainWindow().getQueryDate());
+        updateOfflineReadinTypes();
+    }
+
+    private void updateOfflineReadinTypes() {
+        Set<ReadingType> onlineReadingTypes = getComJobModels().stream().flatMap(model -> model.getDevice().getRegisters().stream().map(Register::getReadingType)).collect(Collectors.toSet());
+        if (!onlineReadingTypes.isEmpty()) {
+            List<ReadingType> availableReadingTypes = serviceProvider.meteringService().getAvailableReadingTypes();
+            List<String> availableReadingTypeCodes =
+                    availableReadingTypes.parallelStream()
+                            .map(ReadingType::getMRID)
+                            .collect(Collectors.toList());
+            onlineReadingTypes.parallelStream()
+                    .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getMRID()))
+                    .forEach(readingType -> serviceProvider.meteringService().createReadingType(readingType.getMRID(), readingType.getAliasName()));
+        }
     }
 
     private void finishComJob() {
@@ -618,7 +649,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
             return serviceProvider.protocolPluggableService();
         }
 
-        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+        public DeviceMessageSpecificationService deviceMessageSpecificationService() {
             return serviceProvider.deviceMessageSpecificationService();
         }
 
@@ -742,7 +773,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
 
     }
 
-    private class OfflineComServerDaoServiceProvider implements OfflineComServerDAOImpl.ServiceProvider{
+    private class OfflineComServerDaoServiceProvider implements OfflineComServerDAOImpl.ServiceProvider {
 
         @Override
         public Clock clock() {
