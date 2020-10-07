@@ -19,19 +19,27 @@ public class CertificateRequestData {
     private final String caName;
     private final String endEntityName;
     private final String certificateProfileName;
+    private final String subjectDnFields;
 
     private JSONObject mappingJson;
     private String prefix;
-    private String subjectDNfields;
 
 
-    public CertificateRequestData(String caName, String endEntityName,String certificateProfileName) {
+    /**
+     *
+     * @param caName
+     * @param endEntityName
+     * @param certificateProfileName
+     * @param subjectDnFields  Used later to substract component of DN, ca be null. Bad design but this is what we have
+     */
+    public CertificateRequestData(String caName, String endEntityName,String certificateProfileName, String subjectDnFields) {
         if (isEmpty(caName) || isEmpty(endEntityName) || isEmpty(certificateProfileName)) {
             throw new RuntimeException("Invalid certificate request data ca name:" + caName + " end entity name:" + endEntityName + " profile name:" + certificateProfileName);
         }
         this.caName = caName;
         this.endEntityName = endEntityName;
         this.certificateProfileName = certificateProfileName;
+        this.subjectDnFields = subjectDnFields;
         this.prefix = "";
     }
 
@@ -51,7 +59,7 @@ public class CertificateRequestData {
         this.caName = caName;
         this.endEntityName = endEntityName;
         this.certificateProfileName = certificateProfileName;
-        this.subjectDNfields = subjectDNfields;
+        this.subjectDnFields = subjectDNfields;
     }
 
     public void setPrefix(String prefix){
@@ -125,6 +133,6 @@ public class CertificateRequestData {
     }
 
     public String getSubjectDNfields() {
-        return subjectDNfields;
+        return subjectDnFields;
     }
 }

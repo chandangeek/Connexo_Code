@@ -125,6 +125,12 @@ public enum TableSpecs {
                     .map(AbstractCertificateWrapperImpl.Fields.CA_END_ENTITY_NAME.fieldName())
                     .since(Version.version(10, 4, 3))
                     .add();
+            table.column("CA_SUBJECTDN_FIELDS")
+                    .varChar()
+                    .notNull(false)
+                    .map(AbstractCertificateWrapperImpl.Fields.CA_SUBJECTDN_FIELDS.fieldName())
+                    .since(Version.version(10, 4, 9, 1)) //i.e. 10.4.9-RC6
+                    .add();
             table.column("STATUS")
                     .varChar(Table.NAME_LENGTH)
                     .conversion(CHAR2ENUM)

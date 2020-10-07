@@ -502,6 +502,7 @@ public class CertificateWrapperResource {
             RequestableCertificateWrapper requestableCertificateWrapper =
                     securityManagementService.newCertificateWrapper(csrInfo.alias);
             requestableCertificateWrapper.setCSR(csr, keyType.getKeyUsages(), keyType.getExtendedKeyUsages());
+            requestableCertificateWrapper.setCertificateRequestData(csrInfo.getCertificateRequestData());
             requestableCertificateWrapper.save();
             LOGGER.info("CSR saved");
             return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(requestableCertificateWrapper)).build();

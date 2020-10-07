@@ -82,6 +82,7 @@ import com.elster.jupiter.upgrade.V10_4_8SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_8SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_9SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -344,6 +345,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         upgraders.put(version(10, 4, 9), V10_4_9SimpleUpgrader.class);
         upgraders.put(version(10, 7), V10_7SimpleUpgrader.class);
         upgraders.put(version(10, 8), V10_8SimpleUpgrader.class);
+        upgraders.put(version(10,9),V10_9SimpleUpgrader.class);
 
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME),

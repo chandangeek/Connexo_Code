@@ -25,10 +25,11 @@ public class CsrInfo {
     public String caName;
     public String endEntityName;
     public String certificateProfileName;
+    public String subjectDnFields;
 
     public Optional<CertificateRequestData> getCertificateRequestData() {
         if (caName != null) {
-            return Optional.of(new CertificateRequestData(caName, endEntityName, certificateProfileName));
+            return Optional.of(new CertificateRequestData(caName, endEntityName, certificateProfileName, subjectDnFields));
         }
         return Optional.empty();
     }

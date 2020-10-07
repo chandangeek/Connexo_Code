@@ -118,6 +118,10 @@ Ext.define('Pkj.view.CertificatePreview', {
                         {
                             fieldLabel: Uni.I18n.translate('general.ejbca.certprofile', 'PKJ', 'Certificate profile'),
                             name: 'certProfileName'
+                        },
+                        {
+                            fieldLabel: Uni.I18n.translate('general.ejbca.subjectdnfields', 'PKJ', 'Subject DN fields'),
+                            name: 'subjectDnFields'
                         }
                     ]
                 }
