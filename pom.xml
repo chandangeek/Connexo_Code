@@ -43,7 +43,7 @@
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <baseline>1.0.0-Hermes</baseline>
-        <commercial.version>10.8.1</commercial.version>
+        <commercial.version>10.8.4</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
         <mockito.version>1.10.19</mockito.version>
