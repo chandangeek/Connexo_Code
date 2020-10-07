@@ -29,6 +29,11 @@ public class DeviceSecurityProperty extends CollectedDeviceData implements Colle
         this.propertyValue = propertyValue;
     }
 
+    public DeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName) {
+        this.deviceIdentifier = deviceIdentifier;
+        this.propertyName = propertyName;
+    }
+
     @Override
     public boolean isConfiguredIn(DataCollectionConfiguration comTask) {
         return true; // Make sure this is not filtered
