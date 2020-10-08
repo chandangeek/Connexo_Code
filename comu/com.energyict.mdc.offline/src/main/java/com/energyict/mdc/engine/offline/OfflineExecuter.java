@@ -493,6 +493,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
         switch (action) {
             case QueryPendingComJobs:
                 queryPendingComJobs();
+                updateOfflineReadinTypes();
                 break;
             case StoreCollectedData:
                 storeCollectedData();
@@ -509,22 +510,19 @@ public class OfflineExecuter implements OfflineActionExecuter {
 
     private void queryPendingComJobs() throws InterruptedException {
         UiHelper.getMainWindow().getOfflineWorker().getTaskManager().queryPendingComJobs(UiHelper.getMainWindow().getQueryDate());
-        updateOfflineReadinTypes();
     }
 
     private void updateOfflineReadinTypes() {
-        Set<String> onlineReadingTypes = getComJobModels().stream()
+        List<String> onlineReadingTypes = getComJobModels().stream()
                 .flatMap(model -> model.getOfflineDevice().getAllOfflineRegisters().stream().map(OfflineRegister::getReadingTypeMRID))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
         if (!onlineReadingTypes.isEmpty()) {
-            List<ReadingType> availableReadingTypes = serviceProvider.meteringService().getAvailableReadingTypes();
-            List<String> availableReadingTypeCodes =
-                    availableReadingTypes.parallelStream()
-                            .map(ReadingType::getMRID)
-                            .collect(Collectors.toList());
-            onlineReadingTypes.parallelStream()
-                    .filter(readingTypeMrid -> !availableReadingTypeCodes.contains(readingTypeMrid))
-                    .forEach(readingTypeMrid -> serviceProvider.meteringService().createReadingType(readingTypeMrid, readingTypeMrid));
+            Set<String> existList = serviceProvider.meteringService().findReadingTypes(onlineReadingTypes).stream()
+                    .map(ReadingType::getMRID)
+                    .collect(Collectors.toSet());
+            onlineReadingTypes.stream()
+                    .filter(mrid -> !existList.contains(mrid))
+                    .forEach(mrid -> serviceProvider.meteringService().createReadingType(mrid, mrid));
         }
     }
 
