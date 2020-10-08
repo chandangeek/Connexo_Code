@@ -91,7 +91,9 @@ public enum MessageSeeds implements MessageSeed, com.energyict.mdc.upl.nls.Messa
     NOT_EXECUTED_DUE_TO_CONNECTION_INTERRUPTED(5071, "notExecutedDueToConnectionInterrupted", "Communication task will be rescheduled due to an interrupted connection"),
     COLLECTED_DATA_ISSUE(5072, "collectedDataIssue","Collected data issue for message ''{0}'': {1}"),
     FAILED_TO_PARSE_IDENTIFIER_DATA(5073, "failedToParseIdentifierData", "Unable to parse the identifier: {0}"),
-    NOT_EXECUTED_BECAUSE_COMMAND_NOT_PRESENT(5074, "notExecutedBecauseCommandNotPresent", "Communication task isn''t executed because no command is present.");
+    NOT_EXECUTED_BECAUSE_COMMAND_NOT_PRESENT(5074, "notExecutedBecauseCommandNotPresent", "Communication task isn''t executed because no command is present."),
+    STATUS_INFORMATION_NOT_SUPPORTED(5075, "statusInformationNotsupported", "Read status information is not supported by the device");
+
 
     private final int number;
     private final String key;
