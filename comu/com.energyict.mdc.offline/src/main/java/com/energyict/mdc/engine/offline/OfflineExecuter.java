@@ -520,9 +520,11 @@ public class OfflineExecuter implements OfflineActionExecuter {
             Set<String> existList = serviceProvider.meteringService().findReadingTypes(onlineReadingTypes).stream()
                     .map(ReadingType::getMRID)
                     .collect(Collectors.toSet());
-            onlineReadingTypes.stream()
-                    .filter(mrid -> !existList.contains(mrid))
-                    .forEach(mrid -> serviceProvider.meteringService().createReadingType(mrid, mrid));
+            serviceProvider.transactionService().run(() -> {
+                onlineReadingTypes.stream()
+                        .filter(mrid -> !existList.contains(mrid))
+                        .forEach(mrid -> serviceProvider.meteringService().createReadingType(mrid, mrid));
+            });
         }
     }
 
