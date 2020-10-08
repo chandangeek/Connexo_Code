@@ -15,7 +15,6 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OfflineComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
-import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -58,6 +57,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -513,7 +513,9 @@ public class OfflineExecuter implements OfflineActionExecuter {
     }
 
     private void updateOfflineReadinTypes() {
-        Set<ReadingType> onlineReadingTypes = getComJobModels().stream().flatMap(model -> model.getDevice().getRegisters().stream().map(Register::getReadingType)).collect(Collectors.toSet());
+        Set<String> onlineReadingTypes = getComJobModels().stream()
+                .flatMap(model -> model.getOfflineDevice().getAllOfflineRegisters().stream().map(OfflineRegister::getReadingTypeMRID))
+                .collect(Collectors.toSet());
         if (!onlineReadingTypes.isEmpty()) {
             List<ReadingType> availableReadingTypes = serviceProvider.meteringService().getAvailableReadingTypes();
             List<String> availableReadingTypeCodes =
@@ -521,8 +523,8 @@ public class OfflineExecuter implements OfflineActionExecuter {
                             .map(ReadingType::getMRID)
                             .collect(Collectors.toList());
             onlineReadingTypes.parallelStream()
-                    .filter(readingTypePair -> !availableReadingTypeCodes.contains(readingTypePair.getMRID()))
-                    .forEach(readingType -> serviceProvider.meteringService().createReadingType(readingType.getMRID(), readingType.getAliasName()));
+                    .filter(readingTypeMrid -> !availableReadingTypeCodes.contains(readingTypeMrid))
+                    .forEach(readingTypeMrid -> serviceProvider.meteringService().createReadingType(readingTypeMrid, readingTypeMrid));
         }
     }
 
