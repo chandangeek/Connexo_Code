@@ -268,17 +268,17 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
 
     @Override
     public DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, String sharedSchedule) {
-        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, deviceProtocolPluggableClass, deviceLifeCycle, DeviceTypePurpose.REGULAR);
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, deviceProtocolPluggableClass, deviceLifeCycle, DeviceTypePurpose.REGULAR, null);
     }
 
     @Override
     public DeviceType.DeviceTypeBuilder newDataloggerSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle) {
-        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.DATALOGGER_SLAVE);
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.DATALOGGER_SLAVE, null);
     }
 
     @Override
     public DeviceType.DeviceTypeBuilder newMultiElementSlaveDeviceTypeBuilder(String name, DeviceLifeCycle deviceLifeCycle) {
-        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.MULTI_ELEMENT_SLAVE);
+        return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, null, deviceLifeCycle, DeviceTypePurpose.MULTI_ELEMENT_SLAVE, null);
     }
 
     @Override
