@@ -493,7 +493,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
         switch (action) {
             case QueryPendingComJobs:
                 queryPendingComJobs();
-                updateOfflineReadinTypes();
+                updateOfflineReadingTypes();
                 break;
             case StoreCollectedData:
                 storeCollectedData();
@@ -512,7 +512,7 @@ public class OfflineExecuter implements OfflineActionExecuter {
         UiHelper.getMainWindow().getOfflineWorker().getTaskManager().queryPendingComJobs(UiHelper.getMainWindow().getQueryDate());
     }
 
-    private void updateOfflineReadinTypes() {
+    private void updateOfflineReadingTypes() {
         List<String> onlineReadingTypes = getComJobModels().stream()
                 .flatMap(model -> model.getOfflineDevice().getAllOfflineRegisters().stream().map(OfflineRegister::getReadingTypeMRID))
                 .collect(Collectors.toList());
