@@ -6,6 +6,7 @@
 
 package com.energyict.protocolimpl.iec1107.abba230;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.upl.NoSuchRegisterException;
@@ -253,14 +254,18 @@ public class ObisCodeMapper {
             registerName = "CummMainImport";
         } else if (obisCode.getC() == 2) {
             registerName = "CummMainExport";
-        } else if (obisCode.getC() == 5) {
+        }  else if (obisCode.getC() == 5) {
             registerName = "CummMainQ1";
+            unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3);
         } else if (obisCode.getC() == 6) {
             registerName = "CummMainQ2";
+            unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3);
         } else if (obisCode.getC() == 7) {
             registerName = "CummMainQ3";
+            unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR,-3);
         } else if (obisCode.getC() == 8) {
             registerName = "CummMainQ4";
+            unit = Unit.get(BaseUnit.VOLTAMPEREREACTIVEHOUR, -3);
         } else if (obisCode.getC() == 9) {
             registerName = "CummMainVAImport";
         } else if (obisCode.getC() == 10) {
