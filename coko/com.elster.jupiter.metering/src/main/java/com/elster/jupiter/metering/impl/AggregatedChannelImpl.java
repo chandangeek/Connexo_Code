@@ -140,6 +140,21 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     }
 
     @Override
+    public void updateZoneId(ZoneId zoneId) {
+        persistedChannel.updateZoneId(zoneId);
+    }
+
+    @Override
+    public long getOffset() {
+        return persistedChannel.getOffset();
+    }
+
+    @Override
+    public void updateOffset(long offset) {
+        persistedChannel.updateOffset(offset);
+    }
+
+    @Override
     public Optional<CimChannel> getCimChannel(ReadingType readingType) {
         if (!getMainReadingType().equals(readingType)) {
             return Optional.empty();
@@ -341,7 +356,7 @@ public class AggregatedChannelImpl implements ChannelContract, AggregatedChannel
     @Override
     public List<BaseReadingRecord> getReadingsUpdatedSince(ReadingType readingType, Range<Instant> interval, Instant since) {
         return getReadings(readingType, interval).stream()
-                .filter(reading -> reading.getReportedDateTime()!= null).filter(reading -> reading.getReportedDateTime().isAfter(since))
+                .filter(reading -> reading.getReportedDateTime() != null).filter(reading -> reading.getReportedDateTime().isAfter(since))
                 .collect(Collectors.toList());
     }
 

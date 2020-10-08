@@ -115,6 +115,14 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
                 ]
             },
             {
+                xtype: 'timeInHoursAndMinutes',
+                margin: '10 0 0 0',
+                fieldLabel: Uni.I18n.translate('general.endOfInterval', 'MDC', 'End of interval'),
+                name: 'endOfInterval',
+                itemId: 'endOfInterval',
+                hidden: true
+            },
+            {
                 xtype: 'fieldcontainer',
                 itemId: 'form-buttons',
                 fieldLabel: '&nbsp;',
@@ -147,6 +155,9 @@ Ext.define('Mdc.view.setup.devicechannels.EditChannelForm', {
             newTitle = channelRecord.get('readingType').fullAliasName;
 
         me.setTitle(newTitle);
+        var timeInterval = channelRecord.get('interval');
+        var timeUnit = timeInterval && timeInterval.timeUnit;
+        me.down('#endOfInterval').setVisible(timeUnit === "days");
         me.loadRecord(channelRecord);
     }
 

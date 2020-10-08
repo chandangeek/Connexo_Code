@@ -124,6 +124,7 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
                         try {
                             return ProtocolTools.getHexStringFromBytes(certificate.get().getEncoded(), "");
                         } catch (CertificateEncodingException e) {
+                            this.getProtocol().journal("Certificate exception:" + e.getMessage());
                             throw new IllegalArgumentException(e);
                         }
                     }

@@ -10,6 +10,8 @@ import com.elster.jupiter.metering.ReadingType;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.time.ZoneId;
+
 @ProviderType
 public interface ChannelBuilder {
 
@@ -17,5 +19,9 @@ public interface ChannelBuilder {
 
     ChannelBuilder readingTypes(ReadingType main, ReadingType... readingTypes);
 
+    ChannelBuilder offset(long offset);
+
     Channel build();
+
+    ChannelBuilder zoneId(ZoneId zoneId);
 }

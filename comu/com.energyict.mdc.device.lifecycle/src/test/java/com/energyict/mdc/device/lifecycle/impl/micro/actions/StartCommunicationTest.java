@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -90,28 +91,16 @@ public class StartCommunicationTest {
     public void executeSchedulesAllCommunicationTasks() {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
-        ComTaskExecution comTaskExecution3= mock(ComTaskExecution.class);
-        when(this.device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement1, comTaskEnablement2, comTaskEnablement3 ));
-        when(device.newAdHocComTaskExecution(any(ComTaskEnablement.class))).thenReturn(comTaskExecutionBuilder);
-        when(comTaskExecutionBuilder.scheduleNow()).thenReturn(comTaskExecutionBuilder);
-        when(comTaskExecutionBuilder.add()).thenReturn(comTaskExecution3);
-        when(comTaskExecution1.getComTask()).thenReturn(comTask1);
-        when(comTaskExecution2.getComTask()).thenReturn(comTask2);
-        when(comTaskEnablement1.getComTask()).thenReturn(comTask1);
-        when(comTaskEnablement2.getComTask()).thenReturn(comTask2);
-        when(comTaskEnablement3.getComTask()).thenReturn(comTask3);
-        when(comTask1.getId()).thenReturn(1L);
-        when(comTask2.getId()).thenReturn(2L);
-        when(comTask3.getId()).thenReturn(3L);
+        comTaskExecution1.putOnHold();
+        comTaskExecution2.putOnHold();
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
+        when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         StartCommunication microAction = this.getTestInstance();
-
-        // Business method
         microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
-        // Asserts
-        verify(comTaskExecutionBuilder, timeout(3)).scheduleNow();
+
+        Assert.assertFalse(comTaskExecution1.isOnHold());
+        Assert.assertFalse(comTaskExecution2.isOnHold());
     }
 
     private StartCommunication getTestInstance() {

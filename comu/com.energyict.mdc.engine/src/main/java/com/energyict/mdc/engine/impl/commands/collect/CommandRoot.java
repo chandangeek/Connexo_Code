@@ -89,7 +89,7 @@ public interface CommandRoot extends Iterable<GroupedDeviceCommand> {
 
     boolean hasConnectionBeenInterrupted();
 
-    void connectionNotExecuted();
+    void connectionExecuted(boolean executed);
 
     boolean hasConnectionNotExecuted();
 

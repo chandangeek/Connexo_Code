@@ -102,11 +102,8 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
         if (forLoadProfileOrRegisterReading(comTaskExecution)) {
             findServiceCallsLinkedTo(comTaskExecution.getDevice(), ComTaskExecutionServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
                     .forEach(serviceCall -> handleForReading(serviceCall, comTaskName));
-        } else if (forLoadProfilesDeviceMessage(comTaskExecution)) {
-            findServiceCallsLinkedTo(comTaskExecution.getDevice(), DeviceMessageServiceCallHandler.SERVICE_CALL_HANDLER_NAME)
-                    .forEach(serviceCall -> handleForDeviceMessages(serviceCall, comTaskExecution.getDevice(), comTaskName));
         }
-        // skipp all other comTaskExecutions
+        // skip all other comTaskExecutions
     }
 
     private void handleForReading(ServiceCall serviceCall, String comTaskName) {
@@ -120,51 +117,6 @@ public class ComTaskExecutionEventHandler extends EventHandler<LocalEvent> {
                     comTaskName, triggerDate.atZone(ZoneId.systemDefault())));
             serviceCall.requestTransition(DefaultState.ONGOING);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        }
-    }
-
-    private void handleForDeviceMessages(ServiceCall serviceCall, Device device, String comTaskName) {
-        ChildGetMeterReadingsDomainExtension domainExtension = serviceCall.getExtension(ChildGetMeterReadingsDomainExtension.class)
-                .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
-
-        Instant triggerDate = domainExtension.getTriggerDate();
-        if (clock.instant().isAfter(triggerDate) && comTaskName != null
-                && comTaskName.equals(domainExtension.getCommunicationTask())) {
-            // in fact it is one device message per service call
-            DeviceMessage deviceMessage = device.getMessages().stream()
-                    .filter(dm -> serviceCall.getId() == NumberUtils.toLong(dm.getTrackingId()))
-                    .findFirst()
-                    .orElseThrow(() -> new IllegalStateException("Unable to find device message for service call with id:" + serviceCall
-                            .getId()));
-            switch (deviceMessage.getStatus()) {
-                case CONFIRMED:
-                    if (serviceCall.getState().isOpen()) {
-                        serviceCall.requestTransition(DefaultState.ONGOING);
-                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is confirmed",
-                                deviceMessage.getSpecification()
-                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
-                                        .atZone(ZoneId.systemDefault())));
-                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                    }
-                    break;
-                case CANCELED:
-                    if (serviceCall.getState().isOpen()) {
-                        serviceCall.requestTransition(DefaultState.ONGOING);
-                        serviceCall.log(LogLevel.FINE, String.format("Device message '%s'(id: %d, release date: %s) is canceled",
-                                deviceMessage.getSpecification()
-                                        .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
-                                        .atZone(ZoneId.systemDefault())));
-                        serviceCall.requestTransition(DefaultState.CANCELLED);
-                    }
-                    break;
-                default:
-                    serviceCall.requestTransition(DefaultState.ONGOING);
-                    serviceCall.log(LogLevel.SEVERE, String.format("Device message '%s'(id: %d, release date: %s) wasn't confirmed",
-                            deviceMessage.getSpecification()
-                                    .getName(), deviceMessage.getId(), deviceMessage.getReleaseDate()
-                                    .atZone(ZoneId.systemDefault())));
-                    serviceCall.requestTransition(DefaultState.FAILED);
-            }
         }
     }
 

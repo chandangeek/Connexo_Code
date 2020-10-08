@@ -23,7 +23,12 @@ public class StartRecurringCommunication extends TranslatableServerMicroAction {
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         device.getConnectionTasks().forEach(ConnectionTask::activate);
-        device.getComTaskExecutions().forEach(ComTaskExecution::scheduleNow);
+        device.getComTaskExecutions().stream()
+                .forEach(comTaskExecution -> {
+                    if (comTaskExecution.getPlannedNextExecutionTimestamp() != null) {
+                        comTaskExecution.scheduleNow();
+                    }
+                });
     }
 
     @Override

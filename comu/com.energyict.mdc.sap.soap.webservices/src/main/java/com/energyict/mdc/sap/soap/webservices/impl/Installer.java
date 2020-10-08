@@ -10,12 +10,15 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.messaging.QueueTableSpec;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.sap.soap.webservices.impl.messagehandlers.SAPRegisteredNotificationOnDeviceMessageHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
 
@@ -24,9 +27,11 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import static com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys.SAPREGISTEREDNOTIFICATION_SUBSCRIBER;
+
 public class Installer implements FullInstaller {
 
-    private static final int DESTINATION_SPEC_RETRY_DELAY = 60;
+    static final int DESTINATION_SPEC_RETRY_DELAY = 60;
 
     private final CustomPropertySetService customPropertySetService;
     private final MessageService messageService;
@@ -56,6 +61,11 @@ public class Installer implements FullInstaller {
                 this::createDestinationSpecs,
                 logger
         );
+        doTry(
+                "Create message handlers",
+                this::createMessageHandlers,
+                logger
+        );
         userService.addModulePrivileges(sapPrivilegeProvider);
     }
 
@@ -79,6 +89,33 @@ public class Installer implements FullInstaller {
                     .logLevel(LogLevel.FINEST)
                     .customPropertySet(customPropertySet)
                     .create();
+        }
+    }
+
+    void createMessageHandlers() {
+        QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
+        this.createMessageHandler(defaultQueueTableSpec, SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DESTINATION, SAPREGISTEREDNOTIFICATION_SUBSCRIBER);
+    }
+
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey nameKey) {
+        createMessageHandler(defaultQueueTableSpec, destinationName, nameKey, false);
+    }
+
+    private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey subscriberKey, boolean isPrioritized) {
+        Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+        if (!destinationSpecOptional.isPresent()) {
+            DestinationSpec queue = defaultQueueTableSpec.createDestinationSpec(destinationName, DESTINATION_SPEC_RETRY_DELAY, false, isPrioritized);
+            queue.activate();
+            queue.subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+        } else {
+            boolean notSubscribedYet = destinationSpecOptional.get()
+                    .getSubscribers()
+                    .stream()
+                    .noneMatch(spec -> spec.getName().equals(subscriberKey.getKey()));
+            if (notSubscribedYet) {
+                destinationSpecOptional.get().activate();
+                destinationSpecOptional.get().subscribe(subscriberKey, DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN);
+            }
         }
     }
 

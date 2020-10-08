@@ -19,7 +19,9 @@ import java.time.Clock;
 import java.util.Date;
 import java.util.Optional;
 
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,7 +84,7 @@ public class SetClockCommandImplTest {
 
         setClockCommand.doExecute(deviceProtocol, null);
 
-        verify(deviceProtocol).setTime(any(Date.class));
+        verify(deviceProtocol).setTime(any(Date.class), Matchers.eq(DeviceClockSupport.ClockChangeMode.SET));
     }
 
     @Test

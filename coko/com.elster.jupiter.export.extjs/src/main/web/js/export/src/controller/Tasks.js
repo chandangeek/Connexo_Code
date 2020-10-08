@@ -1826,14 +1826,12 @@ Ext.define('Dxp.controller.Tasks', {
         page.down('#updated-data-container').setVisible(true);
         page.down('#skip-window-up-complete-data-radiofield').setVisible(false);
         page.down('#skip-window-up-validated-data-radiofield').setVisible(false);
+        page.down('#continuous-data-container').setVisible(true);
         if (dataSelectorName && dataSelectorName === 'Custom Data Selector') {
-            page.down('#continuous-data-container').setVisible(false);
-            page.down('#continuousData').setValue(true);
             page.down('#data-selector-export-complete').setVisible(false);
             page.down('#data-selector-validated-data').setVisible(false);
         } else {
             page.down('#data-selector-export-complete').setVisible(true);
-            page.down('#continuous-data-container').setVisible(true);
             page.down('#startOfExportWindow').setValue(true);
             page.down('#data-selector-validated-data').setVisible(true);
         } 

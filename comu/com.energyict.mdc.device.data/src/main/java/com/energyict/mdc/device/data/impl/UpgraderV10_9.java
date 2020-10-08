@@ -3,6 +3,8 @@
  */
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -20,6 +22,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.Instant;
@@ -36,23 +39,32 @@ import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComT
 public class UpgraderV10_9 implements Upgrader {
     private static final Logger LOGGER = Logger.getLogger(UpgraderV10_9.class.getName());
     private static final int SIZE = 100;//100 for optimization
+    private final static String IPV6ADDRESS_SUBSCRIBER = "IPv6AddressSubscriber";
     private static final String TABLE = TableSpecs.DDC_COMTASKEXEC.name();
+    private static final String ID_SEQUENCE_NAME = "ddc_comtaskexecid";
+    private static final int MIN_REFRESH_INTERVAL = 5;
 
     private final DeviceService deviceService;
     private final DataModel dataModel;
+    private final MessageService messageService;
+
+    private long id;
 
     @Inject
-    UpgraderV10_9(DataModel dataModel, DeviceService deviceService) {
+    UpgraderV10_9(DataModel dataModel, DeviceService deviceService, MessageService messageService) {
         this.deviceService = deviceService;
         this.dataModel = dataModel;
+        this.messageService = messageService;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
+        createUnsubscriberForMessageQueue();
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
             int from = 0;
+            id = executeQuery(statement, "SELECT NVL(MAX(ID),0) FROM " + TABLE, this::toLong);
             List<Device> devices;
             do {
                 devices = deviceService.findAllDevices(Condition.TRUE).paged(from, SIZE).find();
@@ -63,6 +75,8 @@ public class UpgraderV10_9 implements Upgrader {
                 }
             }
             while (devices.size() > SIZE);
+            execute(statement, "drop sequence " + ID_SEQUENCE_NAME);
+            execute(statement, "create sequence " + ID_SEQUENCE_NAME + " start with " + id + " cache 1000");
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -84,6 +98,7 @@ public class UpgraderV10_9 implements Upgrader {
                     .filter(comTaskEnablement -> !comTaskIdsWithExecution.contains(comTaskEnablement.getComTask().getId()))
                     .collect(Collectors.toList());
             for (ComTaskEnablement comTaskEnablement : comTasksWithoutExecutions) {
+                id++;
                 if (!first) {
                     query.append("UNION ALL");
                 } else {
@@ -119,7 +134,7 @@ public class UpgraderV10_9 implements Upgrader {
     private String insertRowSql(ComTaskEnablement comTaskEnablement, int discriminator, Long connectiontaskid, long deviceid) {
         StringBuilder query = new StringBuilder();
         query
-                .append(" SELECT '").append("DDC_COMTASKEXECID.nextval").append("', ")
+                .append(" SELECT '").append(id).append("', ")
                 .append("'").append(1).append("', ")
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")
                 .append("'").append(Instant.now().toEpochMilli()).append("', ")
@@ -159,4 +174,27 @@ public class UpgraderV10_9 implements Upgrader {
             LOGGER.log(Level.SEVERE, "Errors on update of dashboard related procedures!", e);
         }
     }
+
+    private Long toLong(ResultSet resultSet) throws SQLException {
+        if (resultSet.next()) {
+            return resultSet.getLong(1);
+        } else {
+            return null;
+        }
+    }
+
+    private void createUnsubscriberForMessageQueue() {
+        execute(dataModel, "delete from APS_SUBSCRIBEREXECUTIONSPEC where SUBSCRIBERSPEC = '" + IPV6ADDRESS_SUBSCRIBER + "'");
+        messageService.getDestinationSpec(EventService.JUPITER_EVENTS)
+                .ifPresent(jupiterEvents -> {
+                    boolean subscriberExists = jupiterEvents.getSubscribers()
+                            .stream()
+                            .anyMatch(s -> s.getName().equals(IPV6ADDRESS_SUBSCRIBER));
+
+                    if (subscriberExists) {
+                        jupiterEvents.unSubscribe(IPV6ADDRESS_SUBSCRIBER);
+                    }
+                });
+    }
+
 }

@@ -126,7 +126,7 @@ public class CryptoApplicationServiceObjectV2 extends ApplicationServiceObjectV2
                 }
             }
         } catch (HsmException e) {
-            throw ConnectionCommunicationException.unExpectedProtocolError(new NestedIOException(e));
+            throw ConnectionCommunicationException.unexpectedHsmProtocolError(new NestedIOException(e));
         } catch (UnsupportedException e) {
             throw DeviceConfigurationException.unsupportedPropertyValue("AuthenticationAccessLevel", String.valueOf(this.securityContext.getAuthenticationLevel()) + ". " + e.getMessage());
         }

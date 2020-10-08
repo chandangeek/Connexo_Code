@@ -22,6 +22,9 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -50,8 +53,8 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
         Optional<EnumeratedEndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(WebServiceActivator.getExportTaskDeviceGroupName().orElse(DEFAULT_GROUP_NAME))
                 .filter(EnumeratedEndDeviceGroup.class::isInstance)
                 .map(EnumeratedEndDeviceGroup.class::cast);
-        Optional<? extends ExportTask> exportTask = dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
         if (endDeviceGroup.isPresent()) {
+            Optional<? extends ExportTask> exportTask = dataExportService.getReadingTypeDataExportTaskByName(WebServiceActivator.getExportTaskName().orElse(DEFAULT_TASK_NAME));
             if (exportTask.isPresent()) {
                 exportTask.get().getReadingDataSelectorConfig().ifPresent(config -> {
                     Map<IdentifiedObject, List<ReadingTypeDataExportItem>> exportItemsMap = config.getExportItems().stream()
@@ -84,14 +87,13 @@ public class UpdateSapExportTaskHandler implements TaskExecutor {
     }
 
     private boolean isNothingToExportOnDataSource(ReadingTypeDataExportItem item, EndDevice member) {
-        Optional<Interval> lastProfileIdInterval = sapCustomPropertySets.getLastProfileIdIntervalForChannelOnDevice(Long.parseLong(member.getAmrId()),
-                item.getReadingType().getMRID());
-        if (lastProfileIdInterval.isPresent()) {
-            if (lastProfileIdInterval.get().getEnd() == null) {
-                return false;
-            }
-            return item.getLastExportedNewData().isPresent() && item.getLastExportedNewData().get().isAfter(lastProfileIdInterval.get().getEnd());
-        }
-        return true;
+        Optional<Range<Instant>> rangeForExport = sapCustomPropertySets.getLastProfileIdIntervalForChannelOnDevice(Long.parseLong(member.getAmrId()), item.getReadingType().getMRID())
+                .map(Interval::toOpenClosedRange);
+        return !rangeForExport.isPresent()
+                || rangeForExport.get().hasUpperBound()
+                && item.getSelector().isExportContinuousData() // data export time period is based on lastExportedPeriodEnd only in case of continuous data
+                && item.getLastExportedNewData()
+                .filter(rangeForExport.get().upperEndpoint()::isBefore)
+                .isPresent();
     }
 }

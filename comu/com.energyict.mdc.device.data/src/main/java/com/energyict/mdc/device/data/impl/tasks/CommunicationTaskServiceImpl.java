@@ -805,16 +805,17 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .filter(ComPortPool::isActive)
                         .collect(Collectors.toList());
         String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
-        QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask);
-        if (factor > 0) {
-            comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
-            // one comport is starting at row 1, the other at limit + 1
-            if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
-                comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
+        try(QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)) {
+            if (factor > 0) {
+                comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
+                // one comport is starting at row 1, the other at limit + 1
+                if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
+                    comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
+                }
             }
+            initCommunicationParameters();
+            return sortComTaskExecutions(connectionTask, comTasks);
         }
-        initCommunicationParameters();
-        return sortComTaskExecutions(connectionTask, comTasks);
     }
 
     private void initCommunicationParameters() {
@@ -1126,6 +1127,14 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public Finder<ComTaskExecutionSession> findSessionsByComTaskExecution(ComTaskExecution comTaskExecution) {
         return DefaultFinder.of(ComTaskExecutionSession.class,
                 Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK_EXECUTION.fieldName()).isEqualTo(comTaskExecution),
+                this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
+    }
+
+    @Override
+    public Finder<ComTaskExecutionSession> findSessionsByDeviceAndComTask(Device device, ComTask comTask) {
+        return DefaultFinder.of(ComTaskExecutionSession.class,
+                Where.where(ComTaskExecutionSessionImpl.Fields.DEVICE.fieldName()).isEqualTo(device).
+                        and(Where.where(ComTaskExecutionSessionImpl.Fields.COM_TASK.fieldName()).isEqualTo(comTask)),
                 this.deviceDataModelService.dataModel()).sorted(ComTaskExecutionSessionImpl.Fields.START_DATE.fieldName(), false);
     }
 

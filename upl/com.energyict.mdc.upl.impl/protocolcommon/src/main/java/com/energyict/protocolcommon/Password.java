@@ -5,8 +5,6 @@ import com.energyict.cbo.Nullable;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.Serializable;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 /**
@@ -35,17 +33,6 @@ public class Password implements Nullable, Serializable {
 
     public void setValue(String value) {
         this.value = value;
-    }
-
-    public byte[] calculateHash(int saltPara) {
-        MessageDigest md;
-        try {
-            md = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException ex) {
-            throw new RuntimeException("Invalid algorithm code", ex);
-        }
-        String source = "" + (saltPara / 3) + value + saltPara;
-        return md.digest(source.getBytes());
     }
 
     @Override

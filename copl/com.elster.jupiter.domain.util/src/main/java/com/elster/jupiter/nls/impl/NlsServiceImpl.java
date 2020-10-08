@@ -385,18 +385,19 @@ public class NlsServiceImpl implements NlsService {
                 .and(where("nlsKey.layer").isEqualTo(key.getLayer()))
                 .and(where("nlsKey.key").isEqualTo(key.getKey()));
 
-        QueryStream<NlsEntry> nlsEntryQueryStream = this.dataModel
-                .stream(NlsEntry.class).join(NlsKey.class);
-        List<NlsEntry> select = nlsEntryQueryStream
-                .filter(condition)
-                .select();
-        if (select.isEmpty()) {
-            this.uninstalledKeysMap.put(key, newKey);
-        } else {
-            select.forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
+        try(QueryStream<NlsEntry> nlsEntryQueryStream = this.dataModel
+                .stream(NlsEntry.class).join(NlsKey.class)) {
+            List<NlsEntry> nlsEntries = nlsEntryQueryStream
+                    .filter(condition)
+                    .select();
+            if (nlsEntries.isEmpty()) {
+                this.uninstalledKeysMap.put(key, newKey);
+            } else {
+                nlsEntries.forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
+            }
+            this.dataModel.mapper(NlsKey.class).persist(newKey);
+            this.invalidate(targetComponent, targetLayer);
         }
-        this.dataModel.mapper(NlsKey.class).persist(newKey);
-        this.invalidate(targetComponent, targetLayer);
     }
 
     private String interpolate(String messageTemplate) {

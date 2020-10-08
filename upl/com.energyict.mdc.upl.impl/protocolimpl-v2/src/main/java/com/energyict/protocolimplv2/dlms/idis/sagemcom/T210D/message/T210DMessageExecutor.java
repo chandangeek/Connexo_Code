@@ -1,5 +1,14 @@
 package com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.message;
 
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.aso.SecurityContext;
+import com.energyict.dlms.aso.SecurityPolicy;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
+import com.energyict.dlms.cosem.attributeobjects.dataprotection.DataProtectionFactory;
+import com.energyict.dlms.cosem.attributeobjects.dataprotection.ProtectionType;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -9,51 +18,13 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
-
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.aso.SecurityPolicy;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Integer16;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.ActivityCalendar;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DataAccessResultCode;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.DataProtection;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.cosem.GeneralLocalPortReadout;
-import com.energyict.dlms.cosem.ImageTransfer;
-import com.energyict.dlms.cosem.MBusClient;
-import com.energyict.dlms.cosem.ObjectDefinition;
-import com.energyict.dlms.cosem.RegisterMonitor;
-import com.energyict.dlms.cosem.SingleActionSchedule;
-import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
-import com.energyict.dlms.cosem.attributeobjects.dataprotection.DataProtectionFactory;
-import com.energyict.dlms.cosem.attributeobjects.dataprotection.ProtectionType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
-import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
-import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
-import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
-import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.File;
@@ -66,12 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.negativeThresholdInAmpereAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.phaseAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.positiveThresholdInAmpereAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 
 /**
  * Created by cisac on 8/1/2016.
@@ -488,7 +454,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         timeDate.addDataType(OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(disabledDate, "")));
         executionTimes.addDataType(timeDate);
         ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
-        pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.On_Installation.getId());
+        pushSetupObisCode = pushSetupObisCode.setB(AlarmConfigurationMessage.PushType.On_Installation.getId());
         writeExecutionTime(executionTimes, pushSetupObisCode);
     }
 
@@ -496,7 +462,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         String executionMinutesForEachHour = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionMinutesForEachHour).getValue();
         String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
-        pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
+        pushSetupObisCode = pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
         List<String> executionMinutes = extractExecutionMinutesFromString(executionMinutesForEachHour);
         Array executionTimes = new Array();
         for (String minuteValue : executionMinutes) {
@@ -513,7 +479,7 @@ public class T210DMessageExecutor extends AM540MessageExecutor {
         String executionTimeDateArray = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionTimeDateArray).getValue();
         String setupType = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.typeAttributeName).getValue();
         ObisCode pushSetupObisCode = PUSH_ACTION_SCHEDULER_OBISCODE;
-        pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
+        pushSetupObisCode = pushSetupObisCode.setB(ConfigurationChangeDeviceMessage.PushType.valueOf(setupType).getId());
         Array executionTimes = new Array();
         String[] executionDateTimes = executionTimeDateArray.trim().split(";");
         for (String timeDateValueInHex : executionDateTimes) {

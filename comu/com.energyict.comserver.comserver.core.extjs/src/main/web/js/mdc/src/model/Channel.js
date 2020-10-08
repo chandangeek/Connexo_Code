@@ -29,6 +29,7 @@ Ext.define('Mdc.model.Channel', {
         {name: 'loadProfileId', type: 'number', useNull: true},
         {name: 'loadProfileName', type: 'string', useNull: true},
         {name: 'nbrOfFractionDigits', type: 'int'},
+        {name: 'endOfInterval', type: 'number'},
         {
             name: 'registerTypeName',
             type: 'string',

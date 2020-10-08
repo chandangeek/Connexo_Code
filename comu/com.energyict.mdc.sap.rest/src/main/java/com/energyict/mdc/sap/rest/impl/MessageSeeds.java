@@ -16,6 +16,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_LRN(4, "NoLrn", "No LRN is available on current or future data sources on the device."),
     DEVICE_ALREADY_REGISTERED(5, "DeviceAlreadyRegistered", "Device already registered (Registered flag is true on Device SAP info CAS)."),
     REQUEST_SENDING_HAS_FAILED(6, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),
+    NO_SUCH_MESSAGE_QUEUE(7, "NoSuchMessageQueue", "Unable to queue command: no message queue was found"),
+    NO_APPSERVER(8, "NoAppServer", "There is no active application server that can handle this request"),
+    BAD_ACTION(9, "BadAction", "Expected action to be either ''add'' or ''remove''."),
     ;
 
     private final int number;

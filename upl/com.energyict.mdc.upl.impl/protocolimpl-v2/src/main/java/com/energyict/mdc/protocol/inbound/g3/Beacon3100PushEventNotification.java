@@ -1,6 +1,6 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
-import com.energyict.cbo.ObservationTimestampPropertyImpl;
+import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
@@ -186,7 +186,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
         switch (action) {
             case ADD:
-                CollectedTopology.ObservationTimestampProperty lastSeenDateInfo = new ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, getNow());
+                ObservationDateProperty lastSeenDateInfo = new ObservationDateProperty(G3Properties.PROP_LASTSEENDATE, getNow());
                 deviceTopology.addJoinedSlaveDevice(slaveDeviceIdentified, lastSeenDateInfo);
                 break;
 
@@ -261,7 +261,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         CollectedTopology deviceTopology = collectedDataFactory.createCollectedTopology(getDeviceIdentifier());
 
         BigDecimal lastSeenDate = getNow();
-        CollectedTopology.ObservationTimestampProperty lastSeenDateInfo = new ObservationTimestampPropertyImpl(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
+        ObservationDateProperty lastSeenDateInfo = new ObservationDateProperty(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
         deviceTopology.addJoinedSlaveDevice(slaveDeviceIdentifier, lastSeenDateInfo);
 
         if (json.has(JSON_SAP_DLMS_GW)) {

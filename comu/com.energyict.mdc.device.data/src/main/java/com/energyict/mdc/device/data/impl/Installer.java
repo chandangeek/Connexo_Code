@@ -144,7 +144,6 @@ public class Installer implements FullInstaller {
         if (destinationSpec.isPresent()) {
             DestinationSpec jupiterEvents = destinationSpec.get();
             Stream.of(
-                    Pair.of(SubscriberTranslationKeys.IPV6ADDRESS_SUBSCRIBER, whereCorrelationId().isEqualTo(EventType.DEVICE_UPDATED_IPADDRESSV6.topic())),
                     Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_CONNECTION, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),
                     Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_PRIORITY, whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/comtaskenablement/PRIORITY_UPDATED")),
                     Pair.of(SubscriberTranslationKeys.COMTASK_ENABLEMENT_STATUS, whereCorrelationId().like("com/energyict/mdc/device/config/comtaskenablement/%")),

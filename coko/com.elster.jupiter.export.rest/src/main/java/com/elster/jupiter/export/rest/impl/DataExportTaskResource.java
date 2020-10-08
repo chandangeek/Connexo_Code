@@ -41,6 +41,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
@@ -218,6 +219,7 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     @Transactional
     public PagedInfoList getAllDataExportTaskHistory(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         String applicationName = getApplicationNameFromCode(appCode);
         DataExportOccurrenceFinder occurrencesFinder = dataExportService.getDataExportOccurrenceFinder();
         List<Long> taskIds = dataExportService.findExportTasks().ofApplication(applicationName)
@@ -613,7 +615,8 @@ public class DataExportTaskResource {
         ExportTask task = findTaskOrThrowException(id, appCode);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart().orElse(0))
-                .setLimit(queryParameters.getLimit().orElse(0) + 1);
+                .setLimit(queryParameters.getLimit().orElse(0) + 1)
+                .setOrder(queryParameters.getSortingColumns());
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
@@ -640,7 +643,7 @@ public class DataExportTaskResource {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "status");
             }
         }
-
+        occurrencesFinder.setOrder(queryParameters.getSortingColumns());
         History<ExportTask> history = task.getHistory();
         List<DataExportTaskHistoryInfo> infos = occurrencesFinder.stream()
                 .map(occurrence -> dataExportTaskHistoryInfoFactory.asInfo(history, occurrence))

@@ -74,6 +74,7 @@ public class MeterReadingEventHandlerTest {
         when(serviceCall.getType()).thenReturn(serviceCallType);
         when(serviceCallType.getName()).thenReturn(OnDemandReadServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         when(serviceCall.canTransitionTo(any(DefaultState.class))).thenReturn(true);
+        when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
         onDemandReadServiceCallDomainExtension = new OnDemandReadServiceCallDomainExtension();
         onDemandReadServiceCallDomainExtension.setExpectedTasks(BigDecimal.ONE);
         onDemandReadServiceCallDomainExtension.setCompletedTasks(BigDecimal.ZERO);
@@ -81,7 +82,7 @@ public class MeterReadingEventHandlerTest {
         onDemandReadServiceCallDomainExtension.setTriggerDate(Instant.MIN);
         when(serviceCall.getExtensionFor(any(OnDemandReadServiceCallCustomPropertySet.class))).thenReturn(Optional.of(onDemandReadServiceCallDomainExtension));
         when(serviceCall.getExtension(any())).thenReturn(Optional.of(onDemandReadServiceCallDomainExtension));
-        when(serviceCallService.getServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
+        when(serviceCallService.lockServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
         when(serviceCallService.findServiceCalls(eq(device), any())).thenReturn(Collections.singleton(serviceCall));
         when(serviceCallService.getServiceCallFinder(any())).thenReturn(finder);
         when(finder.find()).thenReturn(Collections.singletonList(serviceCall));

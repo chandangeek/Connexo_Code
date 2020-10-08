@@ -28,6 +28,7 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
@@ -83,6 +84,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -246,7 +248,16 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                 .filter(mapping -> mapping.getPossibleDeviceMessageIdGroups().stream().anyMatch(supportedMessages::containsAll))
                 .map(this::findEndDeviceControlType)
                 .collect(Collectors.toList());
-        return new EndDeviceCapabilities(readingTypes, controlTypes);
+        Map<ReadingType, Long> readingTypeOffsetMap = new HashMap<>();
+        List<ChannelSpec> channelSpecs = device.getDeviceConfiguration().getChannelSpecs();
+        readingTypes.forEach(readingType -> readingTypeOffsetMap.put(
+                readingType,
+                channelSpecs.stream()
+                        .filter(channelSpec -> channelSpec.getReadingType().equals(readingType))
+                        .map(ChannelSpec::getOffset)
+                        .findFirst()
+                        .orElse(0L)));
+        return new EndDeviceCapabilities(readingTypeOffsetMap, controlTypes, device.getZone());
     }
 
     @Override
@@ -425,7 +436,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     @Override
     public CompletionOptions sendCommand(EndDeviceCommand endDeviceCommand, Instant releaseDate, ServiceCall parentServiceCall, boolean withPriority) {
-        Device multiSenseDevice = findDeviceForEndDevice(endDeviceCommand.getEndDevice());
+        Device multiSenseDevice = findAndLockDeviceForEndDevice(endDeviceCommand.getEndDevice());
         ServiceCall serviceCall = getServiceCallCommands().createOperationServiceCall(Optional.ofNullable(parentServiceCall),
                 multiSenseDevice, endDeviceCommand.getEndDeviceControlType(), releaseDate);
         serviceCall.requestTransition(DefaultState.PENDING);
@@ -441,7 +452,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages, needToExecuteComTaskWithPriority);
-            scheduleDeviceCommandsComTaskEnablement(multiSenseDevice, deviceMessages, needToExecuteComTaskWithPriority);  // Intentionally reload the device here
+            scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages, needToExecuteComTaskWithPriority); // Intentionally reload the device here
             serviceCall.log(LogLevel.INFO, MessageFormat.format("Scheduled {0} device command(s).", deviceMessages.size()));
             serviceCall.requestTransition(DefaultState.WAITING);
             return new CompletionOptionsImpl(serviceCall);
@@ -530,7 +541,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
                     .map(DeviceMessage::getReleaseDate)
                     .distinct()
                     .forEach(lockedComTaskExecution::addNewComTaskExecutionTrigger);
-
             lockedComTaskExecution.updateNextExecutionTimestamp();
         }
     }
@@ -579,6 +589,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private Device findDeviceForEndDevice(EndDevice endDevice) {
         long deviceId = Long.parseLong(endDevice.getAmrId());
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
+    }
+
+    private Device findAndLockDeviceForEndDevice(EndDevice endDevice) {
+        long deviceId = Long.parseLong(endDevice.getAmrId());
+        return deviceService.findAndLockDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
     private Optional<Device> findOptionalDeviceForEndDevice(EndDevice endDevice) {

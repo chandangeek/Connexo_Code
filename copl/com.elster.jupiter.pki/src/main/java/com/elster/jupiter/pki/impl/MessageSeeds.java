@@ -100,7 +100,16 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_LABEL(1085, Keys.INVALID_LABEL, "This label is invalid (non empty label required)"),
     SKIPPING_SIGNATURE_VERIFICATION(1086, "SkipSignatureVerification", "Skipping signature verification"),
     PROCESSING_CSR(1087, "ProcessingCSR", "Processing CSR for serial {0} and alias {1}" , Level.INFO),
-    FUAK_RENEW_NOT_SUPPORTED(1088, "FUAKRenewNotSupported", "FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.", Level.INFO);
+    FUAK_RENEW_NOT_SUPPORTED(1088, "FUAKRenewNotSupported", "FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.", Level.INFO),
+    ALIAS_NOT_FOUND_EXCEPTION(1089, "AliasNotFound", "Alias not found: {0}", Level.WARNING),
+    ALIAS_NOT_UNIQUE_EXCEPTION(1090, "AliasNotUnique", "Alias {0} is not unique", Level.WARNING),
+    CANNOT_EXTRACT_COMMON_NAME(1091, "CannotExtractCommonName", "Cannot extract CN from {0}", Level.WARNING),
+    CANNOT_RENEW_REVERSIBLE_KEY(1092, "cannotRenewReversibleKey", "Cannot renew reversible key. Please check if the label can be used for reversible keys or any length.", Level.SEVERE),
+    NO_WRAPPER_ACTUAL_VALUE(1093, "noWrapperValue", "A wrapper key is necessary to renew this key!", Level.SEVERE),
+    PROPERTY_FORMAT_ERROR(1100, "PropertyFormatError", "Incorrect format of the property ''{0}''."),
+    PROPERTY_IS_NOT_SET(1101, "PropertyIsNotSetError", "Property ''{0}'' isn''t set."),
+    ADD_CERTIFICATE_REQUEST_DATA_TASK_FAILED(1102, "AddCertificateRequestDataTaskFailed", "Add certificate request data task failed: {0}."),
+    ;
 
     private final int number;
     private final String key;
@@ -158,7 +167,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALIDPASSPHRASELENGTH = "InvalidPassphraseLength";
         public static final String INVALID_KEY_SIZE = "InvalidKeySize";
         public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
-        public static final String HEXBINARY_EVEN_LENGTH="HexBinaryEvenLength";
+        public static final String HEXBINARY_EVEN_LENGTH = "HexBinaryEvenLength";
     }
 
 }

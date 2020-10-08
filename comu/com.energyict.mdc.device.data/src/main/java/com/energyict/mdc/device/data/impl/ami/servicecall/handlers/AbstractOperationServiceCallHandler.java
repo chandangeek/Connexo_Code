@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
@@ -41,14 +42,17 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
     private volatile MessageService messageService;
     private volatile Thesaurus thesaurus;
     private volatile CompletionOptionsCallBack completionOptionsCallBack;
+    private volatile DeviceMessageService deviceMessageService;
 
     public AbstractOperationServiceCallHandler() {
     }
 
-    public AbstractOperationServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack) {
+    public AbstractOperationServiceCallHandler(MessageService messageService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack,
+                                               DeviceMessageService deviceMessageService) {
         this.setMessageService(messageService);
         this.setThesaurus(thesaurus);
         this.setCompletionOptionsCallBack(completionOptionsCallBack);
+        this.setDeviceMessageService(deviceMessageService);
     }
 
     protected MessageService getMessageService() {
@@ -73,6 +77,14 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
 
     protected void setThesaurus(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
+    }
+
+    protected DeviceMessageService getDeviceMessageService() {
+        return deviceMessageService;
+    }
+
+    protected void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Activate
@@ -160,7 +172,9 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
      */
     private void tryToRevokeDeviceMessage(DeviceMessage msg, ServiceCall serviceCall) {
         try {
-            msg.revoke();
+            DeviceMessage lockedDeviceMessage = deviceMessageService.findAndLockDeviceMessageById(msg.getId())
+                    .orElseThrow(() -> new IllegalStateException("Unable to find device message with id " + msg.getId()));
+            lockedDeviceMessage.revoke();
         } catch (ConstraintViolationException e) {
             serviceCall.log(
                     LogLevel.SEVERE,
