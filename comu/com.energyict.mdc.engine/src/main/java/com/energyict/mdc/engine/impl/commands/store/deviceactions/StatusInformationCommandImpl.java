@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
@@ -60,8 +61,12 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
         final String deviceSerialNumber = comTaskExecution.getDevice().getSerialNumber();
         if (isFirmwareVersionManagementAllowed(getOfflineDevice(), deviceSerialNumber)) {
             CollectedFirmwareVersion firmwareVersions = deviceProtocol.getFirmwareVersions(comTaskExecution.getDevice().getSerialNumber());
-            firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
-            addCollectedDataItem(firmwareVersions);
+            if (firmwareVersions != null) {
+                firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
+                addCollectedDataItem(firmwareVersions);
+            } else {
+                addIssue(getIssueService().newWarning(this, com.energyict.mdc.engine.impl.commands.MessageSeeds.FIRMWARE_INFORMATION_NOT_SUPPORTED), CompletionCode.ConfigurationError);
+            }
         }
 
         CollectedBreakerStatus breakerStatus = deviceProtocol.getBreakerStatus();
@@ -76,7 +81,7 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
     }
 
     private boolean isFirmwareVersionManagementAllowed(OfflineDevice offlineDevice, String deviceSerialNumber) {
-        if (offlineDevice.getSerialNumber().equals( deviceSerialNumber )) {
+        if (offlineDevice.getSerialNumber().equals(deviceSerialNumber)) {
             return offlineDevice.firmwareVersionManagementAllowed();
         }
         // task was executed from slave device, check the slave

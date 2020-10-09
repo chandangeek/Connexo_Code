@@ -574,7 +574,7 @@ public class CertificateWrapperResource {
     @Path("ejbca/endentities")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCAEndEntity(){
+    public Response getEJBCAEndEntity() {
         return Response.ok(new Options(caService.getEndEntities())).build();
     }
 
@@ -582,7 +582,7 @@ public class CertificateWrapperResource {
     @Path("ejbca/caname/{endentityId}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCACaName(@PathParam("endentityId") int endentityId){
+    public Response getEJBCACaName(@PathParam("endentityId") int endentityId) {
         return Response.ok(new Options(caService.getCaName(endentityId))).build();
     }
 
@@ -590,7 +590,7 @@ public class CertificateWrapperResource {
     @Path("ejbca/certificateprofile/{endentityId}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCACertProfile(@PathParam("endentityId")int endentityId){
+    public Response getEJBCACertProfile(@PathParam("endentityId") int endentityId) {
         return Response.ok(new Options(caService.getCertificateProfile(endentityId))).build();
     }
 

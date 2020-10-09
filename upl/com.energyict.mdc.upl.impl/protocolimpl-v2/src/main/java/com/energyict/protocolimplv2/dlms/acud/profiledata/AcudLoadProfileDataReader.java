@@ -28,16 +28,12 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class AcudLoadProfileDataReader {
 
     protected final static ObisCode ELECTRICITY_MAXIMUM_DEMAND_LP = ObisCode.fromString("1.0.98.1.3.255");
-    protected final static ObisCode ELECTRICITY_INSTANTANEOUS_LP  = ObisCode.fromString("1.96.98.128.0.255");
+    protected final static ObisCode ELECTRICITY_INSTANTANEOUS_LP = ObisCode.fromString("1.96.98.128.0.255");
 
     private final IssueFactory issueFactory;
     private final OfflineDevice offlineDevice;
@@ -71,7 +67,7 @@ public class AcudLoadProfileDataReader {
                     channelInfos.stream().filter(
                             ci -> ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                     ).forEach(
-                            ci -> ci.setName( ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 2, 5).toString() )
+                            ci -> ci.setName(ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 2, 5).toString())
                     );
                 }
 
@@ -132,7 +128,7 @@ public class AcudLoadProfileDataReader {
      * @return requested configuration
      */
     protected CollectedLoadProfileConfiguration getLoadProfileConfiguration(LoadProfileReader loadProfileReader) {
-        if( this.loadProfileConfigs != null ) {
+        if (this.loadProfileConfigs != null) {
             for (CollectedLoadProfileConfiguration lpc : this.loadProfileConfigs) {
                 if (loadProfileReader.getProfileObisCode().equals(lpc.getObisCode()) && loadProfileReader.getMeterSerialNumber().equalsIgnoreCase(lpc.getMeterSerialNumber())) {
                     return lpc;

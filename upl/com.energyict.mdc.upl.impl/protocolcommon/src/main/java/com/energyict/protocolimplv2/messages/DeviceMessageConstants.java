@@ -1872,10 +1872,28 @@ public final class DeviceMessageConstants {
     public static final String repetitionDelay = "repetitionDelay";
     public static final String repetitionDelayDefaultTranslation = "Repetition Delay";
 
-    public static final String chargeTypeAttributeName = "chargeType";
-    public static final String chargeTypeAttributeNameDefaultTranslation = "Charge Type";
-    public static final String creditTypeAttributeName = "creditType";
-    public static final String creditTypeAttributeNameDefaultTranslation = "Credit Type";
+    public static final String chargeMode = "chargeMode";
+    public static final String chargeModeDefaultTranslation = "Choose charge mode";
+    public static final String chargeType = "chargeType";
+    public static final String chargeTypeDefaultTranslation = "Charge Type";
+    public static final String creditType = "creditType";
+    public static final String creditTypeDefaultTranslation = "Credit Type";
+
+    public static final String monthlyTax = "monthlyTax";
+    public static final String monthlyTaxDefaultTranslation = "MonthlyTax";
+    public static final String zeroConsumptionTax = "zeroConsumptionTax";
+    public static final String zeroConsumptionTaxDefaultTranslation = "Zero Consumption Tax";
+    public static final String consumptionTax = "consumptionTax";
+    public static final String consumptionTaxDefaultTranslation = "Consumption Tax";
+    public static final String consumptionAmount = "consumptionAmount";
+    public static final String consumptionAmountDefaultTranslation = "Consumption Amount (KWH)";
+    public static final String consumptionLimit = "consumptionLimit";
+    public static final String consumptionLimitDefaultTranslation = "Consumption Limit (KWH)";
+
+    public static final String tariffType = "tariffType";
+    public static final String tariffTypeDefaultTranslation = "Tariff to switch";
+    public static final String activationDate = "activationDate";
+    public static final String activationDateDefaultTranslation = "Activation Date";
 
     public static final String creditAmount = "creditAmount";
     public static final String creditAmountDefaultTranslation = "Credit Amount";
@@ -1887,7 +1905,6 @@ public final class DeviceMessageConstants {
     public static final String remainingTimeHighDefaultTranslation = "Remaining Time High Threshold (hours)";
     public static final String creditDaysLimitFirst = "creditDaysLimitFirst";
     public static final String creditDaysLimitFirstDefaultTranslation = "Grace period before warning (days)";
-
 
     public static final String remainingCreditLow = "remainingCreditLow";
     public static final String remainingCreditLowDefaultTranslation = "Remaining Credit Low Threshold";
@@ -1953,6 +1970,12 @@ public final class DeviceMessageConstants {
 
     public static final String tariffCode = "tariffCode";
     public static final String tariffCodeDefaultTranslation = "Tariff Code";
+    public static final String additionalTaxesType = "additionalTaxesType";
+    public static final String additionalTaxesTypeDefaultTranslation = "Additional taxes configuration";
+    public static final String graceRecalculationType = "graceRecalculationType";
+    public static final String graceRecalculationTypeDefaultTranslation = "Active Import Grace Recalculation Type";
+    public static final String graceRecalculationValue = "graceRecalculationValue";
+    public static final String graceRecalculationValueDefaultTranslation = "Active Import Grace Recalculation Value";
 
     public static final String chargeStep1 = "chargeStep1";
     public static final String chargeStep1DefaultTranslation = "Step1 Charge";

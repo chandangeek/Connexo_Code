@@ -2,9 +2,8 @@ package com.energyict.protocolimpl.dlms.siemenszmd;
 
 import com.energyict.mdc.upl.UnsupportedException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.protocolimpl.dlms.common.NTASecurityProvider;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
@@ -94,7 +93,7 @@ public class ZMDSecurityProvider extends NTASecurityProvider {
             case VARIANT5_ADD:
                 encryptedAuthenticationValue = bitWiseAdd(encryptedAuthenticationValue, convertASCIIArrayToIntegerArray(getHLSSecret()));break;
         }
-        return convertIntegerArrayToASCIIArray(DLMSUtils.concatByteArrays(encryptedAuthenticationValue, new byte[]{(byte) encryptionType}));
+        return convertIntegerArrayToASCIIArray(ProtocolTools.concatByteArrays(encryptedAuthenticationValue, new byte[]{(byte) encryptionType}));
     }
 
     /**

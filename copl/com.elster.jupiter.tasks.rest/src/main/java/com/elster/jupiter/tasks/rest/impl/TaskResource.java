@@ -55,6 +55,7 @@ import java.util.stream.Collectors;
 @Path("/task")
 public class TaskResource {
 
+    private static final String ADD_CERTIFICATE_REQUEST_DATA_TASK_NAME = "Add Certificate Request Data Task";
     private final Thesaurus thesaurus;
     private final TaskService taskService;
     private final TimeService timeService;
@@ -303,5 +304,18 @@ public class TaskResource {
         if (numberBetweenFilter.operator == null) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
+    }
+
+    @PUT
+    @Transactional
+    @Path("/runaddcertreqdatatask")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.EXECUTE_ADD_CERTIFICATE_REQUEST_DATA_TASK})
+    public Response runAddCertificateRequestDataTask() {
+        RecurrentTask recurrentTask = taskService.getRecurrentTask(ADD_CERTIFICATE_REQUEST_DATA_TASK_NAME).orElseThrow(
+                () -> new WebApplicationException(Response.Status.NOT_FOUND));
+        recurrentTask.triggerNow();
+        return Response.ok().build();
     }
 }

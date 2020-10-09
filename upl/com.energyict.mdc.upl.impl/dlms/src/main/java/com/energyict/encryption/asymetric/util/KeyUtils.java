@@ -6,22 +6,10 @@ import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.math.BigInteger;
-import java.security.AlgorithmParameters;
-import java.security.GeneralSecurityException;
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECGenParameterSpec;
-import java.security.spec.ECParameterSpec;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPrivateKeySpec;
-import java.security.spec.ECPublicKeySpec;
-import java.security.spec.InvalidParameterSpecException;
+import java.security.spec.*;
+import java.util.logging.Logger;
 
 /**
  * Key utilities, conversion utilities and the likes.
@@ -30,6 +18,7 @@ import java.security.spec.InvalidParameterSpecException;
  */
 public final class KeyUtils {
 
+    private static final Logger logger = Logger.getLogger(KeyUtils.class.getName());
     /**
      * The ECC algo.
      */
@@ -70,6 +59,7 @@ public final class KeyUtils {
 
             return keyFactory.generatePublic(spec);
         } catch (GeneralSecurityException e) {
+            logger.severe("Security exception:" + e.getMessage());
             throw DataParseException.generalParseException(e);
         }
     }
@@ -126,6 +116,8 @@ public final class KeyUtils {
             parameters.init(new ECGenParameterSpec(curve.getCurveName()));
             return parameters.getParameterSpec(ECParameterSpec.class);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | InvalidParameterSpecException e) {
+
+            logger.severe("Security exception:" + e.getMessage());
             throw DataEncryptionException.dataEncryptionException(e);
         }
     }

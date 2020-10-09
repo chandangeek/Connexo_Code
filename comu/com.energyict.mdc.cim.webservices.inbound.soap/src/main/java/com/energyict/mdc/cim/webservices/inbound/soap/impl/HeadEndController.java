@@ -52,7 +52,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditAmount;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditDaysLimitFirst;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditDaysLimitScnd;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditType;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.graceWarningStep1;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.graceWarningStep10;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.graceWarningStep2;
@@ -189,7 +189,7 @@ public class HeadEndController {
     private void checkAndSetUpdateCreditAmountAttributes(DeviceCommandInfo deviceCommandInfo, List<EndDeviceControlAttribute> attributes, String commandCode) {
         List<EndDeviceControlAttribute> copyAttributes = new ArrayList<>(attributes);
         try {
-            deviceCommandInfo.setCreditType(extractMandatoryAttribute(copyAttributes, commandCode, creditTypeAttributeName));
+            deviceCommandInfo.setCreditType(extractMandatoryAttribute(copyAttributes, commandCode, creditType));
             deviceCommandInfo.setCreditAmount(new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, creditAmount)));
         } catch (Exception ex) {
             throw CommandException.inappropriateCommandAttributes(thesaurus, commandCode);

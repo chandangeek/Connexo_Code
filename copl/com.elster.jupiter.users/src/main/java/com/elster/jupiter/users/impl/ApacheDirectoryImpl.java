@@ -220,8 +220,9 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         ManagedSSLSocketFactory
                 .setSocketFactory(new ManagedSSLSocketFactory(getSocketFactory(sslSecurityProperties, SSL)));
         Thread.currentThread().setContextClassLoader(ManagedSSLSocketFactory.class.getClassLoader());
+        DirContext context = null;
         try {
-            DirContext context = new InitialDirContext(env);
+            context = new InitialDirContext(env);
             if (!isDn && shouldUseDirectoryUserToFindUserDN()) {
                 String userDn = findLDAPUserDn(name, context);
                 if (userDn == null) {
@@ -240,6 +241,14 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
             } else {
                 return Optional.empty();
             }
+        } finally {
+            if(context != null) {
+                try {
+                    context.close();
+                } catch (NamingException e) {
+                    LOGGER.severe(e.getMessage());
+                }
+            }
         }
     }
 
@@ -250,16 +259,17 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         env.putAll(commonEnvLDAP);
         env.put(Context.PROVIDER_URL, urls.get(0));
         StartTlsResponse tls = null;
+        LdapContext ctxs = null;
         try {
-            LdapContext ctx = new InitialLdapContext(env, null);
+            ctxs = new InitialLdapContext(env, null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
-            ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
+            ExtendedResponse tlsResponse = ctxs.extendedOperation(tlsRequest);
             tls = (StartTlsResponse) tlsResponse;
             tls.negotiate(getSocketFactory(sslSecurityProperties, TLS));
             putSecurityPrincipal(name, password, isDn, env);
             env.put(Context.SECURITY_CREDENTIALS, password);
             if (!isDn && shouldUseDirectoryUserToFindUserDN()) {
-                String userDn = findLDAPUserDn(name, ctx);
+                String userDn = findLDAPUserDn(name, ctxs);
                 if (userDn == null) {
                     return Optional.empty();
                 }
@@ -277,6 +287,13 @@ final class ApacheDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
                 return Optional.empty();
             }
         } finally {
+            if(ctxs != null) {
+                try {
+                    ctxs.close();
+                } catch (NamingException ex) {
+                    LOGGER.severe(ex.getMessage());
+                }
+            }
             if (tls != null) {
                 try {
                     tls.close();

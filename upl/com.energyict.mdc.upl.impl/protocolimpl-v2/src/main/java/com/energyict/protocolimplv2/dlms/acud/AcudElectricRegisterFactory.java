@@ -52,8 +52,8 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
 
     protected String readLoadLimits(Array array) {
         StringBuffer buff = new StringBuffer("{");
-        for(Iterator<AbstractDataType> it = array.iterator();it.hasNext();) {
-            Structure limit = (Structure)it.next();
+        for (Iterator<AbstractDataType> it = array.iterator(); it.hasNext(); ) {
+            Structure limit = (Structure) it.next();
             buff.append(limit.getDataType(0).getUnsigned16().getValue());
             buff.append(VALUE_SEPARATOR);
             buff.append(limit.getDataType(1).getUnsigned16().getValue());
