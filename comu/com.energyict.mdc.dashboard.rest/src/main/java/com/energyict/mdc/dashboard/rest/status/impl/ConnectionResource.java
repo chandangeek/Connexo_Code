@@ -115,9 +115,10 @@ public class ConnectionResource {
         this.conflictFactory = conflictFactory;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/connectiontypepluggableclasses")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Object getConnectionTypeValues() {
         List<IdWithNameInfo> names = new ArrayList<>();
@@ -129,9 +130,10 @@ public class ConnectionResource {
         return Response.ok(map).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnections(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
         ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
@@ -145,6 +147,17 @@ public class ConnectionResource {
             connectionTaskInfos.add(connectionTaskInfoFactory.from(connectionTask, lastComSession));
         }
         return Response.ok(PagedInfoList.fromPagedList("connectionTasks", connectionTaskInfos, queryParameters)).build();
+    }
+
+    @GET
+    @Transactional
+    @Path("/count")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response getConnectionsCount(@BeanParam JsonQueryFilter jsonQueryFilter) throws Exception {
+        ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
+        return Response.ok(connectionTaskService.getConnectionTasksCount(filter)).build();
     }
 
     private ConnectionTaskFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
@@ -179,8 +192,8 @@ public class ConnectionResource {
 
         filter.latestResults = new HashSet<>();
         if (jsonQueryFilter.hasProperty(FilterOption.latestResults.name())) {
-            List <String> defaultIndicators  = jsonQueryFilter.getStringList(FilterOption.latestResults.name());
-            List <String> trimmedIndicators = new ArrayList<String>();
+            List<String> defaultIndicators = jsonQueryFilter.getStringList(FilterOption.latestResults.name());
+            List<String> trimmedIndicators = new ArrayList<String>();
             int i = 0;
             while (i < defaultIndicators.size()) {
                 trimmedIndicators.add(defaultIndicators.get(i).substring(defaultIndicators.get(i).indexOf(".") + 1));
@@ -245,7 +258,7 @@ public class ConnectionResource {
     }
 
     private ConnectionTaskFilterSpecificationMessage substituteRestToDomainEnums(ConnectionTaskFilterSpecificationMessage jsonQueryFilter) throws Exception {
-        if (jsonQueryFilter.currentStates!=null) {
+        if (jsonQueryFilter.currentStates != null) {
             jsonQueryFilter.currentStates =
                     jsonQueryFilter.currentStates
                             .stream()
@@ -254,7 +267,7 @@ public class ConnectionResource {
                             .collect(toSet());
         }
 
-        if (jsonQueryFilter.latestResults!=null) {
+        if (jsonQueryFilter.latestResults != null) {
             jsonQueryFilter.latestResults =
                     jsonQueryFilter.latestResults
                             .stream()
@@ -263,7 +276,7 @@ public class ConnectionResource {
                             .collect(toSet());
         }
 
-        if (jsonQueryFilter.latestStates!=null) {
+        if (jsonQueryFilter.latestStates != null) {
             jsonQueryFilter.latestStates =
                     jsonQueryFilter.latestStates
                             .stream()
@@ -275,9 +288,10 @@ public class ConnectionResource {
         return jsonQueryFilter;
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/{connectionId}/latestcommunications")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public PagedInfoList getCommunications(@PathParam("connectionId") long connectionId, @BeanParam JsonQueryParameters queryParameters) {
         ConnectionTask connectionTask =
@@ -293,9 +307,10 @@ public class ConnectionResource {
         return PagedInfoList.fromCompleteList("communications", comTaskExecutionSessionInfoFactory.from(comTaskExecutionSessions), queryParameters);
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/{connectionId}/run")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     // TODO Would be better if this method moved to ConnectionResource in device.data.rest
@@ -322,16 +337,17 @@ public class ConnectionResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/run")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runConnectionTask(ConnectionsBulkRequestInfo connectionsBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        if (connectionsBulkRequestInfo !=null && connectionsBulkRequestInfo.filter!=null) {
+        if (connectionsBulkRequestInfo != null && connectionsBulkRequestInfo.filter != null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
                 return processMessagePost(new ItemizeConnectionFilterRescheduleQueueMessage(substituteRestToDomainEnums(connectionsBulkRequestInfo.filter), "scheduleNow"), destinationSpec.get());
@@ -339,7 +355,7 @@ public class ConnectionResource {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
             }
 
-        } else if (connectionsBulkRequestInfo !=null && connectionsBulkRequestInfo.connections!=null) {
+        } else if (connectionsBulkRequestInfo != null && connectionsBulkRequestInfo.connections != null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
                 connectionsBulkRequestInfo.connections.stream().forEach(c -> processMessagePost(new RescheduleConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec.get()));
@@ -351,9 +367,10 @@ public class ConnectionResource {
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/properties")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getCommonConnectionTaskProperties(@QueryParam("filter") String filterQueryParam, @QueryParam("connections") String connectionsQueryParam) throws Exception {
@@ -361,20 +378,21 @@ public class ConnectionResource {
         List<PropertySpec> propertySpecs = connectionType.getPropertySpecs();
         TypedProperties typedProperties = connectionType.getProperties(propertySpecs);
         PropertiesBulkRequestInfo info = new PropertiesBulkRequestInfo();
-        info.properties=mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, typedProperties);
+        info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(propertySpecs, typedProperties);
         return Response.ok(info).build();
     }
 
-    @PUT @Transactional
+    @PUT
+    @Transactional
     @Path("/properties")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateCommonConnectionTaskProperties(PropertiesBulkRequestInfo propertiesBulkRequestInfo) throws Exception {
         if (!verifyAppServerExists(ConnectionTaskService.FILTER_ITEMIZER_PROPERTIES_QUEUE_DESTINATION) || !verifyAppServerExists(ConnectionTaskService.CONNECTION_PROP_UPDATER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        if (propertiesBulkRequestInfo!=null && propertiesBulkRequestInfo.properties!=null && !propertiesBulkRequestInfo.properties.isEmpty()) {
+        if (propertiesBulkRequestInfo != null && propertiesBulkRequestInfo.properties != null && !propertiesBulkRequestInfo.properties.isEmpty()) {
             // we do the call below merely as validation for uniqueness of ConnectionTypePluggableClass
             getConnectionTypePluggableClassFromQueryParameters(propertiesBulkRequestInfo.filter, propertiesBulkRequestInfo.connections);
             Map<String, String> properties = convertPropertyInfosToMap(propertiesBulkRequestInfo.properties);
@@ -404,7 +422,7 @@ public class ConnectionResource {
         Map<String, String> properties = new HashMap<>();
         propertyInfos.stream().forEach(info -> {
             Object value = info.getPropertyValueInfo().getValue();
-            properties.put(info.key, value==null?null:jsonService.serialize(value));
+            properties.put(info.key, value == null ? null : jsonService.serialize(value));
         });
         return properties;
     }
@@ -417,14 +435,13 @@ public class ConnectionResource {
      * @return unique ConnectionTypePluggableClass, or exception if not unique
      * @throws IOException if Jackson was unable to parse the Json filter or id list
      * @throws RuntimeException if the distills ConnectionTypePluggableClass was not unique
-     *
      */
     private ConnectionTypePluggableClass getConnectionTypePluggableClassFromQueryParameters(String filterQueryParam, String connectionsQueryParam) throws Exception {
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>();
-        if (filterQueryParam!=null) {
+        if (filterQueryParam != null) {
             ConnectionTaskFilterSpecification filter = buildFilterFromJsonQuery(new JsonQueryFilter(filterQueryParam));
             connectionTypePluggableClasses.addAll(connectionTaskService.findConnectionTypeByFilter(filter));
-        } else if (connectionsQueryParam!=null) {
+        } else if (connectionsQueryParam != null) {
             connectionTypePluggableClasses.addAll(getPluggableClassesFromConnectionQueryString(connectionsQueryParam));
         }
 
@@ -440,14 +457,13 @@ public class ConnectionResource {
      * @return unique ConnectionTypePluggableClass, or exception if not unique
      * @throws IOException if Jackson was unable to parse the Json filter or id list
      * @throws RuntimeException if the distilles ConnectionTypePluggableClass was not unique
-     *
      */
     private ConnectionTypePluggableClass getConnectionTypePluggableClassFromQueryParameters(ConnectionTaskFilterSpecificationMessage filterMessage, List<Long> connections) throws Exception {
         List<ConnectionTypePluggableClass> connectionTypePluggableClasses = new ArrayList<>();
-        if (filterMessage!=null) {
+        if (filterMessage != null) {
             ConnectionTaskFilterSpecification filter = filterFactory.buildFilterFromMessage(filterMessage);
             connectionTypePluggableClasses.addAll(connectionTaskService.findConnectionTypeByFilter(filter));
-        } else if (connections!=null) {
+        } else if (connections != null) {
             connectionTypePluggableClasses.addAll(getPluggableClassesFromConnectionTaskIdList(connections));
         }
 
@@ -456,7 +472,7 @@ public class ConnectionResource {
     }
 
     private void validateConnectionTypeSelection(List<ConnectionTypePluggableClass> connectionTypePluggableClasses) {
-        if (connectionTypePluggableClasses.size()>1) {
+        if (connectionTypePluggableClasses.size() > 1) {
             throw exceptionFactory.newException(MessageSeeds.CONNECTION_TASK_NOT_UNIQUE);
         }
         if (connectionTypePluggableClasses.isEmpty()) {
@@ -494,7 +510,7 @@ public class ConnectionResource {
                         ifPresent((connectionTask) -> javaClassNames.add(connectionTask.getPluggableClass().getJavaClassName()));
             }
             protocolPluggableService.findAllConnectionTypePluggableClasses().stream().
-                    filter(pluggableClass->javaClassNames.contains(pluggableClass.getJavaClassName())).
+                    filter(pluggableClass -> javaClassNames.contains(pluggableClass.getJavaClassName())).
                     forEach(connectionTypePluggableClasses::add);
         }
         return connectionTypePluggableClasses;
@@ -503,10 +519,10 @@ public class ConnectionResource {
     private boolean verifyAppServerExists(String destinationName) {
         return appService.findAppServers().stream().
                 filter(AppServer::isActive).
-                flatMap(server->server.getSubscriberExecutionSpecs().stream()).
-                map(execSpec->execSpec.getSubscriberSpec().getDestination()).
+                flatMap(server -> server.getSubscriberExecutionSpecs().stream()).
+                map(execSpec -> execSpec.getSubscriberSpec().getDestination()).
                 filter(DestinationSpec::isActive).
-                filter(spec->!spec.getSubscribers().isEmpty()).
+                filter(spec -> !spec.getSubscribers().isEmpty()).
                 anyMatch(spec -> destinationName.equals(spec.getName()));
     }
 

@@ -156,11 +156,18 @@ Ext.define('Dsh.view.widget.ConnectionsList', {
             itemId: 'pagingtoolbartop',
             xtype: 'pagingtoolbartop',
             dock: 'top',
+            needCustomExporter: true,
             store: 'Dsh.store.ConnectionTasks',
             displayMsg: Uni.I18n.translate('connection.widget.details.displayMsg', 'DSH', '{0} - {1} of {2} connections'),
             displayMoreMsg: Uni.I18n.translate('connection.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} connections'),
             emptyMsg: Uni.I18n.translate('connection.widget.details.emptyMsg', 'DSH', 'There are no connections to display'),
             items:[
+                {
+                    xtype: 'button',
+                    itemId: 'connections-count-action',
+                    text: Uni.I18n.translate('general.title.count', 'DSH', 'Count'),
+                    action: 'countConnections'
+                },
                 {
                     xtype:'button',
                     itemId:'generate-report',
