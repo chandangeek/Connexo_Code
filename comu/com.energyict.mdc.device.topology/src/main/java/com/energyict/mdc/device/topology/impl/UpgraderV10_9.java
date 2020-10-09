@@ -34,7 +34,7 @@ public class UpgraderV10_9 implements Upgrader {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-        dataModelUpgrader.upgrade(this.dataModel, Version.version(10, 4, 8));
+        dataModelUpgrader.upgrade(this.dataModel, Version.version(10, 9));
 
     }
 
