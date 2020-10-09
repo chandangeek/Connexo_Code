@@ -76,10 +76,9 @@ public class CsvUsagePointDataFormatterFactoryTest {
         List<PropertySpec> propertySpecs = csvUsagePointDataFormatterFactory.getPropertySpecs();
 
         // Asserts
-        assertThat(propertySpecs).hasSize(4);
+        assertThat(propertySpecs).hasSize(3);
         assertThat(propertySpecs.get(0).getName()).isEqualTo(FormatterProperties.TAG.getKey());
         assertThat(propertySpecs.get(1).getName()).isEqualTo(FormatterProperties.UPDATE_TAG.getKey());
         assertThat(propertySpecs.get(2).getName()).isEqualTo(FormatterProperties.SEPARATOR.getKey());
-        assertThat(propertySpecs.get(3).getName()).isEqualTo(FormatterProperties.WITH_DEVICE_MRID.getKey());
     }
 }
