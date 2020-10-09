@@ -17,6 +17,7 @@ import com.elster.jupiter.metering.readings.EndDeviceEvent;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.logging.Logger;
@@ -80,6 +81,7 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
 
     private String formatPayload(EndDeviceEvent endDeviceEvent, StructureMarker structureMarker) {
         ZonedDateTime eventTime = ZonedDateTime.ofInstant(endDeviceEvent.getCreatedDateTime(), ZoneId.systemDefault());
+        List<String> deviceAttributes = new ArrayList<>(structureMarker.getStructurePath());
         StringJoiner joiner = new StringJoiner(separator, "", "\n")
                 .add(DEFAULT_DATE_TIME_FORMAT.format(eventTime))
                 .add(endDeviceEvent.getEventTypeCode());
@@ -91,12 +93,11 @@ class StandardCsvEventDataFormatter implements StandardFormatter {
             String description = endDeviceEvent.getDescription();
             joiner.add(description != null ? description : "");
         }
-        if(!withDeviceMRID) {
-            String mrid = endDeviceEvent.getMRID();
-            joiner.add(mrid != null ? mrid : "");
+        if(withDeviceMRID) {
+            deviceAttributes.remove(0);
         }
         // adding list of device identifiers; see com.elster.jupiter.export.impl.EventSelector.buildStructureMarker
-        structureMarker.getStructurePath().forEach(joiner::add);
+        deviceAttributes.forEach(joiner::add);
         return joiner.toString();
     }
 

@@ -144,9 +144,9 @@ public class StandardCsvEventDataFormatterTest {
     }
 
     @Test
-    public void testWithDeviceCodeAndDescription() {
+    public void testWithDeviceCodeAndDescriptionAndDeviceMRID() {
         TranslatablePropertyValueInfo translatablePropertyValueInfo = new TranslatablePropertyValueInfo(FormatterProperties.SEPARATOR_COMMA.getKey(), "Comma (,)");
-        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", true, true, true);
+        StandardCsvEventDataFormatter standardCsvEventDataFormatter = StandardCsvEventDataFormatter.from(dataExportService, translatablePropertyValueInfo, "Tag", true, true, false);
         String description = "description";
         MeterReadingImpl meterReading1 = MeterReadingImpl.newInstance();
         meterReading1.addEndDeviceEvent(EndDeviceEventImpl.of("1.2.3.4", "10", time1.toInstant(), description));

@@ -66,7 +66,7 @@ public class CsvMeterDataFormatterFactory extends StandardCsvDataFormatterFactor
                 getTagProperty(),
                 getUpdateTagProperty(),
                 getSeparatorProperty(),
-                getExcludeMRIDProperty()
+               getExcludeMRIDProperty()
         );
     }
 }

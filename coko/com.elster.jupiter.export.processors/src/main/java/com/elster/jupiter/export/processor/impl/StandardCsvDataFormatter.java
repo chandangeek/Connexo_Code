@@ -58,7 +58,7 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     IdentifiedObject domainObject;
     private String tag;
     private String updateTag;
-    private String excludeMRID;
+    private boolean excludeMRID;
 
     @Inject
     StandardCsvDataFormatter(DataExportService dataExportService) {
@@ -74,8 +74,12 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         }
         tag = getStringProperty(propertyMap, FormatterProperties.TAG.getKey(), "export");
         updateTag = getStringProperty(propertyMap, FormatterProperties.UPDATE_TAG.getKey(), "update");
-        excludeMRID = getStringProperty(propertyMap, FormatterProperties.WITH_DEVICE_MRID.getKey(), "excludeMRID");
-        }
+        excludeMRID = getBooleanProperty(propertyMap, FormatterProperties.WITH_DEVICE_MRID.getKey(), false);
+    }
+
+    private boolean getBooleanProperty(Map<String, Object> propertyMap, String key, boolean defaultValue){
+        return propertyMap.get(key) != null ? (boolean)propertyMap.get(key) : defaultValue;
+    }
 
     private String getStringProperty(Map<String, Object> propertyMap, String key, String defaultValue) {
         return propertyMap.get(key) != null ? propertyMap.get(key).toString() : defaultValue;
@@ -157,9 +161,11 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         if (reading.getValue() != null) {
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
             StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
-                    .add(DEFAULT_DATE_TIME_FORMAT.format(date))
-                    .add(domainObject.getMRID())
-                    .add(domainObject.getName())
+                    .add(DEFAULT_DATE_TIME_FORMAT.format(date));
+            if(!excludeMRID){
+                joiner.add(domainObject.getMRID());
+            }
+             joiner.add(domainObject.getName())
                     .add(readingType.getMRID())
                     .add(reading.getValue().toString())
                     .add(asString(validationResult));
