@@ -16,10 +16,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.net.URI;
 
-@ApplicationScoped
+//@ApplicationScoped
 public class ConnexoRepository {
 
-    @Inject
+ /*   @Inject
     @Named("ioStrategy")
     private IOService ioService;
 
@@ -124,5 +124,5 @@ public class ConnexoRepository {
                         "]\n"
                 , StandardOpenOption.CREATE_NEW);
 
-    }
+    }*/
 }
