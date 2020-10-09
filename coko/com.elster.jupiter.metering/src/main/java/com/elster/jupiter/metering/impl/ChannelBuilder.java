@@ -19,6 +19,8 @@ public interface ChannelBuilder {
 
     ChannelBuilder readingTypes(ReadingType main, ReadingType... readingTypes);
 
+    ChannelBuilder offset(long offset);
+
     Channel build();
 
     ChannelBuilder zoneId(ZoneId zoneId);

@@ -7,9 +7,11 @@ import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
@@ -53,16 +55,17 @@ public class EndDeviceEventMessageHandler implements MessageHandler {
             if (!endPointConfigurations.isEmpty()) {
                 Number endDeviceId = (Number) jsonPayload.get("endDeviceId");
                 if (!factory.needToFilterByDeviceGroups() || contain(factory.getDeviceGroups(), endDeviceId)) {
-                    meteringService.streamEndDeviceEvents()
-                            .join(EndDevice.class)
-                            .join(EndDeviceEventType.class)
-                            .filter(Where.where("endDevice.id").isEqualTo(endDeviceId))
-                            .filter(Where.where("createdDateTime").isEqualTo(Instant.ofEpochMilli(((Number) jsonPayload.get("eventTimestamp")).longValue())))
-                            .filter(Where.where("eventType.mRID").isEqualTo(cimEventCode))
-                            .filter(Where.where("deviceEventType").isEqualOrBothNull(deviceEventCode))
-                            .findAny()
-                            .ifPresent(eventRecord ->
-                                    endDeviceEventsServiceProvider.call(eventRecord, endPointConfigurations.toArray(new EndPointConfiguration[endPointConfigurations.size()])));
+                    try(QueryStream<EndDeviceEventRecord> endDeviceEventRecordQueryStream = meteringService.streamEndDeviceEvents()) {
+                        endDeviceEventRecordQueryStream.join(EndDevice.class)
+                                .join(EndDeviceEventType.class)
+                                .filter(Where.where("endDevice.id").isEqualTo(endDeviceId))
+                                .filter(Where.where("createdDateTime").isEqualTo(Instant.ofEpochMilli(((Number) jsonPayload.get("eventTimestamp")).longValue())))
+                                .filter(Where.where("eventType.mRID").isEqualTo(cimEventCode))
+                                .filter(Where.where("deviceEventType").isEqualOrBothNull(deviceEventCode))
+                                .findAny()
+                                .ifPresent(eventRecord ->
+                                        endDeviceEventsServiceProvider.call(eventRecord, endPointConfigurations.toArray(new EndPointConfiguration[endPointConfigurations.size()])));
+                    }
                 }
             }
         }

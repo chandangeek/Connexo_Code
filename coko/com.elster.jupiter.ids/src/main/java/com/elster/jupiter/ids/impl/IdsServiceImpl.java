@@ -17,11 +17,14 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.exception.MessageSeed;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 import org.osgi.service.component.annotations.Activate;
@@ -32,12 +35,12 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 
 @Component(name = "com.elster.jupiter.ids", service = {IdsService.class, MessageSeedProvider.class}, property = "name=" + IdsService.COMPONENTNAME)
@@ -166,7 +169,13 @@ public class IdsServiceImpl implements IdsService, MessageSeedProvider {
     public final void activate() {
         dataModel.register(getModule());
 
-        upgradeService.register(identifier("Pulse", COMPONENTNAME), dataModel, InstallerImpl.class, Collections.emptyMap());
+        upgradeService.register(
+                identifier("Pulse", COMPONENTNAME),
+                dataModel,
+                InstallerImpl.class,
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 9), UpgraderV10_9.class)
+                        .build());
     }
 
     private Module getModule() {

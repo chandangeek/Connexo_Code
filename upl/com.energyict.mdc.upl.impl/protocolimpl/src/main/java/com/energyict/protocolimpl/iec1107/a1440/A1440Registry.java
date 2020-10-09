@@ -1,9 +1,3 @@
-/*
- * KamstrupRegister.java
- *
- * Created on 04 mei 2004, 10:00
- */
-
 package com.energyict.protocolimpl.iec1107.a1440;
 
 import com.energyict.protocol.MeterExceptionInfo;
@@ -34,6 +28,7 @@ public class A1440Registry extends AbstractVDEWRegistry {
     public static final String HARDWARE = "Hardware";
 
     public static final String FIRMWAREID = "FirmwareId";
+    public static final String PARAMETER_IDENTIFICATION = "ParameterIdentification";
 
     public static final String IEC1107_ID = "IEC1107_ID";
     public static final String IEC1107_ADDRESS_OP = "IEC1107_ADDRESS_OP";
@@ -53,15 +48,16 @@ public class A1440Registry extends AbstractVDEWRegistry {
     public static final String LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER = "LoadControlMeasurementQuantity";
     public static final String LOAD_CONTROL_THRESHOLD_REGISTER = "LoadControlThreshold";
     public static final String ERROR_REGISTER = "Error register";
+    public static final String ALARM_REGISTER = "Alarm register";
 
     /**
-     * Creates a new instance of KamstrupRegister
+     * Creates a new instance of A1440Registry
      *
      * @param meterExceptionInfo
      * @param protocolLink
      */
     public A1440Registry(MeterExceptionInfo meterExceptionInfo, ProtocolLink protocolLink, String dateFormat, String billingDateFormat) {
-        // Use ChannelMap to dcetermine which VHI tu access... First entry in the ChannelMap is the OBIS B value.
+        // Use ChannelMap to determine which VHI tu access... First entry in the ChannelMap is the OBIS B value.
         super(meterExceptionInfo, protocolLink, Integer.parseInt(protocolLink.getChannelMap().getChannel(0).getRegister()), dateFormat, billingDateFormat);
     }
 
@@ -74,6 +70,7 @@ public class A1440Registry extends AbstractVDEWRegistry {
         this.registers.put(HARDWARE, new VDEWRegister("C06001E0000", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ3));
 
         this.registers.put(FIRMWAREID, new VDEWRegister("0.2.0", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.CACHED));
+        this.registers.put(PARAMETER_IDENTIFICATION, new VDEWRegister("0.2.1", VDEWRegisterDataParse.VDEW_STRING,0, -1,null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.CACHED));
 
         this.registers.put(UTILITY_ID_1, new VDEWRegister("0.0.0", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.CACHED));
 
@@ -112,6 +109,7 @@ public class A1440Registry extends AbstractVDEWRegistry {
         this.registers.put(LOAD_CONTROL_MEASUREMENT_QUANTITY_REGISTER, new VDEWRegister("S0T", VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1, FlagIEC1107Connection.WRITE1));
         this.registers.put(LOAD_CONTROL_THRESHOLD_REGISTER, new VDEWRegister("S0J", VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1, FlagIEC1107Connection.WRITE1));
         this.registers.put(ERROR_REGISTER, new VDEWRegister("F.F", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ5));
+        this.registers.put(ALARM_REGISTER, new VDEWRegister("F.F.1", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ5));
     }
 
 }

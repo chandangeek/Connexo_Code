@@ -81,13 +81,13 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     }
 
     private Channel storeChannel(ReadingTypeDeliverable deliverable) {
-        Optional<Integer> hourOffset;
+        Optional<Long> offset;
         if (this.isGas(deliverable.getReadingType())) {
-            hourOffset = getMeteringService().getGasDayOptions().map(GasDayOptions::getYearStart).map(DayMonthTime::getHour);
+            offset = getMeteringService().getGasDayOptions().map(GasDayOptions::getYearStart).map(DayMonthTime::getHour).map(hour -> new Long(hour * 3600));
         } else {
-            hourOffset = Optional.empty();
+            offset = Optional.empty();
         }
-        SimpleChannelContract channel = channelFactory.get().init(this, Collections.singletonList((IReadingType) deliverable.getReadingType()), hourOffset);
+        SimpleChannelContract channel = channelFactory.get().init(this, Collections.singletonList((IReadingType) deliverable.getReadingType()), offset);
         return this.storeChannel(channel);
     }
 

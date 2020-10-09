@@ -30,6 +30,8 @@ public interface ChannelSpec extends HasId {
 
     Optional<BigDecimal> getOverflow();
 
+    long getOffset();
+
     LoadProfileSpec getLoadProfileSpec();
 
     TimeDuration getInterval();
@@ -58,6 +60,8 @@ public interface ChannelSpec extends HasId {
 
         ChannelSpecBuilder overflow(BigDecimal overflow);
 
+        ChannelSpecBuilder offset(long offset);
+
         ChannelSpecBuilder interval(TimeDuration interval);
 
         ChannelSpecBuilder useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
@@ -79,6 +83,8 @@ public interface ChannelSpec extends HasId {
         ChannelSpecUpdater overflow(BigDecimal overflow);
 
         ChannelSpecUpdater useMultiplierWithCalculatedReadingType(ReadingType calculatedReadingType);
+
+        ChannelSpecUpdater offset(long offset);
 
         ChannelSpecUpdater noMultiplier();
 

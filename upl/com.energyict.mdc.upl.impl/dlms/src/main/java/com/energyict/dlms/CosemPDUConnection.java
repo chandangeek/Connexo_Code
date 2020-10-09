@@ -3,6 +3,7 @@ package com.energyict.dlms;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.Connection;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -222,8 +223,8 @@ public class CosemPDUConnection extends Connection implements DLMSConnection {
         final byte cosemTag = rawBytes[DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET];
         final boolean isEventNotification = cosemTag == DLMSCOSEMGlobals.COSEM_EVENTNOTIFICATIONRESUEST;
         if (isEventNotification) {
-            final byte[] cosemBytes = DLMSUtils.getSubArray(rawBytes, DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET, rawBytes.length);
-            final String hexValue = DLMSUtils.getHexStringFromBytes(cosemBytes);
+            final byte[] cosemBytes = ProtocolTools.getSubArray(rawBytes, DLMSCOSEMGlobals.DL_COSEMPDU_OFFSET, rawBytes.length);
+            final String hexValue = ProtocolTools.getHexStringFromBytes(cosemBytes);
             logger.log(Level.FINEST, "Received Event notification: [" + hexValue + "]. Dropping this packet!");
         }
         return isEventNotification;

@@ -66,16 +66,31 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
 
     @Override
     public Channel createChannel(ReadingType main, ReadingType... readingTypes) {
-        return createChannel(null, main, readingTypes);
+        return createChannel(null, 0, main, readingTypes);
     }
 
     @Override
     public Channel createChannel(ZoneId zoneId, ReadingType main, ReadingType... readingTypes) {
+        return createChannel(zoneId, 0, main, readingTypes);
+    }
+
+    @Override
+    public Channel createChannel(long offset, ReadingType main, ReadingType... readingTypes) {
+        return createChannel(null, offset, main, readingTypes);
+    }
+
+    @Override
+    public Channel createChannel(ZoneId zoneId, long offset, ReadingType main, ReadingType... readingTypes) {
         ReadingTypeImpl[] extraTypes = new ReadingTypeImpl[readingTypes.length];
         for (int i = 0; i < readingTypes.length; i++) {
             extraTypes[i] = (ReadingTypeImpl) readingTypes[i];
         }
-        Channel channel = channelBuilder.get().channelsContainer(this).readingTypes(main, extraTypes).zoneId(zoneId).build();
+        Channel channel = channelBuilder.get()
+                .channelsContainer(this)
+                .readingTypes(main, extraTypes)
+                .zoneId(zoneId)
+                .offset(offset)
+                .build();
         storeChannel(channel);
         return channel;
     }

@@ -32,6 +32,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 /**
  * This V2 version of the ApplicationServiceObject does not throw IOExceptions. Error handling is already done in the connection layer.
@@ -45,6 +46,8 @@ import java.util.Arrays;
  * @author gna, khe
  */
 public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
+
+    private static final Logger logger = Logger.getLogger(ApplicationServiceObjectV2.class.getName());
 
     public ApplicationServiceObjectV2(XdlmsAse xDlmsAse, ProtocolLink protocolLink, SecurityContext securityContext, int contextId) {
         super(xDlmsAse, protocolLink, securityContext, contextId);
@@ -154,6 +157,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                     try {
                         configuredCertificate = generalCipheringSecurityProvider.getServerSignatureCertificate().getEncoded();
                     } catch (CertificateEncodingException e) {
+                        this.logger.severe("Certificate exception:" + e.getMessage());
                         silentDisconnect();
                         throw DeviceConfigurationException.invalidPropertyFormat(SecurityPropertySpecTranslationKeys.SERVER_SIGNING_CERTIFICATE.toString(), "x", "Should be a valid X.509 v3 certificate");
                     }
@@ -174,6 +178,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
             InputStream in = new ByteArrayInputStream(acse.getRespondingApplicationEntityQualifier());
             return (X509Certificate) certFactory.generateCertificate(in);
         } catch (CertificateException e) {
+            this.logger.severe("Certificate exception:" + e.getMessage());
             silentDisconnect();
             ProtocolException protocolException = new ProtocolException("Received an invalid server signing certificate, should be an ASN.1 DER encoded X.509 v3 certificate.");
             throw CommunicationException.unexpectedResponse(protocolException);

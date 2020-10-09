@@ -25,6 +25,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -329,6 +330,7 @@ public class FileImportScheduleResource {
                                                            @BeanParam JsonQueryFilter filter,
                                                            @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                            @Context SecurityContext securityContext) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         List<FileImportOccurrence> fileImportOccurrences = getFileImportOccurrences(filter, applicationName, null).from(queryParameters).find();
         List<FileImportOccurrenceInfo> data = fileImportOccurrences.stream().map(FileImportOccurrenceInfo::of).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("data", data, queryParameters);

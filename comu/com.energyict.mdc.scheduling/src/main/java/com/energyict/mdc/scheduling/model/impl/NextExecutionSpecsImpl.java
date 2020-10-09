@@ -97,9 +97,6 @@ public final class NextExecutionSpecsImpl extends PersistentIdObject<NextExecuti
     @Override
     public void setTemporalExpression(TemporalExpression temporalExpression) {
         this.temporalExpression = temporalExpression;
-        if (this.temporalExpression != null) {
-            this.save();
-        }
     }
 
     @Override

@@ -26,7 +26,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
             );
         }
     },
@@ -34,7 +34,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.booleanSpec(service, DeviceMessageConstants.passiveImmediateActivation, DeviceMessageConstants.passiveImmediateActivationDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeCommodityScale, DeviceMessageConstants.chargeCommodityScaleDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargePriceScale, DeviceMessageConstants.chargePriceScaleDefaultTranslation),
@@ -66,7 +66,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.dateTimeSpec(service, DeviceMessageConstants.passiveUnitChargeActivationTime, DeviceMessageConstants.passiveUnitChargeActivationTimeDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeCommodityScale, DeviceMessageConstants.chargeCommodityScaleDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargePriceScale, DeviceMessageConstants.chargePriceScaleDefaultTranslation),
@@ -97,7 +97,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues())
             );
         }
     },
@@ -105,7 +105,7 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargePeriod, DeviceMessageConstants.chargePeriodDefaultTranslation)
             );
         }
@@ -114,16 +114,19 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.chargeTypeAttributeName, DeviceMessageConstants.chargeTypeAttributeNameDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
+                    this.stringSpec(service, DeviceMessageConstants.chargeType, DeviceMessageConstants.chargeTypeDefaultTranslation, ChargeDeviceMessage.ChargeType.getDescriptionValues()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeProportion, DeviceMessageConstants.chargeProportionDefaultTranslation)
             );
         }
     },
-    CHANGE_STEP_TARIFF_CONFIGURATION(41007, "Change Step Tariff Configuration") {
+    CHANGE_STEP_TARIFF(41007, "Change passive step tariff") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.tariffCode, DeviceMessageConstants.tariffCodeDefaultTranslation),
+                    this.stringDefSpec(service, DeviceMessageConstants.additionalTaxesType, DeviceMessageConstants.additionalTaxesTypeDefaultTranslation, ChargeDeviceMessage.AdditionalTaxesType.getDescriptionValues()),
+                    this.stringDefSpec(service, DeviceMessageConstants.graceRecalculationType, DeviceMessageConstants.graceRecalculationTypeDefaultTranslation, ChargeDeviceMessage.GraceRecalculationType.getDescriptionValues()),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.graceRecalculationValue, DeviceMessageConstants.graceRecalculationValueDefaultTranslation, new BigDecimal(0)),
 
                     this.bigDecimalSpec(service, DeviceMessageConstants.chargeStep1, DeviceMessageConstants.chargeStep1DefaultTranslation, new BigDecimal(0)),
                     this.bigDecimalSpec(service, DeviceMessageConstants.priceStep1, DeviceMessageConstants.priceStep1DefaultTranslation, new BigDecimal(0)),
@@ -186,7 +189,37 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.additionalTaxStep10, DeviceMessageConstants.additionalTaxStep10DefaultTranslation, new BigDecimal(0))
             );
         }
-    }
+    },
+    CHANGE_TAX_RATES(41008, "Change passive tax rates") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, DeviceMessageConstants.monthlyTax, DeviceMessageConstants.monthlyTaxDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.zeroConsumptionTax, DeviceMessageConstants.zeroConsumptionTaxDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumptionTax, DeviceMessageConstants.consumptionTaxDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumptionAmount, DeviceMessageConstants.consumptionAmountDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.consumptionLimit, DeviceMessageConstants.consumptionLimitDefaultTranslation)
+            );
+        }
+    },
+    SWITCH_CHARGE_MODE(41009, "Switch charge mode prepaid - postpaid") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.chargeMode, DeviceMessageConstants.chargeModeDefaultTranslation, ChargeDeviceMessage.ChargeMode.getDescriptionValues()),
+                    this.dateTimeSpec(service, DeviceMessageConstants.activationDate, DeviceMessageConstants.activationDateDefaultTranslation)
+            );
+        }
+    },
+    SWITCH_TAX_AND_STEP_TARIFF(41010, "Activate the passive tax and step tariff") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.tariffType, DeviceMessageConstants.tariffTypeDefaultTranslation, ChargeDeviceMessage.TariffType.getDescriptionValues()),
+                    this.dateTimeSpec(service, DeviceMessageConstants.activationDate, DeviceMessageConstants.activationDateDefaultTranslation)
+            );
+        }
+    },
    ;
     private final long id;
     private final String defaultNameTranslation;
@@ -248,6 +281,121 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                 propertySpecService, nlsService, converter);
     }
 
+    public enum ChargeMode {
+        Prepaid_charge(1, "Prepaid"),
+        Postpaid_charge(2, "Postpaid");
+
+        private final int id;
+        private final String description;
+
+        ChargeMode(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static ChargeMode entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            ChargeMode[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum TariffType {
+        Passive_step_tariff(3, "Passive step tariff"),
+        Passive_TOU_tariff(4, "Passive TOU tariff");
+
+        private final int id;
+        private final String description;
+
+        TariffType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static TariffType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            TariffType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum AdditionalTaxesType {
+        Enum0(0, "Enum 0"),
+        Enum1(1, "Enum 1"),
+        Enum2(2, "Enum 2");
+
+        private final int id;
+        private final String description;
+
+        AdditionalTaxesType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static AdditionalTaxesType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            AdditionalTaxesType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
     public enum RecalculationType {
         Disable(0, "Disable"),
         Recalculate_Only(1, "Recalculate Only"),
@@ -271,6 +419,44 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
 
         public static String[] getDescriptionValues() {
             RecalculationType[] allObjects = values();
+            String[] result = new String[allObjects.length];
+            for (int index = 0; index < allObjects.length; index++) {
+                result[index] = allObjects[index].getDescription();
+            }
+            return result;
+        }
+
+        public int getId() {
+            return id;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
+    public enum GraceRecalculationType {
+        ValueInDays(0, "Value in days"),
+        ValueInConsumption(1, "Value in consumption");
+
+        private final int id;
+        private final String description;
+
+        GraceRecalculationType(int id, String description) {
+            this.id = id;
+            this.description = description;
+        }
+
+        public static GraceRecalculationType entryForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .get();
+        }
+
+        public static String[] getDescriptionValues() {
+            GraceRecalculationType[] allObjects = values();
             String[] result = new String[allObjects.length];
             for (int index = 0; index < allObjects.length; index++) {
                 result[index] = allObjects[index].getDescription();
