@@ -32,7 +32,7 @@ public class ProcessInstanceInfo {
             this.initiator = instance.getString("initiator");
             this.version = instance.getString("process-version");
             this.state = Integer.parseInt(instance.getString("process-instance-state"));
-            this.startDate = DateConvertor.convertTimeStamps(instance.getString("start-date"), false);
+            this.startDate = DateConvertor.convertTimeStamps(instance.getJSONObject("start-date").getString("java.util.Date"), false);
             this.endDate = DateConvertor.convertTimeStamps(instance.getString("sla-due-date"), false);
             this.deploymentId = instance.getString("container-id");
         } catch (JSONException e) {
