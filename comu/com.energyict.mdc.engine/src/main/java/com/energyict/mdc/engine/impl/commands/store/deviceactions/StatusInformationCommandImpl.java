@@ -65,7 +65,7 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
                 firmwareVersions.setDataCollectionConfiguration(comTaskExecution);
                 addCollectedDataItem(firmwareVersions);
             } else {
-                addIssue(getIssueService().newWarning(this, com.energyict.mdc.engine.impl.commands.MessageSeeds.STATUS_INFORMATION_NOT_SUPPORTED), CompletionCode.ConfigurationError);
+                addIssue(getIssueService().newWarning(this, com.energyict.mdc.engine.impl.commands.MessageSeeds.FIRMWARE_INFORMATION_NOT_SUPPORTED), CompletionCode.ConfigurationError);
             }
         }
 
