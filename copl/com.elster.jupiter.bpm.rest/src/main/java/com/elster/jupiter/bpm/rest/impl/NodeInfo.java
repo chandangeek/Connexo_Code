@@ -41,7 +41,7 @@ public class NodeInfo {
             } else {
                 this.nodeName = "("+this.nodeType+")";
             }
-            this.date = DateConvertor.convertTimeStamps(node.getString("start-date"), true);
+            this.date = DateConvertor.convertTimeStamps(node.getJSONObject("start-date").getString("java.util.Date"), true);
 
             this.nodeId = node.getString("node-id");
             this.connection = node.getString("node-connection");
