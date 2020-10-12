@@ -66,6 +66,11 @@ public enum MessageSeeds implements MessageSeed {
     CUSTOMPROPERTYSET_VALUES_ON_REQUIRED_RANGE(2029, "CustomPropertySetValuesOnRequiredRange", "Custom property set {0} must have values on the required range {1}."),
     NO_ACTIVE_METROLOGY_CONFIGURATION_WITH_NAME(2030, "NoActiveMetrologyConfigWithName", "Metrology configuration with name ''{0}'' isn''t active."),
     DUPLICATE_USAGE_POINT_NAME(2031,"usagepoint.name.already.exists", "Usage point name must be unique."),
+    NO_PURPOSE_WITH_NAME(2032, "NoPurposeWithName", "No purpose with name ''{0}'' found on the usage point."),
+    PURPOSE_ALREADY_ACTIVE(2033, "PurposeAlreadyActive", "Purpose ''{0}'' can''t be activated since it is already active."),
+    CANT_ACTIVATE_REQUIRED_PUPROSE(2034, "CantActivateRequiredPurpose", "Purpose ''{0}'' can''t be activated since it is mandatory."),
+    PURPOSE_ALREADY_INACTIVE(2035, "PurposeAlreadyInactive", "Purpose ''{0}'' can''t be deactivated since it is already inactive."),
+    CANT_DEACTIVATE_REQUIRED_PURPOSE(2036, "CantDeactivateRequiredPurpose", "Purpose ''{0}'' can''t be deactivated since it is mandatory."),
 
     // async
     COULD_NOT_FIND_SERVICE_CALL_TYPE(5001, "CouldNotFindServiceCallType", "Could''t find service call type {0} with version {1}"),
