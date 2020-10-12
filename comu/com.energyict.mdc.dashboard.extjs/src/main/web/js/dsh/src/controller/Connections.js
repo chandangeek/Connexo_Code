@@ -144,20 +144,13 @@ Ext.define('Dsh.controller.Connections', {
         me.fireEvent('loadingcount');
         Ext.Ajax.suspendEvent('requestexception');
         me.getCountButton().up('panel').setLoading(true);
-        var filters = [];
-        var queryStringValues = Uni.util.QueryString.getQueryStringValues(false);
-        for (property in queryStringValues){
-            if (property !== 'sort'){
-                filters.push({'property' : property, value: queryStringValues[property] })
-            }
-        };
 
         Ext.Ajax.request({
             url: Ext.getStore('Dsh.store.ConnectionTasks').getProxy().url + '/count',
             timeout: 120000,
             method: 'GET',
             params: {
-                 filter: JSON.stringify(filters)
+                 filter: this.getStore('Dsh.store.ConnectionTasks').filterParams
             },
             success: function (response) {
                 Ext.suspendLayouts();
