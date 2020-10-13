@@ -189,8 +189,8 @@ public class DataExportTaskExecutorTest {
         when(task.getStandardDataSelectorConfig(any())).thenReturn(Optional.of(selectorConfig));
         when(task.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+        when(task.getPairedTask()).thenReturn(Optional.empty());
         when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
-
         when(occurrence.getRetryTime()).thenReturn(Optional.empty());
         when(occurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
         when(occurrence.getRecurrentTask()).thenReturn(recurrentTask);
@@ -231,16 +231,26 @@ public class DataExportTaskExecutorTest {
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
         doReturn(Arrays.asList(existingItem, obsoleteItem)).when(selectorConfig).getExportItems();
         doReturn(ImmutableSet.of(existingItem, newItem)).when(selectorConfig).getActiveItems(dataExportOccurrence);
+        when(existingItem.getId()).thenReturn(11L);
+        doReturn(Optional.of(existingItem)).when(dataExportService).findAndLockReadingTypeDataExportItem(11L);
         when(existingItem.getReadingType()).thenReturn(readingType1);
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter2.getUsagePoint(any())).thenReturn(Optional.empty());
+        when(existingItem.getLastExportedNewData()).thenReturn(Optional.of(lastExported.toInstant()));
         when(existingItem.getLastExportedChangedData()).thenReturn(Optional.of(lastExported.toInstant()));
+        when(existingItem.getLastRun()).thenReturn(Optional.of(triggerTime.toInstant()));
+        when(newItem.getId()).thenReturn(13L);
+        doReturn(Optional.of(newItem)).when(dataExportService).findAndLockReadingTypeDataExportItem(13L);
+        when(newItem.getLastExportedNewData()).thenReturn(Optional.empty());
         when(newItem.getLastExportedChangedData()).thenReturn(Optional.empty());
+        when(newItem.getLastRun()).thenReturn(Optional.of(triggerTime.toInstant()));
         when(newItem.getReadingContainer()).thenReturn(meter1);
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
         when(meter1.getUsagePoint(any())).thenReturn(Optional.empty());
         when(newItem.getReadingType()).thenReturn(readingType1);
+        when(obsoleteItem.getId()).thenReturn(7L);
+        doReturn(Optional.of(obsoleteItem)).when(dataExportService).findAndLockReadingTypeDataExportItem(7L);
         when(obsoleteItem.getReadingType()).thenReturn(readingType1);
         when(obsoleteItem.getReadingContainer()).thenReturn(meter3);
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
@@ -387,21 +397,21 @@ public class DataExportTaskExecutorTest {
         executor.postExecute(occurrence);
 
         verify(dataFormatter, transactionService.notInTransaction()).startExport(eq(dataExportOccurrence), any());
-        verify(dataFormatter, transactionService.inTransaction(3)).startItem(newItem);
+        verify(dataFormatter, transactionService.inTransaction(4)).startItem(newItem);
         assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading1"));
-        verify(dataFormatter, transactionService.inTransaction(3)).endItem(newItem);
-        verify(dataFormatter, transactionService.inTransaction(5)).startItem(existingItem);
+        verify(dataFormatter, transactionService.inTransaction(4)).endItem(newItem);
+        verify(dataFormatter, transactionService.inTransaction(6)).startItem(existingItem);
         assertThat(passedStreams).matches(hasStreamContainingReadingFor("reading2"));
-        verify(dataFormatter, transactionService.inTransaction(5)).endItem(existingItem);
+        verify(dataFormatter, transactionService.inTransaction(6)).endItem(existingItem);
         verify(dataFormatter, transactionService.notInTransaction()).endExport();
 
-        verify(newItem, transactionService.inTransaction(7)).update();
-        verify(existingItem, transactionService.inTransaction(7)).update();
+        verify(newItem, transactionService.inTransaction(8)).update();
+        verify(existingItem, transactionService.inTransaction(8)).update();
 
-        transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
         transactionService.assertThatTransaction(5).wasCommitted();
         transactionService.assertThatTransaction(6).wasCommitted();
+        transactionService.assertThatTransaction(7).wasCommitted();
 
         verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
@@ -487,11 +497,11 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted(); // newItem
-        transactionService.assertThatTransaction(3).wasCommitted(); // log success of newItem
-        transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted(); // existingItem
-        transactionService.assertThatTransaction(6).wasCommitted(); // log failure of existingItem
+        transactionService.assertThatTransaction(3).wasCommitted(); // newItem
+        transactionService.assertThatTransaction(4).wasCommitted(); // log success of newItem
+        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(6).wasNotCommitted(); // existingItem
+        transactionService.assertThatTransaction(7).wasCommitted(); // log failure of existingItem
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -528,10 +538,10 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(6).wasNotCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -556,8 +566,8 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
-        transactionService.assertThatTransaction(3).wasNotCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
 
         verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
@@ -594,10 +604,10 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(6).wasNotCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -634,11 +644,11 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter, never()).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
-        transactionService.assertThatTransaction(6).wasCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(6).wasNotCommitted();
+        transactionService.assertThatTransaction(7).wasCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -670,8 +680,8 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
-        transactionService.assertThatTransaction(3).wasNotCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
 
         verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }
@@ -701,11 +711,11 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
-        transactionService.assertThatTransaction(6).wasCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(6).wasNotCommitted();
+        transactionService.assertThatTransaction(7).wasCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -735,11 +745,11 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter, never()).endExport();
 
-        transactionService.assertThatTransaction(2).wasCommitted();
         transactionService.assertThatTransaction(3).wasCommitted();
         transactionService.assertThatTransaction(4).wasCommitted();
-        transactionService.assertThatTransaction(5).wasNotCommitted();
-        transactionService.assertThatTransaction(6).wasCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
+        transactionService.assertThatTransaction(6).wasNotCommitted();
+        transactionService.assertThatTransaction(7).wasCommitted();
 
         verify(destination, never()).send(anyMapOf(StructureMarker.class, Path.class), any(), any(), any());
     }
@@ -764,8 +774,8 @@ public class DataExportTaskExecutorTest {
         verify(dataFormatter).endItem(existingItem);
         verify(dataFormatter).endExport();
 
-        transactionService.assertThatTransaction(3).wasNotCommitted();
-        transactionService.assertThatTransaction(4).wasCommitted();
+        transactionService.assertThatTransaction(4).wasNotCommitted();
+        transactionService.assertThatTransaction(5).wasCommitted();
 
         verify(destination).send(anyListOf(ExportData.class), anyMapOf(StructureMarker.class, Path.class), any(TagReplacerFactory.class), any(Logger.class), eq(thesaurus));
     }

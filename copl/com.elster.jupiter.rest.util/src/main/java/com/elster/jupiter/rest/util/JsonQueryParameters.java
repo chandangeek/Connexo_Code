@@ -4,21 +4,23 @@
 
 package com.elster.jupiter.rest.util;
 
-import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.domain.util.QueryParameters;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
+import com.elster.jupiter.util.conditions.Order;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import javax.inject.Inject;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MultivaluedHashMap;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.UriInfo;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Pattern;
 
 /**
  * Convenience class to wrap all supported ExtJS constructs regarding paging and sorting (both simple sort and multi sort)
