@@ -47,7 +47,7 @@ abstract class AbstractDataSelector implements DataSelector {
 
     @Override
     public Stream<ExportData> selectData(DataExportOccurrence occurrence) {
-        Set<ReadingTypeDataExportItem> activeItems = manageActiveItems(occurrence);
+        Set<ReadingTypeDataExportItem> activeItems = getAndCheckActiveItems(occurrence);
         Map<Long, Optional<Instant>> previousSuccessfulRuns = activeItems.stream()
                 .collect(Collectors.toMap(ReadingTypeDataExportItem::getId, ReadingTypeDataExportItem::getLastExportedChangedData));
         AbstractItemDataSelector itemDataSelector = getItemDataSelector();
@@ -92,17 +92,9 @@ abstract class AbstractDataSelector implements DataSelector {
         }
     }
 
-    private Set<ReadingTypeDataExportItem> manageActiveItems(DataExportOccurrence occurrence) {
-        Set<ReadingTypeDataExportItem> activeItems;
+    private Set<ReadingTypeDataExportItem> getAndCheckActiveItems(DataExportOccurrence occurrence) {
+        Set<ReadingTypeDataExportItem> activeItems = getSelectorConfig().getActiveItems(occurrence);
         try (TransactionContext context = getTransactionService().getContext()) {
-            activeItems = getSelectorConfig().getActiveItems(occurrence);
-            getSelectorConfig().getExportItems().stream()
-                    .filter(item -> !activeItems.contains(item))
-                    .peek(ReadingTypeDataExportItem::deactivate)
-                    .forEach(ReadingTypeDataExportItem::update);
-            activeItems.stream()
-                    .peek(ReadingTypeDataExportItem::activate)
-                    .forEach(ReadingTypeDataExportItem::update);
             warnIfObjectsHaveNoneOfTheReadingTypes(occurrence);
             context.commit();
         }

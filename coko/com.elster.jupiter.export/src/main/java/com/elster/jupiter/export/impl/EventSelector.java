@@ -77,7 +77,7 @@ class EventSelector implements DataSelector {
                 }
             }
             Stream<ExportData> exportDataStream = getExportDataStream(range);
-            ((IDataExportOccurrence) occurrence).summarize(buildSummary());
+            occurrence.summarize(buildSummary());
 
             return exportDataStream;
         } finally {

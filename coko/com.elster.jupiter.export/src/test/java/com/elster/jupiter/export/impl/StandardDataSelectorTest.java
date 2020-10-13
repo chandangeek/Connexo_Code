@@ -7,6 +7,7 @@ package com.elster.jupiter.export.impl;
 import com.elster.jupiter.devtools.persistence.test.TransactionVerifier;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.devtools.tests.rules.Using;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.export.DataExportProperty;
 import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.DataExportStrategy;
@@ -56,7 +57,6 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -146,6 +146,8 @@ public class StandardDataSelectorTest {
     @Mock
     private ValidationService validationService;
     @Mock
+    private EventService eventService;
+    @Mock
     private Logger logger;
     @Mock
     private ValidationEvaluator evaluator;
@@ -153,6 +155,7 @@ public class StandardDataSelectorTest {
     private DataMapper<ReadingTypeInDataSelector> readingTypeInDataSelector;
     @Mock
     private Finder.JournalFinder<ReadingTypeInDataSelector> readingTypeInDataSelectorJrnl;
+    private DataExportTaskExecutor dataExportTaskExecutor;
 
     @Before
     public void setUp() {
@@ -167,19 +170,25 @@ public class StandardDataSelectorTest {
 
         when(dataModel.getInstance(MeterReadingSelectorConfigImpl.class)).thenAnswer(invocation -> spy(new MeterReadingSelectorConfigImpl(dataModel, meteringGroupsService)));
         when(dataModel.getInstance(ReadingTypeInDataSelector.class)).thenAnswer(invocation -> spy(new ReadingTypeInDataSelector(meteringService)));
-        when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel) {
-            @Override
-            public long getId() {
-                return this.hashCode();
-            }
-        }));
+        when(dataModel.getInstance(ReadingTypeDataExportItemImpl.class)).thenAnswer(invocation -> {
+            ReadingTypeDataExportItem item = spy(new ReadingTypeDataExportItemImpl(meteringService, dataExportService, dataModel) {
+                @Override
+                public long getId() {
+                    return this.hashCode();
+                }
+            });
+            long id = item.getId();
+            doReturn(Optional.of(item)).when(dataExportService).findAndLockReadingTypeDataExportItem(id);
+            return item;
+        });
         when(dataModel.getInstance(MeterReadingSelector.class)).thenAnswer(invocation -> new MeterReadingSelector(dataModel, transactionService, thesaurus));
         when(dataModel.getInstance(MeterReadingItemDataSelector.class)).thenAnswer(invocation -> new MeterReadingItemDataSelector(clock, validationService, thesaurus, transactionService, threadPrincipalService));
         when(dataModel.asRefAny(any())).thenAnswer(invocation -> new FakeRefAny(invocation.getArguments()[0]));
         when(dataModel.getValidatorFactory()).thenReturn(validatorFactory);
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.emptySet());
-        when(occurrence.createTaskLogHandler()).thenReturn(taskLogHandler);
+        when(occurrence.createTaskLogHandler(any())).thenReturn(taskLogHandler);
+        when(occurrence.getRetryTime()).thenReturn(Optional.empty());
         when(taskLogHandler.asHandler()).thenReturn(logRecorder);
         when(dataExportService.createExportOccurrence(occurrence)).thenReturn(dataExportOccurrence);
         when(dataExportService.findDataExportOccurrence(occurrence)).thenReturn(Optional.of(dataExportOccurrence));
@@ -192,7 +201,11 @@ public class StandardDataSelectorTest {
         when(dataExportOccurrence.getTriggerTime()).thenReturn(triggerTime.toInstant());
         when(task.getDataFormatterFactory()).thenReturn(dataFormatterFactory);
         when(task.getDataSelectorFactory()).thenReturn(dataSelectorFactory);
+        when(task.hasDefaultSelector()).thenReturn(true);
         when(task.getDataExportProperties()).thenReturn(Collections.singletonList(dataExportProperty));
+        when(task.getDataExportProperties(triggerTime.toInstant())).thenReturn(Collections.singletonList(dataExportProperty));
+        when(task.getCompositeDestination()).thenReturn(new CompositeDataExportDestination());
+        when(task.getPairedTask()).thenReturn(Optional.empty());
         when(dataExportProperty.getName()).thenReturn("name");
         when(dataExportProperty.getValue()).thenReturn("CSV");
         when(meter1.is(meter1)).thenReturn(true);
@@ -204,16 +217,22 @@ public class StandardDataSelectorTest {
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
+        when(existingItem.getId()).thenReturn(351L);
+        doReturn((Optional.of(existingItem))).when(dataExportService).findAndLockReadingTypeDataExportItem(351L);
         when(existingItem.getReadingType()).thenReturn(readingType1);
         when(existingItem.getReadingContainer()).thenReturn(meter2);
         when(meter2.getMeter(any())).thenReturn(Optional.of(meter2));
         when(meter2.getUsagePoint(any())).thenReturn(Optional.empty());
         when(existingItem.getLastExportedChangedData()).thenReturn(Optional.of(lastExported.toInstant()));
+        when(newItem.getId()).thenReturn(395L);
+        doReturn((Optional.of(newItem))).when(dataExportService).findAndLockReadingTypeDataExportItem(395L);
         when(newItem.getLastExportedChangedData()).thenReturn(Optional.empty());
         when(newItem.getReadingContainer()).thenReturn(meter1);
         when(meter1.getMeter(any())).thenReturn(Optional.of(meter1));
         when(meter1.getUsagePoint(any())).thenReturn(Optional.empty());
         when(newItem.getReadingType()).thenReturn(readingType1);
+        when(obsoleteItem.getId()).thenReturn(135L);
+        doReturn((Optional.of(obsoleteItem))).when(dataExportService).findAndLockReadingTypeDataExportItem(135L);
         when(obsoleteItem.getReadingType()).thenReturn(readingType1);
         when(obsoleteItem.getReadingContainer()).thenReturn(meter3);
         when(meter3.getMeter(any())).thenReturn(Optional.of(meter3));
@@ -242,11 +261,8 @@ public class StandardDataSelectorTest {
         when(readingTypeInDataSelectorJrnl.find(anyMapOf(String.class, Object.class))).thenReturn(Collections.singletonList(readingTypeJournal));
         when(readingTypeSelector.getReadingType()).thenReturn(readingType1);
         when(meteringGroupsService.findEndDeviceGroup(anyLong())).thenReturn(Optional.of(group));
-    }
 
-    @After
-    public void tearDown() {
-
+        dataExportTaskExecutor = new DataExportTaskExecutor(dataExportService, transactionService, null, thesaurus, clock, threadPrincipalService, eventService);
     }
 
     @Test
@@ -260,8 +276,9 @@ public class StandardDataSelectorTest {
         existingItem = selectorConfig.addExportItem(meter2, readingType1);
         obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+        when(task.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        selectorConfig.createDataSelector(logger).selectData(dataExportOccurrence);
+        dataExportTaskExecutor.postExecute(occurrence);
 
         InOrder inOrder = inOrder(obsoleteItem);
         inOrder.verify(obsoleteItem).deactivate();
@@ -279,8 +296,9 @@ public class StandardDataSelectorTest {
         existingItem = selectorConfig.addExportItem(meter2, readingType1);
         obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+        when(task.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        selectorConfig.createDataSelector(logger).selectData(dataExportOccurrence);
+        dataExportTaskExecutor.postExecute(occurrence);
 
         InOrder inOrder = inOrder(existingItem);
         inOrder.verify(existingItem).activate();
@@ -297,8 +315,9 @@ public class StandardDataSelectorTest {
         existingItem = selectorConfig.addExportItem(meter2, readingType1);
         obsoleteItem = selectorConfig.addExportItem(meter3, readingType1);
         when(task.getReadingDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
+        when(task.getStandardDataSelectorConfig()).thenReturn(Optional.of(selectorConfig));
 
-        selectorConfig.createDataSelector(logger).selectData(dataExportOccurrence);
+        dataExportTaskExecutor.postExecute(occurrence);
 
         assertThat(selectorConfig.getExportItems())
                 .hasSize(3)

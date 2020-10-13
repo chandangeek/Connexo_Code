@@ -63,6 +63,7 @@ import com.jayway.jsonpath.JsonModel;
 import javax.ws.rs.HttpMethod;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Clock;
@@ -84,7 +85,7 @@ import org.mockito.Mock;
 import static com.elster.jupiter.export.rest.impl.DataExportTaskResource.X_CONNEXO_APPLICATION_NAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doAnswer;
@@ -135,8 +136,6 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
     @Mock
     private LogEntryFinder logEntryFinder;
     @Mock
-    private QueryStream queryStream;
-    @Mock
     private History<ExportTask> exportTaskHistory;
     @Mock
     protected RecurrentTask recurrentTask;
@@ -185,6 +184,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(exportTask.getDataSelectorFactory()).thenReturn(this.dataSelectorFactory);
         when(exportTask.getDataFormatterFactory()).thenReturn(this.dataFormatterFactory);
         when(exportTask.getApplication()).thenReturn("MultiSense");
+        when(exportTask.getPairedTask()).thenReturn(Optional.empty());
         doReturn(Optional.of(exportTask)).when(dataExportService).findExportTask(TASK_ID);
         doReturn(Optional.of(exportTask)).when(dataExportService).findAndLockExportTask(TASK_ID, OK_VERSION);
         doReturn(Optional.empty()).when(dataExportService).findAndLockExportTask(TASK_ID, BAD_VERSION);
@@ -219,6 +219,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(jsonModel.<String>get("$.name")).isEqualTo(TASK_NAME);
         assertThat(jsonModel.<Number>get("$.version")).isEqualTo(Long.valueOf(OK_VERSION).intValue());
         assertThat(jsonModel.<Number>get("$.nextRun")).isEqualTo(NEXT_EXECUTION.toInstant().toEpochMilli());
+        assertThat(jsonModel.<Object>get("$.pairedTask")).isNull();
     }
 
     @Test
@@ -313,6 +314,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         assertThat(applicationNameCaptor.getValue()).isEqualTo("MultiSense");
 
         verify(builder).selectingMeterReadings("Device readings data selector");
+        verify(builder).create();
 
         verify(exportTask).addFileDestination("", "file", "txt");
         verify(exportTask).addEmailDestination("user1@elster.com;user2@elster.com", "daily report", "attachment", "csv");
@@ -406,10 +408,12 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
         // Business method
-        Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
+        Response response = target("/dataexporttask/" + TASK_ID).request().header(X_CONNEXO_APPLICATION_NAME, "MDC").put(json);
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        verify(exportTask).unpair();
+        verify(exportTask).update();
     }
 
     @Test
@@ -448,7 +452,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
         // Business method
-        Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
+        Response response = target("/dataexporttask/" + TASK_ID).request().header(X_CONNEXO_APPLICATION_NAME, "MDC").put(json);
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -477,7 +481,7 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Entity<DataExportTaskInfo> json = Entity.json(info);
 
         // Business method
-        Response response = target("/dataexporttask/" + TASK_ID).request().put(json);
+        Response response = target("/dataexporttask/" + TASK_ID).request().header(X_CONNEXO_APPLICATION_NAME, "MDC").put(json);
 
         // Asserts
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
@@ -737,11 +741,10 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         when(dataExportService.getDataExportOccurrenceFinder()).thenReturn(dataExportOccurrenceFinder);
         when(dataExportService.findExportTasks()).thenReturn(exportTaskFinder);
         when(exportTaskFinder.ofApplication("Insight")).thenReturn(exportTaskFinder);
-        when(exportTaskFinder.stream()).thenReturn(queryStream);
-        when(queryStream.map(any())).thenReturn(queryStream);
-        when(queryStream.collect(any())).thenReturn(Collections.singletonList(1));
+        QueryStream queryStream = FakeBuilder.initBuilderStub(Collections.singletonList(1), QueryStream.class, Stream.class);
+        doReturn(queryStream).when(exportTaskFinder).stream();
 
-        when(dataExportOccurrenceFinder.withExportTask(anyList())).thenReturn(dataExportOccurrenceFinder);
+        when(dataExportOccurrenceFinder.withExportTask(anyListOf(Long.class))).thenReturn(dataExportOccurrenceFinder);
         doReturn(Collections.singletonList(occurrence)).when(dataExportOccurrenceFinder).find();
         when(occurrence.getTask()).thenReturn(exportTask);
         when(occurrence.getId()).thenReturn(1L);
@@ -807,6 +810,97 @@ public class DataExportTaskResourceTest extends DataExportApplicationJerseyTest 
         Response response = target("/dataexporttask/history/" + occurrenceId).request().get();
 
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+    }
+
+    @Test
+    public void testCreatePairedTask() throws IOException {
+        ExportTask pairedTask = mock(ExportTask.class);
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.name = "newName";
+        info.nextRun = Instant.ofEpochMilli(250L);
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.deviceGroup = new IdWithNameInfo();
+        info.standardDataSelector.deviceGroup.id = 5;
+        info.standardDataSelector.exportComplete = MissingDataOption.EXCLUDE_ITEM;
+        info.standardDataSelector.validatedDataOption = ValidatedDataOption.EXCLUDE_ITEM;
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.selectorType = SelectorType.DEFAULT_READINGS;
+        info.dataSelector.name = "Device readings data selector";
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
+        info.pairedTask = new IdWithNameInfo(375L, "pairedName");
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+
+        when(clock.instant()).thenReturn(info.nextRun);
+        doReturn(Optional.of(pairedTask)).when(dataExportService).findAndLockExportTask((long) info.pairedTask.id);
+        doReturn(Optional.of(pairedTask)).when(exportTask).getPairedTask();
+        doReturn(info.pairedTask.id).when(pairedTask).getId();
+        doReturn(info.pairedTask.name).when(pairedTask).getName();
+
+        // Business method
+        Response response = target("/dataexporttask").request().header(X_CONNEXO_APPLICATION_NAME, "MDC").post(json);
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.CREATED.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(Long.valueOf(TASK_ID).intValue());
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo(TASK_NAME);
+        assertThat(jsonModel.<Number>get("$.pairedTask.id").longValue()).isEqualTo(info.pairedTask.id);
+        assertThat(jsonModel.<Number>get("$.pairedTask.name")).isEqualTo(info.pairedTask.name);
+
+        verify(builder).selectingMeterReadings("Device readings data selector");
+        verify(builder).pairWith(pairedTask);
+        verify(builder).create();
+    }
+
+    @Test
+    public void testPairTasks() throws IOException {
+        ExportTask pairedTask = mock(ExportTask.class);
+        DataExportTaskInfo info = new DataExportTaskInfo();
+        info.id = TASK_ID;
+        info.standardDataSelector = new StandardDataSelectorInfo();
+        info.standardDataSelector.deviceGroup = new IdWithNameInfo();
+        info.standardDataSelector.deviceGroup.id = 5;
+        info.dataProcessor = new ProcessorInfo();
+        info.dataProcessor.name = "dataProcessor";
+        info.dataSelector = new SelectorInfo();
+        info.dataSelector.name = "Standard Data Selector";
+        info.version = OK_VERSION;
+        DestinationInfo fileDestinationInfo = new DestinationInfo();
+        fileDestinationInfo.id = 0; // new
+        fileDestinationInfo.type = DestinationType.FILE;
+        fileDestinationInfo.fileLocation = "";
+        fileDestinationInfo.fileName = "file";
+        fileDestinationInfo.fileExtension = "txt";
+        info.destinations.add(fileDestinationInfo);
+        info.pairedTask = new IdWithNameInfo(TASK_ID + 1, "pairedName");
+        Entity<DataExportTaskInfo> json = Entity.json(info);
+
+        when(clock.instant()).thenReturn(info.nextRun);
+        doReturn(Optional.of(pairedTask)).when(dataExportService).findAndLockExportTask((long) info.pairedTask.id);
+        doReturn(Optional.of(pairedTask)).when(exportTask).getPairedTask();
+        doReturn(info.pairedTask.id).when(pairedTask).getId();
+        doReturn(info.pairedTask.name).when(pairedTask).getName();
+
+        // Business method
+        Response response = target("/dataexporttask/" + TASK_ID).request().header(X_CONNEXO_APPLICATION_NAME, "MDC").put(json);
+
+        // Asserts
+        assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
+        JsonModel jsonModel = JsonModel.create((ByteArrayInputStream) response.getEntity());
+        assertThat(jsonModel.<Number>get("$.id")).isEqualTo(Long.valueOf(TASK_ID).intValue());
+        assertThat(jsonModel.<String>get("$.name")).isEqualTo(TASK_NAME);
+        assertThat(jsonModel.<Number>get("$.pairedTask.id").longValue()).isEqualTo(info.pairedTask.id);
+        assertThat(jsonModel.<Number>get("$.pairedTask.name")).isEqualTo(info.pairedTask.name);
+
+        verify(exportTask).pairWith(pairedTask);
+        verify(exportTask).update();
     }
 
     private ReadingTypeDataExportItem mockExportItem(DataExportOccurrence dataExportOccurrence, ReadingContainer readingContainer, Instant lastRun) {
