@@ -103,13 +103,13 @@ public class JbpmTaskResource {
 
     @POST
     @Produces("application/json")
-    public TaskSummaryList getTasks(ProcessDefinitionInfos processDefinitionInfos, @Context UriInfo uriInfo){
-        Map<String, JsonNode> filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
-        Map<String, JsonNode> sortProperties = getFilterProperties(getQueryValue(uriInfo,"sort"),"direction");
+    public TaskSummaryList getTasks(ProcessDefinitionInfos processDefinitionInfos, @Context UriInfo uriInfo) {
+        Map<String, JsonNode> filterProperties = getFilterProperties(getQueryValue(uriInfo, "filter"), "value");
+        Map<String, JsonNode> sortProperties = getFilterProperties(getQueryValue(uriInfo, "sort"), "direction");
         List<String> deploymentIds = processDefinitionInfos.processes.stream().map(proc -> proc.deploymentId).collect(Collectors.toList());
         List<String> processIds = processDefinitionInfos.processes.stream().map(proc -> proc.processId).collect(Collectors.toList());
 
-        if(deploymentIds != null && processIds != null && !deploymentIds.isEmpty() && !processIds.isEmpty()) {
+        if (deploymentIds != null && processIds != null && !deploymentIds.isEmpty() && !processIds.isEmpty()) {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
@@ -289,7 +289,7 @@ public class JbpmTaskResource {
                     .collect(Collectors.toList());
 
             // filter by deviceId or usagePointId
-            if (filterProperties.containsKey("deviceId") || filterProperties.containsKey("usagePointId")){
+            if (filterProperties.containsKey("deviceId") || filterProperties.containsKey("usagePointId")) {
                 String variableId = filterProperties.containsKey("deviceId") ? "deviceId" : "usagePointId";
                 String variableValue = filterProperties.get(variableId).getTextValue();
 
@@ -298,7 +298,7 @@ public class JbpmTaskResource {
                         .map(TaskData::getProcessInstanceId)
                         .collect(Collectors.toList());
 
-                if (processInstanceIds.size() >0 ) {
+                if (processInstanceIds.size() > 0) {
                     String queryString = "select p.PROCESSINSTANCEID as processLogid " +
                             "from processinstancelog p " +
                             "LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID " +
@@ -361,7 +361,7 @@ public class JbpmTaskResource {
             TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
             taskSummaryList.getTasks().stream().forEach(taskSummary -> {
                 ProcessDefinition process = runtimeDataService.getProcessById(taskSummary.getProcessName());
-                if(process != null){
+                if (process != null) {
                     taskSummary.setProcessName(process.getName());
                 }
             });
@@ -375,13 +375,13 @@ public class JbpmTaskResource {
     @POST
     @Path("/{taskId: [0-9-]+}/")
     @Produces("application/json")
-    public TaskSummary getTask(ProcessDefinitionInfos processDefinitionInfos, @PathParam("taskId") long taskid){
+    public TaskSummary getTask(ProcessDefinitionInfos processDefinitionInfos, @PathParam("taskId") long taskid) {
         Task task = taskService.getTaskById(taskid);
-        if(task == null){
+        if (task == null) {
             return new TaskSummary(getAuditTask(taskid));
-        }else {
-            for(ProcessDefinitionInfo processDefinitionInfo : processDefinitionInfos.processes){
-                if(processDefinitionInfo.deploymentId.equals(task.getTaskData().getDeploymentId()) && processDefinitionInfo.processId.equals(task.getTaskData().getProcessId())){
+        } else {
+            for (ProcessDefinitionInfo processDefinitionInfo : processDefinitionInfos.processes) {
+                if (processDefinitionInfo.deploymentId.equals(task.getTaskData().getDeploymentId()) && processDefinitionInfo.processId.equals(task.getTaskData().getProcessId())) {
                     return new TaskSummary(task);
                 }
             }
@@ -392,7 +392,7 @@ public class JbpmTaskResource {
     @POST
     @Path("/toptasks")
     @Produces("application/json")
-    public TopTasksInfo getTopTasks(TopTasksPayload topTasksPayload, @Context UriInfo uriInfo){
+    public TopTasksInfo getTopTasks(TopTasksPayload topTasksPayload, @Context UriInfo uriInfo) {
         TopTasksInfo topTasksInfo = new TopTasksInfo();
         Comparator<TaskSummary> priorityComparator = (task1, task2) -> Integer.compare(task1.getPriority(), task2.getPriority());
         Comparator<TaskSummary> dueDateComparator = Comparator.comparing(TaskSummary::getDueDate, Comparator.nullsLast(Date::compareTo));
@@ -406,7 +406,9 @@ public class JbpmTaskResource {
                                 || topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals(topTasksPayload.userName)))
                 .collect(Collectors.toList());
         topTasksInfo.totalUserAssigned = filteredTasks.stream().filter(taskSummary -> taskSummary.getActualOwner().equals(topTasksPayload.userName)).count();
-        topTasksInfo.workGroupAssigned = filteredTasks.stream().filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals("")).count();
+        topTasksInfo.workGroupAssigned = filteredTasks.stream()
+                .filter(taskSummary -> topTasksPayload.workGroups.contains(taskSummary.getWorkGroup()) && taskSummary.getActualOwner().equals(""))
+                .count();
         topTasksInfo.tasks = filteredTasks.stream().sorted(dueDateComparator.thenComparing(priorityComparator).thenComparing(nameComparator)).limit(5).collect(Collectors.toList());
         return topTasksInfo;
     }
@@ -414,10 +416,10 @@ public class JbpmTaskResource {
 
     @POST
     @Path("/release/{taskId: [0-9-]+}")
-    public Response releaseTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
+    public Response releaseTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId) {
         String currentuser = getQueryValue(uriInfo, "currentuser");
         Task task = taskService.getTaskById(taskId);
-        if(task != null) {
+        if (task != null) {
             taskService.release(task.getId(), currentuser);
         }
         return Response.ok().build();
@@ -425,13 +427,13 @@ public class JbpmTaskResource {
 
     @POST
     @Path("/assigntome/{taskId: [0-9-]+}")
-    public Response assignToMeTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId){
+    public Response assignToMeTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId) {
         String currentuser = getQueryValue(uriInfo, "currentuser");
         Task task = taskService.getTaskById(taskId);
-        if(task != null) {
-            if(currentuser != null) {
+        if (task != null) {
+            if (currentuser != null) {
                 boolean check = assignTaskToUser(currentuser, currentuser, taskId);
-                if(!check){
+                if (!check) {
                     return Response.status(403).build();
                 }
             }
@@ -441,28 +443,28 @@ public class JbpmTaskResource {
 
     @POST
     @Path("/{taskId: [0-9-]+}/{optLock: [0-9-]+}/assign")
-    public Response assignTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId, @PathParam("optLock") long optLock){
+    public Response assignTask(@Context UriInfo uriInfo, @PathParam("taskId") long taskId, @PathParam("optLock") long optLock) {
         String userName = getQueryValue(uriInfo, "username");
         String currentuser = getQueryValue(uriInfo, "currentuser");
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
         String workGroupName = getQueryValue(uriInfo, "workgroupname");
         Task task = taskService.getTaskById(taskId);
-        if(task != null) {
-            if(((TaskImpl) task).getVersion() == optLock) {
-                if(userName != null && currentuser != null) {
-                    if(!userName.equals("Unassigned")) {
+        if (task != null) {
+            if (((TaskImpl) task).getVersion() == optLock) {
+                if (userName != null && currentuser != null) {
+                    if (!userName.equals("Unassigned")) {
                         boolean check = assignTaskToUser(userName, currentuser, taskId);
                         if (!check) {
                             return Response.status(403).build();
                         }
-                    }else {
-                        if(task.getTaskData().getActualOwner() != null){
+                    } else {
+                        if (task.getTaskData().getActualOwner() != null) {
                             taskService.release(task.getId(), task.getTaskData().getActualOwner().getId());
                         }
                     }
                 }
-                if(priority != null || date != null){
+                if (priority != null || date != null) {
                     if (priority != null && !priority.equals("")) {
                         setPriority(Integer.valueOf(priority), taskId);
                     }
@@ -472,7 +474,7 @@ public class JbpmTaskResource {
                         setDueDate(millis, taskId);
                     }
                 }
-                if(workGroupName != null){
+                if (workGroupName != null) {
                     taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, workGroupName));
                 }
             } else {
@@ -485,10 +487,10 @@ public class JbpmTaskResource {
     @GET
     @Path("/proc")
     @Produces("application/json")
-    public ProcessInstanceInfos getProc(@Context UriInfo uriInfo){
+    public ProcessInstanceInfos getProc(@Context UriInfo uriInfo) {
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
-        if(variableId != null && variableValue != null) {
+        if (variableId != null && variableValue != null) {
             EntityManager em = emf.createEntityManager();
             String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSID, p.PROCESSNAME, p.EXTERNALID, p.PROCESSVERSION, " +
                     "p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION, " +
@@ -509,7 +511,7 @@ public class JbpmTaskResource {
     @GET
     @Path("/runningprocesses")
     @Produces("application/json")
-    public RunningProcessInfos getRunningProcesses(@Context UriInfo uriInfo){
+    public RunningProcessInfos getRunningProcesses(@Context UriInfo uriInfo) {
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         int startIndex = 0;
@@ -518,10 +520,10 @@ public class JbpmTaskResource {
             startIndex = Integer.valueOf(getQueryValue(uriInfo, "start"));
             endIndex = Integer.valueOf(getQueryValue(uriInfo, "limit"));
             endIndex++;
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
         }
 
-        if(variableId != null && variableValue != null) {
+        if (variableId != null && variableValue != null) {
             EntityManager em = emf.createEntityManager();
             String queryString = "select DISTINCT p.STATUS, p.PROCESSID, p.PROCESSNAME, p.PROCESSVERSION, " +
                     "p.USER_IDENTITY, p.START_DATE, p.PROCESSINSTANCEID as processLogid " +
@@ -537,13 +539,13 @@ public class JbpmTaskResource {
             query.setMaxResults(endIndex);
             List<Object[]> list = query.getResultList();
             RunningProcessInfos runningProcessInfos = new RunningProcessInfos(list);
-            for(RunningProcessInfo info : runningProcessInfos.processInstances){
+            for (RunningProcessInfo info : runningProcessInfos.processInstances) {
                 info.tasks = info.processInstanceId == -1 ? null : getTaskForProceessInstance(info.processInstanceId);
             }
-            if(runningProcessInfos.total == endIndex){
+            if (runningProcessInfos.total == endIndex) {
                 int total = startIndex + endIndex;
                 runningProcessInfos.removeLast(total);
-            }else{
+            } else {
                 int total = startIndex + runningProcessInfos.total;
                 runningProcessInfos.setTotal(total);
             }
@@ -555,7 +557,7 @@ public class JbpmTaskResource {
     @GET
     @Path("/allprocesses")
     @Produces("application/json")
-    public RunningProcessInfos getAllProcesses(@Context UriInfo uriInfo){
+    public RunningProcessInfos getAllProcesses(@Context UriInfo uriInfo) {
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         int startIndex = 0;
@@ -564,9 +566,9 @@ public class JbpmTaskResource {
             startIndex = Integer.valueOf(getQueryValue(uriInfo, "start"));
             endIndex = Integer.valueOf(getQueryValue(uriInfo, "limit"));
             endIndex++;
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
         }
-        if(variableId != null && variableValue != null) {
+        if (variableId != null && variableValue != null) {
             EntityManager em = emf.createEntityManager();
             String queryString = "select p.STATUS, p.PROCESSID, p.PROCESSNAME, p.PROCESSVERSION, " +
                     "p.USER_IDENTITY, p.START_DATE, p.PROCESSINSTANCEID as processLogid " +
@@ -581,13 +583,13 @@ public class JbpmTaskResource {
             query.setMaxResults(endIndex);
             List<Object[]> list = query.getResultList();
             RunningProcessInfos runningProcessInfos = new RunningProcessInfos(list);
-            for(RunningProcessInfo info : runningProcessInfos.processInstances){
+            for (RunningProcessInfo info : runningProcessInfos.processInstances) {
                 info.tasks = info.processInstanceId == -1 ? null : getTaskForProceessInstance(info.processInstanceId);
             }
-            if(runningProcessInfos.total == endIndex){
+            if (runningProcessInfos.total == endIndex) {
                 int total = startIndex + endIndex;
                 runningProcessInfos.removeLast(total);
-            }else{
+            } else {
                 int total = startIndex + runningProcessInfos.total;
                 runningProcessInfos.setTotal(total);
             }
@@ -599,8 +601,10 @@ public class JbpmTaskResource {
     @GET
     @Path("/process/instance/{processInstanceId: [0-9-]+}/node")
     @Produces("application/json")
-    public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo,@PathParam("processInstanceId") long processInstanceId){
+    public ProcessInstanceNodeInfos getProcessInstanceNode(@Context UriInfo uriInfo, @PathParam("processInstanceId") long processInstanceId) {
         String processInstanceState = "";
+        String start = getQueryValue(uriInfo, "start");
+        String limit = getQueryValue(uriInfo, "limit");
         ProcessInstanceDesc processDesc = runtimeDataService.getProcessInstanceById(processInstanceId);
         if (processDesc != null) {
             if (processDesc.getState() == 1) {
@@ -610,7 +614,7 @@ public class JbpmTaskResource {
             } else {
                 processInstanceState = "Aborted";
             }
-        }else {
+        } else {
             processInstanceState = "Undeployed";
         }
         EntityManager em = emf.createEntityManager();
@@ -618,6 +622,12 @@ public class JbpmTaskResource {
                 "where n.PROCESSINSTANCEID = :processInstanceId and type= (select min(type) from NODEINSTANCELOG where processinstanceid = :processInstanceId and nodeid = n.nodeid))t1 " +
                 "join(select p.NODEID as NODEIDNOTUSED, max(p.TYPE) from NODEINSTANCELOG p where processinstanceid = :processInstanceId group by p.NODEID)t2 on t1.nodeid = t2.NODEIDNOTUSED order by t1.ID desc";
         Query query = em.createNativeQuery(queryString);
+        if (start != null) {
+            query.setFirstResult(Integer.parseInt(start));
+        }
+        if (limit != null) {
+            query.setMaxResults(Integer.parseInt(limit));
+        }
         query.setParameter("processInstanceId", processInstanceId);
         List<Object[]> nodes = query.getResultList();
         queryString = "select * from variableinstancelog v WHERE v.PROCESSINSTANCEID = :processInstanceId ORDER BY v.VARIABLEID ASC";
@@ -630,21 +640,21 @@ public class JbpmTaskResource {
     @GET
     @Path("/process/history")
     @Produces("application/json")
-    public ProcessHistoryInfos getProcessHistory(@Context UriInfo uriInfo){
+    public ProcessHistoryInfos getProcessHistory(@Context UriInfo uriInfo) {
         String variableId = getQueryValue(uriInfo, "variableid");
         String variableValue = getQueryValue(uriInfo, "variablevalue");
         Map<String, JsonNode> filterProperties;
-        filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
+        filterProperties = getFilterProperties(getQueryValue(uriInfo, "filter"), "value");
         int startIndex = 0;
         int endIndex = Integer.MAX_VALUE;
         try {
             startIndex = Integer.valueOf(getQueryValue(uriInfo, "start"));
             endIndex = Integer.valueOf(getQueryValue(uriInfo, "limit"));
             endIndex++;
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
         }
 
-        if(variableId != null && variableValue != null) {
+        if (variableId != null && variableValue != null) {
             EntityManager em = emf.createEntityManager();
             String queryString = "select DISTINCT p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION " +
                     "from processinstancelog p " +
@@ -661,10 +671,10 @@ public class JbpmTaskResource {
             query.setMaxResults(endIndex);
             List<Object[]> list = query.getResultList();
             ProcessHistoryInfos processHistoryInfos = new ProcessHistoryInfos(list);
-            if(processHistoryInfos.total == endIndex){
+            if (processHistoryInfos.total == endIndex) {
                 int total = startIndex + endIndex;
                 processHistoryInfos.removeLast(total);
-            }else{
+            } else {
                 int total = startIndex + processHistoryInfos.total;
                 processHistoryInfos.setTotal(total);
             }
@@ -678,13 +688,13 @@ public class JbpmTaskResource {
     @GET
     @Path("/process/allprocesses")
     @Produces("application/json")
-    public ProcessHistoryGenInfos getProcessAll(@Context UriInfo uriInfo){
+    public ProcessHistoryGenInfos getProcessAll(@Context UriInfo uriInfo) {
 
         Map<String, JsonNode> filterProperties;
-        filterProperties = getFilterProperties(getQueryValue(uriInfo,"filter"),"value");
+        filterProperties = getFilterProperties(getQueryValue(uriInfo, "filter"), "value");
 
         Map<String, JsonNode> sortingProperties;
-        sortingProperties = getFilterProperties(getQueryValue(uriInfo,"sort"),"direction");
+        sortingProperties = getFilterProperties(getQueryValue(uriInfo, "sort"), "direction");
 
         int startIndex = 0;
         int endIndex = Integer.MAX_VALUE;
@@ -692,13 +702,13 @@ public class JbpmTaskResource {
             startIndex = Integer.valueOf(getQueryValue(uriInfo, "start"));
             endIndex = Integer.valueOf(getQueryValue(uriInfo, "limit"));
             endIndex++;
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
         }
 
         final JsonNode value = filterProperties.get("searchInAllProcesses");
         final boolean searchInAllProcesses = Boolean
                 .valueOf(String.valueOf(value).replace("\"", "").replaceAll("\'", ""));
-        
+
         EntityManager em = emf.createEntityManager();
         String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID"
                 + " from processinstancelog p"
@@ -723,13 +733,13 @@ public class JbpmTaskResource {
         query.setMaxResults(endIndex);
         List<Object[]> list = query.getResultList();
         ProcessHistoryGenInfos processHistoryInfos = new ProcessHistoryGenInfos(list);
-        for(ProcessHistoryGenInfo info : processHistoryInfos.processHistories){
+        for (ProcessHistoryGenInfo info : processHistoryInfos.processHistories) {
             info.tasks = info.processInstanceId == -1 ? null : getTaskForProceessInstance(info.processInstanceId);
         }
-        if(processHistoryInfos.total == endIndex){
+        if (processHistoryInfos.total == endIndex) {
             int total = startIndex + endIndex;
             processHistoryInfos.removeLast(total);
-        }else{
+        } else {
             int total = startIndex + processHistoryInfos.total;
             processHistoryInfos.setTotal(total);
         }
@@ -787,7 +797,7 @@ public class JbpmTaskResource {
     @Produces("application/json")
     @Path("/process/{deploymentId}/content/{processId}")
     public Response getProcessForm(@PathParam("processId") String processId, @PathParam("deploymentId") String deploymentId) {
-        if(runtimeDataService.getProcessesById(processId).size() == 0){
+        if (runtimeDataService.getProcessesById(processId).size() == 0) {
             return Response.ok().entity("Undeployed").build();
         }
         if (formManagerService != null) {
@@ -831,9 +841,9 @@ public class JbpmTaskResource {
     @Path("/{taskId: [0-9-]+}/contentstart/{username}")
     public Response startTaskContent(@PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth) {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
-        if(task != null){
-            if(task.getStatus().equals("Created") || task.getStatus().equals("Ready") || task.getStatus().equals("Reserved")) {
-                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+        if (task != null) {
+            if (task.getStatus().equals("Created") || task.getStatus().equals("Ready") || task.getStatus().equals("Reserved")) {
+                if (auth.contains("Basic") && username.equals(task.getActualOwner())) {
                     taskService.start(taskId, task.getActualOwner());
                     return Response.ok().build();
                 } else {
@@ -853,9 +863,9 @@ public class JbpmTaskResource {
     @Path("/{taskId: [0-9-]+}/contentcomplete/{username}")
     public Response completeTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth) {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
-        if(task != null) {
+        if (task != null) {
             if (!task.getStatus().equals("Completed")) {
-                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+                if (auth.contains("Basic") && username.equals(task.getActualOwner())) {
                     TaskCommand<?> cmd = new CompleteTaskCommand(taskId, task.getActualOwner(), taskOutputContentInfo.outputTaskContent);
                     processRequestBean.doRestTaskOperation(taskId, null, null, null, cmd);
                     return Response.ok().build();
@@ -876,11 +886,11 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/{taskId: [0-9-]+}/contentsave/{username}")
-    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth){
+    public Response saveTaskContent(TaskOutputContentInfo taskOutputContentInfo, @PathParam("taskId") long taskId, @PathParam("username") String username, @Context SecurityContext context, @HeaderParam("Authorization") String auth) {
         UserTaskInstanceDesc task = runtimeDataService.getTaskById(taskId);
-        if(task != null) {
+        if (task != null) {
             if (!task.getStatus().equals("Completed")) {
-                if(auth.contains("Basic") && username.equals(task.getActualOwner())){
+                if (auth.contains("Basic") && username.equals(task.getActualOwner())) {
                     ((InternalTaskService) taskService).addContent(taskId, taskOutputContentInfo.outputTaskContent);
                     return Response.ok().build();
                 } else {
@@ -895,7 +905,7 @@ public class JbpmTaskResource {
         return Response.status(400).build();
     }
 
-    private List<Long> taskIdList(String source){
+    private List<Long> taskIdList(String source) {
         List<Long> taskIdList = new ArrayList<>();
         try {
             if (source != null) {
@@ -903,12 +913,13 @@ public class JbpmTaskResource {
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
                         JsonNode property = singleFilter.get("id");
-                        if (property != null && property.getTextValue() != null)
+                        if (property != null && property.getTextValue() != null) {
                             taskIdList.add(Long.parseLong(property.getTextValue()));
+                        }
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return taskIdList;
@@ -917,14 +928,14 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/mandatory")
-    public TaskGroupsInfos checkMandatoryTask(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
+    public TaskGroupsInfos checkMandatoryTask(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo) {
         List<TaskGroupsInfo> taskGroups = new ArrayList<>();
         List<Long> taskIds = taskGroupsInfos.taskGroups.get(0).taskIds;
         Map<Map<ProcessDefinition, String>, List<Task>> groupedTasks = new HashMap<>();
-        for(Long id: taskIds){
+        for (Long id : taskIds) {
             Task task = taskService.getTaskById(id);
             if (task != null) {
-                if(!task.getTaskData().getStatus().equals(Status.Completed)) {
+                if (!task.getTaskData().getStatus().equals(Status.Completed)) {
                     ProcessDefinition process = null;
                     Collection<ProcessDefinition> processesList = runtimeDataService.getProcessesByDeploymentId(task
                             .getTaskData()
@@ -949,7 +960,7 @@ public class JbpmTaskResource {
         for (Map.Entry<Map<ProcessDefinition, String>, List<Task>> entry : groupedTasks.entrySet()) {
             ConnexoForm form = getTaskContent(entry.getValue().get(0).getId());
             List<Long> ids = new ArrayList<>();
-            for(Task each : entry.getValue()){
+            for (Task each : entry.getValue()) {
                 ids.add(each.getId());
             }
             form.taskStatus = Status.InProgress;
@@ -959,10 +970,10 @@ public class JbpmTaskResource {
         return new TaskGroupsInfos(taskGroups);
     }
 
-    private boolean hasFormMandatoryFields(ConnexoForm form){
-        if(form.fields != null) {
+    private boolean hasFormMandatoryFields(ConnexoForm form) {
+        if (form.fields != null) {
             for (ConnexoFormField field : form.fields) {
-                if(field.properties != null) {
+                if (field.properties != null) {
                     for (ConnexoProperty property : field.properties) {
                         if (property.name.equals("fieldRequired")) {
                             if (property.value.equals("true")) {
@@ -979,22 +990,22 @@ public class JbpmTaskResource {
     @POST
     @Produces("application/json")
     @Path("/managetasks")
-    public TaskBulkReportInfo manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo){
+    public TaskBulkReportInfo manageTasks(TaskGroupsInfos taskGroupsInfos, @Context UriInfo uriInfo) {
         long failed = 0;
         long total = 0;
-        for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-            total +=taskGroup.taskIds.size();
+        for (TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups) {
+            total += taskGroup.taskIds.size();
         }
         if (getQueryValue(uriInfo, "assign") != null) {
             if (getQueryValue(uriInfo, "currentuser") != null) {
-                for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                    for(Long taskId: taskGroup.taskIds){
-                        if(!getQueryValue(uriInfo, "assign").equals("Unassigned")) {
+                for (TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups) {
+                    for (Long taskId : taskGroup.taskIds) {
+                        if (!getQueryValue(uriInfo, "assign").equals("Unassigned")) {
                             if (!assignTaskToUser(getQueryValue(uriInfo, "assign"), getQueryValue(uriInfo, "currentuser"), taskId)) {
                                 failed++;
                             }
-                        }else{
-                            if(taskService.getTaskById(taskId).getTaskData().getActualOwner() != null){
+                        } else {
+                            if (taskService.getTaskById(taskId).getTaskData().getActualOwner() != null) {
                                 taskService.release(taskId, taskService.getTaskById(taskId).getTaskData().getActualOwner().getId());
                             }
                         }
@@ -1002,34 +1013,34 @@ public class JbpmTaskResource {
                 }
             }
         }
-        if(getQueryValue(uriInfo, "workgroup") != null){
-            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                for(Long taskId: taskGroup.taskIds){
+        if (getQueryValue(uriInfo, "workgroup") != null) {
+            for (TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups) {
+                for (Long taskId : taskGroup.taskIds) {
                     taskService.execute(new ComplexAssigneeForwardTaskCommand(taskId, getQueryValue(uriInfo, "workgroup")));
                 }
             }
         }
-        if(getQueryValue(uriInfo, "setPriority") != null){
-            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                for(Long taskId: taskGroup.taskIds){
+        if (getQueryValue(uriInfo, "setPriority") != null) {
+            for (TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups) {
+                for (Long taskId : taskGroup.taskIds) {
                     setPriority(Integer.valueOf(getQueryValue(uriInfo, "setPriority")), taskId);
                 }
             }
         }
-        if(getQueryValue(uriInfo, "setDueDate") != null){
+        if (getQueryValue(uriInfo, "setDueDate") != null) {
             Date millis = new Date();
             millis.setTime(Long.valueOf(getQueryValue(uriInfo, "setDueDate")));
-            for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                for(Long taskId: taskGroup.taskIds){
-                    setDueDate(millis , taskId);
+            for (TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups) {
+                for (Long taskId : taskGroup.taskIds) {
+                    setDueDate(millis, taskId);
                 }
             }
         }
-        if(getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null && getQueryValue(uriInfo, "workgroup") == null){
+        if (getQueryValue(uriInfo, "setDueDate") == null && getQueryValue(uriInfo, "setPriority") == null && getQueryValue(uriInfo, "assign") == null && getQueryValue(uriInfo, "workgroup") == null) {
             if (getQueryValue(uriInfo, "currentuser") != null) {
-                for(TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups){
-                    for(Long taskId: taskGroup.taskIds){
-                        if(taskService.getTaskById(taskId) != null) {
+                for (TaskGroupsInfo taskGroup : taskGroupsInfos.taskGroups) {
+                    for (Long taskId : taskGroup.taskIds) {
+                        if (taskService.getTaskById(taskId) != null) {
                             if (!taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Completed)) {
                                 boolean check = true;
                                 if (taskService.getTaskById(taskId).getTaskData().getStatus().equals(Status.Ready)) {
@@ -1088,21 +1099,21 @@ public class JbpmTaskResource {
                 }
             }
         }
-        return new TaskBulkReportInfo(total,failed);
+        return new TaskBulkReportInfo(total, failed);
     }
 
-    private boolean assignTaskToUser(String userName, String currentuser, long taskId){
+    private boolean assignTaskToUser(String userName, String currentuser, long taskId) {
         Task task = taskService.getTaskById(taskId);
         if (task != null) {
             if (task.getTaskData().getStatus().equals(Status.Created)) {
                 List<OrganizationalEntity> businessAdministrators = task.getPeopleAssignments().getBusinessAdministrators();
                 boolean check = false;
-                for(int i = 0;i<businessAdministrators.size();i++){
-                    if(businessAdministrators.get(i).getId().equals(userName)){
+                for (int i = 0; i < businessAdministrators.size(); i++) {
+                    if (businessAdministrators.get(i).getId().equals(userName)) {
                         check = true;
                     }
                 }
-                if(check) {
+                if (check) {
                     taskService.activate(taskId, userName);
                     assignTaskToUser(userName, currentuser, taskId);
                 }
@@ -1121,7 +1132,7 @@ public class JbpmTaskResource {
                 }
             }
             if (task.getTaskData().getStatus().equals(Status.InProgress)) {
-                if(!task.getTaskData().getActualOwner().getId().equals(userName)) {
+                if (!task.getTaskData().getActualOwner().getId().equals(userName)) {
                     if (task.getTaskData().getActualOwner() != null) {
                         if (!userName.equals("")) {
                             taskService.stop(taskId, task.getTaskData().getActualOwner().getId());
@@ -1134,32 +1145,32 @@ public class JbpmTaskResource {
         return true;
     }
 
-    private Object[] getAuditTask(long taskid){
+    private Object[] getAuditTask(long taskid) {
         EntityManager em = emf.createEntityManager();
         String queryString = "Select TASKID , ACTUALOWNER, PROCESSID, CREATEDON, STATUS, NAME from AUDITTASKIMPL where TASKID = :taskId";
         Query query = em.createNativeQuery(queryString);
         query.setParameter("taskId", taskid);
         List<Object[]> list = query.getResultList();
-        if(!list.isEmpty()){
+        if (!list.isEmpty()) {
             return list.get(0);
         }
         return null;
     }
 
-    private void setDueDate(Date dueDate, long taskId){
-        if(taskService.getTaskById(taskId) != null) {
+    private void setDueDate(Date dueDate, long taskId) {
+        if (taskService.getTaskById(taskId) != null) {
             taskService.setExpirationDate(taskId, dueDate);
         }
     }
 
-    private void setPriority(int priority, long taskId){
-        if(taskService.getTaskById(taskId) != null) {
+    private void setPriority(int priority, long taskId) {
+        if (taskService.getTaskById(taskId) != null) {
             ((InternalTaskService) taskService).setPriority(taskId, priority);
         }
     }
 
-    private List<TaskSummary> getTaskForProceessInstance(long processInstanceId){
-        if(emf != null) {
+    private List<TaskSummary> getTaskForProceessInstance(long processInstanceId) {
+        if (emf != null) {
             EntityManager em = emf.createEntityManager();
             CriteriaBuilder criteriaBuilder = em.getCriteriaBuilder();
 
@@ -1190,7 +1201,7 @@ public class JbpmTaskResource {
             TaskSummaryList taskSummaryList = new TaskSummaryList(tasks);
             taskSummaryList.getTasks().stream().forEach(taskSummary -> {
                 ProcessDefinition process = runtimeDataService.getProcessById(taskSummary.getProcessName());
-                if(process != null){
+                if (process != null) {
                     taskSummary.setProcessName(process.getName());
                 }
             });
@@ -1201,7 +1212,7 @@ public class JbpmTaskResource {
     }
 
 
-    private Map<String, JsonNode> getFilterProperties(String source, String value){
+    private Map<String, JsonNode> getFilterProperties(String source, String value) {
         LinkedHashMap<String, JsonNode> filterProperties = new LinkedHashMap<String, JsonNode>();
         try {
             if (source != null) {
@@ -1209,18 +1220,19 @@ public class JbpmTaskResource {
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
                         JsonNode property = singleFilter.get(PROPERTY);
-                        if (property != null && property.getTextValue() != null)
+                        if (property != null && property.getTextValue() != null) {
                             filterProperties.put(property.getTextValue(), singleFilter.get(value));
+                        }
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return filterProperties;
     }
 
-    private Map<String, JsonNode> getSortingProperties(String source, String value){
+    private Map<String, JsonNode> getSortingProperties(String source, String value) {
         LinkedHashMap<String, JsonNode> filterProperties = new LinkedHashMap<String, JsonNode>();
         try {
             if (source != null) {
@@ -1228,24 +1240,23 @@ public class JbpmTaskResource {
                 if (node != null && node.isArray()) {
                     for (JsonNode singleFilter : node) {
                         JsonNode property = singleFilter.get(PROPERTY);
-                        if (property != null && property.getTextValue() != null)
+                        if (property != null && property.getTextValue() != null) {
                             filterProperties.put(property.getTextValue(), singleFilter.get(value));
+                        }
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
         return filterProperties;
     }
 
 
-
-
-    private String getQueryValue(UriInfo uriInfo,String key){
+    private String getQueryValue(UriInfo uriInfo, String key) {
         return uriInfo.getQueryParameters().getFirst(key);
     }
-    
+
     private String addProcessInstanceIdFilterToQuery(Map<String, JsonNode> filterProperties) {
         String processInstanceId = "";
         for (Map.Entry<String, JsonNode> entry : filterProperties.entrySet()) {
@@ -1274,7 +1285,7 @@ public class JbpmTaskResource {
         return processInstanceId;
     }
 
-    private String addFilterToQuery(Map<String, JsonNode> filterProperties, Boolean onlyHistoryProcesses){
+    private String addFilterToQuery(Map<String, JsonNode> filterProperties, Boolean onlyHistoryProcesses) {
         String process = "";
         String startedOnFrom = "";
         String startedOnTo = "";
@@ -1284,11 +1295,11 @@ public class JbpmTaskResource {
         String variableValue = "";
         String filter = "";
         Iterator<String> it = filterProperties.keySet().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             String theKey = (String) it.next();
             if (theKey.equals("process")) {
-                for(int i=0;i<filterProperties.get("process").size();i++) {
-                    if(process.equals("")) {
+                for (int i = 0; i < filterProperties.get("process").size(); i++) {
+                    if (process.equals("")) {
                         process += "(p.PROCESSID = " + filterProperties.get("process")
                                 .get(i)
                                 .toString()
@@ -1297,7 +1308,7 @@ public class JbpmTaskResource {
                                 .get(i)
                                 .toString()
                                 .split(" \\(")[1].replace(")", "") + "')";
-                    }else{
+                    } else {
                         process += " OR (p.PROCESSID = " + filterProperties.get("process")
                                 .get(i)
                                 .toString()
@@ -1310,44 +1321,50 @@ public class JbpmTaskResource {
                 }
             }
             if (theKey.equals("status")) {
-                for(int i=0;i<filterProperties.get("status").size();i++) {
-                    if(status.equals("")) {
-                        status += "p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"","'");
-                    }else{
-                        status += " OR p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"", "'");;
+                for (int i = 0; i < filterProperties.get("status").size(); i++) {
+                    if (status.equals("")) {
+                        status += "p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"", "'");
+                    } else {
+                        status += " OR p.STATUS = " + filterProperties.get("status").get(i).toString().replace("\"", "'");
+                        ;
                     }
                 }
             }
             if (theKey.equals("user")) {
-                for(int i=0;i<filterProperties.get("user").size();i++) {
-                    if(startedBy.equals("")) {
-                        startedBy += "p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"","'");
-                    }else{
-                        startedBy += " OR p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"", "'");;
+                for (int i = 0; i < filterProperties.get("user").size(); i++) {
+                    if (startedBy.equals("")) {
+                        startedBy += "p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"", "'");
+                    } else {
+                        startedBy += " OR p.USER_IDENTITY = " + filterProperties.get("user").get(i).toString().replace("\"", "'");
+                        ;
                     }
                 }
             }
             if (theKey.equals("startedOnFrom")) {
-                startedOnFrom = "AND (p.START_DATE > FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnFrom").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
+                startedOnFrom = "AND (p.START_DATE > FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnFrom")
+                        .toString() + "/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
             }
             if (theKey.equals("startedOnTo")) {
-                startedOnTo = "AND (p.START_DATE < FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnTo").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
+                startedOnTo = "AND (p.START_DATE < FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnTo")
+                        .toString() + "/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
             }
             if (theKey.equals("value")) {
-                for(int i=0;i<filterProperties.get("value").size();i++) {
-                    if(variableValue.equals("")) {
-                        variableValue += "v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"","'");
-                    }else{
-                        variableValue+= " OR v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"", "'");;
+                for (int i = 0; i < filterProperties.get("value").size(); i++) {
+                    if (variableValue.equals("")) {
+                        variableValue += "v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"", "'");
+                    } else {
+                        variableValue += " OR v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"", "'");
+                        ;
                     }
                 }
             }
             if (theKey.equals("variableId")) {
-                for(int i=0;i<filterProperties.get("variableId").size();i++) {
-                    if(variableId.equals("")) {
-                        variableId += "v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"","'");
-                    }else{
-                        variableId += " OR v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"", "'");;
+                for (int i = 0; i < filterProperties.get("variableId").size(); i++) {
+                    if (variableId.equals("")) {
+                        variableId += "v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"", "'");
+                    } else {
+                        variableId += " OR v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"", "'");
+                        ;
                     }
                 }
             }
@@ -1355,40 +1372,40 @@ public class JbpmTaskResource {
         }
 
 
-        if(!process.equals("")){
+        if (!process.equals("")) {
             filter += "AND ( " + process + ")";
         }
-        if(!status.equals("")){
+        if (!status.equals("")) {
             filter += "AND ( " + status + ")";
-        }else if (onlyHistoryProcesses){
+        } else if (onlyHistoryProcesses) {
             filter += "AND(p.STATUS = 2 OR p.STATUS = 3 )";
-        }else{
+        } else {
             filter += "AND(p.STATUS = 1 OR p.STATUS = 2 OR p.STATUS = 3 )";
         }
-        if(!startedBy.equals("")){
+        if (!startedBy.equals("")) {
             filter += "AND ( " + startedBy + ")";
         }
-        if(!variableId.equals("")){
+        if (!variableId.equals("")) {
             filter += "AND ( " + variableId + ")";
         }
-        if(!variableValue.equals("")){
-            filter += "AND ( " + variableValue+ ")";
+        if (!variableValue.equals("")) {
+            filter += "AND ( " + variableValue + ")";
         }
-        if(!startedOnFrom.equals("")){
+        if (!startedOnFrom.equals("")) {
             filter += startedOnFrom;
         }
-        if(!startedOnTo.equals("")){
+        if (!startedOnTo.equals("")) {
             filter += startedOnTo;
         }
         //filter += order;
         return filter;
     }
 
-    private String addSortingToQuery(Map<String, JsonNode> sortProperties){
+    private String addSortingToQuery(Map<String, JsonNode> sortProperties) {
         String order = "";
         Iterator<String> it = sortProperties.keySet().iterator();
         ArrayList<String> orders = new ArrayList<>();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             String theKey = (String) it.next();
             if (theKey.equals("processId")) {
                 String sortOrder = sortProperties.get("processId").toString().replace("\"", "");
@@ -1410,17 +1427,16 @@ public class JbpmTaskResource {
             }
         }
 
-        if(orders.size() != 0)
-        {
+        if (orders.size() != 0) {
             order += "order by";
             order += orders.get(0);
-            if (orders.size() > 1){
-                for (int i = 1; i < orders.size(); i++){
+            if (orders.size() > 1) {
+                for (int i = 1; i < orders.size(); i++) {
                     order += ", ";
                     order += orders.get(i);
                 }
             }
-        }else{
+        } else {
             order += "order by p.PROCESSINSTANCEID DESC";
         }
         return order;

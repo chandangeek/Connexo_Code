@@ -10,7 +10,6 @@ import com.elster.jupiter.bpm.BpmProcessPrivilege;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
-import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.bpm.UserTaskInfos;
@@ -57,6 +56,7 @@ import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.users.WorkGroup;
+import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
@@ -99,6 +99,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.elster.jupiter.util.HolderBuilder.first;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/runtime")
@@ -491,8 +492,18 @@ public class BpmResource {
         JSONObject jsnobject = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/" + processInstanceId + "/node",
-                    auth);
+            String start = getQueryValue(uriInfo, "start");
+            String limit = getQueryValue(uriInfo, "limit");
+            Holder<String> holder = first("?").andThen("&");
+            String queryString = "";
+            if (start != null) {
+                queryString += holder.get() + "start=" + start;
+            }
+            if (limit != null) {
+                queryString += holder.get() + "limit=" + limit;
+            }
+            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/" + processInstanceId + "/node" + queryString, auth);
+
             if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
                 nodeInfoList = new ProcessInstanceNodeInfos(jsnobject, thesaurus);
