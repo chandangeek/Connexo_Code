@@ -65,7 +65,8 @@ public class CsvMeterDataFormatterFactory extends StandardCsvDataFormatterFactor
         return Arrays.asList(
                 getTagProperty(),
                 getUpdateTagProperty(),
-                getSeparatorProperty()
+                getSeparatorProperty(),
+               getExcludeMRIDProperty()
         );
     }
 }

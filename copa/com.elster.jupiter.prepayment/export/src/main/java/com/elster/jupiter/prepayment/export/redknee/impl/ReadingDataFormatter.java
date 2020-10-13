@@ -62,6 +62,7 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
     private String fieldSeparator;
     private String tag;
     private String updateTag;
+    private String excludeMRID;
     private StructureMarker structureMarker;
     private StructureMarker mainStructureMarker;
     private StructureMarker updateStructureMarker;
@@ -87,6 +88,8 @@ public class ReadingDataFormatter implements com.elster.jupiter.export.ReadingDa
         }
         this.tag = propertyMap.get(FormatterProperties.TAG.getKey()) != null ? propertyMap.get(FormatterProperties.TAG.getKey()).toString() : "export";
         this.updateTag = propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()) != null ? propertyMap.get(FormatterProperties.UPDATE_TAG.getKey()).toString() : "update";
+        this.excludeMRID = propertyMap.get(FormatterProperties.WITH_DEVICE_MRID.getKey()) != null ? propertyMap.get(FormatterProperties.WITH_DEVICE_MRID.getKey()).toString() : "excludeMRID";
+
     }
 
     @Override
