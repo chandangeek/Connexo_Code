@@ -21,6 +21,9 @@ import java.util.Optional;
 
 @ProviderType
 public interface ExportTask extends HasId, HasName, HasAuditInfo {
+    @Override
+    long getId();
+
     Optional<Instant> getLastRun();
 
     Map<String, Object> getProperties();
