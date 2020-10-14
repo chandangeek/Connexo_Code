@@ -349,13 +349,15 @@ public class ServiceCallCommands {
         allLoadProfiles.addAll(loadProfilesSetByNames);
         allLoadProfiles.addAll(getLoadProfilesForReadingTypes(device, readingTypes));
 
-        Boolean meterReadingRequired = isMeterReadingRequired(reading.getSource(), registers, allLoadProfiles, start, actualEnd, now,
+        Boolean loadProfilesReadingRequired = isLPMeterReadingRequired(reading.getSource(), allLoadProfiles, start, actualEnd);
+        Boolean registerReadingRequired = isRegisterReadingRequired(reading.getSource(), registers, actualEnd);
+        Boolean meterReadingRequired = isMeterReadingRequired(reading.getSource(), registerReadingRequired, loadProfilesReadingRequired, actualEnd, now,
                 InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay);
 
         if (start != null && end != null) {
             if (CollectionUtils.isNotEmpty(allLoadProfiles)) {
                 processLoadProfilesForPartialReadRequest(subParentServiceCall, device, index, syncReplyIssue, start, end, now,
-                        InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy, reading.getSource(), allLoadProfiles);
+                        InboundSoapEndpointsActivator.actualRecurrentTaskReadOutDelay, scheduleStrategy, reading.getSource(), allLoadProfiles, loadProfilesReadingRequired);
             }
         } else if (CollectionUtils.isNotEmpty(loadProfilesSetByNames)) {
             Set<ReadingType> lpReadingTypes = loadProfilesSetByNames.stream()
@@ -413,10 +415,10 @@ public class ServiceCallCommands {
         return meterReadingRunning;
     }
 
-    private void processLoadProfilesForPartialReadRequest(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue,
-                                                          Instant start, Instant end, Instant now, int delay, ScheduleStrategy scheduleStrategy, String source, Set<LoadProfile> loadProfiles) {
+    private void processLoadProfilesForPartialReadRequest(ServiceCall subParentServiceCall, Device device, int index, SyncReplyIssue syncReplyIssue, Instant start, Instant end,
+                                                          Instant now, int delay, ScheduleStrategy scheduleStrategy, String source, Set<LoadProfile> loadProfiles, Boolean loadProfilesReadingRequired) {
         if (CollectionUtils.isNotEmpty(loadProfiles)) {
-            if (isMeterReadingRequired(source, Collections.emptySet(), loadProfiles, start, end, now, delay)) {
+            if (isMeterReadingRequired(source, false, loadProfilesReadingRequired, end, now, delay)) {
                 ComTaskExecution deviceMessagesComTaskExecution = syncReplyIssue.getDeviceMessagesComTaskExecutionMap()
                         .get(device.getId());
                 if (deviceMessagesComTaskExecution == null) {
@@ -647,21 +649,19 @@ public class ServiceCallCommands {
         return deviceMessageBuilder.add();
     }
 
-    private boolean isMeterReadingRequired(String source, Set<Register> registers, Set<LoadProfile> loadProfiles, Instant startTime, Instant endTime, Instant now, int delay) {
+    private boolean isMeterReadingRequired(String source, Boolean registerReadingRequired, Boolean lpReadingRequired, Instant endTime, Instant now, int delay) {
         if (ReadingSourceEnum.METER.getSource().equals(source)) {
             return true;
         }
         if (ReadingSourceEnum.HYBRID.getSource().equals(source)) {
             boolean inFutureReading = endTime.plus(delay, ChronoUnit.MINUTES).isAfter(now);
-            boolean lpReadingRequired = CollectionUtils.isNotEmpty(loadProfiles) && isLPMeterReadingRequired(loadProfiles, startTime, endTime);
-            boolean registerReadingRequired = CollectionUtils.isNotEmpty(registers) && isRegisterReadingRequired(registers, endTime);
             return inFutureReading || lpReadingRequired || registerReadingRequired;
         }
         return false;
     }
 
-    private boolean isLPMeterReadingRequired(Set<LoadProfile> loadProfiles, Instant startTime, Instant endTime) {
-        return startTime == null
+    private boolean isLPMeterReadingRequired(String source, Set<LoadProfile> loadProfiles, Instant startTime, Instant endTime) {
+        return ReadingSourceEnum.HYBRID.getSource().equals(source) && startTime == null
                 ? loadProfiles.stream()
                     .anyMatch(lp -> lp.getLastReading() == null
                         || !lp.getLastReading().toInstant().atZone(lp.getDevice().getZone()).plus(lp.getInterval().asTemporalAmount()).toInstant().isAfter(endTime))
@@ -671,8 +671,8 @@ public class ServiceCallCommands {
                         || lp.getChannelData(Range.openClosed(startTime, endTime)).stream().anyMatch(lpReading -> lpReading.getChannelValues().isEmpty()));
     }
 
-    private boolean isRegisterReadingRequired(Set<Register> registers, Instant endTime) {
-        return registers.stream().anyMatch(reg -> {
+    private boolean isRegisterReadingRequired(String source, Set<Register> registers, Instant endTime) {
+        return ReadingSourceEnum.HYBRID.getSource().equals(source) && registers.stream().anyMatch(reg -> {
             Optional<Instant> lastReading = reg.getLastReadingDate();
             return !lastReading.isPresent() || lastReading.get().isBefore(endTime);
         });
