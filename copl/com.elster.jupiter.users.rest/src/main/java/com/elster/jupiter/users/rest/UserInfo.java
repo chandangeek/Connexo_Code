@@ -4,15 +4,10 @@
 
 package com.elster.jupiter.users.rest;
 
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 
 import javax.xml.bind.annotation.XmlRootElement;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -32,7 +27,7 @@ public class UserInfo {
     public String lastUnSuccessfulLogin;
     public int unSuccessfulLoginCount;
     public boolean isUserLocked;
-    public Boolean isRoleModified;
+    public boolean isRoleModified;
     public List<GroupInfo> groups = new ArrayList<>();
 
     public UserInfo() {
@@ -79,7 +74,7 @@ public class UserInfo {
     }
 
     private boolean updateRoleModified(User user) {
-        if (!isRoleModified.equals(user.isRoleModified())) {
+        if (isRoleModified != user.isRoleModified()) {
             user.setRoleModified(isRoleModified);
             return true;
         }

@@ -113,7 +113,7 @@ public class DataExportTaskHistoryInfoFactory {
                         .orElseGet(dataExportOccurrence::getTask));
 
         // set task from history
-        info.task = dataExportTaskInfoFactory.asInfoWithHistory(version, dataExportOccurrence);
+        info.task = dataExportTaskInfoFactory.asInfoForHistory(version, dataExportOccurrence);
         // set standard data selector configuration from history
         version.getStandardDataSelectorConfig(versionAt)
                 .ifPresent(selectorConfig -> populateStandardDataSelectorHistoricalData(info, selectorConfig, dataExportOccurrence));

@@ -5,6 +5,7 @@ import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.mocks.MockRespondingFrameCounterHandler;
 import com.energyict.dlms.mocks.MockSecurityProvider;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 import org.junit.Test;
 
@@ -56,9 +57,9 @@ public class SecurityContextTest {
         byte[] apdu = sc.createSecuredApdu(frame, authTag);
 
         assertEquals(259, apdu.length);
-        assertArrayEquals(DLMSUtils.getBytesFromHexString("$82$01$00"), DLMSUtils.getSubArray(apdu, 0, 3));
-        assertArrayEquals(frame, DLMSUtils.getSubArray(apdu, apdu.length-frame.length-authTag.length, apdu.length-authTag.length));
-        assertArrayEquals(authTag, DLMSUtils.getSubArray(apdu, apdu.length-authTag.length, apdu.length));
+        assertArrayEquals(ProtocolTools.getBytesFromHexString("$82$01$00"), ProtocolTools.getSubArray(apdu, 0, 3));
+        assertArrayEquals(frame, ProtocolTools.getSubArray(apdu, apdu.length-frame.length-authTag.length, apdu.length-authTag.length));
+        assertArrayEquals(authTag, ProtocolTools.getSubArray(apdu, apdu.length-authTag.length, apdu.length));
     }
 
     @Test

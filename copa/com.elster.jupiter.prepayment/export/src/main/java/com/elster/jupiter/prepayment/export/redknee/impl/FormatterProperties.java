@@ -15,7 +15,9 @@ public enum FormatterProperties implements TranslationKey {
     FORMATTER_PROPERTIES("formatterProperties", "Formatter properties"),
     SEPARATOR(FORMATTER_PROPERTIES.getKey() + ".separator", "Separator"),
     TAG(FORMATTER_PROPERTIES.getKey() + '.' + "tag", "Identifier"),
-    UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier");
+    UPDATE_TAG(FORMATTER_PROPERTIES.getKey() + '.' + "update.tag", "Update identifier"),
+    WITH_DEVICE_MRID(FORMATTER_PROPERTIES.getKey() + '.' + "withDeviceMRID", "Exclude MRID")
+    ;
 
 
     private String name;

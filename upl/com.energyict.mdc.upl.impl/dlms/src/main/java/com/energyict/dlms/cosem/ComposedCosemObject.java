@@ -1,16 +1,15 @@
 package com.energyict.dlms.cosem;
 
-import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.aso.ConformanceBlock;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.attributes.GenericDlmsClassAttribute;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -165,7 +164,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         sb.append("ComposedCosemObject").append(crlf);
         for (int i = 0; i < attributes.length; i++) {
             DLMSAttribute attribute = attributes[i];
-            sb.append("  [").append(DLMSUtils.addPadding(String.valueOf(i), '0', 2, false)).append("] ").append(attribute).append(crlf);
+            sb.append("  [").append(ProtocolTools.addPadding(String.valueOf(i), '0', 2, false)).append("] ").append(attribute).append(crlf);
         }
         sb.append('}');
         return sb.toString();

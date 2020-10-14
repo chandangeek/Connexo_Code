@@ -1,5 +1,7 @@
 package com.energyict.dlms;
 
+import com.energyict.protocolimpl.utils.ProtocolTools;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -168,7 +170,7 @@ class IF2Packet {
 
     private final int calcCrc8CCITT(byte[] bytes, int offset, int length) {
         byte crc = (byte) 255;
-        final byte[] subArray = DLMSUtils.getSubArray(bytes, offset, offset + length);
+        final byte[] subArray = ProtocolTools.getSubArray(bytes, offset, offset + length);
         for (byte b : subArray) {
             crc = CRC8_TABLE[(crc ^ b) & 0xFF];
         }
@@ -275,7 +277,7 @@ class IF2Packet {
                 (byte) (serverAddress & 0x0FF),
                 1 // Confirmed message
         };
-        return new IF2Packet(DLMSUtils.concatByteArrays(dataIndication, requestBuffer));
+        return new IF2Packet(ProtocolTools.concatByteArrays(dataIndication, requestBuffer));
     }
 
     public void initData() {

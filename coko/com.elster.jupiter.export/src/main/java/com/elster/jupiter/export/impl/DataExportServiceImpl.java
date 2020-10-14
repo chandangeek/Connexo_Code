@@ -22,6 +22,7 @@ import com.elster.jupiter.export.DataSelectorConfig;
 import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.ExportTaskFinder;
+import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.export.impl.webservicecall.DataExportServiceCallTypeImpl;
 import com.elster.jupiter.export.impl.webservicecall.WebServiceDataExportChildCustomPropertySet;
@@ -45,6 +46,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -66,6 +68,7 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_9SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.HasName;
@@ -231,12 +234,12 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
-    public Optional<? extends ExportTask> findExportTask(long id) {
+    public Optional<? extends IExportTask> findExportTask(long id) {
         return dataModel.mapper(IExportTask.class).getOptional(id);
     }
 
     @Override
-    public Optional<? extends ExportTask> findExportTaskByRecurrentTask(long id) {
+    public Optional<? extends IExportTask> findExportTaskByRecurrentTask(long id) {
         Query<IExportTask> query =
                 queryService.wrap(dataModel.query(IExportTask.class, RecurrentTask.class));
         Condition condition = where("recurrentTask.id").isEqualTo(id);
@@ -244,18 +247,24 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     }
 
     @Override
-    public Optional<? extends ExportTask> findAndLockExportTask(long id, long version) {
+    public Optional<? extends IExportTask> findAndLockExportTask(long id) {
+        return Optional.ofNullable(dataModel.mapper(IExportTask.class).lock(id));
+    }
+
+    @Override
+    public Optional<? extends IExportTask> findAndLockExportTask(long id, long version) {
         return dataModel.mapper(IExportTask.class).lockObjectIfVersion(version, id);
     }
 
     @Override
-    public Optional<? extends ExportTask> findAndLockReadingTypeDataExportTaskByName(String name) {
-        Optional<? extends ExportTask> exportTask = getReadingTypeDataExportTaskByName(name);
-        return Optional.ofNullable(exportTask.map(et -> dataModel.mapper(IExportTask.class).lock(et.getId())).orElse(null));
+    public Optional<? extends IExportTask> findAndLockReadingTypeDataExportTaskByName(String name) {
+        return getReadingTypeDataExportTaskByName(name)
+                .map(ExportTask::getId)
+                .flatMap(this::findAndLockExportTask);
     }
 
     @Override
-    public Optional<? extends ExportTask> getReadingTypeDataExportTaskByName(String name) {
+    public Optional<? extends IExportTask> getReadingTypeDataExportTaskByName(String name) {
         Query<IExportTask> query =
                 queryService.wrap(dataModel.query(IExportTask.class, RecurrentTask.class));
         Condition condition = where("recurrentTask.name").isEqualTo(name);
@@ -448,7 +457,9 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
                             .put(version(10, 7), UpgraderV10_7.class)
                             .put(version(10, 7, 1), UpgraderV10_7_1.class)
                             .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                            .put(version(10, 7, 3), UpgraderV10_7_3.class)
                             .put(version(10, 8), UpgraderV10_8.class)
+                            .put(version(10, 9), V10_9SimpleUpgrader.class)
                             .build());
 
             if (transactionService.isInTransaction()) {
@@ -671,6 +682,22 @@ public class DataExportServiceImpl implements IDataExportService, TranslationKey
     @Override
     public DataExportServiceCallType getDataExportServiceCallType() {
         return dataModel.getInstance(DataExportServiceCallTypeImpl.class);
+    }
+
+    @Override
+    public QueryStream<? extends IExportTask> streamExportTasks() {
+        return dataModel.stream(IExportTask.class)
+                .join(RecurrentTask.class);
+    }
+
+    @Override
+    public Optional<? extends ReadingTypeDataExportItem> findReadingTypeDataExportItem(long id) {
+        return dataModel.mapper(ReadingTypeDataExportItem.class).getOptional(id);
+    }
+
+    @Override
+    public Optional<? extends ReadingTypeDataExportItem> findAndLockReadingTypeDataExportItem(long id) {
+        return Optional.ofNullable(dataModel.mapper(ReadingTypeDataExportItem.class).lock(id));
     }
 
     @Override

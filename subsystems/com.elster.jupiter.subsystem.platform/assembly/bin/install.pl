@@ -617,8 +617,14 @@ sub install_tomcat {
             print "    $TOMCAT_BASE/connexo.filter.jar -> $TOMCAT_BASE/tomcat/lib/connexo.filter.jar\n";
 		    copy("$TOMCAT_BASE/connexo.filter.jar","$TOMCAT_BASE/tomcat/lib/connexo.filter.jar");
         }
-		if (-e "$TOMCAT_BASE/simplelogger.properties") {
-            copy("$TOMCAT_BASE/simplelogger.properties","$TOMCAT_BASE/tomcat/lib/simplelogger.properties");
+        if (-e "$TOMCAT_BASE/log4j.properties") {
+            copy("$TOMCAT_BASE/log4j.properties","$TOMCAT_BASE/tomcat/lib/log4j.properties");
+        }
+        if (-e "$TOMCAT_BASE/log4j-1.2.17.jar") {
+            copy("$TOMCAT_BASE/log4j-1.2.17.jar","$TOMCAT_BASE/tomcat/lib/log4j-1.2.17.jar");
+        }
+        if (-e "$TOMCAT_BASE/slf4j-log4j12-1.7.5.jar") {
+            copy("$TOMCAT_BASE/slf4j-log4j12-1.7.5.jar","$TOMCAT_BASE/tomcat/lib/slf4j-log4j12-1.7.5.jar");
         }
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
@@ -876,6 +882,8 @@ sub install_flow {
 		replace_in_file("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml",'\$\{password\}',"$CONNEXO_ADMIN_PASSWORD");
 		copy("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml","$FLOW_DIR/WEB-INF/classes/META-INF/kie-wb-deployment-descriptor.xml");
 		unlink("$CONNEXO_DIR/kie-wb-deployment-descriptor.xml");
+
+        unlink("$CATALINA_HOME/webapps/flow/WEB-INF/lib/log4j-over-slf4j-1.7.2.jar");
 
 		#add quartz support
 		copy("$CONNEXO_DIR/partners/flow/quartz.properties","$CATALINA_HOME/conf/quartz.properties");
