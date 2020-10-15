@@ -38,6 +38,19 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
             highThreshold = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
             lowThreshold = Integer.toString(structure.getDataType(1).getUnsigned16().getValue());
             description = formatDescr(highThreshold, lowThreshold, DeviceMessageConstants.remainingTimeHighDefaultTranslation, DeviceMessageConstants.remainingTimeLowDefaultTranslation);
+        } else if (obisCode.equals(ACTIVE_TAX) || obisCode.equals(PASIVE_TAX)) {
+            String monthlyTax = Long.toString(structure.getDataType(0).getUnsigned32().getValue());
+            String zeroConsumptionTax = Long.toString(structure.getDataType(1).getUnsigned32().getValue());
+            String consumptionTax = Long.toString(structure.getDataType(2).getUnsigned32().getValue());
+            String consumptionAmount = Integer.toString(structure.getDataType(3).getUnsigned16().getValue());
+            String consumptionLimit = Integer.toString(structure.getDataType(4).getUnsigned16().getValue());
+            StringBuffer buff = new StringBuffer();
+            buff.append("Monthy Tax = " + monthlyTax + ", ");
+            buff.append("Zero Consumption Tax = " + zeroConsumptionTax + ", ");
+            buff.append("Consumption Tax = " + consumptionTax + ", ");
+            buff.append("Consumption Amount = " + consumptionAmount + " KWH, ");
+            buff.append("Consumption Limi = " + consumptionLimit + " KWH.");
+            description = buff.toString();
         } else return super.readStructure(obisCode, structure);
         return new RegisterValue(obisCode, description);
     }

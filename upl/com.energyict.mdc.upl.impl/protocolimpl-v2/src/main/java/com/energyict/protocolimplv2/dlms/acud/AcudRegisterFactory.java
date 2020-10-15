@@ -31,6 +31,8 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
     public final static ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
     public final static ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
+    public final static ObisCode ACTIVE_TAX = ObisCode.fromString("0.0.94.20.76.255");
+    public final static ObisCode PASIVE_TAX = ObisCode.fromString("0.0.94.20.77.255");
     public final static ObisCode CREDIT_DAY_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
     public final static ObisCode ACTIVE_FIRMWARE = ObisCode.fromString("0.0.0.2.0.255");
     public static final Integer CREDIT_MODE = 1;
