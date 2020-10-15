@@ -7,12 +7,17 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.BooleanFactory;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointProp;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
@@ -20,6 +25,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
@@ -44,18 +50,21 @@ import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
-public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implements MeterConfigPort, ApplicationSpecific {
+public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implements MeterConfigPort, ApplicationSpecific, EndPointProp {
     private static final String NOUN = "MeterConfig";
     private static final String METER_ITEM = NOUN + ".Meter";
     private static final String METER_STATUS_SOURCE_ELEMENT = "MeterStatusSource";
+    public static final String CIM_MERER_CONFIG = "CIM MeterConfig";
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -68,6 +77,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     private final DeviceBuilder deviceBuilder;
     private final DeviceFinder deviceFinder;
     private final DeviceDeleter deviceDeleter;
+    private volatile PropertySpecService propertySpecService;
+    private volatile Thesaurus thesaurus;
 
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
@@ -83,7 +94,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                                       EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
                                       WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
                                       CasHandler casHandler, SecurityHelper securityHelper, DeviceFinder deviceFinder, DeviceDeleter deviceDeleter,
-                                      MeterConfigPingUtils meterConfigPingUtils) {
+                                      MeterConfigPingUtils meterConfigPingUtils,PropertySpecService propertySpecService,
+                                      Thesaurus thesaurus) {
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
         this.faultMessageFactory = faultMessageFactory;
@@ -98,6 +110,8 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         this.deviceFinder = deviceFinder;
         this.deviceDeleter = deviceDeleter;
         this.meterConfigPingUtils = meterConfigPingUtils;
+        this.propertySpecService = propertySpecService;
+        this.thesaurus = thesaurus;
     }
 
     @Override
@@ -140,7 +154,24 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     MeterInfo meterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(),
                             OperationEnum.CREATE);
 
-                    Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
+                    boolean respondSuccessForExisting = returnDeviceIfExists(true);
+                    MeterInfo parsedMeterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(), OperationEnum.CREATE);
+                    List<Device> existingDevices = deviceBuilder.getExistingDevices(parsedMeterInfo.getDeviceName(), parsedMeterInfo.getSerialNumber());
+                    if (existingDevices.size() == 1) {
+                        // only one device exists
+                        if (respondSuccessForExisting) {
+                            Device existingDevice = existingDevices.get(0);
+                            if (existingDevice.getName().equals(parsedMeterInfo.getDeviceName())
+                                    && existingDevice.getSerialNumber().equals(parsedMeterInfo.getSerialNumber())
+                                    && existingDevice.getDeviceType().getName().equals(parsedMeterInfo.getDeviceType())) {
+                                // respond as it was created
+                                return createResponseMessage(existingDevice, HeaderType.Verb.CREATED,requestMessage.getHeader().getCorrelationID());
+                            }
+                        }
+                    }
+
+                    // standard functionality
+                    Device createdDevice = deviceBuilder.prepareCreateFrom(parsedMeterInfo).build();
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException e) {
@@ -497,6 +528,44 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         } else {
             return false;
         }
+    }
+
+    private boolean returnDeviceIfExists(boolean defaultValue){
+        Optional<EndPointConfiguration> outboundEndPointConfiguration = getEndPointConfigurations();
+        if (outboundEndPointConfiguration.isPresent()) {
+            Map<String, Object> properties = outboundEndPointConfiguration.get().getPropertiesWithValue();
+            Object value = properties.getOrDefault(TranslationKeys.RETURN_DEVICE_IF_EXISTS.getKey(), defaultValue);
+            return (boolean) value;
+        }
+
+        return defaultValue;
+    }
+
+    private Optional<EndPointConfiguration> getEndPointConfigurations() {
+        return endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration -> endPointConfiguration.isInbound())
+                .filter(ws -> ws.getWebServiceName().equalsIgnoreCase(CIM_MERER_CONFIG))
+                //.filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
+                .findFirst();
+
+    }
+
+    @Override
+    public List<PropertySpec> getPropertySpecs() {
+        ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
+
+        builder.add(propertySpecService
+                .specForValuesOf(new BooleanFactory())
+                .named(TranslationKeys.RETURN_DEVICE_IF_EXISTS)
+                .describedAs(TranslationKeys.RETURN_DEVICE_IF_EXISTS_DESCRIPTION)
+                .fromThesaurus(thesaurus)
+                .setDefaultValue(true)
+                .markEditable()
+                .finish());
+
+        return builder.build();
     }
 
     @Override
