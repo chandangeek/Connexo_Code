@@ -1823,10 +1823,12 @@ public class ComServerDAOImpl implements ComServerDAO {
 
                         // 4. Get device identifier and MAC address from neighbour
                         if (meterNeighbour.isPresent()) {
+                            TopologyService.G3NeighborhoodBuilder invertedG3NeighborhoodBuilder = serviceProvider.topologyService().buildG3Neighborhood(meterNeighbour.get());
+
                             final String macAddress = (String) meterNeighbour.get().getDeviceProtocolProperties().getTypedProperty("callHomeId");
 
-                            TopologyService.G3NeighborBuilder g3NeighborBuilder = g3NeighborhoodBuilder.addNeighbor(
-                                    meterNeighbour.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()),
+                            TopologyService.G3NeighborBuilder g3NeighborBuilder = invertedG3NeighborhoodBuilder.addNeighbor(
+                                    currentDevice.get(), ModulationScheme.fromId(topologyNeighbour.getModulationSchema()),
                                     Modulation.fromId(topologyNeighbour.getModulation()),
                                     PhaseInfo.fromId(topologyNeighbour.getPhaseDifferential()),
                                     G3NodeState.fromId(topologyNeighbour.getState())
@@ -1848,6 +1850,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                             }
                             g3NeighborBuilder.roundTrip(topologyNeighbour.getRoundTrip());
                             g3NeighborBuilder.linkCost(topologyNeighbour.getLinkCost());
+                            invertedG3NeighborhoodBuilder.complete();
                         }
                     }
                 }
