@@ -301,6 +301,14 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     .get();
         }
 
+        public static String getDescriptionValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .get().getDescription();
+        }
+
         public static String[] getDescriptionValues() {
             ChargeMode[] allObjects = values();
             String[] result = new String[allObjects.length];
@@ -378,6 +386,14 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     .get();
         }
 
+        public static String getDescriptionValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .get().getDescription();
+        }
+
         public static String[] getDescriptionValues() {
             AdditionalTaxesType[] allObjects = values();
             String[] result = new String[allObjects.length];
@@ -417,6 +433,14 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     .get();
         }
 
+        public static String getDescriptionValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .get().getDescription();
+        }
+
         public static String[] getDescriptionValues() {
             RecalculationType[] allObjects = values();
             String[] result = new String[allObjects.length];
@@ -453,6 +477,14 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                     .filter(each -> each.getDescription().equals(description))
                     .findFirst()
                     .get();
+        }
+
+        public static String getDescriptionValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .get().getDescription();
         }
 
         public static String[] getDescriptionValues() {

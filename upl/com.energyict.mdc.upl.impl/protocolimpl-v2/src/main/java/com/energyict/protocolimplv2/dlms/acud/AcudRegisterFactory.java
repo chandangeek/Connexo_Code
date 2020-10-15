@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.common.DisconnectControlState;
+import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
@@ -33,11 +34,13 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
     public final static ObisCode ACTIVE_TAX = ObisCode.fromString("0.0.94.20.76.255");
     public final static ObisCode PASIVE_TAX = ObisCode.fromString("0.0.94.20.77.255");
+    public final static ObisCode ACTIVE_STEP_TARIFF = ObisCode.fromString("0.0.94.20.74.255");
+    public final static ObisCode PASIVE_STEP_TARIFF = ObisCode.fromString("0.0.94.20.75.255");
     public final static ObisCode CREDIT_DAY_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
     public final static ObisCode ACTIVE_FIRMWARE = ObisCode.fromString("0.0.0.2.0.255");
-    public static final Integer CREDIT_MODE = 1;
     public static final Integer NEW_ACCOUNT = 1;
     public static final Integer ACTIVE_ACCOUNT = 2;
+    public static final Integer CLOSED_ACCOUNT = 3;
 
 
     private final Acud protocol;
@@ -176,18 +179,17 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
         StringBuffer buff = new StringBuffer();
         AccountSetup accountSetup = protocol.getDlmsSession().getCosemObjectFactory().getAccountSetup(obisCode);
         int paymentMode = accountSetup.readPaymentMode().getValue();
-        if (paymentMode == CREDIT_MODE)
-            buff.append("PaymentMode = Credit Mode,");
-        else
-            buff.append("PaymentMode = Prepayment Mode,  ");
+        buff.append("PaymentMode = " + ChargeDeviceMessage.ChargeMode.getDescriptionValue(paymentMode) + ", ");
 
         int accountStatus = accountSetup.readAccountStatus().getValue();
         if (accountStatus == NEW_ACCOUNT)
             buff.append("AccountStatus = New.");
         else if (accountStatus == ACTIVE_ACCOUNT)
             buff.append("AccountStatus = Active.");
-        else
+        else if (accountStatus == CLOSED_ACCOUNT)
             buff.append("AccountStatus = Closed.");
+        else
+            buff.append("AccountStatus = Unknown.");
 
         return new RegisterValue(obisCode, buff.toString());
     }
