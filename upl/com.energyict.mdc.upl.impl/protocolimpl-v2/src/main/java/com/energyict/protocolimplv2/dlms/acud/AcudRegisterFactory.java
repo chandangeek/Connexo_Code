@@ -33,6 +33,9 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
     public final static ObisCode CREDIT_DAY_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
     public final static ObisCode ACTIVE_FIRMWARE = ObisCode.fromString("0.0.0.2.0.255");
+    public static final Integer CREDIT_MODE = 1;
+    public static final Integer NEW_ACCOUNT = 1;
+    public static final Integer ACTIVE_ACCOUNT = 2;
 
 
     private final Acud protocol;
@@ -109,6 +112,8 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
                 int value = protocol.getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode).getControlState().getValue();
                 registerValue = new RegisterValue(obisCode, DisconnectControlState.fromValue(value).getDescription());
+            } else if (uo.getClassID() == DLMSClassId.ACCOUNT_SETUP.getClassId()) {
+                registerValue = readAccountSetup(obisCode);
             } else if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
                 CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(obisCode);
                 int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
@@ -163,6 +168,26 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
 
     protected String formatDescr(String highThreshold, String lowThreshold, String highDefaultTranslation, String lowDefaultTranslation) {
         return highDefaultTranslation + "=" + highThreshold + ",\n" + lowDefaultTranslation + "=" + lowThreshold + ".";
+    }
+
+    protected RegisterValue readAccountSetup(ObisCode obisCode) throws IOException {
+        StringBuffer buff = new StringBuffer();
+        AccountSetup accountSetup = protocol.getDlmsSession().getCosemObjectFactory().getAccountSetup(obisCode);
+        int paymentMode = accountSetup.readPaymentMode().getValue();
+        if (paymentMode == CREDIT_MODE)
+            buff.append("PaymentMode = Credit Mode,");
+        else
+            buff.append("PaymentMode = Prepayment Mode,  ");
+
+        int accountStatus = accountSetup.readAccountStatus().getValue();
+        if (accountStatus == NEW_ACCOUNT)
+            buff.append("AccountStatus = New.");
+        else if (accountStatus == ACTIVE_ACCOUNT)
+            buff.append("AccountStatus = Active.");
+        else
+            buff.append("AccountStatus = Closed.");
+
+        return new RegisterValue(obisCode, buff.toString());
     }
 
     @SuppressWarnings("unchecked")
