@@ -121,6 +121,10 @@ Ext.define('Dsh.controller.Connections', {
                 filterupdate: this.updateLatestStatusFilter,
                 filtervaluechange: this.updateLatestStatusFilter
             },
+            'dsh-view-widget-connectionstopfilter #start-interval-filter': {
+                filterupdate: this.resetCountButton,
+                filtervaluechange: this.resetCountButton
+            },
             'communication-action-menu': {
                 click: this.viewCommunicationLog
             },
@@ -325,8 +329,10 @@ Ext.define('Dsh.controller.Connections', {
             if (me.getFinishedBetweenFilter().getParamValue() !== undefined) {
                 filterStore.filterBy(me.doFilterLatestStatus);
                 me.getLatestStatusFilter(); // Apparently, needed to visually see the filtering active in the combo box
+                this.resetCountButton();
             } else {
                 filterStore.clearFilter();
+                this.resetCountButton();
             }
         } else {
             // Retry until you can perform the above
