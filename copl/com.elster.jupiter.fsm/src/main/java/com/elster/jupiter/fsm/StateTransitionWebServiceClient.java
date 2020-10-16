@@ -11,6 +11,8 @@ import java.util.List;
 
 @ConsumerType
 public interface StateTransitionWebServiceClient {
+
+    String NAME = "CIM ReplyEndDeviceConfig";
     /**
      * Get the registered web service name
      *

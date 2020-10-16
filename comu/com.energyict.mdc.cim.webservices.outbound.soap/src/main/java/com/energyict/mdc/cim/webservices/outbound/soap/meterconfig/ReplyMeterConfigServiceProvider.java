@@ -7,6 +7,8 @@ package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 import ch.iec.tc57._2011.meterconfig.MeterConfig;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
 import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
+import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
 import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
 import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -14,13 +16,17 @@ import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.Name;
 import ch.iec.tc57._2011.schema.message.ObjectType;
 import ch.iec.tc57._2011.schema.message.ReplyType;
+
+import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.cim.webservices.outbound.soap.FailedMeterOperation;
@@ -39,21 +45,31 @@ import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
+import javax.xml.ws.BindingProvider;
 import javax.xml.ws.Service;
+import javax.xml.ws.WebServiceException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.replymeterconfig.provider",
-        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class},
+        service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, StateTransitionWebServiceClient.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort> implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific {
+public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort> implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific, StateTransitionWebServiceClient{
 
     private static final String NOUN = "MeterConfig";
     private static final String RESOURCE_WSDL = "/wsdl/meterconfig/ReplyMeterConfig.wsdl";
+    private final Map<String, MeterConfigPort> meterConfigPorts = new ConcurrentHashMap<>();
 
     private final ch.iec.tc57._2011.schema.message.ObjectFactory cimMessageObjectFactory = new ch.iec.tc57._2011.schema.message.ObjectFactory();
     private final ch.iec.tc57._2011.meterconfigmessage.ObjectFactory meterConfigMessageObjectFactory = new ch.iec.tc57._2011.meterconfigmessage.ObjectFactory();
@@ -61,6 +77,11 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     private volatile MeterConfigFactory meterConfigFactory;
     private volatile DeviceService deviceService;
+    private volatile WebServicesService webServicesService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile MeteringService meteringService;
+
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     public ReplyMeterConfigServiceProvider() {
         // for OSGi purposes
@@ -68,9 +89,15 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
     @Inject
     public ReplyMeterConfigServiceProvider(DeviceService deviceService,
-                                           MeterConfigFactory meterConfigFactory) {
+                                           WebServicesService webServicesService,
+                                           EndPointConfigurationService endPointConfigurationService,
+                                           MeteringService  meteringService) {
+        this();
         setDeviceService(deviceService);
         setMeterConfigFactory(meterConfigFactory);
+        setWebServicesService(webServicesService);
+        setEndPointConfigurationService(endPointConfigurationService);
+        setMeteringService(meteringService);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -85,6 +112,15 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     @Reference
     public void addWebServicesService(WebServicesService webServicesService) {
         // Just to inject WebServicesService
+    }
+
+    public Map<String, MeterConfigPort> getMeterConfigPorts() {
+        return Collections.unmodifiableMap(meterConfigPorts);
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        this.webServicesService = webServicesService;
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -110,6 +146,16 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         this.meterConfigFactory = meterConfigFactory;
     }
 
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringService(MeteringService meteringService) {
+        this.meteringService = meteringService;
+    }
+
     @Override
     public Service get() {
         return new ReplyMeterConfig(this.getClass().getResource(RESOURCE_WSDL));
@@ -129,16 +175,49 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     protected String getName() {
         return ReplyMeterConfigWebService.NAME;
     }
+    private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
+        return endPointConfigurationIds.stream()
+                .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
+
+    /** StateTransitionWebServiceClient implementation */
+    @Override
+    public void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
+        Optional<Device> device = deviceService.findDeviceByMeterId(id);
+        if (device.isPresent()){
+            logger.info("Handling notifications for ReplyMeterConfig called by StateTransition for device "+device.get().getSerialNumber()+" and state="+state);
+
+            getEndPointConfigurationByIds(endPointConfigurationIds)
+                    .stream()
+                    .filter(EndPointConfiguration::isActive)
+                    .forEach(endPointConfiguration ->
+                            callStateTransition(device.get(), endPointConfiguration, state, effectiveDate)
+                    );
+        } else {
+            logger.warning("Could not call ReplyMeterConfig due to state-transition: device with meter-id="+id+" was not found!");
+        }
+    }
+
+    private void callStateTransition(Device device, EndPointConfiguration endPointConfiguration, String state, Instant effectiveDate) {
+        publish(endPointConfiguration);
+        triggerCall(device, endPointConfiguration, false);
+    }
 
     @Override
     public boolean call(Issue issue, EndPointConfiguration endPointConfiguration) {
-        deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId())).ifPresent(device -> {
-            MeterConfigEventMessageType message = createInfoResponseMessage(createMeterConfig(Collections.singletonList(device)), HeaderType.Verb.CHANGED, null);
-            using("changedMeterConfig")
-                    .toEndpoints(endPointConfiguration)
-                    .send(message);
-        });
+        publish(endPointConfiguration);
+        deviceService.findDeviceById(Long.parseLong(issue.getDevice().getAmrId()))
+                .ifPresent(device -> triggerCall(device, endPointConfiguration, true));
         return true;
+    }
+
+    private void publish(EndPointConfiguration endPointConfiguration) {
+        if (endPointConfiguration.isActive() && !webServicesService.isPublished(endPointConfiguration)) {
+            webServicesService.publishEndPoint(endPointConfiguration);
+        }
     }
 
     @Override
@@ -189,6 +268,92 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 .toEndpoints(endPointConfiguration)
                 .withRelatedAttributes(values)
                 .send(message);
+    }
+
+    private void triggerCall(Device device, EndPointConfiguration endPointConfiguration, boolean isReply) {
+        try {
+            Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
+                    .ifPresent(meterConfigPortService -> {
+                        MeterConfigPort replyMeterConfigPort = setReplyAddress(meterConfigPortService, endPointConfiguration.getUrl());
+                        logger.info("Calling changed(MeterConfig) on "+
+                                ((BindingProvider)replyMeterConfigPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY));
+                        try {
+                            MeterConfigEventMessageType responseMessage = createInfoResponseMessage(createMeterConfig(Collections
+                                    .singletonList(device)), HeaderType.Verb.CHANGED,null);
+
+                            // we're not replying to a request, it's a pushed state-change notification
+                            if (!isReply){
+                                responseMessage.setReply(null);
+                            }
+
+                            MeterConfigResponseMessageType replyMessage = replyMeterConfigPort.changedMeterConfig(responseMessage);
+                            logger.info("Call was sent, checking reply message");
+                            checkReplyMessage(endPointConfiguration, replyMessage);
+                        } catch (FaultMessage faultMessage) {
+                            String error = faultMessage.getLocalizedMessage();
+                            if (faultMessage.getCause() != null){
+                                error += " " + faultMessage.getCause().getLocalizedMessage();
+                            }
+                            logger.severe(error);
+                            endPointConfiguration.log(error, faultMessage);
+                        }
+                    });
+        } catch (RuntimeException ex) {
+            String error = ex.getLocalizedMessage();
+            if (ex.getCause() != null){
+                error += " " + ex.getCause().getLocalizedMessage();
+            }
+            logger.severe(error);
+            endPointConfiguration.log(LogLevel.SEVERE, error); }
+
+    }
+
+    private void checkReplyMessage(EndPointConfiguration endPointConfiguration, MeterConfigResponseMessageType replyMessage) {
+        if (replyMessage==null) {
+            logger.info("Empty response received");
+            endPointConfiguration.log(LogLevel.FINE,"Empty response received");
+            return;
+        }
+
+        if (replyMessage.getReply() == null){
+            logger.info("Empty <Reply> block received");
+            endPointConfiguration.log(LogLevel.FINE,"Empty reply information received");
+            return;
+        }
+
+        if (replyMessage.getReply().getResult()==null){
+            logger.info("Empty or un-parsable <Result> block received");
+            endPointConfiguration.log(LogLevel.FINE,"Empty reply result received");
+            return;
+
+        }
+
+        logger.info("Result is "+replyMessage.getReply().getResult().toString());
+        switch (replyMessage.getReply().getResult()){
+            case OK:
+                endPointConfiguration.log(LogLevel.INFO,"Reply response is OK");
+                return;
+            case PARTIAL:
+            case FAILED:
+                String error = extractErrors(replyMessage.getReply().getError());
+                String message = "Reply response is " + replyMessage.getReply().getResult().toString()+" "+error;
+                logger.severe(message);
+                throw new WebServiceException(message);
+        }
+
+    }
+
+    private String extractErrors(List<ErrorType> error) {
+        StringBuilder message = new StringBuilder();
+
+        if (error!=null) {
+            for (ErrorType err : error) {
+                message.append(err.getCode()).append(" ");
+                message.append(err.getDetails()).append("; ");
+            }
+        }
+
+        return message.toString();
     }
 
     private MeterConfig createMeterConfig(Collection<Device> devices) {
@@ -278,5 +443,32 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     @Override
     public String getApplication() {
         return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
+    }
+
+    /**
+     * Setting the endpoint address property of the Response-Context.
+     * On OpenJDK it was observed that this address is by default the namespace address, not the configured url.
+     */
+    private MeterConfigPort setReplyAddress(MeterConfigPort meterConfigPort, String urlAddress) {
+        try {
+            java.net.URL wsdlUrl = new URL(urlAddress);
+
+            BindingProvider bindingProvider = (BindingProvider) meterConfigPort;
+
+            String endPointAddress = (String) bindingProvider.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
+
+            if (urlAddress.equals(endPointAddress)){
+                logger.fine("Endpoint validated.");
+            } else {
+                logger.fine("Setting response URL to: "+ wsdlUrl.toExternalForm());
+                bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, wsdlUrl.toExternalForm());
+            }
+        } catch (MalformedURLException e) {
+            logger.warning("URL " + urlAddress+" is malformed: "+e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+
+        return meterConfigPort;
     }
 }

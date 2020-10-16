@@ -1,12 +1,14 @@
 package com.energyict.mdc.device.lifecycle.config.rest.impl.resource;
 
 import com.elster.jupiter.fsm.FiniteStateMachineService;
+import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.util.conditions.Where;
+import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfo;
 import com.energyict.mdc.device.lifecycle.config.rest.info.TransitionEndPointConfigurationInfoFactory;
 
@@ -51,6 +53,10 @@ public class TransitionEndPointConfigurationResource {
                 .filter(Where.where("webServiceName").in(serviceNames))
                 .filter(EndPointConfiguration::isActive)
                 .filter(outbound -> !outbound.isInbound())
+                .filter(endPointConfiguration ->
+                        endPointConfiguration.getWebServiceName().equals(StateTransitionWebServiceClient.NAME)
+                                || endPointConfiguration.getWebServiceName().equals(ReplyMeterConfigWebService.NAME)
+                )
                 .map(transitionEndPointConfigurationInfoFactory::from)
                 .sorted((e1, e2) -> e1.name.compareToIgnoreCase(e2.name))
                 .collect(Collectors.toList());
