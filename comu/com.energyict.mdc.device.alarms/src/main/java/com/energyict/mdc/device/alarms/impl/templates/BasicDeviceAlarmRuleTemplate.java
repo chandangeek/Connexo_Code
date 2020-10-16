@@ -220,7 +220,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\tevent : DeviceAlarmEvent( eventType == \"" + DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED.getUniqueKey() + "\" )\n" +
                 "\teval( event.isClearing(@{ruleId}, \"@{" + CLEARING_EVENTS + "}\") == true )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Processing clearing event device alarm based on rule template number @{ruleId}\");\n" +
+                "\tLOGGER.info(\"Processing clearing event device alarm based on rule template number @{ruleId}\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
                 "end\n" +
 
@@ -232,7 +232,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "\teval( event.isDeviceInGroup(\"@{" + DEVICE_IN_GROUP + "}\") == true )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} logged on same alarm\");\n" +
+                "\tLOGGER.info(\"Processing triggering event device alarm based on rule template number @{ruleId} logged on same alarm\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
                 "end\n" +
 
@@ -244,7 +244,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "\teval( event.isDeviceInGroup(\"@{" + DEVICE_IN_GROUP + "}\") == true )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} create new alarm\");\n" +
+                "\tLOGGER.info(\"Processing triggering event device alarm based on rule template number @{ruleId} create new alarm\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
                 "end";
     }

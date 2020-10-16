@@ -10,6 +10,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueGroupFilter;
 import com.elster.jupiter.issue.share.IssueProvider;
@@ -30,7 +31,9 @@ import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
+import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -57,20 +60,28 @@ import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
 import com.energyict.mdc.device.alarms.event.OpenDeviceAlarmRelatedEvent;
 import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4;
+import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4_12;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_7;
+import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_9;
 import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
 import com.energyict.mdc.device.alarms.impl.install.Installer;
 import com.energyict.mdc.device.alarms.impl.records.OpenDeviceAlarmImpl;
+import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 import com.energyict.mdc.device.alarms.security.Privileges;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
+import com.energyict.mdc.dynamic.PropertySpecService;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.component.annotations.ReferenceCardinality;
 import org.osgi.service.component.annotations.ReferencePolicy;
@@ -81,6 +92,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
@@ -112,6 +124,13 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile EndPointConfigurationService endPointConfigurationService;
     private final List<IssueWebServiceClient> alarmWebServiceClients = new ArrayList<>();
     private static BundleContext bundleContext;
+    private volatile PropertySpecService propertySpecService;
+    private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private volatile MeteringGroupsService meteringGroupsService;
+    private volatile MeteringTranslationService meteringTranslationService;
+    private volatile NlsService nlsService;
+    private volatile List<ServiceRegistration> registrations = new ArrayList<>();
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -132,7 +151,12 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                                   BpmService bpmService,
                                   EndPointConfigurationService endPointConfigurationService,
                                   TimeService timeService,
-                                  BundleContext bundleContext) {
+                                  BundleContext bundleContext,
+                                  PropertySpecService propertySpecService,
+                                  DeviceConfigurationService deviceConfigurationService,
+                                  DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                  MeteringGroupsService meteringGroupsService,
+                                  MeteringTranslationService meteringTranslationService) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -147,6 +171,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         setTimeService(timeService);
         setBpmService(bpmService);
         setEndPointConfigurationService(endPointConfigurationService);
+        setPropertySpecService(propertySpecService);
+        setDeviceConfigurationService(deviceConfigurationService);
+        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
+        setMeteringGroupsService(meteringGroupsService);
+        setMeteringTranslationService(meteringTranslationService);
         activate(bundleContext);
     }
 
@@ -168,18 +197,33 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 bind(UserService.class).toInstance(userService);
                 bind(TimeService.class).toInstance(timeService);
                 bind(BpmService.class).toInstance(bpmService);
+                bind(PropertySpecService.class).toInstance(propertySpecService);
+                bind(DeviceConfigurationService.class).toInstance(deviceConfigurationService);
+                bind(DeviceLifeCycleConfigurationService.class).toInstance(deviceLifeCycleConfigurationService);
+                bind(MeteringGroupsService.class).toInstance(meteringGroupsService);
                 bind(EndPointConfigurationService.class).toInstance(endPointConfigurationService);
+                bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
             }
         });
 
         setBundleContext(bundleContext);
 
+        BasicDeviceAlarmRuleTemplate basicDeviceAlarmRuleTemplate = new BasicDeviceAlarmRuleTemplate(this, nlsService, issueService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, timeService, meteringGroupsService, meteringTranslationService);
+        registrations.add(bundleContext.registerService(CreationRuleTemplate.class, basicDeviceAlarmRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDeviceAlarmRuleTemplate.NAME))));
+
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 4), UpgraderV10_4.class,
-                version(10, 7), UpgraderV10_7.class
+                version(10, 4, 12), UpgraderV10_4_12.class,
+                version(10, 7), UpgraderV10_7.class,
+                version(10, 9), UpgraderV10_9.class
         ));
     }
 
+    @Deactivate
+    public void deactivate() {
+        registrations.forEach(ServiceRegistration::unregister);
+        registrations.clear();
+    }
 
     @Reference
     public final void setIssueService(IssueService issueService) {
@@ -199,6 +243,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     @Reference
     public final void setNlsService(NlsService nlsService) {
+        this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN)
                 .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
@@ -222,6 +267,31 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         for (TableSpecs spec : TableSpecs.values()) {
             spec.addTo(dataModel);
         }
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference
+    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+        this.deviceConfigurationService = deviceConfigurationService;
+    }
+
+    @Reference
+    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
+    }
+
+    @Reference
+    public void setMeteringGroupsService(MeteringGroupsService meteringGroupsService) {
+        this.meteringGroupsService = meteringGroupsService;
+    }
+
+    @Reference
+    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Reference

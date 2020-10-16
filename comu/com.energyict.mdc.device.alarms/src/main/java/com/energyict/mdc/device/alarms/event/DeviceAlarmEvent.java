@@ -13,6 +13,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -46,6 +47,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -149,17 +151,17 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         if (!relativePeriod.isPresent()) {
             return false;
         }
-        List<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
-        List<String> deviceCodes = getDeviceCodes(triggeringEndDeviceEventTypes);
+        Set<String> inputTriggeringEventTypeList = getEndDeviceEventTypes(triggeringEndDeviceEventTypes);
+        Set<String> deviceCodes = getDeviceCodes(triggeringEndDeviceEventTypes);
         if (isAllEventTypesList(inputTriggeringEventTypeList)) {
-            return getLoggedEvents(relativePeriod.get()).size() >= eventCountThreshold;
+            return getLoggedEventsCount(relativePeriod.get()) >= eventCountThreshold;
         } else if (!matches(inputTriggeringEventTypeList, deviceCodes)) {
             return false;
         }
-        return getTotalOccurrenceCount(getLoggedEvents(relativePeriod.get()), inputTriggeringEventTypeList, deviceCodes) >= eventCountThreshold;
+        return getLoggedEventsCount(relativePeriod.get(), inputTriggeringEventTypeList, deviceCodes) >= eventCountThreshold;
     }
 
-    private boolean matches(List<String> inputTriggeringEventTypeList, List<String> deviceCodes) {
+    private boolean matches(Set<String> inputTriggeringEventTypeList, Set<String> deviceCodes) {
         return getEventTypeMrid().equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode())
                 ? deviceCodes.contains(this.getDeviceCode())
                 : getMatchingEventOccurenceCount(inputTriggeringEventTypeList, Collections.singletonList(getEventTypeMrid())) != 0;
@@ -178,7 +180,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         return Integer.parseInt(values.get(0)) == 1;
     }
 
-    public boolean isClearing(List<String> endDeviceEventTypes) {
+    public boolean isClearing(Collection<String> endDeviceEventTypes) {
         return endDeviceEventTypes.contains(this.getEventTypeMrid())
                 || endDeviceEventTypes
                 .stream()
@@ -225,17 +227,17 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
         return Arrays.stream(rawInput.split(delimiter)).map(String::trim).collect(Collectors.toList());
     }
 
-    private List<String> getEndDeviceEventTypes(String endDeviceEventTypes) {
+    private Set<String> getEndDeviceEventTypes(String endDeviceEventTypes) {
         return parseRawInputToList(endDeviceEventTypes, COMMA_SEPARATOR).stream()
                 .map(type -> parseRawInputToList(type, COLON_SEPARATOR).get(0))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
-    private List<String> getDeviceCodes(String endDeviceEventTypes) {
+    private Set<String> getDeviceCodes(String endDeviceEventTypes) {
         return parseRawInputToList(endDeviceEventTypes, COMMA_SEPARATOR).stream()
                 .map(type -> parseRawInputToList(type, COLON_SEPARATOR).get(1))
                 .filter(code -> !code.equals(WILDCARD))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     private List<EndDeviceEventRecord> getLoggedEvents(RelativePeriod relativePeriod) {
@@ -244,20 +246,23 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
                 .flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private int getTotalOccurrenceCount(List<EndDeviceEventRecord> loggedEvents, List<String> triggeringEvents, List<String> deviceCodes) {
-        return getMatchingEventOccurenceCount(triggeringEvents, loggedEvents.stream()
-                .map(EndDeviceEventRecord::getEventTypeCode)
-                .filter(eventTypeMrid -> !eventTypeMrid.equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode()))
-                .collect(Collectors.toList())) +
-                loggedEvents.stream()
-                        .filter(event -> event.getEventType().getMRID().equals(EndDeviceEventTypeMapping.OTHER.getEventType().getCode()))
-                        .map(EndDeviceEventRecord::getDeviceEventType)
-                        .collect(Collectors.collectingAndThen(Collectors.toList(), Collection::stream)).filter(deviceCodes::contains)
-                        .collect(Collectors.toList()).size();
-
+    private long getLoggedEventsCount(RelativePeriod relativePeriod) {
+        return getLoggedEventsCount(relativePeriod, null, null);
     }
 
-    private int getMatchingEventOccurenceCount(List<String> rawTriggeringEventTypeList, List<String> loggedEventTypeList) {
+    private long getLoggedEventsCount(RelativePeriod relativePeriod, Set<String> triggeringEvents, Set<String> deviceCodes) {
+        EndDeviceEventRecordFilterSpecification filter = new EndDeviceEventRecordFilterSpecification();
+        filter.range = relativePeriod.getClosedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.MIDNIGHT));
+        if (triggeringEvents != null) {
+            filter.eventCodes.addAll(triggeringEvents);
+        }
+        if (deviceCodes != null) {
+            filter.deviceEventCodes.addAll(deviceCodes);
+        }
+        return getDevice().getDeviceEventsCountByFilter(filter);
+    }
+
+    private int getMatchingEventOccurenceCount(Set<String> rawTriggeringEventTypeList, List<String> loggedEventTypeList) {
         List<String> starredList = rawTriggeringEventTypeList.stream().filter(type -> type.contains(WILDCARD)).collect(Collectors.toList());
         int initCount = loggedEventTypeList.stream()
                 .filter(rawTriggeringEventTypeList::contains)
@@ -274,7 +279,6 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
             return count.intValue() + initCount;
         }
     }
-
 
     private boolean checkMatchingEvent(String inputEvent, String loggedEvent) {
         String testVal;
@@ -293,7 +297,7 @@ public abstract class DeviceAlarmEvent implements IssueEvent, Cloneable {
     }
 
 
-    private boolean isAllEventTypesList(List<String> eventTypeist) {
+    private boolean isAllEventTypesList(Set<String> eventTypeist) {
         return eventTypeist.contains(ALL_EVENT_TYPES);
     }
 

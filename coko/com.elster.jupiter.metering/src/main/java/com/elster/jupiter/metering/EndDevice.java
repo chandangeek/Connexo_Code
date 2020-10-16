@@ -55,6 +55,8 @@ public interface EndDevice extends HasId, IdentifiedObject {
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes);
 
+    long getDeviceEventsCountByFilter(EndDeviceEventRecordFilterSpecification filter);
+
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     List<EndDeviceEventRecord> getDeviceEventsByReadTime(Range<Instant> range);

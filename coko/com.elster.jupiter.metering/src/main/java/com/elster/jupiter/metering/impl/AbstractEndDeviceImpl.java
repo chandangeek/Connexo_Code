@@ -76,6 +76,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     private String modelNbr;
     private String modelVersion;
 
+    private static final String EVENT_TYPE_OTHER = "0.0.0.0";
+
     @SuppressWarnings("unused")
     private String userName;
 
@@ -181,7 +183,7 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public Optional<HeadEndInterface> getHeadEndInterface(){
+    public Optional<HeadEndInterface> getHeadEndInterface() {
         return dataModel.getInstance(MeteringService.class).getHeadEndInterface(getAmrSystem().getName());
     }
 
@@ -334,10 +336,22 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
+    public long getDeviceEventsCountByFilter(EndDeviceEventRecordFilterSpecification filter) {
+        if (filter == null) {
+            return 0;
+        }
+        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).count(filterToCondition(filter));
+    }
+
+    @Override
     public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
         if (filter == null) {
             return Collections.emptyList();
         }
+        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(filterToCondition(filter), Order.descending("createdDateTime"));
+    }
+
+    private Condition filterToCondition(EndDeviceEventRecordFilterSpecification filter) {
         final String anyNumberPattern = "[0-9]{1,3}";
         String regExp = "^" + anyNumberPattern + "\\." +
                 (filter.domain != null ? filter.domain.getValue() : anyNumberPattern) + "\\." +
@@ -348,7 +362,19 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
         if (filter.logBookId > 0) {
             condition = condition.and(where("logBookId").isEqualTo(filter.logBookId));
         }
-        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
+        Condition eventTypesCondition = Condition.FALSE;
+        boolean appendEventTypesCondition = false;
+        for (String mrid : filter.eventCodes) {
+            if (!EVENT_TYPE_OTHER.equals(mrid)) {
+                eventTypesCondition = eventTypesCondition.or(where("eventType.mRID").matches(mrid, ""));
+                appendEventTypesCondition = true;
+            }
+        }
+        if (!filter.deviceEventCodes.isEmpty()) {
+            eventTypesCondition = eventTypesCondition.or(where("eventType.mRID").isEqualTo(EVENT_TYPE_OTHER).and(where("deviceEventType").in(filter.deviceEventCodes)));
+            appendEventTypesCondition = true;
+        }
+        return appendEventTypesCondition ? condition.and(eventTypesCondition) : condition;
     }
 
     @Override
