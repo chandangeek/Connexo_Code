@@ -93,6 +93,12 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
     }
 
     @Override
+    public Finder<T> sorted(Order order) {
+        orders.add(order);
+        return this;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public List<T> find() {
         try (Fetcher<T> fetcher = (Fetcher<T>) dataModel

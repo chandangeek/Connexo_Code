@@ -9,12 +9,15 @@ import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 import java.util.stream.Stream;
 
 /**
  * Generic finder interfaces adding pageability and sortability to any query.
  */
+@ConsumerType
 public interface Finder<T> {
 
     /**
@@ -31,15 +34,15 @@ public interface Finder<T> {
 
     Finder<T> sorted(String sortColumn, boolean ascending);
 
+    Finder<T> sorted(Order order);
+
     List<T> find();
 
     default Finder<T> from(QueryParameters queryParameters) {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
         }
-        for (Order columnSort : queryParameters.getSortingColumns()) {
-            this.sorted(columnSort.getName(), columnSort.ascending());
-        }
+        queryParameters.getSortingColumns().forEach(this::sorted);
         return this;
     }
 

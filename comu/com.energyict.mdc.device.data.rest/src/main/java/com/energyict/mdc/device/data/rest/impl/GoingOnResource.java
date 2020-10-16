@@ -120,7 +120,7 @@ public class GoingOnResource {
             }
             issues = issueFinder
                     .sorted("urgency+impact", true)
-                    .sorted("due_date", false)
+                    .sorted("baseIssue.dueDate", false)
                     .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }
@@ -142,7 +142,7 @@ public class GoingOnResource {
             }
             alarms = alarmFinder
                     .sorted("urgency+impact", true)
-                    .sorted("due_date", false)
+                    .sorted("baseIssue.dueDate", false)
                     .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }

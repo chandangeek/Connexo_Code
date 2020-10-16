@@ -29,7 +29,7 @@ public class DeviceFirmwareHistoryImpl implements DeviceFirmwareHistory {
     @Override
     public List<DeviceFirmwareVersionHistoryRecord> history() {
         Condition forDevice = Where.where(ActivatedFirmwareVersionImpl.Fields.DEVICE.fieldName()).isEqualTo(this.device);
-        return ((FirmwareServiceImpl) firmwareService).findActivatedFirmwareVersion(forDevice).sorted("STARTTIME", false).find().stream().map(DeviceFirmwareVersionHistoryRecordImpl::new).collect(Collectors.toList());
+        return ((FirmwareServiceImpl) firmwareService).findActivatedFirmwareVersion(forDevice).sorted("interval.start", false).find().stream().map(DeviceFirmwareVersionHistoryRecordImpl::new).collect(Collectors.toList());
     }
 
     @Override

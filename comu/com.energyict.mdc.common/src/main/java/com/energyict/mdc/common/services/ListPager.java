@@ -6,6 +6,7 @@ package com.energyict.mdc.common.services;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -46,6 +47,11 @@ public class ListPager<T> implements Finder<T> {
 
     @Override
     public Finder<T> sorted(String sortColumn, boolean ascending) {
+        throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
+    }
+
+    @Override
+    public Finder<T> sorted(Order order) {
         throw new RuntimeException("Sorting not supported yet. Use DefaultFinder instead");
     }
 
