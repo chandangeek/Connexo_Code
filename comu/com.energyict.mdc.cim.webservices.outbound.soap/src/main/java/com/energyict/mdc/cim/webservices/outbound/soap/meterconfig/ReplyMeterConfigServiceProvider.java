@@ -109,10 +109,10 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
         super.doRemoveEndpoint(meterConfigPort);
     }
 
-    @Reference
-    public void addWebServicesService(WebServicesService webServicesService) {
-        // Just to inject WebServicesService
-    }
+    //  @Reference
+    // public void addWebServicesService(WebServicesService webServicesService) {
+    // Just to inject WebServicesService
+    // }
 
     public Map<String, MeterConfigPort> getMeterConfigPorts() {
         return Collections.unmodifiableMap(meterConfigPorts);
