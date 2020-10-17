@@ -486,6 +486,6 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
 
     @Override
     public String getDisplayName(DefaultState state) {
-        return null;
+        return this.thesaurus.getFormat(state).format();
     }
 }
