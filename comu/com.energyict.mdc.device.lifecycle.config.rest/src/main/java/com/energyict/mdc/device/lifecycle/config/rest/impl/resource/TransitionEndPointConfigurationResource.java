@@ -54,7 +54,7 @@ public class TransitionEndPointConfigurationResource {
                 .filter(EndPointConfiguration::isActive)
                 .filter(outbound -> !outbound.isInbound())
                 .filter(endPointConfiguration ->
-                        endPointConfiguration.getWebServiceName().equals(StateTransitionWebServiceClient.NAME)
+                        endPointConfiguration.getWebServiceName().equals(StateTransitionWebServiceClient.WS_NAME)
                                 || endPointConfiguration.getWebServiceName().equals(ReplyMeterConfigWebService.NAME)
                 )
                 .map(transitionEndPointConfigurationInfoFactory::from)
