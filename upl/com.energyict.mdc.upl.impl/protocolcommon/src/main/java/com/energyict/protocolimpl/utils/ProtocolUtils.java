@@ -34,8 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import static com.sun.org.apache.xalan.internal.utils.SecuritySupport.getSystemProperty;
-
 /**
  * ProtocolUtils contains only static helper methods for parsing data.
  */
