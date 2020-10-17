@@ -796,7 +796,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -814,7 +814,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName().toLowerCase()))
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -835,7 +835,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -856,7 +856,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -877,7 +877,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 

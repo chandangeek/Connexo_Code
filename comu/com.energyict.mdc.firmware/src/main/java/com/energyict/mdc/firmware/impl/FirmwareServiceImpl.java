@@ -450,7 +450,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         Optional<FirmwareVersion> firmwareVersionRef = getFirmwareVersionById(firmwareVersionId);
         return firmwareVersionRef.isPresent()
                 && !dataModel.query(ActivatedFirmwareVersion.class)
-                .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 2)
+                .select(where(ActivatedFirmwareVersionImpl.Fields.FIRMWARE_VERSION.fieldName()).isEqualTo(firmwareVersionRef.get()), null, false, null, 1, 1)
                 .isEmpty();
     }
 
