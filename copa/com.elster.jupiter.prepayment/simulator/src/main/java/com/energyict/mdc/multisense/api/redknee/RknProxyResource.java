@@ -83,9 +83,9 @@ public class RknProxyResource {
         securityEnvelope.authenticate(jerseyClient);
         try {
             return jerseyClient.
-                    target(configuration.getConnexoUrl().get()+"/"+mrid+"/contactor").
-                    request(MediaType.APPLICATION_JSON).
-                    put(Entity.json(contactorInfo));
+                    target(URI.create(configuration.getConnexoUrl().get()+"/"+mrid+"/contactor"))
+                    .request(MediaType.APPLICATION_JSON)
+                    .put(Entity.json(contactorInfo));
         }
         catch (ClientErrorException | ProcessingException e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("{\"error\":\"Something happened in Connexo: "+e.getLocalizedMessage()+"\"}").build();
