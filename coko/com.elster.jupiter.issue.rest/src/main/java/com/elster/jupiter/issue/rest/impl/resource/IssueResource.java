@@ -567,15 +567,6 @@ public class IssueResource extends BaseResource {
         return Issue.class;
     }
 
-    private Finder<? extends Issue> addSorting(Finder<? extends Issue> finder, StandardParametersBean parameters) {
-        Order[] orders = parameters.getOrder("");
-        for (Order order : orders) {
-            finder.sorted(order.getName(), order.ascending());
-        }
-        finder.sorted("id", false);
-        return finder;
-    }
-
     private List<IssueInfo> sortIssues(List<IssueInfo> listIssues, StandardParametersBean parameters) {
         Order[] orders = parameters.getOrder("");
         Comparator<IssueInfo> comparatorIssue = null;

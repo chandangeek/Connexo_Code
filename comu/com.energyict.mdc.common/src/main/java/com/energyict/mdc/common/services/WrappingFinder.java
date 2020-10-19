@@ -7,6 +7,7 @@ package com.energyict.mdc.common.services;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -31,6 +32,12 @@ public abstract class WrappingFinder<T, S> implements Finder<T> {
     @Override
     public Finder<T> sorted(String sortColumn, boolean sortOrder) {
         delegate.sorted(sortColumn, sortOrder);
+        return this;
+    }
+
+    @Override
+    public Finder<T> sorted(Order order) {
+        delegate.sorted(order);
         return this;
     }
 
