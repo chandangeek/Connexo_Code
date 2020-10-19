@@ -18,6 +18,7 @@ import com.energyict.mdc.upl.crypto.KeyRenewalAgree2EGenerateResponse;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.obis.ObisCode;
@@ -45,8 +46,9 @@ public class CryptoHS3300MessageExecutor extends HS3300MessageExecutor {
 
     private final CommonCryptoMessageExecutor executor;
 
-    public CryptoHS3300MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
-        super(protocol, collectedDataFactory, issueFactory);
+    public CryptoHS3300MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
+                                       KeyAccessorTypeExtractor keyAccessorTypeExtractor, IssueFactory issueFactory) {
+        super(protocol, collectedDataFactory, keyAccessorTypeExtractor, issueFactory);
         this.executor = new CommonCryptoMessageExecutor(protocol, collectedDataFactory, issueFactory);
     }
 
