@@ -231,13 +231,13 @@ public class DeviceConfigurationApplication extends Application implements Messa
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        Thesaurus restThesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                .join(nlsService.getThesaurus(TimeApplication.COMPONENT_NAME, Layer.REST));
-        Thesaurus domainThesaurus = this.thesaurus.join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN))
-                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
-                // for com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation
-                .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
-        this.thesaurus = domainThesaurus.join(restThesaurus);
+        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
+                            .join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN))
+                            .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                            .join(nlsService.getThesaurus(TimeApplication.COMPONENT_NAME, Layer.REST))
+                            // for com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation
+                            .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
+
     }
 
     @Reference
