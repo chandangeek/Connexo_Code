@@ -73,6 +73,9 @@ public class DeviceBuilder {
         DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(),
                 meter.getDeviceType());
         return () -> {
+            if (!getExistingDevices(meter.getDeviceName(), meter.getSerialNumber()).isEmpty()) {
+                throw getFaultMessage(meter.getDeviceName(), MessageSeeds.NAME_MUST_BE_UNIQUE).get();
+            }
             com.energyict.mdc.device.data.DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig,
                     meter.getDeviceName(), meter.getShipmentDate());
             deviceBuilder.withBatch(meter.getBatch());

@@ -100,7 +100,7 @@ public class DeviceCertificatesImportProcessorTest {
         when(deviceService.findDevicesBySerialNumber(anyString())).thenReturn(Collections.emptyList());
 
         processor.process(getZipFile("certificates.zip"), importZipEntry, logger);
-        verify(logger).warning(MessageSeeds.CANNOT_FIND_DEVICE_WITH_COMMON_NAME, "454C536301A0B8C0", "fileName");
+        verify(logger).warning(MessageSeeds.CANNOT_FIND_DEVICE_WITH_COMMON_NAME, "454C536301A0B8C0",null, "fileName");
     }
 
     @Test
