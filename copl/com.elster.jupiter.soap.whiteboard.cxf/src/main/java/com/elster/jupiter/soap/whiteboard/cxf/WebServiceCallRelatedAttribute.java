@@ -10,6 +10,4 @@ public interface WebServiceCallRelatedAttribute extends HasId {
     String getValue();
 
     String getKey();
-
-    WebServiceCallRelatedAttribute init(String key, String value);
 }
