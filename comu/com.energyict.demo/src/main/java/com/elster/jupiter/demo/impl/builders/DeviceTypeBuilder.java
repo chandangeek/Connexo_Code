@@ -115,7 +115,7 @@ public class DeviceTypeBuilder extends NamedBuilder<DeviceType, DeviceTypeBuilde
             }
             deviceType = deviceConfigurationService.newDeviceTypeBuilder(getName(), protocols.get(0), deviceLifeCycleConfigurationService
                     .findDefaultDeviceLifeCycle()
-                    .get(), null);
+                    .get());
         }
 
         if (this.registerTypes != null) {

@@ -25,15 +25,6 @@ public interface ComSchedule extends HasId, HasName, DataCollectionConfiguration
 
     long getVersion();
 
-    boolean isDefault();
-
-    /**
-     * Sets the current device configuration as default on a device type.
-     * Sets the old configuration default status to false
-     * @param value true if setAsDefault, false if removeAsDefault
-     */
-    void setDefaultStatus(boolean value);
-
     SchedulingStatus getSchedulingStatus();
 
     void setSchedulingStatus(SchedulingStatus status);

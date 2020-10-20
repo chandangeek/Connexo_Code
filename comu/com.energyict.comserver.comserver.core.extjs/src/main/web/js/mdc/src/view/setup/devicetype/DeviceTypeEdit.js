@@ -9,15 +9,13 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
     requires: [
         'Uni.util.FormErrorMessage',
         'Mdc.store.DeviceCommunicationProtocols',
-        'Mdc.store.DeviceTypePurposes',
-        'Mdc.store.CommunicationSchedules'
+        'Mdc.store.DeviceTypePurposes'
     ],
 
     edit: false,
     cancelLink: null,
     deviceCommunicationProtocols: null,
     deviceTypePurposes: null,
-    deviceSharedSchedules: null,
 
     isEdit: function () {
         return this.edit;
@@ -125,23 +123,6 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                             }
                         ]
                     },
-                    {
-                        xtype: 'combobox',
-                        name: 'deviceSharedSchedule',
-                        fieldLabel: Uni.I18n.translate('devicetype.sharedSchedule', 'MDC', 'Shared Schedule'),
-                        itemId: 'sharedScheduleComboBox',
-                        store: 'Mdc.store.CommunicationSchedules',
-                        queryMode: 'local',
-                        displayField: 'name',
-                        valueField: 'name',
-                        emptyText: Uni.I18n.translate('devicetype.selectSharedSchedule', 'MDC', 'Select a Shared Schedule...'),
-                        required: false,
-                        forceSelection: true,
-                        typeAhead: true,
-                        msgTarget: 'under',
-                        width: 600
-                    },
-
                     {
                         xtype: 'fieldcontainer',
                         ui: 'actions',

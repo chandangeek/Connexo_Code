@@ -258,16 +258,16 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
     @Override
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass) {
         return newDeviceTypeBuilder(name, deviceProtocolPluggableClass, this.deviceLifeCycleConfigurationService.findDefaultDeviceLifeCycle()
-                .get(), null).create();
+                .get()).create();
     }
 
     @Override
     public DeviceType newDeviceType(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
-        return newDeviceTypeBuilder(name, deviceProtocolPluggableClass, deviceLifeCycle, null).create();
+        return newDeviceTypeBuilder(name, deviceProtocolPluggableClass, deviceLifeCycle).create();
     }
 
     @Override
-    public DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, String sharedSchedule) {
+    public DeviceType.DeviceTypeBuilder newDeviceTypeBuilder(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
         return new DeviceTypeImpl.DeviceTypeBuilderImpl(getDataModel().getInstance(DeviceTypeImpl.class), name, deviceProtocolPluggableClass, deviceLifeCycle, DeviceTypePurpose.REGULAR);
     }
 

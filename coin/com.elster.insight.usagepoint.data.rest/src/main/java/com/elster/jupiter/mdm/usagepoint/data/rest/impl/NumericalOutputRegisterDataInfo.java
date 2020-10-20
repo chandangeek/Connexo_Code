@@ -12,7 +12,6 @@ import com.elster.jupiter.rest.util.IntervalInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Range;
-//import com.sun.org.apache.regexp.internal.RE;
 
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.math.BigDecimal;

@@ -26,7 +26,6 @@ Ext.define('Mdc.model.DeviceType', {
         {name: 'deviceLifeCycleId'},
         {name: 'deviceLifeCycleName'},
         {name: 'deviceTypePurpose'},
-        {name: 'deviceSharedSchedule'},
         {name: 'version', type: 'number', useNull: true},
         {name: 'fileManagementEnabled', type: 'boolean'},
         {name: 'isLogicalSlave', type: 'boolean', useNull: true},

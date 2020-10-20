@@ -112,8 +112,7 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         DEVICE_LIFE_CYCLE("deviceLifeCycle"),
         FILE_MANAGEMENT_ENABLED("fileManagementEnabled"),
         DEVICE_MESSAGE_FILES("deviceMessageFiles"),
-        SECURITY_ACCESSOR_TYPES("securityAccessorTypes"),
-        DEVICE_SHARED_SCHEDULES("deviceSharedSchedule");
+        SECURITY_ACCESSOR_TYPES("securityAccessorTypes");
 
         private final String javaFieldName;
 
@@ -133,8 +132,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     @HasNoBlacklistedCharacters(balcklistedCharRegEx = HasNotAllowedChars.Constant.SCRIPT_CHARS)
     private String description;
-    @Size(max = 4000, groups = {Save.Update.class, Save.Create.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
-    private String deviceSharedSchedule;
     @IsPresent(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}", groups = {Save.Create.class, Save.Update.class})
     private TemporalReference<DeviceLifeCycleInDeviceType> deviceLifeCycle = Temporals.absent();
     private Reference<DeviceIcon> deviceIcon = Reference.empty();
@@ -193,11 +190,10 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
         this.customPropertySetService = customPropertySetService;
     }
 
-    private DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, String deviceSharedSchedule) {
+    private DeviceTypeImpl initializeRegular(String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle) {
         this.setName(name);
         this.setDeviceProtocolPluggableClass(deviceProtocolPluggableClass);
         this.setDeviceLifeCycle(deviceLifeCycle, this.clock.instant());
-        this.setSharedSchedule(deviceSharedSchedule);
         return this;
     }
 
@@ -308,16 +304,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     @XmlAttribute
     public String getName() {
         return name;
-    }
-
-    @Override
-    public void setSharedSchedule(String newSharedSchedule) {
-        this.deviceSharedSchedule = newSharedSchedule;
-    }
-
-    @Override
-    public String getSharedSchedule() {
-        return deviceSharedSchedule;
     }
 
     @Override
@@ -1519,11 +1505,11 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
 
         private final DeviceTypeImpl underConstruction;
 
-        DeviceTypeBuilderImpl(DeviceTypeImpl underConstruction, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, DeviceTypePurpose purpose, String deviceSharedSchedule) {
+        DeviceTypeBuilderImpl(DeviceTypeImpl underConstruction, String name, DeviceProtocolPluggableClass deviceProtocolPluggableClass, DeviceLifeCycle deviceLifeCycle, DeviceTypePurpose purpose) {
             this.underConstruction = underConstruction;
             switch (purpose){
                 case REGULAR:
-                    this.underConstruction.initializeRegular(name, deviceProtocolPluggableClass, deviceLifeCycle, deviceSharedSchedule);
+                    this.underConstruction.initializeRegular(name, deviceProtocolPluggableClass, deviceLifeCycle);
                     break;
                 case DATALOGGER_SLAVE:
                     this.underConstruction.initializeDataloggerSlave(name, deviceLifeCycle);
@@ -1559,13 +1545,6 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
             underConstruction.setDescription(description);
             return this;
         }
-
-        @Override
-        public DeviceTypeBuilder setSharedSchedule(String deviceSharedSchedule) {
-            underConstruction.setSharedSchedule(deviceSharedSchedule);
-            return this;
-        }
-
 
         @Override
         public DeviceTypeBuilder enableFileManagement() {

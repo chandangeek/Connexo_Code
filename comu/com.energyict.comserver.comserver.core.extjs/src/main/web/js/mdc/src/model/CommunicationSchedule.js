@@ -6,7 +6,6 @@ Ext.define('Mdc.model.CommunicationSchedule',{
       extend: 'Uni.model.Version',
       fields: [
           {name: 'id', type: 'int', useNull: true},
-          {name: 'isDefault', type: 'boolean', useNull: true},
           {name: 'name', type: 'string', useNull: true},
           {name: 'mRID', type: 'string', useNull: true},
           {name: 'temporalExpression'},

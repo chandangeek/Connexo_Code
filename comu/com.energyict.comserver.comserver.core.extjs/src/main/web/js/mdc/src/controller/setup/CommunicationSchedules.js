@@ -48,8 +48,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             '#communicationSchedulesGrid actioncolumn': {
                 editCommunicationSchedule: this.editCommunicationScheduleHistory,
                 deleteCommunicationSchedule: this.deleteCommunicationSchedule,
-                cloneCommunicationSchedule: this.cloneCommunicationSchedule,
-                toggleDefault: this.toggleDefaultConnectionMethod
+                cloneCommunicationSchedule: this.cloneCommunicationSchedule
             },
             '#comTasksOnForm actioncolumn': {
                 deleteComTask: this.deleteComTask
@@ -74,9 +73,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#communicationSchedulePreview menuitem[action=cloneCommunicationSchedule]': {
                 click: this.cloneCommunicationSchedule
-            },
-            '#communicationSchedulePreview menuitem[action=toggleDefault]': {
-                click: this.toggleDefaultConnectionMethod
             },
             'addCommunicationTaskWindow #addCommunicationTasksToSchedule': {
                 click: this.addCommunicationTasksToSchedule
@@ -205,17 +201,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var communicationSchedule = this.getCommunicationSchedulesGrid().getSelectionModel().getLastSelected(),
             preview = this.getCommunicationSchedulePreview(),
             previewForm = this.getCommunicationSchedulePreviewForm(),
-            taskList = '',
-        me = this;
-
-            var toggleDefaultMenuItemText =
-                communicationSchedule.get('isDefault')?
-                    Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') :
-                    Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default');
-
-        if (this.getToggleDefaultMenuItem()) {
-            this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
-        }
+            taskList = '';
 
         preview.setTitle(Ext.String.htmlEncode(communicationSchedule.get('name')));
         previewForm.loadRecord(communicationSchedule);
@@ -229,33 +215,6 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             htmlEncode: false
         })
     },
-
-    toggleDefaultConnectionMethod: function (connectionMethod) {
-        var me = this;
-
-        if (connectionMethod.get('isDefault') === true) {
-            connectionMethod.set('isDefault', false);
-        } else {
-            connectionMethod.set('isDefault', true);
-        }
-
-        //connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
-        connectionMethod.save({
-            isNotEdit: true,
-            success: function () {
-                if (connectionMethod.get('isDefault') === true) {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
-                } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
-                }
-            },
-            callback: function () {
-                me.getCommunicationSchedulesStore().load();
-                this.previewCommunicationSchedule();
-            }
-        });
-    },
-
 
     saveCommunicationSchedule: function () {
         var me = this,

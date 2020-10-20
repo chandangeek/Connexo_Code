@@ -30,8 +30,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         'AvailableLogbookTypes',
         'Mdc.store.DeviceLifeCycles',
         'Mdc.store.DeviceTypePurposes',
-        'Mdc.store.DeviceTypeCustomAttributesSets',
-        'Mdc.store.CommunicationSchedules'
+        'Mdc.store.DeviceTypeCustomAttributesSets'
     ],
 
     models: [
@@ -57,7 +56,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         {ref: 'deviceTypeDetailForm', selector: '#deviceTypeDetailForm'},
         {ref: 'editDeviceTypeNameField', selector: '#editDeviceTypeNameField'},
         {ref: 'protocolCombo', selector: '#communicationProtocolComboBox'},
-        {ref: 'sharedCombo', selector: '#sharedScheduleComboBox'},
         {ref: 'deviceTypeLogbookPanel', selector: '#deviceTypeLogbookPanel'},
         {ref: 'addLogbookPanel', selector: '#addLogbookPanel'},
         {ref: 'deviceLifeCycleLink', selector: '#device-life-cycle-link'},
@@ -107,10 +105,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
                 click: this.editDeviceTypeFromDetails
             },
             '#deviceTypeEdit #communicationProtocolComboBox': {
-                select: this.proposeDeviceTypeName
-            },
-            //#checkComment
-            '#deviceTypeEdit #sharedScheduleComboBox': {
                 select: this.proposeDeviceTypeName
             },
             '#deviceTypeEdit #mdc-deviceTypeEdit-typeComboBox': {
@@ -326,14 +320,11 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             configurationStore = me.getStore('Mdc.store.DeviceConfigurations'),
             lifeCycleStore = me.getStore('Mdc.store.DeviceLifeCycles'),
             deviceTypePurposesStore = me.getStore('Mdc.store.DeviceTypePurposes'),
-            deviceSharedScheduleStore = me.getStore('Mdc.store.CommunicationSchedules'),
-
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('deviceTypeEdit', {
                 edit: true,
                 deviceCommunicationProtocols: protocolStore,
                 deviceTypePurposes: deviceTypePurposesStore,
-                deviceSharedSchedules:deviceSharedScheduleStore,
                 cancelLink: router.queryParams.fromDetails
                     ? router.getRoute('administration/devicetypes/view').buildUrl()
                     : router.getRoute('administration/devicetypes').buildUrl()
@@ -352,8 +343,7 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             {action: protocolStore.load, context: protocolStore, simple: true},
             {action: lifeCycleStore.load, context: lifeCycleStore, simple: true},
             {action: deviceTypePurposesStore.load, context: deviceTypePurposesStore, simple: true},
-            {action: configurationStore.load, context: configurationStore, simple: true},
-            {action: deviceSharedScheduleStore.load, context: deviceSharedScheduleStore, simple: true}
+            {action: configurationStore.load, context: configurationStore, simple: true}
         ]).then(
             {
                 success: function (results) {
@@ -417,29 +407,24 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             typeField = form.down('#mdc-deviceTypeEdit-typeComboBox'),
             commProtocolField = form.down('#communicationProtocolComboBox'),
             lifeCycleField = form.down('#device-life-cycle-field'),
-            sharedScheduleField = form.down('#sharedScheduleComboBox'),
-
             activeConfig = store.find('active', true);
         if (store.getCount() > 0) {
             if (activeConfig < 0) {
                 typeField.disable();
                 commProtocolField.disable();
-                sharedScheduleField.enable();
-                lifeCycleField.enable();
                 infoPanel.show();
-                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg3', 'MDC', 'This device type has one or more device configurations. Only fields name, device life cycle and shared schedules are editable'));
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg1', 'MDC', 'This device type has one or more device configurations. Only fields name and device life cycle are editable'))
             } else {
                 typeField.disable();
                 commProtocolField.disable();
                 lifeCycleField.disable();
                 infoPanel.show();
-                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg4', 'MDC', 'This device type has one or more active device configurations. Only the name field and shared schedule field are editable'));
+                infoPanel.setText(Uni.I18n.translate('deviceType.edit.notificationMsg2', 'MDC', 'This device type has one or more active device configurations. Only the name field is editable'))
             }
         } else {
             typeField.enable();
             commProtocolField.enable();
             lifeCycleField.enable();
-            sharedScheduleField.enable();
         }
     },
 
@@ -448,19 +433,17 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
             protocolStore = Ext.StoreManager.get('DeviceCommunicationProtocols'),
             deviceLifeCyclesStore = me.getStore('Mdc.store.DeviceLifeCycles'),
             deviceTypePurposesStore = me.getStore('Mdc.store.DeviceTypePurposes'),
-            deviceSharedScheduleStore = me.getStore('Mdc.store.CommunicationSchedules'),
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('deviceTypeEdit', {
                 edit: false,
                 cancelLink: router.getRoute('administration/devicetypes').buildUrl(),
                 deviceCommunicationProtocols: protocolStore,
-                deviceTypePurposes: deviceTypePurposesStore,
-                deviceSharedSchedules:deviceSharedScheduleStore
+                deviceTypePurposes: deviceTypePurposesStore
             }),
             counter = 0,
             onAllStoresLoaded = function () {
                 counter += 1;
-                if (counter === 3) {
+                if (counter === 2) {
                     deviceLifeCyclesStore.load(function () {
                         if (deviceLifeCyclesStore.getCount() == 0) {
                             me.getDeviceLifeCycleCombo().hide();
@@ -477,7 +460,6 @@ Ext.define('Mdc.controller.setup.DeviceTypes', {
         widget.setLoading(true);
         protocolStore.load(onAllStoresLoaded);
         deviceTypePurposesStore.load(onAllStoresLoaded);
-        deviceSharedScheduleStore.load(onAllStoresLoaded);
     },
 
     createDeviceType: function (image) {

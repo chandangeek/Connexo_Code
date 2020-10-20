@@ -12,7 +12,9 @@ import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.common.tasks.ComTask;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
@@ -40,7 +42,6 @@ public enum TableSpecs {
             table.cache();
             Column idColumn = table.addAutoIdColumn();
             table.addAuditColumns();
-            table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
             table.column("NAME").varChar().map(ComScheduleImpl.Fields.NAME.fieldName()).add();
             table.column("MRID").varChar().map(ComScheduleImpl.Fields.MRID.fieldName()).add();
             table.column("STATUS").number().conversion(ColumnConversion.NUMBER2ENUM).map(ComScheduleImpl.Fields.STATUS.fieldName()).add();
