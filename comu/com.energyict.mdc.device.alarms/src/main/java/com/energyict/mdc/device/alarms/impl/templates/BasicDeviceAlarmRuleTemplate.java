@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.alarms.impl.templates;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -52,7 +51,6 @@ import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -70,12 +68,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-//import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
-
-@Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
-        property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
-        service = {CreationRuleTemplate.class, BasicDeviceAlarmRuleTemplate.class},
-        immediate = true)
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
     public static final String NAME = "BasicDeviceAlarmRuleTemplate";
@@ -121,37 +113,18 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     public void activate() {
     }
 
-    @Reference
     public final void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
         this.meteringTranslationService = meteringTranslationService;
     }
 
-    @Reference
     public final void setNlsService(NlsService nlsService) {
         this.setThesaurus(nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
-    @Reference
-    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
-        super.setDeviceAlarmService(deviceAlarmService);
-    }
-
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        super.setIssueService(issueService);
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        super.setPropertySpecService(propertySpecService);
-    }
-
-    @Reference
     public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
         this.deviceConfigurationService = deviceConfigurationService;
     }
 
-    @Reference
     public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
