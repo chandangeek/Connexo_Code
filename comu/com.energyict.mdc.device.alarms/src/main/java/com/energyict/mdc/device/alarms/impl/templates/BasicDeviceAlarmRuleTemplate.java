@@ -51,7 +51,6 @@ import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -129,12 +128,10 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
     }
 
-    @Reference
     public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
     }
 
-    @Reference
     public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
     }

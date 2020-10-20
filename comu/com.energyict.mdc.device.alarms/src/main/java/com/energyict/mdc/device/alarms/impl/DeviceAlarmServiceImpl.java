@@ -210,6 +210,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
         BasicDeviceAlarmRuleTemplate basicDeviceAlarmRuleTemplate = new BasicDeviceAlarmRuleTemplate(this, nlsService, issueService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, timeService, meteringGroupsService, meteringTranslationService);
         registrations.add(bundleContext.registerService(CreationRuleTemplate.class, basicDeviceAlarmRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDeviceAlarmRuleTemplate.NAME))));
+        registrations.add(bundleContext.registerService(BasicDeviceAlarmRuleTemplate.class, basicDeviceAlarmRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDeviceAlarmRuleTemplate.NAME))));
 
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 4), UpgraderV10_4.class,
