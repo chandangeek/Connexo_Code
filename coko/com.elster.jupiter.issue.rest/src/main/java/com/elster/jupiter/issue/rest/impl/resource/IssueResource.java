@@ -565,7 +565,7 @@ public class IssueResource extends BaseResource {
     private Finder<? extends Issue> addSorting(Finder<? extends Issue> finder, StandardParametersBean parameters) {
         Order[] orders = parameters.getOrder("");
         for (Order order : orders) {
-                finder.sorted(order.getName(), order.ascending());
+            finder.sorted(order);
         }
         finder.sorted("id", false);
         return finder;

@@ -76,6 +76,12 @@ public class DeviceFinder implements Finder<Device> {
     }
 
     @Override
+    public Finder<Device> sorted(Order order) {
+        orders.add(order);
+        return this;
+    }
+
+    @Override
     public Subquery asSubQuery(String... strings) {
         return () -> asFragment(strings);
     }

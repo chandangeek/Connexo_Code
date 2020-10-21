@@ -282,8 +282,9 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
     }
 
     public enum ChargeMode {
-        Prepaid_charge(1, "Prepaid"),
-        Postpaid_charge(2, "Postpaid");
+        Postpaid_charge(1, "Postpaid"),
+        Prepaid_charge(2, "Prepaid");
+
 
         private final int id;
         private final String description;

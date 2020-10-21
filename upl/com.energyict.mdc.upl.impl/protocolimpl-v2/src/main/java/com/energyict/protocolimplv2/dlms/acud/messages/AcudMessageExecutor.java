@@ -282,7 +282,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
     private int getChargeMode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
         String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.chargeMode);
-        return ChargeDeviceMessage.ChargeMode.entryForDescription(description).getId();
+        ChargeDeviceMessage.ChargeMode chargeMode = ChargeDeviceMessage.ChargeMode.entryForDescription(description);
+        chargeMode = chargeMode.equals(ChargeDeviceMessage.ChargeMode.Postpaid_charge) ? ChargeDeviceMessage.ChargeMode.Prepaid_charge : ChargeDeviceMessage.ChargeMode.Postpaid_charge;
+        return chargeMode.getId();
     }
 
     private void changeChargePeriod(OfflineDeviceMessage pendingMessage) throws IOException {

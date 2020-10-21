@@ -88,12 +88,14 @@ import java.util.logging.Level;
 
 public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport, AdvancedDeviceProtocolSecurityCapabilities {
 
-    protected static final int MANAGEMENT_CLIENT = 1;
-    protected static final int PLC_CLIENT        = 4;
-    protected static final int PUBLIC_CLIENT     = 16;
+    protected static final int MANAGEMENT_CLIENT   = 1;
+    protected static final int DATA_READOUT_CLIENT = 2;
+    protected static final int PLC_CLIENT          = 4;
+    protected static final int PUBLIC_CLIENT       = 16;
 
-    private static final ObisCode FC_MANAGEMENT = ObisCode.fromString("0.0.43.1.1.255");
-    private static final ObisCode FC_PLC_CLIENT = ObisCode.fromString("0.0.43.1.4.255");
+    private static final ObisCode FC_MANAGEMENT   = ObisCode.fromString("0.0.43.1.1.255");
+    private static final ObisCode FC_DATA_READOUT = ObisCode.fromString("0.0.43.1.2.255");
+    private static final ObisCode FC_PLC_CLIENT   = ObisCode.fromString("0.0.43.1.4.255");
 
     private final TariffCalendarExtractor calendarExtractor;
     private final NlsService nlsService;
@@ -539,7 +541,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-        return Optional.empty();
+        return getDeviceMessaging().prepareMessageContext(device, offlineDevice, deviceMessage);
     }
 
     protected HS3300Messaging getDeviceMessaging() {
@@ -741,6 +743,8 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         switch (clientId) {
             case MANAGEMENT_CLIENT:
                 return FC_MANAGEMENT;
+            case DATA_READOUT_CLIENT:
+                return FC_DATA_READOUT;
             case PLC_CLIENT:
                 return FC_PLC_CLIENT;
             case PUBLIC_CLIENT:
