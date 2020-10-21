@@ -70,7 +70,6 @@ import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Strings;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -81,6 +80,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -720,6 +720,16 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.currentRetryCount = 0;
     }
 
+    private void removeEarliestTrigger() {
+        comTaskExecutionTriggers.stream().min(Comparator.comparing(ComTaskExecutionTrigger::getTriggerTimeStamp))
+                .map(ComTaskExecutionTriggerImpl.class::cast).ifPresent(
+                comTaskExecutionTrigger -> {
+                    comTaskExecutionTriggers.remove(comTaskExecutionTrigger);
+                    getDataModel().touch(this);
+                }
+        );
+    }
+
     /**
      * Every xxSchedule attempt should go through this object.
      * I'll won't touch the plannedNextExecutionTimeStamp, but I might update
@@ -988,6 +998,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private void markSuccessfullyCompleted() {
         this.lastSuccessfulCompletionTimestamp = clock.instant();
         this.resetCurrentRetryCount();
+        removeEarliestTrigger();
     }
 
     private void doReschedule(Instant nextExecutionTimestamp) {
@@ -1066,6 +1077,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     void doExecutionFailed() {
         this.lastExecutionFailed = true;
+        removeEarliestTrigger();
         this.resetCurrentRetryCount();
         if (isAdHoc()) {
             LOGGER.info("[comtaskexec] doExecutionFailed for " + getDevice().getName() + "; ad-hoc task, no reschedule date ");
