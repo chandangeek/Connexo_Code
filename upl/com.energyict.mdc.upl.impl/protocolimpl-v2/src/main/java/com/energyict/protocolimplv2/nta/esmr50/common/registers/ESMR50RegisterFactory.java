@@ -50,12 +50,15 @@ import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusConfig
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusEncryptionKeyStatus;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusFUAKStatus;
 import com.energyict.protocolimplv2.nta.esmr50.common.registers.enums.MBusFWTransferStatus;
+import org.joda.time.DateTimeZone;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
+import java.util.Calendar;
 
 import static com.energyict.cbo.BaseUnit.ACTIVEENERGY;
 import static com.energyict.cbo.BaseUnit.AMPERE;
@@ -248,6 +251,7 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     protected static final ObisCode TIME_THRESHOLD_VOLTAGE_SWELL_SAG1 = ObisCode.fromString("1.0.12.44.0.255");
     protected static final ObisCode THRESHOLD_SHORT_VOLTAGE_SAG2 = ObisCode.fromString("1.1.12.31.0.255");
     protected static final ObisCode TIME_THRESHOLD_VOLTAGE_SAG2 = ObisCode.fromString("1.1.12.43.0.255");
+
 
     public ESMR50RegisterFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -705,6 +709,16 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             }else if(rObisCode.equals(LTE_PING_ADDRESS)){
                 LTEPingAddress ltePingAddress = new LTEPingAddress(abstractDataType);
                 return new RegisterValue(register, ltePingAddress.toString());
+            } else if(rObisCode.equalsIgnoreBChannel(GAS_TIME_DURATION_FIVE_MINUTES)) {
+                Date date = new Date();
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(date);
+                int minutes = cal.get(Calendar.MINUTE) / 5 * 5;
+                cal.set(Calendar.MINUTE, minutes);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+                date = cal.getTime();
+                return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(SECOND)), date, null, null, new Date(), 0, "GAS_TIME_DURATION_FIVE_MINUTES_OBIS_CODE value: " + abstractDataType.longValue());
             }
 
             protocol.journal(" > register " + register.getObisCode() + " for " + register.getSerialNumber() + " was translated as " + rObisCode.toString() + " and could not be handled by ESMR5 register factory. Asking ancestors.");
@@ -973,7 +987,11 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                 } else if (rObisCode.equals(LTE_PING_ADDRESS)){
                     this.registerMap.put(register, new DLMSAttribute(LTE_PING_ADDRESS, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
-                } else {
+                } else if (rObisCode.equalsIgnoreBChannel(GAS_TIME_DURATION_FIVE_MINUTES)) {
+                    ObisCode lpObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(GAS_TIME_DURATION_FIVE_MINUTES_OBIS_CODE, register.getSerialNumber());
+                    this.registerMap.put(register, new DLMSAttribute(lpObisCode, ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), DLMSClassId.EXTENDED_REGISTER));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                }else {
                     registersForSuper.add(register);
                 }
             } // for - registers
@@ -1061,5 +1079,12 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
         strBuilder.append((char) ((manufacturer.getValue() & 0x001F) + 64));
 
         return strBuilder.toString();
+    }
+
+    @Override
+    protected ObisCode getDeviceTypeObisCode()
+    {
+        final ObisCode DEVICE_CLASS_OBIS_CODE = ObisCode.fromString("0.x.24.2.3.255");
+        return DEVICE_CLASS_OBIS_CODE;
     }
 }
