@@ -852,9 +852,15 @@ public class TableImpl<T> implements Table<T> {
         Optional<PrimaryKeyConstraintImpl> primaryKey = getPrimaryKeyConstraint();
         if (primaryKey.isPresent()) {
             List<ColumnImpl> primaryKeyColumns = primaryKey.get().getColumns();
-            for (int i = 0; i < primaryKeyColumns.size(); i++) {
-                if (!primaryKeyColumns.get(i).equals(columns.get(i))) {
-                    fail("primary key columns must be defined first and in order.");
+            if (primaryKeyColumns.size() > 0) {
+                int primaryKeyColumnsCounter = 0;
+                for (int i = 0; i < columns.size(); i++) {
+                    if (primaryKeyColumnsCounter < primaryKeyColumns.size() && primaryKeyColumns.get(primaryKeyColumnsCounter).equals(columns.get(i))) {
+                        primaryKeyColumnsCounter++;
+                    }
+                }
+                if (primaryKeyColumnsCounter != primaryKeyColumns.size()) {
+                    throw new IllegalStateException(MessageFormat.format("Table ''{0}'' : Primary key columns must be defined in order", getName()));
                 }
             }
         } else {

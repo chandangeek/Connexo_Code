@@ -77,10 +77,12 @@ public enum TableSpecs {
             List<Column> intervalColumns = table.addIntervalColumns("interval");
             table.addAuditColumns();
             table.addDiscriminatorColumn("DISCRIMINATOR", "number");
-            Column nextHop = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).add();
+            Column nextHop_previousVersion = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).upTo(version(10, 9)).add();
+            Column nextHop = table.column("NEXTHOPDEVICE").number().conversion(NUMBER2LONG).notNull().since(version(10, 9)).previously(nextHop_previousVersion).add();
             table.column("TIMETOLIVE_SECS").number().conversion(NUMBER2LONG).map(CommunicationPathSegmentImpl.Field.TIME_TO_LIVE.fieldName()).add();
             table.column("COST").number().conversion(NUMBER2INT).map(CommunicationPathSegmentImpl.Field.COST.fieldName()).add();
-            table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0)).add();
+            PrimaryKeyConstraint pkConstraint_previousVersion = table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0)).upTo(version(10, 9)).add();
+            table.primaryKey("PK_DTL_COMPATHSEGMENT").on(source, target, intervalColumns.get(0), nextHop).since(version(10, 9)).previously(pkConstraint_previousVersion).add();
             table.foreignKey("FK_DTL_COMPATHSEGMENT_SRC").
                     on(source).
                     references(Device.class).

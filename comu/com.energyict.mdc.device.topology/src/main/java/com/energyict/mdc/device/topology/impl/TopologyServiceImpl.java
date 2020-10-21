@@ -198,6 +198,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 .put(version(10, 4,3), V10_4_3SimpleUpgrader.class)
                 .put(version(10, 4, 8), UpgraderV10_4_8.class)
                 .put(version(10, 7),  UpgraderV10_7.class)
+                .put(version(10,9), UpgraderV10_9.class)
                 .build());
         this.registerRealServices(bundleContext);
     }
