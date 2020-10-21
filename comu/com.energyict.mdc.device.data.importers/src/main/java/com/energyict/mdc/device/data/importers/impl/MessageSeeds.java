@@ -155,7 +155,9 @@ public enum MessageSeeds implements MessageSeed {
     CANNOT_EXTRACT_COMMON_NAME(607, "CannotExtractCommonName", "Cannot extract Common Name (CN) from certificate {0}: {1}", Level.WARNING),
     LINKING_CERTIFICATE(608, "LinkingCertificate", "Linking security accessor [{0}] of device [{1}] with certificate from file [{2}]", Level.FINE),
     CANNOT_FIND_DEVICE_WITH_COMMON_NAME(609, "CannotFindDeviceWithCommonName", "Cannot find any device with Common Name (CN) {0} in parameter {1}, for file {2}", Level.WARNING),
-    SKIPPING_ENTRY(610, "SkippingEntry", "Skipping processing of file {0} - as configured", Level.INFO);
+    SKIPPING_ENTRY(610, "SkippingEntry", "Skipping processing of file {0} - as configured", Level.INFO),
+    DEVICE_WITH_SERIAL_NUMBER_ALREADY_EXISTS(611, "SerialNumberAlreadyExists", "A device with serial number ''{0}'' already exists, skipped by importer", Level.WARNING),
+    ;
 
     private final int number;
     private final String key;
