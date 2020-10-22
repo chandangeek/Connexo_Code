@@ -624,7 +624,7 @@ public class DeviceAlarmResource extends BaseAlarmResource {
     private Finder<? extends DeviceAlarm> addSorting(Finder<? extends DeviceAlarm> finder, StandardParametersBean parameters) {
         Order[] orders = parameters.getOrder("");
         for (Order order : orders) {
-            finder.sorted("baseIssue." + order.getName(), order.ascending());
+            finder.sorted(order.wrap("baseIssue"));
         }
         finder.sorted("baseIssue.id", false);
         return finder;

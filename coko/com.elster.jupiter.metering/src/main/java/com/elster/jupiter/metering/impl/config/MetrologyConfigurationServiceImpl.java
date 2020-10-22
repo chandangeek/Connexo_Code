@@ -36,9 +36,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Subquery;
 
 import java.util.Collections;
 import java.util.List;
@@ -131,7 +129,7 @@ public class MetrologyConfigurationServiceImpl implements ServerMetrologyConfigu
     public List<MetrologyConfiguration> findAllMetrologyConfigurations() {
         return DefaultFinder.of(MetrologyConfiguration.class, where(MetrologyConfigurationImpl.Fields.OBSOLETETIME.fieldName()).isNull(),
                 this.getDataModel(), MetrologyContract.class, ReadingTypeDeliverable.class, Formula.class, ReadingTypeRequirement.class)
-                .defaultSortColumn("lower(mc.name)")
+                .defaultSortColumn("name")
                 .find();
     }
 

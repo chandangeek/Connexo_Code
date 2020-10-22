@@ -119,8 +119,8 @@ public class GoingOnResource {
                 issueFinder = issueFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
             }
             issues = issueFinder
-                    .sorted("urgency+impact", true)
-                    .sorted("due_date", false)
+                    .sorted("URGENCY+IMPACT", true)
+                    .sorted("dueDate", false)
                     .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }
@@ -141,8 +141,8 @@ public class GoingOnResource {
                 alarmFinder = alarmFinder.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
             }
             alarms = alarmFinder
-                    .sorted("urgency+impact", true)
-                    .sorted("due_date", false)
+                    .sorted("URGENCY+IMPACT", true)
+                    .sorted("baseIssue.dueDate", false)
                     .stream().map(goingOnInfoFactory::toGoingOnInfo)
                     .collect(Collectors.toList());
         }

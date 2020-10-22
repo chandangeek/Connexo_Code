@@ -89,7 +89,6 @@ import javax.validation.ConstraintViolationException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.Clock;
-import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -294,12 +293,16 @@ public class DataExportServiceImplIT {
 
     @Test
     @Transactional
-    public void testCreation() {
+    public void testCreateFindAndRun() {
         IExportTask exportTask = (IExportTask) createAndSaveTask();
+
+        assertThat(dataExportService.findExportTask(exportTask.getId()).map(IExportTask.class::cast)).contains(exportTask);
+        assertThat(dataExportService.findAndLockExportTask(exportTask.getId()).map(IExportTask.class::cast)).contains(exportTask);
+        assertThat(dataExportService.findAndLockExportTask(exportTask.getId(), exportTask.getVersion()).map(IExportTask.class::cast)).contains(exportTask);
 
         exportTask.triggerNow();
         RecurrentTask recurrentTask = extractOccurrence(exportTask);
-        TaskOccurrence occurrence = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.<Instant>all()).stream().findFirst().get();
+        TaskOccurrence occurrence = injector.getInstance(TaskService.class).getOccurrences(recurrentTask, Range.all()).stream().findFirst().get();
         new DataExportTaskExecutor(dataExportService, transactionService, new LocalFileWriter(dataExportService), thesaurus, CLOCK, threadPrincipalService, eventService).execute(occurrence);
 
         Optional<IDataExportOccurrence> dataExportOccurrence = dataExportService.findDataExportOccurrence(exportTask, occurrence.getTriggerTime());

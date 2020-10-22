@@ -10,6 +10,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -292,6 +293,12 @@ public class QueryStreamImpl<T> implements QueryStream<T> {
         this.orders = new Order[extra.length + 1];
         this.orders[0] = order;
         System.arraycopy(extra, 0, orders, 1, extra.length);
+        return this;
+    }
+
+    @Override
+    public QueryStream<T> sorted(Collection<Order> orders) {
+        this.orders = orders.toArray(new Order[orders.size()]);
         return this;
     }
 

@@ -16,6 +16,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -335,6 +336,11 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         @Override
         public Finder<T> sorted(String sortColumn, boolean ascending) {
             return this.actualFinder.sorted(sortColumn, ascending);
+        }
+
+        @Override
+        public Finder<T> sorted(Order order) {
+            return actualFinder.sorted(order);
         }
 
         @Override

@@ -56,6 +56,7 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     private MissingDataOption exportComplete;
     private String application;
     private int logLevel;
+    private ExportTask pairedTask;
 
     DataExportTaskBuilderImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -137,6 +138,9 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
             default:
         }
         properties.forEach(p -> exportTask.setProperty(p.name, p.value));
+        if (pairedTask != null) {
+            exportTask.pairWith(pairedTask);
+        }
         exportTask.doSave();
         return exportTask;
     }
@@ -150,6 +154,12 @@ class DataExportTaskBuilderImpl implements DataExportTaskBuilder {
     @Override
     public DataExportTaskBuilderImpl setDataFormatterFactoryName(String dataFormatter) {
         this.dataFormatter = dataFormatter;
+        return this;
+    }
+
+    @Override
+    public DataExportTaskBuilder pairWith(ExportTask exportTask) {
+        pairedTask = exportTask;
         return this;
     }
 

@@ -82,7 +82,9 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             data.filter = {};
             for (var dataIndex in filterItems) {
                 var value = filterItems[dataIndex];
-                if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)
+                    && dataIndex != 'limit' && dataIndex != 'start'
+                    && dataIndex != 'startInterval' && dataIndex != 'finishInterval') {
                     data.filter[dataIndex] = value;
                 }
             }
@@ -270,6 +272,22 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             if (filterObject.hasOwnProperty(prop)) {
                 if (!Ext.isArray(filterObject[prop])) {
                     filterObject[prop] = [filterObject[prop]];
+                }
+            }
+        });
+
+        var intervalProps = ['startInterval', 'finishInterval'];
+        Ext.Array.each(intervalProps, function (prop) {
+            if (filterObject.hasOwnProperty(prop)) {
+                var tokens = filterObject[prop].split('-'),
+                    fromDate = tokens[0],
+                    toDate = tokens[1];
+
+                if (fromDate && !isNaN(fromDate)) {
+                    filterObject[prop + 'From'] = fromDate;
+                }
+                if (toDate && !isNaN(toDate)) {
+                    filterObject[prop + 'To'] = toDate;
                 }
             }
         });

@@ -91,7 +91,9 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
             data.filter = {};
             for (var dataIndex in filterItems) {
                 var value = filterItems[dataIndex];
-                if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)) {
+                if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)
+                    && dataIndex != 'limit' && dataIndex != 'start'
+                    && dataIndex != 'startInterval' && dataIndex != 'finishInterval') {
                     data.filter[dataIndex] = value;
                 }
             }

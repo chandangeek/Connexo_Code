@@ -460,7 +460,7 @@ public class EisDialog extends JDialog implements ContainerListener, KeyListener
         }
 
         public JButton getCancelButton() {
-            return okButton;
+            return cancelButton;
         }
 
         private void initComponents(String okButtonLabel) {
