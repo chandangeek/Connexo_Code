@@ -129,7 +129,7 @@ public enum TableSpecs {
                     .varChar()
                     .notNull(false)
                     .map(AbstractCertificateWrapperImpl.Fields.CA_SUBJECTDN_FIELDS.fieldName())
-                    .since(Version.version(10, 4, 9, 1)) //i.e. 10.4.9-RC6
+                    .since(Version.version(10,9))
                     .add();
             table.column("STATUS")
                     .varChar(Table.NAME_LENGTH)
