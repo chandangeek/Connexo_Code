@@ -7,12 +7,23 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.users.User;
 import com.energyict.mdc.common.comserver.HighPriorityComJob;
 import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.OutboundConnectionTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
+import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.commands.store.core.DeviceProtocolCommandCreator;
+import com.energyict.mdc.engine.impl.commands.store.core.GroupedDeviceCommand;
+import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -25,6 +36,8 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Provides an implementation for the {@link ScheduledComPort} interface
@@ -181,8 +194,9 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
     }
 
     private void shutdownJobScheduler() {
-        if (this.jobScheduler != null)
+        if (this.jobScheduler != null) {
             this.jobScheduler.shutdown();
+        }
     }
 
     /**
@@ -225,7 +239,9 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
             long start = System.currentTimeMillis();
             List<ScheduledComTaskExecutionGroup> groups = new ArrayList<>(jobs.size());   // At most all jobs will be groups
             for (ComJob job : jobs) {
-                groups.add(newComTaskGroup(job));
+                for (Map.Entry<ExecutionType, List<ComTaskExecution>> entry : getSplitedComTaskExecutionsLists(job.getComTaskExecutions()).entrySet()) {
+                    groups.add(newComTaskGroup(job, entry.getValue()));
+                }
             }
             this.scheduleGroups(groups);
             LOGGER.warning("perf - Finished scheduleAll, " + (System.currentTimeMillis() - start));
@@ -286,5 +302,38 @@ public class MultiThreadedScheduledComPort extends ScheduledComPortImpl {
         public void executeWithHighPriority(HighPriorityComJob job) {
             multiThreadedJobCreator.executeWithHighPriority(newComTaskGroup(job));
         }
+
+        private Map<ExecutionType, List<ComTaskExecution>> getSplitedComTaskExecutionsLists(List<ComTaskExecution> comTaskExecutions) {
+            final OfflineDeviceForComTaskGroup offlineDeviceForComTaskGroup = new OfflineDeviceForComTaskGroup(comTaskExecutions);
+            Map<ExecutionType, List<ComTaskExecution>> resultMap = new HashMap<>();
+            for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                DeviceIdentifier deviceIdentifier = getServiceProvider().identificationService()
+                        .createDeviceIdentifierForAlreadyKnownDevice(comTaskExecution.getDevice().getId(), comTaskExecution.getDevice().getmRID());
+                OfflineDevice offlineDevice = getComServerDAO().findOfflineDevice(deviceIdentifier, offlineDeviceForComTaskGroup).get();
+                DeviceProtocolPluggableClass deviceProtocolPluggableClass = offlineDevice.getDeviceProtocolPluggableClass();
+                DeviceProtocol deviceProtocol = deviceProtocolPluggableClass.getDeviceProtocol();
+                CommandRoot commandRoot = new ParallelRootScheduledJob(null, null, null, null, null, getServiceProvider()).initCommandRoot();
+                if (DeviceProtocolCommandCreator.hasCommandsToExecute(new GroupedDeviceCommand(commandRoot, offlineDevice, deviceProtocol, null),
+                        generateProtocolTaskList(comTaskExecution), comTaskExecution)) {
+                    resultMap.computeIfAbsent(ExecutionType.TO_EXECUTE, key -> new ArrayList<>()).add(comTaskExecution);
+                } else {
+                    resultMap.computeIfAbsent(ExecutionType.NOT_EXECUTE, key -> new ArrayList<>()).add(comTaskExecution);
+                }
+            }
+            return resultMap;
+        }
+
+        List<ProtocolTask> generateProtocolTaskList(ComTaskExecution comTaskExecution) {
+            return generateProtocolTaskList(comTaskExecution.getComTask())
+                    .collect(Collectors.toList());
+        }
+
+        private Stream<ProtocolTask> generateProtocolTaskList(ComTask comTask) {
+            List<ProtocolTask> protocolTasks = new ArrayList<>(comTask.getProtocolTasks()); // Copies the unmodifiable list
+            Collections.sort(protocolTasks, JobExecution.BasicCheckTasks.FIRST);
+            return protocolTasks.stream();
+        }
+
     }
+
 }
