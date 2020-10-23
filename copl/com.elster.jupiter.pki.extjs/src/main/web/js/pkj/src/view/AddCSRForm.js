@@ -57,31 +57,23 @@ Ext.define('Pkj.view.AddCSRForm', {
                 forceSelection: true,
                 listeners: {
                     select: function (combo, records) {
-                        var keyTypeName = records[0].get('name');
                         var endEntityCombo = me.down('#pkj-csr-add-form-end-entity');
                         var caCombo = me.down('#pkj-csr-add-form-ca-name');
                         var cpCombo = me.down('#pkj-csr-add-form-cert-profile');
-                        if ( keyTypeName == "HSM") {
-                            endEntityCombo.setDisabled(true);
-                            endEntityCombo.setVisible(false);
+                        var dnFields = me.down('#pkj-csr-add-form-subject-dn-fields');
 
-                            caCombo.setDisabled(true);
-                            caCombo.setVisible(false);
+                        endEntityCombo.getStore().load();
+                        endEntityCombo.setDisabled(false);
+                        endEntityCombo.setVisible(true);
 
-                            cpCombo.setDisabled(true);
-                            cpCombo.setVisible(false);
-                        }
-                        else {
-                            endEntityCombo.getStore().load();
-                            endEntityCombo.setDisabled(false);
-                            endEntityCombo.setVisible(true);
+                        caCombo.setDisabled(false);
+                        caCombo.setVisible(true);
 
-                            caCombo.setDisabled(false);
-                            caCombo.setVisible(true);
+                        cpCombo.setDisabled(false);
+                        cpCombo.setVisible(true);
 
-                            cpCombo.setDisabled(false);
-                            cpCombo.setVisible(true);
-                        }
+                        dnFields.setDisabled(false);
+                        dnFields.setVisible(true);
 
                     }
                 }
@@ -152,6 +144,16 @@ Ext.define('Pkj.view.AddCSRForm', {
                 allowBlank: false,
                 required: true,
                 forceSelection: true
+            },
+            {
+                xtype: 'textfield',
+                fieldLabel: Uni.I18n.translate('general.ejbca.subjectdnfields', 'PKJ', 'Subject DN fields'),
+                required: false,
+                name: 'subjectDnFields',
+                itemId: 'pkj-csr-add-form-subject-dn-fields',
+                allowBlank: true,
+                disabled: true,
+                hidden: true
             },
             {
                 xtype: 'fieldcontainer',

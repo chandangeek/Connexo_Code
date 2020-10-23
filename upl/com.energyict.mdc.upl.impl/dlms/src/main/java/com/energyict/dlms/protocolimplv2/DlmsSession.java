@@ -71,7 +71,7 @@ public class DlmsSession implements ProtocolLink {
             calledSystemTitle = getProperties().getSerialNumber();
         }
         this.aso = buildAso(calledSystemTitle);
-        this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection());
+        this.dlmsConnection = new SecureConnection(this.aso, defineTransportDLMSConnection(), getProperties().getSerialNumber());
         this.dlmsConnection.setInvokeIdAndPriorityHandler(getProperties().getInvokeIdAndPriorityHandler());
         if (hhuSignOn != null) {
             this.dlmsConnection.setHHUSignOn(hhuSignOn, deviceId);

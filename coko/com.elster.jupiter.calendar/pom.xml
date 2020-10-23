@@ -142,6 +142,7 @@
                                 <source>${basedir}/src/main/resources/calendar-import-format.xsd</source>
                             </sources>
                             <outputDirectory>${basedir}/target/generated-sources</outputDirectory>
+                            <clearOutputDir>true</clearOutputDir>
                         </configuration>
                     </execution>
                 </executions>

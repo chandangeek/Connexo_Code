@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.KeyType;
 import com.elster.jupiter.pki.PlaintextPassphrase;
+import com.elster.jupiter.pki.SecretFactory;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpec;
@@ -144,35 +145,10 @@ public final class PlaintextPassphraseImpl implements PlaintextPassphrase {
     }
 
     private void doRenewValue(KeyType keyType) throws NoSuchAlgorithmException {
-        String possibleChars = getPossiblePasswordChars(keyType);
-        SecureRandom random = new SecureRandom();
-        String password = "";
-        for (int i=0; i<keyType.getPasswordLength(); i++) {
-            password+=possibleChars.charAt((int) (random.nextDouble()*possibleChars.length()));
-        }
+        SecretFactory secretFactory = new SecretFactory();
+        String password = secretFactory.generatePassword(keyType);
         setEncryptedPassphrase(password);
         this.save();
-    }
-
-    private String getPossiblePasswordChars(KeyType keyType) {
-        String upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-        String lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
-        String numbers = "0123456789";
-        String specialChars = "!@#$%^&*_=+-/.?<>)";
-        String possibleChars = "";
-        if (keyType.useUpperCaseCharacters()) {
-            possibleChars+=upperCaseChars;
-        }
-        if (keyType.useLowerCaseCharacters()) {
-            possibleChars+=lowerCaseChars;
-        }
-        if (keyType.useNumbers()) {
-            possibleChars+=numbers;
-        }
-        if (keyType.useSpecialCharacters()) {
-            possibleChars+=specialChars;
-        }
-        return possibleChars;
     }
 
     @Override

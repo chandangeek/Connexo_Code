@@ -160,6 +160,12 @@ public abstract class SecureDeviceImporterAbstract {
                     .emptyOrOnlyWhiteSpace() ? xmlDevice.getSerialNumber() : xmlDevice.getUniqueIdentifier();
             log(logger, MessageSeeds.IMPORTING_DEVICE, deviceName);
             try {
+                if (!Checks.is(xmlDevice.getSerialNumber()).emptyOrOnlyWhiteSpace()){
+                    if (deviceService.findDevicesBySerialNumber(xmlDevice.getSerialNumber()).size() > 0) {
+                        log(logger, MessageSeeds.DEVICE_WITH_SERIAL_NUMBER_ALREADY_EXISTS, xmlDevice.getSerialNumber());
+                        continue;
+                    }
+                }
                 if (deviceService.findDeviceByName(deviceName).isPresent()) {
                     log(logger, MessageSeeds.DEVICE_WITH_NAME_ALREADY_EXISTS, deviceName);
                     continue;

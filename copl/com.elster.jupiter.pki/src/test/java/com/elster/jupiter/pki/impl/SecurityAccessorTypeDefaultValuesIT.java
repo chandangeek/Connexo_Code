@@ -405,6 +405,9 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()).withValue(false)
                 .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER.getPropertyKey()).withValue(false)
                 .addProperty(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()).withValue("{}")
+                .addProperty(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey()).withValue("")
+                .addProperty(CSRImporterTranslatedProperty.CLIENT_TRUSTSTORE_MAPPING.getPropertyKey()).withValue("")
+                .addProperty(CSRImporterTranslatedProperty.EXPORT_FLAT_DIR.getPropertyKey()).withValue(false)
                 .create();
 
         expectedRule.expect(PkiLocalizedException.class);

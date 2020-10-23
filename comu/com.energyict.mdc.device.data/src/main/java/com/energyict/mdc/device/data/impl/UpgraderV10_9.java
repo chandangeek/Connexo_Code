@@ -22,6 +22,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -81,6 +82,11 @@ public class UpgraderV10_9 implements Upgrader {
             throw new UnderlyingSQLFailedException(e);
         }
         updateJobProcedure();
+        try {
+            upgradeDDCTable();
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     private String createExecutionsList(List<Device> devices) {
@@ -195,6 +201,25 @@ public class UpgraderV10_9 implements Upgrader {
                         jupiterEvents.unSubscribe(IPV6ADDRESS_SUBSCRIBER);
                     }
                 });
+    }
+
+    private void upgradeDDCTable() throws SQLException {
+        try (Connection connection = this.dataModel.getConnection(true)) {
+            String query = "select * from user_cons_columns where constraint_name = 'FK_DDC_COMTASKEXEC_LASTSESS'";
+
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    if (!resultSet.next()) {
+                        execute(dataModel, "ALTER TABLE DDC_COMTASKEXEC ADD CONSTRAINT FK_DDC_COMTASKEXEC_LASTSESS FOREIGN KEY (LASTSESSION) REFERENCES DDC_COMTASKEXECSESSION (Id) ON DELETE CASCADE");
+                    } else {
+                        execute(dataModel, "ALTER TABLE DDC_COMTASKEXEC DROP CONSTRAINT FK_DDC_COMTASKEXEC_LASTSESS DROP INDEX",
+                                "ALTER TABLE DDC_COMTASKEXEC ADD CONSTRAINT FK_DDC_COMTASKEXEC_LASTSESS FOREIGN KEY (LASTSESSION) REFERENCES DDC_COMTASKEXECSESSION (Id) ON DELETE CASCADE");
+                    }
+                }
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
+        }
     }
 
 }

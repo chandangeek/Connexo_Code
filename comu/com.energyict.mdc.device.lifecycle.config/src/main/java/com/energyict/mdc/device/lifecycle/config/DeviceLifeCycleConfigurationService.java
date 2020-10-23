@@ -6,6 +6,7 @@ package com.energyict.mdc.device.lifecycle.config;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.Privilege;
@@ -178,4 +179,13 @@ public interface DeviceLifeCycleConfigurationService {
     void addMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory);
 
     void removeMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory);
+
+
+    /**
+     * Gets the display name for the specified {@link DefaultState}.
+     *
+     * @param state The DefaultState
+     * @return The display name
+     */
+    String getDisplayName(DefaultState state);
 }
