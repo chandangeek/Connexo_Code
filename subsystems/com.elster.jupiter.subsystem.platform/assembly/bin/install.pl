@@ -1513,6 +1513,8 @@ sub uninstall_tomcat_for_upgrade() {
 
 sub uninstall_all {
 	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+	    print "Stop and remove Connexo$SERVICE_VERSION service";
+        system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$SERVICE_VERSION");
 	    print "Stopping service ConnexoJboss$SERVICE_VERSION ...";
         system("net stop ConnexoJboss$SERVICE_VERSION");
         sleep 100;
