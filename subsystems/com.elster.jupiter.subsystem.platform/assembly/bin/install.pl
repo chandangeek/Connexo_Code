@@ -1012,6 +1012,11 @@ sub install_flow {
         rmtree("$JBOSS_DIR");
 
         unlink("$CATALINA_HOME/webapps/flow/WEB-INF/lib/log4j-over-slf4j-1.7.2.jar");
+        print "Copying extra jar files\n";
+        if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
+              print "    $CONNEXO_DIR/partners/flow/jbpm.extension.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/jbpm.extension.jar\n";
+        copy("$CONNEXO_DIR/partners/flow/jbpm.extension.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/jbpm.extension.jar");
+        }
 
         create_tables();
 
