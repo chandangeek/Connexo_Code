@@ -23,9 +23,9 @@ public class VariableInfo {
 
     public VariableInfo(JSONObject variable) {
         try {
-            this.variableInstanceId = variable.getString("variableInstanceId");
+            this.variableInstanceId = variable.getString("process-instance-id");
             this.value = variable.getString("value");
-            this.date = DateConvertor.convertTimeStamps(variable.getString("date"), false);
+            this.date = DateConvertor.convertTimeStamps(variable.getJSONObject("modification-date").getString("java.util.Date"), false);
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

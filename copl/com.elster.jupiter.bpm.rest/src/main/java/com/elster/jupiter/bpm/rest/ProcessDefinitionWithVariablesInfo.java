@@ -42,12 +42,12 @@ public class ProcessDefinitionWithVariablesInfo {
 
     public ProcessDefinitionWithVariablesInfo(JSONObject jsonObject) {
         try {
-            this.name = jsonObject.getString("name");
-            this.processId = jsonObject.getString("id");
-            this.version = jsonObject.getString("version");
-            this.deploymentId = jsonObject.getString("deploymentId");
+            this.name = jsonObject.getString("process-name");
+            this.processId = jsonObject.getString("process-id");
+            this.version = jsonObject.getString("process-version");
+            this.deploymentId = jsonObject.getString("container-id");
             this.variables = new ArrayList<>();
-            String flowProcessVariables = jsonObject.getString("variables");
+            String flowProcessVariables = jsonObject.getString("processVariables");
             Map<String, String> processVarMap = new ObjectMapper().readValue(flowProcessVariables, Map.class);
             for (String name : processVarMap.keySet()) {
                 String key = name.toString();

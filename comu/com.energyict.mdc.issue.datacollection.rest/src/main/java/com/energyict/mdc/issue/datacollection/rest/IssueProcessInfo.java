@@ -26,13 +26,13 @@ public class IssueProcessInfo {
     }
 
     public IssueProcessInfo(JSONObject jsonObject) throws JSONException {
-            this.name = jsonObject.isNull("processName") ? "" : jsonObject.getString("processName") ;
+            this.name = jsonObject.isNull("name") ? "" : jsonObject.getString("name") ;
             this.startDate = jsonObject.isNull("startDate") ? "" : jsonObject.getString("startDate") ;
-            this.version = jsonObject.isNull("processVersion") ? "" : jsonObject.getString("processVersion") ;
-            this.startedBy = jsonObject.isNull("userIdentity") ? "" : jsonObject.getString("userIdentity") ;
-            this.processId = jsonObject.getString("processInstanceId").equals("-1") ? "" : jsonObject.getString("processInstanceId");
+            this.version = jsonObject.isNull("version") ? "" : jsonObject.getString("version") ;
+            this.startedBy = jsonObject.isNull("startedBy") ? "" : jsonObject.getString("startedBy") ;
+            this.processId = jsonObject.getString("processId").equals("-1") ? "" : jsonObject.getString("processId");
             this.status = jsonObject.getString("status").equals("-1") ? "" : jsonObject.getString("status");
-            TaskInfos taskInfos = new TaskInfos(jsonObject.getJSONArray("tasks"));
+            TaskInfos taskInfos = new TaskInfos(jsonObject.getJSONArray("openTasks"));
             this.openTasks = taskInfos.tasks;
     }
 }

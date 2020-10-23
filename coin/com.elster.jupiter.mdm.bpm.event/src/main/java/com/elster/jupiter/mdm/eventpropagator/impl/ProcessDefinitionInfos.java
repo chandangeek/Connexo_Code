@@ -11,5 +11,5 @@ import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class ProcessDefinitionInfos {
-    public List<ProcessDefinitionInfo>  processDefinitionList;
+    public List<ProcessDefinitionInfo> processes;
 }
