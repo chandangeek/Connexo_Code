@@ -446,6 +446,23 @@
             <classifier>connexo</classifier>
             <scope>provided</scope>
         </dependency>
+        <!-- JbossEAP for RedHat PAM -->
+        <dependency>
+            <groupId>org.jboss.server</groupId>
+            <artifactId>jboss-eap</artifactId>
+            <version>7.3.0</version>
+            <type>zip</type>
+            <classifier>connexojboss</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.server</groupId>
+            <artifactId>jbcs-jsvc</artifactId>
+            <version>1.1.0</version>
+            <type>zip</type>
+            <classifier>apachejsvc</classifier>
+            <scope>provided</scope>
+        </dependency>
         <!-- WSo2 identity server-->
         <dependency>
             <groupId>org.wso2</groupId>
@@ -487,6 +504,31 @@
             <artifactId>flow</artifactId>
             <version>10.2</version>
             <type>war</type>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Packaged RedHat PAM stuff  -->
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+            <artifactId>addons</artifactId>
+            <version>7.8.0</version>
+            <type>zip</type>
+            <classifier>connexoaddons</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+            <artifactId>businesscentral</artifactId>
+            <version>7.8.0</version>
+            <type>zip</type>
+            <classifier>connexobusinesscentral</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+            <artifactId>pamkieserver</artifactId>
+            <version>7.8.0</version>
+            <type>zip</type>
+            <classifier>connexokieserver</classifier>
             <scope>provided</scope>
         </dependency>
     </dependencies>
