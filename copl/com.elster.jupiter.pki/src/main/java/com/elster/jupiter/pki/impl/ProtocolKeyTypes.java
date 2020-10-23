@@ -95,6 +95,22 @@ public enum ProtocolKeyTypes {
                     .add();
         }
     },
+    RSA_4096 {
+        @Override
+        public String getName() {
+            return "RSA 4096";
+        }
+
+        @Override
+        public KeyType createKeyType(SecurityManagementService securityManagementService) {
+            return securityManagementService
+                    .newClientCertificateType(getName(), "SHA256withRSA")
+                    .description("Client certificates with RSA 4096 bit keys. This certificate will be linked to a private key.")
+                    .RSA()
+                    .keySize(4096)
+                    .add();
+        }
+    },
     TLS_CLIENT_SUITE_1 {
         @Override
         public String getName() {

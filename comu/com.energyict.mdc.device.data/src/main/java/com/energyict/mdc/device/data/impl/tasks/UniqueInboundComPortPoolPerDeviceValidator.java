@@ -39,7 +39,7 @@ public class UniqueInboundComPortPoolPerDeviceValidator implements ConstraintVal
 
     @Override
     public boolean isValid(InboundConnectionTaskImpl connectionTask, ConstraintValidatorContext context) {
-        if (!this.onlyOneForComPortPool(connectionTask)) {
+        if (!connectionTask.isObsolete() && !this.onlyOneForComPortPool(connectionTask)) {
             context.disableDefaultConstraintViolation();
             context
                     .buildConstraintViolationWithTemplate("{" + MessageSeeds.Keys.CONNECTION_TASK_UNIQUE_INBOUND_COMPORT_POOL_PER_DEVICE + "}")

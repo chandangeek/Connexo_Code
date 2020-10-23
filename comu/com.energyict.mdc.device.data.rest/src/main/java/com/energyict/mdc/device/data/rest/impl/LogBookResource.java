@@ -110,7 +110,9 @@ public class LogBookResource {
     @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBookDataForDevice(@PathParam("name") String name, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        return this.getLogBookData(name, Device::getDeviceEventsByFilter, jsonQueryFilter, queryParameters);
+        Integer from = queryParameters.getStart().map(v-> v+1).orElse(null);
+        Integer to = queryParameters.getLimit().filter(t-> from != null).map(t -> t+from).orElse(null) ;
+        return this.getLogBookData(name, (d, f) ->d.getDeviceEventsByFilter(f, from, to), jsonQueryFilter, queryParameters);
     }
 
     private Response getLogBookData(String deviceName, BiFunction<Device, EndDeviceEventRecordFilterSpecification, List<EndDeviceEventRecord>> eventProvider, JsonQueryFilter jsonQueryFilter, JsonQueryParameters queryParameters) {
@@ -118,8 +120,7 @@ public class LogBookResource {
         try {
             EndDeviceEventRecordFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
             List<EndDeviceEventRecord> endDeviceEvents = eventProvider.apply(device, filter);
-            List<EndDeviceEventRecord> pagedEndDeviceEvents = ListPager.of(endDeviceEvents).from(queryParameters).find();
-            return Response.ok(PagedInfoList.fromPagedList("data", LogBookDataInfo.from(pagedEndDeviceEvents, thesaurus), queryParameters)).build();
+            return Response.ok(PagedInfoList.fromPagedList("data", LogBookDataInfo.from(endDeviceEvents, thesaurus), queryParameters)).build();
         } catch (IllegalArgumentException | IllegalEnumValueException e) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }

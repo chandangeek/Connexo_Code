@@ -16,6 +16,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.security.Principal;
+import java.util.Optional;
 
 /**
  * Created by albertv on 12/16/2014.
@@ -47,6 +48,14 @@ public class UserConsoleService {
                 System.out.println("Username is case-insensitive. Connexo already has a user with same name");
             } else {
                 UserDirectory userDirectory = userService.findDefaultUserDirectory();
+                if (!((userDirectory.getType().equals("INT")) && (userDirectory.getDomain().equals("Local")))) {
+                    Optional<UserDirectory> localDirectory = userService.findUserDirectory("Local");
+                    if (localDirectory.isPresent() && localDirectory.get().getType().equals("INT")) {
+                        userDirectory = localDirectory.get();
+                    } else {
+                        throw new RuntimeException("No internal local directory available");
+                    }
+                }
                 User user = userDirectory.newUser(name, "", false, true);
                 user.setPassword(pass);
                 user.update();

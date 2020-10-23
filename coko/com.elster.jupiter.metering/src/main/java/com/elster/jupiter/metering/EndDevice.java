@@ -167,5 +167,8 @@ public interface EndDevice extends HasId, IdentifiedObject {
      */
     void setModelVersion(String modelVersion);
 
+    default List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter, Integer from, Integer to){
+        return getDeviceEventsByFilter(filter);
+    }
 
 }

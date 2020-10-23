@@ -1009,6 +1009,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter, Integer from, Integer to) {
+        return this.getListMeterAspect(meter -> meter.getDeviceEventsByFilter(filter, from, to));
+    }
+
+    @Override
     public TypedProperties getDeviceProtocolProperties() {
         if (this.getDeviceProtocolPluggableClass().isPresent()) {
             TypedProperties properties = TypedProperties.inheritingFrom(this.getDeviceConfiguration().getDeviceProtocolProperties().getTypedProperties());

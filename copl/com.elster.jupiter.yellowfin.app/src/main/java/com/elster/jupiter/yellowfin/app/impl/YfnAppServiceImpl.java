@@ -79,7 +79,7 @@ public class YfnAppServiceImpl implements YfnAppService, TranslationKeyProvider,
 
     @Override
     public List<String> getApplicationPrivileges() {
-        return Arrays.asList("privilege.design.reports");
+        return Arrays.asList("privilege.design.reports", "privilege.administrate.reports");
     }
 
     @Override

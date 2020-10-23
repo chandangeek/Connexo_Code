@@ -131,6 +131,12 @@ public interface CertificateWrapper extends HasDynamicPropertiesWithUpdatableVal
 
     String getSubject();
 
+    /**
+     * Extracts Common-Name (CN) value from the certificate subject
+     * @return CN
+     */
+    Optional<String> getSubjectCN();
+
     void setSubject(String subject);
 
     String getIssuer();

@@ -31,6 +31,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -39,7 +40,7 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
 
     private final PropertySpecService propertySpecService;
     private final Clock clock;
-    private final Thesaurus thesaurus;
+    protected final Thesaurus thesaurus;
     private final HsmEnergyService hsmEnergyService;
 
 
@@ -107,9 +108,12 @@ public class HsmKeyImpl extends KeyImpl implements HsmKey {
     }
 
     @Override
-    public void generateValue(SecurityAccessorType securityAccessorType, HsmKey masterKey) {
+    public void generateValue(SecurityAccessorType securityAccessorType, Optional<HsmKey> masterKey) {
         try {
-            HsmRenewKey hsmRenewKey = hsmEnergyService.renewKey(new RenewKeyRequest(masterKey.getKey(), masterKey.getLabel(), securityAccessorType.getHsmKeyType()));
+            if (!masterKey.isPresent()) {
+                throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
+            }
+            HsmRenewKey hsmRenewKey = hsmEnergyService.renewKey(new RenewKeyRequest(masterKey.get().getKey(), masterKey.get().getLabel(), securityAccessorType.getHsmKeyType()));
             this.setKey(hsmRenewKey.getKey(), hsmRenewKey.getLabel());
             this.setSmartMeterKey(hsmRenewKey.getSmartMeterKey());
             this.save();

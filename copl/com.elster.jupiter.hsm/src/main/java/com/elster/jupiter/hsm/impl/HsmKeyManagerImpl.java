@@ -10,6 +10,8 @@ import java.net.Socket;
 import java.security.*;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class HsmKeyManagerImpl implements X509KeyManager {
 
@@ -82,9 +84,24 @@ public class HsmKeyManagerImpl implements X509KeyManager {
      */
     @Override
     public X509Certificate[] getCertificateChain(String alias) {
-        return certificateChain;
+        return reverseCertificateChain(certificateChain);
+    }
+    private X509Certificate[] reverseCertificateChain(X509Certificate[] certificateChain) {
+        X509Certificate[] reversedChain = new X509Certificate[certificateChain.length];
+        for (int i = 0; i < certificateChain.length; i++) {
+            reversedChain[i] = certificateChain[certificateChain.length - 1 - i];
+        }
+        printCertificateChain(reversedChain);
+        return reversedChain;
     }
 
+    private void printCertificateChain(X509Certificate[] chainOfTrust) {
+        Logger logger = Logger.getLogger(this.getClass().getName());
+        logger.log(Level.FINEST, "Printing certificate chain for tls client private key alias: " + clientTlsPrivateKeyAlias);
+        for (X509Certificate cert : chainOfTrust) {
+            logger.log(Level.FINEST, cert.toString());
+        }
+    }
     /**
      * Returns EC private key from a HSM associated with a given alias. Note that corresponding X.509 certificate
      * is stored in a keystore instead of HSM.

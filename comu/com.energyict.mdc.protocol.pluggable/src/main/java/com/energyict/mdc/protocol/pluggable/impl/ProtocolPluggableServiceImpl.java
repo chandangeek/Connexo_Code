@@ -1196,6 +1196,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
+        public CollectedMessage createCollectedMessageForSwappingSecurityAccessorKeys(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName) {
+            return this.getCollectedDataFactory().createCollectedMessageForSwappingSecurityAccessorKeys(deviceIdentifier, messageIdentifier, propertyName);
+        }
+
+        @Override
         public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages) {
             return this.getCollectedDataFactory().createCollectedMessageList(offlineDeviceMessages);
         }

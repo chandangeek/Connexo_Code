@@ -26,6 +26,7 @@ Ext.define('Pkj.model.Certificate', {
         'endEntityName',
         'caName',
         'certProfileName',
+        'subjectDnFields',
 
         {
             name: 'file',

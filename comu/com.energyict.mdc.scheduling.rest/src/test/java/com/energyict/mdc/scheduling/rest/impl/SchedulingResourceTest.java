@@ -112,7 +112,7 @@ public class SchedulingResourceTest extends SchedulingApplicationJerseyTest {
         List<Map<String, Object>> schedules = (List<Map<String, Object>>) map.get("schedules");
         assertThat(schedules).hasSize(1);
         Map<String, Object> actual = schedules.get(0);
-        assertThat(actual).hasSize(9)
+        assertThat(actual).hasSize(10)
                 .containsKey("id")
                 .containsKey("name")
                 .containsKey("temporalExpression")
