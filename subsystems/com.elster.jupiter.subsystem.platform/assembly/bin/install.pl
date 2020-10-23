@@ -617,14 +617,17 @@ sub install_tomcat {
             print "    $TOMCAT_BASE/connexo.filter.jar -> $TOMCAT_BASE/tomcat/lib/connexo.filter.jar\n";
 		    copy("$TOMCAT_BASE/connexo.filter.jar","$TOMCAT_BASE/tomcat/lib/connexo.filter.jar");
         }
-        if (-e "$TOMCAT_BASE/log4j.properties") {
-            copy("$TOMCAT_BASE/log4j.properties","$TOMCAT_BASE/tomcat/lib/log4j.properties");
+        if (-e "$TOMCAT_BASE/log4j.xml") {
+            copy("$TOMCAT_BASE/log4j.xml","$TOMCAT_BASE/tomcat/lib/log4j.xml");
         }
         if (-e "$TOMCAT_BASE/log4j-1.2.17.jar") {
             copy("$TOMCAT_BASE/log4j-1.2.17.jar","$TOMCAT_BASE/tomcat/lib/log4j-1.2.17.jar");
         }
         if (-e "$TOMCAT_BASE/slf4j-log4j12-1.7.5.jar") {
             copy("$TOMCAT_BASE/slf4j-log4j12-1.7.5.jar","$TOMCAT_BASE/tomcat/lib/slf4j-log4j12-1.7.5.jar");
+        }
+        if (-e "$TOMCAT_BASE/apache-log4j-extras-1.2.17.jar") {
+            copy("$TOMCAT_BASE/apache-log4j-extras-1.2.17.jar","$TOMCAT_BASE/tomcat/lib/apache-log4j-extras-1.2.17.jar");
         }
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
@@ -636,6 +639,8 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
         replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=AshareTransactionConnectionspache Tomcat 9.0 ","set DISPLAYNAME=");
         add_to_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/btm-config.properties", "\nbitronix.tm.2pc.warnAboutZeroResourceTransactions=false");
+
+        unlink("$CATALINA_HOME/lib/slf4j-simple-1.7.5.jar");
 
         (my $replaceHOME = $CATALINA_HOME) =~ s/ /\\ /g;
         (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
