@@ -326,7 +326,7 @@ public class AXDRDateTime extends AbstractDataType {
                         (byte) (year & INT_LOW_MASK),
                         (byte) (month + 1),
                         (byte) (dayOfMonth),
-                        (byte) (dayOfWeek - 1),
+                        (byte) (dayOfWeek == Calendar.SUNDAY ? Calendar.SATURDAY : dayOfWeek - 1),
                         (byte) (hour),
                         (byte) (minute),
                         (byte) (second),
