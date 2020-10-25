@@ -338,7 +338,8 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void delete() {
-        deleteQueuedTransitions();
+        //CXO-12776 - message queues purging has to be done separately as a bulk action
+        //deleteQueuedTransitions();
         deleteCustomPropertySetsRecursive();
         this.dataModel.remove(this);
     }

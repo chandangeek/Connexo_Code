@@ -1,5 +1,5 @@
 {
-  "compatVersion": "10.8.1",
+  "compatVersion": "10.8.4",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
@@ -8,5 +8,5 @@
   "requires" : [ ],
   "summary" : "Short summary",
   "type" : "code",
-  "version": "10.8.1"
+  "version": "10.8.4"
 }

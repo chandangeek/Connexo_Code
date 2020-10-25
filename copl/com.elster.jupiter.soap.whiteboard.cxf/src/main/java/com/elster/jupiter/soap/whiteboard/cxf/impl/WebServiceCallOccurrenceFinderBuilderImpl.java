@@ -104,6 +104,6 @@ public class WebServiceCallOccurrenceFinderBuilderImpl implements WebServiceCall
     @Override
     public Finder<WebServiceCallOccurrence> build() {
         return DefaultFinder.of(WebServiceCallOccurrence.class, this.condition, this.dataModel, EndPointConfiguration.class)
-                .defaultSortColumn("startTime");
+                .defaultSortColumn(WebServiceCallOccurrenceImpl.Fields.START_TIME.fieldName());
     }
 }

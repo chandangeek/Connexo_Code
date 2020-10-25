@@ -26,6 +26,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -172,7 +173,7 @@ public class UserSearchDomain implements SearchDomain {
         private UserFinder(Condition condition) {
             this.finder = DefaultFinder
                     .of(User.class, condition, userService.getDataModel(), UserInGroup.class)
-                    .defaultSortColumn("authname");
+                    .defaultSortColumn("authenticationName");
         }
 
         @Override
@@ -199,6 +200,11 @@ public class UserSearchDomain implements SearchDomain {
         @Override
         public Finder<User> sorted(String sortColumn, boolean ascending) {
             return this.finder.sorted(sortColumn, ascending);
+        }
+
+        @Override
+        public Finder<User> sorted(Order order) {
+            return finder.sorted(order);
         }
 
         @Override

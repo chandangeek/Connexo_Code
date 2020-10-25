@@ -1349,7 +1349,7 @@ public class ResourceHelper {
 
     public List<DeviceMessage> getDeviceMessages(DeviceMessageQueryFilter deviceMessageQueryFilter, JsonQueryParameters queryParameters) {
         return deviceMessageService.findDeviceMessagesByFilter(deviceMessageQueryFilter)
-                .sorted("RELEASEDATE", false)
+                .sorted("releaseDate", false)
                 .from(queryParameters)
                 .stream()
                 .collect(Collectors.toList());
