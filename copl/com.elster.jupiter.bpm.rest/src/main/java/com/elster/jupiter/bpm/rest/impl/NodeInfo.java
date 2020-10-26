@@ -34,17 +34,17 @@ public class NodeInfo {
 
     public NodeInfo(JSONObject node) {
         try {
-            this.type = node.getString("type");
-            this.nodeType = node.getString("nodeType");
-            if (node.getString("nodeName").trim().length() > 0) {
-                this.nodeName = node.getString("nodeName");
+            this.type = node.getString("node-instance-id");
+            this.nodeType = node.getString("node-type");
+            if (node.getString("node-name").trim().length() > 0) {
+                this.nodeName = node.getString("node-name");
             } else {
                 this.nodeName = "("+this.nodeType+")";
             }
-            this.date = DateConvertor.convertTimeStamps(node.getString("date"), true);
+            this.date = DateConvertor.convertTimeStamps(node.getJSONObject("start-date").getString("java.util.Date"), true);
 
-            this.nodeId = node.getString("nodeId");
-            this.connection = node.getString("connection");
+            this.nodeId = node.getString("node-id");
+            this.connection = node.getString("node-connection");
             this.state = this.IN_PROGRESS;
 
         } catch (JSONException e) {

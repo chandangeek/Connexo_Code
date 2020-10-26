@@ -15,6 +15,17 @@
     <packaging>pom</packaging>
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.platform</name>
 
+    <repositories>
+        <repository>
+            <id>JBoss GA</id>
+            <url>https://maven.repository.redhat.com/ga/</url>
+        </repository>
+    </repositories>
+
+    <properties>
+        <version.org.kie>7.39.0.Final-redhat-00005</version.org.kie>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -137,6 +148,77 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
         </dependency>
+        <!-- jBPM 6 dependencies -->
+
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-services-cdi</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.kie.remote</groupId>-->
+        <!--            <artifactId>kie-remote-services</artifactId>-->
+        <!--            <version>${version.org.kie}</version>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-human-task-core</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-kie-services</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-human-task-jpa</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-internal</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-api</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-services-common</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-services-drools</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-rest-common</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-core</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-compiler</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>jbpm.extension</artifactId>
@@ -364,6 +446,23 @@
             <classifier>connexo</classifier>
             <scope>provided</scope>
         </dependency>
+        <!-- JbossEAP for RedHat PAM -->
+        <dependency>
+            <groupId>org.jboss.server</groupId>
+            <artifactId>jboss-eap</artifactId>
+            <version>7.3.0</version>
+            <type>zip</type>
+            <classifier>connexojboss</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.server</groupId>
+            <artifactId>jbcs-jsvc</artifactId>
+            <version>1.1.0</version>
+            <type>zip</type>
+            <classifier>apachejsvc</classifier>
+            <scope>provided</scope>
+        </dependency>
         <!-- WSo2 identity server-->
         <dependency>
             <groupId>org.wso2</groupId>
@@ -405,6 +504,31 @@
             <artifactId>flow</artifactId>
             <version>10.2</version>
             <type>war</type>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Packaged RedHat PAM stuff  -->
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+            <artifactId>addons</artifactId>
+            <version>7.8.0</version>
+            <type>zip</type>
+            <classifier>connexoaddons</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+            <artifactId>businesscentral</artifactId>
+            <version>7.8.0</version>
+            <type>zip</type>
+            <classifier>connexobusinesscentral</classifier>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+            <artifactId>pamkieserver</artifactId>
+            <version>7.8.0</version>
+            <type>zip</type>
+            <classifier>connexokieserver</classifier>
             <scope>provided</scope>
         </dependency>
     </dependencies>

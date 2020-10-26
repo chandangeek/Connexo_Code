@@ -56,7 +56,7 @@ public class ComServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(ComServlet.class.getName());
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
 
-    private AtomicReference<Statistics> statistics = new AtomicReference<>();
+    private AtomicReference<Statistics> statistics;
     private AtomicReference<InboundCommunicationHandler> communicationHandler;
     private ServletBasedInboundComPort comPort;
     private ComServerDAO comServerDAO;
@@ -64,6 +64,7 @@ public class ComServlet extends HttpServlet {
     public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
         this.communicationHandler = new AtomicReference<>(new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, serviceProvider));
+        this.statistics = new AtomicReference<>(new Statistics());
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.serviceProvider = serviceProvider;

@@ -126,7 +126,7 @@ public class ProcessResource {
         int total = -1;
         JSONArray arr = null;
         try {
-            String rest = "/rest/tasks/process/allprocesses";
+            String rest = "/services/rest/tasks/process/allprocesses";
             String req = getQueryParam(queryParameters);
 
             if (!"".equals(req)) {
@@ -563,10 +563,10 @@ public class ProcessResource {
         JSONArray arr = null;
 
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000", auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
+                arr = jsnobject.getJSONArray("processes");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
