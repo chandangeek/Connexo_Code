@@ -13,6 +13,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
+import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterProperty;
 import com.energyict.mdc.device.data.importers.impl.FileImportZipEntry;
 import com.energyict.mdc.device.data.importers.impl.FileImportZipLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
@@ -24,10 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -83,7 +87,10 @@ public class DeviceCertificatesImportProcessorTest {
         Path path = mock(Path.class);
         when(fileImportService.getBasePath()).thenReturn(path);
 
-        processor = new DeviceCertificatesImportProcessor(context);
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(DeviceDataImporterProperty.SECURITY_ACCESSOR_MAPPING.getPropertyKey(), "");
+
+        processor = new DeviceCertificatesImportProcessor(context, properties);
     }
 
     @Test
@@ -93,7 +100,7 @@ public class DeviceCertificatesImportProcessorTest {
         when(deviceService.findDevicesBySerialNumber(anyString())).thenReturn(Collections.emptyList());
 
         processor.process(getZipFile("certificates.zip"), importZipEntry, logger);
-        verify(logger).warning(MessageSeeds.NO_SERIAL_NUMBER, importZipEntry.getDirectory());
+        verify(logger).warning(MessageSeeds.CANNOT_FIND_DEVICE_WITH_COMMON_NAME, "454C536301A0B8C0",null, "fileName");
     }
 
     @Test
@@ -118,11 +125,12 @@ public class DeviceCertificatesImportProcessorTest {
     public void testUpdateSecurityAccessorSkipWhenActualAndTempValueArePresent() throws Exception {
         DeviceCertificatesImportProcessorTest.MockBuilder builder = new DeviceCertificatesImportProcessorTest.MockBuilder().build("RSA");
 
-        FileImportZipEntry importZipEntry = builder.getImportZipEntry();
+        ZipFile zipFile = getZipFile("certificates.zip");
+        FileImportZipEntry importZipEntry = getValidZipEntry();
         when(builder.getSecurityAccessor().getActualPassphraseWrapperReference()).thenReturn(Optional.of(builder.getCertificateWrapper()));
         when(builder.getSecurityAccessor().getTempValue()).thenReturn(Optional.of(builder.getCertificateWrapper()));
 
-        processor.process(builder.getZipFile(), importZipEntry, logger);
+        processor.process(zipFile, importZipEntry, logger);
         verify(builder.getDevice(), times(2)).getSecurityAccessor(any(SecurityAccessorType.class));
         verify(builder.getSecurityAccessor(), never()).save();
     }
@@ -181,7 +189,7 @@ public class DeviceCertificatesImportProcessorTest {
 
     private FileImportZipEntry getValidZipEntry() {
         return new FileImportZipEntry("0105425037010016213415730002",
-                "fileName", null, "tls-cert");
+                "fileName", new ZipEntry("0105425037010016213415730002/tls-cert-454C536301A0B8C0.pem"), "tls-cert");
     }
 
     private InputStream getCertificate(String certificateName) throws FileNotFoundException {
@@ -230,7 +238,7 @@ public class DeviceCertificatesImportProcessorTest {
             return device;
         }
 
-        public DeviceCertificatesImportProcessorTest.MockBuilder build(String keyAlgorithm) throws IOException, URISyntaxException {
+        public DeviceCertificatesImportProcessorTest.MockBuilder build(String keyAlgorithm) throws IOException, URISyntaxException, CertificateException {
             String certificateFileName = "tls-cert-454C536301A0B8C0.pem";
             String securityAccessorTypeName = certificateFileName.split("\\.")[0];
             importZipEntry = getValidZipEntry();

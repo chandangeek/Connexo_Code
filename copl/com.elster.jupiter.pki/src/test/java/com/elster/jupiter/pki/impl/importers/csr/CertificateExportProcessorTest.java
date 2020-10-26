@@ -6,6 +6,8 @@ import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.PrivateKeyWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
+import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.pki.impl.PkiInMemoryPersistence;
 import com.elster.jupiter.pki.impl.SecurityTestUtils;
 
 import java.security.KeyPair;
@@ -24,7 +26,9 @@ import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
@@ -43,6 +47,17 @@ public class CertificateExportProcessorTest {
 
     private Clock clock = Clock.fixed(ZonedDateTime.of(2015, 6, 4, 14, 20, 55, 115451452, TimeZoneNeutral.getMcMurdo()).toInstant(), TimeZoneNeutral.getMcMurdo());
     private CertificateExportTagReplacer tagReplacer;
+    private static PkiInMemoryPersistence inMemoryPersistence = new PkiInMemoryPersistence();
+
+    @BeforeClass
+    public static void initialize() {
+        inMemoryPersistence.activate();
+    }
+
+    @AfterClass
+    public static void uninstall(){
+        inMemoryPersistence.deactivate();
+    }
 
     @Before
     public void setUp() throws Exception {
@@ -65,7 +80,7 @@ public class CertificateExportProcessorTest {
         when(clientCertificateWrapper.hasPrivateKey()).thenReturn(true);
         when(privateKeyWrapper.getPrivateKey()).thenReturn(Optional.of(privateKey));
         CertificateExportDestination certificateExportDestination = mock(CertificateExportDestination.class);
-
+        SecurityManagementService securityManagementService = inMemoryPersistence.getSecurityManagementService();
         doAnswer(invocationOnMock -> {
             final Object[] args = invocationOnMock.getArguments();
             resultBytes = (byte[]) args[0];
@@ -87,7 +102,10 @@ public class CertificateExportProcessorTest {
         Map<String, Object> props = new HashMap<>();
         props.put(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR.getPropertyKey(), securityAccessor);
         props.put(CSRImporterTranslatedProperty.EXPORT_FLAT_DIR.getPropertyKey(), false);
-        CertificateExportProcessor certificateExportProcessor = new CertificateExportProcessor(props, certificateExportDestination, csrLogger);
+        props.put(CSRImporterTranslatedProperty.EXPORT_FLAT_DIR.getPropertyKey(), false);
+        props.put(CSRImporterTranslatedProperty.CLIENT_TRUSTSTORE_MAPPING.getPropertyKey(), "");
+
+        CertificateExportProcessor certificateExportProcessor = new CertificateExportProcessor(props, certificateExportDestination, securityManagementService, csrLogger);
 
         // business method
         certificateExportProcessor.processExport(dcerts);

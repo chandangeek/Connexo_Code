@@ -160,49 +160,6 @@ public class TrustStoreImpl2IT {
 
     @Test
     @Transactional
-    public void testRemoveTrustStoreUsedByImporter() throws Exception {
-        TrustStore trustStore1 = inMemoryPersistence.getSecurityManagementService().newTrustStore("main")
-                .add();
-        TrustStore trustStore2 = inMemoryPersistence.getSecurityManagementService().newTrustStore("main2")
-                .add();
-        KeyType certificateType = inMemoryPersistence.getSecurityManagementService().newCertificateType("Cert")
-                .add();
-        CertificateWrapper certificateWrapper = inMemoryPersistence.getSecurityManagementService().newCertificateWrapper("RSA-2048");
-        certificateWrapper.setCertificate(rootCertificate.getFirst(), Optional.empty());
-        SecurityAccessorType securityAccessorType = inMemoryPersistence.getSecurityManagementService().addSecurityAccessorType("SA", certificateType)
-                .purpose(SecurityAccessorType.Purpose.FILE_OPERATIONS)
-                .managedCentrally()
-                .trustStore(trustStore1)
-                .add();
-        SecurityAccessor<CertificateWrapper> securityAccessor = inMemoryPersistence.getSecurityManagementService().setDefaultValues(securityAccessorType, certificateWrapper, null);
-        inMemoryPersistence.getFileImportService().newBuilder()
-                .setName("main2Blocker")
-                .setPathMatcher("")
-                .setImportDirectory(FileSystems.getDefault().getPath("import"))
-                .setFailureDirectory(FileSystems.getDefault().getPath("failure"))
-                .setSuccessDirectory(FileSystems.getDefault().getPath("success"))
-                .setProcessingDirectory(FileSystems.getDefault().getPath("inProgress"))
-                .setImporterName(CSRImporterFactory.NAME)
-                .setActiveInUI(false)
-                .setScheduleExpression(Never.NEVER)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE.getPropertyKey()).withValue(trustStore2)
-                .addProperty(CSRImporterTranslatedProperty.TIMEOUT.getPropertyKey()).withValue(TimeDuration.seconds(30))
-                .addProperty(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey()).withValue(securityAccessor)
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_SFTP.getPropertyKey()).withValue(false)
-                .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
-                .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
-                .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
-                .addProperty(CSRImporterTranslatedProperty.EXPORT_CERTIFICATES_FOLDER.getPropertyKey()).withValue(false)
-                .addProperty(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()).withValue("{}")
-                .create();
-
-        expectedRule.expect(VetoDeleteTrustStoreException.class);
-        expectedRule.expectMessage("The trust store couldn't be removed because it is used on import services.");
-        trustStore2.delete();
-    }
-
-    @Test
-    @Transactional
     public void testRemoveTrustStoreUsedBySecurityAccessor() {
         TrustStore trustStore = inMemoryPersistence.getSecurityManagementService().newTrustStore("main")
                 .add();

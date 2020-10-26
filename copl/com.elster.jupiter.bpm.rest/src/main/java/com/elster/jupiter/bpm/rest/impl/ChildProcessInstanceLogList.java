@@ -19,7 +19,7 @@ public class ChildProcessInstanceLogList {
     public ChildProcessInstanceLogList(JSONObject jsonObject) {
         JSONArray jsonArray = null;
         try {
-            jsonArray = jsonObject.getJSONArray("historyLogList");
+            jsonArray = jsonObject.getJSONArray("processInstanceLogs");
             if (jsonArray != null && jsonArray.length() > 0) {
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject object = jsonArray.getJSONObject(i);

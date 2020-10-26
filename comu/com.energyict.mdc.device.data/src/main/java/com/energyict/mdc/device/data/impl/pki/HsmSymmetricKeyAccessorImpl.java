@@ -11,10 +11,10 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-
 import com.google.inject.Inject;
 
 import java.util.Optional;
+
 
 public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
 
@@ -31,35 +31,41 @@ public class HsmSymmetricKeyAccessorImpl extends SymmetricKeyAccessorImpl {
     public void renew() {
         Optional<SecurityAccessorType> wrappingSecurityAccessorType =  getDevice().getDeviceType().getWrappingSecurityAccessorType(this.getKeyAccessorTypeReference());
 
-        if (!wrappingSecurityAccessorType.isPresent()) {
-            throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_DEFINED);
-        }
-        SecurityAccessorType masterKeyAccessorType = wrappingSecurityAccessorType.get();
+        Optional<HsmKey> masterKey;
 
-        Optional<SecurityAccessor> securityAccessor = getDevice().getSecurityAccessor(masterKeyAccessorType);
-        if (!securityAccessor.isPresent()) {
-            throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
-        }
-        SecurityAccessor wrapperSecAccessor = securityAccessor.get();
+        if (wrappingSecurityAccessorType.isPresent()) {
+            // AES keys wrapped by a master key
+            SecurityAccessorType masterKeyAccessorType = wrappingSecurityAccessorType.get();
 
-        Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualPassphraseWrapperReference();
-        if (!actualValueWrapperAccessor.isPresent()) {
-            throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
-        }
-
-        if (actualValueWrapperAccessor.get() instanceof HsmKey) {
-            if (tempSymmetricKeyWrapperReference.isPresent()) {
-                clearTempValue();
+            Optional<SecurityAccessor> securityAccessor = getDevice().getSecurityAccessor(masterKeyAccessorType);
+            if (!securityAccessor.isPresent()) {
+                throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
             }
-            doRenewValue((HsmKey) actualValueWrapperAccessor.get());
-        }
-        else {
-            throw new PkiLocalizedException(thesaurus, MessageSeeds.WRAPPER_NOT_HSMKEY);
+            SecurityAccessor wrapperSecAccessor = securityAccessor.get();
+
+            Optional actualValueWrapperAccessor = wrapperSecAccessor.getActualPassphraseWrapperReference();
+            if (!actualValueWrapperAccessor.isPresent()) {
+                throw new PkiLocalizedException(thesaurus, MessageSeeds.NO_WRAPPER_ACTUAL_VALUE);
+            }
+
+            if (actualValueWrapperAccessor.get() instanceof HsmKey) {
+                masterKey = Optional.of((HsmKey)actualValueWrapperAccessor.get());
+            } else {
+                throw new PkiLocalizedException(thesaurus, MessageSeeds.WRAPPER_NOT_HSMKEY);
+            }
+        } else {
+            // plain text passwords or HLS Secrets without wrap key
+            masterKey = Optional.empty();
         }
 
+
+        if (tempSymmetricKeyWrapperReference.isPresent()) {
+            clearTempValue();
+        }
+        doRenewValue(masterKey);
     }
 
-    private void doRenewValue(HsmKey masterKey) {
+    private void doRenewValue(Optional<HsmKey> masterKey) {
         SecurityAccessorType keyAccessorType = getKeyAccessorTypeReference();
         HsmKey symmetricKeyWrapper = (HsmKey) securityManagementService.newSymmetricKeyWrapper(keyAccessorType);
         symmetricKeyWrapper.generateValue(keyAccessorType, masterKey);

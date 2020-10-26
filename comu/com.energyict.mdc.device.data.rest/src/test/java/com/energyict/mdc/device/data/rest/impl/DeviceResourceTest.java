@@ -1288,8 +1288,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(7);
         assertThat(model.<List>get("$.slaveDevices")).hasSize(7);
-        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave1");
-        assertThat(model.<String>get("$.slaveDevices[6].name")).isEqualTo("slave7");
+        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave4");
+        assertThat(model.<String>get("$.slaveDevices[6].name")).isEqualTo("slave6");
     }
 
     @Test
@@ -1303,7 +1303,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(6); // 3 (start) + 2 (limit) + 1 (for FE)
         assertThat(model.<List>get("$.slaveDevices")).hasSize(limit);
-        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave4");
+        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave6");
         assertThat(model.<String>get("$.slaveDevices[1].name")).isEqualTo("slave5");
     }
 
@@ -1424,31 +1424,31 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"Simple%Name\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"Simple?Name\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(0);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"name\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
     }
 
     @Test
@@ -1496,31 +1496,31 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"D(E%\\\\Q\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(0);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"123456?89\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"1234*\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"*789\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
 
         response = target("/devices/gateway/topology/communication")
                 .queryParam("start", 0).queryParam("limit", limit)
                 .queryParam("filter", URLEncoder.encode("[{\"property\":\"serialNumber\",\"value\":\"%34*7?9\"}]", "UTF-8"))
                 .request().get(Map.class);
-        assertThat(response.get("total")).isEqualTo(1);
+        assertThat(response.get("total")).isEqualTo(2);
     }
 
     @Test

@@ -26,11 +26,13 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_2SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -104,6 +106,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 /**
@@ -188,13 +191,15 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void activate(BundleContext bundleContext) {
         createRealServices();
         this.dataModel.register(this.getModule());
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
-            Version.version(10, 2), V10_2SimpleUpgrader.class,
-                Version.version(10, 4), UpgraderV10_4.class,
-                Version.version(10, 4, 3), V10_4_3SimpleUpgrader.class,
-                Version.version(10, 4, 8), UpgraderV10_4_8.class,
-                Version.version(10, 7), UpgraderV10_7.class
-        ));
+        upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class,
+        ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                .put(version(10, 2), V10_2SimpleUpgrader.class)
+                .put(version(10, 4),  UpgraderV10_4.class)
+                .put(version(10, 4,3), V10_4_3SimpleUpgrader.class)
+                .put(version(10, 4, 8), UpgraderV10_4_8.class)
+                .put(version(10, 7),  UpgraderV10_7.class)
+                .put(version(10,9), UpgraderV10_9.class)
+                .build());
         this.registerRealServices(bundleContext);
     }
 

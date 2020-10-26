@@ -29,8 +29,15 @@ public final class StackTracePrinter {
         else {
             Writer writer = new StringWriter();
             PrintWriter printWriter = new PrintWriter(writer);
-            thrown.printStackTrace(printWriter);
-            return writer.toString();
+            try {
+                thrown.printStackTrace(printWriter);
+                return writer.toString();
+            } catch (Exception ex){
+                System.err.println("Error while printing exception stack-trace!");
+                System.err.println("\tException raised is: "+ex.getMessage());
+                System.err.println("\tOriginal message is: "+thrown.getMessage());
+                return thrown.getMessage();
+            }
         }
     }
 

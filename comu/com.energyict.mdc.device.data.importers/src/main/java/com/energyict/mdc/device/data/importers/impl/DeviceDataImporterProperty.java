@@ -18,6 +18,8 @@ import com.energyict.mdc.device.data.importers.impl.properties.DateFormatPropert
 import com.energyict.mdc.device.data.importers.impl.properties.SupportedNumberFormat;
 import com.energyict.mdc.device.data.importers.impl.properties.TimeZonePropertySpec;
 
+import org.json.JSONObject;
+
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.List;
@@ -52,6 +54,45 @@ public enum DeviceDataImporterProperty {
         @Override
         public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
             return new TimeZonePropertySpec(this.getPropertyKey(), this.getNameTranslationKey(), context.getThesaurus(), context.getClock());
+        }
+    },
+    SECURITY_ACCESSOR_MAPPING(TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_SECURITY_ACCESSOR_MAPPING, TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_SECURITY_ACCESSOR_MAPPING_DESCRIPTION) {
+
+        @Override
+        public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
+            return context.getPropertySpecService()
+                    .stringSpec()
+                    .named(this.getPropertyKey(), this.getNameTranslationKey())
+                    .describedAs(this.getDescriptionTranslationKey())
+                    .fromThesaurus(context.getThesaurus())
+                    .finish();
+        }
+
+        @Override
+        public void validateProperties(List<FileImporterProperty> properties, DeviceDataImporterContext context) {
+            Optional<FileImporterProperty> securityAccesorMapping = properties.stream().filter(p -> SECURITY_ACCESSOR_MAPPING.isMatchKey(p.getName())).findFirst();
+            if(securityAccesorMapping.isPresent() && !((String)securityAccesorMapping.get().getValue()).isEmpty()){
+                try{
+                    new JSONObject((String) securityAccesorMapping.get().getValue());
+                } catch (Exception ex){
+                    throw new LocalizedFieldValidationException(MessageSeeds.INVALID_JSON, securityAccesorMapping.get().getName()).fromSubField("properties");
+                }
+            }
+
+        }
+
+    },
+    SYSTEM_TITLE_PROPERTY_NAME(TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_SYSTEM_TILE_PROPERTY_NAME, TranslationKeys.DEVICE_CERTIFICATES_IMPORTER_SYSTEM_TILE_PROPERTY_NAME_DESCRIPTION) {
+
+        @Override
+        public PropertySpec getPropertySpec(DeviceDataImporterContext context) {
+            return context.getPropertySpecService()
+                    .stringSpec()
+                    .named(this.getPropertyKey(), this.getNameTranslationKey())
+                    .describedAs(this.getDescriptionTranslationKey())
+                    .fromThesaurus(context.getThesaurus())
+                    .setDefaultValue("DeviceSystemTitle")
+                    .finish();
         }
     },
     NUMBER_FORMAT(TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT, TranslationKeys.DEVICE_DATA_IMPORTER_NUMBER_FORMAT_DESCRIPTION) {

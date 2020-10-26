@@ -1,19 +1,95 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages;
 
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.mdc.protocol.LegacyProtocolProperties;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceGroup;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.CertificateWrapper;
+import com.energyict.mdc.upl.security.KeyAccessorType;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.aso.SecurityContext;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.UTF8String;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.Beacon3100PushSetup;
+import com.energyict.dlms.cosem.BorderRouterIC;
+import com.energyict.dlms.cosem.CRLManagementIC;
+import com.energyict.dlms.cosem.CommunicationPortProtection;
+import com.energyict.dlms.cosem.ConcentratorSetup;
+import com.energyict.dlms.cosem.DLMSGatewaySetup;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.FirewallSetup;
+import com.energyict.dlms.cosem.FirmwareConfigurationIC;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import com.energyict.dlms.cosem.InactiveFirmwareIC;
+import com.energyict.dlms.cosem.LoggerSettings;
+import com.energyict.dlms.cosem.ModemWatchdogConfiguration;
+import com.energyict.dlms.cosem.NTPServerAddress;
+import com.energyict.dlms.cosem.NTPSetup;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.SNMPSetup;
+import com.energyict.dlms.cosem.ScheduleManager;
+import com.energyict.dlms.cosem.SecuritySetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.UplinkPingConfiguration;
+import com.energyict.dlms.cosem.VPNSetupIC;
+import com.energyict.dlms.cosem.WebPortalSetupV1;
 import com.energyict.dlms.cosem.WebPortalSetupV1.Role;
 import com.energyict.dlms.cosem.WebPortalSetupV1.WebPortalAuthenticationMechanism;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
-import com.energyict.dlms.cosem.attributes.*;
+import com.energyict.dlms.cosem.attributes.CommunicationPortProtectionAttributes;
+import com.energyict.dlms.cosem.attributes.FirmwareConfigurationAttributes;
+import com.energyict.dlms.cosem.attributes.NTPSetupAttributes;
+import com.energyict.dlms.cosem.attributes.RenewGMKSingleActionScheduleAttributes;
+import com.energyict.dlms.cosem.attributes.SNMPAttributes;
 import com.energyict.dlms.cosem.methods.FirmwareConfigurationMethods;
 import com.energyict.dlms.cosem.methods.NTPSetupMethods;
 import com.energyict.dlms.cosem.methods.NetworkInterfaceType;
@@ -26,28 +102,6 @@ import com.energyict.encryption.asymetric.keyagreement.KeyAgreementImpl;
 import com.energyict.encryption.asymetric.signature.ECDSASignatureImpl;
 import com.energyict.encryption.asymetric.util.KeyUtils;
 import com.energyict.encryption.kdf.NIST_SP_800_56_KDF;
-import com.energyict.mdc.identifiers.*;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
-import com.energyict.mdc.upl.*;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessage;
-import com.energyict.mdc.upl.messages.DeviceMessageSpec;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.*;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceGroup;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.CertificateWrapper;
-import com.energyict.mdc.upl.security.KeyAccessorType;
-import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.DataParseException;
@@ -60,7 +114,11 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.Beacon3100;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.BeaconCache;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
-import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.*;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastMeterState;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProperty;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastProtocolConfiguration;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastSerializer;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.dcmulticast.MulticastUpgradeState;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.BroadcastUpgrade;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.firmwareobjects.DeviceInfoSerializer;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.MasterDataSerializer;
@@ -68,7 +126,23 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.Ma
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100RegisterFactory;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.protocolimplv2.messages.AlarmConfigurationMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.DLMSConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirewallConfigurationMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.UplinkConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.*;
 import com.energyict.protocolimplv2.messages.validators.BeaconMessageValidator;
@@ -77,12 +151,15 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import com.energyict.sercurity.KeyRenewalInfo;
 import com.google.common.io.BaseEncoding;
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.openssl.PEMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.security.PrivateKey;
@@ -92,14 +169,94 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Base64;
 
 import static com.energyict.dlms.DLMSUtils.getBytesFromHexString;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BroadcastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayAfterLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentFast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayBetweenBlockSentSlow;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DelayPerBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.LogicalDeviceLSap;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_SKIP_TRANSFER_STATUS_CHECK;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MaxCycles;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MeterTimeZone;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.MulticastGroup;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.PadLastBlock;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.RequestedBlockSize;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelMulticast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityLevelUnicast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyBroadcast;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SecurityPolicyMulticastV0;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepActivate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepEnable;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepInitiate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.SkipStepVerify;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UdpMeterPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastClientWPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UnicastFrameCounterType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.UseTransferredBlockStatus;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateEntityAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateTypeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.clientMacAddress;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.commonNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configurationCAImageFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dlmsLanInitialLockoutTime;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dlmsWanInitialLockoutTime;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newMasterKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.pemCRL;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteShellLockoutDuration;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteShellMaxLoginAttempts;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogDestination;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogIpVersion;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogPort;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.remoteSyslogTransportServiceType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.snmpLockoutDuration;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trustStoreNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.trustedCertificateWrapperAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnAuthenticationType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnEnabled;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnGatewayAddress;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnIPCompressionEnabled;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnLocalIdentifier;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnRemoteCertificate;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnRemoteIdentifier;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnSharedSecret;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.vpnVirtualIPEnabled;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.webPortalLockoutDuration;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.webPortalMaxLoginAttempts;
 
 /**
  * Copyrights EnergyICT
@@ -533,7 +690,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 if (certificateWrapper.isPresent()) {
                     X509CRL crl = (X509CRL) certificateWrapperExtractor.getCRL((CertificateWrapper) certificateWrapper.get()).get();
                     try {
-                        return Base64.encodeBase64String(crl.getEncoded());
+                        return String.valueOf(Base64.getEncoder().encode(crl.getEncoded()));
                     } catch (CRLException e) {
                         throw new DataParseException(e, ProtocolExceptionMessageSeeds.GENERAL_PARSE_EXCEPTION, "Unable to get the CRL from provided certificate wrapper");
                     }
@@ -646,7 +803,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
                         changePasswordUser2(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD)) {
-                        changeUserPassword(pendingMessage);
+                        changeUserPassword(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpPort)) {
                         setHttpPort(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpsPort)) {
@@ -1318,7 +1475,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             throw new ProtocolException("The CertificateRevocationList with the given ID does not exist in the EIServer database");
         }
 
-        byte[] crlAsDER = Base64.decodeBase64(trustedCertCRLAsBase64);
+        byte[] crlAsDER = Base64.getDecoder().decode(trustedCertCRLAsBase64);
         try {
             CRLManagementIC crlManagementIC = getCRLManagementIC();
             crlManagementIC.updateCRL(new OctetString(crlAsDER));
@@ -2055,6 +2212,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         it.setDelayBeforeSendingBlocks(5000);
 
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+            try {
+                //TODO: add a protocol property and check support in beacon
+                //int blockSize = 65400; // original 65463, but need to leave room for headers and signature
+                //getLogger().info("Setting transfer block size to " + blockSize);
+                //it.writeImageBlockSize(new Unsigned32(blockSize));
+            } catch (Exception ex){
+                getLogger().warning("Cannot set block size: " + ex.getMessage());
+            }
             it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
             it.imageActivation();
@@ -2062,6 +2227,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             if (isTemporaryFailure(e)) {
                 getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
             } else {
+                getLogger().severe(e.getMessage());
                 throw e;
             }
         }
@@ -2549,16 +2715,43 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
+     * Extract the actual password bytes from the string received from message formatter.
+     *
+     * @param rawPasswordAttribute formatted password (in clear)
+     * @return bytes to send to device
+     */
+    protected byte[] preProcessPassword(String rawPasswordAttribute){
+        return rawPasswordAttribute.getBytes(StandardCharsets.US_ASCII);
+    }
+
+    /**
      * Change the password for a particular role.
      *
      * @param pendingMessage The message.
      * @throws IOException If an IO error occurs.
      */
-    private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected CollectedMessage changeUserPassword(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
         String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getValue();
         String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getValue();
 
-        this.getWebportalSetupICv1().setPassword(Role.forName(userName), newPassword.getBytes(StandardCharsets.US_ASCII));
+        byte[] processedPassword = preProcessPassword(newPassword);
+
+        this.getWebportalSetupICv1().setPassword(Role.forName(userName), processedPassword);
+
+        //TODO: pass the key accessor name to swap it
+        //return createCollectedMessageForSwappingSecurityAccessors(collectedMessage, pendingMessage, [keyAccessorName]);
+        return collectedMessage;
+    }
+
+    /**
+     * This will create a collected message used to swap passive->active security accessor after asuccessfull change.
+     */
+    protected CollectedMessage createCollectedMessageForSwappingSecurityAccessors(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String accessorName) {
+        return getCollectedDataFactory().createCollectedMessageForSwappingSecurityAccessorKeys(
+                pendingMessage.getDeviceIdentifier(),
+                collectedMessage.getMessageIdentifier(),
+                accessorName
+        );
     }
 
     /**
@@ -2567,7 +2760,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * @return The {@link WebPortalSetupV1} instance.
      * @throws NotInObjectListException If the object is not known.
      */
-    private final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
+    protected final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
         if (this.readOldObisCodes()) {
             return this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
         } else {

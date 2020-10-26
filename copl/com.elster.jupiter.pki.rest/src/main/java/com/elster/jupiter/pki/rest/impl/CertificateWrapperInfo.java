@@ -38,6 +38,7 @@ public class CertificateWrapperInfo {
     public String endEntityName;
     public String caName;
     public String certProfileName;
+    public String subjectDnFields;
 
     public void setCertificateRequestData(Optional<CertificateRequestData> certificateRequestData) {
         if (certificateRequestData.isPresent()) {
@@ -45,6 +46,7 @@ public class CertificateWrapperInfo {
             this.endEntityName = requestData.getEndEntityName();
             this.caName = requestData.getCaName();
             this.certProfileName = requestData.getCertificateProfileName();
+            this.subjectDnFields = requestData.getSubjectDNfields();
         }
     }
 }

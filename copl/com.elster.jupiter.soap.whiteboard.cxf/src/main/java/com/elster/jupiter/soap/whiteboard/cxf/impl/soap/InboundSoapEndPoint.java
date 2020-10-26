@@ -16,7 +16,6 @@ import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
 import org.apache.cxf.endpoint.Server;
-import org.apache.cxf.feature.validation.SchemaValidationFeature;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.logging.FaultListener;
 import org.apache.cxf.message.Message;

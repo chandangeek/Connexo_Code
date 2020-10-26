@@ -19,9 +19,10 @@ public class WebServiceCallRelatedAttributeImpl implements WebServiceCallRelated
     private String value;
 
     public enum Fields {
+        // The order is important; used to build insert SQL
         ID("id"),
-        ATTRIBUTE_KEY("key"),
-        ATTRIBUTE_VALUE("value");
+        ATTR_KEY("key"),
+        ATTR_VALUE("value");
 
         private final String javaFieldName;
 
@@ -68,9 +69,10 @@ public class WebServiceCallRelatedAttributeImpl implements WebServiceCallRelated
             Save.CREATE.save(this.dataModel, this, Save.Create.class);
         }
     }
+
     @Override
-    public String toString () {
-        return "Key = "+key +" ,value = "+value;
+    public String toString() {
+        return "Key = " + key + ", value = " + value;
     }
 
 

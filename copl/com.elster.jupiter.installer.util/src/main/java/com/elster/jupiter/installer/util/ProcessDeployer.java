@@ -26,9 +26,10 @@ import java.util.Collections;
  */
 public class ProcessDeployer {
 
-    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"description\":\"Repository for Connexo projects\",\"userName\":null,\"password\":null,\"requestType\":\"new\",\"gitURL\":null,\"organizationalUnitName\":\"Honeywell\"}";
-    private static final String defaultOrgUnitPayload = "{\"name\":\"Honeywell\",\"description\":\"Default Connexo organizational unit\",\"owner\":\"admin\",\"defaultGroupId\":\"Honeywell\"}";
-    private static final String orgUnitName = "Honeywell";
+
+    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"groupId\":\"Honeywell\",\"version\":2.8.1,\"description\":\"Default Connexo organizational\"}";
+    private static final String defaultSpacePayload = "{\"name\":\"Honeywell\",\"description\":\"Default Connexo organizational unit\",\"owner\":\"admin\",\"defaultGroupId\":\"Honeywell\"}";
+    private static final String spaceName = "Honeywell";
 
     public static void main(String args[]) {
         if ("installProcesses".equals(args[0])) {
@@ -54,8 +55,8 @@ public class ProcessDeployer {
         if (args[0].equals("createRepository")) {
             createRepository(args[3], authString, defaultRepoPayload);
         }
-        if (args[0].equals("createOrganizationalUnit")) {
-            createOrganizationalUnit(args[3], authString, defaultOrgUnitPayload);
+        if (args[0].equals("createSpace")) {
+            createSpace(args[3], authString, defaultSpacePayload);
         }
         if (args[0].equals("deployProcess")) {
             deployProcess(args[4], args[3], authString);
@@ -63,7 +64,7 @@ public class ProcessDeployer {
     }
 
     private static void createRepository(String arg, String authString, String payload) {
-        String url = arg + "/rest/repositories/";
+        String url = arg + "/rest/spaces/"+spaceName+"/projects";
         doPostAndWait(url, authString, payload);
     }
 
@@ -83,17 +84,17 @@ public class ProcessDeployer {
         }
     }
 
-    private static void createOrganizationalUnit(String arg, String authString, String payload) {
-        String url = arg + "/rest/organizationalunits/";
+    private static void createSpace(String arg, String authString, String payload) {
+        String url = arg + "/rest/spaces/";
         doPostAndWait(url, authString, payload);
-        doVerify(url + orgUnitName, authString);
+        doVerify(url + spaceName, authString);
     }
 
     private static void deployProcess(String deploymentId, String arg, String authString) {
-        String baseUrl = "/rest/deployment/" + deploymentId;
+        String baseUrl = "/services/rest/server/containers/" + deploymentId;
         if (!doGetDeployment(arg + baseUrl, authString)) {
-            String deployUrl = arg + baseUrl + "/deploy?strategy=SINGLETON";
-            doPostAndWait(deployUrl, authString, null);
+            String deployUrl = arg + baseUrl;
+            doPutAndWait(deployUrl, authString, null);
         }
     }
 
@@ -125,6 +126,46 @@ public class ProcessDeployer {
 
         } catch (IOException e) {
             throw new RuntimeException("POST call to Connexo REST API failed.", e);
+        } finally {
+            if (httpConnection != null) {
+                httpConnection.disconnect();
+            }
+        }
+
+        if (responseCode == 404) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean doPUT(String url, String authString, String payload) {
+        int responseCode = 404;
+        HttpURLConnection httpConnection = null;
+        try {
+
+            URL targetUrl = new URL(url);
+            httpConnection = (HttpURLConnection) targetUrl.openConnection();
+            httpConnection.setDoOutput(true);
+            httpConnection.setRequestMethod("PUT");
+            httpConnection.setRequestProperty("Authorization", authString);
+
+            if (payload != null && !payload.isEmpty()) {
+                httpConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
+                OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(), "UTF-8");
+                outWriter.write(payload);
+                outWriter.close();
+            } else {
+                httpConnection.setRequestProperty("Content-Type", "text/plain;charset=UTF-8");
+            }
+
+            responseCode = httpConnection.getResponseCode();
+            if (responseCode != 202 && responseCode != 404) {
+                throw new RuntimeException("Failed PUT on " + url + ": HTTP error code : "
+                        + httpConnection.getResponseCode());
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("PUT call to Connexo REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
@@ -251,6 +292,26 @@ public class ProcessDeployer {
                 maxSteps--;
                 Thread.sleep(timeout);
                 result = doPost(url, authString, payload);
+            } catch (RuntimeException e) {
+                if (maxSteps == 0) {
+                    throw e;
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+    }
+    private static void doPutAndWait(String url, String authString, String payload) {
+        int maxSteps = 12;
+        int timeout = 5 * 1000;
+
+        boolean result = false;
+        while ((maxSteps != 0) && (result == false)) {
+            try {
+                maxSteps--;
+                Thread.sleep(timeout);
+                result = doPUT(url, authString, payload);
             } catch (RuntimeException e) {
                 if (maxSteps == 0) {
                     throw e;

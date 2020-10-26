@@ -1,7 +1,7 @@
 package com.elster.protocolimpl.lis200.utils;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
+import javax.xml.bind.DatatypeConverter;
+
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,8 +18,8 @@ public class UtilsTest {
     }
 
     @Test
-    public void testSplitLineWithFourValuesTwoHaveSomeGarbageInBetweenExpectAStringArrayWithFourValues() throws DecoderException {
-        String garbage = new String(Hex.decodeHex("FF".toCharArray()));
+    public void testSplitLineWithFourValuesTwoHaveSomeGarbageInBetweenExpectAStringArrayWithFourValues() {
+        String garbage = new String(DatatypeConverter.parseHexBinary("FF"));
         String line = "(100)(200)" +garbage +"(300)"+ garbage + "(400)";
         String[] result = Utils.splitLine(line);
         Assert.assertEquals("100", result[0]);

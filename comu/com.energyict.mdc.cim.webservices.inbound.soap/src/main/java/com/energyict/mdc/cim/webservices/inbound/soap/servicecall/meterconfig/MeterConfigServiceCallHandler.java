@@ -16,6 +16,8 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtension;
@@ -31,6 +33,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceDeleter;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceFinder;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ErrorMessage;
+import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigFaultMessageFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterConfigPingUtils;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.MeterStatusSource;
@@ -44,6 +47,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -58,6 +62,7 @@ import javax.validation.ConstraintViolationException;
 import java.time.Clock;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -84,6 +89,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile TransactionService transactionService;
     private volatile TopologyService topologyService;
     private volatile ServiceCallService serviceCallService;
+    private volatile EndPointConfigurationService endPointConfigurationService;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
@@ -105,7 +111,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                                          DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
                                          MeteringTranslationService meteringTranslationService, TransactionService transactionService,
-                                         TopologyService topologyService) {
+                                         TopologyService topologyService, EndPointConfigurationService endPointConfigurationService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -119,6 +125,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.meteringTranslationService = meteringTranslationService;
         this.transactionService = transactionService;
         this.topologyService = topologyService;
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Override
@@ -165,7 +172,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                 ServiceCall lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Unable to lock service call."));
                 switch (operation) {
                     case CREATE:
-                        device = getDeviceBuilder().prepareCreateFrom(meterInfo).build();
+                        device = createOrReturnDevice(meterInfo);
                         lockedServiceCall.setTargetObject(device);
                         processDevice(lockedServiceCall, meterInfo, device);
                         lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -325,6 +332,26 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         return getSecurityHelper().addSecurityKeys(device, securityInfos, serviceCall);
     }
 
+    private Device createOrReturnDevice(MeterInfo meterInfo) throws FaultMessage {
+        Optional<EndPointConfiguration> inboundConfiguration = getInboundEndPointConfiguration();
+
+        List<Device> existingDevices = getDeviceBuilder().getExistingDevices(meterInfo.getDeviceName(), meterInfo.getSerialNumber());
+        if (existingDevices.size()==1){
+            // only one device found -> check if we need to return it as it is
+            if ( returnDeviceIfExists(inboundConfiguration, true)){
+                // return one and only device
+                return existingDevices.get(0);
+            }
+        }
+
+        // default functionality -> more then one device found, throw-up
+        if (existingDevices.size()>0) {
+            throw getDeviceBuilder().getFaultMessage(meterInfo.getDeviceName(), MessageSeeds.NAME_MUST_BE_UNIQUE).get();
+        }
+
+        return getDeviceBuilder().prepareCreateFrom(meterInfo).build();
+    }
+
     @Reference
     public void setBatchService(BatchService batchService) {
         this.batchService = batchService;
@@ -353,6 +380,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setEndPointConfigurationService(EndPointConfigurationService endPointConfigurationService) {
+        this.endPointConfigurationService = endPointConfigurationService;
     }
 
     @Reference
@@ -457,5 +489,24 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
             meterConfigPingUtils = new MeterConfigPingUtils(thesaurus);
         }
         return meterConfigPingUtils;
+    }
+
+    private Optional<EndPointConfiguration> getInboundEndPointConfiguration()  {
+        Optional<EndPointConfiguration> endPointConfig = endPointConfigurationService.findEndPointConfigurations()
+                .stream()
+                .filter(EndPointConfiguration::isActive)
+                .filter(endPointConfiguration -> endPointConfiguration.isInbound())
+                .filter(endPointConfiguration -> endPointConfiguration.getWebServiceName().equals(ExecuteMeterConfigEndpoint.CIM_MERER_CONFIG))
+                .findFirst();
+        return endPointConfig;
+    }
+
+    private boolean returnDeviceIfExists(Optional<EndPointConfiguration> inboundEndpointConfiguration, boolean defaultValue) {
+        if (inboundEndpointConfiguration.isPresent()) {
+            Map<String, Object> properties = inboundEndpointConfiguration.get().getPropertiesWithValue();
+            Object value = properties.getOrDefault(TranslationKeys.RETURN_DEVICE_IF_EXISTS.getKey(), defaultValue);
+            return (boolean) value;
+        }
+        return defaultValue;
     }
 }
