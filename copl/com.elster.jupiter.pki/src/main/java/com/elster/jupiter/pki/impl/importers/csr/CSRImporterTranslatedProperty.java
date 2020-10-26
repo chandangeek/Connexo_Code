@@ -11,16 +11,16 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     TIMEOUT_DESCRIPTION("timeout.description", "Timeout for one CSR signing"),
     IMPORT_SECURITY_ACCESSOR("importSecurityAccessor", "Import security accessor"),
     IMPORT_SECURITY_ACCESSOR_DESCRIPTION("importSecurityAccessor.description", "Security accessor used to verify the signature of imported zip. " +
-            "Must contain certificate of type RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH + '.'),
+            "Must contain certificate of type RSA 2048 or RSA 4096" ),
     EXPORT_CERTIFICATES_FOLDER("exportCertificatesFolder", "Export certificates on folder"),
     EXPORT_CERTIFICATES_FOLDER_DESCRIPTION("exportCertificatesFolder.description", "Export result certificates on folder"),
     EXPORT_CERTIFICATES_SFTP("exportCertificates", "Export certificates on SFTP"),
     EXPORT_CERTIFICATES_SFTP_DESCRIPTION("exportCertificates.description", "Export result certificates on SFTP"),
     EXPORT_SECURITY_ACCESSOR("exportSecurityAccessor", "Signing security accessor"),
     EXPORT_SECURITY_ACCESSOR_DESCRIPTION("exportSecurityAccessor.description", "Security accessor used to sign the exported zip. " +
-            "Must contain client certificate with private key of type RSA " + CSRImporter.RSA_MODULUS_BIT_LENGTH + '.'),
-    EXPORT_TRUST_STORE("exportTrustStore", "Trust store"),
-    EXPORT_TRUST_STORE_DESCRIPTION("exportTrustStore.description", "All certificates from this trust store are added to the exported zip file"),
+            "Must contain client certificate with private key of type RSA 2048 or RSA 4096"),
+    CLIENT_TRUSTSTORE_MAPPING("exportClientCertificatesMapping", "Export client trust-store mapping"),
+    CLIENT_TRUSTSTORE_MAPPING_DESCRIPTION("exportClientCertificatesMapping.description","JSON string with mapping of client and trust chain certificates aliases and the exported file name"),
     EXPORT_SFTP_HOSTNAME("exportHostname", "SFTP Hostname"),
     EXPORT_SFTP_HOSTNAME_DESCRIPTION("exportHostname.description", "Destination hostname"),
     EXPORT_SFTP_PORT("exportPort", "SFTP Port"),
@@ -61,8 +61,12 @@ public enum CSRImporterTranslatedProperty implements TranslationKey {
     CA_PROFILE_NAME_DESCRIPTION("certificate.profile.name.description", "Certificate profile name"),
     CSR_MAPPING("csr.filename.mapping", "Mapping JSON"),
     CSR_MAPPING_DESCRIPTION("csr.filename.mapping.description", "JSON string containing the mapping between the CSR filename prefixes and PKI settings."),
+    SUBJECT_DN_FIELDS("csr.subjectdn.fields", "Subject DN fields"),
+    SUBJECT_DN_FIELDS_DESCRIPTION("csr.subjectdn.fields.description", "SubjectDN fields to include in request (ex: CN). If empty, all fields will be included."),
     CHECK_FILE_SIGNATURE("csr.import.check.signature", "Check input file signature"),
-    CHECK_FILE_SIGNATURE_DESCRIPTION("csr.import.check.signature.description", "If checked, the signature trust will be checked agains the trusted certificates");
+    CHECK_FILE_SIGNATURE_DESCRIPTION("csr.import.check.signature.description", "If checked, the signature trust will be checked against the trusted certificates"),
+    SAVE_CERTIFICATE("csr.import.save.certificate", "Save the signed certificate in Connexo"),
+    SAVE_CERTIFICATE_DESCRIPTION("csr.import.save.certificate.description", "After the CSR is signed by the PKI, the resulting certificate will be saved in the Connexo storage for later use. (Certificate Importer will create a duplicate and will automatically link the device to the imported certificate).");
 
     private final String key;
     private final String defaultFormat;

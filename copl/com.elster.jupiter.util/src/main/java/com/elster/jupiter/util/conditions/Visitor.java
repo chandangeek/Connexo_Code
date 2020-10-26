@@ -28,5 +28,5 @@ public interface Visitor {
 
     void visitFragmentExpression(FragmentExpression expression);
 
-	void visitEffective(Effective effective);
+    void visitEffective(Effective effective);
 }

@@ -1,39 +1,58 @@
 package com.energyict.protocolimplv2.nta.dsmr40.registers;
 
 import com.energyict.cbo.BaseUnit;
-import com.energyict.dlms.cosem.attributes.DefinableLoadProfileAttributes;
-import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
-import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.offline.OfflineRegister;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.SecuritySetup;
 import com.energyict.dlms.cosem.attributes.AssociationLNAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DefinableLoadProfileAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.MBusClientAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.generic.EncryptionStatus;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.logging.Level;
 
 /**
  * Copyrights EnergyICT
@@ -84,23 +103,273 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
     protected static final ObisCode NR_OF_PV_VOLTAGE_SAG_L1 = ObisCode.fromString("1.2.32.32.0.255");
     protected static final ObisCode NR_OF_PV_VOLTAGE_SAG_L2 = ObisCode.fromString("1.2.52.32.0.255");
     protected static final ObisCode NR_OF_PV_VOLTAGE_SAG_L3 = ObisCode.fromString("1.2.72.32.0.255");
+    protected static final ObisCode GAS_TIME_DURATION_OBIS_CODE = ObisCode.fromString("0.x.24.2.5.255");
+    protected static final ObisCode MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
+    protected static final ObisCode GAS_TIME_DURATION_FIVE_MINUTES = ObisCode.fromString("0.x.24.2.6.255");
+    protected static final ObisCode GAS_TIME_DURATION_FIVE_MINUTES_OBIS_CODE = ObisCode.fromString("0.x.24.2.1.255");
 
     public Dsmr40RegisterFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
     }
 
+    private Calendar getCalendar(Date date) {
+        Calendar calendar = Calendar.getInstance(protocol.getTimeZone());
+        calendar.setTime(date);
+        calendar.set(Calendar.SECOND, 0);
+        return calendar;
+    }
+
+    protected int getBufferIndexFromCaptureObjects(ObisCode obisCode, List<CapturedObject> capturedObjects) {
+        if (capturedObjects != null && !capturedObjects.isEmpty()) {
+            for (CapturedObject capturedObject : capturedObjects) {
+                if (isCaptureObjectRelateObisCode(obisCode, capturedObject)) {
+                    return capturedObjects.indexOf(capturedObject);
+                }
+            }
+        }
+        return -1;
+    }
+
+    private boolean isCaptureObjectRelateObisCode(ObisCode obisCode, CapturedObject captObj) {
+        if (obisCode.equalsIgnoreBChannel(GAS_TIME_DURATION_OBIS_CODE)) {
+            return (captObj.getLogicalName().getObisCode().equalsIgnoreBChannel(getMbusMasterValueObisCode())
+                    && ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber() == captObj.getAttributeIndex());
+        }
+
+        return captObj.getLogicalName().getObisCode().equalsIgnoreBChannel(obisCode);
+    }
+
+    protected ObisCode getMbusMasterValueObisCode() {
+        return ObisCode.fromString("0.x.24.2.1.255");
+    }
+
+    private List<CollectedRegister> getRegistersForGasTimeDurationHourly(OfflineRegister offlineRegister) {
+        List<CollectedRegister> result = new ArrayList<>();
+
+        final ObisCode registerObisCode = offlineRegister.getObisCode();
+        ObisCode lpObisCode = this.protocol.getPhysicalAddressCorrectedObisCode(MBUS_LOAD_PROFILE, offlineRegister.getSerialNumber());
+
+        try {
+            ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpObisCode);
+            List<CapturedObject> capturedObjectsCurrentBilling = profileGeneric.getCaptureObjects();
+            Map<String, Unit> unitCurrentBilling = getUnitMapForCapturedObjects(capturedObjectsCurrentBilling, lpObisCode);
+            DataContainer dcCurrent = profileGeneric.getBuffer(null, getCalendar(new Date()));
+
+            int channelInfoIndex = getBufferIndexFromCaptureObjects(registerObisCode, capturedObjectsCurrentBilling);
+            List<RegisterValue> registerValue = getRegisterValue(dcCurrent, channelInfoIndex, registerObisCode, unitCurrentBilling.get(registerObisCode.toString()));
+
+            for (RegisterValue item : registerValue) {
+                CollectedRegister deviceRegister = this.getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister));
+                deviceRegister.setCollectedData(item.getQuantity());
+                deviceRegister.setCollectedTimeStamps(new Date(), null, new Date());
+                result.add(deviceRegister);
+            }
+        } catch (NotInObjectListException e) {
+            getProtocol().journal("NotInObjectListException" + e.getMessage());
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
+        }
+
+        return result;
+    }
+
     public List<CollectedRegister> readRegisters(List<OfflineRegister> allRegisters) {
         allRegisters = filterOutAllInvalidRegisters(allRegisters);
-        List<OfflineRegister> toRead;
+        List<OfflineRegister> toRead = new ArrayList<>();
         List<CollectedRegister> result = new ArrayList<>();
-        int count = 0;
-        while (((count + 1) * BULK_RESQUEST_LIMIT) <= allRegisters.size()) {    //Read out in steps of 5 registers
-            toRead = allRegisters.subList(count * BULK_RESQUEST_LIMIT, (count + 1) * BULK_RESQUEST_LIMIT);
-            result.addAll(super.readRegisters(toRead));
-            count++;
+
+        for (OfflineRegister a_register : allRegisters) {
+            // For hourly gas time duration we can request register via requesting LoadProfile.
+            if (a_register.getObisCode().equalsIgnoreBChannel(GAS_TIME_DURATION_OBIS_CODE)) {
+                result.addAll(getRegistersForGasTimeDurationHourly(a_register));
+                continue;
+            }
+
+            // Add another registers five in a batch
+            if (toRead.size() < 5) {
+                toRead.add(a_register);
+            } else {
+                result.addAll(super.readRegisters(toRead));
+                toRead.clear();
+            }
         }
-        result.addAll(super.readRegisters(allRegisters.subList(count * BULK_RESQUEST_LIMIT, allRegisters.size()))); //Read out the remaining registers
+
+        if (!toRead.isEmpty()) {
+            result.addAll(super.readRegisters(toRead));
+        }
+
         return result;
+    }
+
+    private List<RegisterValue> getRegisterValue(DataContainer buffer, int obisIndex, ObisCode obisCodeToStore, Unit unit) {
+        Object[] loadProfileEntries = buffer.getRoot().getElements();
+        List<RegisterValue> registerValues = new ArrayList<>();
+        Date readTime = new Date();
+
+        for (int index = 0; index < loadProfileEntries.length; index++) {
+            int offset = 0;
+            DataStructure structure = buffer.getRoot().getStructure(index);
+            Date fromTime = null;
+            Date toTime = null;
+            Date eventTime = null;
+            // Timestamp should be at index 0, for daily and current we have only one timestamp
+            if (structure.isOctetString(offset)) {
+                com.energyict.dlms.OctetString octetString = structure.getOctetString(offset);
+                toTime = octetString.toDate(AXDRDateTimeDeviationType.Negative, protocol.getTimeZone());
+                offset++;
+            }
+            // Monthly billing has the end timestamp on index 1
+            if (structure.isOctetString(offset)) {
+                com.energyict.dlms.OctetString octetString = structure.getOctetString(offset);
+                fromTime = new Date(toTime.getTime());
+                toTime = octetString.toDate(AXDRDateTimeDeviationType.Negative, protocol.getTimeZone());
+            }
+            eventTime = new Date(toTime.getTime());
+
+            int letterF = obisCodeToStore.getF();
+            Calendar.getInstance().setTime(toTime);
+            // Current active tariff has obis ending in 255 but is part of current billing
+            if (letterF == 0 || letterF == 255) {
+                Calendar.getInstance().add(Calendar.MINUTE, -1);
+                fromTime = Calendar.getInstance().getTime();
+            } else if (letterF == 1) {
+                Calendar.getInstance().add(Calendar.DATE, -1);
+                fromTime = Calendar.getInstance().getTime();
+            }
+            // if the next value is octet string then it is the timestamp of max demand
+            if ((obisIndex + 1) < structure.getNrOfElements() && structure.isOctetString(obisIndex + 1)) {
+                com.energyict.dlms.OctetString octetString = structure.getOctetString(obisIndex + 1);
+                eventTime = octetString.toDate(AXDRDateTimeDeviationType.Negative, protocol.getTimeZone());
+            }
+
+            long val = -1;
+            if (structure.isBigDecimal(obisIndex)) {
+                val = structure.getLong(obisIndex);
+            } else if (structure.isOctetString(obisIndex)) {
+                com.energyict.dlms.OctetString os = structure.getOctetString(obisIndex);
+                val = os.toDate(AXDRDateTimeDeviationType.Negative, protocol.getTimeZone()).getTime();
+            }
+
+            Quantity quantity;
+            if (unit == null) {
+                quantity = new Quantity(val, Unit.get(BaseUnit.UNITLESS));
+            } else {
+                quantity = new Quantity(val, unit);
+            }
+            registerValues.add(new RegisterValue(obisCodeToStore, quantity, eventTime, fromTime, toTime, readTime));
+
+        }
+        return registerValues;
+    }
+
+    private Map<String, Unit> getUnitMapForCapturedObjects(List<CapturedObject> capturedObjects, ObisCode correctedLoadProfileObisCode) throws IOException {
+        List<ObisCode> channelObisCodes = new ArrayList<>();
+        for (CapturedObject capturedObject : capturedObjects) {
+            if (isChannel(capturedObject)) {
+                channelObisCodes.add(capturedObject.getLogicalName().getObisCode());
+            }
+        }
+        return readUnits(correctedLoadProfileObisCode, channelObisCodes);
+    }
+
+    /**
+     * Check if the captured_object can be considered as an EIServer channel.
+     * Registers, extended registers and demand registers are used as channels.
+     * Captured_objects with the obiscode of the clock (0.0.1.0.0.255), or the status register (0.x.96.10.x.255) are not considered as channels.
+     * <p/>
+     * In case of an unknown dlms class, or an unknown obiscode, a proper exception is thrown.
+     */
+    private boolean isChannel(CapturedObject capturedObject) {
+        int classId = capturedObject.getClassId();
+        ObisCode obisCode = capturedObject.getLogicalName().getObisCode();
+        if (!isCaptureTime(capturedObject) && (classId == DLMSClassId.REGISTER.getClassId() || classId == DLMSClassId.EXTENDED_REGISTER.getClassId() || classId == DLMSClassId.DEMAND_REGISTER.getClassId())) {
+            return true;
+        }
+        if (isClock(obisCode) || isCaptureTime(capturedObject) || (isStartOfBillingPeriod(capturedObject) && !isProfileStatus(obisCode))) {
+            return false;
+        }
+
+        return false;
+    }
+
+    public static boolean isProfileStatus(ObisCode obisCode) {
+        return (obisCode.getA() == 0 && obisCode.getB() >= 0 && obisCode.getC() == 96 && obisCode.getD() == 10 && obisCode.getE() == 7 && obisCode.getF() == 255);
+    }
+
+    public static boolean isCaptureTime(CapturedObject capturedObject) {
+        return (capturedObject.getAttributeIndex() == 5 && capturedObject.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) || (capturedObject.getAttributeIndex() == 6 && capturedObject.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId());
+    }
+
+    public static boolean isStartOfBillingPeriod(CapturedObject capturedObject) {
+        return (capturedObject.getAttributeIndex() == 2 && capturedObject.getClassId() == DLMSClassId.DATA.getClassId());
+    }
+
+    public static boolean isClock(ObisCode obisCode) {
+        return (Clock.getDefaultObisCode().equals(obisCode));
+    }
+
+    /**
+     * @param correctedLoadProfileObisCode the load profile obiscode. If it is not null, this implementation will additionally read out
+     *                                     its interval (attribute 4) and cache it in the intervalMap
+     * @param channelObisCodes             the obiscodes of the channels that we should read out the units for
+     */
+    private Map<String, Unit> readUnits(ObisCode correctedLoadProfileObisCode, List<ObisCode> channelObisCodes) throws IOException {
+        Map<ObisCode, Unit> result = new HashMap<>();
+        Map<String, Unit> correctedResult = new HashMap<>();
+
+        Map<ObisCode, DLMSAttribute> attributes = new HashMap<>();
+        for (ObisCode channelObisCode : channelObisCodes) {
+            UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(this.protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), channelObisCode);
+            if (uo != null) {
+                DLMSAttribute unitAttribute = null;
+                if (uo.getDLMSClassId() == DLMSClassId.REGISTER) {
+                    unitAttribute = new DLMSAttribute(channelObisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
+                } else if (uo.getDLMSClassId() == DLMSClassId.EXTENDED_REGISTER) {
+                    unitAttribute = new DLMSAttribute(channelObisCode, ExtendedRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
+                } else if (uo.getDLMSClassId() == DLMSClassId.DEMAND_REGISTER) {
+                    unitAttribute = new DLMSAttribute(channelObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
+                } else {
+                    throw new ProtocolException("Unexpected captured_object in load profile: " + uo.getDescription());
+                }
+                attributes.put(channelObisCode, unitAttribute);
+            }
+        }
+
+        // Also read out the profile interval in this bulk request
+        DLMSAttribute profileIntervalAttribute = null;
+        if (correctedLoadProfileObisCode != null) {
+            profileIntervalAttribute = new DLMSAttribute(correctedLoadProfileObisCode, 4, DLMSClassId.PROFILE_GENERIC);
+            attributes.put(correctedLoadProfileObisCode, profileIntervalAttribute);
+        }
+
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(attributes.values()));
+
+        for (ObisCode channelObisCode : channelObisCodes) {
+            DLMSAttribute dlmsAttribute = attributes.get(channelObisCode);
+            if (dlmsAttribute != null) {
+                try {
+                    result.put(channelObisCode, new ScalerUnit(composedCosemObject.getAttribute(dlmsAttribute)).getEisUnit());
+                } catch (IOException e) {
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
+                        throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
+                    } //Else: throw ConnectionCommunicationException
+                }
+            } else {
+                final String message = "The OBIS code " + channelObisCode + " found in the meter load profile capture objects list, is NOT supported by the meter itself." +
+                        " If ReadCache property is not active, try again with this property enabled. Otherwise, please reprogram the meter with a valid set of capture objects.";
+
+                if (protocol.getDlmsSessionProperties().validateLoadProfileChannels()) {
+                    protocol.journal(Level.SEVERE, message); // throw new ProtocolException(message);
+                } else {
+                    protocol.journal(Level.WARNING, message);
+                }
+            }
+        }
+        for (ObisCode obisCode: result.keySet()) {
+            String newOBIS = obisCode.toString();
+            correctedResult.put(newOBIS, result.get(obisCode));
+        }
+        return correctedResult;
     }
 
     /**
@@ -144,13 +413,16 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
                 } else if (rObisCode.equals(ConfigurationObject)) {
                     this.registerMap.put(register, new DLMSAttribute(ConfigurationObject, DataAttributes.VALUE.getAttributeNumber(), DLMSClassId.DATA));
                     dlmsAttributes.add(this.registerMap.get(register));
-                    }else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_OBJECTS)) {
-                        this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_OBJECTS.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    }else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_PERIOD)) {
-                        this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
-                        dlmsAttributes.add(this.registerMap.get(register));
-                    }
+                } else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_OBJECTS)) {
+                    this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_OBJECTS.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                }else if (rObisCode.equals(DEFINABLE_LOAD_PROFILE_CAPTURE_PERIOD)) {
+                    this.registerMap.put(register, new DLMSAttribute(DEFINABLE_LOAD_PROFILE_BASE, DefinableLoadProfileAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.PROFILE_GENERIC));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equalsIgnoreBChannel(MBUS_LOAD_PROFILE) ) {
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    dlmsAttributes.add(this.registerMap.get(register));
+                }
             }
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registers, supportsBulkRequest);
             if (sRegisterList != null) {
@@ -222,11 +494,8 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
                     if(i<dlp.size() -1){
                         dlps += ";";
                     }
-
                 }
                 return new RegisterValue(register, dlps);
-
-
             }
             return new RegisterValue(register, abstractDataType.toString());
         } else if (rObisCode.equalsIgnoreBChannel(DEFINABLE_LOAD_PROFILE_CAPTURE_PERIOD)) {
@@ -265,7 +534,6 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
 
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
     }
-
 
     private String composeObisCode(byte[] octetStr) {
         String obisCode = "";

@@ -83,7 +83,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     @Inject
     public ServiceCallIssueServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService,
                                        EventService eventService, UpgradeService upgradeService, QueryService queryService,
-                                       MessageService messageService) {
+                                       MessageService messageService, ServiceCallService serviceCallService) {
         setOrmService(ormService);
         setIssueService(issueService);
         setNlsService(nlsService);
@@ -91,11 +91,15 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
         setUpgradeService(upgradeService);
         setQueryService(queryService);
         setMessageService(messageService);
+        setServiceCallService(serviceCallService);
         activate();
     }
 
     @Activate
     public final void activate() {
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -106,6 +110,7 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
                 bind(ServiceCallIssueService.class).toInstance(ServiceCallIssueServiceImpl.this);
                 bind(EventService.class).toInstance(eventService);
                 bind(MessageService.class).toInstance(messageService);
+                bind(ServiceCallService.class).toInstance(serviceCallService);
             }
         });
         upgradeService.register(
@@ -171,9 +176,12 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Issue Service Call");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
+    }
+
+    // To preserve the order of activation
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     public DataModel getDataModel() {

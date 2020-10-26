@@ -256,6 +256,21 @@ Ext.define('Dxp.view.tasks.PreviewForm', {
                                 return '';
                             }
                         }
+                    },
+                    {
+                         fieldLabel: Uni.I18n.translate('general.synchronizedTask', 'DES', 'Synchronized task'),
+                         name: 'pairedTask',
+                         itemId: 'linked-export-task',
+                         renderer: function (value) {
+                              var tooltipText = Uni.I18n.translate('synchronizedTask.formatter.tooltip', 'DES', 'When one of the synchronized export tasks is run, last export time will be updated on the other task');
+                              var res = ''
+                              if (value && value.name) {
+                                    res = Ext.String.htmlEncode(value.name);
+                              }else{
+                                    res = "-";
+                              }
+                              return (res + '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px; margin-left:7px;" data-qtip="' + tooltipText + '"></span>');
+                         }
                     }
                 ]
             },

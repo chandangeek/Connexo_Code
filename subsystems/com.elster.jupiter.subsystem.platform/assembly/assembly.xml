@@ -70,6 +70,8 @@
         <dependencySet>
             <includes>
                 <include>org.apache.tomcat:tomcat:zip:connexo</include>
+                <include>org.jboss.server:jboss-eap:zip:connexojboss</include>
+                <include>org.jboss.server:jbcs-jsvc:zip:apachejsvc</include>
             </includes>
             <scope>provided</scope>
             <outputDirectory>partners</outputDirectory>
@@ -107,7 +109,6 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>com.elster.jupiter.thirdparty.apps.flow:*</include>
                 <include>com.elster.partners:jbpm.extension:jar</include>
                 <include>com.elster.partners:flow.filter:jar</include>
             </includes>
@@ -116,6 +117,20 @@
                 ${artifact.artifactId}.${artifact.extension}
             </outputFileNameMapping>
             <outputDirectory>partners/flow</outputDirectory>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useProjectArtifact>true</useProjectArtifact>
+        </dependencySet>
+        <dependencySet>
+            <includes>
+                <include>com.elster.jupiter.thirdparty.apps.pam:addons:zip:connexoaddons</include>
+                <include>com.elster.jupiter.thirdparty.apps.pam:businesscentral:zip:connexobusinesscentral</include>
+                <include>com.elster.jupiter.thirdparty.apps.pam:pamkieserver:zip:connexokieserver</include>
+            </includes>
+            <scope>provided</scope>
+            <outputDirectory>partners/flow</outputDirectory>
+            <outputFileNameMapping>
+                ${artifact.artifactId}.${artifact.extension}
+            </outputFileNameMapping>
             <useTransitiveDependencies>false</useTransitiveDependencies>
             <useProjectArtifact>true</useProjectArtifact>
         </dependencySet>

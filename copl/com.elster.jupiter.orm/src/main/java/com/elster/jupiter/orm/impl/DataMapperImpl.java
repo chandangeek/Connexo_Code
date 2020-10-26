@@ -439,7 +439,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         for (DataMapper<?> each : dataMappers) {
             DataMapperImpl<?> dataMapper = (DataMapperImpl<?>) each;
             if (dataMapper.needsRestriction()) {
-                throw new IllegalStateException("No Restriction allowed on additional mappers: " + dataMapper);
+                throw new IllegalStateException("No Restriction allowed on additional mappers: " + dataMapper.getTable().getName());
             } else {
                 result.add(dataMapper);
             }

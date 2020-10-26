@@ -70,6 +70,7 @@ import java.lang.reflect.Field;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -188,6 +189,8 @@ public abstract class AbstractMockActivator {
     protected EngineConfigurationService engineConfigurationService;
     @Mock
     protected PriorityComTaskService priorityComTaskService;
+    @Mock
+    protected Finder<EndPointConfiguration> endPointConfigs;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -201,6 +204,8 @@ public abstract class AbstractMockActivator {
         when(nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
         when(transactionService.getContext()).thenReturn(transactionContext);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
+        when(endPointConfigs.stream()).thenReturn(Stream.empty());
+        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(endPointConfigs);
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
         mockWebServices(true);
 
@@ -269,6 +274,7 @@ public abstract class AbstractMockActivator {
         activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.setEngineConfigurationService(engineConfigurationService);
         activator.setPriorityComTaskService(priorityComTaskService);
+        activator.setEndPointConfigurationService(endPointConfigurationService);
         activator.activate(mock(BundleContext.class));
     }
 

@@ -23,4 +23,6 @@ public interface FileImportZipLogger {
     void importFailed(Exception exception);
 
     void importFinished();
+
+    void info(MessageSeeds message, Object... arguments);
 }

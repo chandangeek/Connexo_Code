@@ -10,6 +10,7 @@ import com.elster.jupiter.util.conditions.Order;
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -37,6 +38,8 @@ public interface QueryStream<T> extends Stream<T> {
      * sort the result
      */
     QueryStream<T> sorted(Order order, Order... orders);
+
+    QueryStream<T> sorted(Collection<Order> orders);
 
     /*
      * checks if any tuples matches the condition

@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300.messages;
 
+import com.energyict.common.CommonCryptoMessaging;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -15,8 +16,6 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.common.CommonCryptoMessaging;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 
@@ -54,7 +53,8 @@ public class CryptoHS3300Messaging extends HS3300Messaging {
     @Override
     protected HS3300MessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new CryptoHS3300MessageExecutor(getProtocol(), getCollectedDataFactory(), getIssueFactory());
+            this.messageExecutor = new CryptoHS3300MessageExecutor(getProtocol(), getCollectedDataFactory(),
+                    getKeyAccessorTypeExtractor(), getIssueFactory());
         }
         return messageExecutor;
     }

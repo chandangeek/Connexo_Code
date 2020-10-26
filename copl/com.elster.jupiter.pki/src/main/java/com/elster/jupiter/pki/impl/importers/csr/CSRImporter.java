@@ -33,8 +33,6 @@ import java.util.Map;
 import java.util.Optional;
 
 class CSRImporter implements FileImporter {
-    public static final int SIGNATURE_LENGTH = 256;
-    public static final int RSA_MODULUS_BIT_LENGTH = 2048;
     private final Thesaurus thesaurus;
     private final Map<String, Object> properties;
     private final SecurityManagementService securityManagementService;
@@ -60,16 +58,18 @@ class CSRImporter implements FileImporter {
     public void process(FileImportOccurrence fileImportOccurrence) {
         CSRImporterLogger logger = new CSRImporterLogger(fileImportOccurrence, thesaurus);
         try {
-            ReusableInputStream reusableInputStream = ReusableInputStream.from(fileImportOccurrence.getContents());
             if ((Boolean) properties.get(CSRImporterTranslatedProperty.CHECK_FILE_SIGNATURE.getPropertyKey())) {
+                ReusableInputStream reusableInputStream = ReusableInputStream.from(fileImportOccurrence.getContents());
                 verifyInputFileSignature(reusableInputStream);
                 logger.log(MessageSeeds.OK_SIGNATURE);
             } else {
                 logger.log(MessageSeeds.SKIPPING_SIGNATURE_VERIFICATION);
             }
 
-            Map<String, Map<String, PKCS10CertificationRequest>> csrMap = new CSRZipFileParser(thesaurus)
-                    .parseInputStream(reusableInputStream.stream());
+            CSRZipFileParser zipFileParser = new CSRZipFileParser(fileImportOccurrence, thesaurus);
+
+            Map<String, Map<String, PKCS10CertificationRequest>> csrMap = zipFileParser.parse();
+
             // kind of ugly but model forced us to send optional later on ...
             Optional<CertificateRequestData> certificateUserData = Optional.of(CertificateRequestData.from(properties));
             Map<String, Map<String, X509Certificate>> certificateMap = new CSRProcessor(securityManagementService, caService, properties, logger, certificateUserData)
@@ -80,11 +80,11 @@ class CSRImporter implements FileImporter {
 
             if (deepSize(csrMap) == deepSize(certificateMap)) {
                 if (shouldExportFolder){
-                    new CertificateExportProcessor(properties, new CertificateFolderExporterDestination(clock, properties), logger)
+                    new CertificateExportProcessor(properties, new CertificateFolderExporterDestination(clock, properties),securityManagementService, logger)
                             .processExport(certificateMap);
                 }
                 if (shouldExportSFTP) {
-                    new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties), logger)
+                    new CertificateExportProcessor(properties, new CertificateSftpExporterDestination(ftpClientService, clock, properties),securityManagementService, logger)
                             .processExport(certificateMap);
                 }
             } else {
@@ -116,7 +116,7 @@ class CSRImporter implements FileImporter {
                 .orElseThrow(() -> new SignatureCheckFailedException(thesaurus, MessageSeeds.NO_CERTIFICATE_IN_WRAPPER, certificateWrapper.getAlias()));
         PublicKey publicKey = certificate.getPublicKey();
         if (!isSupportedType(publicKey)) {
-            throw new SignatureCheckFailedException(thesaurus, MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA " + RSA_MODULUS_BIT_LENGTH);
+            throw new SignatureCheckFailedException(thesaurus, MessageSeeds.INAPPROPRIATE_CERTIFICATE_TYPE, certificateWrapper.getAlias(), "RSA expected");
         }
         if (!inputFileHasValidSignature(reusableInputStream.getBytes(), publicKey)) {
             throw new SignatureCheckFailedException(thesaurus);
@@ -124,20 +124,22 @@ class CSRImporter implements FileImporter {
     }
 
     static boolean isSupportedType(PublicKey publicKey) {
-        return publicKey instanceof RSAPublicKey && ((RSAPublicKey) publicKey).getModulus().bitLength() == RSA_MODULUS_BIT_LENGTH;
+        return publicKey instanceof RSAPublicKey ;
     }
 
     static boolean isSupportedType(PrivateKey privateKey) {
-        return privateKey instanceof RSAPrivateKey && ((RSAPrivateKey) privateKey).getModulus().bitLength() == RSA_MODULUS_BIT_LENGTH;
+        return privateKey instanceof RSAPrivateKey;
     }
 
     private boolean inputFileHasValidSignature(byte[] allBytes, PublicKey publicKey) {
         try {
             final Signature signer = Signature.getInstance("SHA256withRSA");
+            int modulusLength = ((RSAPublicKey) publicKey).getModulus().bitLength();
+            int signatureLength =  modulusLength / 8;
             signer.initVerify(publicKey);
-            signer.update(Arrays.copyOf(allBytes, allBytes.length - SIGNATURE_LENGTH));
-            byte[] signature = new byte[SIGNATURE_LENGTH];
-            System.arraycopy(allBytes, allBytes.length - SIGNATURE_LENGTH, signature, 0, SIGNATURE_LENGTH);
+            signer.update(Arrays.copyOf(allBytes, allBytes.length - signatureLength));
+            byte[] signature = new byte[signatureLength];
+            System.arraycopy(allBytes, allBytes.length - signatureLength, signature, 0, signatureLength);
             return signer.verify(signature);
         } catch (Exception e) {
             throw new SignatureCheckFailedException(thesaurus, e);

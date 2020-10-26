@@ -5,6 +5,8 @@
 package com.elster.jupiter.pki;
 
 
+import java.util.Optional;
+
 public interface HsmKey extends SymmetricKeyWrapper{
 
     /**
@@ -64,7 +66,7 @@ public interface HsmKey extends SymmetricKeyWrapper{
 
     /**
      * HSM requires previous key values, in order to generate a new key
-     * @param masterKey previous key
+     * @param masterKey the optional wrap key (the reversible keys don't need a wrapper)
      */
-    void generateValue(SecurityAccessorType securityAccessorType, HsmKey masterKey);
+    void generateValue(SecurityAccessorType securityAccessorType, Optional<HsmKey> masterKey);
 }

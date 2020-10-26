@@ -273,7 +273,7 @@ public class CalendarServiceImpl implements ServerCalendarService, MessageSeedPr
     }
 
     public List<Calendar> findAllCalendars() {
-        return DefaultFinder.of(Calendar.class, getNonObsoleteCalendarsCondition(), this.getDataModel()).defaultSortColumn("lower(name)").find();
+        return DefaultFinder.of(Calendar.class, getNonObsoleteCalendarsCondition(), this.getDataModel()).defaultSortColumn("name").find();
     }
 
     @Override

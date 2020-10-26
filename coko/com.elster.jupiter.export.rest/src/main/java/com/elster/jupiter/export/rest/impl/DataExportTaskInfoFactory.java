@@ -14,6 +14,7 @@ import com.elster.jupiter.export.SelectorType;
 import com.elster.jupiter.export.UsagePointReadingSelectorConfig;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.PeriodicalScheduleExpression;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeService;
@@ -49,20 +50,26 @@ public class DataExportTaskInfoFactory {
         this.serviceLocator = serviceLocator;
     }
 
-    public DataExportTaskInfo asInfo(ExportTask exportTask) {
-        DataExportTaskInfo info = asMinimalInfo(exportTask);
-        info.lastExportOccurrence = exportTask.getLastOccurrence().map(oc -> dataExportTaskHistoryInfoFactoryProvider.get().asInfo(oc)).orElse(null);
+    public DataExportTaskInfo asDetailedInfo(ExportTask exportTask) {
+        DataExportTaskInfo info = asInfoWithoutHistory(exportTask);
+        exportTask.getLastOccurrence()
+                .map(dataExportTaskHistoryInfoFactoryProvider.get()::asInfo)
+                .ifPresent(occurrenceInfo -> info.lastExportOccurrence = occurrenceInfo);
         return info;
     }
 
     public DataExportTaskInfo asInfoWithMinimalHistory(ExportTask exportTask) {
-        DataExportTaskInfo info = asMinimalInfo(exportTask);
-        info.lastExportOccurrence = exportTask.getLastOccurrence().map(oc -> dataExportTaskHistoryInfoFactoryProvider.get().asMinimalInfo(oc)).orElse(null);
+        DataExportTaskInfo info = asInfoWithoutHistory(exportTask);
+        exportTask.getLastOccurrence()
+                .map(dataExportTaskHistoryInfoFactoryProvider.get()::asMinimalInfo)
+                .ifPresent(occurrenceInfo -> info.lastExportOccurrence = occurrenceInfo);
         return info;
     }
 
-    private DataExportTaskInfo asMinimalInfo(ExportTask exportTask) {
-        DataExportTaskInfo info = asInfoWithoutHistory(exportTask);
+    private DataExportTaskInfo asInfoWithoutHistory(ExportTask exportTask) {
+        DataExportTaskInfo info = asBasicInfo(exportTask);
+        info.logLevel = exportTask.getLogLevel();
+        info.suspendUntilExport = exportTask.getSuspendUntil();
         if (Never.NEVER.equals(exportTask.getScheduleExpression())) {
             info.schedule = null;
             info.recurrence = thesaurus.getFormat(TranslationKeys.NONE).format();
@@ -77,67 +84,26 @@ public class DataExportTaskInfoFactory {
             }
         }
         exportTask.getDestinations().forEach(destination -> info.destinations.add(typeOf(destination).toInfo(serviceLocator, destination)));
+        exportTask.getPairedTask()
+                .map(IdWithNameInfo::new)
+                .ifPresent(pairedInfo -> info.pairedTask = pairedInfo);
         return info;
     }
 
-    public DataExportTaskInfo asInfoWithHistory(ExportTask dataExportTask, DataExportOccurrence dataExportOccurrence) {
-        DataExportTaskInfo info = new DataExportTaskInfo();
+    public DataExportTaskInfo asInfoForHistory(ExportTask dataExportTask, DataExportOccurrence dataExportOccurrence) {
+        DataExportTaskInfo info = asBasicInfo(dataExportTask);
         Instant versionAt = dataExportOccurrence.getRetryTime().orElse(dataExportOccurrence.getTriggerTime());
-
-        info.id = dataExportTask.getId();
-        info.name = dataExportTask.getName();
-        info.active = dataExportTask.isActive();
-        info.logLevel = dataExportOccurrence.getRetryTime().isPresent() ? dataExportOccurrence.getRecurrentTask().getLogLevel(versionAt) :
+        info.logLevel = dataExportOccurrence.getRetryTime().isPresent() ?
+                dataExportOccurrence.getRecurrentTask().getLogLevel(versionAt) :
                 dataExportOccurrence.getRecurrentTask().getLogLevel();
-        info.dataProcessor =
-                new ProcessorInfo(
-                        dataExportTask.getDataFormatterFactory().getName(),
-                        dataExportTask.getDataFormatterFactory().getDisplayName(),
-                        propertyValueInfoService.getPropertyInfos(
-                                dataExportTask.getDataFormatterPropertySpecs(),
-                                dataExportTask.getProperties()));
-        SelectorType selectorType = dataExportTask.getDataSelectorFactory().getSelectorType();
-        info.dataSelector =
-                new SelectorInfo(
-                        dataExportTask.getDataSelectorFactory().getName(),
-                        dataExportTask.getDataSelectorFactory().getDisplayName(),
-                        propertyValueInfoService.getPropertyInfos(
-                                dataExportTask.getDataSelectorPropertySpecs(),
-                                dataExportTask.getProperties()),
-                        selectorType);
-        dataExportTask.getStandardDataSelectorConfig().ifPresent(selectorConfig -> selectorConfig.apply(
-                new DataSelectorConfig.DataSelectorConfigVisitor() {
-                    @Override
-                    public void visit(MeterReadingSelectorConfig config) {
-                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
-                    }
-
-                    @Override
-                    public void visit(UsagePointReadingSelectorConfig config) {
-                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
-                    }
-
-                    @Override
-                    public void visit(EventSelectorConfig config) {
-                        info.standardDataSelector = standardDataSelectorInfoFactory.asInfo(config);
-                    }
-                }
-        ));
-
-        Instant nextExecution = dataExportTask.getNextExecution();
-        if (nextExecution != null) {
-            info.nextRun = nextExecution;
-        }
-        dataExportTask.getLastRun().ifPresent(lastRun -> info.lastRun = lastRun);
-        info.version = dataExportTask.getVersion();
         return info;
     }
 
-    public DataExportTaskInfo asInfoWithoutHistory(ExportTask dataExportTask) {
+    private DataExportTaskInfo asBasicInfo(ExportTask dataExportTask) {
         DataExportTaskInfo info = new DataExportTaskInfo();
         info.id = dataExportTask.getId();
         info.name = dataExportTask.getName();
-        info.logLevel = dataExportTask.getLogLevel();
+        info.version = dataExportTask.getVersion();
         info.active = dataExportTask.isActive();
         info.dataProcessor =
                 new ProcessorInfo(
@@ -179,10 +145,7 @@ public class DataExportTaskInfoFactory {
             info.nextRun = nextExecution;
         }
 
-        info.suspendUntilExport = dataExportTask.getSuspendUntil();
-
         dataExportTask.getLastRun().ifPresent(lastRun -> info.lastRun = lastRun);
-        info.version = dataExportTask.getVersion();
         return info;
     }
 

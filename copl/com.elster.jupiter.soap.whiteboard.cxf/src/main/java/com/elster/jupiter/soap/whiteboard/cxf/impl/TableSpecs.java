@@ -162,15 +162,15 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
 
-            Column keyColumn = table.column("ATTR_KEY")
+            Column keyColumn = table.column(WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName())
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.fieldName())
                     .add();
-            Column valueColumn = table.column("ATTR_VALUE")
+            Column valueColumn = table.column(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName())
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName())
                     .add();
             table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn).add();
             table.primaryKey("PK_WS_RELATED_ATTRBT").on(idColumn).add();

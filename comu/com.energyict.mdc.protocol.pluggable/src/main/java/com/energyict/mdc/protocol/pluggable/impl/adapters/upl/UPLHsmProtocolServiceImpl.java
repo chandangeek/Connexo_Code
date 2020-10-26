@@ -21,6 +21,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
+import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 
@@ -339,10 +340,10 @@ public class UPLHsmProtocolServiceImpl implements HsmProtocolService {
                 String labelAndKeyValue = new StringBuilder()
                         .append(hsmKey.getLabel())
                         .append(":")
-                        .append(Hex.encodeHexString(hsmKey.getKey()))
+                        .append(DatatypeConverter.printHexBinary(hsmKey.getKey()))
                         .toString();
 
-                return Base64.encodeBase64String(labelAndKeyValue.getBytes(StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
+                return java.util.Base64.getEncoder().encode(labelAndKeyValue.getBytes(StandardCharsets.UTF_8));
             }
         };
     }

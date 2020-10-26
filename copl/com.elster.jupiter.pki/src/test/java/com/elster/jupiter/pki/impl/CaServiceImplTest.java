@@ -37,6 +37,7 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.osgi.framework.BundleContext;
 
+import javax.naming.InvalidNameException;
 import javax.security.auth.x500.X500Principal;
 import java.io.ByteArrayInputStream;
 import java.math.BigInteger;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -253,5 +255,30 @@ public class CaServiceImplTest {
         JcaContentSignerBuilder csBuilder = new JcaContentSignerBuilder("SHA256withRSA");
         ContentSigner signer = csBuilder.build(pair.getPrivate());
         return p10Builder.build(signer);
+    }
+
+    @Test
+    public void testExtractSubjectDN() throws InvalidNameException {
+        String originalSubjectDN = "CN=4B464D1010006D3B,OU=KFM,O=SZ Kaifa Technology Co.\\,Ltd.,C=CN";
+
+        String subjectDN = caService.extractSubjectDN(originalSubjectDN,"CN");
+        assertEquals("CN=4B464D1010006D3B", subjectDN);
+
+        subjectDN = caService.extractSubjectDN(originalSubjectDN,"CN OU ");
+        assertEquals("CN=4B464D1010006D3B,OU=KFM", subjectDN);
+
+        subjectDN = caService.extractSubjectDN(originalSubjectDN,"CN,OU,C ");
+        assertEquals("CN=4B464D1010006D3B,OU=KFM,C=CN", subjectDN);
+
+
+        subjectDN = caService.extractSubjectDN(originalSubjectDN,"");
+        assertEquals(originalSubjectDN, subjectDN);
+
+        subjectDN = caService.extractSubjectDN(originalSubjectDN,"   ");
+        assertEquals(originalSubjectDN, subjectDN);
+
+
+        subjectDN = caService.extractSubjectDN(originalSubjectDN,null);
+        assertEquals(originalSubjectDN, subjectDN);
     }
 }

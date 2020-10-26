@@ -13,14 +13,19 @@ import com.elster.jupiter.export.DataFormatter;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelector;
 import com.elster.jupiter.export.DataSelectorFactory;
+import com.elster.jupiter.export.DefaultSelectorOccurrence;
 import com.elster.jupiter.export.ExportData;
+import com.elster.jupiter.export.ExportTask;
 import com.elster.jupiter.export.FatalDataExportException;
 import com.elster.jupiter.export.FormattedData;
 import com.elster.jupiter.export.FormattedExportData;
 import com.elster.jupiter.export.MeterReadingData;
+import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.export.SimpleFormattedData;
 import com.elster.jupiter.export.StructureMarker;
+import com.elster.jupiter.metering.ReadingContainer;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasDynamicProperties;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -29,6 +34,9 @@ import com.elster.jupiter.tasks.TaskExecutor;
 import com.elster.jupiter.tasks.TaskOccurrence;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
+import com.elster.jupiter.util.Pair;
+
+import com.google.common.collect.Range;
 
 import java.nio.file.Path;
 import java.time.Clock;
@@ -37,8 +45,11 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoField;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -103,7 +114,7 @@ class DataExportTaskExecutor implements TaskExecutor {
             throw ex;
         } finally {
             try (TransactionContext transactionContext = transactionService.getContext()) {
-                //Refetch dataExportOccurrence to avoid Optimistic Lock exceptions
+                // Re-fetch dataExportOccurrence to avoid Optimistic Lock exceptions
                 IDataExportOccurrence dataExportOccurrence = findOccurrence(occurrence);
                 if (thrown != null) {
                     if (thrown.getCause() instanceof DestinationFailedException) {
@@ -139,16 +150,21 @@ class DataExportTaskExecutor implements TaskExecutor {
     private void doExecute(IDataExportOccurrence occurrence, Logger logger) {
         IExportTask task = occurrence.getTask();
 
-        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
-        if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
-            try (TransactionContext context = transactionService.getContext()) {
-                task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
-                        .peek(item -> item.setLastRun(occurrence.getTriggerTime()))
-                        .forEach(ReadingTypeDataExportItem::update);
-                context.commit();
-            }
+        final boolean hasDataSources = task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent();
+        Set<ReadingTypeDataExportItem> localDataSources = Collections.emptySet();
+        Map<Pair<ReadingContainer, ReadingType>, ReadingTypeDataExportItem> remoteDataSources = Collections.emptyMap();
+        if (hasDataSources) {
+            localDataSources = manageActiveItems(occurrence, task.getReadingDataSelectorConfig().get());
+            remoteDataSources = task.getPairedTask()
+                    .flatMap(ExportTask::getReadingDataSelectorConfig)
+                    .map(ReadingDataSelectorConfig::getExportItems)
+                    .orElseGet(Collections::emptyList)
+                    .stream()
+                    .collect(Collectors.toMap(item -> Pair.of(item.getReadingContainer(), item.getReadingType()), Function.identity()));
+            updateLocalLastExportDatesBeforeExport(occurrence, localDataSources, remoteDataSources);
         }
 
+        Stream<ExportData> data = getDataSelector(task, logger, occurrence).selectData(occurrence);
         DataFormatter dataFormatter = getDataFormatter(task, occurrence);
         loggingExceptions(logger, () -> dataFormatter.startExport(occurrence, logger)).run();
         ItemExporter itemExporter = new LazyItemExporter(dataFormatter, logger);
@@ -178,30 +194,126 @@ class DataExportTaskExecutor implements TaskExecutor {
 
         loggingExceptions(logger, dataFormatter::endExport).run();
 
-        if (task.hasDefaultSelector() && task.getReadingDataSelectorConfig().isPresent()) {
-            try (TransactionContext context = transactionService.getContext()) {
-                task.getReadingDataSelectorConfig().get().getActiveItems(occurrence).stream()
-                        .filter(item -> {
-                            boolean needToUpdate = false;
-                            if (!dataSendingStatus.isFailedForNewData(item) && !item.isExportPostponedForNewData()) {
-                                // move lastExportedNewData not to send these data as 'new' anymore
-                                // if we move lastExportedChangedData as well, unsent changed data will be lost next time
-                                occurrence.getDefaultSelectorOccurrence().ifPresent(s -> item.setLastExportedNewData(s.getExportedDataInterval().upperEndpoint()));
-                                needToUpdate = true;
-                            }
-                            if (!dataSendingStatus.isFailedForChangedData(item) && !item.isExportPostponedForChangedData()) {
-                                // move lastExportedChangedData not to send these changed data anymore
-                                // if we move lastExportedNewData as well, unsent new data will be lost next time
-                                item.setLastExportedChangedData(occurrence.getTriggerTime());
-                                needToUpdate = true;
-                            }
-                            return needToUpdate;
-                        })
-                        .forEach(ReadingTypeDataExportItem::update);
-                context.commit();
-            }
+        if (hasDataSources) {
+            updateLastExportDatesAfterExport(occurrence, dataSendingStatus, localDataSources, remoteDataSources);
         }
         dataSendingStatus.throwExceptionIfFailed(thesaurus);
+    }
+
+    private Set<ReadingTypeDataExportItem> manageActiveItems(IDataExportOccurrence occurrence, ReadingDataSelectorConfig selectorConfig) {
+        Set<ReadingTypeDataExportItem> activeItems;
+        try (TransactionContext context = transactionService.getContext()) {
+            activeItems = selectorConfig.getActiveItems(occurrence);
+            Stream.concat(selectorConfig.getExportItems().stream(), activeItems.stream())
+                    .distinct()
+                    .sorted(Comparator.comparing(ReadingTypeDataExportItem::getId))
+                    .map(this::lock)
+                    .peek(item -> {
+                        if (activeItems.contains(item)) {
+                            item.activate();
+                        } else {
+                            item.deactivate();
+                        }
+                    })
+                    .forEach(ReadingTypeDataExportItem::update);
+            context.commit();
+        }
+        return activeItems;
+    }
+
+    private void updateLocalLastExportDatesBeforeExport(IDataExportOccurrence occurrence,
+                                                        Set<ReadingTypeDataExportItem> localItems,
+                                                        Map<Pair<ReadingContainer, ReadingType>, ReadingTypeDataExportItem> remoteItems) {
+        try (TransactionContext context = transactionService.getContext()) {
+            localItems.stream()
+                    .sorted(Comparator.comparing(ReadingTypeDataExportItem::getId))
+                    .map(item -> {
+                        ReadingTypeDataExportItem locked = lock(item);
+                        locked.setLastRun(occurrence.getTriggerTime());
+                        ReadingTypeDataExportItem remoteItem = remoteItems.get(Pair.of(locked.getReadingContainer(), locked.getReadingType()));
+                        if (remoteItem != null) {
+                            remoteItem.getLastExportedNewData()
+                                    .ifPresent(date -> moveLastExportedNewData(locked, date));
+                            remoteItem.getLastExportedChangedData()
+                                    .ifPresent(date -> moveLastExportedChangedData(locked, date));
+                        }
+                        // need also to update original 'item' because it's cached in memory and is further used for data selection
+                        item.setLastRun(locked.getLastRun().orElse(null));
+                        item.setLastExportedNewData(locked.getLastExportedNewData().orElse(null));
+                        item.setLastExportedChangedData(locked.getLastExportedChangedData().orElse(null));
+                        return locked;
+                    })
+                    .forEach(ReadingTypeDataExportItem::update);
+            context.commit();
+        }
+    }
+
+    private void updateLastExportDatesAfterExport(IDataExportOccurrence occurrence,
+                                                  DataSendingStatus dataSendingStatus,
+                                                  Set<ReadingTypeDataExportItem> localItems,
+                                                  Map<Pair<ReadingContainer, ReadingType>, ReadingTypeDataExportItem> remoteItems) {
+        try (TransactionContext context = transactionService.getContext()) {
+            Set<ReadingTypeDataExportItem> itemsToUpdateForLastExportedNewData = new HashSet<>(localItems.size() + remoteItems.size(), 1);
+            Set<ReadingTypeDataExportItem> itemsToUpdateForLastExportedChangedData = new HashSet<>(localItems.size() + remoteItems.size(), 1);
+            localItems.forEach(item -> {
+                if (!dataSendingStatus.isFailedForNewData(item) && !item.isExportPostponedForNewData()) {
+                    // move lastExportedNewData not to send these data as 'new' anymore
+                    // if we move lastExportedChangedData as well, unsent changed data will be lost next time
+                    addLocalAndMatchingRemoteItems(itemsToUpdateForLastExportedNewData, item, remoteItems);
+                }
+                if (!dataSendingStatus.isFailedForChangedData(item) && !item.isExportPostponedForChangedData()) {
+                    // move lastExportedChangedData not to send these changed data anymore
+                    // if we move lastExportedNewData as well, unsent new data will be lost next time
+                    addLocalAndMatchingRemoteItems(itemsToUpdateForLastExportedChangedData, item, remoteItems);
+                }
+            });
+            Instant lastExportedNewData = occurrence.getDefaultSelectorOccurrence()
+                    .map(DefaultSelectorOccurrence::getExportedDataInterval)
+                    .map(Range::upperEndpoint)
+                    .orElse(null);
+            Instant lastExportedChangedData = occurrence.getTriggerTime();
+            Stream.concat(itemsToUpdateForLastExportedNewData.stream(), itemsToUpdateForLastExportedChangedData.stream())
+                    .distinct()
+                    .sorted(Comparator.comparing(ReadingTypeDataExportItem::getId))
+                    .map(this::lock)
+                    .peek(item -> {
+                        if (itemsToUpdateForLastExportedNewData.contains(item) && lastExportedNewData != null) {
+                            moveLastExportedNewData(item, lastExportedNewData);
+                        }
+                        if (itemsToUpdateForLastExportedChangedData.contains(item)) {
+                            moveLastExportedChangedData(item, lastExportedChangedData);
+                        }
+                    })
+                    .forEach(ReadingTypeDataExportItem::update);
+            context.commit();
+        }
+    }
+
+    private ReadingTypeDataExportItem lock(ReadingTypeDataExportItem item) {
+        return dataExportService.findAndLockReadingTypeDataExportItem(item.getId())
+                .orElseThrow(() -> new IllegalStateException("Couldn't lock data source with id " + item.getId() + '.')); // must always exist
+    }
+
+    private static void addLocalAndMatchingRemoteItems(Set<ReadingTypeDataExportItem> resultSet,
+                                                       ReadingTypeDataExportItem localItem,
+                                                       Map<Pair<ReadingContainer, ReadingType>, ReadingTypeDataExportItem> remoteItems) {
+        resultSet.add(localItem);
+        ReadingTypeDataExportItem remoteItem = remoteItems.get(Pair.of(localItem.getReadingContainer(), localItem.getReadingType()));
+        if (remoteItem != null) {
+            resultSet.add(remoteItem);
+        }
+    }
+
+    private static void moveLastExportedNewData(ReadingTypeDataExportItem item, Instant newDate) {
+        if (!item.getLastExportedNewData().isPresent() || item.getLastExportedNewData().get().isBefore(newDate)) {
+            item.setLastExportedNewData(newDate);
+        }
+    }
+
+    private static void moveLastExportedChangedData(ReadingTypeDataExportItem item, Instant newDate) {
+        if (!item.getLastExportedChangedData().isPresent() || item.getLastExportedChangedData().get().isBefore(newDate)) {
+            item.setLastExportedChangedData(newDate);
+        }
     }
 
     private LoggingItemExporter getItemExporter(DataFormatter dataFormatter, Logger logger) {

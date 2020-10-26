@@ -366,5 +366,10 @@
             <artifactId>orm.h2</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.cim.webservices.outbound.soap</artifactId>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

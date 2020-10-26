@@ -63,6 +63,28 @@ public class DeviceTopologyInfo {
         return deviceTopologyInfo;
     }
 
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                          Optional<G3Neighbor> g3Neighbor, Thesaurus thesaurus) {
+        DeviceTopologyInfo deviceTopologyInfo = DeviceTopologyInfo.from(device, linkingTimeStamp, deviceLifeCycleConfigurationService);
+        g3Neighbor.ifPresent(g3Neighbor1 -> deviceTopologyInfo.g3NodePLCInfo = G3NodePLCInfo.from(g3Neighbor1, thesaurus));
+        return deviceTopologyInfo;
+    }
+
+    public static DeviceTopologyInfo from(Device device, Optional<Instant> linkingTimeStamp, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+        DeviceTopologyInfo info = new DeviceTopologyInfo();
+        info.id = device.getId();
+        info.name = device.getName();
+        info.deviceTypeName = device.getDeviceType().getName();
+        info.deviceConfigurationName = device.getDeviceConfiguration().getName();
+        info.serialNumber = device.getSerialNumber();
+        info.creationTime = device.getCreateTime().toEpochMilli();
+        if (linkingTimeStamp.isPresent() && linkingTimeStamp.get() != Instant.MAX) {
+            info.linkingTimeStamp = linkingTimeStamp.get().toEpochMilli();
+        }
+        info.state = DefaultState.from(device.getState()).map(deviceLifeCycleConfigurationService::getDisplayName).orElseGet(device.getState()::getName);
+        return info;
+    }
+
     private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
 
         private TopologyTimeline timeline;

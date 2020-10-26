@@ -6,10 +6,10 @@ package com.energyict.protocol.exceptions;
 
 import com.energyict.mdc.upl.nls.MessageSeed;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.nls.Thesaurus;
 
 import java.text.MessageFormat;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * @author Stijn Vanhoorelbeke
@@ -20,6 +20,7 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
     private MessageSeed messageSeed;
     private Object[] messageArguments;
     private Optional<NlsService> nlsService = Optional.empty();
+    private Throwable originalCause = null;
 
     public ProtocolRuntimeException(MessageSeed messageSeed, Object... messageArguments) {
         super(defaultFormattedMessage(messageSeed, messageArguments));
@@ -31,16 +32,19 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
         super(defaultFormattedMessage(messageSeed, new Object[]{cause.getMessage()}), cause);
         this.messageSeed = messageSeed;
         this.messageArguments = new Object[0];
+        originalCause = cause;
     }
 
     public ProtocolRuntimeException(Throwable cause, MessageSeed messageSeed, Object... messageArguments) {
         super(defaultFormattedMessage(messageSeed, messageArguments), cause);
         this.messageSeed = messageSeed;
         this.messageArguments = messageArguments;
+        originalCause = cause;
     }
 
     public ProtocolRuntimeException(Throwable cause) {
         super(cause.getMessage());
+        originalCause = cause;
     }
 
     private static String defaultFormattedMessage(MessageSeed messageSeed, Object[] messageArguments) {
@@ -66,23 +70,27 @@ public abstract class ProtocolRuntimeException extends RuntimeException {
 
     @Override
     public String getMessage() {
-        return nlsService.isPresent()
-                ? nlsService.get().getThesaurus(getMessageSeed().getModule()).getFormat(getMessageSeed()).format(getMessageArguments())
-                : super.getMessage();
+        try {
+        if (this.messageSeed != null ) {
+            // the developer sent a message-seed
+            return nlsService.isPresent()
+                    ? nlsService.get().getThesaurus(getMessageSeed().getModule()).getFormat(getMessageSeed()).format(getMessageArguments())
+                    : super.getMessage();
+        }
+        // no message seed, maybe some original cause?
+        if (originalCause != null) {
+
+            return originalCause.fillInStackTrace().getMessage();
+        }
+        // nothing :( so just fallback to n/a
+        } catch (Exception ex) {
+            Logger.getAnonymousLogger().warning(ex.getMessage());
+        }
+        return "n/a";
     }
 
     @Override
     public String getLocalizedMessage() {
-        if (nlsService.isPresent()) {
-            String module            = getMessageSeed().getModule();
-            Thesaurus thesaurus      = nlsService.get().getThesaurus(module);
-            MessageSeed messageSeed  = getMessageSeed();
-            if (module != null && thesaurus != null && messageSeed != null)
-            {
-                return thesaurus.getFormat(messageSeed).format(getMessageArguments());
-            }
-        }
-
-        return super.getLocalizedMessage();
+        return getMessage();
     }
 }

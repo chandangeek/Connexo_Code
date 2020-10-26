@@ -171,6 +171,17 @@ public class CryptoBeaconMessaging extends Beacon3100Messaging {
         return collectedMessageList;
     }
 
+
+    /**
+     * Extract the actual password bytes from the string received from message formatter.
+     *
+     * @param rawPasswordAttribute encoded HSM key
+     * @return bytes to send to device
+     */
+    protected byte[] preProcessPassword(String rawPasswordAttribute){
+        return executor.extractWrappedKey(rawPasswordAttribute);
+    }
+
     @Override
     protected CollectedMessage changeEncryptionKey(CollectedMessage collectedMessage, OfflineDeviceMessage offlineDeviceMessage) throws IOException {
         int clientId = getClientId(offlineDeviceMessage);
