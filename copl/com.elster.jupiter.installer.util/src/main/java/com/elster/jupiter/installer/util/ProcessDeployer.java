@@ -27,8 +27,9 @@ import java.util.Collections;
 public class ProcessDeployer {
 
 
-    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"groupId\":\"Honeywell\",\"version\":2.8.1,\"description\":\"Default Connexo organizational\"}";
+    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"groupId\":\"Honeywell\",\"version\":\"2.8.1\",\"description\":\"Repository for Connexo projects\"}";
     private static final String defaultSpacePayload = "{\"name\":\"Honeywell\",\"description\":\"Default Connexo organizational unit\",\"owner\":\"admin\",\"defaultGroupId\":\"Honeywell\"}";
+    private static final String defaultdeployPayload = "{\r\n \"release-id\":{\r\n \"group-id\":\"com.energyict\",\r\n \"artifact-id\":\"DeviceProcesses\",\r\n \"version\":\"2.8.1\"\r\n }\r\n}";
     private static final String spaceName = "Honeywell";
 
     public static void main(String args[]) {
@@ -94,7 +95,7 @@ public class ProcessDeployer {
         String baseUrl = "/services/rest/server/containers/" + deploymentId;
         if (!doGetDeployment(arg + baseUrl, authString)) {
             String deployUrl = arg + baseUrl;
-            doPutAndWait(deployUrl, authString, null);
+            doPutAndWait(deployUrl, authString, defaultdeployPayload);
         }
     }
 

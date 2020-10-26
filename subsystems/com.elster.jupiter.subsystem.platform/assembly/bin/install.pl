@@ -787,8 +787,12 @@ sub install_jboss {
 		print "Setting Configuration for Jboss\n";
 		chdir "$JBOSS_BASE/$JBOSS_DIR/bin";
 
-        system("add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
-        system("add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+        copy("$JBOSS_BASE/flow/jboss-cli.bat","$JBOSS_BASE/$JBOSS_DIR/bin/jboss-cli.bat");
+        copy("$JBOSS_BASE/flow/standalone.conf.bat","$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat","rem set \"JAVA_HOME=\"","set \"JAVA_HOME=$JAVA_HOME\"");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/jboss-cli.bat","set \"JAVA_HOME=C\"","set \"JAVA_HOME=$JAVA_HOME\"");
+        system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+        system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
 
         copy("$JBOSS_BASE/flow/standalone-full.xml","$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml");
         copy("$JBOSS_BASE/flow/userinfo.properties","$JBOSS_BASE/jboss/standalone/deployments/business-central.war/WEB-INF/classes/");
@@ -813,16 +817,25 @@ sub install_jboss {
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"http\" port=\"\"/>","<socket-binding name=\"http\" port=\"\$\{jboss.http.port:$JBOSS_HTTP_PORT\}\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"https\" port=\"\"/>","<socket-binding name=\"https\" port=\"\$\{jboss.https.port:$JBOSS_SSH_PORT\}\"/>");
 
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.host=localhost","datasource.management.wildfly.host=$HOST_NAME");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.port=9990","datasource.management.wildfly.port=9990");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.admin=admin","datasource.management.wildfly.admin=$CONNEXO_ADMIN_ACCOUNT");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.password=","datasource.management.wildfly.password=$JBOSS_ADMIN_PASSWORD");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.realm=ApplicationRealm","datasource.management.wildfly.realm=ApplicationRealm");
+
+        copy("$JBOSS_BASE/flow/security-management.properties","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.port=MANAGEMENT_HTTP_PORT","org.uberfire.ext.security.management.wildfly.cli.port=9990");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.host=MANAGEMENT_IP","org.uberfire.ext.security.management.wildfly.cli.host=$HOST_NAME");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.user=APPLICATION_USER","org.uberfire.ext.security.management.wildfly.cli.user=$CONNEXO_ADMIN_ACCOUNT");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.password=APPLICATION_PASSWORD","org.uberfire.ext.security.management.wildfly.cli.password=$JBOSS_ADMIN_PASSWORD");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm","org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm");
+
         dircopy("$JBOSS_BASE/flow/oracle", "$JBOSS_BASE/$JBOSS_DIR/modules/oracle");
 
 		print "Installing Jboss EAP For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-            system("service.bat install /name ConnexoJboss$SERVICE_VERSION");
+            system("service.bat install /name ConnexoJboss$SERVICE_VERSION /controller $HOST_NAME:9990");
 		} else {
-		    open(my $FH,"> $JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat") or die "Could not open $JBOSS_DIR/bin/standalone.conf.bat: $!";
-                       	     print $FH "export JAVA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx1024M \"\n";
-            close($FH);
-
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JAVA_HOME=\"/usr/lib/jvm/default-java\"","JAVA_HOME=\"$JAVA_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_HOME=\"/opt/jboss-eap\"","JBOSS_HOME=\"$STANDALONE_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_USER=jboss-eap","JBOSS_USER=jboss-eap");
@@ -996,6 +1009,8 @@ sub install_flow {
         if (-d "$JBOSS_DIR") { rmtree("$JBOSS_DIR"); }
         sleep 10;
         rename("$JBOSS_FOLDER","$JBOSS_DIR");
+        dircopy("$JBOSS_BASE/flow/$JBOSS_DIR", "$JBOSS_BASE/$JBOSS_DIR");
+        rmtree("$JBOSS_DIR");
 
 		print "Extracting pamkieserver.zip\n";
         system("\"$JAVA_HOME/bin/jar\" -vxf pamkieserver.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf pamkieserver.zip failed: $?";
@@ -1013,7 +1028,7 @@ sub install_flow {
         if (-d "$JBOSS_DIR") { rmtree("$JBOSS_DIR"); }
         sleep 10;
         rename("$JBOSS_FOLDER","$JBOSS_DIR");
-        dircopy("$JBOSS_BASE/flow/jboss", "$JBOSS_BASE/jboss");
+        dircopy("$JBOSS_BASE/flow/$JBOSS_DIR", "$JBOSS_BASE/$JBOSS_DIR");
         rmtree("$JBOSS_DIR");
 
         unlink("$CATALINA_HOME/webapps/flow/WEB-INF/lib/log4j-over-slf4j-1.7.2.jar");
@@ -1377,15 +1392,46 @@ sub start_tomcat {
 	}
 }
 
+sub restart_jboss_service {
+    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        print "Stopping service ConnexoJboss$SERVICE_VERSION ...";
+        system("net stop ConnexoJboss$SERVICE_VERSION");
+        sleep 10;
+        while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*STOPPED/) eq "") {
+            print " ... still not stopped";
+            sleep 3;
+        }
+        print "\nConnexoJboss$SERVICE_VERSION stopped!\n";
+
+        print "Starting service ConnexoJboss$SERVICE_VERSION ...";
+        system("net start /name ConnexoJboss$SERVICE_VERSION");
+        sleep 10;
+        while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
+            print " ... still not started";
+            sleep 3;
+        }
+        print "\nConnexoJboss$SERVICE_VERSION started!\n";
+    } else {
+        print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
+        system("/sbin/service ConnexoJboss$SERVICE_VERSION stop");
+        sleep 15;
+        print "Starting service ConnexoJboss$SERVICE_VERSION\n";
+        system("/sbin/service ConnexoJboss$SERVICE_VERSION start");
+        sleep 10;
+    }
+}
+
 sub start_jboss_service {
     if ("$INSTALL_FLOW" eq "yes") {
         print "\n\nStarting Jboss EAP ...\n";
         print "==========================================================================\n";
 
         if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+            system("sc config \"ConnexoJboss$SERVICE_VERSION\"  start= delayed-auto");
+            system("sc failure \"ConnexoJboss$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
             print "Starting service ConnexoJboss$SERVICE_VERSION ...";
             system("net start /name ConnexoJboss$SERVICE_VERSION");
-            sleep 100;
+            sleep 10;
             while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
                  print " ... still not started";
                  sleep 3;
@@ -1423,6 +1469,8 @@ sub start_jboss_service {
 
 sub start_jboss {
     if ("$INSTALL_FLOW" eq "yes") {
+        chdir "$JBOSS_BASE/$JBOSS_DIR/bin";
+        start_jboss_service();
 
 		if ("$INSTALL_FLOW" eq "yes") {
         	print "\nInstalling Connexo Flow content...\n";
@@ -1434,32 +1482,33 @@ sub start_jboss {
             postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
 
             print "\nCopy processes to repository...\n";
-            mkdir "$JBOSS_BASE/$JBOSS_DIR/bin/repositories";
-            dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global");
-            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global");
-            if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+            make_path("$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global");
+            dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global/");
+            #dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global/");
+            #dircopy("$CONNEXO_DIR/partners/flow/lib/*", "partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*");
+            #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                # classpath separator on Windows is ;
-               print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
-               postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/**;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
-            } else {
+               #print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
+               #postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
+            #} else {
                # classpath separator on Linux is :
-               print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
-               postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
-            }
-            print "\nDeploy MDC processes...\n";
-            my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
-            if(-e $mdcfile){
-               open(INPUT, $mdcfile);
-               my $line = <INPUT>; # header
-               while($line = <INPUT>){
-                 chomp($line);
-                 my ($name,$deploymentid)  = split(';', $line);
-                 print "Deploying: $name\n";
-                 postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($name) failed");
-                 sleep 2;
-               }
-               close(INPUT);
-            }
+               #print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
+               #postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
+            #}
+            #print "\nDeploy MDC processes...\n";
+            #my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
+            #if(-e $mdcfile){
+               #open(INPUT, $mdcfile);
+               #my $line = <INPUT>; # header
+               #while($line = <INPUT>){
+                 #chomp($line);
+                 #my ($name,$deploymentid)  = split(';', $line);
+                 #print "Deploying: $name\n";
+                 #postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($name) failed");
+                 #sleep 2;
+               #}
+               #close(INPUT);
+            #}
 
             #print "\nDeploy INSIGHT processes...\n";
             #my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
@@ -1475,9 +1524,6 @@ sub start_jboss {
             #}
             #close(INPUT);
         }
-
-        chdir "$JBOSS_BASE/$JBOSS_DIR/bin";
-        start_jboss_service();
 	}
 }
 
@@ -1530,24 +1576,16 @@ sub uninstall_all {
 	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 	    print "Stop and remove Connexo$SERVICE_VERSION service";
         system("\"$CONNEXO_DIR/bin/ConnexoService.exe\" /uninstall Connexo$SERVICE_VERSION");
-	    print "Stopping service ConnexoJboss$SERVICE_VERSION ...";
-        system("net stop ConnexoJboss$SERVICE_VERSION");
-        sleep 100;
-        while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*STOPPED/) eq "") {
-                    print " ... still not stopped";
-                    sleep 3;
-        }
-        print "\nConnexoJboss$SERVICE_VERSION stopped!\n";
-        print "Remove ConnexoJboss$SERVICE_VERSION service";
-        system("\"$CONNEXO_DIR/partners/jboss/bin/service.bat\" uninstall /name ConnexoJboss$SERVICE_VERSION");
-        while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*/) ne "") {
-            sleep 3;
-        }
 		print "Stop and remove ConnexoTomcat$SERVICE_VERSION service";
 		system("\"$CONNEXO_DIR/partners/tomcat/bin/service.bat\" remove ConnexoTomcat$SERVICE_VERSION");
 		while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*/) ne "") {
 			sleep 3;
 		}
+		print "Stop and remove ConnexoJboss$SERVICE_VERSION service";
+        system("\"$CONNEXO_DIR/partners/jboss/bin/service.bat\" uninstall /name ConnexoJboss$SERVICE_VERSION");
+        while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*/) ne "") {
+            sleep 3;
+        }
 	} else {
 		print "Stop and remove Connexo$SERVICE_VERSION service";
 		system("/sbin/service Connexo$SERVICE_VERSION stop");
@@ -1573,10 +1611,10 @@ sub uninstall_all {
     #uninstall Apache httpd 2.2 or 2.4
 	print "Remove folders (tomcat)\n";
 	if (-d "$CONNEXO_DIR/partners/tomcat") { rmtree("$CONNEXO_DIR/partners/tomcat"); }
-    if (-d "$CONNEXO_DIR/partners/jbcs-jsvc-1.1") { rmtree("$CONNEXO_DIR/partners/jbcs-jsvc-1.1"); }
     print "Remove folders (jboss)\n";
     if (-d "$CONNEXO_DIR/partners/jboss") { rmtree("$CONNEXO_DIR/partners/jboss"); }
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
+	if (-d "$CONNEXO_DIR/partners/jbcs-jsvc-1.1") { rmtree("$CONNEXO_DIR/partners/jbcs-jsvc-1.1"); }
 }
 
 sub find_string_value {
@@ -2147,6 +2185,7 @@ if ($help) {
         start_jboss();
         activate_sso_filters();
         restart_tomcat_service();
+        restart_jboss_service();
         final_steps();
     }
 } else {

@@ -63,11 +63,11 @@
             <artifactId>jbpm-services-cdi</artifactId>
             <version>${version.org.kie}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.kie.remote</groupId>-->
-<!--            <artifactId>kie-remote-services</artifactId>-->
-<!--            <version>${version.org.kie}</version>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.kie.remote</groupId>-->
+        <!--            <artifactId>kie-remote-services</artifactId>-->
+        <!--            <version>${version.org.kie}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-human-task-core</artifactId>
