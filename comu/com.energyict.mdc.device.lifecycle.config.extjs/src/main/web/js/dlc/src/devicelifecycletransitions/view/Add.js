@@ -30,7 +30,7 @@ Ext.define('Dlc.devicelifecycletransitions.view.Add', {
             pretransitionChecksContainer = me.down('#pretansitionsContainer'),
             triggeredByCombo = me.down('#transition-triggered-by-combo'),
             triggeredByComboValue = triggeredByCombo.getValue(),
-            eventContext = !Ext.isEmpty(triggeredByComboValue) ? triggeredByCombo.findRecordByValue(triggeredByCombo.getValue()).get('context') : null,
+            eventContext = !Ext.isEmpty(triggeredByComboValue) && triggeredByCombo.findRecordByValue(triggeredByCombo.getValue()) ? triggeredByCombo.findRecordByValue(triggeredByCombo.getValue()).get('context') : null,
             fromComboValue = me.down('#transition-from-combo').getValue(),
             toComboValue = me.down('#transition-to-combo').getValue();
 

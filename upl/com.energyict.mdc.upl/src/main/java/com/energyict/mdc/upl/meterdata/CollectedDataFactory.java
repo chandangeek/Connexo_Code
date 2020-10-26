@@ -49,6 +49,8 @@ public interface CollectedDataFactory {
 
     CollectedDeviceCache createCollectedDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCache deviceCache);
 
+    CollectedMessage createCollectedMessageForSwappingSecurityAccessorKeys(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName);
+
     CollectedMessage createCollectedMessageWithUpdateSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);
 
     CollectedMessage createCollectedMessageWithUpdateGeneralProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue);

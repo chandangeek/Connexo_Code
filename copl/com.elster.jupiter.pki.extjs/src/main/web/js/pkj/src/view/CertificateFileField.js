@@ -11,7 +11,7 @@ Ext.define('Pkj.view.CertificateFileField', {
     buttonText: Uni.I18n.translate('general.selectFile', 'PKJ', 'Select file...'),
     afterBodyEl: [
         '<div class="x-form-display-field"><i>',
-        Uni.I18n.translate('general.maxCertificateFileSize', 'PKJ', 'Maximum file size is 2 kB and file should be DER-encoded'),
+        Uni.I18n.translate('general.maxCertificateFileSize', 'PKJ', 'File should be DER-encoded'),
         '</i></div>'
     ]
 });

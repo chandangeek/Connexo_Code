@@ -28,6 +28,11 @@ public abstract class FileImportZipLoggerImpl implements FileImportZipLogger {
     }
 
     @Override
+    public void info(MessageSeeds message, Object... arguments) {
+        fileImportOccurrence.getLogger().info(format(message.getDefaultFormat(), arguments));
+    }
+
+    @Override
     public void warning(MessageSeed message, Object... arguments) {
         fileImportOccurrence.getLogger().info(format(message.getDefaultFormat(), arguments));
     }

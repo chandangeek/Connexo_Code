@@ -335,6 +335,11 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
 
     @Override
     public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
+        return getDeviceEventsByFilter(filter, null, null);
+    }
+
+    @Override
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter, Integer from, Integer to) {
         if (filter == null) {
             return Collections.emptyList();
         }
@@ -348,7 +353,10 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
         if (filter.logBookId > 0) {
             condition = condition.and(where("logBookId").isEqualTo(filter.logBookId));
         }
-        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
+        if(from == null || to == null){
+            return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, Order.descending("createdDateTime"));
+        }
+        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(condition, new Order[]{Order.descending("createdDateTime")}, true, new String[0], from, to);
     }
 
     @Override
