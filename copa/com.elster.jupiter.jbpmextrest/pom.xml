@@ -23,8 +23,11 @@
     </repositories>
 
     <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <resteasy.version>2.3.10.Final</resteasy.version>
         <jackson.version>2.10.3</jackson.version>
+        <uberfire.version>0.8.0.Final</uberfire.version>
         <version.org.kie>7.39.0.Final-redhat-00005</version.org.kie>
     </properties>
 
@@ -128,7 +131,11 @@
             <version>1.7.25</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>org.uberfire</groupId>
+            <artifactId>uberfire-commons</artifactId>
+            <version>${uberfire.version}</version>
+        </dependency>
 
 
         <dependency>
@@ -140,6 +147,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.6</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>
