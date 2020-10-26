@@ -11,11 +11,12 @@ import org.uberfire.backend.server.security.IOSecurityAuth;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Alternative;
+import javax.enterprise.inject.Default;
 import javax.inject.Inject;
 
-@Alternative
 @ApplicationScoped
 @IOSecurityAuth
+@Default
 public class ConnexoAuthenticationService implements AuthenticationService {
     private final ThreadLocal<User> userOnThisThread = new ThreadLocal<>();
 

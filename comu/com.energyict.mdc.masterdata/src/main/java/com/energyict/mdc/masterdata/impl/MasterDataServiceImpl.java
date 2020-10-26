@@ -113,7 +113,7 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
 
     @Override
     public Finder<RegisterGroup> findAllRegisterGroups() {
-        return DefaultFinder.of(RegisterGroup.class, this.getDataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(RegisterGroup.class, this.getDataModel()).defaultSortColumn("name");
     }
 
     @Override
@@ -143,7 +143,7 @@ public class MasterDataServiceImpl implements MasterDataService, MessageSeedProv
 
     @Override
     public Finder<LogBookType> findAllLogBookTypes() {
-        return DefaultFinder.of(LogBookType.class, this.getDataModel()).defaultSortColumn("lower(name)");
+        return DefaultFinder.of(LogBookType.class, this.getDataModel()).defaultSortColumn("name");
     }
 
     @Override

@@ -24,7 +24,6 @@ import com.elster.jupiter.bpm.rest.ProcessAssociationInfos;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfo;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionInfos;
 import com.elster.jupiter.bpm.rest.ProcessDefinitionWithVariablesInfo;
-import com.elster.jupiter.bpm.rest.ProcessDefinitionWithVariablesInfos;
 import com.elster.jupiter.bpm.rest.ProcessHistoryInfos;
 import com.elster.jupiter.bpm.rest.ProcessVariable;
 import com.elster.jupiter.bpm.rest.ProcessesPrivilegesInfo;
@@ -63,6 +62,7 @@ import com.elster.jupiter.util.conditions.Order;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -144,7 +144,6 @@ public class BpmResource {
         StartupInfo startupInfo = new StartupInfo();
         BpmServer server = bpmService.getBpmServer();
         startupInfo.url = server.getExternalUrl();
-
         return startupInfo;
     }
 
@@ -162,10 +161,10 @@ public class BpmResource {
             //for (DeploymentInfo deployment : deploymentInfos.getDeployments()) {
             try {
                 DeploymentInfo deployment = deploymentInfos.deployments.get(0);
-                jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deployment.identifier + "/history/instances", auth);
+                jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/containers/" + deployment.identifier + "/processes/instances", auth);
                 if (!"".equals(jsonContent)) {
                     JSONObject obj = new JSONObject(jsonContent);
-                    arr = obj.getJSONArray("result");
+                    arr = obj.getJSONArray("process-instance");
                 }
             } catch (JSONException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
@@ -188,10 +187,8 @@ public class BpmResource {
         JSONObject obj = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId, auth);
-            if (!"".equals(jsonContent)) {
-                obj = (new JSONObject(jsonContent)).getJSONArray("result").getJSONObject(0);
-            }
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/containers/" + deploymentId + "/processes/instances/" + instanceId, auth);
+            obj=new JSONObject(jsonContent);
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
@@ -211,9 +208,9 @@ public class BpmResource {
         JSONArray arr = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId + "/node", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/containers/" + deploymentId + "/processes/instances/" + instanceId + "/nodes/instances", auth);
             if (!"".equals(jsonContent)) {
-                arr = (new JSONObject(jsonContent)).getJSONArray("result");
+                arr = (new JSONObject(jsonContent)).getJSONArray("node-instance");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
@@ -235,9 +232,9 @@ public class BpmResource {
         JSONArray arr = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/runtime/" + deploymentId + "/history/instance/" + instanceId + "/variable", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/containers/" + deploymentId + "/processes/instances/" + instanceId + "/variables/instances", auth);
             if (!"".equals(jsonContent)) {
-                arr = (new JSONObject(jsonContent)).getJSONArray("result");
+                arr = (new JSONObject(jsonContent)).getJSONArray("variable-instance");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
@@ -253,9 +250,10 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/containers", auth);
             if (!"".equals(jsonContent)) {
-                arr = new JSONArray(jsonContent);
+                JSONObject obj=new JSONObject(jsonContent);
+                arr=obj.getJSONObject("result").getJSONObject("kie-containers").getJSONArray("kie-container");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
@@ -280,7 +278,7 @@ public class BpmResource {
         if (currentUser.isPresent()) {
             String payload;
             try {
-                String rest = "/rest/tasks/toptasks";
+                String rest = "/services/rest/tasks/toptasks";
                 payload = mapper.writeValueAsString(
                         new TopTasksPayload(currentUser.get().getName(),
                                 currentUser.get().getWorkGroups().stream().map(WorkGroup::getName).collect(Collectors.toList()),
@@ -323,7 +321,7 @@ public class BpmResource {
         ObjectMapper mapper = new ObjectMapper();
         String payload;
         try {
-            String rest = "/rest/tasks";
+            String rest = "/services/rest/tasks";
             String req = getQueryParam(queryParameters);
             if (!"".equals(req)) {
                 rest += req;
@@ -363,7 +361,7 @@ public class BpmResource {
         ObjectMapper mapper = new ObjectMapper();
         String payload;
         try {
-            String rest = "/rest/tasks/";
+            String rest = "/services/rest/tasks/";
             rest += String.valueOf(id);
             payload = mapper.writeValueAsString(getAvailableProcessesByAppKey(uriInfo, auth, appKey));
             jsonContent = bpmService.getBpmServer().doPost(rest, payload, auth, 0L);
@@ -408,7 +406,7 @@ public class BpmResource {
         String jsonContent;
         JSONObject jsnobject = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/" + processInstanceId + "/node", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/node", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
@@ -432,13 +430,13 @@ public class BpmResource {
                                           @PathParam("processInstanceId") long processInstanceId) {
         String jsonContent;
         try {
-            final String getUrl = "/rest/history/instance/" + processInstanceId;
+            final String getUrl = "/services/rest/tasks/process/instance/" + processInstanceId + "/log";
             jsonContent = bpmService.getBpmServer().doGet(getUrl, auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsonObject = new JSONObject(jsonContent);
                 long parentProcessInstanceId = jsonObject.getLong("parentProcessInstanceId");
                 if (parentProcessInstanceId > 0) {
-                    final String getParentUrl = "/rest/history/instance/" + parentProcessInstanceId;
+                    final String getParentUrl = "/services/rest/tasks/process/instance/" + parentProcessInstanceId + "/log";
                     final String parentProcessJson = bpmService.getBpmServer().doGet(getParentUrl, auth);
                     JSONObject parentJsonObject = new JSONObject(parentProcessJson);
                     if (parentJsonObject != null) {
@@ -465,7 +463,7 @@ public class BpmResource {
         JSONObject jsnobject = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/history/instance/" + processInstanceId + "/child",
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/log/child",
                     auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
@@ -491,12 +489,12 @@ public class BpmResource {
         JSONObject jsnobject = null;
         String jsonContent;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/tasks/process/instance/" + processInstanceId + "/node",
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/node",
                     auth);
             if (jsonContent != null && !"".equals(jsonContent)) {
                 jsnobject = new JSONObject(jsonContent);
                 nodeInfoList = new ProcessInstanceNodeInfos(jsnobject, thesaurus);
-                jsonContent = bpmService.getBpmServer().doGet("/rest/history/instance/" + processInstanceId + "/child",
+                jsonContent = bpmService.getBpmServer().doGet("/services/rest/tasks/process/instance/" + processInstanceId + "/log/child",
                         auth);
                 if (jsonContent != null && !"".equals(jsonContent)) {
                     jsnobject = new JSONObject(jsonContent);
@@ -579,7 +577,7 @@ public class BpmResource {
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response releaseTask(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) throws
             UnsupportedEncodingException {
-        String restURL = "/rest/tasks/release/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
+        String restURL = "/services/rest/tasks/release/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
         String response = bpmService.getBpmServer().doPost(restURL, null, auth, 0);
         if (response == null) {
             throw new BpmResourceAssignUserException(thesaurus);
@@ -593,7 +591,7 @@ public class BpmResource {
     @RolesAllowed(Privileges.Constants.ASSIGN_TASK)
     public Response assignUser(@PathParam("id") long id, @Context SecurityContext securityContext, @HeaderParam("Authorization") String auth) throws
             UnsupportedEncodingException {
-        String restURL = "/rest/tasks/assigntome/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
+        String restURL = "/services/rest/tasks/assigntome/" + String.valueOf(id) + "?currentuser=" + URLEncoder.encode(securityContext.getUserPrincipal().getName(), "UTF-8");
         String response = bpmService.getBpmServer().doPost(restURL, null, auth, 0);
         if (response == null) {
             throw new BpmResourceAssignUserException(thesaurus);
@@ -627,7 +625,7 @@ public class BpmResource {
         } else {
             userName = "Unassigned";
         }
-        String rest = "/rest/tasks/";
+        String rest = "/services/rest/tasks/";
         rest += String.valueOf(id) + "/";
         rest += String.valueOf(optLock);
         String req = getQueryParam(queryParameters);
@@ -688,7 +686,7 @@ public class BpmResource {
     public Response assignUser(@Context UriInfo uriInfo, @PathParam("id") long id, @HeaderParam("Authorization") String auth) {
         String priority = getQueryValue(uriInfo, "priority");
         String date = getQueryValue(uriInfo, "duedate");
-        String rest = "/rest/tasks/";
+        String rest = "/services/rest/tasks/";
         rest += String.valueOf(id) + "/set";
         if (priority != null || date != null) {
             if (priority != null) {
@@ -732,19 +730,7 @@ public class BpmResource {
         List<PropertySpec> propertySpecs = foundProvider.isPresent() ? foundProvider.get()
                 .getPropertySpecs() : Collections.emptyList();
         List<Errors> err = new ArrayList<>();
-        ProcessDefinitionWithVariablesInfos processDefinitionInfos = getBpmProcessDefinitionsWithVariables(auth);
-
-        Optional<ProcessDefinitionWithVariablesInfo> processDefinitionInfo =
-                processDefinitionInfos.processes
-                        .stream()
-                        .filter(p -> p.name.equals(info.name)) // search after process name
-                        .filter(p -> p.version.equals(info.version))  // and process version
-                        .findFirst();
-        if (!processDefinitionInfo.isPresent()) {
-            err.add(new Errors("startOn", MessageSeeds.PROCESS_NOT_AVAILABLE.getDefaultFormat()));
-            return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
-        }
-
+        ProcessDefinitionWithVariablesInfo processDefinitionWithVariablesInfo = getBpmProcessDefinitionsWithVariables(auth,info);
         /**
          * TODO: make this pluggable via {@link ProcessAssociationProvider}
          */
@@ -761,7 +747,7 @@ public class BpmResource {
 
         String requiredVariable = connexoFlowHashMap.get(info.type);
 
-        Optional<ProcessVariable> processVariable = processDefinitionInfo.get()
+        Optional<ProcessVariable> processVariable = processDefinitionWithVariablesInfo
                 .variables
                 .stream()
                 .filter(v -> v.name.equals(requiredVariable))
@@ -825,7 +811,6 @@ public class BpmResource {
 
             doUpdatePrivileges(process, targetPrivileges, oldPrivileges);
         }
-
         return Response.ok().build();
     }
 
@@ -964,11 +949,11 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
+            jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
                 JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
+                arr = jsnobject.getJSONArray("processes");
             }
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
@@ -980,16 +965,35 @@ public class BpmResource {
         return new ProcessDefinitionInfos(arr);
     }
 
-    private ProcessDefinitionWithVariablesInfos getBpmProcessDefinitionsWithVariables(String auth) {
-        String jsonContent;
+    private ProcessDefinitionWithVariablesInfo getBpmProcessDefinitionsWithVariables(String auth,ProcessDefinitionInfo info) {
+        String processjsonContent;
+        String processwithVarJsonContent;
         JSONArray arr = null;
+        List<Errors> err = new ArrayList<>();
+        ProcessDefinitionInfos processDefinitionInfos=new ProcessDefinitionInfos();
         try {
-            jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000", auth);
-            //if (!"".equals(jsonContent)) {
-            if (jsonContent != null && !"".equals(jsonContent)) {
-                JSONObject jsnobject = new JSONObject(jsonContent);
-                arr = jsnobject.getJSONArray("processDefinitionList");
+            processjsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000", auth);
+            if (processjsonContent != null && !"".equals(processjsonContent)) {
+                JSONObject jsnobject = new JSONObject(processjsonContent);
+                arr = jsnobject.getJSONArray("processes");
+                processDefinitionInfos=new ProcessDefinitionInfos(arr);
             }
+            Optional<ProcessDefinitionInfo> processDefinitionInfo =
+                    processDefinitionInfos.processes
+                            .stream()
+                            .filter(p -> p.name.equals(info.name) && p.version.equals(info.version)) // search after process name
+                            .findFirst();
+
+            if (!processDefinitionInfo.isPresent()) {
+                err.add(new Errors("startOn", MessageSeeds.PROCESS_NOT_AVAILABLE.getDefaultFormat()));
+                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(MessageSeeds.PROCESS_NOT_AVAILABLE.getDefaultFormat()).build());
+            }
+
+            String url = "/services/rest/server/containers/" + processDefinitionInfo.get().deploymentId + "/processes/definitions/"+processDefinitionInfo.get().processId;
+            processwithVarJsonContent = bpmService.getBpmServer().doGet(url,auth);
+            JSONObject jsnobject = new JSONObject(processwithVarJsonContent);
+            ProcessDefinitionWithVariablesInfo processDefinitionWithVariablesInfo=new ProcessDefinitionWithVariablesInfo(jsnobject);
+            return processDefinitionWithVariablesInfo;
         } catch (JSONException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
@@ -997,7 +1001,6 @@ public class BpmResource {
                     .entity(this.errorNotFoundMessage)
                     .build());
         }
-        return new ProcessDefinitionWithVariablesInfos(arr);
     }
 
     @GET
@@ -1054,7 +1057,7 @@ public class BpmResource {
         int total = -1;
         JSONArray arr = null;
         try {
-            String rest = "/rest/tasks/runningprocesses";
+            String rest = "/services/rest/tasks/runningprocesses";
             String req = getQueryParam(queryParameters);
             if (!"".equals(req)) {
                 rest += req;
@@ -1092,7 +1095,7 @@ public class BpmResource {
         int total = -1;
         JSONArray arr = null;
         try {
-            String rest = "/rest/tasks/process/history";
+            String rest = "/services/rest/tasks/process/history";
             String req = getQueryParam(queryParameters);
             if (!"".equals(req)) {
                 rest += req;
@@ -1137,7 +1140,7 @@ public class BpmResource {
             String stringJson;
             try {
                 stringJson = mapper.writeValueAsString(taskGroupsInfos);
-                String rest = "/rest/tasks/managetasks";
+                String rest = "/services/rest/tasks/managetasks";
                 String req = getQueryParam(queryParameters);
                 if (!"".equals(req)) {
                     rest += req + "&currentuser=" + securityContext.getUserPrincipal().getName();
@@ -1179,7 +1182,7 @@ public class BpmResource {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 String stringJson = mapper.writeValueAsString(taskGroupsInfos);
-                String rest = "/rest/tasks/mandatory";
+                String rest = "/services/rest/tasks/mandatory";
                 response = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
             } catch (JsonProcessingException e) {
                 throw new WebApplicationException(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(this.errorInvalidMessage).build());
@@ -1240,7 +1243,7 @@ public class BpmResource {
         JSONObject obj = null;
         TaskContentInfos taskContentInfos = null;
         try {
-            String rest = "/rest/tasks/" + id + "/content";
+            String rest = "/services/rest/tasks/" + id + "/content";
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {
@@ -1273,7 +1276,7 @@ public class BpmResource {
         String jsonContent;
         JSONObject obj = null;
         try {
-            String rest = "/rest/tasks/process/" + deploymentId + "/content/" + id;
+            String rest = "/services/rest/tasks/process/" + deploymentId + "/content/" + id;
             jsonContent = bpmService.getBpmServer().doGet(rest, auth);
             if ("Undeployed".equals(jsonContent)) {
                 throw conflictFactory.conflict()
@@ -1391,7 +1394,7 @@ public class BpmResource {
             return Response.status(Response.Status.BAD_REQUEST).entity(new LocalizedFieldException(err)).build();
         }
         if ("startTask".equals(taskContentInfos.action)) {
-            String rest = "/rest/tasks/" + id + "/contentstart/" + securityContext.getUserPrincipal().getName();
+            String rest = "/services/rest/tasks/" + id + "/contentstart/" + securityContext.getUserPrincipal().getName();
             try {
                 postResult = bpmService.getBpmServer().doPost(rest, null, auth, 0);
             } catch (RuntimeException e) {
@@ -1412,7 +1415,7 @@ public class BpmResource {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
-                String rest = "/rest/tasks/" + id + "/contentcomplete/" + securityContext.getUserPrincipal().getName();
+                String rest = "/services/rest/tasks/" + id + "/contentcomplete/" + securityContext.getUserPrincipal().getName();
                 try {
                     postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
                 } catch (RuntimeException e) {
@@ -1437,7 +1440,7 @@ public class BpmResource {
             ObjectMapper mapper = new ObjectMapper();
             try {
                 String stringJson = mapper.writeValueAsString(taskOutputContentInfo);
-                String rest = "/rest/tasks/" + id + "/contentsave/" + securityContext.getUserPrincipal().getName();
+                String rest = "/services/rest/tasks/" + id + "/contentsave/" + securityContext.getUserPrincipal().getName();
                 try {
                     postResult = bpmService.getBpmServer().doPost(rest, stringJson, auth, 0);
                 } catch (RuntimeException e) {

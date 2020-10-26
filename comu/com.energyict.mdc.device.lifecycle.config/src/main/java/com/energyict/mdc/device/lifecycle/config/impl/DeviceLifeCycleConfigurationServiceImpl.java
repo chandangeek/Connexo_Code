@@ -15,6 +15,7 @@ import com.elster.jupiter.fsm.StateTransition;
 import com.elster.jupiter.fsm.StateTransitionEventType;
 import com.elster.jupiter.issue.share.IssueCreationValidator;
 import com.elster.jupiter.issue.share.IssueEvent;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
@@ -481,5 +482,10 @@ public class DeviceLifeCycleConfigurationServiceImpl implements DeviceLifeCycleC
     @Override
     public void removeMicroCheckFactory(DeviceMicroCheckFactory microCheckFactory) {
         this.microCheckFactories.remove(microCheckFactory);
+    }
+
+    @Override
+    public String getDisplayName(DefaultState state) {
+        return this.thesaurus.getFormat(state).format();
     }
 }

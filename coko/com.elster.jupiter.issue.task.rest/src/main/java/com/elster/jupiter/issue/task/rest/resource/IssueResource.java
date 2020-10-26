@@ -92,7 +92,7 @@ public class IssueResource extends BaseResource {
         JSONArray arr = null;
         if (params.get("variableid") != null && params.get("variablevalue") != null) {
             try {
-                String rest = "/rest/tasks/allprocesses?";
+                String rest = "/services/rest/tasks/allprocesses?";
                 rest += "variableid=" + params.get("variableid").get(0);
                 rest += "&variablevalue=" + params.get("variablevalue").get(0);
                 jsonContent = bpmService.getBpmServer().doGet(rest, auth);

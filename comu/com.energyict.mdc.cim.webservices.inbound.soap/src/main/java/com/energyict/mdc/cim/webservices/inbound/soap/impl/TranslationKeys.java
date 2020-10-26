@@ -87,7 +87,8 @@ public enum TranslationKeys implements TranslationKey {
     MEDC_CPS("servicecall.cps.master.end.device.controls", "Master end device controls custom property set"),
     SEDC_CPS("servicecall.cps.submaster.end.device.controls", "SubMaster end device controls custom property set"),
     CEDC_CPS("servicecall.cps.child.end.device.controls", "Child end device controls custom property set"),
-    ;
+    RETURN_DEVICE_IF_EXISTS("returnDeviceIfExists", "Return existing device on create"),
+    RETURN_DEVICE_IF_EXISTS_DESCRIPTION("returnDeviceIfExists.description", "If a device exists when Create(MeterConfig) is called, return it as it was just created, instead of returning an error.");
 
     private final String key;
     private final String defaultFormat;

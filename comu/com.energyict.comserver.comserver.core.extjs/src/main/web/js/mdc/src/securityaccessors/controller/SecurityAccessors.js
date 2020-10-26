@@ -168,6 +168,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             '#mdc-security-accessor-add-button': {
                 click: me.addSecurityAccessor
             },
+            '#mdc-security-accessors-privileges-edit-window-cancel': {
+                click: me.cancelSecurityAccess
+            },
             '#btn-add-security-accessors': {
                 click: me.addAvailableSecurityAccessorToDeviceType
             },
@@ -257,7 +260,9 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
                 break;
             case 'changePrivileges':
                 Ext.widget('security-accessors-privileges-edit-window', {
-                    securityAccessorRecord: me.selectedRecord
+                    securityAccessorRecord: me.selectedRecord,
+                    checkAccessor:[],
+                    indexOfLevels: []
                 }).show();
                 break;
             case 'clearPassiveCertificate': {
@@ -532,6 +537,7 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             };
 
         me.getPreview().setLoading();
+        me.recordParamId = recordParam.get('id');
         gridMenu.setLoading();
 
         var model = Ext.ModelManager.getModel('Mdc.securityaccessors.model.SecurityAccessor');
@@ -1142,13 +1148,22 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             keyEncryptionMethodStore.load();
         }
     },
-
+    cancelSecurityAccess: function(){
+        var me = this;
+        me.getSecurityAccessorPrivilegesEditWindow().close();
+    },
     saveSecurityAccessor: function () {
         var me = this,
             editWindow = me.getSecurityAccessorPrivilegesEditWindow(),
             securityAccessorRecordInEditWindow = editWindow.securityAccessorRecord,
             viewport = Ext.ComponentQuery.query('viewport')[0];
+        Ext.Array.forEach( editWindow.checkAccessor, function (item) {
+            editWindow.securityAccessorRecord.get(item.fieldName).push(item.value);
+        });
 
+        Ext.Array.forEach( editWindow.indexOfLevels, function (item) {
+            Ext.Array.remove(editWindow.securityAccessorRecord.get(item.fieldName), item.value);
+        });
         editWindow.close();
         viewport.setLoading();
         securityAccessorRecordInEditWindow.save({

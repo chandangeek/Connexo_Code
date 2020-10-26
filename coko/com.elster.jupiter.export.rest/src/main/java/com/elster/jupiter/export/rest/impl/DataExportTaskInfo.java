@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.export.rest.impl;
 
+import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.PeriodicalExpressionInfo;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -14,7 +15,6 @@ import java.util.logging.Level;
 
 @XmlRootElement
 public class DataExportTaskInfo {
-
     public long id;
     public String name;
     public boolean active;
@@ -30,4 +30,5 @@ public class DataExportTaskInfo {
     public List<DestinationInfo> destinations = new ArrayList<>();
     public long version;
     public int logLevel = Level.WARNING.intValue();
+    public IdWithNameInfo pairedTask;
 }

@@ -43,6 +43,7 @@ import com.energyict.mdc.common.device.config.RegisterSpec;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.common.device.data.PassiveCalendar;
 import com.energyict.mdc.common.device.data.ReadingTypeObisCodeUsage;
 import com.energyict.mdc.common.device.data.Register;
@@ -61,7 +62,6 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
-import com.energyict.mdc.common.device.data.DeviceProtocolProperty;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.DevicesForConfigChangeSearch;
 import com.energyict.mdc.device.data.ItemizeConfigChangeQueueMessage;
@@ -91,7 +91,6 @@ import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -470,14 +469,14 @@ class DeviceServiceImpl implements ServerDeviceService {
     public boolean isLinkedToDevices(ComSchedule comSchedule) {
         Condition condition = where(ComTaskExecutionFields.COM_SCHEDULE.fieldName()).isEqualTo(comSchedule).and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         List<ComTaskExecution> scheduledComTaskExecutions = this.deviceDataModelService.dataModel().query(ComTaskExecution.class).
-                select(condition, new Order[0], false, new String[0], 1, 1).stream().filter(ComTaskExecution::usesSharedSchedule).collect(Collectors.toList());
+                select(condition, Order.NOORDER, false, new String[0], 1, 1).stream().filter(ComTaskExecution::usesSharedSchedule).collect(Collectors.toList());
         return !scheduledComTaskExecutions.isEmpty();
     }
 
     @Override
     public Finder<Device> findDevicesByDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
         return DefaultFinder.of(Device.class, where("deviceConfiguration").isEqualTo(deviceConfiguration), this.deviceDataModelService.dataModel())
-                .defaultSortColumn("lower(name)");
+                .defaultSortColumn("name");
     }
 
     @Override

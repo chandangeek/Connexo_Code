@@ -5,6 +5,7 @@
 package com.elster.jupiter.pki.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
+import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -40,6 +41,7 @@ public class PkiUIInstaller implements TranslationKeyProvider {
     public void activate(BundleContext context) {
         HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, HTTP_RESOURCE_LOCAL_NAME, new BundleResolver(context));
         // EXAMPLE: Below is how to enable local development mode.
+        // HttpResource resource = new HttpResource(HTTP_RESOURCE_ALIAS, "c:\\Users\\H251454\\git\\connexo\\copl\\com.elster.jupiter.pki.extjs\\src\\main\\web\\js\\pkj", new FileResolver());
         registration = context.registerService(HttpResource.class, resource, null);
     }
 

@@ -805,4 +805,18 @@ public class ProtocolToolsTest {
         assertEquals("3351827", ProtocolTools.getBCD(53811239));
     }
 
+    @Test
+    public void testHexDump(){
+        byte[] msg  = ProtocolTools.getBytesFromHexString("$61$35$A1$09$06$07$60$85$74$05$08$01$01$A2$03$02$01$00$A3$05$A1$03$02$01$00$A4$0A$04$08$31$32$33$34$35$36$37$38$BE$10$04$0E$08$00$06$5F$1F$04$00$00$1E$3D$01$F4$00$07");
+        String expected = "testOutput\n" +
+                "000000 61 35 A1 09 06 07 60 85 \n" +
+                "000008 74 05 08 01 01 A2 03 02 \n" +
+                "000010 01 00 A3 05 A1 03 02 01 \n" +
+                "000018 00 A4 0A 04 08 31 32 33 \n" +
+                "000020 34 35 36 37 38 BE 10 04 \n" +
+                "000028 0E 08 00 06 5F 1F 04 00 \n" +
+                "000030 00 1E 3D 01 F4 00 07 \n";
+        String dump = ProtocolUtils.hexDump("name","testOutput", msg);
+        assertTrue(dump.endsWith(expected));
+    }
 }

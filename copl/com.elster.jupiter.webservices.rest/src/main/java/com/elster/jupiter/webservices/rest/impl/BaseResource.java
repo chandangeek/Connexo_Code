@@ -214,8 +214,8 @@ public abstract class BaseResource {
             }
         }
 
-        List<WebServiceCallOccurrence> epocList = finderBuilder.build().from(queryParameters).find();
-
-        return epocList;
+        return finderBuilder.build()
+                .from(queryParameters)
+                .find();
     }
 }

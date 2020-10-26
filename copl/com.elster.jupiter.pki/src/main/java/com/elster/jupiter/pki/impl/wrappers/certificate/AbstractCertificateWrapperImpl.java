@@ -37,6 +37,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 
 import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.validation.constraints.Size;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -99,7 +101,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         WRAPPER_STATUS("wrapperStatus"),
         CA_NAME("caName"),
         CA_END_ENTITY_NAME("caEndEntityName"),
-        CA_PROFILE_NAME("caProfileName");
+        CA_PROFILE_NAME("caProfileName"),
+        CA_SUBJECTDN_FIELDS("subjectDnFields");
 
         private final String fieldName;
 
@@ -142,6 +145,8 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     private String caEndEntityName;
     @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String caProfileName;
+    @Size(max = DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String subjectDnFields;
 
     public AbstractCertificateWrapperImpl(DataModel dataModel,
                                           Thesaurus thesaurus,
@@ -419,6 +424,21 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         return subject;
     }
 
+    @Override
+    public Optional<String> getSubjectCN() {
+        try {
+            LdapName ldapName = new LdapName(getSubject());
+            for (Rdn rdn : ldapName.getRdns()) {
+                if (rdn.getType().equalsIgnoreCase("CN")) {
+                    return Optional.of( rdn.getValue().toString() );
+                }
+            }
+        } catch (Exception ex){
+            //swallow
+        }
+        return Optional.empty();
+    }
+
     public void setSubject(String subject) {
         this.subject = subject;
     }
@@ -464,7 +484,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     public Optional<CertificateRequestData> getCertificateRequestData(){
         // testing only caName present while others should be in same status
         if (!Objects.isNull(this.caName) &&  !this.caName.isEmpty()) {
-            return Optional.of(new CertificateRequestData(this.caName, this.caEndEntityName, this.caProfileName));
+            return Optional.of(new CertificateRequestData(this.caName, this.caEndEntityName, this.caProfileName, this.subjectDnFields));
         }
         return Optional.empty();
     }
@@ -474,6 +494,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             this.caName = certificateRequestData.get().getCaName();
             this.caEndEntityName = certificateRequestData.get().getEndEntityName();
             this.caProfileName = certificateRequestData.get().getCertificateProfileName();
+            String subjectDNfields = certificateRequestData.get().getSubjectDNfields();
+            // this needed while fails validation for empty string
+            if (!subjectDNfields.trim().isEmpty()) {
+                this.subjectDnFields = subjectDNfields;
+            }
+            this.save();
         }
     }
 

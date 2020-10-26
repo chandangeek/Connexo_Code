@@ -11,7 +11,7 @@ Ext.define('Dxp.model.DataExportTask', {
         'Dxp.model.Destination'
     ],
     fields: [
-        'id', 'name', 'dataProcessor', 'dataSelector', 'destinations', 'exportComplete', 'validatedDataOption',
+        'id', 'name', 'dataProcessor', 'dataSelector', 'destinations', 'exportComplete', 'validatedDataOption', 'pairedTask',
         {
             name: 'logLevel',
             type: 'int',

@@ -303,7 +303,7 @@ public class DeviceAlarmResource extends BaseAlarmResource {
         JSONArray arr = null;
         if (params.get("variableid") != null && params.get("variablevalue") != null) {
             try {
-                String rest = "/rest/tasks/allprocesses?";
+                String rest = "/services/rest/tasks/allprocesses?";
                 rest += "variableid=" + params.get("variableid").get(0);
                 rest += "&variablevalue=" + params.get("variablevalue").get(0);
                 jsonContent = bpmService.getBpmServer().doGet(rest, auth);
@@ -624,7 +624,7 @@ public class DeviceAlarmResource extends BaseAlarmResource {
     private Finder<? extends DeviceAlarm> addSorting(Finder<? extends DeviceAlarm> finder, StandardParametersBean parameters) {
         Order[] orders = parameters.getOrder("");
         for (Order order : orders) {
-            finder.sorted("baseIssue." + order.getName(), order.ascending());
+            finder.sorted(order.wrap("baseIssue"));
         }
         finder.sorted("baseIssue.id", false);
         return finder;

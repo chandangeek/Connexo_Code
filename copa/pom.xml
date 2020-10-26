@@ -19,6 +19,6 @@
 		<module>com.elster.jupiter.prepayment</module>
 		<module>com.elster.jupiter.sso.connexo</module>
 		<module>com.elster.jupiter.sso.facts</module>
-		<module>com.elster.jupiter.sso.flow</module>		
+		<module>com.elster.jupiter.sso.flow</module>
 	</modules>
 </project>

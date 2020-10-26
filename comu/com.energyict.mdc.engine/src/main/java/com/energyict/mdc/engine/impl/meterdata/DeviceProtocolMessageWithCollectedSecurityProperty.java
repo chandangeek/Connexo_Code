@@ -36,6 +36,12 @@ public class DeviceProtocolMessageWithCollectedSecurityProperty extends Collecte
         this.deviceSecurityProperty = new DeviceSecurityProperty(deviceIdentifier, propertyName, propertyValue);
     }
 
+    public DeviceProtocolMessageWithCollectedSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName) {
+        this.deviceIdentifier = deviceIdentifier;
+        this.deviceMessageIdentifier = messageIdentifier;
+        this.deviceSecurityProperty = new DeviceSecurityProperty(deviceIdentifier, propertyName);
+    }
+
     @Override
     public boolean isConfiguredIn(DataCollectionConfiguration comTask) {
         return comTask.isConfiguredToSendMessages();

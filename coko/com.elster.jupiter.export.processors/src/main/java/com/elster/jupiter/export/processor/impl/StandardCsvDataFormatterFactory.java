@@ -78,6 +78,15 @@ abstract class StandardCsvDataFormatterFactory implements DataFormatterFactory {
                 .finish();
     }
 
+    PropertySpec getExcludeMRIDProperty() {
+        return  propertySpecService
+                .booleanSpec()
+                .named(FormatterProperties.WITH_DEVICE_MRID)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(false)
+                .finish();
+    }
+
     PropertySpec getSeparatorProperty() {
         Stream<TranslatablePropertyValueInfo> separatorValues =
                 FormatterProperties
@@ -110,9 +119,12 @@ abstract class StandardCsvDataFormatterFactory implements DataFormatterFactory {
             if (property.getValue() instanceof TranslatablePropertyValueInfo) {
                 TranslatablePropertyValueInfo translatablePropertyValueInfo = (TranslatablePropertyValueInfo) property.getValue();
                 checkInvalidChars(translatablePropertyValueInfo.getId().toString(), property.getName(), NON_PATH_INVALID);
-            } else {
+            } else if(property.getValue() instanceof String){
                 String stringValue = (String) property.getValue();
                 checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
+            } else {
+                boolean booleanValue = (boolean) property.getValue();
+                //checkInvalidChars(stringValue, property.getName(), NON_PATH_INVALID);
             }
         }
     }

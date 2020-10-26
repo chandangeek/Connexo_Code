@@ -643,6 +643,7 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS").
                     on(lastSession).
                     references(DDC_COMTASKEXECSESSION.name()).
+                    onDelete(CASCADE).
                     map(ComTaskExecutionFields.LAST_SESSION.fieldName()).
                     add();
         }

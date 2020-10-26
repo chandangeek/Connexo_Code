@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;

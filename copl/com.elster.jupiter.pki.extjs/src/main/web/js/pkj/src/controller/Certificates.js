@@ -224,7 +224,6 @@ Ext.define('Pkj.controller.Certificates', {
             form = me.getAddCertificateForm(),
             fileField = form.down('#pkj-certificate-add-form-file'),
             errorMsgPanel = form.down('uni-form-error-message'),
-            maxFileSize = 2 * 1024,
             input = form.down('filefield').button.fileInputEl.dom,
             file = input.files[0];
 
@@ -233,14 +232,6 @@ Ext.define('Pkj.controller.Certificates', {
 
         if (!form.isValid()) {
             errorMsgPanel.show();
-            if ( file!=undefined && file.size > maxFileSize) {
-                fileField.markInvalid(Uni.I18n.translate('general.certificateFileTooBig', 'PKJ', 'File size should be less than 2 kB'));
-            }
-            return;
-        }
-        if (file.size > maxFileSize) {
-            errorMsgPanel.show();
-            fileField.markInvalid(Uni.I18n.translate('general.certificateFileTooBig', 'PKJ', 'File size should be less than 2 kB'));
             return;
         }
 

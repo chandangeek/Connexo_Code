@@ -118,21 +118,6 @@ public class CSRImporterFactoryIT {
 
     @Test
     @Transactional
-    public void testTrustStoreValues() {
-        assertThat(getPropertySpec(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE).isReference()).isTrue();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE); // no values
-        TrustStore ts1 = securityManagementService.newTrustStore("Broken")
-                .add();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE, ts1);
-        TrustStore ts2 = securityManagementService.newTrustStore("Fixed")
-                .add();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE, ts1, ts2);
-        ts1.delete();
-        assertAllValuesById(CSRImporterTranslatedProperty.EXPORT_TRUST_STORE, ts2);
-    }
-
-    @Test
-    @Transactional
     public void testNoSecurityAccessorValues() {
         assertThat(getPropertySpec(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR).isReference()).isTrue();
         assertThat(getPropertySpec(CSRImporterTranslatedProperty.EXPORT_SECURITY_ACCESSOR).isReference()).isTrue();
@@ -345,6 +330,7 @@ public class CSRImporterFactoryIT {
                 .addProperty(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()).withValue("CA Name")
                 .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
                 .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
+                .addProperty(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey()).withValue("")
                 .create();
     }
 
@@ -398,6 +384,7 @@ public class CSRImporterFactoryIT {
                 .addProperty(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()).withValue("Profi")
                 .addProperty(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()).withValue("Enti")
                 .addProperty(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()).withValue("{}")
+                .addProperty(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey()).withValue("")
                 .create();
     }
 

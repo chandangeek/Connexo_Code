@@ -6,8 +6,8 @@ package com.elster.partners.jbpm.extension;
 
 
 import com.google.common.base.Strings;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
+//import org.codehaus.jackson.JsonNode;
+//import org.codehaus.jackson.map.ObjectMapper;
 import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.services.api.DeploymentService;
 import org.jbpm.services.api.RuntimeDataService;
@@ -29,7 +29,7 @@ import org.kie.api.task.model.Task;
 import org.kie.api.task.model.TaskData;
 import org.kie.internal.task.api.InternalTaskService;
 import org.kie.internal.task.api.model.InternalTask;
-import org.kie.remote.services.cdi.ProcessRequestBean;
+//import org.kie.remote.services.cdi.ProcessRequestBean;
 
 import javax.enterprise.inject.Instance;
 import javax.inject.Inject;
@@ -71,9 +71,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Path("/tasks")
 public class JbpmTaskResource {
-
+/*
     private static final String PROPERTY = "property";
     private static final String DEFAULT_SORTING = " order by p.START_DATE DESC";
 
@@ -698,7 +697,7 @@ public class JbpmTaskResource {
         final JsonNode value = filterProperties.get("searchInAllProcesses");
         final boolean searchInAllProcesses = Boolean
                 .valueOf(String.valueOf(value).replace("\"", "").replaceAll("\'", ""));
-        
+
         EntityManager em = emf.createEntityManager();
         String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID"
                 + " from processinstancelog p"
@@ -1245,7 +1244,7 @@ public class JbpmTaskResource {
     private String getQueryValue(UriInfo uriInfo,String key){
         return uriInfo.getQueryParameters().getFirst(key);
     }
-    
+
     private String addProcessInstanceIdFilterToQuery(Map<String, JsonNode> filterProperties) {
         String processInstanceId = "";
         for (Map.Entry<String, JsonNode> entry : filterProperties.entrySet()) {
@@ -1453,5 +1452,5 @@ public class JbpmTaskResource {
     protected String getFormExtension() {
         return "";
     }
-
+*/
 }
