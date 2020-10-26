@@ -9,9 +9,10 @@ import com.elster.jupiter.devtools.tests.rules.Using;
 import com.elster.jupiter.export.DataExportDestination;
 import com.elster.jupiter.export.DataExportOccurrence;
 import com.elster.jupiter.export.DataExportService;
-import com.elster.jupiter.export.DataFormatter;
+import com.elster.jupiter.export.DataExportTaskBuilder;
 import com.elster.jupiter.export.DataFormatterFactory;
 import com.elster.jupiter.export.DataSelectorConfig;
+import com.elster.jupiter.export.DataSelectorFactory;
 import com.elster.jupiter.export.EmailDestination;
 import com.elster.jupiter.export.EventSelectorConfig;
 import com.elster.jupiter.export.ExportTask;
@@ -34,6 +35,7 @@ import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.EnumeratedEndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.BigDecimalFactory;
 import com.elster.jupiter.properties.PropertySpec;
@@ -44,7 +46,6 @@ import com.elster.jupiter.time.RelativePeriod;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.users.Group;
 import com.elster.jupiter.util.time.Never;
 
 import com.google.common.collect.ImmutableMap;
@@ -56,7 +57,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -65,7 +66,6 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -77,6 +77,7 @@ import static com.elster.jupiter.time.RelativeField.MINUTES;
 import static com.elster.jupiter.time.RelativeField.MONTH;
 import static com.elster.jupiter.time.RelativeField.YEAR;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.when;
@@ -112,13 +113,9 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
     public TestRule veryColdHere = Using.timeZoneOfMcMurdo();
 
     @Mock
-    private Group group;
-    @Mock
-    private PropertySpec min, max, consZero;
-    @Mock
     private DataFormatterFactory dataFormatterFactory;
     @Mock
-    private DataFormatter dataFormatter;
+    private DataSelectorFactory dataSelectorFactory;
     @Mock
     private PropertySpec propertySpec;
 
@@ -135,15 +132,19 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
     @Before
     public void before() {
         when(dataFormatterFactory.getName()).thenReturn(FORMATTER);
-        when(dataFormatterFactory.getPropertySpecs()).thenReturn(Arrays.asList(propertySpec));
+        when(dataFormatterFactory.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
+        when(dataSelectorFactory.getName()).thenReturn(NAME);
+        when(dataSelectorFactory.getPropertySpecs()).thenReturn(Collections.singletonList(propertySpec));
         when(propertySpec.getName()).thenReturn("propy");
         when(propertySpec.getValueFactory()).thenReturn(new BigDecimalFactory());
 
         readingType = getMeteringService().getReadingType("0.0.5.1.1.1.12.0.0.0.0.0.0.0.0.3.72.0").get();
         anotherReadingType = getMeteringService().getReadingType("0.0.2.1.19.1.12.0.0.0.0.0.0.0.0.0.72.0").get();
         dataExportService = (DataExportServiceImpl) getDataExportService();
-        dataExportService.addFormatter(
-                dataFormatterFactory, ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
+        dataExportService.addFormatter(dataFormatterFactory,
+                ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
+        dataExportService.addSelector(dataSelectorFactory,
+                ImmutableMap.of(DataExportService.DATA_TYPE_PROPERTY, DataExportService.STANDARD_READING_DATA_TYPE));
         lastYear = getTimeService().createRelativePeriod("last year", startOfLastYear, startOfThisYear, getTimeService().getRelativePeriodCategories());
         oneYearBeforeLastYear = getTimeService().createRelativePeriod("the year before last year", startOfTheYearBeforeLastYear, startOfLastYear, getTimeService().getRelativePeriodCategories());
         endDeviceGroup = getMeteringGroupsService().createEnumeratedEndDeviceGroup().setName("none").create();
@@ -597,21 +598,23 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
                 .orElseThrow(IllegalArgumentException::new)
                 .newMeter("test", "myName")
                 .create();
-        ((IExportTask) task).getReadingDataSelectorConfig().get().addExportItem(meter, readingType);
+        task.getReadingDataSelectorConfig().get().addExportItem(meter, readingType);
         task.update();
 
-        IExportTask retrievedTask = (IExportTask) dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
+        IExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
 
         List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getReadingDataSelectorConfig().get().getExportItems();
         assertThat(readingTypeDataExportItems).hasSize(1);
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
-        assertThat(exportItem.getReadingContainer()).isNotNull();
         assertThat(exportItem.getReadingContainer()).isEqualTo(meter);
         assertThat(exportItem.getSelector().getId()).isEqualTo(task.getId());
         assertThat(exportItem.getReadingType()).isEqualTo(readingType);
         assertThat(exportItem.getLastRun()).isEmpty();
         assertThat(exportItem.getLastExportedChangedData()).isEmpty();
         assertThat(exportItem.isActive()).isTrue();
+
+        assertThat(dataExportService.findReadingTypeDataExportItem(exportItem.getId()).map(ReadingTypeDataExportItem.class::cast)).contains(exportItem);
+        assertThat(dataExportService.findAndLockReadingTypeDataExportItem(exportItem.getId()).map(ReadingTypeDataExportItem.class::cast)).contains(exportItem);
     }
 
     @Test
@@ -626,7 +629,7 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
         item.deactivate();
         item.update();
 
-        IExportTask retrievedTask = (IExportTask) dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
+        IExportTask retrievedTask = dataExportService.findExportTask(task.getId()).orElseThrow(Exception::new);
         List<? extends ReadingTypeDataExportItem> readingTypeDataExportItems = retrievedTask.getReadingDataSelectorConfig().get().getExportItems();
         assertThat(readingTypeDataExportItems).hasSize(1);
         ReadingTypeDataExportItem exportItem = readingTypeDataExportItems.get(0);
@@ -635,7 +638,6 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
 
     @Test
     @Transactional
-    @Ignore // generated query does not work on H2 DB : Karel will look into it
     public void testGetLastOccurrence() throws Exception {
         ExportTask exportTask = createAndSaveTask();
 
@@ -656,6 +658,412 @@ public class ExportTaskImplIT extends PersistenceIntegrationTest {
 
         Optional<IDataExportOccurrence> lastOccurrence = task.getLastOccurrence();
         assertThat(lastOccurrence).isPresent().contains(dataExportOccurrence);
+    }
+
+    @Test
+    @Transactional
+    public void testPairUnpairExportTasks() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        assertThat(exportTask1.getPairedTask()).isEmpty();
+
+        ExportTask exportTask2 = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("Export2")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .pairWith(exportTask1)
+                .create();
+
+        exportTask1 = dataExportService.findExportTask(exportTask1.getId()).get();
+        exportTask2 = dataExportService.findExportTask(exportTask2.getId()).get();
+
+        assertThat(exportTask1.getPairedTask()).contains(exportTask2);
+        assertThat(exportTask2.getPairedTask()).contains(exportTask1);
+
+        exportTask1.unpair();
+        exportTask1.update();
+
+        exportTask1 = dataExportService.findExportTask(exportTask1.getId()).get();
+        exportTask2 = dataExportService.findExportTask(exportTask2.getId()).get();
+
+        assertThat(exportTask1.getPairedTask()).isEmpty();
+        assertThat(exportTask2.getPairedTask()).isEmpty();
+
+        exportTask1.pairWith(exportTask2);
+        exportTask1.update();
+
+        exportTask1 = dataExportService.findExportTask(exportTask1.getId()).get();
+        exportTask2 = dataExportService.findExportTask(exportTask2.getId()).get();
+
+        assertThat(exportTask1.getPairedTask()).contains(exportTask2);
+        assertThat(exportTask2.getPairedTask()).contains(exportTask1);
+
+        exportTask2.delete();
+
+        exportTask1 = dataExportService.findExportTask(exportTask1.getId()).get();
+        assertThat(dataExportService.findExportTask(exportTask2.getId())).isEmpty();
+        assertThat(exportTask1.getPairedTask()).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    public void testPairAndRename() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        ExportTask exportTask2 = createAndSaveTask("Export2");
+        exportTask1.pairWith(exportTask2);
+        exportTask1.update();
+
+        exportTask2 = dataExportService.findExportTask(exportTask2.getId()).get();
+        exportTask2.pairWith(exportTask1);
+        exportTask2.setName("Ex2");
+        exportTask2.update();
+
+        exportTask1 = dataExportService.findExportTask(exportTask1.getId()).get();
+        exportTask2 = dataExportService.findExportTask(exportTask2.getId()).get();
+        assertThat(exportTask1.getPairedTask()).contains(exportTask2);
+        assertThat(exportTask2.getPairedTask()).contains(exportTask1);
+        assertThat(exportTask2.getName()).isEqualTo("Ex2");
+    }
+
+    @Test
+    @Transactional
+    public void testPairExportTaskWithItself() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        assertThatThrownBy(() -> pairAndUpdate(exportTask1, exportTask1))
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export task with itself.");
+    }
+
+    @Test
+    @Transactional
+    public void testPairExportTaskWithAlreadyPaired() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        ExportTask exportTask2 = createAndSaveTask("Export2");
+        pairAndUpdate(exportTask1, exportTask2);
+
+        DataExportTaskBuilder builder = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("ExportX")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .pairWith(exportTask2);
+        assertThatThrownBy(builder::create)
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Data export task 'Export2' is already paired with '" + NAME + "'.");
+
+        ExportTask exportTask3 = createAndSaveTask("Export3");
+        assertThatThrownBy(() -> pairAndUpdate(exportTask3, exportTask1))
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Data export task '" + NAME + "' is already paired with 'Export2'.");
+    }
+
+    @Test
+    @Transactional
+    public void testPairAlreadyPairedExportTaskWithAnother() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        ExportTask exportTask2 = createAndSaveTask("Export2");
+        pairAndUpdate(exportTask1, exportTask2);
+
+        ExportTask exportTask3 = createAndSaveTask("Export3");
+        pairAndUpdate(exportTask1, exportTask3);
+        assertThat(exportTask1.getPairedTask()).contains(exportTask3);
+        assertThat(exportTask2.getPairedTask()).isEmpty();
+        assertThat(exportTask3.getPairedTask()).contains(exportTask1);
+        exportTask1 = dataExportService.findExportTask(exportTask1.getId()).get();
+        exportTask2 = dataExportService.findExportTask(exportTask2.getId()).get();
+        exportTask3 = dataExportService.findExportTask(exportTask3.getId()).get();
+        assertThat(exportTask1.getPairedTask()).contains(exportTask3);
+        assertThat(exportTask2.getPairedTask()).isEmpty();
+        assertThat(exportTask3.getPairedTask()).contains(exportTask1);
+
+        pairAndUpdate(exportTask3, exportTask2);
+        exportTask1 = dataExportService.findExportTask(exportTask1.getId()).get();
+        exportTask2 = dataExportService.findExportTask(exportTask2.getId()).get();
+        exportTask3 = dataExportService.findExportTask(exportTask3.getId()).get();
+        assertThat(exportTask1.getPairedTask()).isEmpty();
+        assertThat(exportTask2.getPairedTask()).contains(exportTask3);
+        assertThat(exportTask3.getPairedTask()).contains(exportTask2);
+    }
+
+    @Test
+    @Transactional
+    public void testPairExportTaskWithoutDataSources1() throws Exception {
+        ExportTask exportTask1 = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName(NAME)
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingEventTypes()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromEventType("4.*.*.*")
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .create();
+        ExportTask exportTask2 = createAndSaveTask("Export2");
+        assertThatThrownBy(() -> pairAndUpdate(exportTask1, exportTask2))
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export task '" + NAME + "' that has no data sources.");
+    }
+
+    @Test
+    @Transactional
+    public void testPairExportTaskWithoutDataSources2() throws Exception {
+        ExportTask exportTask1 = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName(NAME)
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingEventTypes()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromEventType("4.*.*.*")
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .create();
+        ExportTask exportTask2 = createAndSaveTask("Export2");
+        assertThatThrownBy(() -> pairAndUpdate(exportTask2, exportTask1))
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export task '" + NAME + "' that has no data sources.");
+    }
+
+    @Test
+    @Transactional
+    public void testCreatePairedExportTaskWithoutDataSources() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask("Export2");
+        DataExportTaskBuilder builder = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName(NAME)
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingEventTypes()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromEventType("4.*.*.*")
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .pairWith(exportTask1);
+        assertThatThrownBy(builder::create)
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export task '" + NAME + "' that has no data sources.");
+    }
+
+    @Test
+    @Transactional
+    public void testCreateExportTaskPairedWithOneWithoutDataSources() throws Exception {
+        ExportTask exportTask1 = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName(NAME)
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingEventTypes()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromEventType("4.*.*.*")
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .create();
+        DataExportTaskBuilder builder = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("ExportX")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .pairWith(exportTask1);
+        assertThatThrownBy(builder::create)
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export task '" + NAME + "' that has no data sources.");
+    }
+
+    @Test
+    @Transactional
+    public void testPairTasksWithDifferentSelectors() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        DataExportTaskBuilder builder = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("ExportX")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings(NAME)
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .pairWith(exportTask1);
+        assertThatThrownBy(builder::create)
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export tasks with different data selector types.");
+
+        ExportTask exportTask2 = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("Export2")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings(NAME)
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .create();
+        assertThatThrownBy(() -> pairAndUpdate(exportTask1, exportTask2))
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export tasks with different data selector types.");
+    }
+
+    @Test
+    @Transactional
+    public void testPairTasksWithDifferentApplications() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        DataExportTaskBuilder builder = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("ExportX")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication("Lang")
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .pairWith(exportTask1);
+        assertThatThrownBy(builder::create)
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export tasks from different applications.");
+
+        ExportTask exportTask2 = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("Export2")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication("Lang")
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(readingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .create();
+        assertThatThrownBy(() -> pairAndUpdate(exportTask1, exportTask2))
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export tasks from different applications.");
+    }
+
+    @Test
+    @Transactional
+    public void testPairTasksWithDifferentReadingTypes() throws Exception {
+        ExportTask exportTask1 = createAndSaveTask();
+        DataExportTaskBuilder builder = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("ExportX")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(anotherReadingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .pairWith(exportTask1);
+        assertThatThrownBy(builder::create)
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export tasks without matching reading types.");
+
+        ExportTask exportTask2 = dataExportService.newBuilder()
+                .scheduleImmediately()
+                .setName("Export2")
+                .setLogLevel(Level.FINEST.intValue())
+                .setApplication(APPLICATION)
+                .setScheduleExpression(new TemporalExpression(TimeDuration.TimeUnit.DAYS.during(1), TimeDuration.TimeUnit.HOURS.during(0)))
+                .selectingMeterReadings()
+                .fromExportPeriod(lastYear)
+                .fromEndDeviceGroup(endDeviceGroup)
+                .fromReadingType(anotherReadingType)
+                .fromUpdatePeriod(oneYearBeforeLastYear)
+                .withValidatedDataOption(ValidatedDataOption.INCLUDE_ALL)
+                .exportUpdate(true)
+                .continuousData(true)
+                .endSelection()
+                .setDataFormatterFactoryName(FORMATTER)
+                .addProperty("propy").withValue(BigDecimal.valueOf(100, 0))
+                .create();
+        assertThatThrownBy(() -> pairAndUpdate(exportTask1, exportTask2))
+                .isInstanceOf(LocalizedFieldValidationException.class)
+                .hasMessage("pairedTask: Can't pair data export tasks without matching reading types.");
+    }
+
+    private void pairAndUpdate(ExportTask exportTask1, ExportTask exportTask2) {
+        exportTask1.pairWith(exportTask2);
+        exportTask1.update();
     }
 
     private ExportTask createAndSaveTask() {

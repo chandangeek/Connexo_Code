@@ -22,6 +22,8 @@ Ext.define('Apr.privileges.AppServer', {
     suspendTaskOverview: ['privilege.suspend.SuspendTaskOverview'],
     administrateTaskOverview: ['privilege.edit.AdministerTaskOverview'],
 
+    reccurentTaskAdmin: ['privilege.execute.add.certificate.request.data.task'],
+
     all: function () {
         return Ext.Array.merge(Apr.privileges.AppServer.view);
     },

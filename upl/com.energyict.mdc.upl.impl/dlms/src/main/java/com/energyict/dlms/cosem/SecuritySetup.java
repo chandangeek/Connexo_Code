@@ -1,14 +1,9 @@
 package com.energyict.dlms.cosem;
 
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.axrdencoding.*;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
-
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -21,8 +16,12 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class SecuritySetup extends AbstractCosemObject {
+
+    private static final Logger logger = Logger.getLogger(SecuritySetup.class.getName());
+
 
     static final byte[] LN = new byte[]{0, 0, 43, 0, 0, (byte) 255};
     /**
@@ -249,6 +248,7 @@ public class SecuritySetup extends AbstractCosemObject {
             //response data octet-string is formatted as X.509 v3 DER format
             return parseExportedCertificate(result);
         } catch (CertificateException e) {
+            this.logger.severe("Certificate exception:" + e.getMessage());
             throw new ProtocolException(e, "Error while parsing exported certificate with serial number '" + serialNumber + "' and issuer '" + issuer + "': " + e.getMessage());
         }
     }
@@ -280,6 +280,7 @@ public class SecuritySetup extends AbstractCosemObject {
             InputStream in = new ByteArrayInputStream(encodedCertificate.getOctetStr());
             return (X509Certificate) certFactory.generateCertificate(in);
         } catch (CertificateException e) {
+            this.logger.severe("Certificate exception:" + e.getMessage());
             throw new ProtocolException(e, "Error while parsing exported certificate for entity '" +
                     SecurityMessage.CertificateEntity.fromId(certificateEntity).name() + "', type '" +
                     SecurityMessage.CertificateType.fromId(certificateType).name() + "' and system-title '" +

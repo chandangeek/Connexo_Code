@@ -44,6 +44,8 @@ public interface DataExportTaskBuilder {
 
     PropertyBuilder<DataExportTaskBuilder> addProperty(String name);
 
+    DataExportTaskBuilder pairWith(ExportTask exportTask);
+
     ExportTask create();
 
     interface PropertyBuilder<T> {

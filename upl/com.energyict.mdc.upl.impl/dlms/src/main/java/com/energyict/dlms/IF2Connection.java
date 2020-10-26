@@ -2,6 +2,7 @@ package com.energyict.dlms;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -268,7 +269,7 @@ public class IF2Connection implements DLMSConnection {
         // this.currentTryCount contains the current try number - we should not start again from 0, but continue from current try number
 
         // Strip the first 3 bytes of the request to get the plain cosem APDU
-        final byte[] cosemApdu = DLMSUtils.getSubArray(retryRequest, 3);
+        final byte[] cosemApdu = ProtocolTools.getSubArray(retryRequest, 3);
 
         do {
             try {
@@ -301,7 +302,7 @@ public class IF2Connection implements DLMSConnection {
      */
     public byte[] sendRequest(byte[] request) throws IOException {
         // Strip the first 3 bytes of the request to get the plain cosem APDU
-        final byte[] cosemApdu = DLMSUtils.getSubArray(request, 3);
+        final byte[] cosemApdu = ProtocolTools.getSubArray(request, 3);
 
         resetCurrentTryCount();
         do {
@@ -341,7 +342,7 @@ public class IF2Connection implements DLMSConnection {
      */
     public void sendUnconfirmedRequest(final byte[] request) throws IOException {
         // Strip the first 3 bytes of the request to get the plain cosem APDU
-        final byte[] cosemApdu = DLMSUtils.getSubArray(request, 3);
+        final byte[] cosemApdu = ProtocolTools.getSubArray(request, 3);
 
         resetCurrentTryCount();
         do {
@@ -392,8 +393,8 @@ public class IF2Connection implements DLMSConnection {
                     final byte[] content = packet.getData();
                     final byte cid = content[2];
                     if (cid == this.connectionId) {
-                        final byte[] cosemReply = DLMSUtils.getSubArray(content, 6);
-                        return DLMSUtils.concatByteArrays(new byte[3], cosemReply);
+                        final byte[] cosemReply = ProtocolTools.getSubArray(content, 6);
+                        return ProtocolTools.concatByteArrays(new byte[3], cosemReply);
                     }
                 }
             }

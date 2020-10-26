@@ -48,13 +48,27 @@ enum TableSpecs {
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
+            Column pairedTask = table.column("PAIRED_TASK")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONGWRAPPER)
+                    .during(Range.closedOpen(version(10, 7, 3), version(10, 8)),
+                            Range.atLeast(version(10, 9)))
+                    .add();
 
+            table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
             table.foreignKey("DES_FK_RTET_RECURRENTTASK")
                     .on(recurrentTaskId)
                     .references(RecurrentTask.class)
                     .map("recurrentTask")
                     .add();
-            table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
+            table.foreignKey("FK_DES_EXPORTTASK_2_PAIRED")
+                    .on(pairedTask)
+                    .references(name())
+                    .map("pairedTask")
+                    .onDelete(DeleteRule.SETNULL)
+                    .during(Range.closedOpen(version(10, 7, 3), version(10, 8)),
+                            Range.atLeast(version(10, 9)))
+                    .add();
         }
     },
     DES_RTDATASELECTOR(DataSelectorConfig.class) {
@@ -210,13 +224,13 @@ enum TableSpecs {
             Column selector = table.column("SELECTOR").number().notNull().add();
             table.column("LASTRUN").number().conversion(ColumnConversion.NUMBER2INSTANT).map("lastRun").add();
             Column lastExported = table.column("LASTEXPORTED").number().conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map("lastExportedDate").upTo(version(10, 8)).add();
+                    .map("lastExportedDate").upTo(version(10, 7, 3)).add();
             table.column("LASTEXPORTEDCHANGEDDATA").number().conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map("lastExportedChangedData").since(version(10, 8)).previously(lastExported).add();
+                    .map("lastExportedChangedData").since(version(10, 7, 3)).previously(lastExported).add();
             Column lastExportedPeriodEnd = table.column("LASTEXPORTEDPERIODEND").number().conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map("lastExportedPeriodEnd").during(Range.closedOpen(version(10, 7, 1), version(10, 8))).add();
+                    .map("lastExportedPeriodEnd").during(Range.closedOpen(version(10, 7, 1), version(10, 7, 3))).add();
             table.column("LASTEXPORTEDNEWDATA").number().conversion(ColumnConversion.NUMBER2INSTANT)
-                    .map("lastExportedNewData").since(Version.version(10, 8)).previously(lastExportedPeriodEnd).add();
+                    .map("lastExportedNewData").since(Version.version(10, 7, 3)).previously(lastExportedPeriodEnd).add();
             table.column("READINGTYPEMRID").varChar(NAME_LENGTH).notNull().map("readingTypeMRId").add();
             table.column("ACTIVE").bool().notNull().map("active").add();
             table.column("READING_INTERVAL").varChar().map("readingInterval").since(Version.version(10, 7, 2)).add();

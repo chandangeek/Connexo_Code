@@ -101,6 +101,14 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
                         .finish());
         propertySpecs.add(
                 propertySpecService
+                .booleanSpec()
+                .named(FormatterProperties.WITH_DEVICE_MRID)
+                .fromThesaurus(this.thesaurus)
+                .setDefaultValue(false)
+                .finish()
+        );
+        propertySpecs.add(
+                propertySpecService
                         .booleanSpec()
                         .named(FormatterProperties.WITH_DESCRIPTION)
                         .fromThesaurus(this.thesaurus)
@@ -115,7 +123,7 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
 
     @Override
     public DataFormatter createDataFormatter(Map<String, Object> properties) {
-        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties), shouldIncludeDeviceCode(properties), shouldIncludeDescription(properties));
+        return StandardCsvEventDataFormatter.from(dataExportService, getSeparator(properties), getTag(properties), shouldIncludeDeviceCode(properties), shouldIncludeDescription(properties), shouldIncludeDeviceMRID(properties));
     }
 
     private String getTag(Map<String, Object> properties) {
@@ -129,6 +137,11 @@ public class StandardCsvEventDataFormatterFactory implements DataFormatterFactor
     private boolean shouldIncludeDeviceCode(Map<String, Object> properties) {
         Object includeDeviceCodeProperty = properties.get(FormatterProperties.WITH_DEVICE_CODE.getKey());
         return includeDeviceCodeProperty != null ? (Boolean) includeDeviceCodeProperty : false;
+    }
+
+    private boolean shouldIncludeDeviceMRID(Map<String, Object> properties) {
+        Object includeDeviceMRIDProperty = properties.get(FormatterProperties.WITH_DEVICE_MRID.getKey());
+        return includeDeviceMRIDProperty != null ? (Boolean) includeDeviceMRIDProperty : false;
     }
 
     private boolean shouldIncludeDescription(Map<String, Object> properties) {

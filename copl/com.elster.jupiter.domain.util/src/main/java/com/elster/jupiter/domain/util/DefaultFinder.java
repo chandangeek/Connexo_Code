@@ -67,6 +67,12 @@ public final class DefaultFinder<T> implements Finder<T> {
         return this;
     }
 
+    @Override
+    public DefaultFinder<T> sorted(Order order) {
+        sortingColumns.add(order);
+        return this;
+    }
+
     public DefaultFinder<T> defaultSortColumn(String sortColumn) {
         this.defaultSort = Order.ascending(sortColumn).toLowerCase();
         return this;
@@ -90,10 +96,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         if (queryParameters.getStart().isPresent() && queryParameters.getLimit().isPresent()) {
             this.paged(queryParameters.getStart().get(), queryParameters.getLimit().get());
         }
-        for (Order columnSort : queryParameters.getSortingColumns()) {
-            this.sorted(columnSort.getName(), columnSort.ascending());
-        }
-
+        sortingColumns.addAll(queryParameters.getSortingColumns());
         return this;
     }
 

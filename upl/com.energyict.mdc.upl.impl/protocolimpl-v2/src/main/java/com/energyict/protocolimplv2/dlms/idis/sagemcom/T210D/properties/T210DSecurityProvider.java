@@ -18,19 +18,18 @@ import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateExpiredException;
-import java.security.cert.CertificateNotYetValidException;
-import java.security.cert.X509Certificate;
+import java.security.cert.*;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 /**
  * Created by cisac on 12/22/2016.
  */
 public class T210DSecurityProvider extends NTASecurityProvider implements GeneralCipheringSecurityProvider {
+
+    private static final Logger logger = Logger.getLogger(T210DSecurityProvider.class.getName());
 
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private int securitySuite;
@@ -185,6 +184,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
             try {
                 return validateCertificate(propertyName, propertyValue, certificate);
             } catch (CertificateException e) {
+                this.logger.severe("Certificate exception:" + e.getMessage());
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
                         propertyValue,
@@ -314,6 +314,7 @@ public class T210DSecurityProvider extends NTASecurityProvider implements Genera
                 }
                 return validateCertificate(propertyName, propertyValue, certificate.get());
             } catch (CertificateException e) {
+                this.logger.severe("Certificate exception:" + e.toString());
                 throw DeviceConfigurationException.invalidPropertyFormat(
                         propertyName,
                         propertyValue,

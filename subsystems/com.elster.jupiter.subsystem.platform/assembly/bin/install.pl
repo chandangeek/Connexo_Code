@@ -629,6 +629,8 @@ sub install_tomcat {
         if (-e "$TOMCAT_BASE/apache-log4j-extras-1.2.17.jar") {
             copy("$TOMCAT_BASE/apache-log4j-extras-1.2.17.jar","$TOMCAT_BASE/tomcat/lib/apache-log4j-extras-1.2.17.jar");
         }
+        # Removing examples directory
+        if (-d "$TOMCAT_DIR/webapps/examples") { rmtree("$TOMCAT_DIR/webapps/examples"); }
 		chdir "$TOMCAT_DIR/bin";
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/server.xml","<Connector port=\"8009\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />","<Connector port=\"$TOMCAT_AJP_PORT\" protocol=\"AJP/1.3\" redirectPort=\"8443\" />");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"analyst\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");

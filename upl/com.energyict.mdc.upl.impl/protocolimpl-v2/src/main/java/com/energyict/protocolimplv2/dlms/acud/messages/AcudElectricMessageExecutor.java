@@ -23,8 +23,8 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
     private static final ObisCode VOLTAGE_UNDER_LIMIT_TIME_THRESHOLD = ObisCode.fromString("1.0.12.43.0.255");
     private static final ObisCode LIPF_UNDER_LIMIT_THRESHOLD = ObisCode.fromString("1.0.13.31.0.255");
     private static final ObisCode LIPF_UNDER_LIMIT_TIME_THRESHOLD = ObisCode.fromString("1.0.13.45.0.255");
-
     public final static ObisCode LOAD_LIMIT = ObisCode.fromString("0.0.94.20.66.255");
+
     public static final String LIMIT_SEPARATOR = ";";
     public static final String VALUE_SEPARATOR = ",";
 
@@ -81,12 +81,6 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
         getCosemObjectFactory().writeObject(TIME_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
     }
 
-    @Override
-    protected void addStepTarifCharge(OfflineDeviceMessage pendingMessage, Structure changeStep, Integer step) throws IOException {
-        Integer charge = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, CHARGE_STEP + step));
-        changeStep.addDataType(new Unsigned32(charge));
-    }
-
     private void updateLoadLimits(OfflineDeviceMessage pendingMessage) throws IOException {
         Array limits = new Array();
         String limitArray = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.loadLimitArray);
@@ -96,9 +90,9 @@ public class AcudElectricMessageExecutor extends AcudMessageExecutor {
             Integer startValue = Integer.parseInt(limitItemArray[0].trim());
             Integer stopValue = Integer.parseInt(limitItemArray[1].trim());
             Integer limitValue = Integer.parseInt(limitItemArray[2].trim());
-            limit.addDataType(new Unsigned16( startValue));
-            limit.addDataType(new Unsigned16( stopValue));
-            limit.addDataType(new Unsigned16( limitValue));
+            limit.addDataType(new Unsigned16(startValue));
+            limit.addDataType(new Unsigned16(stopValue));
+            limit.addDataType(new Unsigned16(limitValue));
             limits.addDataType(limit);
         }
         getCosemObjectFactory().writeObject(LOAD_LIMIT, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), limits.getBEREncodedByteArray());

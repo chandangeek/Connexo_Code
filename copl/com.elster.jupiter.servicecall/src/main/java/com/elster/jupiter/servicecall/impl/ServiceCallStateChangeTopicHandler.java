@@ -78,7 +78,8 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
             int priority = serviceCall.getType().getPriority();
 
             if (DefaultState.CANCELLED.equals(newState)) {
-                serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
+                //CXO-12776 - message queues purging has to be done separately as a bulk action
+                //serviceCallQueue.purgeCorrelationId(serviceCall.getNumber());
                 serviceCall.findChildren().stream().filter(sc -> sc.canTransitionTo(DefaultState.CANCELLED)).forEach(ServiceCall::cancel);
             }
 

@@ -1,6 +1,20 @@
 package com.elster.jupiter.http.whiteboard.impl.saml;
 
-import com.elster.jupiter.http.whiteboard.SamlRequestService;
+import java.io.StringWriter;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.namespace.QName;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.cxf.common.util.CompressionUtils;
 import org.joda.time.DateTime;
@@ -13,24 +27,15 @@ import org.opensaml.saml.common.SAMLException;
 import org.opensaml.saml.common.SAMLObject;
 import org.opensaml.saml.common.SAMLVersion;
 import org.opensaml.saml.common.xml.SAMLConstants;
-import org.opensaml.saml.saml2.core.*;
+import org.opensaml.saml.saml2.core.AuthnRequest;
+import org.opensaml.saml.saml2.core.Issuer;
+import org.opensaml.saml.saml2.core.NameIDPolicy;
+import org.opensaml.saml.saml2.core.NameIDType;
 import org.opensaml.saml.saml2.core.impl.AuthnRequestBuilder;
 import org.osgi.service.component.annotations.Component;
 import org.w3c.dom.Element;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.namespace.QName;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import java.io.StringWriter;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.elster.jupiter.http.whiteboard.SamlRequestService;
 
 @Component(name = "com.elster.jupiter.rest.whiteboard.impl.SamlRequestService", service = SamlRequestService.class, immediate = true)
 public class SamlRequestServiceImpl implements SamlRequestService {
@@ -56,23 +61,16 @@ public class SamlRequestServiceImpl implements SamlRequestService {
         issuer.setValue(issuerName);
         request.setIssuer(issuer);
 
+        // Authentication format should be configured on the authentication server that's why here we have unspecified format of the named ID policy
         NameIDPolicy nameIDPolicy = build(NameIDPolicy.DEFAULT_ELEMENT_NAME);
-        nameIDPolicy.setFormat(NameIDType.EMAIL);
+        nameIDPolicy.setFormat(NameIDType.UNSPECIFIED);
         request.setNameIDPolicy(nameIDPolicy);
-
-        RequestedAuthnContext requestedAuthnContext = build(RequestedAuthnContext.DEFAULT_ELEMENT_NAME);
-        requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.EXACT);
-        request.setRequestedAuthnContext(requestedAuthnContext);
-
-        AuthnContextClassRef authnContextClassRef = build(AuthnContextClassRef.DEFAULT_ELEMENT_NAME);
-        authnContextClassRef.setAuthnContextClassRef(AuthnContext.PPT_AUTHN_CTX);
-        requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
-
 
         return request;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends SAMLObject> T build(QName qName) {
         return (T) XMLObjectProviderRegistrySupport.getBuilderFactory().getBuilder(qName).buildObject(qName);
     }

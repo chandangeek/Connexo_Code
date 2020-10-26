@@ -19,6 +19,7 @@ class SysAppPrivileges {
                 //tasks
                 com.elster.jupiter.tasks.security.Privileges.Constants.VIEW_TASK_OVERVIEW,
                 com.elster.jupiter.tasks.security.Privileges.Constants.ADMINISTER_TASK_OVERVIEW,
+                com.elster.jupiter.tasks.security.Privileges.Constants.EXECUTE_ADD_CERTIFICATE_REQUEST_DATA_TASK,
                 //license
                 com.elster.jupiter.license.security.Privileges.Constants.VIEW_LICENSE,
                 com.elster.jupiter.license.security.Privileges.Constants.UPLOAD_LICENSE,

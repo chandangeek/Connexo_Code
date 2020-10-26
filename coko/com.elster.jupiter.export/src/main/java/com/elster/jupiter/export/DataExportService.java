@@ -4,11 +4,12 @@
 
 package com.elster.jupiter.export;
 
-import aQute.bnd.annotation.ProviderType;
-
 import com.elster.jupiter.appserver.AppServer;
 import com.elster.jupiter.export.webservicecall.DataExportServiceCallType;
+import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.properties.PropertySpec;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.nio.file.Path;
 import java.time.Instant;
@@ -38,6 +39,8 @@ public interface DataExportService {
     Optional<? extends ExportTask> findExportTask(long id);
 
     Optional<? extends ExportTask> findExportTaskByRecurrentTask(long id);
+
+    Optional<? extends ExportTask> findAndLockExportTask(long id);
 
     Optional<? extends ExportTask> findAndLockExportTask(long id, long version);
 
@@ -80,4 +83,10 @@ public interface DataExportService {
     StructureMarker forRoot(String root);
 
     DataExportServiceCallType getDataExportServiceCallType();
+
+    QueryStream<? extends ExportTask> streamExportTasks();
+
+    Optional<? extends ReadingTypeDataExportItem> findReadingTypeDataExportItem(long id);
+
+    Optional<? extends ReadingTypeDataExportItem> findAndLockReadingTypeDataExportItem(long id);
 }

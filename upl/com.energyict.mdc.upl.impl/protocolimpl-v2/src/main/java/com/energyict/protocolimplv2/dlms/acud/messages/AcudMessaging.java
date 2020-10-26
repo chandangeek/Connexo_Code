@@ -49,9 +49,12 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.CHANGE_UNIT_CHARGE_PASSIVE_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.UPDATE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
+                ChargeDeviceMessage.SWITCH_CHARGE_MODE.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ChargeDeviceMessage.CHANGE_CHARGE_PERIOD.get(this.propertySpecService, this.nlsService, this.converter),
+                ChargeDeviceMessage.SWITCH_TAX_AND_STEP_TARIFF.get(getPropertySpecService(), getNlsService(), getConverter()),
+                ChargeDeviceMessage.CHANGE_STEP_TARIFF.get(getPropertySpecService(), getNlsService(), getConverter()),
+                ChargeDeviceMessage.CHANGE_TAX_RATES.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION.get(this.propertySpecService, this.nlsService, this.converter),
-                ChargeDeviceMessage.CHANGE_STEP_TARIFF_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.UPDATE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
                 ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
                 ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter),
@@ -60,6 +63,8 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+        if (propertySpec.getName().equals(DeviceMessageConstants.activationDate))
+            return String.valueOf(((Date) messageAttribute).getTime());
         if (propertySpec.getName().equals(DeviceMessageConstants.passiveUnitChargeActivationTime))
             return String.valueOf(((Date) messageAttribute).getTime());
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))

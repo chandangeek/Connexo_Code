@@ -146,6 +146,7 @@ CES;DOMAIN;loadprofileobiscodeXmissingchannelOtherMatch;No channel match for Loa
 CES;DOMAIN;DDC.device.discovered.existing.ghost.firmware;Discovered an existing ghost firmware version ''{0}'';Vorhandene Ghost-Firmware-Version ''{0}'' gefunden.;;;;;
 CES;DOMAIN;DDC.device.discovered.existing.ghost.was.final;Discovered an existing ghost firmware version ''{0}'', while it previously was a final version ''{1}'';Vorhandene Ghost-Firmware-Version ''{0}'' gefunden, die jedoch zuvor eine Endversion ''{1}'' war.;;;;;
 CES;DOMAIN;collectedDeviceProtocolPropertyForUnknownDevice;Protocol property for unknown device;Protokolleigenschaft für unbekanntes Gerät;;;;;
+CES;DOMAIN;firmwareInformationNotsupported;Firmware information status is not supported by the protocol;Der Status der Firmware-Informationen wird vom Protokoll nicht unterstützt;;;;;
 CES;DOMAIN;;{0} years;{0} Tage;;;;;
 CES;;;{0} years;{0} Tage;;;;;
 CLR;DOMAIN;theXOfY;the {0} of ''{1}'';{0} von {1} ;;;;;

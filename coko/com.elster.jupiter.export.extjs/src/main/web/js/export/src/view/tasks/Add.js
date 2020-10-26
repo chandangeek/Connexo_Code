@@ -754,6 +754,61 @@ Ext.define('Dxp.view.tasks.Add', {
                         ]
                     },
                     {
+                        xtype: 'fieldcontainer',
+                        fieldLabel: Uni.I18n.translate('general.synchronizedTask', 'DES', 'Synchronized task'),
+                        layout: 'hbox',
+                        itemId: 'linked-export-task-container',
+                        msgTarget: 'under',
+                        hidden: true,
+                        margin: '20 0 0 0',
+                        items: [
+                            {
+                                xtype: 'combobox',
+                                dataIndex: 'pairedTask',
+                                itemId: 'pairedTask',
+                                displayField: 'name',
+                                valueField: 'id',
+                                width: 240,
+                                editable: false,
+                                store: 'Dxp.store.LinkedDataExportTask',
+                                queryMode: 'local',
+                                emptyText: Uni.I18n.translate('general.selectExportTask', 'DES', 'Select an export task...'),
+                                listeners: {
+                                    change: function (checkBox, value) {
+                                        if (this.originalValue != value) {
+                                            me.down('#reset-linked-export-task-btn').enable();
+                                        } else {
+                                            me.down('#reset-linked-export-task-btn').disable();
+
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                xtype: 'uni-default-button',
+                                itemId: 'reset-linked-export-task-btn',
+                                disabled: true,
+                                hidden: false,
+                                tooltip: Uni.I18n.translate('general.restoreDefaultEmptyValue', 'DES', 'Restore to default empty value'),
+                                handler:  function (btn) {
+                                    me.down('#pairedTask').clearValue();
+                                    btn.disable();
+                                }
+                            },
+                            {
+                                xtype: 'button',
+                                tooltip:Uni.I18n.translate('synchronizedTask.formatter.tooltip', 'DES', 'When one of the synchronized export tasks is run, last export time will be updated on the other task'),
+                                text: '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;"></span>',
+                                disabled: true, // to avoid a hand cursor
+                                ui: 'blank',
+                                itemId: 'synchronized-task-info',
+                                shadow: false,
+                                margin: '5 0 0 10',
+                                width: 16
+                            }
+                        ]
+                    },
+                    {
                         title: Uni.I18n.translate('general.outputFormat', 'DES', 'Output format'),
                         itemId: 'file-formatter-title',
                         hidden: true,

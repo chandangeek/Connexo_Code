@@ -255,6 +255,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new NTPSetup(protocolLink, getObjectReference(obisCode));
     }
 
+    public AccountSetup getAccountSetup(ObisCode obisCode) throws NotInObjectListException {
+        return new AccountSetup(protocolLink, getObjectReference(obisCode));
+    }
+
     public CreditSetup getCreditSetup(ObisCode obisCode) throws NotInObjectListException {
         return new CreditSetup(protocolLink, getObjectReference(obisCode));
     }
