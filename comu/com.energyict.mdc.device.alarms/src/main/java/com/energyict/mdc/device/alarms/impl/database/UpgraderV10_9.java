@@ -8,11 +8,14 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTemplate;
 
+import javax.inject.Inject;
+
 public class UpgraderV10_9 implements Upgrader {
 
     private final DataModel dataModel;
     private final IssueService issueService;
 
+    @Inject
     public UpgraderV10_9(DataModel dataModel, IssueService issueService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
