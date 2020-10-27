@@ -187,7 +187,7 @@ final class JoinExecutor<T> {
         // prune unneeded tree branches, and clears mark state
         root.prune();
         root.clearCache();
-        // remark all nodes with a where clause contribution.
+        // remark all nodes with a where  or order clause contribution.
         JoinTreeMarker.on(root).visit(condition).visit(orderBy);
         appendSql(condition, orderBy);
         List<T> result = new ArrayList<>();
