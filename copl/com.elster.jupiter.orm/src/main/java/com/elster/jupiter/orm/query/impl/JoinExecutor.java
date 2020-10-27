@@ -37,7 +37,7 @@ final class JoinExecutor<T> {
 
     SqlBuilder getSqlBuilder(Condition condition, String[] fieldNames, Order[] orderBy) {
         builder = new SqlBuilder();
-        JoinTreeMarker.on(root).visit(condition);
+        JoinTreeMarker.on(root).visit(condition).visit(orderBy);
         List<String> selectColumns = new ArrayList<>();
         for (String name : fieldNames) {
             List<ColumnAndAlias> columnAndAliases = root.getColumnAndAliases(name);
@@ -50,7 +50,7 @@ final class JoinExecutor<T> {
             }
         }
         root.prune();
-        JoinTreeMarker.on(root).visit(condition);
+        JoinTreeMarker.on(root).visit(condition).visit(orderBy);
         appendSelectClause(selectColumns);
         appendWhereClause(builder, condition, " where ");
         appendOrderByClause(builder, orderBy);
@@ -164,9 +164,9 @@ final class JoinExecutor<T> {
         builder = new SqlBuilder();
         boolean initialMarkDone = false;
         if (eager) {
-            // mark all nodes that have a where clause contribution.
+            // mark all nodes that have a where or order clause contribution.
             // we need to do this first, as markReachable depends on the marked state for temporal relations.
-            JoinTreeMarker.on(root).visit(condition);
+            JoinTreeMarker.on(root).visit(condition).visit(orderBy);
             initialMarkDone = true;
             root.markReachable();
             clear(exceptions);
@@ -182,13 +182,13 @@ final class JoinExecutor<T> {
             initialMarkDone = false;
         }
         if (!initialMarkDone) {
-            JoinTreeMarker.on(root).visit(condition);
+            JoinTreeMarker.on(root).visit(condition).visit(orderBy);
         }
         // prune unneeded tree branches, and clears mark state
         root.prune();
         root.clearCache();
         // remark all nodes with a where clause contribution.
-        JoinTreeMarker.on(root).visit(condition);
+        JoinTreeMarker.on(root).visit(condition).visit(orderBy);
         appendSql(condition, orderBy);
         List<T> result = new ArrayList<>();
         try (Connection connection = root.getTable().getDataModel().getConnection(false)) {
