@@ -239,6 +239,8 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     LoadProfile.LoadProfileUpdater getLoadProfileUpdaterFor(LoadProfile loadProfile);
 
+    long getDeviceEventsCountByFilter(EndDeviceEventRecordFilterSpecification filter);
+
     List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter);
 
     default List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter, Integer from, Integer to){

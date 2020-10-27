@@ -67,10 +67,14 @@ final class JoinExecutor<T> {
     }
 
     private void appendCountSql(Condition condition) {
-        builder.append("select count(distinct ");
-        builder.append(root.alias());
-        builder.append(".");
-        builder.append(root.getTable().getDataModel().getSqlDialect().rowId());
+        if (root.getTable().isAutoInstall()) {
+            builder.append("select count(distinct ");
+            builder.append(root.alias());
+            builder.append(".");
+            builder.append(root.getTable().getDataModel().getSqlDialect().rowId());
+        } else { //not auto install == view, distinct rowId is not allowed
+            builder.append("select count(*");
+        }
         builder.append(") from ");
         root.appendFromClause(builder, null, false);
         appendWhereClause(builder, condition, " where ");
@@ -183,7 +187,7 @@ final class JoinExecutor<T> {
         // prune unneeded tree branches, and clears mark state
         root.prune();
         root.clearCache();
-        // remark all nodes with a where or order clause contribution.
+        // remark all nodes with a where  or order clause contribution.
         JoinTreeMarker.on(root).visit(condition).visit(orderBy);
         appendSql(condition, orderBy);
         List<T> result = new ArrayList<>();
