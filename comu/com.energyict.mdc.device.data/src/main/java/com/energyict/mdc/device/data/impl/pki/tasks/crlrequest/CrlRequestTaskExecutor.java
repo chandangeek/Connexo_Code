@@ -191,6 +191,8 @@ class CrlRequestTaskExecutor implements TaskExecutor {
             message = message.substring(0, MAX_MESSAGE_LENGTH);
             messageBuilder.append(message);
             messageBuilder.append("...");
+        } else {
+            messageBuilder.append(message);
         }
         logger.log(messageSeed.getLevel(), messageBuilder.toString());
     }
