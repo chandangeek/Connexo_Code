@@ -267,6 +267,10 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new ChargeSetup(protocolLink, getObjectReference(obisCode));
     }
 
+    public GPRSStandardStatus getGPRSStandardStatus(ObisCode obisCode) throws NotInObjectListException {
+        return new GPRSStandardStatus(protocolLink, getObjectReference(obisCode));
+    }
+
     public EventPushNotificationConfig getEventPushNotificationConfig() throws NotInObjectListException {
         return new EventPushNotificationConfig(protocolLink, getObjectReference(EventPushNotificationConfig.getDefaultObisCode()));
     }
