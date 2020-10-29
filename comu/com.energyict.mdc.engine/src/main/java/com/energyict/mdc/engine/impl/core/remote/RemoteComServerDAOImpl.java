@@ -93,6 +93,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -181,6 +182,14 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         JSONObject response = post(QueryMethod.GetUsersCredentialInformation, new HashMap<String, Object>());
         OfflineUserInfo[] userInfoArray = toArrayObject(response, new ObjectParser<OfflineUserInfo[]>(), OfflineUserInfo[].class);
         return CollectionConverter.convertGenericArrayToList(userInfoArray);
+    }
+
+    @Override
+    public Optional<OfflineUserInfo> checkAuthentication(String loginPassword) {
+        Map<String, Object> queryParameters = new HashMap<>();
+        queryParameters.put(RemoteComServerQueryJSonPropertyNames.AUTH_DATA, Base64.getEncoder().encodeToString(loginPassword.getBytes()));
+        JSONObject response = post(QueryMethod.CheckAuthentication, queryParameters);
+        return Optional.ofNullable(toObject(response, new ObjectParser<>(), OfflineUserInfo.class));
     }
 
     @Override
@@ -910,14 +919,18 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private <T> T toObject(JSONObject response, ObjectParser<T> objectParser) {
+    private <T> T toObject(JSONObject response, ObjectParser<T> objectParser, Class clazz) {
         try {
             return response != null
-                    ? objectParser.parseObject(response, RemoteComServerQueryJSonPropertyNames.SINGLE_OBJECT_RESULT)
+                    ? objectParser.parseObject(response, RemoteComServerQueryJSonPropertyNames.SINGLE_OBJECT_RESULT, clazz)
                     : null;
         } catch (JSONException e) {
             throw new DataAccessException(e, MessageSeeds.JSON_PARSING_ERROR);
         }
+    }
+
+    private <T> T toObject(JSONObject response, ObjectParser<T> objectParser) {
+        return toObject(response, objectParser, null);
     }
 
     private <T> T toArrayObject(JSONObject response, ObjectParser<T> objectParser, Class clazz) {

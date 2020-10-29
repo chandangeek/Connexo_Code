@@ -105,6 +105,10 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      */
     List<OfflineUserInfo> getUsersCredentialInformation();
 
+    default Optional<OfflineUserInfo> checkAuthentication(String loginPassword) {
+        return Optional.empty();
+    }
+
     /**
      * Gets the {@link DeviceProtocolSecurityPropertySet} that has been
      * created against the Device that is currently connected to the ComServer

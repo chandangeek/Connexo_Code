@@ -12,7 +12,6 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
-
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 
@@ -195,7 +194,7 @@ public final class RemoteComServerQueryJSonPropertyNames {
      * The name of the property that specifies the device cache
      * that is passed as an argument to a remote com server query.
      */
-    public static final String DEVICE_CACHE= "device-cache";
+    public static final String DEVICE_CACHE = "device-cache";
 
     /**
      * The name of the property that specifies the {@link com.energyict.protocol.MeterReadingData}
@@ -337,7 +336,10 @@ public final class RemoteComServerQueryJSonPropertyNames {
      */
     public static final String SINGLE_OBJECT_VALUE = "single-value";
 
+    public static final String AUTH_DATA = "auth_data";
+
     // Hide utility class constructor
-    private RemoteComServerQueryJSonPropertyNames () {}
+    private RemoteComServerQueryJSonPropertyNames() {
+    }
 
 }
