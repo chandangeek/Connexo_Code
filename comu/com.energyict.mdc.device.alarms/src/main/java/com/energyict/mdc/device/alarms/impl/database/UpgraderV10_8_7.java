@@ -10,13 +10,13 @@ import com.energyict.mdc.device.alarms.impl.templates.BasicDeviceAlarmRuleTempla
 
 import javax.inject.Inject;
 
-public class UpgraderV10_9 implements Upgrader {
+public class UpgraderV10_8_7 implements Upgrader {
 
     private final DataModel dataModel;
     private final IssueService issueService;
 
     @Inject
-    public UpgraderV10_9(DataModel dataModel, IssueService issueService) {
+    public UpgraderV10_8_7(DataModel dataModel, IssueService issueService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
     }

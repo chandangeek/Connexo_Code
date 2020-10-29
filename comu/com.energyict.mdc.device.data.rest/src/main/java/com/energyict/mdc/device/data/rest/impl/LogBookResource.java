@@ -57,8 +57,9 @@ public class LogBookResource {
         this.thesaurus = thesaurus;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getAllLogBooks(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -68,9 +69,10 @@ public class LogBookResource {
         return Response.ok(PagedInfoList.fromPagedList("data", logBookInfos, queryParameters)).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{lbid}")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBook(@PathParam("name") String name, @PathParam("lbid") long logBookId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -94,9 +96,10 @@ public class LogBookResource {
         return Response.status(Response.Status.OK).build();
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("{lbid}/data")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBookDataForSpecificLogbook(@PathParam("name") String name, @PathParam("lbid") long logBookId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         return this.getLogBookData(name, (d, f) -> {
@@ -105,14 +108,15 @@ public class LogBookResource {
         }, jsonQueryFilter, queryParameters);
     }
 
-    @GET @Transactional
+    @GET
+    @Transactional
     @Path("/data")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getLogBookDataForDevice(@PathParam("name") String name, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
-        Integer from = queryParameters.getStart().map(v-> v+1).orElse(null);
-        Integer to = queryParameters.getLimit().filter(t-> from != null).map(t -> t+from).orElse(null) ;
-        return this.getLogBookData(name, (d, f) ->d.getDeviceEventsByFilter(f, from, to), jsonQueryFilter, queryParameters);
+        Integer from = queryParameters.getStart().map(v -> v + 1).orElse(null);
+        Integer to = queryParameters.getLimit().filter(t -> from != null).map(t -> t + from).orElse(null);
+        return this.getLogBookData(name, (d, f) -> d.getDeviceEventsByFilter(f, from, to), jsonQueryFilter, queryParameters);
     }
 
     private Response getLogBookData(String deviceName, BiFunction<Device, EndDeviceEventRecordFilterSpecification, List<EndDeviceEventRecord>> eventProvider, JsonQueryFilter jsonQueryFilter, JsonQueryParameters queryParameters) {
