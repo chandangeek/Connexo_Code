@@ -80,6 +80,10 @@ Ext.define('Dsh.controller.Connections', {
         {
             ref: 'connectionTypeFilter',
             selector: 'dsh-view-widget-connectionstopfilter #connection-type-filter'
+        },
+        {
+            ref: 'countButton',
+            selector: '#connections-count-action'
         }
 
     ],
@@ -117,13 +121,92 @@ Ext.define('Dsh.controller.Connections', {
                 filterupdate: this.updateLatestStatusFilter,
                 filtervaluechange: this.updateLatestStatusFilter
             },
+            'dsh-view-widget-connectionstopfilter #start-interval-filter': {
+                filterupdate: this.resetCountButton,
+                filtervaluechange: this.resetCountButton
+            },
             'communication-action-menu': {
                 click: this.viewCommunicationLog
+            },
+            '#connections-count-action': {
+                click: this.countConnections
+            },
+            'dsh-view-widget-connectionstopfilter #filter-apply-all': {
+                click: this.resetCountButton
+            },
+            'dsh-view-widget-connectionstopfilter #filter-clear-all': {
+                click: this.resetCountButton
             }
 
         });
 
         this.callParent(arguments);
+    },
+
+    countConnections: function(){
+        var me = this;
+        me.fireEvent('loadingcount');
+        Ext.Ajax.suspendEvent('requestexception');
+        me.getCountButton().up('panel').setLoading(true);
+
+        Ext.Ajax.request({
+            url: Ext.getStore('Dsh.store.ConnectionTasks').getProxy().url + '/count',
+            timeout: 120000,
+            method: 'GET',
+            params: {
+                 filter: this.getStore('Dsh.store.ConnectionTasks').filterParams
+            },
+            success: function (response) {
+                Ext.suspendLayouts();
+                me.getCountButton().setText(response.responseText);
+                me.getCountButton().setDisabled(true);
+                me.getCountButton().up('panel').setLoading(false);
+                Ext.resumeLayouts(true);
+            },
+            failure: function (response, request) {
+                var box = Ext.create('Ext.window.MessageBox', {
+                    buttons: [
+                        {
+                            xtype: 'button',
+                            text: Uni.I18n.translate('general.close', 'DSH', 'Close'),
+                            action: 'close',
+                            name: 'close',
+                            ui: 'remove',
+                            handler: function () {
+                                box.close();
+                            }
+                        }
+                    ],
+                    listeners: {
+                        beforeclose: {
+                            fn: function () {
+                                Ext.suspendLayouts();
+                                me.getCountButton().setDisabled(true);
+                                me.getCountButton().up('panel').setLoading(false);
+                                Ext.resumeLayouts(true);
+                            }
+                        }
+                    }
+                });
+
+                box.show({
+                    title: Uni.I18n.translate('general.timeOut', 'DSH', 'Time out'),
+                    msg: Uni.I18n.translate('general.timeOutMessageIssues', 'DSH', 'Counting the issues took too long.'),
+                    modal: false,
+                    ui: 'message-error',
+                    icon: 'icon-warning2',
+                    style: 'font-size: 34px;'
+                });
+            }
+        });
+    },
+
+    resetCountButton: function(){
+        var me = this;
+        Ext.suspendLayouts();
+        me.getCountButton().setDisabled(false);
+        me.getCountButton().setText(Uni.I18n.translate('general.title.count', 'DSH', 'Count'));
+        Ext.resumeLayouts(true);
     },
 
     showOverview: function () {
@@ -246,8 +329,10 @@ Ext.define('Dsh.controller.Connections', {
             if (me.getFinishedBetweenFilter().getParamValue() !== undefined) {
                 filterStore.filterBy(me.doFilterLatestStatus);
                 me.getLatestStatusFilter(); // Apparently, needed to visually see the filtering active in the combo box
+                this.resetCountButton();
             } else {
                 filterStore.clearFilter();
+                this.resetCountButton();
             }
         } else {
             // Retry until you can perform the above

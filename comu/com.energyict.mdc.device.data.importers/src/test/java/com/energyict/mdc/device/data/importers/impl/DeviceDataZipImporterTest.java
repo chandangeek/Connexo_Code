@@ -105,9 +105,10 @@ public class DeviceDataZipImporterTest {
         importer.process(importOccurrence);
 
         verify(importOccurrence).getPath();
-        verify(importOccurrence).markFailure(anyString());
+        verify(spyParser).init(any(ZipFile.class));
+        verify(spyParser).getZipEntries();
+        verify(importOccurrence).markSuccess(anyString());
         verify(spyParser).init(Matchers.any(ZipFile.class));
-        verify(logger).log(Matchers.eq(Level.SEVERE), Matchers.startsWith("The device serial number couldn't be extracted"), any(Exception.class));
     }
 
     @Test

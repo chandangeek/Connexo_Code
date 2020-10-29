@@ -95,7 +95,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
         service = {SAPCustomPropertySets.class, MessageSeedProvider.class, TranslationKeyProvider.class, TopicHandler.class},
         property = "name=" + SAPCustomPropertySetsImpl.COMPONENT_NAME, immediate = true)
 public class SAPCustomPropertySetsImpl implements MessageSeedProvider, TranslationKeyProvider, SAPCustomPropertySets, TopicHandler {
-    static final String COMPONENT_NAME = "SCA"; // only for translations
+    public static final String COMPONENT_NAME = "SCA"; // only for translations
     private static final TemporalAmount LESS_THAN_TIME_STEP = Duration.ofNanos(1);
 
     private volatile DeviceService deviceService;

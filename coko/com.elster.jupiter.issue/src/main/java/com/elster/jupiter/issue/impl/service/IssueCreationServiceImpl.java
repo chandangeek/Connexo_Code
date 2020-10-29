@@ -250,9 +250,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
         }
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
             if (event.getEndDevice().isPresent() && isEndDeviceExcludedForRule(event.getEndDevice().get(), firedRule)) {
-                LOG.info("Issue creation for device " + event.getEndDevice().map(EndDevice::getName) + " for rule "
-                        + firedRule.getName()
-                        + " is restricted because the device is in the Issue Creation Rule's excluded device group(s)");
                 return;
             }
             if (isIssueCreationRestrictedByComTask(firedRule, event)) {
@@ -280,6 +277,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
     public void processAlarmCreationEvent(int ruleId, IssueEvent event, boolean logOnSameAlarm) {
         LOG.fine("Process alarm creation event:" + event + " on ruleId:" + ruleId);
         findCreationRuleById(ruleId).ifPresent(firedRule -> {
+                    if (event.getEndDevice().isPresent() && isEndDeviceExcludedForRule(event.getEndDevice().get(), firedRule)) {
+                        return;
+                    }
                     CreationRuleTemplate template = firedRule.getTemplate();
                     if (logOnSameAlarm) {
                         Optional<? extends OpenIssue> existingIssue = event.findExistingIssue();
@@ -301,6 +301,9 @@ public class IssueCreationServiceImpl implements IssueCreationService {
             for (CreationRuleExclGroup mapping : creationRule.getExcludedGroupMappings()) {
                 final EndDeviceGroup group = mapping.getEndDeviceGroup();
                 if (group.isMember(endDevice, now)) {
+                    LOG.info("Issue creation for device " + endDevice.getName() + " for rule '"
+                            + creationRule.getName()
+                            + "' is restricted because the device is in the Issue Creation Rule's excluded device group(s)");
                     return true;
                 }
             }
@@ -466,6 +469,6 @@ public class IssueCreationServiceImpl implements IssueCreationService {
 
     private boolean canEvaluateRules() {
         createKnowledgeBase();
-        return knowledgeBase != null;
+        return knowledgeBase != null && !knowledgeBase.getKnowledgePackages().isEmpty();
     }
 }

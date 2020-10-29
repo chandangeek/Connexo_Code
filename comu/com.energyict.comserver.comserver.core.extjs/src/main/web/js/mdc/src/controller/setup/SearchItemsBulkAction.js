@@ -114,6 +114,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'bulkStartProcessesPanel',
             selector: '#bulk-start-processes-panel'
+        },
+        {
+            ref: 'sendSapPanel',
+            selector: '#searchitems-bulk-step3 #device-send-sap-notification-bulk'
         }
     ],
 
@@ -611,6 +615,55 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     finishBtn.enable();
                 });
                 break;
+        case 'sendRegisteredSapNotification':
+            var mDeviceNames = [];
+            var sendDeviceNotificationBulk = '/api/sap/sendregisterednotifications/';
+            if (me.allDevices) {
+                var store = me.getDevicesGrid().getStore();
+                var deviceData = store.getProxy().getReader().jsonData;
+                if (deviceData && deviceData.searchResults){
+                    Ext.each(deviceData.searchResults, function (item) {
+                        mDeviceNames.push(item.id);
+                    });
+                    me.allDevicesCnt = mDeviceNames.length;
+                }
+            } else {
+                Ext.each(me.devices, function (item) {
+                    mDeviceNames.push(item.getId());
+                });
+            }
+
+            var form = me.getSendSapPanel();
+            var endPointId = form.down('#deviceSendSapNotificationEndpointComboBulk').getValue();
+
+            var jsonData = {
+                'deviceIds' : mDeviceNames,
+                'action' : 'sendSAPRNStart',
+                'endPointId' : endPointId
+            }
+
+            if (me.allDevices){
+                jsonData.filter = me.getDevicesGrid().getStore().getProxy().encodeFilters(store.filters.getRange())
+            }
+
+            Ext.Ajax.request({
+                url: sendDeviceNotificationBulk + endPointId,
+                method: 'PUT',
+                jsonData: jsonData,
+                timeout: 180000,
+                success: function (response) {
+                    statusPage.showSentSAPNotificationsSuccess(me.allDevices? me.allDevicesCnt : me.devices.length);
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                },
+
+                failure: function (response) {
+                    statusPage.showSentSAPNotificationsFailure(response.responseText);
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                }
+            });
+            break;
         }
         me.nextClick();
     },
@@ -755,6 +808,14 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         'No devices are queued to change to change load profile next reading block.',
                         'One device is queued to change next reading block start for selected load profile.',
                         '{0} devices are queued to change next reading block start for selected load profile.');
+                break;
+            case 'sendRegisteredSapNotification':
+                finalMessage = Uni.I18n.translatePlural('searchItems.bulk.successfullySentSapNotification', me.allDevices? me.allDevicesCnt : me.devices.length, 'MDC',
+                        "SAP notifications were sent to {0} devices",
+                        "SAP notification was sent to {0} devices",
+                        "SAP notifications were sent to {0} devices"
+                    );
+
                 break;
         }
         return finalMessage;
@@ -1010,6 +1071,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     nextCmp.down('#bulk-start-processes-panel').hide();
                     nextCmp.down('#load-profile-panel').hide();
                     nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
+                    nextCmp.down('#device-send-sap-notification-bulk').hide();
 
                     switch (me.operation) {
                         case 'changeconfig':
@@ -1102,6 +1164,23 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 }
                                 wizard.setLoading(false);
                             });
+                            break;
+                            case 'sendRegisteredSapNotification':
+                                var endPointsStore = Ext.create('Mdc.store.RegisteredNotificationEndpoints');
+                                //var endPointsStore = Ext.create('Wss.store.Endpoints');
+                                endPointsStore.load({
+                                    callback: function (records, operation, success) {
+                                        var sendRegisteredSapNotificationForm = nextCmp.down('#device-send-sap-notification-bulk');
+                                        sendRegisteredSapNotificationForm.setVisible(true);
+                                        var recordsCount = endPointsStore.getCount();
+                                        var endpointsCombo = nextCmp.down('#deviceSendSapNotificationEndpointComboBulk');
+                                        var endpointsNotFound = nextCmp.down('#deviceSendSapNotificationEndpointNoItemBulk');
+                                        endpointsCombo.bindStore(endPointsStore);
+                                        endpointsCombo.setVisible(!!recordsCount);
+                                        endpointsNotFound.setVisible(!recordsCount);
+
+                                    }
+                                });
                             break;
                     }
                 }
@@ -1237,6 +1316,23 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                         errorPanel = currentCmp.down('#step3-errors');
                         errorContainer = null;
                         break;
+                   case 'sendRegisteredSapNotification':
+                        var sendSapPanel = currentCmp.down('#device-send-sap-notification-bulk');
+                        me.validation = sendSapPanel.isValid();
+                        errorPanel = currentCmp.down('#step3-errors');
+                        errorContainer = null
+                        if (!errorPanel.isHidden()) {
+                            errorPanel.hide();
+                            sendSapPanel.down('#deviceSendSapNotificationEndpointComboBulk').clearInvalid();
+                        }
+                        if (me.validation){
+                            if (me.allDevices){
+                                me.allDevicesCnt = 0;
+                                var store = me.getDevicesGrid().getStore();
+                                var deviceData = store.getProxy().getReader().jsonData;
+                                if (deviceData && deviceData.searchResults) me.allDevicesCnt = deviceData.searchResults.length;
+                            }
+                        }
                 }
                 break;
         }
@@ -1317,6 +1413,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 case 'createmanualissue':
                                    progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkIssue', 'MDC', 'Creating {0} issues. Please wait...', me.allDevicesCnt, false);
                                    break;
+                                case 'sendRegisteredSapNotification':
+                                   progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkSAP', 'MDC', 'Sending SAP notifications to {0} deviecs. Please wait...', me.allDevicesCnt, false);
+                                   break;
                                 default:
                                    progressBarText = Uni.I18n.translate('general.removing', 'MDC', 'Removing...');
                                    break;
@@ -1395,6 +1494,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     title = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStart', 'MDC', 'Change load profile next reading block start')
                 }
                     break;
+                case 'sendRegisteredSapNotification' : {
+                    title = Uni.I18n.translate('deviceSendSapNotifications.title', 'MDC', 'Send registered notifications to SAP')
+                }
+                    break;
             }
             (items.length > 0) && Ext.each(items, function (item) {
                 item.setTitle(title);
@@ -1458,6 +1561,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     pattern = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartForDevices', 'MDC', "for all devices");
                     titleText = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartConfirm', 'MDC',
                         "Change next reading block start for '{0}' load profile {1}?", [me.lpChangeLpName, pattern]);
+                    break;
+                case 'sendRegisteredSapNotification':
+                    titleText = Uni.I18n.translate('searchItems.bulk.sendsapnotification.confirmSendRegisteredMsg', 'MDC', 'Send registered notifications to {0} devices?', me.allDevicesCnt);
                     break;
             }
         } else {
@@ -1542,6 +1648,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     titleText = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartConfirm', 'MDC',
                         "Change next reading block start for '{0}' load profile {1}?", [me.lpChangeLpName, pattern]);
                     break;
+                case 'sendRegisteredSapNotification':
+                    titleText = Uni.I18n.translate('searchItems.bulk.sendsapnotification.confirmSendRegisteredMsg', 'MDC', 'Send registered notifications to {0} devices?', me.devices.length);
+                    break;
             }
         }
 
@@ -1592,6 +1701,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 bodyText = Uni.I18n.translate('searchItems.bulk.changeLoadProfileStartConfirmMsg', 'MDC', 'Next reading block start will be changed for selected load profile for selected devices.');
                 break;
             case 'createmanualissue':
+                bodyText = ' ';
+                break;
+            case 'sendRegisteredSapNotification':
                 bodyText = ' ';
                 break;
         }

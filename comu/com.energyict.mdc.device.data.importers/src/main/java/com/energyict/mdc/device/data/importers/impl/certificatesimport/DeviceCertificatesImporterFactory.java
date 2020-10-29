@@ -11,6 +11,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -36,7 +37,7 @@ public class DeviceCertificatesImporterFactory extends AbstractDeviceDataFileImp
     @Override
     public FileImporter createImporter(Map<String, Object> properties) {
         DeviceCertificatesParser parser = new DeviceCertificatesParser(getContext());
-        DeviceCertificatesImportProcessor processor = new DeviceCertificatesImportProcessor(getContext());
+        DeviceCertificatesImportProcessor processor = new DeviceCertificatesImportProcessor(getContext(), properties);
         DeviceCertificatesImportLogger logger = new DeviceCertificatesImportLogger(getContext());
         return DeviceDataZipImporter.withParser(parser).withProcessor(processor).withLogger(logger).build();
     }
@@ -53,7 +54,9 @@ public class DeviceCertificatesImporterFactory extends AbstractDeviceDataFileImp
 
     @Override
     protected Set<DeviceDataImporterProperty> getProperties() {
-        return Collections.emptySet();
+        return EnumSet.of(
+                DeviceDataImporterProperty.SECURITY_ACCESSOR_MAPPING,
+                DeviceDataImporterProperty.SYSTEM_TITLE_PROPERTY_NAME);
     }
 
     @Override

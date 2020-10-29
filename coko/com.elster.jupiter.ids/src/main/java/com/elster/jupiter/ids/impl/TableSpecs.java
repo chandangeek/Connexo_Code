@@ -11,6 +11,7 @@ import com.elster.jupiter.ids.Vault;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -19,6 +20,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INTNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -96,7 +98,8 @@ public enum TableSpecs {
 			table.column("REGULAR").type("CHAR(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
 			table.column("INTERVALLENGTH").number().conversion(NUMBER2INTNULLZERO).map("intervalLength").add();
 			table.column("INTERVALLENGTHUNIT").number().conversion(NUMBER2ENUMPLUSONE).map("intervalLengthUnit").add();
-			table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset").add();
+			Column oldOffset = table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset").upTo(Version.version(10,9)).add();
+			table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map("offset").since(Version.version(10,9)).previously(oldOffset).add();
 			table.addAuditColumns();
 			table.primaryKey("IDS_PK_TIMESERIES").on(idColumn).add();
 			table.foreignKey("IDS_FK_TIMESERIESVAULT").references(IDS_VAULT.name()).onDelete(RESTRICT).map("vault").on(vaultComponent , vaultIdColumn).add();

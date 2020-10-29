@@ -7,6 +7,7 @@ package com.elster.jupiter.pki.impl;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterFactory;
 import com.elster.jupiter.pki.impl.importers.csr.CSRImporterMessageHandlerFactory;
+import com.elster.jupiter.pki.impl.tasks.AddCertificateRequestDataHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
     ALIAS("Alias", "Alias"),
@@ -26,7 +27,9 @@ public enum TranslationKeys implements TranslationKey {
     LABEL("Label", "Label"),
     SM_KEY("Smart meter key", "Smart meter key"),
     DECRYPTED_KEY("decryptedKey", "Key"),
-    DECRYPTED_KEY_DESCRIPTION("decryptedKeyDescription", "Plain text key");
+    DECRYPTED_KEY_DESCRIPTION("decryptedKeyDescription", "Plain text key"),
+    ADD_CERTIFICATE_REQUEST_DATA_TASK_SUBSCRIBER_NAME (AddCertificateRequestDataHandlerFactory.ADD_CERTIFICATE_REQUEST_DATA_TASK_SUBSCRIBER, AddCertificateRequestDataHandlerFactory.ADD_CERTIFICATE_REQUEST_DATA_TASK_SUBSCRIBER_FORMAT),
+    ;
 
     private final String key;
     private final String defaultFormat;

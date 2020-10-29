@@ -9,6 +9,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -78,6 +79,7 @@ public class FirmwareCampaignResource {
     @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response getFirmwareCampaigns(@BeanParam JsonQueryParameters queryParameters) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         QueryStream<? extends FirmwareCampaign> campaigns = firmwareCampaignService.streamAllCampaigns().join(ServiceCall.class)
                 .sorted(Order.descending("serviceCall.createTime"));
         queryParameters.getStart().ifPresent(campaigns::skip);

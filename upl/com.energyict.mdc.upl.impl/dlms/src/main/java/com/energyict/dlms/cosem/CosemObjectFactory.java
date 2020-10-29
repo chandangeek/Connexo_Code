@@ -255,12 +255,20 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
         return new NTPSetup(protocolLink, getObjectReference(obisCode));
     }
 
+    public AccountSetup getAccountSetup(ObisCode obisCode) throws NotInObjectListException {
+        return new AccountSetup(protocolLink, getObjectReference(obisCode));
+    }
+
     public CreditSetup getCreditSetup(ObisCode obisCode) throws NotInObjectListException {
         return new CreditSetup(protocolLink, getObjectReference(obisCode));
     }
 
     public ChargeSetup getChargeSetup(ObisCode obisCode) throws NotInObjectListException {
         return new ChargeSetup(protocolLink, getObjectReference(obisCode));
+    }
+
+    public GPRSStandardStatus getGPRSStandardStatus(ObisCode obisCode) throws NotInObjectListException {
+        return new GPRSStandardStatus(protocolLink, getObjectReference(obisCode));
     }
 
     public EventPushNotificationConfig getEventPushNotificationConfig() throws NotInObjectListException {

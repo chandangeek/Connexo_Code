@@ -8,6 +8,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PublicKey;
 import java.util.Objects;
+import java.util.logging.Logger;
 
 /**
  * Key agreement with ephemeral keys.
@@ -15,6 +16,8 @@ import java.util.Objects;
  * @author alex
  */
 public final class KeyAgreementImpl implements KeyAgreement {
+
+    private static final Logger logger = Logger.getLogger(KeyAgreementImpl.class.getName());
 
     /**
      * ECDH.
@@ -47,6 +50,7 @@ public final class KeyAgreementImpl implements KeyAgreement {
             this.agreement = javax.crypto.KeyAgreement.getInstance(ECDH);
             this.agreement.init(ephemeralKeys.getPrivate());
         } catch (GeneralSecurityException e) {
+            this.logger.severe("Security exception:" + e.getMessage());
             throw new IllegalStateException("Error generating ephemeral key pair : [" + e.getMessage() + "]", e);
         }
     }
@@ -78,6 +82,7 @@ public final class KeyAgreementImpl implements KeyAgreement {
 
             return this.agreement.generateSecret();
         } catch (GeneralSecurityException e) {
+            this.logger.severe("Security exception:" + e.getMessage());
             throw new IllegalStateException("Key agreement failed : [" + e.getMessage() + "]", e);
         }
     }

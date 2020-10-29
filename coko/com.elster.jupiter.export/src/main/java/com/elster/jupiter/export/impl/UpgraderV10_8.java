@@ -3,23 +3,7 @@
  */
 package com.elster.jupiter.export.impl;
 
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.orm.Version;
-import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.upgrade.DummyUpgrader;
 
-import com.google.inject.Inject;
-
-public class UpgraderV10_8 implements Upgrader {
-    private final DataModel dataModel;
-
-    @Inject
-    UpgraderV10_8(DataModel dataModel) {
-        this.dataModel = dataModel;
-    }
-
-    @Override
-    public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 8));
-    }
+public class UpgraderV10_8 extends DummyUpgrader {
 }

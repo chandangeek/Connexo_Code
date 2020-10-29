@@ -25,7 +25,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
     itemUrl: '/api/isu/issues/',
 
-    showOverview: function (id) {
+    showOverview: function (issueId) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
@@ -34,71 +34,60 @@ Ext.define('Isu.controller.IssueDetail', {
             widgetXtype,
             widget;
 
-        var storeParams = {};
+        Ext.Ajax.request({
 
-        if (queryString && queryString.meter) {
-            storeParams['filters'] = [{property: 'meter', value: queryString.meter}]
-        }
+            url: '/api/isu/issues/' + issueId +'?variableid=' + issueId + '&variablevalue=' + issueId,
+            method: 'GET',
+            params: {
+                filters: [{property: 'meter',  value : queryString.meter}]
+            },
+            success: function (operation) {
+                var record = Ext.decode(operation.responseText, true);//Ext.JSON.decode(operation.responseText);
 
-        var callback = function () {
-            if (store.getCount() && store.getById(parseInt(id)) != null) {
-                var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
-                if (issueActualType != issueType) {
-                    queryString.issueType = issueActualType;
-                    window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-                    issueType = issueActualType;
-                }
-            }
-
-            widgetXtype = me.settingsForCurrentIssueType(issueType);
-
-            widget = Ext.widget(widgetXtype, {
-                router: router,
-                issuesListLink: me.makeLinkToList(router)
-            });
-
-            me.widget = widget;
-            me.getApplication().fireEvent('changecontentevent', widget);
-            widget.setLoading(true);
-
-            me.getModel(me.issueModel).load(id, {
-                callback: function () {
-                    widget.setLoading(false);
-                },
-                success: function (record) {
-                    if (!widget.isDestroyed) {
-                        Ext.getStore('Isu.store.Clipboard').set('issue', record);
-                        me.getApplication().fireEvent('issueLoad', record);
-                        Ext.suspendLayouts();
-                        widget.down('#issue-detail-top-title').setTitle(record.get('title'));
-                        if (issueType === 'datacollection') {
-                            me.loadDataCollectionIssueDetails(widget, record);
-                        } else {
-                            widget.down('#issue-detail-form').loadRecord(record);
+                store.loadRawData([record]);
+                store.each(function (record) {
+                    if (record) {
+                        var issueActualType = record.get('issueType').uid;
+                        if (issueActualType != issueType) {
+                            queryString.issueType = issueActualType;
+                            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                            issueType = issueActualType;
                         }
-                        Ext.resumeLayouts(true);
-                        var subEl = new Ext.get('issue-status-field-sub-tpl');
-                        subEl.setHTML(record.get('statusDetail'));
-
-                        if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
-                            me.getActionMenu().record = record;
-                        }
-                        else if (widget.down('#issue-detail-action-menu')) {
-                            widget.down('#issue-detail-action-menu').record = record;
-                        }
-                        me.loadComments(record, issueType);
-                        me.loadProcesses(record, issueType, id);
                     }
-                },
-                failure: function () {
-                    router.getRoute(router.currentRoute.replace('/view', '')).forward();
-                }
-            });
 
-            me.setAdditionalSettingsForCurrentIssue(issueType, widget);
-        }
-        storeParams.callback = callback;
-        store.load(storeParams);
+                    widgetXtype = me.settingsForCurrentIssueType(issueType);
+
+                    widget = Ext.widget(widgetXtype, {
+                        router: router,
+                        issuesListLink: me.makeLinkToList(router)
+                    });
+
+                    me.widget = widget;
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    me.setAdditionalSettingsForCurrentIssue(issueType, widget);
+
+                    Ext.getStore('Isu.store.Clipboard').set('issue', record);
+                    widget.down('#issue-detail-top-title').setTitle(record.get('title'));
+                    if (issueType === 'datacollection') {
+                        me.loadDataCollectionIssueDetails(widget, record);
+                    } else {
+                        widget.down('#issue-detail-form').loadRecord(record);
+                    }
+                    Ext.resumeLayouts(true);
+                    var subEl = new Ext.get('issue-status-field-sub-tpl');
+                    subEl.setHTML(record.get('statusDetail'));
+
+                    if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
+                        me.getActionMenu().record = record;
+                    }
+                    else if (widget.down('#issue-detail-action-menu')) {
+                        widget.down('#issue-detail-action-menu').record = record;
+                    }
+                    me.loadComments(record, issueType);
+                    me.loadProcesses(record, issueType, id);
+                });
+            }
+        });
     },
 
     settingsForCurrentIssueType: function (issueType) {
@@ -243,7 +232,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 case 'task':
                 case 'servicecall':
                 case 'webservice':
-                    processStore.getProxy().setUrl(id);
+                    processStore.getProxy().setUrl(issueId);
                     Ext.Ajax.suspendEvent('requestexception');
                     processView.setLoading();
                     processStore.load({

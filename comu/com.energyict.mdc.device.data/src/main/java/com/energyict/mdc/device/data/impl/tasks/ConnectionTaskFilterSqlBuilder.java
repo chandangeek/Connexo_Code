@@ -65,8 +65,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
              * as that are the only three options.
              * In that case, it is easier to use empty set as that will avoid the complex clause to get the last session. */
             this.latestStatuses = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
-        }
-        else {
+        } else {
             this.latestStatuses = EnumSet.noneOf(ConnectionTask.SuccessIndicator.class);
             for (ConnectionTask.SuccessIndicator successIndicator : filterSpecification.latestStatuses) {
                 this.latestStatuses.add(successIndicator);
@@ -80,8 +79,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
              * So in fact, he only cares about the fact that there is a last session. */
             this.latestResults = EnumSet.noneOf(ComSession.SuccessIndicator.class);
             this.requiresLastComSessionClause(true);
-        }
-        else {
+        } else {
             this.latestResults = EnumSet.noneOf(ComSession.SuccessIndicator.class);
             for (ComSession.SuccessIndicator successIndicator : filterSpecification.latestResults) {
                 this.latestResults.add(successIndicator);
@@ -97,8 +95,8 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
      * @throws IllegalArgumentException Thrown when the specifications are not valid
      */
     protected void validate(ConnectionTaskFilterSpecification filterSpecification) throws IllegalArgumentException {
-        if (   filterSpecification.latestStatuses.contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE)
-            && !this.isNull(filterSpecification.lastSessionEnd)) {
+        if (filterSpecification.latestStatuses.contains(ConnectionTask.SuccessIndicator.NOT_APPLICABLE)
+                && !this.isNull(filterSpecification.lastSessionEnd)) {
             throw new IllegalArgumentException("SuccessIndicator.NOT_APPLICABLE and last session end within interval cannot be combined");
         }
     }
@@ -110,8 +108,8 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
 
     private boolean needsLastSessionJoinClause() {
         return !this.isNull(this.lastSessionEnd)
-                || (   this.latestStatuses.contains(ConnectionTask.SuccessIndicator.SUCCESS)
-                    || this.latestStatuses.contains(ConnectionTask.SuccessIndicator.FAILURE))
+                || (this.latestStatuses.contains(ConnectionTask.SuccessIndicator.SUCCESS)
+                || this.latestStatuses.contains(ConnectionTask.SuccessIndicator.FAILURE))
                 || !this.latestResults.isEmpty();
     }
 
@@ -122,17 +120,25 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
         this.appendDeviceInGroupSql();
     }
 
+    public SqlBuilder buildCount() {
+        build(new SqlBuilder("select count(*) from DDC_CONNECTIONTASK ct "));
+        return this.getActualBuilder().asBuilder();
+    }
+
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
+        build(dataMapper.builder(connectionTaskAliasName()));
+        this.append(" order by lastcommunicationstart desc");
+        return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
+    }
+
+    private void build(SqlBuilder sqlBuilder) {
         ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStates();
-    	WithClauses.BUSY_COMTASK_EXECUTION.appendTo(actualBuilder, BUSY_ALIAS_NAME);
-    	SqlBuilder sqlBuilder = dataMapper.builder(connectionTaskAliasName());
+        WithClauses.BUSY_COMTASK_EXECUTION.appendTo(actualBuilder, BUSY_ALIAS_NAME);
         actualBuilder.append(sqlBuilder);
         this.appendJoinedTables();
-
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
-        }
-        else {
+        } else {
             Iterator<ServerConnectionTaskStatus> statusIterator = this.taskStatuses.iterator();
             while (statusIterator.hasNext()) {
                 this.appendWhereClause(statusIterator.next());
@@ -143,13 +149,11 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
                 }
             }
         }
-        this.append(" order by lastcommunicationstart desc");
-        return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
     }
 
     private boolean isNull(Interval interval) {
         return interval == null
-            || (   (interval.getStart() == null)
+                || ((interval.getStart() == null)
                 && (interval.getEnd() == null));
     }
 
@@ -168,9 +172,9 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
             this.appendWhereOrAnd();
             this.append("(");
             this.append(
-                this.latestStatuses.stream()
-                    .map(this::clauseFor)
-                    .collect(Collectors.joining(" or ")));
+                    this.latestStatuses.stream()
+                            .map(this::clauseFor)
+                            .collect(Collectors.joining(" or ")));
             this.append(")");
             result = true;
         }

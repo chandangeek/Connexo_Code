@@ -52,6 +52,12 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
     }
 
     @Override
+    public Finder<UsagePointMetrologyConfiguration> sorted(Order order) {
+        orders.add(order);
+        return this;
+    }
+
+    @Override
     public List<UsagePointMetrologyConfiguration> find() {
         Order[] orders = this.orders.isEmpty()
                 ? new Order[]{Order.ascending("name")}

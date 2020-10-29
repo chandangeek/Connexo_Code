@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -55,14 +56,15 @@ public class ComServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(ComServlet.class.getName());
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
 
-    private Statistics statistics = new Statistics();
-    private InboundCommunicationHandler communicationHandler;
+    private AtomicReference<Statistics> statistics;
+    private AtomicReference<InboundCommunicationHandler> communicationHandler;
     private ServletBasedInboundComPort comPort;
     private ComServerDAO comServerDAO;
 
     public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
-        this.communicationHandler = new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+        this.communicationHandler = new AtomicReference<>(new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, serviceProvider));
+        this.statistics = new AtomicReference<>(new Statistics());
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.serviceProvider = serviceProvider;
@@ -77,8 +79,7 @@ public class ComServlet extends HttpServlet {
         responseWriter.println("<TR><TD>Servlet version:</TD><TD>" + getWebVersion() + "</TD></TR>");
         responseWriter.println("<TR><TD>Connexo system name:</TD><TD style='color:" + getSystemIdentifierColor() + "'>" + getSystemIdentifier() + "</TD></TR>");
         responseWriter.println("<TR><TD>ComServer name:</TD><TD>" +  getComServerName() + "</TD></TR>");
-
-        this.statistics.printWith(responseWriter);
+        this.statistics.get().printWith(responseWriter);
         responseWriter.println("</TABLE></BODY></HTML>");
         responseWriter.close();
     }
@@ -89,7 +90,7 @@ public class ComServlet extends HttpServlet {
             IOException,
             ServletException {
         this.setThreadPrinciple();
-        this.statistics.doPost();
+        this.statistics.get().doPost();
         try {
             this.handOverToInboundDeviceProtocol(request, response);
         } catch (Exception t) {
@@ -108,8 +109,8 @@ public class ComServlet extends HttpServlet {
         InboundDiscoveryContextImpl context = this.newInboundDiscoveryContext(request, response);
         inboundDeviceProtocol.initializeDiscoveryContext(context);
         inboundDeviceProtocol.init(request, response);
-        this.communicationHandler.handle(inboundDeviceProtocol, context);
-        this.checkForConfigurationError(this.communicationHandler.getResponseType());
+        this.communicationHandler.get().handle(inboundDeviceProtocol, context);
+        this.checkForConfigurationError(this.communicationHandler.get().getResponseType());
     }
 
     private void checkForConfigurationError(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
@@ -121,7 +122,7 @@ public class ComServlet extends HttpServlet {
                 // Intentional fallthrough
             }
             case ENCRYPTION_REQUIRED: {
-                this.statistics.configurationErrorCount++;
+                this.statistics.get().configurationErrorCount++;
                 break;
             }
             case SUCCESS: {

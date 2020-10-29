@@ -19,7 +19,7 @@ public class DeploymentInfo {
 
     public DeploymentInfo(JSONObject deployment) {
         try {
-            this.identifier = deployment.getString("identifier");
+            this.identifier = deployment.getString("container-id");
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

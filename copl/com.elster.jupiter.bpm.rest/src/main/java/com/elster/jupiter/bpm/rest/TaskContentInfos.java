@@ -39,7 +39,7 @@ public class TaskContentInfos {
 
     private void addAll(JSONObject obj) throws JSONException {
         status = obj.getString("taskStatus");
-        Optional<JSONArray> fields = obj.isNull("fields") ? Optional.empty() : Optional.of(obj.getJSONArray("fields"));
+        Optional<JSONArray> fields = obj.isNull("field") ? Optional.empty() : Optional.of(obj.getJSONArray("field"));
         Optional<JSONObject> content = obj.isNull("content") ? Optional.empty() : Optional.of(obj.getJSONObject("content"));
         Optional<JSONObject> outContent = obj.isNull("outContent") ? Optional.empty() : Optional.of(obj.getJSONObject("outContent"));
         if (outContent.isPresent()) {

@@ -11,15 +11,39 @@ import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.UnsupportedException;
-import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
-import com.energyict.protocolimpl.base.*;
+import com.energyict.protocol.HHUEnabler;
+import com.energyict.protocol.HalfDuplexEnabler;
+import com.energyict.protocol.MessageProtocol;
+import com.energyict.protocol.MessageResult;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterExceptionInfo;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterProtocol;
+import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.base.ContactorController;
+import com.energyict.protocolimpl.base.DataDumpParser;
+import com.energyict.protocolimpl.base.DataParseException;
+import com.energyict.protocolimpl.base.DataParser;
+import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.base.ProtocolChannelMap;
+import com.energyict.protocolimpl.base.RtuPlusServerHalfDuplexController;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.iec1107.ChannelMap;
@@ -41,11 +65,27 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.*;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.EXTENDED_LOGGING;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PROFILEINTERVAL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SOFTWARE7E1;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
 /**
  * @author jme
@@ -97,13 +137,12 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private FlagIEC1107Connection flagIEC1107Connection = null;
     private A1440Registry a1440Registry = null;
     private A1440Profile a1440Profile = null;
-    private A1440Messages a1440Messages = new A1440Messages(this);
-    private A1440ObisCodeMapper a1440ObisCodeMapper = new A1440ObisCodeMapper(this);
+    private final A1440Messages a1440Messages = new A1440Messages(this);
+    private final A1440ObisCodeMapper a1440ObisCodeMapper = new A1440ObisCodeMapper(this);
 
     private byte[] dataReadout = null;
     private int billingCount = -1;
     private String firmwareVersion = null;
-    private Date meterDate = null;
     private String meterSerial = null;
     private String dateFormat = null;
     private String billingDateFormat = null;
@@ -200,8 +239,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public Date getTime() throws IOException {
-        this.meterDate = (Date) getA1440Registry().getRegister("TimeDate");
-        return new Date(this.meterDate.getTime() - this.iRoundtripCorrection);
+        Date meterDate = (Date) getA1440Registry().getRegister("TimeDate");
+        return new Date(meterDate.getTime() - this.iRoundtripCorrection);
     }
 
     @Override
@@ -328,7 +367,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-09-04$";
+        return "$Date: 2020-10-07$";
     }
 
     @Override
@@ -530,6 +569,43 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             if ("1.1.0.2.0.255".equals(obis.toString())) {
                 return new RegisterValue(obis, getFirmwareVersion());
             }
+            if ("1.1.0.2.1.255".equals(obis.toString())) {
+                return new RegisterValue(obis, readSpecialRegister(this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+            }
+
+            // Angle factors L1, L2, L3
+            if ("1.1.81.7.4.255".equals(obis.toString()) || "1.1.81.7.15.255".equals(obis.toString()) || "1.1.81.7.26.255".equals(obis.toString())) {
+                String edis;
+                if ("1.1.81.7.4.255".equals(obis.toString())) {
+                    edis = "81.7.04";
+                } else {
+                    edis = convertToEdis(obis.getC()) + "." + convertToEdis(obis.getD()) + "." + convertToEdis(obis.getE());
+                }
+                data = read(edis);
+
+                String angle = dp.parseBetweenBrackets(data, 0, 0);
+
+                final Unit unit = Unit.get(BaseUnit.DEGREE);
+
+                if (angle.indexOf('*') != -1) {
+                    angle = angle.substring(0, angle.indexOf('*'));
+                }
+                final BigDecimal angleNumber = new BigDecimal(angle);
+
+                Quantity quantity = new Quantity(angleNumber, unit);
+
+                return new RegisterValue(obis, quantity, null, eventTime, toTime, new Date(), -1, "");
+            }
+
+            // Battery
+            if ("1.1.96.6.1.255".equals(obis.toString())) {
+                final String edis = "96.6.1";
+                data = read(edis);
+
+                String batteryUsage = dp.parseBetweenBrackets(data, 0, 0);
+
+                return new RegisterValue(obis, batteryUsage);
+            }
 
             if (ProtocolTools.setObisCodeField(obis, 2, (byte) 0).equals(ObisCode.fromString("1.1.0.0.11.255"))) {
                 return readLoadControlThresholdRegister(obis, obis.getC());
@@ -586,16 +662,17 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             if ("0.0.97.97.0.255".equals(obis.toString())) {
                 return new RegisterValue(obis, readSpecialRegister(this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
             }
+            if ("0.0.97.97.1.255".equals(obis.toString())) {
+                return new RegisterValue(obis, readSpecialRegister(this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+            }
 
             if (obis.getF() != 255) {
                 if (getBillingCount() < (Math.abs(obis.getF()) + 1)) {
                     throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
                 }
 
-                int f = invertBillingOrder
-                        ? Math.abs(obis.getF())
-                        : getBillingCount() - Math.abs(obis.getF());
-                fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
+                int f = invertBillingOrder ? Math.abs(obis.getF()) : getBillingCount() - Math.abs(obis.getF());
+                fs = "*" + ProtocolUtils.buildStringDecimal(f%100, 2);
 
                 // try to read the time stamp, and us it as the register toTime.
                 try {
@@ -691,16 +768,13 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
             return postProcessRegisterValue(obis, eventTime, toTime, q);
 
         } catch (NoSuchRegisterException | NumberFormatException e) {
-            String m = "getMeterReading() error, " + e.getMessage();
+            String m = "readRegister(" + obis.toString() +  ") error, " + e.getMessage();
             throw new NoSuchRegisterException(m);
         } catch (InvalidPropertyException e) {
-            String m = "getMeterReading() error, " + e.getMessage();
+            String m = "readRegister(" + obis.toString() +  ") error, " + e.getMessage();
             throw new InvalidPropertyException(m);
-        } catch (FlagIEC1107ConnectionException e) {
-            String m = "getMeterReading() error, " + e.getMessage();
-            throw new IOException(m);
         } catch (IOException e) {
-            String m = "getMeterReading() error, " + e.getMessage();
+            String m = "readRegister(" + obis.toString() +  ") error, " + e.getMessage();
             throw new IOException(m);
         }
     }
@@ -774,7 +848,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     private Quantity readTime() throws IOException {
-        Long seconds = new Long(getTime().getTime() / 1000);
+        Long seconds = getTime().getTime() / 1000;
         return new Quantity(seconds, Unit.get(BaseUnit.SECOND));
     }
 
@@ -885,6 +959,11 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 this.billingCount = 0;
                 getLogger().warning(A1440.class.getSimpleName() + " - Encountered invalid billingCounter (" + this.billingCount + "). The billingCounter should be between 0 and 100, defaulting to 0!");
             }
+
+            DataParser dp = new DataParser(getTimeZone());
+            if (!"0000000000".equals(dp.parseBetweenBrackets(read("0.1.2*99")))) {
+                billingCount=billingCount+100;
+            }
         }
         return this.billingCount;
     }
@@ -966,8 +1045,14 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         if (registerName.equals(A1440ObisCodeMapper.FIRMWAREID)) {
             return getFirmwareVersion();
         }
+        if (registerName.equals(A1440ObisCodeMapper.PARAMETER_IDENTIFICATION)) {
+            return (String) getA1440Registry().getRegister(A1440Registry.PARAMETER_IDENTIFICATION);
+        }
         if (registerName.equals(A1440ObisCodeMapper.ERROR_REGISTER)) {
-            return new String((String) getA1440Registry().getRegister(A1440Registry.ERROR_REGISTER));
+            return (String) getA1440Registry().getRegister(A1440Registry.ERROR_REGISTER);
+        }
+        if (registerName.equals(A1440ObisCodeMapper.ALARM_REGISTER)) {
+            return (String) getA1440Registry().getRegister(A1440Registry.ALARM_REGISTER);
         }
 
         if (registerName.equals(A1440ObisCodeMapper.FIRMWARE)) {

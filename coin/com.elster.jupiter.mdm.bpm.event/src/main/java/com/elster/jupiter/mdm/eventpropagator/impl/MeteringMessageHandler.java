@@ -84,7 +84,7 @@ public class MeteringMessageHandler implements MessageHandler {
     private List<String> getUsagePointProcessSignalUrls(String usagePointMrid) {
         ProcessInstanceInfos activeProcesses = bpmService.getRunningProcesses(null, "?variableid=usagePointId&variablevalue=" + usagePointMrid);
 
-        List<ProcessDefinitionInfo> processes = getDeployments().map(processDefinitionInfos -> processDefinitionInfos.processDefinitionList)
+        List<ProcessDefinitionInfo> processes = getDeployments().map(processDefinitionInfos -> processDefinitionInfos.processes)
                 .orElse(Collections.emptyList());
 
         return activeProcesses.processes.stream()
@@ -98,7 +98,7 @@ public class MeteringMessageHandler implements MessageHandler {
 
     private Optional<ProcessDefinitionInfos> getDeployments() {
         try {
-            String jsonContent = bpmService.getBpmServer().doGet("/rest/deployment/processes?p=0&s=1000");
+            String jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000");
             if (!"".equals(jsonContent)) {
                 return Optional.ofNullable(jsonService.deserialize(jsonContent, ProcessDefinitionInfos.class));
             }

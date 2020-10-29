@@ -20,6 +20,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.common.DisconnectControlState;
+import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
@@ -31,8 +32,15 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode MONEY_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.67.255");
     public final static ObisCode CONSUMPTION_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.68.255");
     public final static ObisCode TIME_CREDIT_THRESHOLD = ObisCode.fromString("0.0.94.20.69.255");
+    public final static ObisCode ACTIVE_TAX = ObisCode.fromString("0.0.94.20.76.255");
+    public final static ObisCode PASIVE_TAX = ObisCode.fromString("0.0.94.20.77.255");
+    public final static ObisCode ACTIVE_STEP_TARIFF = ObisCode.fromString("0.0.94.20.74.255");
+    public final static ObisCode PASIVE_STEP_TARIFF = ObisCode.fromString("0.0.94.20.75.255");
     public final static ObisCode CREDIT_DAY_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
     public final static ObisCode ACTIVE_FIRMWARE = ObisCode.fromString("0.0.0.2.0.255");
+    public static final Integer NEW_ACCOUNT = 1;
+    public static final Integer ACTIVE_ACCOUNT = 2;
+    public static final Integer CLOSED_ACCOUNT = 3;
 
 
     private final Acud protocol;
@@ -109,6 +117,8 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             } else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
                 int value = protocol.getDlmsSession().getCosemObjectFactory().getDisconnector(obisCode).getControlState().getValue();
                 registerValue = new RegisterValue(obisCode, DisconnectControlState.fromValue(value).getDescription());
+            } else if (uo.getClassID() == DLMSClassId.ACCOUNT_SETUP.getClassId()) {
+                registerValue = readAccountSetup(obisCode);
             } else if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
                 CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(obisCode);
                 int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
@@ -151,7 +161,11 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             String model = structure.getDataType(0).getVisibleString().getStr();
             String version = structure.getDataType(1).getVisibleString().getStr();
             String crc = structure.getDataType(2).getVisibleString().getStr();
-            description = "Model=" +model + ", Firmware Version=" + version + ", Firmware CRC=" + crc;
+            description = "Model=" + model + ", Firmware Version=" + version + ", Firmware CRC=" + crc;
+        } else if (obisCode.equals(ACTIVE_TAX) || obisCode.equals(PASIVE_TAX)) {
+            description = readTax(structure);
+        } else if (obisCode.equals(ACTIVE_STEP_TARIFF) || obisCode.equals(PASIVE_STEP_TARIFF)) {
+            description = readStepTariff(structure);
         } else
             throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
         return new RegisterValue(obisCode, description);
@@ -163,6 +177,72 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
 
     protected String formatDescr(String highThreshold, String lowThreshold, String highDefaultTranslation, String lowDefaultTranslation) {
         return highDefaultTranslation + "=" + highThreshold + ",\n" + lowDefaultTranslation + "=" + lowThreshold + ".";
+    }
+
+    protected RegisterValue readAccountSetup(ObisCode obisCode) throws IOException {
+        StringBuffer buff = new StringBuffer();
+        AccountSetup accountSetup = protocol.getDlmsSession().getCosemObjectFactory().getAccountSetup(obisCode);
+        int paymentMode = accountSetup.readPaymentMode().getValue();
+        buff.append("PaymentMode = " + ChargeDeviceMessage.ChargeMode.getDescriptionValue(paymentMode) + ", ");
+
+        int accountStatus = accountSetup.readAccountStatus().getValue();
+        if (accountStatus == NEW_ACCOUNT)
+            buff.append("AccountStatus = New.");
+        else if (accountStatus == ACTIVE_ACCOUNT)
+            buff.append("AccountStatus = Active.");
+        else if (accountStatus == CLOSED_ACCOUNT)
+            buff.append("AccountStatus = Closed.");
+        else
+            buff.append("AccountStatus = Unknown.");
+
+        return new RegisterValue(obisCode, buff.toString());
+    }
+
+    private String readTax(Structure structure) {
+        String monthlyTax = Long.toString(structure.getDataType(0).getUnsigned32().getValue());
+        String zeroConsumptionTax = Long.toString(structure.getDataType(1).getUnsigned32().getValue());
+        String consumptionTax = Long.toString(structure.getDataType(2).getUnsigned32().getValue());
+        String consumptionAmount = Integer.toString(structure.getDataType(3).getUnsigned16().getValue());
+        String consumptionLimit = Integer.toString(structure.getDataType(4).getUnsigned16().getValue());
+        StringBuffer buff = new StringBuffer();
+        buff.append("Monthy Tax = " + monthlyTax + ", ");
+        buff.append("Zero Consumption Tax = " + zeroConsumptionTax + ", ");
+        buff.append("Consumption Tax = " + consumptionTax + ", ");
+        buff.append("Consumption Amount = " + consumptionAmount + " KWH, ");
+        buff.append("Consumption Limit = " + consumptionLimit + " KWH.");
+        return buff.toString();
+    }
+
+    private String readStepTariff(Structure structure) {
+        StringBuffer buff = new StringBuffer();
+
+        String tarrifCode = Integer.toString(structure.getDataType(0).getUnsigned16().getValue());
+        int additionalTaxesId = structure.getDataType(1).getTypeEnum().getValue();
+        int graceRecalculationId = structure.getDataType(2).getTypeEnum().getValue();
+        String graceRecalculationValue = Integer.toString(structure.getDataType(3).getUnsigned16().getValue());
+        Array stepTariffArray = structure.getDataType(4).getArray();
+
+        buff.append("Tarif Code = " + tarrifCode + ", \n");
+        buff.append("Aditional Taxes = " + ChargeDeviceMessage.AdditionalTaxesType.getDescriptionValue(additionalTaxesId) + ", \n");
+        buff.append("Grace Recalculation = " + ChargeDeviceMessage.GraceRecalculationType.getDescriptionValue(graceRecalculationId) + ", \n");
+        buff.append("Grace Recalculation Value = " + graceRecalculationValue + ", \n");
+
+        for (int i = 0; i <= 9; i++) {
+            Structure stepTariff = stepTariffArray.getDataType(i).getStructure();
+
+            String tariffCharge = Integer.toString(stepTariff.getDataType(0).getUnsigned16().getValue());
+            String price = Long.toString(stepTariff.getDataType(1).getUnsigned32().getValue());
+            int recalculationId = stepTariff.getDataType(2).getTypeEnum().getValue();
+            String graceWarning = Integer.toString(stepTariff.getDataType(3).getUnsigned16().getValue());
+            String additionalTax = Long.toString(stepTariff.getDataType(4).getUnsigned32().getValue());
+
+            buff.append("Tariff Charge = " + tariffCharge + ", ");
+            buff.append("Price = " + price + ", ");
+            buff.append("Recalculation = " + ChargeDeviceMessage.RecalculationType.getDescriptionValue(recalculationId) + ", ");
+            buff.append("Grace Warning = " + graceWarning + ", ");
+            buff.append("Aditional Taxe = " + additionalTax + ", \n");
+        }
+        return buff.toString();
     }
 
     @SuppressWarnings("unchecked")

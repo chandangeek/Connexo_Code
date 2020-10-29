@@ -4,7 +4,11 @@
 
 package com.elster.jupiter.orm.impl;
 
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.Finder;
+import com.elster.jupiter.orm.JournalEntry;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Comparison;
@@ -195,7 +199,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         Object cacheVersion = cache.get(keyValue);
         /* When caching of whole table is used it is assumed that all objects from table should be in cache.
          * In no , it means that cache was invalidated or eviction time was expired. In both cases we have to load table to cache again.*/
-        if (cache.reloadCacheIfNeeded(cacheVersion, (Finder)this, keyValue)){
+        if (cache.reloadCacheIfNeeded(cacheVersion, (Finder) this, keyValue)) {
             cacheVersion = cache.get(keyValue);
         }
         if (cacheVersion != null) {
@@ -435,7 +439,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
         for (DataMapper<?> each : dataMappers) {
             DataMapperImpl<?> dataMapper = (DataMapperImpl<?>) each;
             if (dataMapper.needsRestriction()) {
-                throw new IllegalStateException("No Restriction allowed on additional mappers: " + dataMapper);
+                throw new IllegalStateException("No Restriction allowed on additional mappers: " + dataMapper.getTable().getName());
             } else {
                 result.add(dataMapper);
             }
@@ -488,6 +492,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     @Override
     public List<T> select(Condition condition, Order... orders) {
         return with().select(condition, orders);
+    }
+
+    @Override
+    public long count(Condition condition) {
+        return with().count(condition);
     }
 
     DataMapperType<? super T> getMapperType() {

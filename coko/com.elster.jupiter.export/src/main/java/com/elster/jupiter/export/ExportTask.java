@@ -8,6 +8,7 @@ import com.elster.jupiter.orm.HasAuditInfo;
 import com.elster.jupiter.orm.History;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.time.ScheduleExpression;
 
@@ -19,7 +20,8 @@ import java.util.Map;
 import java.util.Optional;
 
 @ProviderType
-public interface ExportTask extends HasName, HasAuditInfo {
+public interface ExportTask extends HasId, HasName, HasAuditInfo {
+    @Override
     long getId();
 
     Optional<Instant> getLastRun();
@@ -122,4 +124,10 @@ public interface ExportTask extends HasName, HasAuditInfo {
     void setSuspendUntil(Instant suspendUntil);
 
     Optional<ReadingDataSelectorConfig> getReadingDataSelectorConfig();
+
+    Optional<ExportTask> getPairedTask();
+
+    void pairWith(ExportTask exportTask);
+
+    void unpair();
 }

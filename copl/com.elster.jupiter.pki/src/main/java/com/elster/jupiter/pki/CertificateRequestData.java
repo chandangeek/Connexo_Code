@@ -19,23 +19,31 @@ public class CertificateRequestData {
     private final String caName;
     private final String endEntityName;
     private final String certificateProfileName;
+    private final String subjectDnFields;
 
     private JSONObject mappingJson;
     private String prefix;
 
 
-
-    public CertificateRequestData(String caName, String endEntityName,String certificateProfileName) {
+    /**
+     *
+     * @param caName
+     * @param endEntityName
+     * @param certificateProfileName
+     * @param subjectDnFields  Used later to substract component of DN, ca be null. Bad design but this is what we have
+     */
+    public CertificateRequestData(String caName, String endEntityName,String certificateProfileName, String subjectDnFields) {
         if (isEmpty(caName) || isEmpty(endEntityName) || isEmpty(certificateProfileName)) {
             throw new RuntimeException("Invalid certificate request data ca name:" + caName + " end entity name:" + endEntityName + " profile name:" + certificateProfileName);
         }
         this.caName = caName;
         this.endEntityName = endEntityName;
         this.certificateProfileName = certificateProfileName;
+        this.subjectDnFields = subjectDnFields;
         this.prefix = "";
     }
 
-    public CertificateRequestData(String mappingJson, String caName, String endEntityName,String certificateProfileName) {
+    public CertificateRequestData(String mappingJson, String caName, String endEntityName,String certificateProfileName, String subjectDNfields) {
         if (isEmpty(mappingJson)) {
             if (isEmpty(caName) || isEmpty(endEntityName) || isEmpty(certificateProfileName)) {
                 throw new RuntimeException("Invalid certificate request data ca name:" + caName + " end entity name:" + endEntityName + " profile name:" + certificateProfileName);
@@ -51,6 +59,7 @@ public class CertificateRequestData {
         this.caName = caName;
         this.endEntityName = endEntityName;
         this.certificateProfileName = certificateProfileName;
+        this.subjectDnFields = subjectDNfields;
     }
 
     public void setPrefix(String prefix){
@@ -96,7 +105,8 @@ public class CertificateRequestData {
                 (String)properties.get(CSRImporterTranslatedProperty.CSR_MAPPING.getPropertyKey()),
                 (String)properties.get(CSRImporterTranslatedProperty.CA_NAME.getPropertyKey()),
                 (String)properties.get(CSRImporterTranslatedProperty.CA_END_ENTITY_NAME.getPropertyKey()),
-                (String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()));
+                (String) properties.get(CSRImporterTranslatedProperty.CA_PROFILE_NAME.getPropertyKey()),
+                (String)properties.get(CSRImporterTranslatedProperty.SUBJECT_DN_FIELDS.getPropertyKey()));
     }
 
     private boolean isEmpty(String caName) {
@@ -120,5 +130,9 @@ public class CertificateRequestData {
             }
         }
         return "";
+    }
+
+    public String getSubjectDNfields() {
+        return subjectDnFields;
     }
 }

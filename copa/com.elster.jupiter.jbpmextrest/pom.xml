@@ -23,10 +23,12 @@
     </repositories>
 
     <properties>
-        <jbpm.version>6.4.0.Final</jbpm.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
         <resteasy.version>2.3.10.Final</resteasy.version>
-        <!--<resteasy.version>3.0.10.Final</resteasy.version>-->
         <jackson.version>2.10.3</jackson.version>
+        <uberfire.version>0.8.0.Final</uberfire.version>
+        <version.org.kie>7.39.0.Final-redhat-00005</version.org.kie>
     </properties>
 
     <dependencies>
@@ -55,36 +57,87 @@
         </dependency>
 
         <!-- jBPM 6 dependencies -->
+
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-services-cdi</artifactId>
-            <version>${jbpm.version}</version>
+            <version>${version.org.kie}</version>
         </dependency>
-        <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-api</artifactId>
-            <version>${jbpm.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kie.remote</groupId>
-            <artifactId>kie-remote-services</artifactId>
-            <version>${jbpm.version}</version>
-        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.kie.remote</groupId>-->
+        <!--            <artifactId>kie-remote-services</artifactId>-->
+        <!--            <version>${version.org.kie}</version>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-human-task-core</artifactId>
-            <version>${jbpm.version}</version>
+            <version>${version.org.kie}</version>
         </dependency>
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-kie-services</artifactId>
-            <version>${jbpm.version}</version>
+            <version>${version.org.kie}</version>
         </dependency>
         <dependency>
             <groupId>org.jbpm</groupId>
             <artifactId>jbpm-human-task-jpa</artifactId>
-            <version>${jbpm.version}</version>
+            <version>${version.org.kie}</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-internal</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-api</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-services-common</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-services-drools</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-rest-common</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-core</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-compiler</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.25</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.uberfire</groupId>
+            <artifactId>uberfire-commons</artifactId>
+            <version>${uberfire.version}</version>
+        </dependency>
+
+
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-core</artifactId>
@@ -94,6 +147,12 @@
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.3.6</version>
+            <scope>compile</scope>
         </dependency>
 
     </dependencies>

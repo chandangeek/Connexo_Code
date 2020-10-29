@@ -379,7 +379,8 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             customAttributesStore = me.getStore('Mdc.customattributesonvaluesobjects.store.ChannelCustomAttributeSets'),
             calculatedReadingTypeField = widget.down('#calculatedReadingType'),
             multiplierField = widget.down('#mdc-channel-preview-multiplier'),
-            menu = widget.down('#deviceLoadProfileChannelsActionMenu');
+            menu = widget.down('#deviceLoadProfileChannelsActionMenu'),
+            endOfIntervalField = widget.down('#mdc-channel-preview-end-of-interval');
 
         customAttributesStore.getProxy().setParams(device.get('name'), channel.get('id'));
         Ext.suspendLayouts();
@@ -393,6 +394,11 @@ Ext.define('Mdc.controller.setup.DeviceChannelData', {
             multiplierField.show();
         } else {
             multiplierField.hide();
+        }
+        if (channel.get('interval') && channel.get('interval').timeUnit === "days"){
+            endOfIntervalField.show();
+        } else {
+            endOfIntervalField.hide();
         }
 
         customAttributesStore.load(function () {

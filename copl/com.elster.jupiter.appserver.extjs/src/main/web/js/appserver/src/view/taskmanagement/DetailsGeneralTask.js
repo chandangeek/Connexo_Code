@@ -5,7 +5,10 @@
 Ext.define('Apr.view.taskmanagement.DetailsGeneralTask', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.general-task-details',
-    requires: [],
+    requires: [
+        'Apr.view.taskmanagement.ActionMenu'
+    ],
+    actionMenu: null,
     initComponent: function () {
         var me = this;
 
@@ -57,6 +60,12 @@ Ext.define('Apr.view.taskmanagement.DetailsGeneralTask', {
 
                         ]
                     }
+                },
+                {
+                    xtype: 'uni-button-action',
+                    margin: '20 0 0 0',
+                    menu: me.actionMenu,
+                    hidden: !me.actionMenu
                 }
             ]
         };

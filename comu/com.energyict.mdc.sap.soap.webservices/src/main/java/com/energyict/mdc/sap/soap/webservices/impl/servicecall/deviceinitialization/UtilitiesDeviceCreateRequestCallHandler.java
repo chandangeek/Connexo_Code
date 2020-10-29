@@ -156,9 +156,8 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         DeviceConfiguration deviceConfig = findDeviceConfiguration(deviceTypeName);
         DeviceBuilder deviceBuilder = deviceService.newDeviceBuilder(deviceConfig,
                 extension.getSerialId(), extension.getShipmentDate());
-        deviceBuilder.withSerialNumber(extension.getSerialId());
+        deviceBuilder.withSerialNumber(extension.getManufacturerSerialId());
         deviceBuilder.withManufacturer(extension.getManufacturer());
-        deviceBuilder.withModelNumber(extension.getModelNumber());
         Device device = deviceBuilder.create();
         ServiceCall serviceCall = extension.getServiceCall();
         serviceCall.setTargetObject(device);

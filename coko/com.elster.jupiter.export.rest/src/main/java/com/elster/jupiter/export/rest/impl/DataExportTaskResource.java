@@ -41,6 +41,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.ListPager;
@@ -90,6 +91,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -154,7 +156,6 @@ public class DataExportTaskResource {
     public PagedInfoList getDataExportTasksOnUsagePointAndPurpose(@BeanParam JsonQueryParameters queryParameters, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode, @PathParam("usagePointId") String usagePointId, @PathParam("purposeId") long purposeId) {
         String applicationName = getApplicationNameFromCode(appCode);
 
-
         Optional<UsagePoint> usagePoint = meteringService.findUsagePointByName(usagePointId);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMetrologyConfigurationOnUsagePoint = findEffectiveMetrologyConfigurationByUsagePointOrThrowException(usagePoint.get());
         MetrologyContract metrologyContract = findMetrologyContractOrThrowException(effectiveMetrologyConfigurationOnUsagePoint, purposeId);
@@ -218,6 +219,7 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK, Privileges.Constants.VIEW_HISTORY})
     @Transactional
     public PagedInfoList getAllDataExportTaskHistory(@BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         String applicationName = getApplicationNameFromCode(appCode);
         DataExportOccurrenceFinder occurrencesFinder = dataExportService.getDataExportOccurrenceFinder();
         List<Long> taskIds = dataExportService.findExportTasks().ofApplication(applicationName)
@@ -253,7 +255,7 @@ public class DataExportTaskResource {
         return Response.ok(getHistoryFromTasks(filter, occurrencesFinder, taskIds).stream().count()).build();
     }
 
-    private String getApplicationNameFromCode(String appCode) {
+    static String getApplicationNameFromCode(String appCode) {
         String applicationName;
         if ("MDC".equals(appCode)) {
             applicationName = "MultiSense";
@@ -271,7 +273,7 @@ public class DataExportTaskResource {
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     @Transactional
     public DataExportTaskInfo getDataExportTask(@PathParam("id") long id, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
-        return dataExportTaskInfoFactory.asInfo(findTaskOrThrowException(id, appCode));
+        return dataExportTaskInfoFactory.asDetailedInfo(findTaskOrThrowException(id, appCode));
     }
 
     @GET
@@ -279,7 +281,7 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DATA_EXPORT_TASK, Privileges.Constants.ADMINISTRATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK, Privileges.Constants.RUN_DATA_EXPORT_TASK})
     public DataExportTaskInfo getDataExportTaskByRecurrentTaskId(@PathParam("recurrenttaskId") long id, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
-        return dataExportTaskInfoFactory.asInfo(findTaskByRecurrentTaskIdOrThrowException(id, appCode));
+        return dataExportTaskInfoFactory.asDetailedInfo(findTaskByRecurrentTaskIdOrThrowException(id, appCode));
     }
 
     @PUT
@@ -430,14 +432,20 @@ public class DataExportTaskResource {
             builder.addProperty(spec.getName()).withValue(value);
         });
 
+        Optional.ofNullable(info.pairedTask)
+                .map(pairedTaskInfo -> pairedTaskInfo.id)
+                .map(Number.class::cast)
+                .map(Number::longValue)
+                .flatMap(dataExportService::findAndLockExportTask)
+                .ifPresent(builder::pairWith);
+
         ExportTask dataExportTask = builder.create();
         // Next line is needed here while this is the mechanism we have: config is saved at db save time (journal) and we need to make sure that
         // next run is after we save them: CONM-676
-        // This is ugly but working with what we have ... also I hope that this is included in a transaction as annotated and will be rolled back if this validation fails
         ScheduleValidator.validate(info.nextRun, clock.instant());
         info.destinations.forEach(destinationInfo -> destinationInfo.type.create(serviceLocator, dataExportTask, destinationInfo));
         return Response.status(Response.Status.CREATED)
-                .entity(dataExportTaskInfoFactory.asInfo(dataExportTask))
+                .entity(dataExportTaskInfoFactory.asDetailedInfo(dataExportTask))
                 .build();
     }
 
@@ -467,9 +475,34 @@ public class DataExportTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.UPDATE_DATA_EXPORT_TASK, Privileges.Constants.UPDATE_SCHEDULE_DATA_EXPORT_TASK})
     @Transactional
-    public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info) {
+    public Response updateExportTask(@PathParam("id") long id, DataExportTaskInfo info, @HeaderParam(X_CONNEXO_APPLICATION_NAME) String appCode) {
         info.id = id;
-        ExportTask task = findAndLockExportTask(info);
+        Optional<Long> pairedIdOptional = Optional.ofNullable(info.pairedTask)
+                .map(pairedTaskInfo -> pairedTaskInfo.id)
+                .map(Number.class::cast)
+                .map(Number::longValue);
+        // As export tasks are objects of the same type, to avoid deadlock, we will always lock them in the order from lesser ids to bigger.
+        // So if pairedId < id, first lock pairedId, otherwise id
+        ExportTask task = findTaskOrThrowException(id, appCode);
+        Optional<? extends ExportTask> newPairedTask = Optional.empty();
+        if (pairedIdOptional.equals(task.getPairedTask().map(ExportTask::getId))) { // no need to update other tasks except "task"
+            task = findAndLockExportTask(info);
+            newPairedTask = task.getPairedTask();
+        } else {
+            Set<Long> idsToLock = new TreeSet<>();
+            idsToLock.add(id);
+            pairedIdOptional.ifPresent(idsToLock::add);
+            task.getPairedTask().map(ExportTask::getId).ifPresent(idsToLock::add);
+            for (Long idItem : idsToLock) {
+                if (id == idItem) {
+                    task = findAndLockExportTask(info);
+                } else if (pairedIdOptional.filter(idItem::equals).isPresent()) {
+                    newPairedTask = dataExportService.findAndLockExportTask(idItem);
+                } else {
+                    dataExportService.findAndLockExportTask(idItem);
+                }
+            }
+        }
 
         task.setName(info.name);
         task.setLogLevel(info.logLevel);
@@ -497,8 +530,13 @@ public class DataExportTaskResource {
 
         updateProperties(info, task);
         updateDestinations(info, task);
+        if (newPairedTask.isPresent()) {
+            task.pairWith(newPairedTask.get());
+        } else {
+            task.unpair();
+        }
         task.update();
-        return Response.status(Response.Status.OK).entity(dataExportTaskInfoFactory.asInfo(task)).build();
+        return Response.status(Response.Status.OK).entity(dataExportTaskInfoFactory.asDetailedInfo(task)).build();
     }
 
     private class StandardDataSelectorUpdater implements DataSelectorConfig.DataSelectorConfigVisitor {
@@ -613,7 +651,8 @@ public class DataExportTaskResource {
         ExportTask task = findTaskOrThrowException(id, appCode);
         DataExportOccurrenceFinder occurrencesFinder = task.getOccurrencesFinder()
                 .setStart(queryParameters.getStart().orElse(0))
-                .setLimit(queryParameters.getLimit().orElse(0) + 1);
+                .setLimit(queryParameters.getLimit().orElse(0) + 1)
+                .setOrder(queryParameters.getSortingColumns());
 
         if (filter.hasProperty("startedOnFrom")) {
             occurrencesFinder.withStartDateIn(Range.closed(filter.getInstant("startedOnFrom"),
@@ -793,9 +832,13 @@ public class DataExportTaskResource {
     }
 
     private ExportTask findAndLockExportTask(DataExportTaskInfo info) {
-        return dataExportService.findAndLockExportTask(info.id, info.version)
-                .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
-                        .withActualVersion(() -> dataExportService.findExportTask(info.id)
+        return findAndLockExportTask(info.id, info.version, info.name);
+    }
+
+    private ExportTask findAndLockExportTask(long id, long version, String name) {
+        return dataExportService.findAndLockExportTask(id, version)
+                .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                        .withActualVersion(() -> dataExportService.findExportTask(id)
                                 .map(ExportTask::getVersion)
                                 .orElse(null))
                         .supplier());

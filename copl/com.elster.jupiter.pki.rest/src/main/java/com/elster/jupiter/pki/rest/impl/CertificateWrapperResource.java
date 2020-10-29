@@ -88,7 +88,6 @@ import static java.util.stream.Collectors.toList;
 @Path("/certificates")
 public class CertificateWrapperResource {
     private static final Logger LOGGER = Logger.getLogger(CertificateWrapperResource.class.getName());
-    private static final long MAX_FILE_SIZE = 2048;
     private static final long DEFAULT_TIMEOUT = 30000;
 
     private final SecurityManagementService securityManagementService;
@@ -236,9 +235,6 @@ public class CertificateWrapperResource {
             @FormDataParam("file") InputStream certificateInputStream,
             @FormDataParam("file") FormDataContentDisposition contentDispositionHeader,
             @FormDataParam("alias") String alias) {
-        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
-        }
         CertificateWrapper certificateWrapper = securityManagementService.newCertificateWrapper(alias);
         doImportCertificateForCertificateWrapper(certificateInputStream, certificateWrapper);
         return Response.ok().header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN).build();
@@ -446,9 +442,6 @@ public class CertificateWrapperResource {
         if (contentDispositionHeader == null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
         }
-        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
-        }
         // TODO: why is conflict check implemented only here? A lot of methods above can change certificate wrapper.
         CertificateWrapper certificateWrapper = securityManagementService.findAndLockCertificateWrapper(certificateWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CERTIFICATE));
@@ -509,6 +502,7 @@ public class CertificateWrapperResource {
             RequestableCertificateWrapper requestableCertificateWrapper =
                     securityManagementService.newCertificateWrapper(csrInfo.alias);
             requestableCertificateWrapper.setCSR(csr, keyType.getKeyUsages(), keyType.getExtendedKeyUsages());
+            requestableCertificateWrapper.setCertificateRequestData(csrInfo.getCertificateRequestData());
             requestableCertificateWrapper.save();
             LOGGER.info("CSR saved");
             return Response.status(Response.Status.CREATED).entity(certificateInfoFactory.asInfo(requestableCertificateWrapper)).build();
@@ -574,7 +568,7 @@ public class CertificateWrapperResource {
     @Path("ejbca/endentities")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCAEndEntity(){
+    public Response getEJBCAEndEntity() {
         return Response.ok(new Options(caService.getEndEntities())).build();
     }
 
@@ -582,7 +576,7 @@ public class CertificateWrapperResource {
     @Path("ejbca/caname/{endentityId}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCACaName(@PathParam("endentityId") int endentityId){
+    public Response getEJBCACaName(@PathParam("endentityId") int endentityId) {
         return Response.ok(new Options(caService.getCaName(endentityId))).build();
     }
 
@@ -590,7 +584,7 @@ public class CertificateWrapperResource {
     @Path("ejbca/certificateprofile/{endentityId}")
     @Produces({MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON + ";charset=UTF-8"})
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_CERTIFICATES})
-    public Response getEJBCACertProfile(@PathParam("endentityId")int endentityId){
+    public Response getEJBCACertProfile(@PathParam("endentityId") int endentityId) {
         return Response.ok(new Options(caService.getCertificateProfile(endentityId))).build();
     }
 

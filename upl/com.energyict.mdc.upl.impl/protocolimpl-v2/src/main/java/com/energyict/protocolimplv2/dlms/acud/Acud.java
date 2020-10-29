@@ -9,6 +9,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -53,6 +54,7 @@ public abstract class Acud extends AbstractDlmsProtocol {
      * Predefiened obis codes for the Acud meter
      */
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
+    private static final ObisCode FIRMWARE_VERSION_OBIS_CODE = ObisCode.fromString("0.0.0.2.0.255");
 
     private HHUSignOnV2 hhuSignOnV2;
     private AcudRegisterFactory registerFactory;
@@ -169,6 +171,14 @@ public abstract class Acud extends AbstractDlmsProtocol {
         }
     }
 
+    public String getFirmwareVersion() {
+        try {
+            return getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_OBIS_CODE).getString();
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
+        }
+    }
+
     @Override
     public AcudDlmsProperties getDlmsSessionProperties() {
         if (dlmsProperties == null) {
@@ -243,6 +253,16 @@ public abstract class Acud extends AbstractDlmsProtocol {
         return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
+        if (offlineDevice.getSerialNumber().equals(serialNumber)) {
+            CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getFirmwareVersion());
+            return firmwareVersionsCollectedData;
+        }
+        return super.getFirmwareVersions(serialNumber);
+    }
+
     public DeviceMessageFileExtractor getMessageFileExtractor() {
         return messageFileExtractor;
     }
@@ -254,5 +274,4 @@ public abstract class Acud extends AbstractDlmsProtocol {
     protected Converter getConverter() {
         return converter;
     }
-
 }

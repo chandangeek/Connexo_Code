@@ -4,17 +4,36 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataEncryptionException;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.codec.binary.Hex;
+import java.util.Base64;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.io.StringWriter;
+import javax.xml.bind.DatatypeConverter;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,7 +43,14 @@ import java.security.GeneralSecurityException;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -119,6 +145,14 @@ public final class ProtocolTools {
         for (int i = 0; i < bytes.length; i++) {
             int ptr = (bytes.length - (i + 1));
             bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
+        }
+        return bytes;
+    }
+
+    public static byte[] getBytesFromIntLE(int value, int length) {
+        byte[] bytes = new byte[length];
+        for (int i = 0; i < bytes.length; i++) {
+            bytes[i] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
         }
         return bytes;
     }
@@ -389,7 +423,7 @@ public final class ProtocolTools {
      * @param byteArrays the <code>byte[]</code> to concatenate
      * @return 1 <code>byte[]</code> with all given arrays after each other
      */
-    public static byte[] concatListOfByteArrays(ArrayList<byte[]> byteArrays) {
+    public static byte[] concatListOfByteArrays(List<byte[]> byteArrays) {
         byte[] concatenatedArray = null;
         for (byte[] byteArray : byteArrays) {
             concatenatedArray = concatByteArrays(concatenatedArray, byteArray);
@@ -588,10 +622,15 @@ public final class ProtocolTools {
      */
     public static int getIntFromBytes(byte[] bytes, int offset, int length) {
         byte[] byteArray = getSubArray(bytes, offset, offset + length);
+        return getIntFromBytes(byteArray);
+    }
+
+    public static int getIntFromBytesLE(byte[] rawdata, int offset, int length) {
+        byte[] intBytes = getSubArray(rawdata, offset, offset + length);
         int value = 0;
-        for (int i = 0; i < byteArray.length; i++) {
-            int intByte = byteArray[i] & 0x0FF;
-            value += intByte << ((byteArray.length - (i + 1)) * 8);
+        for (int i = 0; i < intBytes.length; i++) {
+            int intByte = intBytes[i] & 0x0FF;
+            value += intByte << (i * 8);
         }
         return value;
     }
@@ -1581,24 +1620,20 @@ public final class ProtocolTools {
     }
 
     public static String bytesToHex(byte[] plainTextKey) {
-        return Hex.encodeHexString(plainTextKey).toUpperCase();
+        return DatatypeConverter.printHexBinary(plainTextKey).toUpperCase();
     }
 
-    public static byte[] hexToBytes(String plainTextKey) throws DataParseException {
-        try {
-            return Hex.decodeHex(plainTextKey.toCharArray());
-        } catch (DecoderException e) {
-            throw DataParseException.generalParseException(e);
-        }
+    public static byte[] hexToBytes(String plainTextKey){
+        return DatatypeConverter.parseHexBinary(plainTextKey);
     }
 
     public static String bytesToBase64(byte[] plainTextKey) {
-        return Base64.encodeBase64String(plainTextKey);
+        return String.valueOf(Base64.getEncoder().encode(plainTextKey));
     }
 
     public static byte[] base64ToBytes(String plainTextKey) throws DataParseException {
         try {
-            return Base64.decodeBase64(plainTextKey);
+            return Base64.getDecoder().decode(plainTextKey);
         } catch (Exception e) {
             throw DataParseException.generalParseException(e);
         }
@@ -1614,8 +1649,15 @@ public final class ProtocolTools {
             }
 
             return sb.reverse().toString();
-        } catch (Exception ex){
+        } catch (Exception ex) {
             return ex.getMessage();
         }
+    }
+
+    public static byte[] getBCDFromHexString(String hexString, int length) {
+        while (hexString.length() < (length * 2)) {
+            hexString = "0" + hexString;    // Left pad with 0
+        }
+        return ProtocolTools.getBytesFromHexString(hexString, "");
     }
 }

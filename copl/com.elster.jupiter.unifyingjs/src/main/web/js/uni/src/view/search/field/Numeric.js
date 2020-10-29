@@ -34,7 +34,7 @@ Ext.define('Uni.view.search.field.Numeric', {
             clearBtn = me.down('#clearall');
 
         me.callParent(arguments);
-        clearBtn.setDisabled(false);
+        clearBtn.setDisabled(!value);
     },
 
     cleanup: function () {

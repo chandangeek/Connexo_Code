@@ -138,6 +138,11 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
+    public CollectedMessage createCollectedMessageForSwappingSecurityAccessorKeys(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName) {
+        return new DeviceProtocolMessageWithCollectedSecurityProperty(deviceIdentifier, messageIdentifier, propertyName);
+    }
+
+    @Override
     public CollectedMessage createCollectedMessageWithUpdateSecurityProperty(DeviceIdentifier deviceIdentifier, MessageIdentifier messageIdentifier, String propertyName, Object propertyValue) {
         return new DeviceProtocolMessageWithCollectedSecurityProperty(deviceIdentifier, messageIdentifier, propertyName, propertyValue);
     }

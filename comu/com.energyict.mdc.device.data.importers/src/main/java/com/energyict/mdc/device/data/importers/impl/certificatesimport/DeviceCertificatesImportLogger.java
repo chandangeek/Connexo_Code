@@ -5,6 +5,7 @@ import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportZipEntry;
 import com.energyict.mdc.device.data.importers.impl.FileImportZipLoggerImpl;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
+import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +19,11 @@ public class DeviceCertificatesImportLogger extends FileImportZipLoggerImpl {
 
     public DeviceCertificatesImportLogger(DeviceDataImporterContext context) {
         super(context);
+    }
+
+    @Override
+    public void info(MessageSeeds message, Object... arguments) {
+        super.info(message, arguments);
     }
 
     @Override

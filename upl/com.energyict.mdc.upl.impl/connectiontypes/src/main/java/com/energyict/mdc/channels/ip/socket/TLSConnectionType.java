@@ -134,6 +134,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
             return new SocketComChannel(socket);
         } catch (NoSuchAlgorithmException | KeyManagementException | IOException | UnrecoverableKeyException | KeyStoreException | InvalidKeyException | CertificateException e) {
+            getLogger().severe("Security exception:" + e.getMessage());
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupTLSConnection, e);
         }
     }

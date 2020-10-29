@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
@@ -52,8 +53,8 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
 
     protected String readLoadLimits(Array array) {
         StringBuffer buff = new StringBuffer("{");
-        for(Iterator<AbstractDataType> it = array.iterator();it.hasNext();) {
-            Structure limit = (Structure)it.next();
+        for (Iterator<AbstractDataType> it = array.iterator(); it.hasNext(); ) {
+            Structure limit = (Structure) it.next();
             buff.append(limit.getDataType(0).getUnsigned16().getValue());
             buff.append(VALUE_SEPARATOR);
             buff.append(limit.getDataType(1).getUnsigned16().getValue());

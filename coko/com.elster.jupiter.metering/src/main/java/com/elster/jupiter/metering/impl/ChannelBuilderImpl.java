@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.streams.DecoratedStream.decorate;
-import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.Collections.singletonList;
 
 public class ChannelBuilderImpl implements ChannelBuilder {
@@ -37,6 +36,7 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     private final DataModel dataModel;
     private final Provider<ChannelImpl> channelFactory;
     private ZoneId zoneId;
+    private long offset;
 
     @Inject
     public ChannelBuilderImpl(DataModel dataModel, Provider<ChannelImpl> channelFactory) {
@@ -66,11 +66,17 @@ public class ChannelBuilderImpl implements ChannelBuilder {
     }
 
     @Override
+    public ChannelBuilder offset(long offset) {
+        this.offset = offset;
+        return this;
+    }
+
+    @Override
     public ChannelImpl build() {
         if (readingTypes.size() > 1) {
-            return channelFactory.get().init(channelsContainer, zoneId, readingTypes, Optional.empty(), (rt1, rt2) -> DerivationRule.MEASURED);
+            return channelFactory.get().init(channelsContainer, zoneId, readingTypes, Optional.of(offset), (rt1, rt2) -> DerivationRule.MEASURED);
         }
-        return channelFactory.get().init(channelsContainer, zoneId, buildReadingTypes(), Optional.empty());
+        return channelFactory.get().init(channelsContainer, zoneId, buildReadingTypes(), Optional.of(offset));
     }
 
     private List<IReadingType> buildReadingTypes() {
