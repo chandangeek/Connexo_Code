@@ -114,7 +114,7 @@ public class A2ProfileDataReader {
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer;
                     if (DAILY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode())) {
-                        fromCalendar.add(Calendar.HOUR_OF_DAY, DAILY_LOAD_PROFILE_ONEMORE_INTERVAL);
+                        fromCalendar.add(Calendar.DAY_OF_YEAR, DAILY_LOAD_PROFILE_ONEMORE_INTERVAL);
                     }
                     if (HOURLY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode()) && firmwareVersion.getMajor()==1 && firmwareVersion.getMinor()==4) {
                         Calendar actualCalendar = Calendar.getInstance(protocol.getTimeZone());
