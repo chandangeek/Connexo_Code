@@ -77,8 +77,6 @@ my $JBOSS_SHUTDOWN_PORT="8007";
 my $JBOSS_AJP_PORT, my $JBOSS_SSH_PORT, my $JBOSS_DAEMON_PORT;
 my $FLOW_URL;
 my $CASE_MGMT="rhpam-7.8.0-case-mgmt-showcase-eap7-deployable";
-my $TEST_HOME;
-my $TEST_NOPAUSE;
 
 my $CONNEXO_ADMIN_ACCOUNT="admin";
 my $CONNEXO_ADMIN_PASSWORD;
@@ -830,6 +828,8 @@ sub install_jboss {
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.password=APPLICATION_PASSWORD","org.uberfire.ext.security.management.wildfly.cli.password=$JBOSS_ADMIN_PASSWORD");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm","org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm");
 
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/service.bat","set STARTUP_MODE=manual","set STARTUP_MODE=auto");
+
         dircopy("$JBOSS_BASE/flow/oracle", "$JBOSS_BASE/$JBOSS_DIR/modules/oracle");
 
 		print "Installing Jboss EAP For Connexo as service ...\n";
@@ -1393,6 +1393,7 @@ sub start_tomcat {
 }
 
 sub restart_jboss_service {
+   if ("$INSTALL_FLOW" eq "yes") {
     if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
         print "Stopping service ConnexoJboss$SERVICE_VERSION ...";
         system("net stop ConnexoJboss$SERVICE_VERSION");
@@ -1419,6 +1420,7 @@ sub restart_jboss_service {
         system("/sbin/service ConnexoJboss$SERVICE_VERSION start");
         sleep 10;
     }
+   }
 }
 
 sub start_jboss_service {
@@ -1427,8 +1429,6 @@ sub start_jboss_service {
         print "==========================================================================\n";
 
         if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-            system("sc config \"ConnexoJboss$SERVICE_VERSION\"  start= delayed-auto");
-            system("sc failure \"ConnexoJboss$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
             print "Starting service ConnexoJboss$SERVICE_VERSION ...";
             system("net start /name ConnexoJboss$SERVICE_VERSION");
             sleep 10;
