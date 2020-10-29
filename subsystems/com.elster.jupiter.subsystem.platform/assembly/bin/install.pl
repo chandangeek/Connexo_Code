@@ -1213,24 +1213,25 @@ sub prepare_sso {
                 close $FH;
             }
 
-            print "Preparing Flow/Facts properties: $CATALINA_BASE/conf/connexo.properties";
+
 
             if ("$INSTALL_FLOW" eq "yes") {
-                add_to_file("$CATALINA_BASE/conf/connexo.properties","");
-                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
-                add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.password=$CONNEXO_ADMIN_PASSWORD");
+                add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","");
+                add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
+                add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","com.elster.jupiter.password=$CONNEXO_ADMIN_PASSWORD");
             }
 
             if ("$INSTALL_FACTS" eq "yes") {
+                print "Preparing Facts properties: $CATALINA_BASE/conf/connexo.properties";
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","");
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.usr=$CONNEXO_ADMIN_ACCOUNT");
                 add_to_file("$CATALINA_BASE/conf/connexo.properties","com.elster.yellowfin.admin.pwd=$CONNEXO_ADMIN_PASSWORD");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","");
+                add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
+                add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=https://$HOST_NAME");
+                add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
             }
 
-            add_to_file("$CATALINA_BASE/conf/connexo.properties","");
-            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.url=http://$HOST_NAME:$CONNEXO_HTTP_PORT");
-            add_to_file_if("$CATALINA_BASE/conf/connexo.properties","com.elster.jupiter.externalurl=https://$HOST_NAME");
-            add_to_file("$CATALINA_BASE/conf/connexo.properties","$PUBLIC_KEY_PROPERTIES");
 
 			add_to_file($config_file,"$PUBLIC_KEY_PROPERTIES");
 
