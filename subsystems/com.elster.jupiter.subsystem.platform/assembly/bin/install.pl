@@ -1272,31 +1272,33 @@ sub start_connexo {
 }
 
 sub restart_tomcat_service {
-    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        print "Stopping service ConnexoTomcat$SERVICE_VERSION ...";
-        system("sc stop ConnexoTomcat$SERVICE_VERSION");
-        sleep 10;
-        while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*STOPPED/) eq "") {
-            print " ... still not stopped";
-            sleep 3;
-        }
-        print "\nConnexoTomcat$SERVICE_VERSION stopped!\n";
+    if ("$INSTALL_FACTS" eq "yes") {
+        if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+            print "Stopping service ConnexoTomcat$SERVICE_VERSION ...";
+            system("sc stop ConnexoTomcat$SERVICE_VERSION");
+            sleep 10;
+            while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*STOPPED/) eq "") {
+                print " ... still not stopped";
+                sleep 3;
+            }
+            print "\nConnexoTomcat$SERVICE_VERSION stopped!\n";
 
-        print "Starting service ConnexoTomcat$SERVICE_VERSION ...";
-        system("sc start ConnexoTomcat$SERVICE_VERSION");
-        sleep 10;
-        while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
-            print " ... still not started";
-            sleep 3;
+            print "Starting service ConnexoTomcat$SERVICE_VERSION ...";
+            system("sc start ConnexoTomcat$SERVICE_VERSION");
+            sleep 10;
+            while ((`sc query ConnexoTomcat$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
+                print " ... still not started";
+                sleep 3;
+            }
+            print "\nConnexoTomcat$SERVICE_VERSION started!\n";
+        } else {
+            print "Stopping service ConnexoTomcat$SERVICE_VERSION\n";
+            system("/sbin/service ConnexoTomcat$SERVICE_VERSION stop");
+            sleep 15;
+            print "Starting service ConnexoTomcat$SERVICE_VERSION\n";
+            system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
+            sleep 10;
         }
-        print "\nConnexoTomcat$SERVICE_VERSION started!\n";
-    } else {
-        print "Stopping service ConnexoTomcat$SERVICE_VERSION\n";
-        system("/sbin/service ConnexoTomcat$SERVICE_VERSION stop");
-        sleep 15;
-        print "Starting service ConnexoTomcat$SERVICE_VERSION\n";
-        system("/sbin/service ConnexoTomcat$SERVICE_VERSION start");
-        sleep 10;
     }
 }
 
