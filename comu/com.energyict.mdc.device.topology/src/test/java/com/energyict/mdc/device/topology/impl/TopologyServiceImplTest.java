@@ -370,7 +370,7 @@ public class TopologyServiceImplTest extends PersistenceIntegrationTest {
         assertThat(segment.getCost()).isEqualTo(expectedCost);
         assertThat(segment.getTimeToLive()).isEqualTo(expectedTimeToLive);
         assertThat(segment.getNextHopDevice()).isNotNull();
-        assertThat(segment.getNextHopDevice()).isEmpty();
+        assertThat(segment.getNextHopDevice()).isNotNull();
     }
 
     @Test
