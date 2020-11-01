@@ -41,7 +41,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
     private final Set<ConnectionTypePluggableClass> connectionTypes;
-    private List<Long> connectionTasksIds;
+    private List<Long> connectionMethods; // Lau
     private final Long locationId;
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> queryExecutor) {
@@ -52,7 +52,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.completionCodes.addAll(filterSpecification.latestResults);
         this.lastSessionStart = filterSpecification.lastSessionStart;
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
-        this.connectionTasksIds = filterSpecification.connectionMethods;
+        this.connectionMethods = filterSpecification.connectionMethods;
         this.connectionTypes = new HashSet<>(filterSpecification.connectionTypes);
         this.locationId = filterSpecification.locationId;
     }
@@ -105,9 +105,13 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
-        if (!this.connectionTasksIds.isEmpty()) {
+        if (!this.connectionMethods.isEmpty()) { // Lau
+
             this.appendWhereOrAnd();
-            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",", "")) + ")");
+            this.append("cte.connectiontask IN (" +
+                    " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
+                    connectionMethods.stream().collect(FancyJoiner.joining(",", ""))
+                    + ") )");
         }
         this.appendWhereOrAnd();
         this.append("obsolete_date is null");

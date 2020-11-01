@@ -19,6 +19,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
@@ -26,11 +27,7 @@ import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecificationMessage;
-import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
+import com.energyict.mdc.device.data.tasks.*;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -76,9 +73,11 @@ public class CommunicationResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final ResourceHelper resourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final ConnectionTaskService connectionTaskService; //Lau
 
     @Inject
-    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ProtocolPluggableService protocolPluggableService) {
+    public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ProtocolPluggableService protocolPluggableService,
+                                 ConnectionTaskService connectionTaskService) {
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -92,6 +91,7 @@ public class CommunicationResource {
         this.protocolPluggableService = protocolPluggableService;
         this.resourceHelper = resourceHelper;
         this.conflictFactory = conflictFactory;
+        this.connectionTaskService = connectionTaskService; // Lau
     }
 
     @GET
@@ -333,8 +333,22 @@ public class CommunicationResource {
             filter.deviceName = jsonQueryFilter.getString("device");
         }
 
-        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
-            filter.connectionMethods = jsonQueryFilter.getLongList(FilterOption.connectionMethods.name());
+//        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
+//            filter.connectionMethods = jsonQueryFilter.getLongList(FilterOption.connectionMethods.name());
+//        }
+        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {  // Lau
+
+            List<String> connectionMethods = jsonQueryFilter.getStringList(FilterOption.connectionMethods.name());
+
+            List<PartialConnectionTask> partialConnectionTasks = connectionTaskService.findPartialConnectionTasks();
+
+            filter.connectionMethods = partialConnectionTasks
+                    .stream()
+                    .distinct()
+                    .filter(pct->connectionMethods.contains(pct.getName()))
+                    .map(pct -> pct.getId())
+                    .collect(Collectors.toList());
+
         }
 
         if (jsonQueryFilter.hasProperty(FilterOption.location.name())) {

@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -271,4 +272,8 @@ public interface ConnectionTaskService {
     List<ConnectionTask> findTimedOutConnectionTasksByComPort(ComPort comPort);
 
     long getConnectionTasksCount(ConnectionTaskFilterSpecification filter);
+
+    default List<PartialConnectionTask> findPartialConnectionTasks() {  // Lau
+        return Arrays.asList();
+    }
 }

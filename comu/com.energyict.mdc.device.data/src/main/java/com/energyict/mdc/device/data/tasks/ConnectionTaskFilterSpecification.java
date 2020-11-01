@@ -16,10 +16,7 @@ import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComSession;
 
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Models the filtering that can be applied by client code to count
@@ -111,4 +108,10 @@ public class ConnectionTaskFilterSpecification {
      * Default value: exclude comtasks of "Pre-operational" and "Post-operational" devices
      */
     public Set<String> restrictedDeviceStages = new HashSet<>();
+
+    /**
+     * The Set of {@link ConnectionTask} or an empty set
+     * if you want all ConnectionTasks
+     */
+    public List<Long> connectionMethods = new ArrayList<>();  // Lau
 }

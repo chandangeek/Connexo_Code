@@ -13,6 +13,7 @@ import com.elster.jupiter.util.HasName;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.rest.FieldResource;
 import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.dashboard.rest.DashboardApplication;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.ConnectionTaskLifecycleStatusAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
@@ -60,9 +62,14 @@ public class DashboardFieldResource extends FieldResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final TaskService taskService;
     private final SchedulingService schedulingService;
+    private final ConnectionTaskService connectionTaskService; // Lau
 
     @Inject
-    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService, DeviceService deviceService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, TaskService taskService, SchedulingService schedulingService) {
+    public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService,
+                                  DeviceService deviceService, EngineConfigurationService engineConfigurationService,
+                                  ProtocolPluggableService protocolPluggableService, TaskService taskService,
+                                  SchedulingService schedulingService,
+                                  ConnectionTaskService connectionTaskService) {
         super(nlsService.getThesaurus(DashboardApplication.COMPONENT_NAME, Layer.REST));
         this.deviceConfigurationService = deviceConfigurationService;
         this.deviceService = deviceService;
@@ -70,6 +77,7 @@ public class DashboardFieldResource extends FieldResource {
         this.protocolPluggableService = protocolPluggableService;
         this.taskService = taskService;
         this.schedulingService = schedulingService;
+        this.connectionTaskService = connectionTaskService; // Lau
     }
 
     @GET
@@ -218,6 +226,43 @@ public class DashboardFieldResource extends FieldResource {
         }
         return Response.ok(asInfoMap("connectionmethods", connectionTasks)).build();
     }
+
+    @GET
+    @Transactional
+    @Path("/connectionmethods")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Object getAllConnectionMethods() {
+
+        List<PartialConnectionTask> partialConnectionTasks = connectionTaskService.findPartialConnectionTasks();
+
+        Map<String, List<Long> > connectionMethodsWithCommTaskIds = partialConnectionTasks.stream()
+                .collect(
+                        Collectors.groupingBy(
+                                pct-> pct.getName(),
+                                Collectors.mapping(
+                                        ct->ct.getId(),
+                                        Collectors.toList())));
+
+        List<IdWithNameInfo> asInfos = connectionMethodsWithCommTaskIds
+                .entrySet()
+                .stream()
+                .map(es-> new IdWithNameInfo(es.getKey(), es.getKey()))
+                .collect(toList());
+
+
+
+        Map<String, List<IdWithNameInfo>> result = new HashMap<>();
+        result.put("connectionmethods", asInfos);
+
+        return Response.ok(result).build();
+    }
+
+//    private String listWithIdsToString(List<Long> listWithIds){  // Lau
+//        List<String> stringList = listWithIds.stream().map(id->String.valueOf(id)).collect(toList());
+//        return  String.join("_", stringList);
+//
+//    }
 
     private <H extends HasId & HasName> Map<String, List<IdWithNameInfo>> asInfoMap(String name, List<H> list) {
         Map<String, List<IdWithNameInfo>> map = new HashMap<>();
