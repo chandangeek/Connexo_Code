@@ -6,6 +6,8 @@ package com.elster.jupiter.installer.util;
 
 import org.guvnor.common.services.project.model.GAV;
 import org.guvnor.m2repo.backend.server.GuvnorM2Repository;
+import org.guvnor.m2repo.backend.server.repositories.ArtifactRepositoryService;
+import org.guvnor.m2repo.backend.server.repositories.FileSystemArtifactRepository;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -71,7 +73,9 @@ public class ProcessDeployer {
 
     private static void installProcesses(String repository) {
         System.setProperty("org.guvnor.m2repo.dir", repository);
-        GuvnorM2Repository repo = new GuvnorM2Repository();
+        FileSystemArtifactRepository fsar = new FileSystemArtifactRepository("global-m2-repo",repository);
+        ArtifactRepositoryService ars = new ConnexoArtifactRepositoryService(fsar);
+        GuvnorM2Repository repo = new GuvnorM2Repository(ars);
         repo.init();
         File root = new File(repository);
         for (File file : repo.listFiles(null, Collections.singletonList("jar"))) {
@@ -160,7 +164,7 @@ public class ProcessDeployer {
             }
 
             responseCode = httpConnection.getResponseCode();
-            if (responseCode != 202 && responseCode != 404) {
+            if (responseCode != 201 && responseCode != 404) {
                 throw new RuntimeException("Failed PUT on " + url + ": HTTP error code : "
                         + httpConnection.getResponseCode());
             }
@@ -182,20 +186,20 @@ public class ProcessDeployer {
     private static boolean doGetDeployment(String url, String authString) {
         HttpURLConnection httpConnection = null;
         try {
-
             URL targetUrl = new URL(url);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
             httpConnection.setRequestProperty("Authorization", authString);
-            httpConnection.setRequestProperty("Content-Type", "text/plain;charset=UTF-8");
+            httpConnection.setRequestProperty("Content-Type", "application/json");
 
             if (httpConnection.getResponseCode() != 200) {
                 return false;
             }
 
             String result = readInputStreamToString(httpConnection);
-            if (result.contains("<status>UNDEPLOYED</status>")) {
+
+            if (result.contains("\"type\" : \"FAILURE\"")) {
                 return false;
             }
 

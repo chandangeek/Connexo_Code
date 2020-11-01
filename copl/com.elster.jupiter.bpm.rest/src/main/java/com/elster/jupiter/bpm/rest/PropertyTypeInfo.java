@@ -198,7 +198,7 @@ public class PropertyTypeInfo {
     private String getComboBoxValue(JSONObject field, String property){
         JSONArray arr = null;
         try {
-            arr = field.getJSONArray("properties");
+            arr = field.getJSONArray("property");
             if (arr != null){
                 for(int i = 0; i < arr.length(); i++) {
                     JSONObject prop = arr.getJSONObject(i);
@@ -255,7 +255,7 @@ public class PropertyTypeInfo {
     private String passwordOrSimple(JSONObject field){
         JSONArray arr = null;
         try {
-            arr = field.getJSONArray("properties");
+            arr = field.getJSONArray("property");
             if (arr != null){
                 for(int i = 0; i < arr.length(); i++) {
                     JSONObject prop = arr.getJSONObject(i);
