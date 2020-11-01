@@ -74,7 +74,8 @@ my $STANDALONE_HOME=$STANDALONE_BASE;
 $ENV{"JBOSS_HOME"}="$JBOSS_BASE/$JBOSS_DIR";
 $ENV{"NOPAUSE"}=1;
 my $JBOSS_SHUTDOWN_PORT="8007";
-my $JBOSS_AJP_PORT, my $JBOSS_SSH_PORT, my $JBOSS_DAEMON_PORT;
+my $JBOSS_AJP_PORT, my $JBOSS_SSH_PORT, my $JBOSS_MANAGEMENT_HTTP_PORT, my $JBOSS_MANAGEMENT_HTTPS_PORT;
+my $JBOSS_IIOP_PORT, my $JBOSS_IIOP_SSL_PORT, my $JBOSS_TXN_RECOVERY_ENVIRONMENT_PORT, my $JBOSS_TXN_STATUS_MANAGER_PORT;
 my $FLOW_URL;
 my $CASE_MGMT="rhpam-7.8.0-case-mgmt-showcase-eap7-deployable";
 
@@ -409,7 +410,12 @@ sub read_config {
         $JBOSS_SHUTDOWN_PORT=$JBOSS_HTTP_PORT+5;
         $JBOSS_AJP_PORT=$JBOSS_HTTP_PORT+6;
         $JBOSS_SSH_PORT=$JBOSS_HTTP_PORT+7;
-        $JBOSS_DAEMON_PORT=$JBOSS_HTTP_PORT+8;
+        $JBOSS_MANAGEMENT_HTTP_PORT=9990;
+        $JBOSS_MANAGEMENT_HTTPS_PORT=9993;
+        $JBOSS_IIOP_PORT=3528;
+        $JBOSS_IIOP_SSL_PORT=3529;
+        $JBOSS_TXN_RECOVERY_ENVIRONMENT_PORT=4712;
+        $JBOSS_TXN_STATUS_MANAGER_PORT=4713;
     }
     if ("$HOST_NAME" eq "") {
         $HOST_NAME=hostname;
@@ -479,7 +485,12 @@ sub checking_ports {
     my $JBOSS_SHUTDOWN_PRT=0;
     my $JBOSS_AJP_PRT=0;
     my $JBOSS_SSH_PRT=0;
-    my $JBOSS_DAEMON_PRT=0;
+    my $JBOSS_MANAGEMENT_HTTP_PRT=0;
+    my $JBOSS_MANAGEMENT_HTTPS_PRT=0;
+    my $JBOSS_IIOP_PRT=0;
+    my $JBOSS_IIOP_SSL_PRT=0;
+    my $JBOSS_TXN_RECOVERY_ENVIRONMENT_PRT=0;
+    my $JBOSS_TXN_STATUS_MANAGER_PRT=0;
     if ("$INSTALL_CONNEXO" eq "yes") { $CONNEXO_PORT=check_port($CONNEXO_HTTP_PORT); };
     if ("$INSTALL_FACTS" eq "yes") {
         $TOMCAT_PORT=check_port($TOMCAT_HTTP_PORT);
@@ -493,9 +504,14 @@ sub checking_ports {
         $JBOSS_SHUTDOWN_PRT=check_port($JBOSS_SHUTDOWN_PORT);
         $JBOSS_AJP_PRT=check_port($JBOSS_AJP_PORT);
         $JBOSS_SSH_PRT=check_port($JBOSS_SSH_PORT);
-        $JBOSS_DAEMON_PRT=check_port($JBOSS_DAEMON_PORT);
+        $JBOSS_MANAGEMENT_HTTP_PRT=check_port($JBOSS_MANAGEMENT_HTTP_PORT);
+        $JBOSS_MANAGEMENT_HTTPS_PRT=check_port($JBOSS_MANAGEMENT_HTTPS_PORT);
+        $JBOSS_IIOP_PRT=check_port($JBOSS_IIOP_PORT);
+        $JBOSS_IIOP_SSL_PRT=check_port($JBOSS_IIOP_SSL_PORT);
+        $JBOSS_TXN_RECOVERY_ENVIRONMENT_PRT=check_port($JBOSS_TXN_RECOVERY_ENVIRONMENT_PORT);
+        $JBOSS_TXN_STATUS_MANAGER_PRT=check_port($JBOSS_TXN_STATUS_MANAGER_PORT);
     };
-    if ($CONNEXO_PORT>0 || $TOMCAT_PORT>0 || $TOMCAT_SHUTDOWN_PRT>0 || $TOMCAT_AJP_PRT>0 || $TOMCAT_SSH_PRT>0 || $TOMCAT_DAEMON_PRT>0 || $JBOSS_PORT>0 || $JBOSS_SHUTDOWN_PRT>0 || $JBOSS_AJP_PRT>0 || $JBOSS_SSH_PRT>0 || $JBOSS_DAEMON_PRT>0) {
+    if ($CONNEXO_PORT>0 || $TOMCAT_PORT>0 || $TOMCAT_SHUTDOWN_PRT>0 || $TOMCAT_AJP_PRT>0 || $TOMCAT_SSH_PRT>0 || $TOMCAT_DAEMON_PRT>0 || $JBOSS_PORT>0 || $JBOSS_SHUTDOWN_PRT>0 || $JBOSS_AJP_PRT>0 || $JBOSS_SSH_PRT>0 || $JBOSS_MANAGEMENT_HTTP_PRT>0 || $JBOSS_MANAGEMENT_HTTPS_PRT>0|| $JBOSS_IIOP_PRT>0|| $JBOSS_IIOP_SSL_PRT>0|| $JBOSS_TXN_RECOVERY_ENVIRONMENT_PRT>0|| $JBOSS_TXN_STATUS_MANAGER_PRT>0) {
         if ($CONNEXO_PORT>0) { print "Port $CONNEXO_HTTP_PORT for Connexo already in use!\n"; }
         if ($TOMCAT_PORT>0) { print "Port $TOMCAT_HTTP_PORT for Tomcat already in use!\n"; }
         if ($TOMCAT_SHUTDOWN_PRT>0) { print "Port $TOMCAT_SHUTDOWN_PRT for Tomcat shutdown already in use!\n"; }
@@ -506,7 +522,12 @@ sub checking_ports {
         if ($JBOSS_SHUTDOWN_PRT>0) { print "Port $JBOSS_SHUTDOWN_PRT for Jboss EAP shutdown already in use!\n"; }
         if ($JBOSS_AJP_PRT>0) { print "Port $JBOSS_AJP_PRT for Jboss EAP AJP already in use!\n"; }
         if ($JBOSS_SSH_PRT>0) { print "Port $JBOSS_SSH_PRT for Jboss EAP SSH already in use!\n"; }
-        if ($JBOSS_DAEMON_PRT>0) { print "Port $JBOSS_DAEMON_PRT for Jboss EAP daemon already in use!\n"; }
+        if ($JBOSS_MANAGEMENT_HTTP_PRT>0) { print "Port $JBOSS_MANAGEMENT_HTTP_PRT for Jboss EAP management http already in use!\n"; }
+        if ($JBOSS_MANAGEMENT_HTTPS_PRT>0) { print "Port $JBOSS_MANAGEMENT_HTTPS_PRT for Jboss EAP management https already in use!\n"; }
+        if ($JBOSS_IIOP_PRT>0) { print "Port $JBOSS_IIOP_PRT for Jboss EAP IIOP already in use!\n"; }
+        if ($JBOSS_IIOP_SSL_PRT>0) { print "Port $JBOSS_IIOP_SSL_PRT for Jboss EAP IIOP SSL already in use!\n"; }
+        if ($JBOSS_TXN_RECOVERY_ENVIRONMENT_PRT>0) { print "Port $JBOSS_TXN_RECOVERY_ENVIRONMENT_PRT for Jboss EAP txn recovery environment already in use!\n"; }
+        if ($JBOSS_TXN_STATUS_MANAGER_PRT>0) { print "Port $JBOSS_TXN_STATUS_MANAGER_PRT for Jboss EAP txn status manager already in use!\n"; }
         exit (0);
     }
 }
@@ -782,6 +803,10 @@ sub install_jboss {
 
 		install_flow();
 
+		(my $replaceHOME = $STANDALONE_HOME) =~ s/ /\\ /g;
+        (my $replaceACCOUNT = $CONNEXO_ADMIN_ACCOUNT) =~ s/ /\\ /g;
+        (my $replacePASSWORD = $CONNEXO_ADMIN_PASSWORD) =~ s/ /\\ /g;
+
 		print "Setting Configuration for Jboss\n";
 		chdir "$JBOSS_BASE/$JBOSS_DIR/bin";
 
@@ -794,9 +819,9 @@ sub install_jboss {
 
         copy("$JBOSS_BASE/flow/standalone-full.xml","$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml");
         copy("$JBOSS_BASE/flow/userinfo.properties","$JBOSS_BASE/jboss/standalone/deployments/business-central.war/WEB-INF/classes/");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.url\" value=\"\"/>","<property name=\"com.elster.jupiter.url\" value=\"http://$HOST_NAME:$CONNEXO_HTTP_PORT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.user\" value=\"\"/>","<property name=\"com.elster.jupiter.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.password\" value=\"\"/>","<property name=\"com.elster.jupiter.password\" value=\"$CONNEXO_ADMIN_PASSWORD\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.url\" value=\"\"/>","<property name=\"com.elster.jupiter.url\" value=\"$CONNEXO_URL\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.user\" value=\"\"/>","<property name=\"com.elster.jupiter.user\" value=\"$replaceACCOUNT\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.password\" value=\"\"/>","<property name=\"com.elster.jupiter.password\" value=\"$replacePASSWORD\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.location\" value=\"http://localhost:8080/kie-server/services/rest/server\"/>","<property name=\"org.kie.server.location\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server/services/rest/server\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller\" value=\"http://localhost:8080/business-central/rest/controller\"/>","<property name=\"org.kie.server.controller\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central/rest/controller\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.user\" value=\"\"/>","<property name=\"org.kie.server.controller.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
@@ -814,15 +839,21 @@ sub install_jboss {
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"ajp\" port=\"\"/>","<socket-binding name=\"ajp\" port=\"\${jboss.ajp.port:$JBOSS_AJP_PORT}\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"http\" port=\"\"/>","<socket-binding name=\"http\" port=\"\$\{jboss.http.port:$JBOSS_HTTP_PORT\}\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"https\" port=\"\"/>","<socket-binding name=\"https\" port=\"\$\{jboss.https.port:$JBOSS_SSH_PORT\}\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"management-http\" interface=\"management\" port=\"\"/>","<socket-binding name=\"management-http\" interface=\"management\" port=\"\$\{jboss.management.http.port:$JBOSS_MANAGEMENT_HTTP_PORT\}\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"management-https\" interface=\"management\" port=\"\"/>","<socket-binding name=\"management-https\" interface=\"management\" port=\"\$\{jboss.management.https.port:$JBOSS_MANAGEMENT_HTTPS_PORT\}\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"iiop\" interface=\"unsecure\" port=\"\"/>","<socket-binding name=\"iiop\" interface=\"unsecure\" port=\"$JBOSS_IIOP_PORT\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"iiop-ssl\" interface=\"unsecure\" port=\"\"/>","<socket-binding name=\"iiop-ssl\" interface=\"unsecure\" port=\"$JBOSS_IIOP_SSL_PORT\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"txn-recovery-environment\" port=\"\"/>","<socket-binding name=\"txn-recovery-environment\" port=\"$JBOSS_TXN_RECOVERY_ENVIRONMENT_PORT\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<socket-binding name=\"txn-status-manager\" port=\"\"/>","<socket-binding name=\"txn-status-manager\" port=\"$JBOSS_TXN_STATUS_MANAGER_PORT\"/>");
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.host=localhost","datasource.management.wildfly.host=$HOST_NAME");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.port=9990","datasource.management.wildfly.port=9990");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.port=9990","datasource.management.wildfly.port=$JBOSS_MANAGEMENT_HTTP_PORT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.admin=admin","datasource.management.wildfly.admin=$CONNEXO_ADMIN_ACCOUNT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.password=","datasource.management.wildfly.password=$JBOSS_ADMIN_PASSWORD");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.realm=ApplicationRealm","datasource.management.wildfly.realm=ApplicationRealm");
 
         copy("$JBOSS_BASE/flow/security-management.properties","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.port=MANAGEMENT_HTTP_PORT","org.uberfire.ext.security.management.wildfly.cli.port=9990");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.port=MANAGEMENT_HTTP_PORT","org.uberfire.ext.security.management.wildfly.cli.port=$JBOSS_MANAGEMENT_HTTP_PORT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.host=MANAGEMENT_IP","org.uberfire.ext.security.management.wildfly.cli.host=$HOST_NAME");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.user=APPLICATION_USER","org.uberfire.ext.security.management.wildfly.cli.user=$CONNEXO_ADMIN_ACCOUNT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.password=APPLICATION_PASSWORD","org.uberfire.ext.security.management.wildfly.cli.password=$JBOSS_ADMIN_PASSWORD");
@@ -1393,34 +1424,34 @@ sub start_tomcat {
 }
 
 sub restart_jboss_service {
-   if ("$INSTALL_FLOW" eq "yes") {
-    if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-        print "Stopping service ConnexoJboss$SERVICE_VERSION ...";
-        system("net stop ConnexoJboss$SERVICE_VERSION");
-        sleep 10;
-        while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*STOPPED/) eq "") {
-            print " ... still not stopped";
-            sleep 3;
-        }
-        print "\nConnexoJboss$SERVICE_VERSION stopped!\n";
+    if ("$INSTALL_FLOW" eq "yes") {
+       if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+          print "Stopping service ConnexoJboss$SERVICE_VERSION ...";
+          system("net stop ConnexoJboss$SERVICE_VERSION");
+          sleep 10;
+          while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*STOPPED/) eq "") {
+              print " ... still not stopped";
+              sleep 3;
+          }
+          print "\nConnexoJboss$SERVICE_VERSION stopped!\n";
 
-        print "Starting service ConnexoJboss$SERVICE_VERSION ...";
-        system("net start /name ConnexoJboss$SERVICE_VERSION");
-        sleep 10;
-        while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
-            print " ... still not started";
-            sleep 3;
-        }
-        print "\nConnexoJboss$SERVICE_VERSION started!\n";
-    } else {
-        print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
-        system("/sbin/service ConnexoJboss$SERVICE_VERSION stop");
-        sleep 15;
-        print "Starting service ConnexoJboss$SERVICE_VERSION\n";
-        system("/sbin/service ConnexoJboss$SERVICE_VERSION start");
-        sleep 10;
+          print "Starting service ConnexoJboss$SERVICE_VERSION ...";
+          system("net start /name ConnexoJboss$SERVICE_VERSION");
+          sleep 10;
+          while ((`sc query ConnexoJboss$SERVICE_VERSION` =~ m/STATE.*:.*RUNNING/) eq "") {
+              print " ... still not started";
+              sleep 3;
+          }
+          print "\nConnexoJboss$SERVICE_VERSION started!\n";
+       } else {
+          print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
+          system("/sbin/service ConnexoJboss$SERVICE_VERSION stop");
+          sleep 15;
+          print "Starting service ConnexoJboss$SERVICE_VERSION\n";
+          system("/sbin/service ConnexoJboss$SERVICE_VERSION start");
+          sleep 10;
+       }
     }
-   }
 }
 
 sub start_jboss_service {
@@ -1477,38 +1508,38 @@ sub start_jboss {
             chdir "$CONNEXO_DIR";
             print "Changing directory to $CONNEXO_DIR\n";
             # using JBOSS password here because the filters should not be active yet if SSO is used
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createSpace $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createSpace $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
             sleep 5;
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
 
             print "\nCopy processes to repository...\n";
             make_path("$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global");
             dircopy("$CONNEXO_DIR/partners/flow/mdc/kie", "$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global/");
-            #dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global/");
-            #dircopy("$CONNEXO_DIR/partners/flow/lib/*", "partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*");
-            #if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+            dircopy("$CONNEXO_DIR/partners/flow/insight/kie", "$JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global/");
+            dircopy("$CONNEXO_DIR/partners/flow/lib/*", "partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*");
+            if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
                # classpath separator on Windows is ;
-               #print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
-               #postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
-            #} else {
+               print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
+               postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
+            } else {
                # classpath separator on Linux is :
-               #print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
-               #postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/kie-server.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
-            #}
-            #print "\nDeploy MDC processes...\n";
-            #my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
-            #if(-e $mdcfile){
-               #open(INPUT, $mdcfile);
-               #my $line = <INPUT>; # header
-               #while($line = <INPUT>){
-                 #chomp($line);
-                 #my ($name,$deploymentid)  = split(';', $line);
-                 #print "Deploying: $name\n";
-                 #postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($name) failed");
-                 #sleep 2;
-               #}
-               #close(INPUT);
-            #}
+               print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
+               postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
+            }
+            print "\nDeploy MDC processes...\n";
+            my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
+            if(-e $mdcfile){
+               open(INPUT, $mdcfile);
+               my $line = <INPUT>; # header
+               while($line = <INPUT>){
+                 chomp($line);
+                 my ($name,$deploymentid)  = split(';', $line);
+                 print "Deploying: $name\n";
+                 postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($name) failed");
+                 sleep 2;
+               }
+               close(INPUT);
+            }
 
             #print "\nDeploy INSIGHT processes...\n";
             #my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";

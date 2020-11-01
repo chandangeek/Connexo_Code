@@ -84,7 +84,7 @@ Ext.define('Isu.controller.IssueDetail', {
                         widget.down('#issue-detail-action-menu').record = record;
                     }
                     me.loadComments(record, issueType);
-                    me.loadProcesses(record, issueType, id);
+                    me.loadProcesses(record, issueType, issueId);
                 });
             }
         });
@@ -218,7 +218,7 @@ Ext.define('Isu.controller.IssueDetail', {
         return Ext.String.format(link, router.getRoute('workspace/issues').buildUrl(null, queryParams));
     },
 
-    loadProcesses: function (record, issueType, id) {
+    loadProcesses: function (record, issueType, issueId) {
         alarm = Ext.ComponentQuery.query('alarm-timeline')[0];
         var me = this,
             processView = this.widget ? this.widget.down('#issue-process-view') : this.getPage().down('#issue-process-view'),

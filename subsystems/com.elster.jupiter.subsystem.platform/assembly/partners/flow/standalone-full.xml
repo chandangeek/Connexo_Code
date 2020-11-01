@@ -44,8 +44,7 @@
         <property name="org.guvnor.m2repo.dir" value="${jboss.home.dir}/bin"/>
 		<property name="com.elster.jupiter.url" value=""/>
         <property name="com.elster.jupiter.user" value=""/>
-        <property name="com.elster.jupiter.password" value=""/> 
-	    <property name="connexo.configuration" value="${jboss.server.config.dir}\connexo.properties"/>
+        <property name="com.elster.jupiter.password" value=""/>
         <property name="org.kie.server.location" value="http://localhost:8080/kie-server/services/rest/server"/>
         <property name="org.kie.server.controller" value="http://localhost:8080/business-central/rest/controller"/>
         <property name="org.kie.server.controller.user" value=""/>
@@ -58,7 +57,6 @@
         <property name="org.kie.prometheus.server.ext.disabled" value="true"/>
         <property name="org.kie.server.persistence.ds" value="java:/FlowDS"/>
         <property name="org.kie.server.persistence.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
-        <property name="hibernate.hbm2ddl.auto" value="NONE"/>
     </system-properties>
     <management>
         <security-realms>
@@ -592,12 +590,12 @@
         <socket-binding name="ajp" port=""/>
         <socket-binding name="http" port=""/>
         <socket-binding name="https" port=""/>
-        <socket-binding name="iiop" interface="unsecure" port="3528"/>
-        <socket-binding name="iiop-ssl" interface="unsecure" port="3529"/>
-        <socket-binding name="management-http" interface="management" port="${jboss.management.http.port:9990}"/>
-        <socket-binding name="management-https" interface="management" port="${jboss.management.https.port:9993}"/>
-        <socket-binding name="txn-recovery-environment" port="4712"/>
-        <socket-binding name="txn-status-manager" port="4713"/>
+        <socket-binding name="iiop" interface="unsecure" port=""/>
+        <socket-binding name="iiop-ssl" interface="unsecure" port=""/>
+        <socket-binding name="management-http" interface="management" port=""/>
+        <socket-binding name="management-https" interface="management" port=""/>
+        <socket-binding name="txn-recovery-environment" port=""/>
+        <socket-binding name="txn-status-manager" port=""/>
         <outbound-socket-binding name="mail-smtp">
             <remote-destination host="localhost" port="25"/>
         </outbound-socket-binding>
