@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.messaging.MessageService.PRIORITIZED_RAW_QUEUE_TABLE;
+
 public class UpgraderV10_7 implements Upgrader {
 
     static final String OLD_SERVICE_CALLS_DESTINATION_NAME = "SerivceCalls";
@@ -45,7 +47,7 @@ public class UpgraderV10_7 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 7));
-        QueueTableSpec defaultQueueTableSpec = installerV10_7.createDefaultQueueTableSpecIfNotExist();
+        QueueTableSpec defaultQueueTableSpec = installerV10_7.createDefaultQueueTableSpecIfNotExist(PRIORITIZED_RAW_QUEUE_TABLE);
         installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME,
                 ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         installerV10_7.createMessageHandler(defaultQueueTableSpec, ServiceCallService.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME,
