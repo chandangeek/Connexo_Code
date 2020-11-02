@@ -16,10 +16,8 @@ import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -50,7 +48,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osgi.service.component.annotations.Activate;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -82,58 +79,28 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
     private static final List<String> RAISE_EVENT_PROPS_POSSIBLE_VALUES = Arrays.asList("0:0:0", "1:0:0", "1:0:1", "1:1:0", "1:1:1");
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    private volatile MeteringTranslationService meteringTranslationService;
-    private volatile MeteringGroupsService meteringGroupsService;
-    private volatile TimeService timeService;
-    private volatile OrmService ormService;
-
-    //for OSGI
-    public BasicDeviceAlarmRuleTemplate() {
-    }
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
+    private final MeteringGroupsService meteringGroupsService;
+    private final TimeService timeService;
 
     @Inject
-    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MeteringGroupsService meteringGroupsService, MeteringTranslationService meteringTranslationService) {
-        this();
-        setDeviceAlarmService(deviceAlarmService);
-        setNlsService(nlsService);
-        setIssueService(issueService);
-        setPropertySpecService(propertySpecService);
-        setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        setTimeService(timeService);
-        setMeteringGroupService(meteringGroupsService);
-        setMeteringTranslationService(meteringTranslationService);
-        activate();
-    }
-
-    @Activate
-    public void activate() {
-    }
-
-    public final void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
-        this.meteringTranslationService = meteringTranslationService;
-    }
-
-    public final void setNlsService(NlsService nlsService) {
-        this.setThesaurus(nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN));
-    }
-
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService,
+                                        Thesaurus thesaurus,
+                                        IssueService issueService,
+                                        PropertySpecService propertySpecService,
+                                        DeviceConfigurationService deviceConfigurationService,
+                                        DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                        TimeService timeService,
+                                        MeteringGroupsService meteringGroupsService,
+                                        MeteringTranslationService meteringTranslationService) {
+        super(issueService, deviceAlarmService, thesaurus, propertySpecService);
         this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-    }
-
-    public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
-    }
-
-    public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Override
@@ -571,8 +538,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private class DeviceGroupInfoValueFactory implements ValueFactory<DeviceGroupInfo>, DeviceGroupPropertyFactory {
         @Override
         public DeviceGroupInfo fromStringValue(String stringValue) {
-
-            EndDeviceGroup deviceGroup = meteringGroupsService.findEndDeviceGroup(Long.parseLong(stringValue)).orElse(null);
             return new DeviceGroupInfo(meteringGroupsService.findEndDeviceGroup(Long.parseLong(stringValue)).orElse(null));
         }
 

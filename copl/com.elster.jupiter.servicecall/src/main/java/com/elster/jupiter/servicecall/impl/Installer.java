@@ -33,12 +33,16 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICECALLS_RAW_QUEUE_TABLE;
+
 /**
  * Created by bvn on 3/7/16.
  */
 public class Installer implements FullInstaller, PrivilegesProvider {
 
     private static final String QUEUE_TABLE_NAME = MessageService.PRIORITIZED_RAW_QUEUE_TABLE;
+    public static final String SC_QUEUE_TABLE_NAME = SERVICECALLS_RAW_QUEUE_TABLE;
+
     private static final int DEFAULT_RETRY_DELAY_IN_SECONDS = 60;
     private static final Logger LOGGER = Logger.getLogger(Installer.class.getName());
 
@@ -60,10 +64,11 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     @Override
     public void install(DataModelUpgrader dataModelUpgrader, Logger logger) {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
-        QueueTableSpec defaultQueueTableSpec = createDefaultQueueTableSpecIfNotExist();
-        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME,
+        QueueTableSpec scQueueTableSpec = createDefaultQueueTableSpecIfNotExist(SC_QUEUE_TABLE_NAME);
+        QueueTableSpec issuesQueueTableSpec = createDefaultQueueTableSpecIfNotExist(QUEUE_TABLE_NAME);
+        createMessageHandler(scQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME,
                 ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
-        createMessageHandler(defaultQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME,
+        createMessageHandler(issuesQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME,
                 ServiceCallService.SERVICE_CALLS_ISSUE_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_ISSUE_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         doTry(
                 "Install default Service Call Life Cycle.",
@@ -100,15 +105,16 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         return resources;
     }
 
-    QueueTableSpec createDefaultQueueTableSpecIfNotExist() {
-        return messageService.getQueueTableSpec(QUEUE_TABLE_NAME)
-                .orElseGet(() -> messageService.createQueueTableSpec(QUEUE_TABLE_NAME, "RAW", null, false, true));
+    QueueTableSpec createDefaultQueueTableSpecIfNotExist(String queueTableName) {
+        return messageService.getQueueTableSpec(queueTableName)
+                .orElseGet(() -> messageService.createQueueTableSpec(queueTableName, "RAW", null, false, true));
     }
 
-    void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String subscriberName, String destinationName, TranslationKey subscriberKey, String componentName, Logger logger) {
+    DestinationSpec createMessageHandler(QueueTableSpec defaultQueueTableSpec, String subscriberName, String destinationName, TranslationKey subscriberKey, String componentName, Logger logger) {
         Optional<DestinationSpec> destinationSpecOptional = messageService.getDestinationSpec(destinationName);
+        DestinationSpec queue;
         if (!destinationSpecOptional.isPresent()) {
-            DestinationSpec queue = doTry(
+            queue = doTry(
                     "Create Queue : " + destinationName,
                     () -> {
                         DestinationSpec destinationSpec = defaultQueueTableSpec.createDestinationSpec(destinationName, DEFAULT_RETRY_DELAY_IN_SECONDS, true, true);
@@ -123,7 +129,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                     logger
             );
         } else {
-            DestinationSpec queue = destinationSpecOptional.get();
+            queue = destinationSpecOptional.get();
             boolean notSubscribedYet = queue
                     .getSubscribers()
                     .stream()
@@ -139,7 +145,7 @@ public class Installer implements FullInstaller, PrivilegesProvider {
                 );
             }
         }
-
+        return queue;
     }
 
     public void installDefaultLifeCycle() {
