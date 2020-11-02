@@ -51,6 +51,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
         this.copyLatestStatuses(filterSpecification);
         this.copyLatestResults(filterSpecification);
+        this.connectionTasksIds = filterSpecification.connectionMethods; // Lau
     }
 
     private void copyTaskStatuses(ConnectionTaskFilterSpecification filterSpecification) {
