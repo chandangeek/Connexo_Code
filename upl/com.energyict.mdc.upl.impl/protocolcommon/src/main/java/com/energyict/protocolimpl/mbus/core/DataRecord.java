@@ -196,10 +196,9 @@ public class DataRecord {
                         }
                         long val = -1;
                         int dataLenght = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                        if(dataLenght == 4)
-                        {
+                        if(dataLenght == 4) {
                             val = ProtocolUtils.getIntLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
-                        } else { // TODO: Does DataFieldCoding.TYPE_BINARY can be more wide types than long?
+                        } else {
                             val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
                         }
                         final BigDecimal multiplier = dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier();
@@ -273,10 +272,9 @@ public class DataRecord {
                     case DataFieldCoding.TYPE_BINARY: {
                         long val = -1;
                         int dataLenght = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                        if(dataLenght == 4)
-                        {
+                        if(dataLenght == 4) {
                             val = ProtocolUtils.getIntLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
-                        } else { // TODO: Does DataFieldCoding.TYPE_BINARY can be more wide types than long?
+                        } else {
                             val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
                         }
                         final int nrBytesToRead = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
