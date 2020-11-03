@@ -62,7 +62,7 @@ public class DashboardFieldResource extends FieldResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final TaskService taskService;
     private final SchedulingService schedulingService;
-    private final ConnectionTaskService connectionTaskService; // Lau
+    private final ConnectionTaskService connectionTaskService;
 
     @Inject
     public DashboardFieldResource(NlsService nlsService, DeviceConfigurationService deviceConfigurationService,
@@ -77,7 +77,7 @@ public class DashboardFieldResource extends FieldResource {
         this.protocolPluggableService = protocolPluggableService;
         this.taskService = taskService;
         this.schedulingService = schedulingService;
-        this.connectionTaskService = connectionTaskService; // Lau
+        this.connectionTaskService = connectionTaskService;
     }
 
     @GET
@@ -257,12 +257,6 @@ public class DashboardFieldResource extends FieldResource {
 
         return Response.ok(result).build();
     }
-
-//    private String listWithIdsToString(List<Long> listWithIds){  // Lau
-//        List<String> stringList = listWithIds.stream().map(id->String.valueOf(id)).collect(toList());
-//        return  String.join("_", stringList);
-//
-//    }
 
     private <H extends HasId & HasName> Map<String, List<IdWithNameInfo>> asInfoMap(String name, List<H> list) {
         Map<String, List<IdWithNameInfo>> map = new HashMap<>();

@@ -273,7 +273,7 @@ public interface ConnectionTaskService {
 
     long getConnectionTasksCount(ConnectionTaskFilterSpecification filter);
 
-    default List<PartialConnectionTask> findPartialConnectionTasks() {  // Lau
+    default List<PartialConnectionTask> findPartialConnectionTasks() {
         return Arrays.asList();
     }
 }

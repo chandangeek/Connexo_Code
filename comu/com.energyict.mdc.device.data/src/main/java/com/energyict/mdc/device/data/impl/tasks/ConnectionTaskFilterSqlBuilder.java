@@ -39,7 +39,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     private Set<ServerConnectionTaskStatus> taskStatuses;
     private Set<ConnectionTask.SuccessIndicator> latestStatuses;
     private Set<ComSession.SuccessIndicator> latestResults;
-    private List<Long> connectionTasksIds; // Lau
+    private List<Long> connectionTasksIds;
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
 
@@ -51,7 +51,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
         this.copyLatestStatuses(filterSpecification);
         this.copyLatestResults(filterSpecification);
-        this.connectionTasksIds = filterSpecification.connectionMethods; // Lau
+        this.connectionTasksIds = filterSpecification.connectionMethods;
     }
 
     private void copyTaskStatuses(ConnectionTaskFilterSpecification filterSpecification) {
@@ -153,7 +153,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
                 }
             }
         }
-        if (!this.connectionTasksIds.isEmpty()) {  // Lau
+        if (!this.connectionTasksIds.isEmpty()) {
             this.appendWhereOrAnd();
             this.append("ct.ID IN (" +
                     " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +

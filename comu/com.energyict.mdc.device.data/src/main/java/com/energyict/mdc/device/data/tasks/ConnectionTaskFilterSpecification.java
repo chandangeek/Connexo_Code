@@ -113,5 +113,5 @@ public class ConnectionTaskFilterSpecification {
      * The Set of {@link ConnectionTask} or an empty set
      * if you want all ConnectionTasks
      */
-    public List<Long> connectionMethods = new ArrayList<>();  // Lau
+    public List<Long> connectionMethods = new ArrayList<>();
 }

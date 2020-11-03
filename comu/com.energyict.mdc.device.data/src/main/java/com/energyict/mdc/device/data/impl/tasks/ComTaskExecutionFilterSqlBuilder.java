@@ -41,7 +41,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
     private final Set<ConnectionTypePluggableClass> connectionTypes;
-    private List<Long> connectionMethods; // Lau
+    private List<Long> connectionMethods;
     private final Long locationId;
 
     public ComTaskExecutionFilterSqlBuilder(ComTaskExecutionFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> queryExecutor) {
@@ -105,7 +105,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
-        if (!this.connectionMethods.isEmpty()) { // Lau
+        if (!this.connectionMethods.isEmpty()) {
 
             this.appendWhereOrAnd();
             this.append("cte.connectiontask IN (" +

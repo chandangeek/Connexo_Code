@@ -91,7 +91,7 @@ public class CommunicationResource {
         this.protocolPluggableService = protocolPluggableService;
         this.resourceHelper = resourceHelper;
         this.conflictFactory = conflictFactory;
-        this.connectionTaskService = connectionTaskService; // Lau
+        this.connectionTaskService = connectionTaskService;
     }
 
     @GET
@@ -336,7 +336,7 @@ public class CommunicationResource {
 //        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
 //            filter.connectionMethods = jsonQueryFilter.getLongList(FilterOption.connectionMethods.name());
 //        }
-        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {  // Lau
+        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
 
             List<String> connectionMethods = jsonQueryFilter.getStringList(FilterOption.connectionMethods.name());
 

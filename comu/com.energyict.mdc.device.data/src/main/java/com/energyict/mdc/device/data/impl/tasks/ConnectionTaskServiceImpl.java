@@ -409,7 +409,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
-    public List<PartialConnectionTask> findPartialConnectionTasks(){ // Lau
+    public List<PartialConnectionTask> findPartialConnectionTasks(){
         return deviceDataModelService.dataModel()
                 .mapper(ConnectionTask.class)
                 .find()

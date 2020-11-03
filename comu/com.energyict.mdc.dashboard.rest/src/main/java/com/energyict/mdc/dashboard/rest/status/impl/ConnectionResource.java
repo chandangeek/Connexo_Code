@@ -239,7 +239,7 @@ public class ConnectionResource {
             jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).stream().forEach(id -> filter.deviceGroups.add(meteringGroupsService.findEndDeviceGroup(id).get()));
         }
 
-        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {  // Lau
+        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
 
             List<String> connectionMethods = jsonQueryFilter.getStringList(FilterOption.connectionMethods.name());
 
