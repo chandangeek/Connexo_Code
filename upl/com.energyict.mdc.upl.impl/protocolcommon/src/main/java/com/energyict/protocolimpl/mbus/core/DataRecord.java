@@ -194,7 +194,13 @@ public class DataRecord {
                                     "] , but the buffer has no bytes left. The DIF indicates we need to read [" + nrBytesToRead + "] bytes," +
                                     "and there are only [" + (data.length - offset) + "] bytes left in the buffer.");
                         }
-                        long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        long val = -1;
+                        int dataLenght = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        if (dataLenght == 4) {
+                            val = ProtocolUtils.getIntLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        } else {
+                            val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        }
                         final BigDecimal multiplier = dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getMultiplier();
                         final Unit originalUnit = dataRecordHeader.getValueInformationBlock().getValueInformationfieldCoding().getUnit();
                         if (logger.isLoggable(Level.FINE)) {
@@ -264,7 +270,13 @@ public class DataRecord {
                     } break; // DataFieldCoding.TYPE_BCD
 
                     case DataFieldCoding.TYPE_BINARY: {
-                        long val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        long val = -1;
+                        int dataLenght = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
+                        if (dataLenght == 4) {
+                            val = ProtocolUtils.getIntLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        } else {
+                            val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
+                        }
                         final int nrBytesToRead = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
                         if (!hasSufficientData(data, offset,nrBytesToRead )) {
                             if (logger.isLoggable(Level.SEVERE)) {
