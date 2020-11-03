@@ -196,7 +196,7 @@ public class DataRecord {
                         }
                         long val = -1;
                         int dataLenght = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                        if(dataLenght == 4) {
+                        if (dataLenght == 4) {
                             val = ProtocolUtils.getIntLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
                         } else {
                             val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
@@ -272,7 +272,7 @@ public class DataRecord {
                     case DataFieldCoding.TYPE_BINARY: {
                         long val = -1;
                         int dataLenght = dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes();
-                        if(dataLenght == 4) {
+                        if (dataLenght == 4) {
                             val = ProtocolUtils.getIntLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
                         } else {
                             val = ProtocolUtils.getLongLE(data,offset,dataRecordHeader.getDataInformationBlock().getDataInformationfield().getDataFieldCoding().getLengthInBytes());
