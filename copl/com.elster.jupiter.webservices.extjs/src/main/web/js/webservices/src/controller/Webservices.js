@@ -62,6 +62,9 @@ Ext.define('Wss.controller.Webservices', {
             'webservices-endpoint-action-menu': {
                 click: this.chooseEndpointAction
             },
+            'webservices-endpoint-occurrence-action-menu': {
+                click: this.chooseOccurrenceLogAction
+            },
             '#wss-no-webservice-endpoints-add-btn': {
                 click: this.goToAddView
             },
@@ -379,6 +382,20 @@ Ext.define('Wss.controller.Webservices', {
                         }
                     }
                 });
+                break;
+        }
+    },
+
+    chooseOccurrenceLogAction: function (menu, item) {
+        var me = this;
+
+        switch (item.action) {
+            case 'view-stackTrace':
+                var win = window.open();
+                var occurrenceLogRecord = menu.record.data;
+                var stackTrace = occurrenceLogRecord.stackTrace;
+                win.document.write("<pre>" + stackTrace + "</pre>");
+                win.focus();
                 break;
         }
     },
