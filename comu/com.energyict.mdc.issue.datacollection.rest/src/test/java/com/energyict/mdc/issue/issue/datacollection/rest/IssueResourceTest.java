@@ -50,7 +50,6 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
     public void testGetProcesses() {
         BpmServer bpmServer = mock(BpmServer.class);
         BpmProcessDefinition bpmProcessDefinition = mock(BpmProcessDefinition.class);
-        //IssueProcessInfos issueProcessInfos=mock(IssueProcessInfos.class);
 
         when(bpmService.getActiveBpmProcessDefinitions()).thenReturn(Arrays.asList(bpmProcessDefinition));
         when(bpmProcessDefinition.getProcessName()).thenReturn("Name03");
@@ -101,12 +100,11 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
                 "    }\n" +
                 "  ]\n" +
                 "}");
-       // when(issueProcessInfos.processes.get(0)).thenReturn(bpmService.)
+
         IssueProcessInfos issueProcessInfos = target("/issues/1/processes").queryParam("variableid", "issueid")
                 .queryParam("variablevalue", "1")
                 .request()
                 .get(IssueProcessInfos.class);
-
 
         assertThat(issueProcessInfos.processes.size()).isEqualTo(3);
         assertThat(issueProcessInfos.processes.get(0).name).isEqualTo("Name01");
