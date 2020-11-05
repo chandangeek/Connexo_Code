@@ -85,9 +85,9 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         return this.build(sqlBuilder, communicationTaskAliasName());
     }
 
-    public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {//TODO sqlbuilder -> CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists
-        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();//enddevices -  //getEmptyBuilderWithWith()
-        WithClauses.BUSY_CONNECTION_TASK.append(actualBuilder, BUSY_ALIAS_NAME);//busytask   //append
+    public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
+        WithClauses.BUSY_CONNECTION_TASK.append(actualBuilder, BUSY_ALIAS_NAME);
         StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
         sqlStartClause.insert(sqlStartClause.indexOf("from"), " CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
         this.append(", allctdata as (");
