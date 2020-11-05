@@ -277,6 +277,7 @@ Ext.define('Dsh.controller.Connections', {
         fieldsToFilterNameMap['comTasks'] = 'COMTASKNAME';
         fieldsToFilterNameMap['comPortPools'] = 'PORTPOOLNAME';
         fieldsToFilterNameMap['connectionTypes'] = 'CONNECTIONTYPE';
+        // fieldsToFilterNameMap['connectionMethod'] = 'CONNECTIONMETHOD';  // CONM-1455
 
         var reportFilter = {};
 

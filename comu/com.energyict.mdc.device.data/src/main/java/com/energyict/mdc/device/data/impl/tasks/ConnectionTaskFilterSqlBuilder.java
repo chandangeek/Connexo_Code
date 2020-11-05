@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ConnectionTask;
@@ -20,6 +21,7 @@ import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import java.time.Clock;
 import java.util.EnumSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -37,6 +39,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     private Set<ServerConnectionTaskStatus> taskStatuses;
     private Set<ConnectionTask.SuccessIndicator> latestStatuses;
     private Set<ComSession.SuccessIndicator> latestResults;
+    private List<Long> connectionTasksIds;
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
 
@@ -48,6 +51,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
         this.lastSessionEnd = filterSpecification.lastSessionEnd;
         this.copyLatestStatuses(filterSpecification);
         this.copyLatestResults(filterSpecification);
+        this.connectionTasksIds = filterSpecification.connectionMethods;
     }
 
     private void copyTaskStatuses(ConnectionTaskFilterSpecification filterSpecification) {
@@ -148,6 +152,13 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
                     this.appendJoinedTables();
                 }
             }
+        }
+        if (!this.connectionTasksIds.isEmpty()) {
+            this.appendWhereOrAnd();
+            this.append("ct.ID IN (" +
+                    " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
+                    connectionTasksIds.stream().collect(FancyJoiner.joining(",", ""))
+                    + ") )");
         }
     }
 
