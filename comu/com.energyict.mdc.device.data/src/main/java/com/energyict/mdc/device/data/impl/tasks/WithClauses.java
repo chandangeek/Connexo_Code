@@ -38,6 +38,12 @@ public enum WithClauses {
         sqlBuilder.appendWith(this.withClause, alias);
     }
 
+    public void append(ClauseAwareSqlBuilder sqlBuilder, String alias) {
+        sqlBuilder.append(alias + " as (");
+        sqlBuilder.append(this.withClause);
+        sqlBuilder.append(") ");
+    }
+
     public ClauseAwareSqlBuilder sqlBuilder(String alias) {
         return ClauseAwareSqlBuilder.with(this.withClause, alias);
     }

@@ -59,6 +59,10 @@ public abstract class AbstractTaskFilterSqlBuilder {
         this.actualBuilder.unionAll();
     }
 
+    protected void or() {
+        this.actualBuilder.or();
+    }
+
     protected void append(SqlFragment sqlFragment) {
         this.actualBuilder.append(sqlFragment);
     }
@@ -189,6 +193,10 @@ public abstract class AbstractTaskFilterSqlBuilder {
             this.addString(deviceName);
             this.append(") ");
         }
+    }
+
+    protected void insertCase(){
+
     }
 
     protected enum IntervalBindStrategy {

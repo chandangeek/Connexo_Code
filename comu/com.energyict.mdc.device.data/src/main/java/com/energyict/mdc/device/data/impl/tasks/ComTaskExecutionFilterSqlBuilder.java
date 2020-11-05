@@ -85,21 +85,25 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         return this.build(sqlBuilder, communicationTaskAliasName());
     }
 
-    public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
-        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStages();
-        WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
-        actualBuilder.append(sqlBuilder);
-        this.appendDeviceStateJoinClauses(communicationTaskAliasName);
-        String sqlStartClause = sqlBuilder.getText();
+    public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {//TODO sqlbuilder -> CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();//enddevices -  //getEmptyBuilderWithWith()
+        WithClauses.BUSY_CONNECTION_TASK.append(actualBuilder, BUSY_ALIAS_NAME);//busytask   //append
+        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
+        sqlStartClause.insert(sqlStartClause.indexOf("from"), " CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
+        this.append(", allctdata as (");
+        this.append(sqlStartClause);
+        this.appendDeviceAndBusyTaskStateJoinClauses(communicationTaskAliasName);//appendDeviceAndBusyTaskStateJoinClauses
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
-        while (statusIterator.hasNext()) {
+        if (statusIterator.hasNext()) {
             this.appendWhereClause(statusIterator.next());
-            if (statusIterator.hasNext()) {
-                this.unionAll();
-                this.append(sqlStartClause);
-                this.appendDeviceStateJoinClauses(communicationTaskAliasName);
-            }
+            this.append(newActualBuilderForRestrictedStages().getText());
         }
+        this.append(" ) ");
+        while (statusIterator.hasNext()) {
+            this.or();
+            this.appendWhereClause(statusIterator.next());
+        }
+        this.append(" ) ");//TODO
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
