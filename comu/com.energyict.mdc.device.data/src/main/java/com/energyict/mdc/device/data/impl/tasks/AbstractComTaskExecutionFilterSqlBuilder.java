@@ -73,10 +73,6 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.appendDeviceStateJoinClauses(communicationTaskAliasName());
     }
 
-    Set<EndDeviceStage> getRestrictedDeviceStages(){
-        return this.restrictedDeviceStages;
-    }
-
     void appendDeviceStateJoinClauses(String deviceContainerAliasName) {
         this.append(" join ");
         this.append(TableSpecs.DDC_DEVICE.name());

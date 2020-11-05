@@ -103,13 +103,13 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.or();
             this.appendWhereClause(statusIterator.next());
         }
-        this.append(" ) ");//TODO
+        this.append(" ) ");
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
-        if(!this.connectionTasksIds.isEmpty()){
+        if (!this.connectionTasksIds.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",","")) + ")");
+            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",", "")) + ")");
         }
         this.appendWhereOrAnd();
         this.append("obsolete_date is null");

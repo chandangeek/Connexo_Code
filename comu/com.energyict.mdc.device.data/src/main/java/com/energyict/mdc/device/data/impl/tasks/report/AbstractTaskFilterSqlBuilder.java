@@ -195,10 +195,6 @@ public abstract class AbstractTaskFilterSqlBuilder {
         }
     }
 
-    protected void insertCase(){
-
-    }
-
     protected enum IntervalBindStrategy {
         MILLIS {
             @Override
