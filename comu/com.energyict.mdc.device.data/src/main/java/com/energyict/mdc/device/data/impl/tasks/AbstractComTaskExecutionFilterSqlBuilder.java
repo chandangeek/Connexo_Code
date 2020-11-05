@@ -53,14 +53,13 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.queryExecutor = queryExecutor;
     }
 
-    ClauseAwareSqlBuilder newActualBuilderForRestrictedStages() {
-        ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder
-                .existingExcludedStages(
-                        DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME,
-                        this.restrictedDeviceStages,
-                        this.getClock().instant());
-        this.setActualBuilder(actualBuilder);
-        return actualBuilder;
+    ClauseAwareSqlBuilder getBuilderForRestrictedStages() {
+            return ClauseAwareSqlBuilder
+                    .existingExcludedStages(
+                            DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME,
+                            this.restrictedDeviceStages,
+                            this.getClock().instant());
+
     }
 
     ClauseAwareSqlBuilder newActualBuilder() {

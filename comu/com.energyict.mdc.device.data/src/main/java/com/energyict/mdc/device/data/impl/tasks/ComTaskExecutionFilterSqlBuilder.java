@@ -96,7 +96,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         if (statusIterator.hasNext()) {
             this.appendWhereClause(statusIterator.next());
-            this.append(newActualBuilderForRestrictedStages().getText());
+            this.append(getBuilderForRestrictedStages().getText());
         }
         this.append(" ) ");
         while (statusIterator.hasNext()) {
