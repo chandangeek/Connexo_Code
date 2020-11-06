@@ -14,11 +14,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.systemproperties</name>
 
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
@@ -51,10 +46,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>domain.util</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
