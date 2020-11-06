@@ -10,7 +10,7 @@ Ext.define('Wss.view.endpoint.OccurrenceLogActionMenu', {
         this.items = [
             {
                 itemId: 'endpoint-occurrence-view-stackTrace',
-                text: Uni.I18n.translate('general.viewStackTrace', 'WSS', 'View stackTrace'),
+                text: Uni.I18n.translate('general.viewStackTrace', 'WSS', 'View stack trace'),
                 action: 'view-stackTrace'
             },
         ];
