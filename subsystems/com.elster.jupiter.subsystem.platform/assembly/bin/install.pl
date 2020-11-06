@@ -1053,15 +1053,6 @@ sub install_flow {
         open(my $FH,"> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war.dodeploy") or die "Could not open $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war.dodeploy: $!";
         close($FH);
 
-        print "Extracting rhpam-case-mgmt-showcase.zip\n";
-        system("\"$JAVA_HOME/bin/jar\" -vxf addons.zip $CASE_MGMT.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf addons.zip failed: $?";
-        system("\"$JAVA_HOME/bin/jar\" -vxf $CASE_MGMT.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $CASE_MGMT.zip failed: $?";
-        if (-d "$JBOSS_DIR") { rmtree("$JBOSS_DIR"); }
-        sleep 10;
-        rename("$JBOSS_FOLDER","$JBOSS_DIR");
-        dircopy("$JBOSS_BASE/flow/$JBOSS_DIR", "$JBOSS_BASE/$JBOSS_DIR");
-        rmtree("$JBOSS_DIR");
-
         unlink("$CATALINA_HOME/webapps/flow/WEB-INF/lib/log4j-over-slf4j-1.7.2.jar");
         print "Copying extra jar files\n";
         if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
