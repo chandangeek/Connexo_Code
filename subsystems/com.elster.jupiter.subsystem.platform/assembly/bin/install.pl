@@ -81,6 +81,7 @@ my $CASE_MGMT="rhpam-7.8.0-case-mgmt-showcase-eap7-deployable";
 
 my $CONNEXO_ADMIN_ACCOUNT="admin";
 my $CONNEXO_ADMIN_PASSWORD;
+my $PAM_MANAGEMENT_ACCOUNT="pamadmin";
 my $TOMCAT_ADMIN_PASSWORD="D3moAdmin";
 my $JBOSS_ADMIN_PASSWORD="D3moAdmin";
 
@@ -548,7 +549,7 @@ sub install_connexo {
             add_to_file_if($config_file,"mail.smtp.port=$SMTP_PORT");
             add_to_file_if($config_file,"mail.user=$SMTP_USER");
             add_to_file_if($config_file,"mail.from=$SMTP_FROM");
-            											 
+
             update_properties_file_with_encrypted_password();
 
             add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.host=$HOST_NAME");
@@ -630,12 +631,12 @@ sub update_properties_file_with_encrypted_password {
     my $encryptedPassword = $cipher->encrypt($dbPassword);
     my $base64EncodedPassword = encode_base64($encryptedPassword);
 	my $mailEncryptedPassword = $cipher->encrypt($SMTP_PASSWORD);
-    my $mailBase64EncodedPassword = encode_base64($mailEncryptedPassword);								
+    my $mailBase64EncodedPassword = encode_base64($mailEncryptedPassword);
     replace_row_in_file($config_file,"com.elster.jupiter.datasource.jdbcpassword=","");
     add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
 	replace_row_in_file($config_file,"mail.password=","");
     add_to_file_if($config_file,"mail.password=$mailBase64EncodedPassword");
-   
+
 }
 
 sub add_or_update_encryption_key_file{
@@ -814,6 +815,7 @@ sub install_jboss {
         copy("$JBOSS_BASE/flow/standalone.conf.bat","$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat","rem set \"JAVA_HOME=\"","set \"JAVA_HOME=$JAVA_HOME\"");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/jboss-cli.bat","set \"JAVA_HOME=C\"","set \"JAVA_HOME=$JAVA_HOME\"");
+        system("add-user.bat -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
         system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
         system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
 
@@ -848,14 +850,14 @@ sub install_jboss {
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.host=localhost","datasource.management.wildfly.host=$HOST_NAME");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.port=9990","datasource.management.wildfly.port=$JBOSS_MANAGEMENT_HTTP_PORT");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.admin=admin","datasource.management.wildfly.admin=$CONNEXO_ADMIN_ACCOUNT");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.admin=admin","datasource.management.wildfly.admin=$PAM_MANAGEMENT_ACCOUNT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.password=","datasource.management.wildfly.password=$JBOSS_ADMIN_PASSWORD");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.realm=ApplicationRealm","datasource.management.wildfly.realm=ApplicationRealm");
 
         copy("$JBOSS_BASE/flow/security-management.properties","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.port=MANAGEMENT_HTTP_PORT","org.uberfire.ext.security.management.wildfly.cli.port=$JBOSS_MANAGEMENT_HTTP_PORT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.host=MANAGEMENT_IP","org.uberfire.ext.security.management.wildfly.cli.host=$HOST_NAME");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.user=APPLICATION_USER","org.uberfire.ext.security.management.wildfly.cli.user=$CONNEXO_ADMIN_ACCOUNT");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.user=APPLICATION_USER","org.uberfire.ext.security.management.wildfly.cli.user=$PAM_MANAGEMENT_ACCOUNT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.password=APPLICATION_PASSWORD","org.uberfire.ext.security.management.wildfly.cli.password=$JBOSS_ADMIN_PASSWORD");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm","org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm");
 
