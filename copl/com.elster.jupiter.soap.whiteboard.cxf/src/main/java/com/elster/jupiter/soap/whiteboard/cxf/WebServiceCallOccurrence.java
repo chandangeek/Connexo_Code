@@ -17,6 +17,9 @@ public interface WebServiceCallOccurrence {
     String MESSAGE_CONTEXT_OCCURRENCE_ID = "com.honeywell.web.service.call.occurrence.id";
 
     long getId();
+
+    Optional<String> getAppServerName();
+
     EndPointConfiguration getEndPointConfiguration();
     Instant getStartTime();
 

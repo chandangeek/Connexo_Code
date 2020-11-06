@@ -88,6 +88,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
+    final static String SERVICECALLS_RAW_QUEUE_TABLE = "SERVICECALLS_RAWQUEUETAB";
     final static String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
     public final static String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
 
@@ -277,7 +278,8 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
                         version(10, 7), UpgraderV10_7.class,
-                        version(10, 8, 1), V10_8_1SimpleUpgrader.class
+                        version(10, 8, 1), V10_8_1SimpleUpgrader.class,
+                        version(10, 8, 7), UpgraderV10_8_7.class
                 ));
     }
 

@@ -41,6 +41,7 @@ public class WebServiceCallOccurrenceInfoFactory {
         if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null) {
             info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
         }
+        info.appServerName = endPointOccurrence.getAppServerName().orElse(null);
         return info;
     }
 
