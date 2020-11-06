@@ -13,5 +13,6 @@ public class WebServiceCallOccurrenceInfo {
     public String applicationName;
     public EndPointConfigurationInfo endPointConfigurationInfo;
     public String payload;
+    public String appServerName;
 
 }
