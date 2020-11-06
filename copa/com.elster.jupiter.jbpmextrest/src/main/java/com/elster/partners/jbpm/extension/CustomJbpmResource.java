@@ -71,7 +71,7 @@ public class CustomJbpmResource {
     private static final String PROPERTY = "property";
     private static final String DEFAULT_SORTING = " order by p.START_DATE DESC";
 
-    private static final Logger logger = LoggerFactory.getLogger(JbpmTaskResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(CustomJbpmResource.class);
 
     RuntimeDataService runtimeDataService;
     QueryService queryService;
