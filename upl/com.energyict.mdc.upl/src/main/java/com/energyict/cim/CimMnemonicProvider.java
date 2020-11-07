@@ -4,6 +4,9 @@
 
 package com.energyict.cim;
 
+import aQute.bnd.annotation.ProviderType;
+
+@ProviderType
 public interface CimMnemonicProvider {
 
     String getMnemonic();
