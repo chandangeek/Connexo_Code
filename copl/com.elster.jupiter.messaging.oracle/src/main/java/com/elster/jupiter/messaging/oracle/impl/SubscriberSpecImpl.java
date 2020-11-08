@@ -17,6 +17,7 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 
+import com.google.common.util.concurrent.Striped;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
@@ -34,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock;
 import java.util.logging.Logger;
 
 /**
@@ -64,6 +66,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private String userName;
     @SuppressWarnings("unused")
     private boolean systemManaged;
+
+    private Striped<Lock> striped  = Striped.lazyWeakLock(1);
 
     private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
@@ -157,6 +161,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private Message tryReceive() throws SQLException {
         OracleConnection cancellableConnection = null;
+        Lock lock = striped.get(this.getName());
+        lock.lock();
         try (Connection connection = getConnection()) {
             cancellableConnection = connection.unwrap(OracleConnection.class);
             cancellableConnections.add(cancellableConnection);
@@ -184,6 +190,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
                     cancellableConnections.remove(cancellableConnection);
                 }
             }
+            lock.unlock();
         }
         return null;
     }
