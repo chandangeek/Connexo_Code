@@ -20,6 +20,7 @@ public class GoingOnInfo {
     public String workGroupAssignee;
     public boolean isMyWorkGroup = false;
     public String issueType;
+    public String reason;
     public Boolean userAssigneeIsCurrentUser;
     public String status;
     public UserTaskInfo userTaskInfo;

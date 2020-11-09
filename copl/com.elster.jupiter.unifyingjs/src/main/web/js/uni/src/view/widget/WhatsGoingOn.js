@@ -480,6 +480,8 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
         result += !!value.id ? value.id + "</span><br>" : '';
 
         result = this.addContentToTooltip(result, value);
+        result = this.addIssueTypeToTooltip(result, value);
+        result = this.addReasonToTooltip(result, value);
         result = this.addDueDateToTooltip(value, result);
         result = this.addUserAssigneeToTooltip(result, value);
         result = this.addWorkGroupAssigneeToTooltip(result, value);
@@ -489,6 +491,17 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
     addContentToTooltip: function (result, value) {
         result += !!value.status ? Uni.I18n.translate('whatsGoingOn.status', 'UNI', 'Status: {0}', value.status) + "<br>" : '';
+        return result;
+    },
+
+    addIssueTypeToTooltip: function (result, value) {
+        result += !!value.issueType ? Uni.I18n.translate('whatsGoingOn.issueType', 'UNI', 'Issue type: {0}', value.issueType): '';
+        return result;
+    },
+
+
+    addReasonToTooltip: function (result, value) {
+        result += !!value.reason ? Uni.I18n.translate('whatsGoingOn.reason', 'UNI', 'Reason: {0}', value.reason): '';
         return result;
     },
 
@@ -517,4 +530,5 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
 
         return result;
     }
+
 });

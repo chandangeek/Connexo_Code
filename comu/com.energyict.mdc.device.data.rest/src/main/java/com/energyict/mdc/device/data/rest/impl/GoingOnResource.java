@@ -9,6 +9,7 @@ import com.elster.jupiter.bpm.ProcessInstanceInfo;
 import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
+import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -204,12 +205,14 @@ public class GoingOnResource {
         }
 
         private GoingOnInfo toGoingOnInfo(Issue issue) {
+            Optional<CreationRule> creationRule = issue.getRule();
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "issue";
             goingOnInfo.issueType = issue.getReason().getIssueType().getKey();
+            goingOnInfo.reason = issue.getReason().getName();
             goingOnInfo.id = issue.getIssueId();
             goingOnInfo.reference = null;
-            goingOnInfo.description = issue.getReason().getName();
+            goingOnInfo.description = creationRule.isPresent() ? creationRule.get().getName() : goingOnInfo.reason;
             goingOnInfo.dueDate = issue.getDueDate();
             goingOnInfo.severity = severity(issue.getDueDate());
             goingOnInfo.userAssignee = Optional.ofNullable(issue.getAssignee()).filter(issueAssignee -> issueAssignee.getUser() != null).map(issueAssignee -> issueAssignee.getUser().getName()).orElse(null);
@@ -227,6 +230,7 @@ public class GoingOnResource {
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "servicecall";
             goingOnInfo.issueType = null;
+            goingOnInfo.reason = null;
             goingOnInfo.id = String.valueOf(serviceCall.getId());
             goingOnInfo.reference = serviceCall.getNumber();
             goingOnInfo.description = serviceCall.getType().getName();
@@ -240,12 +244,14 @@ public class GoingOnResource {
         }
 
         private GoingOnInfo toGoingOnInfo(DeviceAlarm deviceAlarm){
+            Optional<CreationRule> creationRule = deviceAlarm.getRule();
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "alarm";
-            goingOnInfo.issueType = null;
+            goingOnInfo.issueType = deviceAlarm.getType().getKey();
+            goingOnInfo.reason = deviceAlarm.getReason().getName();
             goingOnInfo.id = deviceAlarm.getIssueId();
             goingOnInfo.reference = null;
-            goingOnInfo.description = deviceAlarm.getReason().getName();
+            goingOnInfo.description = creationRule.isPresent() ? creationRule.get().getName() : goingOnInfo.reason;
             goingOnInfo.dueDate = deviceAlarm.getDueDate();
             goingOnInfo.severity = severity(deviceAlarm.getDueDate());
             goingOnInfo.userAssignee = Optional.ofNullable(deviceAlarm.getAssignee()).filter(alarm -> alarm.getUser() != null).map(alarm -> alarm.getUser().getName()).orElse(null);
