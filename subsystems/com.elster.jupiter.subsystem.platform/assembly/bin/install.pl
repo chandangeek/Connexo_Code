@@ -861,6 +861,15 @@ sub install_jboss {
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.password=APPLICATION_PASSWORD","org.uberfire.ext.security.management.wildfly.cli.password=$JBOSS_ADMIN_PASSWORD");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm","org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm");
 
+        #Branding
+        copy("$JBOSS_BASE/flow/brand/favicon.ico","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/favicon.ico");
+        copy("$JBOSS_BASE/flow/brand/logo.png","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/banner/logo.png");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/kie-wb.jsp","<title>Business Central</title>","<title>Connexo Flow</title>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/kie-wb.jsp","<link rel=\"shortcut icon\" href=\"favicon.png\"/>","<link rel=\"shortcut icon\" href=\"favicon.ico\"/>");
+        copy("$JBOSS_BASE/flow/brand/login.jsp","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/login.jsp");
+        copy("$JBOSS_BASE/flow/brand/logout.jsp","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/logout.jsp");
+        copy("$JBOSS_BASE/flow/brand/not_authorized.jsp","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/not_authorized.jsp");
+
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/service.bat","set STARTUP_MODE=manual","set STARTUP_MODE=auto");
 
         dircopy("$JBOSS_BASE/flow/oracle", "$JBOSS_BASE/$JBOSS_DIR/modules/oracle");
@@ -1639,6 +1648,7 @@ sub uninstall_all {
     if (-d "$CONNEXO_DIR/partners/jboss") { rmtree("$CONNEXO_DIR/partners/jboss"); }
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 	if (-d "$CONNEXO_DIR/partners/jbcs-jsvc-1.1") { rmtree("$CONNEXO_DIR/partners/jbcs-jsvc-1.1"); }
+    rmtree("C:\Windows\System32\config\systemprofile\.m2\repository\Honeywell");
 }
 
 sub find_string_value {
