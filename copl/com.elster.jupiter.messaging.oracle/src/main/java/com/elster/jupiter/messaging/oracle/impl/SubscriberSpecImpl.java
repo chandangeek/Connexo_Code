@@ -67,7 +67,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     @SuppressWarnings("unused")
     private boolean systemManaged;
 
-    private Striped<Lock> striped  = Striped.lazyWeakLock(1);
+    private static final int APPROXIMATE_QUEUE_NUMBER = 100;
+    private static Striped<Lock> striped = Striped.lock(APPROXIMATE_QUEUE_NUMBER);
 
     private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
