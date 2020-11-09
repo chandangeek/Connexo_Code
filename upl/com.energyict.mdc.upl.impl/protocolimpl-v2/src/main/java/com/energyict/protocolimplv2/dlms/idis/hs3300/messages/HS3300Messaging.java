@@ -19,15 +19,22 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
+import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import com.energyict.sercurity.KeyRenewalInfo;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
@@ -71,11 +78,18 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
         return issueFactory;
     }
 
+    protected KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
                 PLCConfigurationDeviceMessage.SetToneMaskAttributeName.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.WRITE_G3_PLC_BANDPLAN.get(propertySpecService, nlsService, converter),
+                SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.get(propertySpecService, nlsService, converter),
+                SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.get(propertySpecService, nlsService, converter),
+                SecurityMessage.KEY_RENEWAL.get(propertySpecService, nlsService, converter),
                 SecurityMessage.CHANGE_PSK_WITH_NEW_KEYS.get(propertySpecService, nlsService, converter),
                 SecurityMessage.CHANGE_PSK_KEK.get(propertySpecService, nlsService, converter),
                 SecurityMessage.IMPORT_CLIENT_END_DEVICE_CERTIFICATE.get(propertySpecService, nlsService, converter),
@@ -100,10 +114,14 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.newPSKAttributeName) ||
-            propertySpec.getName().equals(DeviceMessageConstants.newPSKKEKAttributeName)) {
+            propertySpec.getName().equals(DeviceMessageConstants.newPSKKEKAttributeName) ||
+            propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName) ||
+            propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)) {
 
             KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, (KeyAccessorType) messageAttribute);
             return keyRenewalInfo.toJson();
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.keyAccessorTypeAttributeName)) {
+            return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperAttributeName)) {
             //Is it a certificate renewal or just an addition of a certificate (e.g. trusted CA certificate) to the Beacon?
             // ==> If there's a passive (temp) value, it's a renewal for sure, use this value.
@@ -124,6 +142,7 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
                         try {
                             return ProtocolTools.getHexStringFromBytes(certificate.get().getEncoded(), "");
                         } catch (CertificateEncodingException e) {
+                            this.getProtocol().journal("Certificate exception:" + e.getMessage());
                             throw new IllegalArgumentException(e);
                         }
                     }
@@ -134,14 +153,31 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
         return messageAttribute.toString();
     }
 
+    private String convertKeyAccessorType(KeyAccessorType messageAttribute, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        KeyRenewalInfo keyRenewalInfo = new KeyRenewalInfo(keyAccessorTypeExtractor, messageAttribute);
+        String[] values = new String[]{keyAccessorTypeExtractor.name(messageAttribute), keyRenewalInfo.toJson()};
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            new ObjectOutputStream(out).writeObject(values);
+            return DatatypeConverter.printHexBinary(out.toByteArray());
+        } catch (IOException e) {
+            throw DataParseException.generalParseException(e);
+        }
+    }
+
     @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.id()) {
+            new KeyMessageChangeValidator().validateNewKeyValue(device, deviceMessage, SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY);
+        } else if (deviceMessage.getMessageId() == SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.id()) {
+            new KeyMessageChangeValidator().validateNewKeyValue(device, deviceMessage, SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY);
+        }
         return Optional.empty();
     }
 
     protected HS3300MessageExecutor getMessageExecutor() {
         if (messageExecutor == null) {
-            this.messageExecutor = new HS3300MessageExecutor(getProtocol(), this.collectedDataFactory, this.issueFactory);
+            this.messageExecutor = new HS3300MessageExecutor(getProtocol(), this.collectedDataFactory, this.keyAccessorTypeExtractor, this.issueFactory);
         }
         return messageExecutor;
     }

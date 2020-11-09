@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import aQute.bnd.annotation.ProviderType;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -70,7 +71,7 @@ public interface ConnectionTaskService {
      * Note that there can be only one such ConnectionTask.
      *
      * @param partialConnectionTask The PartialConnectionTask
-     * @param device                The Device
+     * @param device The Device
      * @return The ConnectionTask or <code>Optional.empty()</code> if there is no such ConnectionTask yet
      */
     Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device);
@@ -139,9 +140,9 @@ public interface ConnectionTaskService {
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.
      *
-     * @param filter    The ConnectionTaskFilter
+     * @param filter The ConnectionTaskFilter
      * @param pageStart The first ConnectionTask
-     * @param pageSize  The maximum number of ConnectionTasks
+     * @param pageSize The maximum number of ConnectionTasks
      * @return The List of ConnectionTask
      */
     List<ConnectionTask> findConnectionTasksByFilter(ConnectionTaskFilterSpecification filter, int pageStart, int pageSize);
@@ -150,7 +151,7 @@ public interface ConnectionTaskService {
     /**
      * Finds all {@link ConnectionType}s that match the specified filter.
      *
-     * @param filter    The ConnectionTaskFilter
+     * @param filter The ConnectionTaskFilter
      * @return The List of ConnectionTypes
      */
     List<ConnectionTypePluggableClass> findConnectionTypeByFilter(ConnectionTaskFilterSpecification filter);
@@ -200,7 +201,7 @@ public interface ConnectionTaskService {
      * Note that this MUST run in an existing transactional context.
      *
      * @param connectionTask The ConnectionTask
-     * @param ComPort      The ComPort that is about to execute the ConnectionTask
+     * @param ComPort The ComPort that is about to execute the ConnectionTask
      * @return <code>true</code> iff the lock succeeds
      */
     <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComPort comPort);
@@ -233,7 +234,7 @@ public interface ConnectionTaskService {
      * @param properties to update the ConnectionTask with
      * @return the updated ConnectionTask
      */
-     ConnectionTask updateProtocolDialectConfigurationProperties(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties);
+    ConnectionTask updateProtocolDialectConfigurationProperties(ConnectionTask connectionTask, ProtocolDialectConfigurationProperties properties);
 
     /**
      * Cleans up any marker flags on {@link ConnectionTask}s that were not properly
@@ -270,4 +271,9 @@ public interface ConnectionTaskService {
      */
     List<ConnectionTask> findTimedOutConnectionTasksByComPort(ComPort comPort);
 
+    long getConnectionTasksCount(ConnectionTaskFilterSpecification filter);
+
+    default List<PartialConnectionTask> findPartialConnectionTasks() {
+        return Arrays.asList();
+    }
 }

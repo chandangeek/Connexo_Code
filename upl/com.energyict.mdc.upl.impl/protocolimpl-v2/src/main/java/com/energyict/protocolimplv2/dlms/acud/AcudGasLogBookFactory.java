@@ -48,21 +48,21 @@ public class AcudGasLogBookFactory extends AcudLogBookFactory {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(TIME_CHANGE_FROM_EVENT_LOG)) {
             meterEvents = new TimeBeforeChangeEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        } else if(logBookObisCode.equals(TIME_CHANGE_UPTO_EVENT_LOG)){
+        } else if (logBookObisCode.equals(TIME_CHANGE_UPTO_EVENT_LOG)) {
             meterEvents = new TimeAfterChangeEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        } else if(logBookObisCode.equals(EOB_RESET_EVENT_LOG)) {
+        } else if (logBookObisCode.equals(EOB_RESET_EVENT_LOG)) {
             meterEvents = new EOBResetEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        } else if(logBookObisCode.equals(COMM_PORT_EVENT_LOG)) {
+        } else if (logBookObisCode.equals(COMM_PORT_EVENT_LOG)) {
             meterEvents = new CommPortEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        }else if(logBookObisCode.equals(POWER_LINE_CUT_EVENT_LOG)) {
+        } else if (logBookObisCode.equals(POWER_LINE_CUT_EVENT_LOG)) {
             meterEvents = new EOBResetEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        }else if(logBookObisCode.equals(VALVE_CONTROL_EVENT_LOG)) {
+        } else if (logBookObisCode.equals(VALVE_CONTROL_EVENT_LOG)) {
             meterEvents = new OutputValveControlEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        }else if(logBookObisCode.equals(SECURITY_ASSOCIATION_EVENT_LOG)) {
+        } else if (logBookObisCode.equals(SECURITY_ASSOCIATION_EVENT_LOG)) {
             meterEvents = new SecurityEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        }else if(logBookObisCode.equals(DISPLAY_ROLL_OVER_EVENT_LOG)) {
+        } else if (logBookObisCode.equals(DISPLAY_ROLL_OVER_EVENT_LOG)) {
             meterEvents = new RollOverToZeroEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        }else if(logBookObisCode.equals(TAMPER1_EVENT_LOG)) {
+        } else if (logBookObisCode.equals(TAMPER1_EVENT_LOG)) {
             meterEvents = new Tamper1EventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else {
             return new ArrayList<>();

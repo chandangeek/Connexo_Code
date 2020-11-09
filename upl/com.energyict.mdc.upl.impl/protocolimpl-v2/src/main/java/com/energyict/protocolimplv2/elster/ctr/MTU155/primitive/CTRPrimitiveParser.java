@@ -28,12 +28,7 @@ public class CTRPrimitiveParser {
     }
 
     public byte[] getBytesFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
+        return ProtocolTools.getBytesFromInt(value, length);
     }
 
     /**
@@ -408,7 +403,7 @@ public class CTRPrimitiveParser {
         if (x == 0x13 && y == 7) {
             def = new Default[]{new Default(1, values[0].getUnit())};
         }
-        if (x == 0x0E && y == 0x0A && x == 0) {
+        if (x == 0x0E && y == 0x0A) {
             def = new Default[]{new Default(0, values[0].getUnit())};
         }
         if (x == 0x0C && y == 1) {

@@ -10,12 +10,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -147,13 +148,17 @@ public enum TableSpecs {
                     .conversion(CLOB2STRING)
                     .map(WebServiceCallOccurrenceImpl.Fields.PAYLOAD.fieldName())
                     .add();
-
+            table.column(WebServiceCallOccurrenceImpl.Fields.APP_SERVER_NAME.name())
+                    .varChar(14)  // Application server name should be less then 25 characters due to DB constrains (including "APPSERVER_" prefix)
+                    .map(WebServiceCallOccurrenceImpl.Fields.APP_SERVER_NAME.fieldName())
+                    .since(version(10, 8, 7))
+                    .add();
 
             table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
-    WS_OCC_RELATED_ATTR{
+    WS_OCC_RELATED_ATTR {
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallRelatedAttribute> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttribute.class);
@@ -162,15 +167,15 @@ public enum TableSpecs {
 
             Column idColumn = table.addAutoIdColumn();
 
-            Column keyColumn = table.column("ATTR_KEY")
+            Column keyColumn = table.column(WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName())
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.fieldName())
                     .add();
-            Column valueColumn = table.column("ATTR_VALUE")
+            Column valueColumn = table.column(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.name())
                     .varChar(NAME_LENGTH)
                     .notNull()
-                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName())
+                    .map(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName())
                     .add();
             table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn).add();
             table.primaryKey("PK_WS_RELATED_ATTRBT").on(idColumn).add();

@@ -5,7 +5,6 @@
 package com.energyict.mdc.device.alarms.impl.templates;
 
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
@@ -17,10 +16,8 @@ import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.groups.EndDeviceGroup;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
-import com.elster.jupiter.nls.NlsService;
-import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -51,9 +48,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.osgi.service.component.annotations.Activate;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -70,12 +64,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-//import static com.energyict.mdc.device.config.properties.DeviceLifeCycleInDeviceTypeInfoValueFactory.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES;
-
-@Component(name = "com.energyict.mdc.device.alarms.BasicDeviceAlarmRuleTemplate",
-        property = {"name=" + BasicDeviceAlarmRuleTemplate.NAME},
-        service = {CreationRuleTemplate.class, BasicDeviceAlarmRuleTemplate.class},
-        immediate = true)
 public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final Logger LOG = Logger.getLogger(BasicDeviceAlarmRuleTemplate.class.getName());
     public static final String NAME = "BasicDeviceAlarmRuleTemplate";
@@ -91,79 +79,28 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private static final String RAISE_EVENT_PROPS_DEFAULT_VALUE = "0:0:0";
     private static final List<String> RAISE_EVENT_PROPS_POSSIBLE_VALUES = Arrays.asList("0:0:0", "1:0:0", "1:0:1", "1:1:0", "1:1:1");
 
-    private volatile DeviceConfigurationService deviceConfigurationService;
-    private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    private volatile MeteringTranslationService meteringTranslationService;
-    private volatile MeteringGroupsService meteringGroupsService;
-    private volatile TimeService timeService;
-    private volatile OrmService ormService;
-
-    //for OSGI
-    public BasicDeviceAlarmRuleTemplate() {
-    }
+    private final DeviceConfigurationService deviceConfigurationService;
+    private final DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
+    private final MeteringTranslationService meteringTranslationService;
+    private final MeteringGroupsService meteringGroupsService;
+    private final TimeService timeService;
 
     @Inject
-    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService, NlsService nlsService, IssueService issueService, PropertySpecService propertySpecService, DeviceConfigurationService deviceConfigurationService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, TimeService timeService, MeteringGroupsService meteringGroupsService, MeteringTranslationService meteringTranslationService) {
-        this();
-        setDeviceAlarmService(deviceAlarmService);
-        setNlsService(nlsService);
-        setIssueService(issueService);
-        setPropertySpecService(propertySpecService);
-        setDeviceConfigurationService(deviceConfigurationService);
-        setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        setTimeService(timeService);
-        setMeteringGroupService(meteringGroupsService);
-        setMeteringTranslationService(meteringTranslationService);
-        activate();
-    }
-
-    @Activate
-    public void activate() {
-    }
-
-    @Reference
-    public final void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
-        this.meteringTranslationService = meteringTranslationService;
-    }
-
-    @Reference
-    public final void setNlsService(NlsService nlsService) {
-        this.setThesaurus(nlsService.getThesaurus(DeviceAlarmService.COMPONENT_NAME, Layer.DOMAIN));
-    }
-
-    @Reference
-    public void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
-        super.setDeviceAlarmService(deviceAlarmService);
-    }
-
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        super.setIssueService(issueService);
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        super.setPropertySpecService(propertySpecService);
-    }
-
-    @Reference
-    public void setDeviceConfigurationService(DeviceConfigurationService deviceConfigurationService) {
+    public BasicDeviceAlarmRuleTemplate(DeviceAlarmService deviceAlarmService,
+                                        Thesaurus thesaurus,
+                                        IssueService issueService,
+                                        PropertySpecService propertySpecService,
+                                        DeviceConfigurationService deviceConfigurationService,
+                                        DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                        TimeService timeService,
+                                        MeteringGroupsService meteringGroupsService,
+                                        MeteringTranslationService meteringTranslationService) {
+        super(issueService, deviceAlarmService, thesaurus, propertySpecService);
         this.deviceConfigurationService = deviceConfigurationService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-    }
-
-    @Reference
-    public void setTimeService(TimeService timeService) {
         this.timeService = timeService;
-    }
-
-    @Reference
-    public void setMeteringGroupService(MeteringGroupsService meteringGroupsService) {
         this.meteringGroupsService = meteringGroupsService;
+        this.meteringTranslationService = meteringTranslationService;
     }
 
     @Override
@@ -220,7 +157,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\tevent : DeviceAlarmEvent( eventType == \"" + DeviceAlarmEventDescription.END_DEVICE_EVENT_CREATED.getUniqueKey() + "\" )\n" +
                 "\teval( event.isClearing(@{ruleId}, \"@{" + CLEARING_EVENTS + "}\") == true )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Processing clearing event device alarm based on rule template number @{ruleId}\");\n" +
+                "\tLOGGER.info(\"Processing clearing event device alarm based on rule template number @{ruleId}\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
                 "end\n" +
 
@@ -232,7 +169,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "\teval( event.isDeviceInGroup(\"@{" + DEVICE_IN_GROUP + "}\") == true )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} logged on same alarm\");\n" +
+                "\tLOGGER.info(\"Processing triggering event device alarm based on rule template number @{ruleId} logged on same alarm\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, true);\n" +
                 "end\n" +
 
@@ -244,7 +181,7 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
                 "\teval( event.hasAssociatedDeviceLifecycleStatesInDeviceTypes(\"@{" + DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES + "}\") == true )\n" +
                 "\teval( event.isDeviceInGroup(\"@{" + DEVICE_IN_GROUP + "}\") == true )\n" +
                 "then\n" +
-                "\tSystem.out.println(\"Processing triggering event device alarm based on rule template number @{ruleId} create new alarm\");\n" +
+                "\tLOGGER.info(\"Processing triggering event device alarm based on rule template number @{ruleId} create new alarm\");\n" +
                 "\tissueCreationService.processAlarmCreationEvent(@{ruleId}, event, false);\n" +
                 "end";
     }
@@ -601,8 +538,6 @@ public class BasicDeviceAlarmRuleTemplate extends AbstractDeviceAlarmTemplate {
     private class DeviceGroupInfoValueFactory implements ValueFactory<DeviceGroupInfo>, DeviceGroupPropertyFactory {
         @Override
         public DeviceGroupInfo fromStringValue(String stringValue) {
-
-            EndDeviceGroup deviceGroup = meteringGroupsService.findEndDeviceGroup(Long.parseLong(stringValue)).orElse(null);
             return new DeviceGroupInfo(meteringGroupsService.findEndDeviceGroup(Long.parseLong(stringValue)).orElse(null));
         }
 

@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300.messages;
 
 import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -13,11 +14,13 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -28,16 +31,25 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
+import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.sercurity.KeyRenewalInfo;
 
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.dlms.aso.SecurityPolicy.REQUESTS_SIGNED_FLAG;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.G3_PLC_BANDPLAN;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.PSK_KEK_RENEWAL_OBISCODE;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.PSK_RENEWAL_OBISCODE;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKKEKAttributeName;
 
@@ -46,10 +58,13 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
     private static final ObisCode ADP_LQI_RANGE = ObisCode.fromString("0.0.94.33.16.255");
     protected static final ObisCode PLC_CLIENT_SECURITY_SETUP = ObisCode.fromString("0.0.43.0.4.255");
 
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
     private PLCConfigurationDeviceMessageExecutor plcConfigurationDeviceMessageExecutor;
 
-    public HS3300MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public HS3300MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
+                                 KeyAccessorTypeExtractor keyAccessorTypeExtractor, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -100,6 +115,12 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         if (pendingMessage.getSpecification().equals(PLCConfigurationDeviceMessage.WRITE_G3_PLC_BANDPLAN)) {
             writeG3PLCBandplan(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
+            changeAuthenticationKeyAndUseNewKey(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
+            changeEncryptionKeyAndUseNewKey(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL)) {
+            renewKey(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PSK_WITH_NEW_KEYS)) {
             changePSK(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PSK_KEK)) {
@@ -131,6 +152,72 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
         final Data g3PLCBandplan = getCosemObjectFactory().getData(G3_PLC_BANDPLAN);
         
         g3PLCBandplan.setValueAttr( new TypeEnum( bandplan.getId() ) );
+    }
+
+    private void changeAuthenticationKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newAuthenticationKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+
+        renewKey(wrappedKey, SecurityMessage.KeyID.AUTHENTICATION_KEY.getId());
+
+        // Update the key in the security provider, it is used instantly
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
+    }
+
+    private void changeEncryptionKeyAndUseNewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(getDeviceMessageAttributeValue(pendingMessage, newEncryptionKeyAttributeName));
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+
+        renewKey(wrappedKey, SecurityMessage.KeyID.GLOBAL_UNICAST_ENCRYPTION_KEY.getId());
+
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+
+        securityContext.setFrameCounter(1);
+        getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
+    }
+
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        String keyAccessorTypeNameAndTempValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, keyAccessorTypeAttributeName).getValue();
+        if (keyAccessorTypeNameAndTempValue == null) {
+            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
+        }
+
+        String[] values;
+        ByteArrayInputStream in = new ByteArrayInputStream(DatatypeConverter.parseHexBinary(keyAccessorTypeNameAndTempValue));
+        try {
+            values = (String[]) new ObjectInputStream(in).readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            throw DataParseException.generalParseException(e);
+        }
+        String keyAccessorName = values[0];
+        KeyRenewalInfo keyRenewalInfo = KeyRenewalInfo.fromJson(values[1]);
+        byte[] newSymmetricKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.keyValue, "");
+        byte[] wrappedKey = ProtocolTools.getBytesFromHexString(keyRenewalInfo.wrappedKeyValue, "");
+
+        Optional<String> securityAttribute = keyAccessorTypeExtractor.correspondingSecurityAttribute(
+                keyAccessorName,
+                getProtocol().getDlmsSessionProperties().getSecurityPropertySet().getName()
+        );
+        if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.AUTHENTICATION_KEY.getKey())) {
+            renewKey(wrappedKey, 2);
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeAuthenticationKey(newSymmetricKey);
+        } else if (securityAttribute.isPresent() && securityAttribute.get().equals(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.getKey())) {
+            renewKey(wrappedKey, 0);
+            getProtocol().getDlmsSession().getProperties().getSecurityProvider().changeEncryptionKey(newSymmetricKey);
+            resetFC();
+        } else {
+            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType is not used as authentication or encryption key in the security setting. Therefore it is not clear which key should be renewed.");
+        }
+    }
+
+    private void resetFC() {
+        SecurityContext securityContext = getProtocol().getDlmsSession().getAso().getSecurityContext();
+        securityContext.setFrameCounter(1);
+        securityContext.getSecurityProvider().getRespondingFrameCounterHandler().setRespondingFrameCounter(-1);
     }
 
     protected void changePSK(OfflineDeviceMessage pendingMessage) throws IOException {

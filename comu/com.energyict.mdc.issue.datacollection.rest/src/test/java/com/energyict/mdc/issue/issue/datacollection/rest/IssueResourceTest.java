@@ -59,42 +59,39 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
                 "  \"total\": 3,\n" +
                 "  \"processInstances\": [\n" +
                 "    {\n" +
-                "      \"status\": 2,\n" +
-                "      \"processInstanceId\": 1,\n" +
-                "      \"processId\": \"ID01\",\n" +
-                "      \"processName\": \"Name01\",\n" +
-                "      \"processVersion\": \"1.0\",\n" +
-                "      \"userIdentity\": \"admin\",\n" +
+                "      \"name\": \"Name01\",\n" +
                 "      \"startDate\": 1456744223497,\n" +
-                "      \"tasks\": []\n" +
+                "      \"version\": \"1.0\",\n" +
+                "      \"startedBy\": \"admin\",\n" +
+                "      \"processId\": \"1\",\n" +
+                "      \"status\": 2,\n" +
+                "      \"openTasks\": []\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"status\": 3,\n" +
-                "      \"processInstanceId\": 2,\n" +
-                "      \"processId\": \"ID02\",\n" +
-                "      \"processName\": \"Name02\",\n" +
-                "      \"processVersion\": \"2.0\",\n" +
-                "      \"userIdentity\": \"admin\",\n" +
-                "      \"startDate\": 1456747692220,\n" +
-                "      \"tasks\": []\n" +
+                "    \"name\": \"Name02\",\n" +
+                "    \"startDate\": 1456747692220,\n" +
+                "    \"version\": \"2.0\",\n" +
+                "    \"startedBy\": \"admin\",\n" +
+                "    \"processId\": \"2\",\n" +
+                "    \"status\": 3,\n" +
+                "    \"openTasks\": []\n" +
                 "    },\n" +
                 "    {\n" +
-                "      \"status\": 1,\n" +
-                "      \"processInstanceId\": 3,\n" +
-                "      \"processId\": \"ID03\",\n" +
-                "      \"processName\": \"Name03\",\n" +
-                "      \"processVersion\": \"1.0\",\n" +
-                "      \"userIdentity\": \"admin\",\n" +
+                "      \"name\": \"Name03\",\n" +
                 "      \"startDate\": 1456821940996,\n" +
-                "      \"tasks\": [\n" +
+                "      \"version\": \"1.0\",\n" +
+                "      \"startedBy\": \"admin\",\n" +
+                "      \"processId\": \"3\",\n" +
+                "      \"status\": 1,\n" +
+                "      \"openTasks\": [\n" +
                 "        {\n" +
                 "          \"id\": 04,\n" +
+                "          \"priority\": 0,\n" +
                 "          \"name\": \"Task01\",\n" +
                 "          \"processName\": \"Name03\",\n" +
                 "          \"deploymentId\": \"com.elster.test:1.0\",\n" +
                 "          \"dueDate\": null,\n" +
                 "          \"createdOn\": 1456821941001,\n" +
-                "          \"priority\": 0,\n" +
                 "          \"status\": \"Reserved\",\n" +
                 "          \"actualOwner\": \"admin\",\n" +
                 "          \"processInstanceId\": 3\n" +
@@ -103,6 +100,7 @@ public class IssueResourceTest extends IssueDataCollectionApplicationJerseyTest 
                 "    }\n" +
                 "  ]\n" +
                 "}");
+
         IssueProcessInfos issueProcessInfos = target("/issues/1/processes").queryParam("variableid", "issueid")
                 .queryParam("variablevalue", "1")
                 .request()

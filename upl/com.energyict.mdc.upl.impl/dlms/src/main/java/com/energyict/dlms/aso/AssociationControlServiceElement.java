@@ -559,7 +559,7 @@ public class AssociationControlServiceElement {
                                     baseAddress += (responseData[baseAddress] & 0x0FF) - 3; // Conformance block is parsed as int (4 bytes) but normally only 3 are used.
                                     getXdlmsAse().setNegotiatedConformance((ProtocolUtils.getInt(responseData, baseAddress) & 0x00FFFFFF)); // conformance has only 3 bytes, 24 bit
                                     baseAddress += 4; // Jump over conformance block (just pased this)
-                                    this.getXdlmsAse().setMaxRecPDUServerSize(DLMSUtils.getIntFromBytes(responseData, baseAddress, 2));
+                                    this.getXdlmsAse().setMaxRecPDUServerSize(ProtocolTools.getIntFromBytes(responseData, baseAddress, 2));
                                     baseAddress += 2; // Jump over maxPDU size (two bytes)
                                     getXdlmsAse().setVAAName(ProtocolUtils.getShort(responseData, baseAddress));
                                     return;

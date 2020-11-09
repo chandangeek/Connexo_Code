@@ -7,19 +7,21 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.service.BaseTest;
-import com.elster.jupiter.issue.impl.service.IssueActionServiceImpl;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.share.IssueAction;
 import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.metering.*;
+import com.elster.jupiter.metering.AmrSystem;
+import com.elster.jupiter.metering.EndDevice;
+import com.elster.jupiter.metering.EndDeviceEventRecordFilterSpecification;
+import com.elster.jupiter.metering.LifecycleDates;
+import com.elster.jupiter.metering.Location;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.metering.events.EndDeviceEventRecordBuilder;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+
 import com.google.common.collect.Range;
-import org.junit.Before;
-import org.junit.Test;
 import org.osgi.framework.BundleContext;
 
 import java.time.Instant;
@@ -27,6 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Before;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -129,6 +134,11 @@ public class MailIssueActionTest extends BaseTest{
             @Override
             public List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range, List<EndDeviceEventType> eventTypes) {
                 return null;
+            }
+
+            @Override
+            public long getDeviceEventsCountByFilter(EndDeviceEventRecordFilterSpecification filter) {
+                return 0;
             }
 
             @Override

@@ -55,7 +55,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                         fn: me.comboLimitNotification
                     },
                     change: {
-                        fn: me.updateConnectionMethodFilter
+                       // fn: me.updateConnectionMethodFilter  // CONM-1455
                     }
                 }
             },
@@ -66,10 +66,10 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
-                disabled: true,
+               // disabled: true,
                 store: 'Dsh.store.filter.ConnectionMethods',
                 itemId: 'connection-method-filter',
-                loadStore: false
+               // loadStore: false
             },
             {
                 type: 'combobox',

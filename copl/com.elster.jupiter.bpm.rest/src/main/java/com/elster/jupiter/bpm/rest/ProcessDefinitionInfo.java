@@ -37,10 +37,10 @@ public class ProcessDefinitionInfo {
 
     public ProcessDefinitionInfo(JSONObject jsonObject) {
         try {
-            this.name = jsonObject.getString("name");
-            this.processId = jsonObject.getString("id");
-            this.version = jsonObject.getString("version");
-            this.deploymentId = jsonObject.getString("deploymentId");
+            this.name = jsonObject.getString("process-name");
+            this.processId = jsonObject.getString("process-id");
+            this.version = jsonObject.getString("process-version");
+            this.deploymentId = jsonObject.getString("container-id");
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }

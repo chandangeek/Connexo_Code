@@ -29,7 +29,6 @@ import javax.naming.ldap.InitialLdapContext;
 import javax.naming.ldap.LdapContext;
 import javax.naming.ldap.StartTlsRequest;
 import javax.naming.ldap.StartTlsResponse;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -71,7 +70,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     protected List<Group> doGetGroups(DirContext context, Object... args) throws NamingException {
         User user = (User) args[0];
         List<Group> groupList = new ArrayList<>();
-        SearchControls controls = new SearchControls(getScopeForUserSearch(), 0, 0, ARRAY_MEMBER_OF, true, true);
+        SearchControls controls = new SearchControls(SearchControls.SUBTREE_SCOPE, 0, 0, ARRAY_MEMBER_OF, true, true);
         NamingEnumeration<SearchResult> answer = context.search(getNameForUserSearch(),
                 "(&(objectClass=person)(sAMAccountName=" + user.getName() + "))", controls);
         if (answer.hasMoreElements()) {
@@ -104,9 +103,9 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
 
     private Optional<User> authenticateSimple(String name, String password, List<String> urls) {
         LOGGER.info("AUTH: No security applied\n");
-
         try {
-            new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password));
+            DirContext context = new InitialDirContext(createEnvironment(urls.get(0), getUserNameForAuthentication(name), password));
+            context.close();
             return findUser(name);
         } catch (NumberFormatException | NamingException e) {
             LOGGER.severe("AUTH: Simple authetication failed\n");
@@ -150,8 +149,9 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
         LOGGER.info("AUTH: TLS applied\n");
 
         StartTlsResponse tls = null;
+        LdapContext ctx = null;
         try {
-            LdapContext ctx = new InitialLdapContext(
+            ctx = new InitialLdapContext(
                     createEnvironment(urls.get(0), getUserNameForAuthentication(name), password), null);
             ExtendedRequest tlsRequest = new StartTlsRequest();
             ExtendedResponse tlsResponse = ctx.extendedOperation(tlsRequest);
@@ -168,6 +168,13 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
                 return Optional.empty();
             }
         } finally {
+            if(ctx != null) {
+                try {
+                    ctx.close();
+                } catch (NamingException ex) {
+                    LOGGER.severe(ex.getMessage());
+                }
+            }
             if (tls != null) {
                 try {
                     tls.close();
@@ -249,7 +256,7 @@ final class ActiveDirectoryImpl extends AbstractSecurableLdapDirectoryImpl {
     private boolean getUserStatusFromContext(DirContext context, Object... args) throws NamingException {
         String user = (String) args[0];
         SearchControls controls = new SearchControls();
-        controls.setSearchScope(getScopeForUserSearch());
+        controls.setSearchScope(SearchControls.SUBTREE_SCOPE);
         NamingEnumeration<SearchResult> results = context.search(getNameForUserSearch(),
                 "(sAMAccountName=" + user + ")", controls);
         while (results.hasMore()) {

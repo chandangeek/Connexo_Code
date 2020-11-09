@@ -153,7 +153,8 @@ Ext.define('Mdc.controller.Main', {
         'Cfg.audit.controller.Audit',
         'Mdc.controller.setup.AutoclosureExclusions',
         'Cfg.properties.controller.ConfigProperties',
-        'Mdc.controller.setup.SendRegisteredSapNotification'
+        'Mdc.controller.setup.SendRegisteredSapNotification',
+        'Apr.controller.ReccurentTask'
     ],
 
     stores: [
@@ -181,6 +182,7 @@ Ext.define('Mdc.controller.Main', {
         me.getController('Mdc.controller.setup.TaskManagementDataCollectionKpi');
         me.getController('Mdc.controller.setup.TaskManagementRegisteredDevices');
         me.getController('Mdc.crlrequest.controller.TaskManagementCrlRequest');
+        me.getController('Apr.controller.ReccurentTask');
         Uni.property.controller.Registry.addProperty('USAGEPOINT', 'Mdc.property.UsagePoint');
         Uni.property.controller.Registry.addProperty('SECURITYACCESSORSOUTPUT', 'Mdc.property.SecuritySet');
         Uni.property.controller.Registry.addProperty('SERVICEKEYSSIGNATURESOUTPUT', 'Mdc.property.SecurityAccessors');

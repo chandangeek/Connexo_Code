@@ -5,7 +5,6 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
@@ -14,16 +13,20 @@
     <artifactId>installer.util</artifactId>
     <packaging>jar</packaging>
     <name>[Jupiter] com.elster.jupiter.installer.util</name>
-
+    <repositories>
+        <repository>
+            <id>JBoss GA</id>
+            <url>https://maven.repository.redhat.com/ga/</url>
+        </repository>
+    </repositories>
     <dependencies>
         <dependency>
-            <groupId>org.guvnor</groupId>
-            <artifactId>guvnor-m2repo-editor-backend</artifactId>
-            <version>6.4.0.Final</version>
+            <groupId>org.uberfire</groupId>
+            <artifactId>uberfire-m2repo-editor-backend</artifactId>
+            <version>7.39.0.Final-redhat-00005</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -51,5 +54,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

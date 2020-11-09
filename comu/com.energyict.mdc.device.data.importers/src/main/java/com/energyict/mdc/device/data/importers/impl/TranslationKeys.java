@@ -91,6 +91,10 @@ public enum TranslationKeys implements TranslationKey {
 
     DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY("publicKey","Public Key"),
     DEVICE_CERTIFICATES_IMPORTER_PUBLIC_KEY_DESCRIPTION("publicKey.description","The public key needed to access the certificates"),
+    DEVICE_CERTIFICATES_IMPORTER_SECURITY_ACCESSOR_MAPPING("securityAccessorJsonMapping", "Security accessor mapping JSON"),
+    DEVICE_CERTIFICATES_IMPORTER_SECURITY_ACCESSOR_MAPPING_DESCRIPTION("securityAccessorJsonMapping.description", "JSON string containing the mapping the certificate filename prefix and security accessor name. Use boolean value of false to skip entry (e.g. for SubCAs)"),
+    DEVICE_CERTIFICATES_IMPORTER_SYSTEM_TILE_PROPERTY_NAME("systemTitlePropertyName", "Device System-Title property name"),
+    DEVICE_CERTIFICATES_IMPORTER_SYSTEM_TILE_PROPERTY_NAME_DESCRIPTION("systemTitlePropertyName.description", "Property name holding the DLMS System-Title value in the device type. This will be used to identify the device where the certificate will be linked"),
 
     MASTER_WILL_BE_OVERRIDDEN("MasterWillBeOverridden", "Note for line {0}: Master device (name: {1}) was overridden by new one (name: {2})"),
     NEW_USAGE_POINT_WILL_BE_CREATED("NewUsagePointWillBeCreated", "Note for line {0}: Usage point {1} is not found. New usage point was created based on Service Category value"),

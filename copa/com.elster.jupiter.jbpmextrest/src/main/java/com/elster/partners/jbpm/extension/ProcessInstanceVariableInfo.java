@@ -4,7 +4,7 @@
 
 package com.elster.partners.jbpm.extension;
 
-import org.codehaus.jackson.annotate.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.sql.Timestamp;
 import java.util.Date;

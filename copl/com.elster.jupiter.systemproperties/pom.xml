@@ -14,11 +14,6 @@
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.systemproperties</name>
 
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>

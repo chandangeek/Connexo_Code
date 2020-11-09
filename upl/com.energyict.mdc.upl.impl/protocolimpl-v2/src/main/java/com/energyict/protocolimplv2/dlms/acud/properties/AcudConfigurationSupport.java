@@ -38,7 +38,7 @@ public class AcudConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec informationFieldSizePropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, false, com.energyict.nls.PropertyTranslationKeys.V2_TASKS_INFORMATION_FIELD_SIZE,BigDecimal.valueOf(128), BigDecimal.valueOf(128), BigDecimal.valueOf(256), BigDecimal.valueOf(512), BigDecimal.valueOf(1024), BigDecimal.valueOf(2048));
+        return this.bigDecimalSpec(DlmsProtocolProperties.INFORMATION_FIELD_SIZE, false, com.energyict.nls.PropertyTranslationKeys.V2_TASKS_INFORMATION_FIELD_SIZE, BigDecimal.valueOf(128), BigDecimal.valueOf(128), BigDecimal.valueOf(256), BigDecimal.valueOf(512), BigDecimal.valueOf(1024), BigDecimal.valueOf(2048));
     }
 
     private PropertySpec addressModePropertySpec() {

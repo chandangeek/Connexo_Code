@@ -14,9 +14,6 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author Koen
@@ -222,99 +219,6 @@ public final class DLMSUtils {
 
     } // public long parseValue2long(byte[] byteBuffer,int iOffset) throws IOException
 
-    /**
-     * Creates an unsigned int value that represents a given byte array
-     *
-     * @param value: the given byte array
-     * @return the resulting BigDecimal
-     */
-    public static int getUnsignedIntFromBytes(byte[] value) {
-        value = concatByteArrays(new byte[]{0x00}, value);
-        BigInteger convertedValue = new BigInteger(value);
-        return convertedValue.intValue();
-    }
-
-    /**
-     * Creates an unsigned int value that represents a given byte array.
-     * Takes an offset (where to start in the byte array), and a length.
-     *
-     * @param value: the given byte array
-     * @return the resulting BigDecimal
-     */
-    public static int getUnsignedIntFromBytes(byte[] value, int offset, int length) {
-        value = getSubArray(value, offset, offset + length);
-        value = concatByteArrays(new byte[]{0x00}, value);
-        BigInteger convertedValue = new BigInteger(value);
-        return convertedValue.intValue();
-    }
-
-    /*
-    Same but for Little Endian order.
-     */
-    public static int getUnsignedIntFromBytesLE(byte[] value, int offset, int length) {
-        value = getSubArray(value, offset, offset + length);
-        value = getReverseByteArray(value);
-        return getUnsignedIntFromBytes(value);
-    }
-
-    public static byte[] getReverseByteArray(byte[] bytes) {
-        byte[] reverseBytes = new byte[bytes != null ? bytes.length : 0];
-        for (int i = 0; i < reverseBytes.length; i++) {
-            reverseBytes[i] = bytes[bytes.length - (i + 1)];
-        }
-        return reverseBytes;
-    }
-
-    /**
-     * Convert a given byte array into an integer
-     *
-     * @param byteArray a given byte array
-     * @return the suiting integer
-     */
-    public static int getIntFromBytes(byte[] byteArray) {
-        int value = 0;
-        for (int i = 0; i < byteArray.length; i++) {
-            int intByte = byteArray[i] & 0x0FF;
-            value += intByte << ((byteArray.length - (i + 1)) * 8);
-        }
-        return value;
-    }
-
-    /**
-     * Convert a given byte array into an integer
-     */
-    public static int getIntFromBytes(byte[] bytes, int offset, int length) {
-        byte[] byteArray = getSubArray(bytes, offset, offset + length);
-        int value = 0;
-        for (int i = 0; i < byteArray.length; i++) {
-            int intByte = byteArray[i] & 0x0FF;
-            value += intByte << ((byteArray.length - (i + 1)) * 8);
-        }
-        return value;
-    }
-
-    public static byte[] getSubArray(final byte[] bytes, final int from, final int to) {
-        byte[] subBytes;
-        if (isArrayIndexInRange(bytes, from) && isArrayIndexInRange(bytes, to - 1) && (from < to)) {
-            subBytes = new byte[to - from];
-            for (int i = 0; i < subBytes.length; i++) {
-                subBytes[i] = bytes[i + from];
-            }
-        } else {
-            subBytes = new byte[0];
-        }
-        return subBytes;
-    }
-
-    /**
-     * @param bytes
-     * @param from
-     * @return
-     */
-    public static byte[] getSubArray(final byte[] bytes, final int from) {
-        int to = (bytes != null) ? (bytes.length) : -1;
-        return getSubArray(bytes, from, to);
-    }
 
     public static boolean isArrayIndexInRange(final byte[] array, final int index) {
         return (array != null) && (index >= 0) && (array.length > index);
@@ -1132,43 +1036,6 @@ public final class DLMSUtils {
         return data;
     }
 
-    /**
-     * @param firstArray
-     * @param secondArray
-     * @return
-     */
-    public static byte[] concatByteArrays(final byte[] firstArray, final byte[] secondArray) {
-        if (firstArray == null) {
-            if (secondArray == null) {
-                return new byte[0];
-            } else {
-                return secondArray.clone();
-            }
-        } else {
-            if (secondArray == null) {
-                return firstArray.clone();
-            }
-        }
-
-        byte[] bytes = new byte[firstArray.length + secondArray.length];
-        System.arraycopy(firstArray, 0, bytes, 0, firstArray.length);
-        System.arraycopy(secondArray, 0, bytes, firstArray.length, secondArray.length);
-        return bytes;
-    }
-
-    /**
-     * Construct a concatenated byteArray for the given ArrayList of byteArrays
-     *
-     * @param byteArrays the <code>byte[]</code> to concatenate
-     * @return 1 <code>byte[]</code> with all given arrays after each other
-     */
-    public static byte[] concatListOfByteArrays(List<byte[]> byteArrays) {
-        byte[] concatenatedArray = null;
-        for (byte[] byteArray : byteArrays) {
-            concatenatedArray = concatByteArrays(concatenatedArray, byteArray);
-        }
-        return concatenatedArray;
-    }
 
     /**
      * Search for the given <CODE>ObisCode</CODE> in the given objectList.
@@ -1220,34 +1087,6 @@ public final class DLMSUtils {
      */
     public static String getHexStringFromBytes(final byte[] bytes, String prefix) {
         return ProtocolUtils.getResponseData(bytes).replace("$", prefix);
-    }
-
-    public static String addPadding(final String stringToPad, final char character, final int length, final boolean addToEnd) {
-        String paddedString = null;
-        if (stringToPad != null) {
-            int charactersToAdd = length - stringToPad.length();
-            if (charactersToAdd > 0) {
-                char[] charArray = new char[charactersToAdd];
-                Arrays.fill(charArray, character);
-                if (addToEnd) {
-                    paddedString = stringToPad + new String(charArray);
-                } else {
-                    paddedString = new String(charArray) + stringToPad;
-                }
-            } else {
-                paddedString = stringToPad;
-            }
-        }
-        return paddedString;
-    }
-
-    public static byte[] getBytesFromInt(int value, int length) {
-        byte[] bytes = new byte[length];
-        for (int i = 0; i < bytes.length; i++) {
-            int ptr = (bytes.length - (i + 1));
-            bytes[ptr] = (i < 4) ? (byte) ((value >> (i * 8))) : 0x00;
-        }
-        return bytes;
     }
 
     public static void delay(long millis) {

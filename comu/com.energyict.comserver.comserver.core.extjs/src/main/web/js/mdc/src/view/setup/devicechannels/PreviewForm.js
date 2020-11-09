@@ -104,6 +104,30 @@ Ext.define('Mdc.view.setup.devicechannels.PreviewForm', {
                                             name: 'overruledNbrOfFractionDigits'
                                         },
                                         {
+                                            fieldLabel: Uni.I18n.translate('general.endOfInterval', 'MDC', 'End of interval'),
+                                            name: 'endOfInterval',
+                                            itemId: 'mdc-channel-preview-end-of-interval',
+                                            renderer: function(value) {
+                                                var timeUnitsStore = Ext.getStore('Mdc.store.TimeUnits'),
+                                                    result = '',
+                                                    timeUnit,
+                                                    index;
+                                                if (value !== null && value !== undefined) {
+                                                    var hours = Math.floor(value/3600);
+                                                    var minutes = Math.floor((value - hours * 3600)/60);
+                                                    if (hours) {
+                                                        index = timeUnitsStore.find('timeUnit', 'hours');
+                                                        (index !== -1) && (timeUnit = timeUnitsStore.getAt(index).get('localizedValue'));
+                                                        timeUnit && (result += hours + ' ' + timeUnit);
+                                                    }
+                                                    index = timeUnitsStore.find('timeUnit', 'minutes');
+                                                    (index !== -1) && (timeUnit = timeUnitsStore.getAt(index).get('localizedValue'));
+                                                    timeUnit && (result +=' '+ minutes + ' ' + timeUnit);
+                                                }
+                                                return result;
+                                            }
+                                        },
+                                        {
                                             fieldLabel: Uni.I18n.translate('channelConfig.useMultiplier', 'MDC', 'Use multiplier'),
                                             name: 'useMultiplier',
                                             renderer: function(value) {

@@ -11,6 +11,8 @@ import com.elster.jupiter.cbo.EndDeviceSubDomain;
 import com.google.common.collect.Range;
 
 import java.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
 
 public class EndDeviceEventRecordFilterSpecification {
 
@@ -23,5 +25,9 @@ public class EndDeviceEventRecordFilterSpecification {
     public EndDeviceSubDomain subDomain = null;
 
     public EndDeviceEventOrAction eventOrAction = null;
+
+    public final Set<String> eventCodes = new HashSet<>();
+
+    public final Set<String> deviceEventCodes = new HashSet<>();
 
 }

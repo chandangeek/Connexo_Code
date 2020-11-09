@@ -5,15 +5,30 @@
 package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
+import com.elster.jupiter.util.time.Interval;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
+import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCheck;
+import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
+import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
+import com.google.common.collect.Range;
+
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -268,15 +283,45 @@ public class FirmwareServiceImplIT extends PersistenceTest {
                 .doesNotContain(customCheck);
     }
 
+    @Test
+    @Transactional
+    public void testIsInUse() {
+        DeviceType deviceType = inMemoryPersistence.getInjector().getInstance(DeviceConfigurationService.class)
+                .newDeviceType("MyDeviceType", mockProtocolPluggableClass());
+        DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
+        deviceConfiguration.activate();
+        Device device = inMemoryPersistence.getInjector().getInstance(DeviceService.class)
+                .newDevice(deviceConfiguration ,"MyDevice", "mridOfMyDevice", Instant.now() );
+
+        FirmwareService firmwareService = inMemoryPersistence.getFirmwareService();
+        FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion1", FirmwareStatus.FINAL, FirmwareType.METER, "firmwareVersion1")
+                .initFirmwareFile(new byte[] {11}).create();
+
+        assertThat(firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())).isFalse();
+
+        LocalDateTime now = LocalDateTime.now();
+        Instant oneWeekAgo = Instant.ofEpochSecond(now.minus(1, ChronoUnit.WEEKS).toEpochSecond(ZoneOffset.UTC));
+
+        ActivatedFirmwareVersion activatedFirmwareVersion = firmwareService.newActivatedFirmwareVersionFrom(device, firmwareVersion, Interval.of(Range.atLeast(oneWeekAgo)));
+        activatedFirmwareVersion.save();
+
+        assertThat(firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())).isTrue();
+    }
+
     private DeviceType getMockedDeviceTypeWithMessageIds(DeviceMessageId... deviceMessageIds) {
+        DeviceType deviceType = mock(DeviceType.class);
+        DeviceProtocolPluggableClass deviceProtocolPluggableClass = mockProtocolPluggableClass(deviceMessageIds);
+        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
+        return deviceType;
+    }
+
+    private DeviceProtocolPluggableClass mockProtocolPluggableClass(DeviceMessageId... deviceMessageIds) {
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
         List<DeviceMessageSpec> deviceMessageSpecs = mockMessages(deviceMessageIds);
         when(deviceProtocol.getSupportedMessages()).thenReturn(deviceMessageSpecs);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
         when(deviceProtocolPluggableClass.getDeviceProtocol()).thenReturn(deviceProtocol);
-        DeviceType deviceType = mock(DeviceType.class);
-        when(deviceType.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
-        return deviceType;
+        return deviceProtocolPluggableClass;
     }
 
     private List<DeviceMessageSpec> mockMessages(DeviceMessageId... deviceMessageIds) {

@@ -23,6 +23,7 @@ public enum TableSpecs {
         public void addTo(DataModel dataModel) {
             Table<NextExecutionSpecs> table = dataModel.addTable(name(), NextExecutionSpecs.class);
             table.map(NextExecutionSpecsImpl.class);
+            table.cache();
             Column id = table.addAutoIdColumn();
             table.column("FREQUENCYVALUE").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".every.count").add();
             table.column("FREQUENCYUNIT").number().conversion(ColumnConversion.NUMBER2INT).map(NextExecutionSpecsImpl.Fields.TEMPORAL_EXPRESSION.fieldName()+".every.timeUnitCode").add();

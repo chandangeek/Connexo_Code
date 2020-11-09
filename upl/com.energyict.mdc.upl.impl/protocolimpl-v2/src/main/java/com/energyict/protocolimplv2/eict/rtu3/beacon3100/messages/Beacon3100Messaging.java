@@ -151,7 +151,6 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import com.energyict.sercurity.KeyRenewalInfo;
 import com.google.common.io.BaseEncoding;
-import org.apache.commons.codec.binary.Base64;
 import org.bouncycastle.openssl.PEMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -183,6 +182,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.Base64;
 
 import static com.energyict.dlms.DLMSUtils.getBytesFromHexString;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.BlocksPerCycle;
@@ -676,6 +676,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                             try {
                                 return ProtocolTools.getHexStringFromBytes(certificate.get().getEncoded(), "");
                             } catch (CertificateEncodingException e) {
+                                this.getProtocol().journal("Certificate exception:" + e.getMessage());
                                 throw new IllegalArgumentException(e);
                             }
                         }
@@ -689,7 +690,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                 if (certificateWrapper.isPresent()) {
                     X509CRL crl = (X509CRL) certificateWrapperExtractor.getCRL((CertificateWrapper) certificateWrapper.get()).get();
                     try {
-                        return Base64.encodeBase64String(crl.getEncoded());
+                        return String.valueOf(Base64.getEncoder().encode(crl.getEncoded()));
                     } catch (CRLException e) {
                         throw new DataParseException(e, ProtocolExceptionMessageSeeds.GENERAL_PARSE_EXCEPTION, "Unable to get the CRL from provided certificate wrapper");
                     }
@@ -802,7 +803,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD2)) {
                         changePasswordUser2(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_WEBPORTAL_PASSWORD)) {
-                        changeUserPassword(pendingMessage);
+                        changeUserPassword(collectedMessage, pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpPort)) {
                         setHttpPort(pendingMessage);
                     } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.SetHttpsPort)) {
@@ -1444,6 +1445,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         try {
             return ProtocolTools.getHexStringFromBytes(x509Certificate.getEncoded(), "");
         } catch (CertificateEncodingException e) {
+            this.getProtocol().journal("Certificate exception:" + e.getMessage());
             throw new ProtocolException(e, "Could not encode the received X509 v3 certificate (subject: '" + x509Certificate.getSubjectDN().getName() + "'): " + e.getMessage());
         }
     }
@@ -1473,7 +1475,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             throw new ProtocolException("The CertificateRevocationList with the given ID does not exist in the EIServer database");
         }
 
-        byte[] crlAsDER = Base64.decodeBase64(trustedCertCRLAsBase64);
+        byte[] crlAsDER = Base64.getDecoder().decode(trustedCertCRLAsBase64);
         try {
             CRLManagementIC crlManagementIC = getCRLManagementIC();
             crlManagementIC.updateCRL(new OctetString(crlAsDER));
@@ -2210,6 +2212,14 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         it.setDelayBeforeSendingBlocks(5000);
 
         try (final RandomAccessFile file = new RandomAccessFile(new File(filePath), "r")) {
+            try {
+                //TODO: add a protocol property and check support in beacon
+                //int blockSize = 65400; // original 65463, but need to leave room for headers and signature
+                //getLogger().info("Setting transfer block size to " + blockSize);
+                //it.writeImageBlockSize(new Unsigned32(blockSize));
+            } catch (Exception ex){
+                getLogger().warning("Cannot set block size: " + ex.getMessage());
+            }
             it.upgrade(new RandomAccessFileImageBlockSupplier(file), false, imageIdentifier, true);
             it.setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation!
             it.imageActivation();
@@ -2217,6 +2227,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
             if (isTemporaryFailure(e)) {
                 getProtocol().getLogger().log(Level.INFO, "Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
             } else {
+                getLogger().severe(e.getMessage());
                 throw e;
             }
         }
@@ -2704,16 +2715,43 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
     }
 
     /**
+     * Extract the actual password bytes from the string received from message formatter.
+     *
+     * @param rawPasswordAttribute formatted password (in clear)
+     * @return bytes to send to device
+     */
+    protected byte[] preProcessPassword(String rawPasswordAttribute){
+        return rawPasswordAttribute.getBytes(StandardCharsets.US_ASCII);
+    }
+
+    /**
      * Change the password for a particular role.
      *
      * @param pendingMessage The message.
      * @throws IOException If an IO error occurs.
      */
-    private void changeUserPassword(OfflineDeviceMessage pendingMessage) throws IOException {
+    protected CollectedMessage changeUserPassword(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage) throws IOException {
         String userName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.usernameAttributeName).getValue();
         String newPassword = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.passwordAttributeName).getValue();
 
-        this.getWebportalSetupICv1().setPassword(Role.forName(userName), newPassword.getBytes(StandardCharsets.US_ASCII));
+        byte[] processedPassword = preProcessPassword(newPassword);
+
+        this.getWebportalSetupICv1().setPassword(Role.forName(userName), processedPassword);
+
+        //TODO: pass the key accessor name to swap it
+        //return createCollectedMessageForSwappingSecurityAccessors(collectedMessage, pendingMessage, [keyAccessorName]);
+        return collectedMessage;
+    }
+
+    /**
+     * This will create a collected message used to swap passive->active security accessor after asuccessfull change.
+     */
+    protected CollectedMessage createCollectedMessageForSwappingSecurityAccessors(CollectedMessage collectedMessage, OfflineDeviceMessage pendingMessage, String accessorName) {
+        return getCollectedDataFactory().createCollectedMessageForSwappingSecurityAccessorKeys(
+                pendingMessage.getDeviceIdentifier(),
+                collectedMessage.getMessageIdentifier(),
+                accessorName
+        );
     }
 
     /**
@@ -2722,7 +2760,7 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
      * @return The {@link WebPortalSetupV1} instance.
      * @throws NotInObjectListException If the object is not known.
      */
-    private final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
+    protected final WebPortalSetupV1 getWebportalSetupICv1() throws NotInObjectListException {
         if (this.readOldObisCodes()) {
             return this.getCosemObjectFactory().getWebPortalSetupV1(WEB_PORTAL_SETUP_OLD_OBIS);
         } else {

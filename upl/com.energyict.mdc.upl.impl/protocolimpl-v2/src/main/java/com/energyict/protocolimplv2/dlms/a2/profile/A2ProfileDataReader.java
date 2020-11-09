@@ -31,8 +31,10 @@ import java.util.*;
 import java.util.logging.Level;
 
 public class A2ProfileDataReader {
+
     private static final ObisCode HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.2.255");
     private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.3.255");
+    public static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
 
     private final A2 protocol;
     private final List<ObisCode> supportedLoadProfiles;
@@ -111,6 +113,9 @@ public class A2ProfileDataReader {
                     List<IntervalData> intervalData = new ArrayList<>();
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer;
+                    if (DAILY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode())) {
+                        fromCalendar.add(Calendar.DAY_OF_YEAR, DAILY_LOAD_PROFILE_ONEMORE_INTERVAL);
+                    }
                     if (HOURLY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode()) && firmwareVersion.getMajor()==1 && firmwareVersion.getMinor()==4) {
                         Calendar actualCalendar = Calendar.getInstance(protocol.getTimeZone());
                         SelectiveEntryFilter filter = new SelectiveEntryFilter(fromCalendar, toCalendar, actualCalendar);
@@ -168,7 +173,7 @@ public class A2ProfileDataReader {
             //Timestamp should be at index 0
             if (structure.isLong(offset)) {
                 long unixTime = structure.getLong(offset);
-                timeStamp = new Date(unixTime * 1000L);
+                timeStamp = truncateSeconds(unixTime * 1000L);
                 offset++;
             }
             if (hasStatusInformation(correctedLoadProfileObisCode)) {
@@ -188,6 +193,14 @@ public class A2ProfileDataReader {
             intervalData.add(new IntervalData(timeStamp, 0, 0, 0, values));
         }
         return intervalData;
+    }
+
+    private Date truncateSeconds(long unixTime) {
+        Calendar calendar = Calendar.getInstance(protocol.getTimeZone());
+        calendar.setTimeInMillis(unixTime);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
     }
 
     protected ObisCode getCorrectedLoadProfileObisCode(LoadProfileReader loadProfileReader) {

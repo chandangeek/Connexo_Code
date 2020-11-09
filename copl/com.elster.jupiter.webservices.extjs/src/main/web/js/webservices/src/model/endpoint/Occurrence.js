@@ -40,7 +40,8 @@ Ext.define('Wss.model.endpoint.Occurrence', {
             return (data && data.status && data.status.id) ? data.status.id : null
         },
     },
-    {name: 'payload', type: 'string'}
+    {name: 'payload', type: 'string'},
+    {name: 'appServerName', type: 'string'}
   ],
 
   hasOne: [

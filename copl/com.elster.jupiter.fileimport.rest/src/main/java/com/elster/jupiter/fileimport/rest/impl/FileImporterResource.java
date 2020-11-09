@@ -7,6 +7,7 @@ package com.elster.jupiter.fileimport.rest.impl;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.fileimport.security.Privileges;
+import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 
@@ -39,6 +40,7 @@ public class FileImporterResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_IMPORT_SERVICES, Privileges.Constants.VIEW_IMPORT_SERVICES})
     public PagedInfoList getImporters(@BeanParam JsonQueryParameters queryParameters, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
+        JSONQueryValidator.validateJSONQueryParameters(queryParameters);
         List<FileImporterFactory> importers = fileImportService.getAvailableImporters(applicationName);
         return PagedInfoList.fromCompleteList("fileImporters",
             importers.stream()

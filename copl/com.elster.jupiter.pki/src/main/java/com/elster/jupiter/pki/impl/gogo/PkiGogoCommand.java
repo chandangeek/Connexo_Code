@@ -9,6 +9,8 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateAuthoritySearchFilter;
+import com.elster.jupiter.pki.CertificateRequestData;
+import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.KeyType;
@@ -45,6 +47,7 @@ import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
@@ -77,7 +80,9 @@ import static java.util.stream.Collectors.toList;
                 "osgi.command.function=getLatestCRL",
                 "osgi.command.function=importSuperadmin",
                 "osgi.command.function=printTrustedCertificates",
-                "osgi.command.function=signFile"
+                "osgi.command.function=signFile",
+                "osgi.command.function=addCertificateRequestDataForAlias",
+                "osgi.command.function=addCertificateRequestDataForType"
         },
         immediate = true)
 public class PkiGogoCommand {
@@ -253,6 +258,51 @@ public class PkiGogoCommand {
         MYSQL_PRINT.printTable(collect);
     }
 
+    public void addCertificateRequestDataForAlias(){
+        System.out.println("Usage: addCertificateRequestDataForAlias <alias> <ca> <cp> <ee> <subjectDNfields>");
+    }
+
+    public void addCertificateRequestDataForAlias(String alias, String ca, String cp, String ee, String subjectDnFields) {
+        CertificateRequestData certificateRequestData = new CertificateRequestData(ca, ee, cp, subjectDnFields);
+        Optional<CertificateWrapper> certificateWrapper = this.securityManagementService.findCertificateWrapper(alias);
+        if (certificateWrapper.isPresent()) {
+            System.out.print("Updating certificate with id:" + certificateWrapper.get().getId());
+            setCertificateRequestData(certificateRequestData, certificateWrapper.get());
+        } else {
+            System.out.println("No certificate found for this alias!" );
+        }
+    }
+
+
+    public void addCertificateRequestDataForType(){
+        System.out.println("Usage: addCertificateRequestDataForType <type> <ca> <cp> <ee> <subjectDNfields>");
+        System.out.println("\t- available types: DIGITAL_SIGNATURE, KEY_AGREEMENT, TLS, OTHER" );
+    }
+
+    public void addCertificateRequestDataForType(String type, String ca, String cp, String ee, String subjectDnFields) throws CertificateParsingException {
+        CertificateRequestData certificateRequestData = new CertificateRequestData(ca, ee, cp, subjectDnFields);
+        CertificateType certType = CertificateType.valueOf(type);
+        // this is not optimal to load all certificates in memory but since we work with strings it might be possible to have mismatch between type input and ones in DB.
+        // Also we want to print all updated cert wrappers
+        List<CertificateWrapper> certificateWrapperList = this.securityManagementService.findAllCertificates().find();
+        for (CertificateWrapper certificateWrapper : certificateWrapperList) {
+            if (certType.isApplicableTo(certificateWrapper)) {
+                System.out.println("Found certificate to be updated with id:" + certificateWrapper.getId());
+                setCertificateRequestData(certificateRequestData, certificateWrapper);
+            } else {
+                System.out.println("NOT updating:" + certificateWrapper.getId());
+            }
+        }
+    }
+
+    private void setCertificateRequestData(CertificateRequestData certificateRequestData, CertificateWrapper certificateWrapper) {
+        System.out.print("Updating certificate with id:" + certificateWrapper.getId());
+        threadPrincipalService.set(() -> "Console");
+        TransactionContext context = transactionService.getContext();
+        certificateWrapper.setCertificateRequestData(Optional.of(certificateRequestData));
+        context.commit();
+        System.out.println(".... OK");
+    }
 
     public void getLatestCRL() {
         System.out.println("Usage: getlatestcrl <caName> <true|false>");

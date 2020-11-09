@@ -4,8 +4,10 @@ import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
@@ -20,7 +22,6 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 
 import javax.inject.Inject;
@@ -29,16 +30,20 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
+@LiteralSql
 public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, HasId {
     private final DataModel dataModel;
     private final TransactionService transactionService;
     private final WebServicesService webServicesService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     private long id;
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
@@ -47,6 +52,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private String requestName;
     private WebServiceCallOccurrenceStatus status;
     private String applicationName;
+    private String appServerName;
     private String payload;
 
     public enum Fields {
@@ -57,7 +63,8 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         ENDPOINT_CONFIGURATION("endPointConfiguration"),
         STATUS("status"),
         APPLICATION_NAME("applicationName"),
-        PAYLOAD("payload");
+        PAYLOAD("payload"),
+        APP_SERVER_NAME("appServerName");
 
         private final String javaFieldName;
 
@@ -73,10 +80,12 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     @Inject
     public WebServiceCallOccurrenceImpl(DataModel dataModel,
                                         TransactionService transactionService,
-                                        WebServicesService webServicesService) {
+                                        WebServicesService webServicesService,
+                                        ThreadPrincipalService threadPrincipalService) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.webServicesService = webServicesService;
+        this.threadPrincipalService  = threadPrincipalService;
     }
 
     public WebServiceCallOccurrenceImpl init(Instant startTime,
@@ -98,6 +107,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         this.status = WebServiceCallOccurrenceStatus.ONGOING;
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = payload;
+        this.appServerName = threadPrincipalService.getAppServerName().orElse(null);
         return this;
     }
 
@@ -134,6 +144,11 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     @Override
     public Optional<String> getPayload() {
         return Optional.ofNullable(payload);
+    }
+
+    @Override
+    public Optional<String> getAppServerName() {
+        return Optional.ofNullable(appServerName);
     }
 
     @Override
@@ -243,41 +258,37 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
         Optional<Condition> condition = values.entries().stream()
                 .filter(entry -> !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
-                .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName()).isEqualTo(entry.getKey())
-                        .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
+                .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.fieldName()).isEqualTo(entry.getKey())
+                        .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
                 .reduce(Condition::or);
 
         if (condition.isPresent()) {
             List<WebServiceCallRelatedAttributeImpl> finalCreatedRelatedAttributeList;
             /* Find all related attributes that has been already created */
             List<WebServiceCallRelatedAttributeImpl> createdRelatedAttributeList = dataModel.query(WebServiceCallRelatedAttributeImpl.class).select(condition.get());
-            ImmutableList.Builder<String> sqlQueries = ImmutableList.builder();
+            List<SqlBuilder> sqlQueries = new ArrayList<>();
             /* Find all related attributes that should be created */
             values.entries().forEach(entry -> {
                 if (entry.getKey() != null && !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace()) {
                     WebServiceCallRelatedAttributeImpl relatedAttribute = Optional.of(dataModel.getInstance(WebServiceCallRelatedAttributeImpl.class)).get();
                     relatedAttribute.init(entry.getKey(), entry.getValue().trim());
                     if (!createdRelatedAttributeList.contains(relatedAttribute)) {
-                        sqlQueries.add("BEGIN INSERT INTO WS_OCC_RELATED_ATTR(ID, ATTR_KEY, ATTR_VALUE)" +
-                                " VALUES (WS_OCC_RELATED_ATTRID.NEXTVAL, '" + relatedAttribute.getKey() + "', '" + relatedAttribute.getValue() + "');" +
-                                " COMMIT; EXCEPTION WHEN DUP_VAL_ON_INDEX THEN ROLLBACK; END;");
+                        sqlQueries.add(oneRelatedAttributeInsertSql(relatedAttribute));
                     }
                 }
             });
 
-            if (sqlQueries.build().isEmpty()) {
+            if (sqlQueries.isEmpty()) {
                 finalCreatedRelatedAttributeList = createdRelatedAttributeList;
             } else {
                 /* Create related attributes that hasn't been created yet */
                 transactionService.runInIndependentTransaction(() -> {
                     try (Connection connection = this.dataModel.getConnection(true)) {
-                        SqlBuilder sqlBuilder = new SqlBuilder("BEGIN ");
-                        sqlQueries.build().forEach(sqlBuilder::append);
-                        sqlBuilder.append(" END;");
+                        SqlBuilder sqlBuilder = new SqlBuilder("begin ");
+                        sqlQueries.forEach(sqlBuilder::add);
+                        sqlBuilder.append(" end;");
                         try (PreparedStatement statement = sqlBuilder.prepare(connection)) {
                             statement.execute();
-                        } catch (SQLException e) {
-                            throw new UnderlyingSQLFailedException(e);
                         }
                     } catch (SQLException e) {
                         throw new UnderlyingSQLFailedException(e);
@@ -296,6 +307,23 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                 dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedAttributeBindingList);
             });
         }
+    }
+
+    private static SqlBuilder oneRelatedAttributeInsertSql(WebServiceCallRelatedAttributeImpl attribute) {
+        SqlBuilder oneInsertSql = new SqlBuilder("begin insert into ");
+        oneInsertSql.append(TableSpecs.WS_OCC_RELATED_ATTR.name());
+        oneInsertSql.openBracket();
+        oneInsertSql.append(Arrays.stream(WebServiceCallRelatedAttributeImpl.Fields.values())
+                .map(WebServiceCallRelatedAttributeImpl.Fields::name)
+                .collect(Collectors.joining(", ")));
+        oneInsertSql.closeBracket();
+        oneInsertSql.append(" values (");
+        oneInsertSql.append(TableSpecs.WS_OCC_RELATED_ATTR.name() + "ID.nextval,");
+        oneInsertSql.addObject(attribute.getKey());
+        oneInsertSql.append(",");
+        oneInsertSql.addObject(attribute.getValue());
+        oneInsertSql.append("); commit; exception when DUP_VAL_ON_INDEX then rollback; end;");
+        return oneInsertSql;
     }
 
     @Override

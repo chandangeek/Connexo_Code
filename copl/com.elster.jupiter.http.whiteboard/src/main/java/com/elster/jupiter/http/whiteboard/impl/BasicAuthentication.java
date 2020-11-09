@@ -329,7 +329,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
                     final List<String> allLines = Files.readAllLines(Paths.get(configPropertiesFilePath));
                     for (int i = 0; i < allLines.size(); i++) {
                         if (!allLines.get(i).contains("#")) {
-                            if (allLines.get(i).contains("com.elster.jupiter.token")) {
+                            if (allLines.get(i).contains("com.elster.jupiter.token=")) {
                                 allLines.set(i, "com.elster.jupiter.token=" + tokenService.createPermamentSignedJWT(processExecutor.get()).serialize());
                             }
                             if (allLines.get(i).contains("com.elster.jupiter.sso.public.key")) {

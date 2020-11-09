@@ -10,6 +10,7 @@ import java.security.Principal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Locale;
+import java.util.Optional;
 
 @ProviderType
 public interface ThreadPrincipalService {
@@ -96,4 +97,6 @@ public interface ThreadPrincipalService {
     Runnable withContextAdded(Runnable runnable, Principal principal);
 
     Runnable withContextAdded(Runnable runnable, Principal principal, String module, String action, Locale locale);
+
+    Optional<String> getAppServerName();
 }

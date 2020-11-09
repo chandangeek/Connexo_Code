@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j='http://jakarta.apache.org/log4j/'>
+
+	<appender name="console" class="org.apache.log4j.ConsoleAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="[%-5p] : %c:%L : %m%n"/>
+        </layout>
+    </appender>
+	
+	<appender name="logfile" class="org.apache.log4j.rolling.RollingFileAppender">
+		<rollingPolicy class="org.apache.log4j.rolling.FixedWindowRollingPolicy">
+			<param name="ActiveFileName" value="${catalina.base}/logs/flow.log"/>
+			<param name="FileNamePattern" value="${catalina.base}/logs/flow%i.log"/>
+			<param name="MinIndex" value="1"/>
+			<param name="MaxIndex" value="50"/>
+		</rollingPolicy>
+		<triggeringPolicy class="org.apache.log4j.rolling.SizeBasedTriggeringPolicy">
+			<param name="MaxFileSize" value="100MB"/>
+		</triggeringPolicy>
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} %-5p %m%n"/>
+		</layout>
+	</appender>
+
+    <root>
+        <level value="WARN"/>
+		<appender-ref ref="console"/>
+        <appender-ref ref="logfile"/>
+    </root>
+	
+	<category name="org.hibernate">  
+        <priority value="ERROR" />  
+    </category> 
+
+</log4j:configuration>

@@ -18,14 +18,11 @@ import javax.inject.Inject;
 
 public abstract class AbstractDeviceAlarmTemplate implements CreationRuleTemplate {
 
-    protected volatile IssueService issueService;
-    protected volatile DeviceAlarmService deviceAlarmService;
-    protected volatile PropertySpecService propertySpecService;
-    protected volatile Thesaurus thesaurus;
+    protected final IssueService issueService;
+    protected final DeviceAlarmService deviceAlarmService;
+    protected final PropertySpecService propertySpecService;
+    protected final Thesaurus thesaurus;
     
-    public AbstractDeviceAlarmTemplate() {
-    }
-
     @Inject
     protected AbstractDeviceAlarmTemplate(IssueService issueService, DeviceAlarmService deviceAlarmService, Thesaurus thesaurus, PropertySpecService propertySpecService) {
         this.issueService = issueService;
@@ -46,21 +43,5 @@ public abstract class AbstractDeviceAlarmTemplate implements CreationRuleTemplat
     @Override
     public IssueType getIssueType() {
         return issueService.findIssueType(DeviceAlarmService.DEVICE_ALARM).get();
-    }
-
-    protected void setThesaurus(Thesaurus thesaurus) {
-        this.thesaurus = thesaurus;
-    }
-
-    protected void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    protected void setDeviceAlarmService(DeviceAlarmService deviceAlarmService) {
-        this.deviceAlarmService = deviceAlarmService;
-    }
-
-    protected void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
     }
 }

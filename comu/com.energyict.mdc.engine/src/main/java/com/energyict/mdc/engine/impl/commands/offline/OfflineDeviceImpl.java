@@ -670,6 +670,16 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     }
 
     @Override
+    public boolean supportsCommunicationFirmwareVersion() {
+        return deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion();
+    }
+
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        return deviceProtocolPluggableClass.getDeviceProtocol().supportsAuxiliaryFirmwareVersion();
+    }
+
+    @Override
     public DeviceProtocolCache getDeviceProtocolCache() {
         return deviceProtocolCache;
     }

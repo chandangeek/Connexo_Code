@@ -108,7 +108,6 @@ class UsagePointReadingSelectorConfigImpl extends ReadingDataSelectorConfigImpl 
     private Stream<ReadingTypeDataExportItem> readingTypeDataExportItems(ChannelsContainer channelsContainer, Range<Instant> exportInterval) {
         return getFilteredReadingTypes(channelsContainer, exportInterval)
                 .map(readingType -> getExportItems().stream()
-                        .map(ReadingTypeDataExportItem.class::cast)
                         .filter(item -> readingType.equals(item.getReadingType()) && item.getReadingContainer().equals(channelsContainer))
                         .findAny()
                         .orElseGet(() -> addExportItem(channelsContainer, readingType))

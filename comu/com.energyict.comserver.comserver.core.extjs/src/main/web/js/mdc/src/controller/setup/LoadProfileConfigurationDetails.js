@@ -29,7 +29,8 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
         'Mdc.store.ReadingTypes',
         'Mdc.store.LoadProfileConfigurationDetailChannels',
         'Mdc.store.MeasurementTypesOnLoadProfileConfiguration',
-        'Mdc.store.ChannelConfigValidationRules'
+        'Mdc.store.ChannelConfigValidationRules',
+        'Mdc.store.TimeUnits'
     ],
 
     models: [
@@ -144,18 +145,21 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                             loadProfilesConfiguration.getProxy().setUrl(deviceTypeId, deviceConfigurationId);
                             loadProfilesConfiguration.load(loadProfileConfigurationId, {
                                 success: function (record) {
-                                    var loadProfileConfiguration = record.getData(),
-                                        widget = Ext.widget('loadProfileConfigurationDetailSetup', {router: router});
-                                    me.loadProfileConfiguration = loadProfileConfiguration;
-                                    me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
-                                    widget.down('#loadProfileConfigurationDetailInfo').setTitle(loadProfileConfiguration.name);
-                                    me.deviceTypeName = deviceType.get('name');
-                                    me.deviceConfigName = deviceConfig.get('name');
-                                    me.getApplication().fireEvent('changecontentevent', widget);
-                                    widget.down('menu').record = record;
-                                    var detailedForm = me.getLoadConfigurationDetailForm();
-                                    detailedForm.getForm().setValues(loadProfileConfiguration);
-                                    detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, Ext.String.htmlEncode(me.deviceConfigName)));
+                                    me.timeUnitsStore = Ext.create('Mdc.store.TimeUnits');
+                                    me.timeUnitsStore.load(function(records){
+                                        var loadProfileConfiguration = record.getData(),
+                                            widget = Ext.widget('loadProfileConfigurationDetailSetup', {router: router, timeUnitsStore: me.timeUnitsStore, isDailyProfile: loadProfileConfiguration.timeDuration.asSeconds === 24 * 3600});
+                                        me.loadProfileConfiguration = loadProfileConfiguration;
+                                        me.getApplication().fireEvent('loadLoadProfile', loadProfileConfiguration);
+                                        widget.down('#loadProfileConfigurationDetailInfo').setTitle(loadProfileConfiguration.name);
+                                        me.deviceTypeName = deviceType.get('name');
+                                        me.deviceConfigName = deviceConfig.get('name');
+                                        me.getApplication().fireEvent('changecontentevent', widget);
+                                        widget.down('menu').record = record;
+                                        var detailedForm = me.getLoadConfigurationDetailForm();
+                                        detailedForm.getForm().setValues(loadProfileConfiguration);
+                                        detailedForm.down('[name=deviceConfigurationName]').setValue(Ext.String.format('<a href="#/administration/devicetypes/{0}/deviceconfigurations/{1}">{2}</a>', deviceTypeId, deviceConfigurationId, Ext.String.htmlEncode(me.deviceConfigName)));
+                                    });
                                 }
                             });
                         }
@@ -595,14 +599,18 @@ Ext.define('Mdc.controller.setup.LoadProfileConfigurationDetails', {
                                             useMultiplier = multiplierCheckBox.getValue(),
                                             registerTypeCombo = widget.down('#mdc-channel-config-registerTypeComboBox'),
                                             calculatedReadingTypeCombo = widget.down('#mdc-channel-config-calculated-readingType-combo'),
-                                            registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'});
+                                            registerTypesStore = Ext.create('Ext.data.Store', {model: 'Mdc.model.MeasurementType'}),
+                                            endOfInterval = widget.down('#mdc-channel-config-end-of-interval');
 
                                         me.getApplication().fireEvent('loadLoadProfile', loadProfileConfig);
 
                                         var measurementTypeId = channelConfiguration.getMeasurementType().get('id'),
-                                            measurementTypeName = channelConfiguration.getMeasurementType().get('readingType').fullAliasName;
+                                            measurementTypeName = channelConfiguration.getMeasurementType().get('readingType').fullAliasName,
+                                            timeDuration = loadProfileConfig.timeDuration,
+                                            timeDurationInSeconds = timeDuration && timeDuration.asSeconds;
 
                                         channelConfiguration.getMeasurementType().name = measurementTypeName;
+                                        endOfInterval.setVisible(timeDurationInSeconds == 24 * 3600)
                                         widget.down('form').loadRecord(channelConfiguration);
 
                                         registerTypesStore.add(channelConfiguration.getMeasurementType());

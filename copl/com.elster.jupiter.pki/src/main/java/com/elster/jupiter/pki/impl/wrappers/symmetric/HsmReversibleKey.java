@@ -5,8 +5,14 @@ import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.keys.HsmJssKeyType;
+import com.elster.jupiter.hsm.model.keys.HsmKeyType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.pki.HsmKey;
+import com.elster.jupiter.pki.SecretFactory;
+import com.elster.jupiter.pki.SecurityAccessorType;
+import com.elster.jupiter.pki.impl.MessageSeeds;
+import com.elster.jupiter.pki.impl.wrappers.PkiLocalizedException;
 import com.elster.jupiter.properties.PropertySpecService;
 
 import javax.inject.Inject;
@@ -14,6 +20,7 @@ import javax.xml.bind.DatatypeConverter;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class HsmReversibleKey extends HsmKeyImpl {
 
@@ -40,6 +47,30 @@ public class HsmReversibleKey extends HsmKeyImpl {
             throw new RuntimeException(e);
         }
     }
+    @Override
+    public void generateValue(SecurityAccessorType securityAccessorType, Optional<HsmKey> masterKey) {
+        try {
+            HsmKeyType hsmKeyType = securityAccessorType.getHsmKeyType();
+
+            byte[] newKey;
+
+            SecretFactory passwordGenerator = new SecretFactory();
+
+            if (HsmJssKeyType.AUTHENTICATION.equals(hsmKeyType.getHsmJssKeyType())){
+                // here the size is zero, but we'll leave it, maybe some good samaritan will fix in gui
+                String randomPassword =  passwordGenerator.generatePassword(hsmKeyType.getKeySize());
+                newKey = randomPassword.getBytes();
+            } else {
+                // for HLS-Secrets and AES keys generate random bytes
+                newKey = passwordGenerator.generateHexByteArray(hsmKeyType.getKeySize());
+            }
+
+            setKey(newKey, super.getLabel());
+            save();
+        } catch (Exception e) {
+            throw new PkiLocalizedException(thesaurus, MessageSeeds.CANNOT_RENEW_REVERSIBLE_KEY, e);
+        }
+    }
 
     /**
      *
@@ -50,7 +81,11 @@ public class HsmReversibleKey extends HsmKeyImpl {
     public void setKey(byte[] key, String label) {
         try {
             super.validateSetKey(key, label);
-            super.setKey(this.hsmEncryptionService.symmetricEncrypt(key, label), label);
+            byte[] encryptedValue = this.hsmEncryptionService.symmetricEncrypt(key, label);
+            super.setKey(encryptedValue, label);
+            // we don't actually need setSmartMeterKey, just that the Com-Server engine will try to process it,
+            // so to not have crashes in various places. better set it with the encrypted value here
+            super.setSmartMeterKey(encryptedValue);
         } catch (HsmBaseException|HsmNotConfiguredException e) {
             throw new RuntimeException(e);
         }

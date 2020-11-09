@@ -150,7 +150,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .minusSeconds(5), created.plusSeconds(5), sent, deviceMessageCategoryClock);
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.sorted(eq("RELEASEDATE"), eq(false))).thenReturn(finder);
+        when(finder.sorted(eq("releaseDate"), eq(false))).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.of(command1, command2));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
@@ -209,7 +209,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         when(command1.getTrackingId()).thenReturn("XXX"); // INVALID
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.sorted(eq("RELEASEDATE"), eq(false))).thenReturn(finder);
+        when(finder.sorted(eq("releaseDate"), eq(false))).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.of(command1));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
@@ -255,7 +255,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .minusSeconds(20), null, deviceMessageCategoryDeviceActions);
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.sorted(eq("RELEASEDATE"), eq(false))).thenReturn(finder);
+        when(finder.sorted(eq("releaseDate"), eq(false))).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.of(command3, command4));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
@@ -295,7 +295,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .minusSeconds(5), null, sent, deviceMessageCategoryClock);
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.sorted(eq("RELEASEDATE"), eq(false))).thenReturn(finder);
+        when(finder.sorted(eq("releaseDate"), eq(false))).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.of(command1, command2));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
@@ -337,7 +337,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         doReturn(Arrays.asList(attribute1, attribute2, attribute3)).when(command1).getAttributes();
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.sorted(eq("RELEASEDATE"), eq(false))).thenReturn(finder);
+        when(finder.sorted(eq("releaseDate"), eq(false))).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.of(command1));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
@@ -379,7 +379,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
         doReturn(Arrays.asList(attribute1, attribute2, attribute3)).when(command1).getAttributes();
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.sorted(eq("RELEASEDATE"), eq(false))).thenReturn(finder);
+        when(finder.sorted(eq("releaseDate"), eq(false))).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.of(command1));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
@@ -428,7 +428,7 @@ public class DeviceMessageResourceTest extends DeviceDataRestApplicationJerseyTe
                 .minusSeconds(5), created.plusSeconds(5), null, deviceMessageCategoryClock);
         Finder finder = mock(Finder.class);
         when(finder.from(any(QueryParameters.class))).thenReturn(finder);
-        when(finder.sorted(eq("RELEASEDATE"), eq(false))).thenReturn(finder);
+        when(finder.sorted(eq("releaseDate"), eq(false))).thenReturn(finder);
         when(finder.stream()).thenReturn(Stream.of(command2));
         when(deviceMessageService.findDeviceMessagesByFilter(any(DeviceMessageQueryFilter.class))).thenReturn(finder);
         when(deviceService.findDeviceByName("ZABF010000080004")).thenReturn(Optional.of(device));
