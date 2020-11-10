@@ -495,22 +495,22 @@ Ext.define('Uni.view.widget.WhatsGoingOn', {
     },
 
     addIssueTypeToTooltip: function (result, value) {
-        result += !!value.issueType ? Uni.I18n.translate('whatsGoingOn.issueType', 'UNI', 'Issue type: {0}', value.issueType): '';
+        result += !!value.issueType ? Uni.I18n.translate('whatsGoingOn.issueType', 'UNI', 'Issue type: {0}', value.issueType)+ "<br>" : '<br>';
         return result;
     },
 
 
     addReasonToTooltip: function (result, value) {
-        result += !!value.reason ? Uni.I18n.translate('whatsGoingOn.reason', 'UNI', 'Reason: {0}', value.reason): '';
+        result += !!value.reason ? Uni.I18n.translate('whatsGoingOn.reason', 'UNI', 'Reason: {0}', value.reason)+ "<br>" : '<br>';
         return result;
     },
 
     addDueDateToTooltip: function (value, result) {
         if (!!value.severity && !!value.dueDate) {
             if (value.severity === 'HIGH') {
-                result += '<br><span style="color: #EB5642">' + Uni.I18n.translate('whatsGoingOn.dueDate', 'UNI', 'Due date: {0}', Uni.DateTime.formatDateTimeLong(new Date(value.dueDate))) + '<span class="icon-warning" style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px"></span></span><br><br>';
+                result += '<br><span style="color: #EB5642">' + Uni.I18n.translate('whatsGoingOn.dueDate', 'UNI', 'Due date: {0}', Uni.DateTime.formatDateTimeLong(new Date(value.dueDate))) + '<span class="icon-warning" style="display: inline-block; width: 16px; height: 16px; margin: 0 0 0 10px"></span></span><br>';
             } else {
-                result += '<br>' + Uni.I18n.translate('whatsGoingOn.dueDate', 'UNI', 'Due date: {0}', Uni.DateTime.formatDateTimeLong(new Date(value.dueDate))) + "<br><br>";
+                result += '<br>' + Uni.I18n.translate('whatsGoingOn.dueDate', 'UNI', 'Due date: {0}', Uni.DateTime.formatDateTimeLong(new Date(value.dueDate))) + "<br>";
             }
 
         }
