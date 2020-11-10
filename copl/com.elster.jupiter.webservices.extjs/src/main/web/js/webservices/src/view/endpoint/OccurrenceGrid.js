@@ -30,6 +30,22 @@ Ext.define('Wss.view.endpoint.OccurrenceGrid', {
                 header: Uni.I18n.translate('general.message', 'WSS', 'Message'),
                 dataIndex: 'message',
                 flex: 8
+            },
+            {
+                xtype: 'uni-actioncolumn',
+                flex: 1,
+                isDisabled: function(menu, item) {
+                    var occurrenceLogStore = menu.getStore('Wss.store.endpoint.OccurrenceLog')
+                    if(occurrenceLogStore){
+                        occurrenceLogRecord = occurrenceLogStore.getAt(item);
+                        var stackTrace = occurrenceLogRecord.get('stackTrace');
+                        return !stackTrace;
+                    }
+                    return true;
+                },
+                menu: {
+                    xtype: 'webservices-endpoint-occurrence-action-menu'
+                }
             }
         ];
 

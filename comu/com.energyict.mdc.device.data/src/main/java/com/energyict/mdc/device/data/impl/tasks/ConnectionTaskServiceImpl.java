@@ -409,6 +409,19 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     }
 
     @Override
+    public List<PartialConnectionTask> findPartialConnectionTasks(){
+        return deviceDataModelService.dataModel()
+                .mapper(ConnectionTask.class)
+                .find()
+                .stream()
+                .map(ct->ct.getPartialConnectionTask())
+                .distinct()
+                .collect(Collectors.toList());
+        // all partial connections are fetched from DB (5000). After that I filter them and only 1-5 remains
+        // THis method could be optimized, to fetch from DB directly last 1-5 results
+    }
+
+    @Override
     public long getConnectionTasksCount(ConnectionTaskFilterSpecification filter) {
         ConnectionTaskFilterSqlBuilder sqlBuilder =
                 new ConnectionTaskFilterSqlBuilder(

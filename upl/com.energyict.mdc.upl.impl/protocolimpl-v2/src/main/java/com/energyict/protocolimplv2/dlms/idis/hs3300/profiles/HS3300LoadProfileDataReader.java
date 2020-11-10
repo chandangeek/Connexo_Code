@@ -93,6 +93,7 @@ public class HS3300LoadProfileDataReader {
                         " from " + loadProfileReader.getStartReadingTime() + " to " + loadProfileReader.getEndReadingTime());
                 try {
                     ProfileGeneric profile = this.protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(loadProfileReader.getProfileObisCode());
+                    profile.setUseWildcardClockStatus(true);
 
                     Calendar fromCalendar = Calendar.getInstance(this.protocol.getTimeZone());
                     fromCalendar.setTime(loadProfileReader.getStartReadingTime());
