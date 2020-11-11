@@ -1108,7 +1108,7 @@ sub activate_sso_filters{
     if ("$ACTIVATE_SSO" eq "yes") {
         if ("$INSTALL_FLOW" eq "yes") {
 
-            print "Activating FLOW SSO filter in $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/web.xml";
+            print "Activating FLOW SSO filter in $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/web.xml\n";
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/web.xml","<!-- CXORE o -->","<!-- CXORE o ");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/web.xml","<!-- CXORE c -->","CXORE c -->");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/web.xml","<!-- CXOCASF o","<!-- CXOCASF o -->");
@@ -1141,7 +1141,7 @@ sub activate_sso_filters{
                 copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar");
             }
 
-            print "Activating FLOW SSO filter in $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/web.xml";
+            print "Activating FLOW SSO filter in $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/web.xml\n";
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/web.xml","<!-- CXOCASF o","<!-- CXOCASF o -->");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/web.xml","CXOCASF c -->","<!-- CXOCASF c -->");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/web.xml","<!-- CXOSEC o -->","<!-- CXOSEC o ");
@@ -1160,7 +1160,7 @@ sub activate_sso_filters{
                 copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar");
             }
 
-            print "Setting SSO properties in $JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml";
+            print "Setting SSO properties in $JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml\n";
             my $pubKey = "$CONNEXO_DIR/publicKey.txt";
             if(-e $pubKey){
                 open(INPUT, $pubKey);
