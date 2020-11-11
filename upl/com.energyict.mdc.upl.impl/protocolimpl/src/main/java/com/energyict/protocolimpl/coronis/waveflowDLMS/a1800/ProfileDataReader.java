@@ -248,7 +248,7 @@ public class ProfileDataReader {
             return new MeterEvent(date, MeterEvent.TERMINAL_OPENED, meterEventCode, "MFG Terminal cover tamper");
         }
         if (meterEventCode == 2051) {
-            return new MeterEvent(date, MeterEvent.COVER_OPENED, meterEventCode, "MFG Main cover tamper");
+            return new MeterEvent(date, MeterEvent.METER_COVER_OPENED, meterEventCode, "MFG Main cover tamper");
         }
         if (meterEventCode == 2052) {
             return new MeterEvent(date, MeterEvent.OTHER, meterEventCode, "MFG External Event 0");

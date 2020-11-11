@@ -6,7 +6,7 @@ import com.energyict.protocol.MeterEvent;
 public class MainCoverEventLog extends AbstractEventLog {
 
 	static final String EVENT_NAME 		= "Main cover event";
-	static final int EVENT_CODE 		= MeterEvent.COVER_OPENED;
+	static final int EVENT_CODE 		= MeterEvent.METER_COVER_OPENED;
 	
 	/*
 	 * Constructors

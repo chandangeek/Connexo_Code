@@ -139,7 +139,7 @@ public enum ApolloEvents {
      * ************************************ Group 4 Events **************************************
      */
     FraudEventsLogCleared(255, MeterEvent.CLEAR_DATA, 4, "Fraud", "Fraud event log has been cleared"),
-    CoverOpened(1, MeterEvent.COVER_OPENED, 4, "Fraud", "Cover opened"),
+    CoverOpened(1, MeterEvent.METER_COVER_OPENED, 4, "Fraud", "Cover opened"),
     CoverClosed(2, MeterEvent.TAMPER, 4, "Fraud", "Cover closed"),
     StrongDCFieldDetected(3, MeterEvent.STRONG_DC_FIELD_DETECTED, 4, "Fraud", "Strong DC field detected"),
     NoStrongDCFieldAnymore(4, MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, 4, "Fraud", "No strong DC field anymore"),

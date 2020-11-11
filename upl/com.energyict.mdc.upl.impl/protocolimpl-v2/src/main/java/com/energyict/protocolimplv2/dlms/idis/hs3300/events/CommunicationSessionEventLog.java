@@ -15,20 +15,20 @@ public class CommunicationSessionEventLog {
         MeterProtocolEvent event;
         switch (eventId) {
             case 26:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Communication started on remote interface LAN/WAN", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.COMMUNICATION_STARTED_ON_REMOTE_INTERFACE_LAN_WAN, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.COMMUNICATION_STARTED_ON_REMOTE_INTERFACE_LAN_WAN), "Communication started on remote interface LAN/WAN", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 27:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Communication ended on remote interface LAN/WAN", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.COMMUNICATION_ENDED_ON_REMOTE_INTERFACE_LAN_WAN, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.COMMUNICATION_ENDED_ON_REMOTE_INTERFACE_LAN_WAN), "Communication ended on remote interface LAN/WAN", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 28:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Communication started on local interface WZ", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.COMMUNICATION_STARTED_ON_LOCAL_INTERFACE_WZ, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.COMMUNICATION_STARTED_ON_LOCAL_INTERFACE_WZ), "Communication started on local interface WZ", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 29:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Communication ended on local interface WZ", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.COMMUNICATION_ENDED_ON_LOCAL_INTERFACE_WZ, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.COMMUNICATION_ENDED_ON_LOCAL_INTERFACE_WZ), "Communication ended on local interface WZ", COMMUNICATION_SESSION_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 255:
                 event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.EVENT_LOG_CLEARED, eventId,

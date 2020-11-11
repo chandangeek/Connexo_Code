@@ -15,52 +15,52 @@ public class PowerQualityEventLog {
         MeterProtocolEvent event;
         switch (eventId) {
             case 76:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Undervoltage L1", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.UNDERVOLTAGE_L1, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.UNDERVOLTAGE_L1), "Undervoltage L1", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 77:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Undervoltage L2", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.UNDERVOLTAGE_L2, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.UNDERVOLTAGE_L2), "Undervoltage L2", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 78:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Undervoltage L3", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.UNDERVOLTAGE_L3, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.UNDERVOLTAGE_L3), "Undervoltage L3", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 79:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Overvoltage L1", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OVERVOLTAGE_L1, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OVERVOLTAGE_L1), "Overvoltage L1", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 80:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Overvoltage L2", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OVERVOLTAGE_L2, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OVERVOLTAGE_L2), "Overvoltage L2", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 81:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Overvoltage L3", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OVERVOLTAGE_L3, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OVERVOLTAGE_L3), "Overvoltage L3", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 82:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Missing voltage L1", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.MISSINGVOLTAGE_L1, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.MISSINGVOLTAGE_L1), "Missing voltage L1", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 83:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Missing voltage L2", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.MISSINGVOLTAGE_L2, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.MISSINGVOLTAGE_L2), "Missing voltage L2", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 84:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Missing voltage L3", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.MISSINGVOLTAGE_L3, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.MISSINGVOLTAGE_L3), "Missing voltage L3", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 85:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Voltage L1 normal", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.NORMALVOLTAGE_L1, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.NORMALVOLTAGE_L1), "Voltage L1 normal", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 86:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Voltage L2 normal", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.NORMALVOLTAGE_L2, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.NORMALVOLTAGE_L2), "Voltage L2 normal", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 87:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.OTHER, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.OTHER), "Voltage L3 normal", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.NORMALVOLTAGE_L3, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.NORMALVOLTAGE_L3), "Voltage L3 normal", POWER_QUALITY_EVENT_LOG_ID, UNKNOWN_ID);
                 break;
             case 90:
                 event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.PHASE_ASYMMETRY, eventId,

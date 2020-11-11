@@ -126,7 +126,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     /**
      * The meter cover was opened
      */
-    public static final int COVER_OPENED = 24;        // sometimes you have two events for the tamper detection
+    public static final int METER_COVER_OPENED = 24;        // sometimes you have two events for the tamper detection
     /**
      * The terminal cover was opened
      */
@@ -845,6 +845,13 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int LOCAL_INTERFACE_DEACTIVATED = 419;
     public static final int LOCAL_INTERFACE_REACTIVATED = 420;
     public static final int CURRENT_REVERSAL = 421;
+    public static final int COMMUNICATION_STARTED_ON_REMOTE_INTERFACE_LAN_WAN = 422;
+    public static final int COMMUNICATION_ENDED_ON_REMOTE_INTERFACE_LAN_WAN = 423;
+    public static final int COMMUNICATION_STARTED_ON_LOCAL_INTERFACE_WZ = 424;
+    public static final int COMMUNICATION_ENDED_ON_LOCAL_INTERFACE_WZ = 425;
+    public static final int PASSIVE_ACTIVITY_CALENDAR_ACTIVATED = 426;
+    public static final int ACTIVITY_CALENDAR_PROGRAMMED = 427;
+
 
     /**
      * Start of Beacon3100 custom codes
@@ -1181,7 +1188,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Application alert stop.");
             case TAMPER:
                 return ("Tamper detected.");
-            case COVER_OPENED:
+            case METER_COVER_OPENED:
                 return ("Meter cover opened.");
             case TERMINAL_OPENED:
                 return ("Terminal cover opened.");

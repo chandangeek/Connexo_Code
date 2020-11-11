@@ -18,7 +18,7 @@ public class MeterCoverOpenedLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case METER_COVER_OPEN_START:
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COVER_OPENED, eventId, "Opening of meter cover event start"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_COVER_OPENED, eventId, "Opening of meter cover event start"));
                 break;
             case METER_COVER_OPEN_END:
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_COVER_CLOSED, eventId, "Opening of meter cover event end"));

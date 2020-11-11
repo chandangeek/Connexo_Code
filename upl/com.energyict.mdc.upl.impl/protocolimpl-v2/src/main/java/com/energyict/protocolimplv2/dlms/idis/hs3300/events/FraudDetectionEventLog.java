@@ -31,8 +31,8 @@ public class FraudDetectionEventLog {
                         EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.NO_STRONG_DC_FIELD_ANYMORE), "No strong DC field anymore", FRAUD_DETECTION_EVENT_LOG, UNKNOWN_ID);
                 break;
             case 44:
-                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.COVER_OPENED, eventId,
-                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.COVER_OPENED), "Meter cover removed", FRAUD_DETECTION_EVENT_LOG, UNKNOWN_ID);
+                event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.METER_COVER_OPENED, eventId,
+                        EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(MeterEvent.METER_COVER_OPENED), "Meter cover removed", FRAUD_DETECTION_EVENT_LOG, UNKNOWN_ID);
                 break;
             case 45:
                 event = new MeterProtocolEvent(eventTimeStamp, MeterEvent.METER_COVER_CLOSED, eventId,

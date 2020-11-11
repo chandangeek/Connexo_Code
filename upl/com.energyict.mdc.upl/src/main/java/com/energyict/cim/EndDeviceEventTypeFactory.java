@@ -122,10 +122,6 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.12.141.212");
     }
 
-    public static EndDeviceEventType getTerminalOpenedEventType() {
-        return new EndDeviceEventType("0.12.29.212");
-    }
-
     public static EndDeviceEventType getReverseRunEventType() {
         return new EndDeviceEventType("0.12.6.219");
     }
@@ -1014,10 +1010,6 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.0.113.0");
     }
 
-    public static EndDeviceEventType getCoverTemper() {
-        return new EndDeviceEventType("0.12.29.212");
-    }
-
     public static EndDeviceEventType getExternalEvent() {
         return new EndDeviceEventType("0.39.55.242");
     }
@@ -1896,4 +1888,17 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getTemperatureSensorError() { return new EndDeviceEventType("0.35.0.79"); }
 
     public static EndDeviceEventType getBindingFlag() { return new EndDeviceEventType("0.6.5.58"); }
+
+    public static EndDeviceEventType getCommunicationStartedOnRemoteInterfaceLAN_WAN() { return new EndDeviceEventType("0.1.60.54"); }
+
+    public static EndDeviceEventType getCommunicationEndedOnRemoteInterfaceLAN_WAN() { return new EndDeviceEventType("0.1.60.55"); }
+
+    public static EndDeviceEventType getCommunicationStartedOnLocalInterfaceWZ() { return new EndDeviceEventType("0.1.129.54"); }
+
+    public static EndDeviceEventType getCommunicationEndedOnLocalInterfaceWZ() { return new EndDeviceEventType("0.1.129.55"); }
+
+    public static EndDeviceEventType getPassiveActivityCalendarActivated() { return new EndDeviceEventType("0.31.83.4"); }
+
+    public static EndDeviceEventType getActivityCalendarProgrammed() { return new EndDeviceEventType("0.31.83.24"); }
+
 }
