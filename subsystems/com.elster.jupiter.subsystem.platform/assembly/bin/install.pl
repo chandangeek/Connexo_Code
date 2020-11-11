@@ -1127,10 +1127,10 @@ sub activate_sso_filters{
                 print "    $JBOSS_BASE/flow/flow.filter.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/flow.filter.jar\n";
             	copy("$JBOSS_BASE/flow/flow.filter.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/flow.filter.jar");
              }
-            if (-e "$JBOSS_BASE/flow/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar") {
-                print "    $JBOSS_BASE/flow/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar\n";
+            if (-e "$JBOSS_BASE/flow/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar") {
+                print "    $JBOSS_BASE/flow/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar\n";
                 unlink("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005.jar");
-            	copy("$JBOSS_BASE/flow/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar");
+            	copy("$JBOSS_BASE/flow/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/uberfire-servlet-security-7.39.0.Final-redhat-00005-HW.jar");
              }
             if (-e "$JBOSS_BASE/flow/lib/json-smart-1.3.1.jar") {
                 print "    $JBOSS_BASE/flow/lib/json-smart-1.3.1.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/json-smart-1.3.1.jar\n";
