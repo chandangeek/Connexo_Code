@@ -60,6 +60,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(user.getPrivileges(anyString())).thenReturn(Collections.singleton(privilege));
+        when(threadPrincipalService.getAppServerName()).thenReturn(Optional.of("AppServerTestName"));
     }
 
     @Test
@@ -348,7 +349,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
 
     private WebServiceCallOccurrence createOccurrence(Instant time, String request, String application, EndPointConfiguration endPointConfiguration) {
-        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService)
+        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService, threadPrincipalService)
                 .init(time, request, application, endPointConfiguration);
     }
 }

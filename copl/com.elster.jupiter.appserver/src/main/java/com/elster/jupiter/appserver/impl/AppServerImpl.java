@@ -57,6 +57,7 @@ import static java.util.stream.Collectors.toList;
 @UniqueCaseInsensitive(fields = "name", groups = Save.Create.class, message = "{" + MessageSeeds.Keys.NAME_MUST_BE_UNIQUE + "}")
 class AppServerImpl implements AppServer {
     // Application server name should be less then 25 characters due to DB constrains (including "APPSERVER_" prefix)
+    // also hardcoded in com.elster.jupiter.soap.whiteboard.cxf.impl.TableSpecs#WS_CALL_OCCURRENCE
     private static final int APP_SERVER_NAME_SIZE = 14;
     private static final String APP_SERVER = "AppServer";
     private final DataModel dataModel;

@@ -69,6 +69,7 @@ public class AS330DConfigurationSupport extends DlmsConfigurationSupport {
                 .finish();
     }
 
+    // TODO: Change PSK from String to KeyAccessor.
     private PropertySpec pskPropertySpec() {
         return UPLPropertySpecFactory
                 .specBuilder(G3Properties.PSK, false, PropertyTranslationKeys.V2_DLMS_PSK, this.getPropertySpecService()::stringSpec)

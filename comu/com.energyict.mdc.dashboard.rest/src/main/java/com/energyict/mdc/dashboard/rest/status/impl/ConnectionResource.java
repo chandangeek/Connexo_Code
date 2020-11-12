@@ -25,6 +25,7 @@ import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.PartialConnectionTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
@@ -236,6 +237,21 @@ public class ConnectionResource {
         if (jsonQueryFilter.hasProperty(FilterOption.deviceGroups.name())) {
             filter.deviceGroups = new HashSet<>();
             jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).stream().forEach(id -> filter.deviceGroups.add(meteringGroupsService.findEndDeviceGroup(id).get()));
+        }
+
+        if (jsonQueryFilter.hasProperty(FilterOption.connectionMethods.name())) {
+
+            List<String> connectionMethods = jsonQueryFilter.getStringList(FilterOption.connectionMethods.name());
+
+            List<PartialConnectionTask> partialConnectionTasks = connectionTaskService.findPartialConnectionTasks();
+
+            filter.connectionMethods = partialConnectionTasks
+                    .stream()
+                    .distinct()
+                    .filter(pct->connectionMethods.contains(pct.getName()))
+                    .map(pct -> pct.getId())
+                    .collect(Collectors.toList());
+
         }
 
         if (jsonQueryFilter.hasProperty(FilterOption.finishIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.finishIntervalTo.name())) {
