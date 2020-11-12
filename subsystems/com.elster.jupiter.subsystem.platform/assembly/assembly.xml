@@ -122,7 +122,6 @@
         </dependencySet>
         <dependencySet>
             <includes>
-                <include>com.elster.jupiter.thirdparty.apps.pam:addons:zip:connexoaddons</include>
                 <include>com.elster.jupiter.thirdparty.apps.pam:businesscentral:zip:connexobusinesscentral</include>
                 <include>com.elster.jupiter.thirdparty.apps.pam:pamkieserver:zip:connexokieserver</include>
             </includes>

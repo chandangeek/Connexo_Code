@@ -509,14 +509,6 @@
         <!-- Packaged RedHat PAM stuff  -->
         <dependency>
             <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
-            <artifactId>addons</artifactId>
-            <version>7.8.0</version>
-            <type>zip</type>
-            <classifier>connexoaddons</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
             <artifactId>businesscentral</artifactId>
             <version>7.8.0</version>
             <type>zip</type>
