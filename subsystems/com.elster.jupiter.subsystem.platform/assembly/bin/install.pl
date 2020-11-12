@@ -81,6 +81,7 @@ my $CASE_MGMT="rhpam-7.8.0-case-mgmt-showcase-eap7-deployable";
 
 my $CONNEXO_ADMIN_ACCOUNT="admin";
 my $CONNEXO_ADMIN_PASSWORD;
+my $PAM_MANAGEMENT_ACCOUNT="pamadmin";
 my $TOMCAT_ADMIN_PASSWORD="D3moAdmin";
 my $JBOSS_ADMIN_PASSWORD="D3moAdmin";
 
@@ -193,11 +194,11 @@ sub check_create_users {
                 system("useradd -U -r -m tomcat") == 0 or die "system useradd -U -r -m tomcat failed: $?";
             }
         }
-        if ("$INSTALL_FLOW" eq "yes") {
-            if (`cat /etc/passwd|grep jboss:` eq "") {
-                system("useradd -U -r -m jboss") == 0 or die "system useradd -U -r -m jboss failed: $?";
-            }
-        }
+        #if ("$INSTALL_FLOW" eq "yes") {
+            #if (`cat /etc/passwd|grep jboss:` eq "") {
+                #system("useradd -U -r -m jboss") == 0 or die "system useradd -U -r -m jboss failed: $?";
+            #}
+        #}
     }
 }
 
@@ -548,7 +549,7 @@ sub install_connexo {
             add_to_file_if($config_file,"mail.smtp.port=$SMTP_PORT");
             add_to_file_if($config_file,"mail.user=$SMTP_USER");
             add_to_file_if($config_file,"mail.from=$SMTP_FROM");
-            											 
+
             update_properties_file_with_encrypted_password();
 
             add_to_file_if($config_file,"com.elster.jupiter.url.rewrite.host=$HOST_NAME");
@@ -630,12 +631,12 @@ sub update_properties_file_with_encrypted_password {
     my $encryptedPassword = $cipher->encrypt($dbPassword);
     my $base64EncodedPassword = encode_base64($encryptedPassword);
 	my $mailEncryptedPassword = $cipher->encrypt($SMTP_PASSWORD);
-    my $mailBase64EncodedPassword = encode_base64($mailEncryptedPassword);								
+    my $mailBase64EncodedPassword = encode_base64($mailEncryptedPassword);
     replace_row_in_file($config_file,"com.elster.jupiter.datasource.jdbcpassword=","");
     add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
 	replace_row_in_file($config_file,"mail.password=","");
     add_to_file_if($config_file,"mail.password=$mailBase64EncodedPassword");
-   
+
 }
 
 sub add_or_update_encryption_key_file{
@@ -814,8 +815,16 @@ sub install_jboss {
         copy("$JBOSS_BASE/flow/standalone.conf.bat","$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat","rem set \"JAVA_HOME=\"","set \"JAVA_HOME=$JAVA_HOME\"");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/jboss-cli.bat","set \"JAVA_HOME=C\"","set \"JAVA_HOME=$JAVA_HOME\"");
-        system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
-        system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+        if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+            system("add-user.bat -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
+            system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+        } else {
+            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
+            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
+            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+        }
 
         copy("$JBOSS_BASE/flow/standalone-full.xml","$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml");
         copy("$JBOSS_BASE/flow/userinfo.properties","$JBOSS_BASE/jboss/standalone/deployments/business-central.war/WEB-INF/classes/");
@@ -858,16 +867,25 @@ sub install_jboss {
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.host=localhost","datasource.management.wildfly.host=$HOST_NAME");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.port=9990","datasource.management.wildfly.port=$JBOSS_MANAGEMENT_HTTP_PORT");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.admin=admin","datasource.management.wildfly.admin=$CONNEXO_ADMIN_ACCOUNT");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","\# datasource.management.wildfly.admin=admin","datasource.management.wildfly.admin=$PAM_MANAGEMENT_ACCOUNT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.password=","datasource.management.wildfly.password=$JBOSS_ADMIN_PASSWORD");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/datasource-management.properties","# datasource.management.wildfly.realm=ApplicationRealm","datasource.management.wildfly.realm=ApplicationRealm");
 
         copy("$JBOSS_BASE/flow/security-management.properties","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.port=MANAGEMENT_HTTP_PORT","org.uberfire.ext.security.management.wildfly.cli.port=$JBOSS_MANAGEMENT_HTTP_PORT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.host=MANAGEMENT_IP","org.uberfire.ext.security.management.wildfly.cli.host=$HOST_NAME");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.user=APPLICATION_USER","org.uberfire.ext.security.management.wildfly.cli.user=$CONNEXO_ADMIN_ACCOUNT");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.user=APPLICATION_USER","org.uberfire.ext.security.management.wildfly.cli.user=$PAM_MANAGEMENT_ACCOUNT");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.password=APPLICATION_PASSWORD","org.uberfire.ext.security.management.wildfly.cli.password=$JBOSS_ADMIN_PASSWORD");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/classes/security-management.properties","\# org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm","org.uberfire.ext.security.management.wildfly.cli.realm=ApplicationRealm");
+
+        #Branding
+        copy("$JBOSS_BASE/flow/brand/favicon.ico","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/favicon.ico");
+        copy("$JBOSS_BASE/flow/brand/logo.png","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/banner/logo.png");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/kie-wb.jsp","<title>Business Central</title>","<title>Connexo Flow</title>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/kie-wb.jsp","<link rel=\"shortcut icon\" href=\"favicon.png\"/>","<link rel=\"shortcut icon\" href=\"favicon.ico\"/>");
+        copy("$JBOSS_BASE/flow/brand/login.jsp","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/login.jsp");
+        copy("$JBOSS_BASE/flow/brand/logout.jsp","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/logout.jsp");
+        copy("$JBOSS_BASE/flow/brand/not_authorized.jsp","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/not_authorized.jsp");
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/service.bat","set STARTUP_MODE=manual","set STARTUP_MODE=auto");
 
@@ -880,19 +898,10 @@ sub install_jboss {
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JAVA_HOME=\"/usr/lib/jvm/default-java\"","JAVA_HOME=\"$JAVA_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_HOME=\"/opt/jboss-eap\"","JBOSS_HOME=\"$STANDALONE_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_USER=jboss-eap","JBOSS_USER=jboss-eap");
-
-        	open(my $FH,"> /etc/init.d/ConnexoJboss$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoJboss$SERVICE_VERSION: $!";
-                 print $FH "#!/bin/sh\n";
-                 print $FH "#\n";
-                 print $FH "#Startup script for Jboss\n";
-                 print $FH "#\n";
-                 print $FH "#chkconfig: - 99 01\n";
-                 print $FH "#description: This script starts Jboss\n";
-                 print $FH "#processname: jsvc\n";
-        	print $FH "\n";
-            print $FH "\"$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh\"";
-            close($FH);
-            chmod 0755,"/etc/init.d/ConnexoJboss$SERVICE_VERSION";
+            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf /etc/default");
+            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh /etc/init.d");
+            system("sudo chmod +x /etc/init.d/jboss-eap-rhel.sh");
+            system("sudo chkconfig --add /etc/init.d/jboss-eap-rhel.sh");
 		}
 	}
 }
@@ -1062,15 +1071,6 @@ sub install_flow {
         rmtree("SecurityPolicy");
         open(my $FH,"> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war.dodeploy") or die "Could not open $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war.dodeploy: $!";
         close($FH);
-
-#        print "Extracting rhpam-case-mgmt-showcase.zip\n";
-#        system("\"$JAVA_HOME/bin/jar\" -vxf addons.zip $CASE_MGMT.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf addons.zip failed: $?";
-#        system("\"$JAVA_HOME/bin/jar\" -vxf $CASE_MGMT.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $CASE_MGMT.zip failed: $?";
-#        if (-d "$JBOSS_DIR") { rmtree("$JBOSS_DIR"); }
-#        sleep 10;
-#        rename("$JBOSS_FOLDER","$JBOSS_DIR");
-#        dircopy("$JBOSS_BASE/flow/$JBOSS_DIR", "$JBOSS_BASE/$JBOSS_DIR");
-#        rmtree("$JBOSS_DIR");
 
         unlink("$CATALINA_HOME/webapps/flow/WEB-INF/lib/log4j-over-slf4j-1.7.2.jar");
         print "Copying extra jar files\n";
@@ -1358,7 +1358,6 @@ sub change_owner {
 	if ("$OS" eq "linux") {
 		system("chown -R -f connexo:connexo \"$CONNEXO_DIR\"");
 		system("chown -R -f tomcat:tomcat \"$TOMCAT_BASE\"");
-		system("chown -R -f jboss:jboss \"$JBOSS_BASE\"");
 	}
 }
 
@@ -1526,10 +1525,10 @@ sub restart_jboss_service {
           print "\nConnexoJboss$SERVICE_VERSION started!\n";
        } else {
           print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
-          system("/sbin/service ConnexoJboss$SERVICE_VERSION stop");
+          system("sudo service jboss-eap-rhel.sh start");
           sleep 15;
           print "Starting service ConnexoJboss$SERVICE_VERSION\n";
-          system("/sbin/service ConnexoJboss$SERVICE_VERSION start");
+          system("sudo service jboss-eap-rhel.sh stop");
           sleep 10;
        }
     }
@@ -1551,29 +1550,11 @@ sub start_jboss_service {
             print "\nConnexoJboss$SERVICE_VERSION started!\n";
         }
         else {
-            if (!-e "$JBOSS_BASE/$JBOSS_DIR/bin/jsvc") {
-                print "Compiling common-daemon-native\n";
-                chdir "$STANDALONE_HOME/bin";
-                system("tar xfz commons-daemon-native.tar.gz");
-                chdir "$STANDALONE_HOME/bin/commons-daemon-1.1.0-native-src/unix";
-                system("./configure");
-                system("make");
-                copy("jsvc", "../..");
-                chdir "$STANDALONE_HOME/bin";
-            }
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/jsvc";
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/daemon.sh";
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh";
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/catalina.sh";
-            #system("\"$JBOSS_BASE/$JBOSS_DIR/bin/daemon.sh\" start");
-            system("/sbin/service /name ConnexoJboss$SERVICE_VERSION start");
-            system("/sbin/chkconfig --add /name ConnexoJboss$SERVICE_VERSION");
-            system("/sbin/chkconfig /name ConnexoJboss$SERVICE_VERSION on");
-
-            print "\n\nStarting Jboss EAP service using: $JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh \n";
-            system("\"$JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh\" ");
+            system("sudo chkconfig jboss-eap-rhel.sh on");
+            print "\n\nStarting Jboss EAP service using: $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.rhel.sh \n";
+            system("sudo service jboss-eap-rhel.sh start");
             print "... waiting for Jboss EAP to start ...";
-            sleep(10);
+            sleep(20);
             print " continuing.\n";
         }
     }
@@ -1714,11 +1695,13 @@ sub uninstall_all {
         system("/sbin/chkconfig --del ConnexoTomcat$SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$SERVICE_VERSION");
 		print "Stop and remove ConnexoJboss$SERVICE_VERSION service";
-        system("/sbin/service ConnexoJboss$SERVICE_VERSION stop");
+        system("sudo service jboss-eap-rhel.sh stop");
         sleep 3;
-        system("userdel -r jboss");
-        system("/sbin/chkconfig --del ConnexoJboss$SERVICE_VERSION");
-        unlink("/etc/init.d/ConnexoJboss$SERVICE_VERSION");
+        system("sudo chkconfig --del jboss-eap-rhel.sh");
+        system("sudo rm /etc/init.d/jboss-eap-rhel.sh");
+        system("sudo rm /etc/default/jboss-eap.conf");
+        #unlink("/etc/init.d/jboss-eap-rhel.sh");
+        #unlink("/etc/default/jboss-eap.conf");
 	}
     #uninstall Apache httpd 2.2 or 2.4
 	print "Remove folders (tomcat)\n";
@@ -1727,6 +1710,7 @@ sub uninstall_all {
     if (-d "$CONNEXO_DIR/partners/jboss") { rmtree("$CONNEXO_DIR/partners/jboss"); }
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 	if (-d "$CONNEXO_DIR/partners/jbcs-jsvc-1.1") { rmtree("$CONNEXO_DIR/partners/jbcs-jsvc-1.1"); }
+    rmtree("C:\Windows\System32\config\systemprofile\.m2\repository\Honeywell");
 }
 
 sub find_string_value {
