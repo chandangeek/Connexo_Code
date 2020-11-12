@@ -194,11 +194,11 @@ sub check_create_users {
                 system("useradd -U -r -m tomcat") == 0 or die "system useradd -U -r -m tomcat failed: $?";
             }
         }
-        if ("$INSTALL_FLOW" eq "yes") {
-            if (`cat /etc/passwd|grep jboss:` eq "") {
-                system("useradd -U -r -m jboss") == 0 or die "system useradd -U -r -m jboss failed: $?";
-            }
-        }
+        #if ("$INSTALL_FLOW" eq "yes") {
+            #if (`cat /etc/passwd|grep jboss:` eq "") {
+                #system("useradd -U -r -m jboss") == 0 or die "system useradd -U -r -m jboss failed: $?";
+            #}
+        #}
     }
 }
 
@@ -815,9 +815,16 @@ sub install_jboss {
         copy("$JBOSS_BASE/flow/standalone.conf.bat","$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/standalone.conf.bat","rem set \"JAVA_HOME=\"","set \"JAVA_HOME=$JAVA_HOME\"");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/jboss-cli.bat","set \"JAVA_HOME=C\"","set \"JAVA_HOME=$JAVA_HOME\"");
-        system("add-user.bat -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
-        system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
-        system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+        if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+            system("add-user.bat -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
+            system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+        } else {
+            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
+            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
+            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+        }
 
         copy("$JBOSS_BASE/flow/standalone-full.xml","$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml");
         copy("$JBOSS_BASE/flow/userinfo.properties","$JBOSS_BASE/jboss/standalone/deployments/business-central.war/WEB-INF/classes/");
@@ -881,19 +888,10 @@ sub install_jboss {
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JAVA_HOME=\"/usr/lib/jvm/default-java\"","JAVA_HOME=\"$JAVA_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_HOME=\"/opt/jboss-eap\"","JBOSS_HOME=\"$STANDALONE_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_USER=jboss-eap","JBOSS_USER=jboss-eap");
-
-        	open(my $FH,"> /etc/init.d/ConnexoJboss$SERVICE_VERSION") or die "Could not open /etc/init.d/ConnexoJboss$SERVICE_VERSION: $!";
-                 print $FH "#!/bin/sh\n";
-                 print $FH "#\n";
-                 print $FH "#Startup script for Jboss\n";
-                 print $FH "#\n";
-                 print $FH "#chkconfig: - 99 01\n";
-                 print $FH "#description: This script starts Jboss\n";
-                 print $FH "#processname: jsvc\n";
-        	print $FH "\n";
-            print $FH "\"$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh\"";
-            close($FH);
-            chmod 0755,"/etc/init.d/ConnexoJboss$SERVICE_VERSION";
+            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf /etc/default");
+            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh /etc/init.d");
+            system("sudo chmod +x /etc/init.d/jboss-eap-rhel.sh");
+            system("sudo chkconfig --add /etc/init.d/jboss-eap-rhel.sh");
 		}
 	}
 }
@@ -1281,7 +1279,6 @@ sub change_owner {
 	if ("$OS" eq "linux") {
 		system("chown -R -f connexo:connexo \"$CONNEXO_DIR\"");
 		system("chown -R -f tomcat:tomcat \"$TOMCAT_BASE\"");
-		system("chown -R -f jboss:jboss \"$JBOSS_BASE\"");
 	}
 }
 
@@ -1447,10 +1444,10 @@ sub restart_jboss_service {
           print "\nConnexoJboss$SERVICE_VERSION started!\n";
        } else {
           print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
-          system("/sbin/service ConnexoJboss$SERVICE_VERSION stop");
+          system("sudo service jboss-eap-rhel.sh start");
           sleep 15;
           print "Starting service ConnexoJboss$SERVICE_VERSION\n";
-          system("/sbin/service ConnexoJboss$SERVICE_VERSION start");
+          system("sudo service jboss-eap-rhel.sh stop");
           sleep 10;
        }
     }
@@ -1472,29 +1469,11 @@ sub start_jboss_service {
             print "\nConnexoJboss$SERVICE_VERSION started!\n";
         }
         else {
-            if (!-e "$JBOSS_BASE/$JBOSS_DIR/bin/jsvc") {
-                print "Compiling common-daemon-native\n";
-                chdir "$STANDALONE_HOME/bin";
-                system("tar xfz commons-daemon-native.tar.gz");
-                chdir "$STANDALONE_HOME/bin/commons-daemon-1.1.0-native-src/unix";
-                system("./configure");
-                system("make");
-                copy("jsvc", "../..");
-                chdir "$STANDALONE_HOME/bin";
-            }
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/jsvc";
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/daemon.sh";
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh";
-            chmod 0755, "$JBOSS_BASE/$JBOSS_DIR/bin/catalina.sh";
-            #system("\"$JBOSS_BASE/$JBOSS_DIR/bin/daemon.sh\" start");
-            system("/sbin/service /name ConnexoJboss$SERVICE_VERSION start");
-            system("/sbin/chkconfig --add /name ConnexoJboss$SERVICE_VERSION");
-            system("/sbin/chkconfig /name ConnexoJboss$SERVICE_VERSION on");
-
-            print "\n\nStarting Jboss EAP service using: $JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh \n";
-            system("\"$JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh\" ");
+            system("sudo chkconfig jboss-eap-rhel.sh on");
+            print "\n\nStarting Jboss EAP service using: $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.rhel.sh \n";
+            system("sudo service jboss-eap-rhel.sh start");
             print "... waiting for Jboss EAP to start ...";
-            sleep(10);
+            sleep(20);
             print " continuing.\n";
         }
     }
@@ -1528,20 +1507,20 @@ sub start_jboss {
                print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global \n";
                postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*:partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*:lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_BASE/$JBOSS_DIR/bin/repositories/kie/global", "Installing Connexo Flow content failed");
             }
-            print "\nDeploy MDC processes...\n";
-            my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
-            if(-e $mdcfile){
-               open(INPUT, $mdcfile);
-               my $line = <INPUT>; # header
-               while($line = <INPUT>){
-                 chomp($line);
-                 my ($name,$deploymentid)  = split(';', $line);
-                 print "Deploying: $name\n";
-                 postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($name) failed");
-                 sleep 2;
-               }
-               close(INPUT);
-            }
+            #print "\nDeploy MDC processes...\n";
+            #my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
+            #if(-e $mdcfile){
+               #open(INPUT, $mdcfile);
+               #my $line = <INPUT>; # header
+               #while($line = <INPUT>){
+                 #chomp($line);
+                 #my ($name,$deploymentid)  = split(';', $line);
+                 #print "Deploying: $name\n";
+                 #postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*;partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*;lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($name) failed");
+                 #sleep 2;
+               #}
+               #close(INPUT);
+            #}
 
             #print "\nDeploy INSIGHT processes...\n";
             #my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
@@ -1635,11 +1614,13 @@ sub uninstall_all {
         system("/sbin/chkconfig --del ConnexoTomcat$SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$SERVICE_VERSION");
 		print "Stop and remove ConnexoJboss$SERVICE_VERSION service";
-        system("/sbin/service ConnexoJboss$SERVICE_VERSION stop");
+        system("sudo service jboss-eap-rhel.sh stop");
         sleep 3;
-        system("userdel -r jboss");
-        system("/sbin/chkconfig --del ConnexoJboss$SERVICE_VERSION");
-        unlink("/etc/init.d/ConnexoJboss$SERVICE_VERSION");
+        system("sudo chkconfig --del jboss-eap-rhel.sh");
+        system("sudo rm /etc/init.d/jboss-eap-rhel.sh");
+        system("sudo rm /etc/default/jboss-eap.conf");
+        #unlink("/etc/init.d/jboss-eap-rhel.sh");
+        #unlink("/etc/default/jboss-eap.conf");
 	}
     #uninstall Apache httpd 2.2 or 2.4
 	print "Remove folders (tomcat)\n";
