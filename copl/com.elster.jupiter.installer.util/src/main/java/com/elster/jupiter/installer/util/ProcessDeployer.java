@@ -81,10 +81,20 @@ public class ProcessDeployer {
         for (File file : repo.listFiles(null, Collections.singletonList("jar"))) {
             String relative = root.toURI().relativize(file.toURI()).getPath();
             GAV gav = repo.loadGAVFromJar(relative);
+            InputStream fis =  null;
             try {
-                repo.deployArtifact(new FileInputStream(file), gav, false);
+                fis= new FileInputStream(file);
+                repo.deployArtifact(fis, gav, false);
             } catch (FileNotFoundException e) {
                 throw new RuntimeException("Guvnor deploy artifact is failed .", e);
+            } finally {
+                try {
+                    if(null != fis) {
+                        fis.close();
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException("Guvnor deploy artifact is failed while closing.", e);
+                }
             }
         }
     }
