@@ -12,6 +12,7 @@ import com.energyict.cbo.Quantity;
 import com.energyict.protocol.MeterEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Bundle;
 import org.osgi.framework.FrameworkUtil;
 
 import java.io.BufferedWriter;
@@ -32,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -1591,12 +1593,14 @@ public class ProtocolUtils {
     private static String getSystemProperty(String propertyName, String defaultValue) {
 
         try {
-            String property = FrameworkUtil.getBundle(ProtocolUtils.class).getBundleContext().getProperty(propertyName);
-
-            if (property!=null){
-                return property;
-            } else {
-                System.err.println("System configuration property ["+propertyName+"] is not defined, using default value of "+defaultValue);
+            Bundle bundle = FrameworkUtil.getBundle(ProtocolUtils.class);
+            if(Objects.nonNull(bundle)) {
+                String property = bundle.getBundleContext().getProperty(propertyName);
+                if (Objects.nonNull(property)) {
+                    return property;
+                } else {
+                    System.err.println("System configuration property [" + propertyName + "] is not defined, using default value of " + defaultValue);
+                }
             }
         } catch (Exception ex){
             System.err.println("Cannot get system configuration property ["+propertyName+"] using default value of "+defaultValue+": "+ex.getLocalizedMessage());
