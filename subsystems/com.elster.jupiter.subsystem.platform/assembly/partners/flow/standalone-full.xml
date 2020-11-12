@@ -41,7 +41,7 @@
         <property name="org.uberfire.nio.git.dir" value="${jboss.home.dir}/bin"/>
         <property name="org.kie.server.repo" value="${jboss.server.data.dir}"/>
         <property name="org.uberfire.metadata.index.dir" value="${jboss.home.dir}/bin"/>
-        <property name="org.guvnor.m2repo.dir" value="${jboss.home.dir}/bin"/>
+        <property name="org.guvnor.m2repo.dir" value="${jboss.home.dir}/bin/repositories/kie/global"/>
 		<property name="com.elster.jupiter.url" value=""/>
         <property name="com.elster.jupiter.user" value=""/>
         <property name="com.elster.jupiter.password" value=""/>
@@ -57,6 +57,12 @@
         <property name="org.kie.prometheus.server.ext.disabled" value="true"/>
         <property name="org.kie.server.persistence.ds" value="java:/FlowDS"/>
         <property name="org.kie.server.persistence.dialect" value="org.hibernate.dialect.Oracle10gDialect"/>
+        <property name="connexo.configuration" value="${jboss.server.config.dir}/connexo.properties"/>
+        <!--property name="com.elster.jupiter.sso.public.key" value=""/-->
+        <!--property name="com.elster.jupiter.token" value=""/-->
+        <!--property name="org.kie.server.token" value=""/-->
+        <!--property name="org.kie.server.controller.token" value=""/-->
+        <property name="jboss.as.management.blocking.timeout" value="600"/>
     </system-properties>
     <management>
         <security-realms>
