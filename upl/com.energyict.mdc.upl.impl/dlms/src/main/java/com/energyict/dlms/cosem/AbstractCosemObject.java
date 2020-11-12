@@ -62,6 +62,7 @@ public abstract class AbstractCosemObject {
 
     protected ProtocolLink protocolLink = null;
     private boolean dsmr4SelectiveAccessFormat = false;
+    private boolean useWildcardClockStatus = false;
     private ObjectReference objectReference = null;
     private Integer attributeNumber = null;     //State, For logging purposes only
     private Integer methodNumber = null;        //State, For logging purposes only
@@ -1851,11 +1852,14 @@ public abstract class AbstractCosemObject {
         intreq[CAPTURE_FROM_OFFSET + 10] = 0x00;
         intreq[CAPTURE_FROM_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
         intreq[CAPTURE_FROM_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
+        intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0xFF;
 
-        if (fromCalendar.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
-            intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
-        } else {
-            intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
+        if (!useWildcardClockStatus) {
+            if (fromCalendar.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
+                intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
+            } else {
+                intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
+            }
         }
 
         intreq[CAPTURE_TO_OFFSET] = AxdrType.OCTET_STRING.getTag();
@@ -1871,14 +1875,21 @@ public abstract class AbstractCosemObject {
         intreq[CAPTURE_TO_OFFSET + 10] = 0x00;
         intreq[CAPTURE_TO_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
         intreq[CAPTURE_TO_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
+        intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0xFF;
 
-        if ((toCalendar != null) && toCalendar.getTimeZone().inDaylightTime(toCalendar.getTime())) {
-            intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
-        } else {
-            intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
+        if (!useWildcardClockStatus) {
+            if ((toCalendar != null) && toCalendar.getTimeZone().inDaylightTime(toCalendar.getTime())) {
+                intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
+            } else {
+                intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
+            }
         }
 
         return intreq;
+    }
+
+    public void setUseWildcardClockStatus(boolean useWildcardClockStatus) {
+        this.useWildcardClockStatus = useWildcardClockStatus;
     }
 
     private int getDayOfWeek(Calendar fromCalendar) {
