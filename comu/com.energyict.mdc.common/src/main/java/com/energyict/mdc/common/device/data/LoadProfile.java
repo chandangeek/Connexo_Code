@@ -89,6 +89,12 @@ public interface LoadProfile extends com.energyict.mdc.upl.meterdata.LoadProfile
     long getVersion();
 
     /**
+     * Get the {@link LoadProfileUpdater}
+     * for updating LoadProfile without invoke of device
+     */
+    LoadProfileUpdater getUpdater();
+
+    /**
      * Defines an <i>update</i> component to update a {@link LoadProfile} implementation
      */
     interface LoadProfileUpdater {
