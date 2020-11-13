@@ -117,6 +117,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     }
 
     @Override
+    public LoadProfile.LoadProfileUpdater getUpdater() {
+        return new LoadProfileUpdaterImpl(this);
+    }
+
+    @Override
     public long getId() {
         return id;
     }
@@ -165,7 +170,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     public void setNewLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
         this.loadProfileSpec.set(loadProfileSpec);
         Instant now = Instant.now(clock);
-        if(this.lastReading != null && this.lastReading.isAfter(now)) {
+        if (this.lastReading != null && this.lastReading.isAfter(now)) {
             this.lastReading = now;
         }
         this.dataModel.update(this, "loadProfileSpec", "lastReading");
@@ -203,6 +208,12 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
             }
         }
 
+    }
+
+    class LoadProfileUpdaterImpl extends LoadProfileUpdater {
+        protected LoadProfileUpdaterImpl(LoadProfileImpl loadProfile) {
+            super(loadProfile);
+        }
     }
 
     /**
@@ -339,7 +350,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
 
         @Override
         public Optional<BigDecimal> getMultiplier(Instant timeStamp) {
-            return getChannelSpec().isUseMultiplier()?getDevice().getMultiplierAt(timeStamp): Optional.empty();
+            return getChannelSpec().isUseMultiplier() ? getDevice().getMultiplierAt(timeStamp) : Optional.empty();
         }
 
         @Override
