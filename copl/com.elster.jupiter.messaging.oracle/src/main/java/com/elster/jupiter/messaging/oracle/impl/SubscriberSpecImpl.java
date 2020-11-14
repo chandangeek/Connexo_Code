@@ -17,7 +17,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 
-import com.google.common.util.concurrent.Striped;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
@@ -70,7 +69,8 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     @SuppressWarnings("unused")
     private boolean systemManaged;
 
-    private static final Map<String, Lock> lockMap = new ConcurrentHashMap<String, Lock>();
+    private static final int APPROXIMATE_QUEUE_NUMBER = 100;
+    private static final Map<String, Lock> lockMap = new ConcurrentHashMap<>(APPROXIMATE_QUEUE_NUMBER);
     private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
@@ -163,7 +163,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private Message tryReceive() throws SQLException {
         OracleConnection cancellableConnection = null;
-        Lock lock = lockMap.putIfAbsent(getName(), new ReentrantLock());
+        Lock lock = lockMap.computeIfAbsent(getName(), key -> new ReentrantLock());
         lock.lock();
         try (Connection connection = getConnection()) {
             cancellableConnection = connection.unwrap(OracleConnection.class);
