@@ -1167,36 +1167,35 @@ public class ComServerDAOImpl implements ComServerDAO {
         if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty())) {
             PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = getPrestoredLoadProfile(loadProfilePreStorer, optionalOfflineLoadProfile, collectedLoadProfile, currentDate);
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
-                Map<DeviceIdentifier, MeterReadingImpl> meterReadings = new HashMap<>();
+                Map<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> meterReadings = new HashMap<>();
                 Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
-                ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().forEach(eachPreStoredLoadProfile -> {
-                    if (!eachPreStoredLoadProfile.getIntervalBlocks().isEmpty()) {
-                        Pair<DeviceIdentifier, LoadProfileIdentifier> identifiers = getIdentifiers(eachPreStoredLoadProfile, loadProfileIdentifier, collectedLoadProfile);
+                DeviceIdentifier deviceIdentifier = getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
+                ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().forEach(each -> {
+                    if (!each.getIntervalBlocks().isEmpty()) {
                         // Add interval readings
-                        MeterReadingImpl meterReading = meterReadings.get(identifiers.getFirst());
-                        if (meterReading != null) {
-                            meterReading.addAllIntervalBlocks(eachPreStoredLoadProfile.getIntervalBlocks());
+                        Pair<DeviceIdentifier, MeterReadingImpl> meterReadingsEntry = meterReadings.get(deviceIdentifier);
+                        if (meterReadingsEntry != null) {
+                            meterReadingsEntry.getLast().addAllIntervalBlocks(each.getIntervalBlocks());
                         } else {
-                            meterReading = MeterReadingImpl.newInstance();
-                            meterReading.addAllIntervalBlocks(eachPreStoredLoadProfile.getIntervalBlocks());
-                            meterReadings.put(identifiers.getFirst(), meterReading);
+                            MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                            meterReading.addAllIntervalBlocks(each.getIntervalBlocks());
+                            meterReadings.put(deviceIdentifier, Pair.of(deviceIdentifier, meterReading));
                         }
                         // Add last reading updater
-                        Instant existingLastReading = lastReadings.get(identifiers.getLast());
-                        if ((existingLastReading == null) || (eachPreStoredLoadProfile.getLastReading() != null && eachPreStoredLoadProfile.getLastReading().isAfter(existingLastReading))) {
-                            lastReadings.put(identifiers.getLast(), eachPreStoredLoadProfile.getLastReading());
+                        Instant existingLastReading = lastReadings.get(loadProfileIdentifier);
+                        if ((existingLastReading == null) || (each.getLastReading() != null && each.getLastReading().isAfter(existingLastReading))) {
+                            lastReadings.put(loadProfileIdentifier, each.getLastReading());
                         }
                     }
-
                 });
-                meterReadings.forEach((deviceIdentifier, meterReading) -> {
-                    storeMeterReadings(deviceIdentifier, meterReading);
-                });
+                for (Map.Entry<DeviceIdentifier, Pair<DeviceIdentifier, MeterReadingImpl>> deviceMeterReadingEntry : meterReadings.entrySet()) {
+                    storeMeterReadings(deviceMeterReadingEntry.getValue().getFirst(), deviceMeterReadingEntry.getValue().getLast());
+                }
                 Map<DeviceIdentifier, List<Function<Device, Void>>> updateMap = new HashMap<>();
                 // do update the loadprofile
-                lastReadings.forEach((theLoadProfileIdentifier, timestamp) -> {
-                    LoadProfile loadProfile = findLoadProfileOrThrowException(theLoadProfileIdentifier);
-                    List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(theLoadProfileIdentifier.getDeviceIdentifier(), k -> new ArrayList<>());
+                LoadProfile loadProfile = findLoadProfileOrThrowException(loadProfileIdentifier);
+                lastReadings.forEach((loadProfileId, timestamp) -> {
+                    List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(deviceIdentifier, k -> new ArrayList<>());
                     functionList.add(updateLoadProfile(loadProfile, timestamp));
                 });
                 // then do your thing
@@ -1206,19 +1205,6 @@ public class ComServerDAOImpl implements ComServerDAO {
                     functions.forEach(deviceVoidFunction -> deviceVoidFunction.apply(device));
                 });
             }
-        }
-    }
-
-    private Pair<DeviceIdentifier, LoadProfileIdentifier> getIdentifiers(PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile, LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
-        DeviceIdentifier deviceIdentifier;
-        LoadProfileIdentifier localLoadProfileIdentifier;
-        if (preStoredLoadProfile.getOfflineLoadProfile()!=null && preStoredLoadProfile.getOfflineLoadProfile().isDataLoggerSlaveLoadProfile()) {
-            localLoadProfileIdentifier = preStoredLoadProfile.getLoadProfileIdentifier();
-            deviceIdentifier = getDeviceIdentifierFor(localLoadProfileIdentifier);
-            return Pair.of(deviceIdentifier,localLoadProfileIdentifier);
-        } else {
-            deviceIdentifier = getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
-            return Pair.of(deviceIdentifier, loadProfileIdentifier);
         }
     }
 
