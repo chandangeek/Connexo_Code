@@ -17,7 +17,6 @@ import com.elster.jupiter.orm.associations.ValueReference;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.conditions.Condition;
 
-import com.google.common.util.concurrent.Striped;
 import oracle.jdbc.OracleConnection;
 import oracle.jdbc.aq.AQDequeueOptions;
 import oracle.jdbc.aq.AQMessage;
@@ -34,8 +33,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 /**
@@ -68,8 +70,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private boolean systemManaged;
 
     private static final int APPROXIMATE_QUEUE_NUMBER = 100;
-    private static Striped<Lock> striped = Striped.lock(APPROXIMATE_QUEUE_NUMBER);
-
+    private static final Map<String, Lock> lockMap = new ConcurrentHashMap<>(APPROXIMATE_QUEUE_NUMBER);
     private AtomicBoolean continueRunning = new AtomicBoolean(true);
 
     private final Reference<DestinationSpec> destination = ValueReference.absent();
@@ -162,13 +163,12 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private Message tryReceive() throws SQLException {
         OracleConnection cancellableConnection = null;
-        Lock lock = striped.get(this.getName());
+        Lock lock = lockMap.computeIfAbsent(getName(), key -> new ReentrantLock());
         lock.lock();
         try (Connection connection = getConnection()) {
             cancellableConnection = connection.unwrap(OracleConnection.class);
             cancellableConnections.add(cancellableConnection);
             AQMessage aqMessage = null;
-            continueRunning.set(true);
             try {
                 while (aqMessage == null && continueRunning.get()) {
                     aqMessage = dequeueMessage(cancellableConnection);
