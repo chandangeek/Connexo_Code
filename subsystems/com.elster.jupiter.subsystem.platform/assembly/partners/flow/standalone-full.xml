@@ -62,6 +62,7 @@
         <!--property name="com.elster.jupiter.token" value=""/-->
         <!--property name="org.kie.server.token" value=""/-->
         <!--property name="org.kie.server.controller.token" value=""/-->
+        <property name="hibernate.hbm2ddl.auto" value=""/>
         <property name="jboss.as.management.blocking.timeout" value="600"/>
     </system-properties>
     <management>
