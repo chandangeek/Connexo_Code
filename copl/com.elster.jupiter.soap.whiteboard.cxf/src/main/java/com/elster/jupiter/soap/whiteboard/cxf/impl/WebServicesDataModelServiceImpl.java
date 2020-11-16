@@ -22,6 +22,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.SoapProviderSupportFactory;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
@@ -135,6 +136,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
         return Stream.of(
                 Privileges.values(),
                 LogLevel.values(),
+                PayloadSaveStrategy.values(),
                 WebServiceCallOccurrenceStatus.values())
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
@@ -282,6 +284,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                         .put(UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class)
                         .put(UpgraderV10_8.VERSION, UpgraderV10_8.class)
                         .put(Version.version(10, 8, 7), UpgraderV10_8_7.class)
+                        .put(Version.version(10, 8, 7, 1), UpgraderV10_8_7_1.class)
                         .build());
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();
