@@ -15,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
@@ -175,6 +176,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         }
 
         @Override
+        public InboundEndPointConfigBuilder setPayloadSaveStrategy(PayloadSaveStrategy payloadSaveStrategy) {
+            instance.setPayloadSaveStrategy(payloadSaveStrategy);
+            return this;
+        }
+
+        @Override
         public InboundEndPointConfigBuilder group(Group group) {
             instance.setGroup(group);
             return this;
@@ -253,6 +260,12 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
         @Override
         public OutboundEndPointConfigBuilder logLevel(LogLevel logLevel) {
             instance.setLogLevel(logLevel);
+            return this;
+        }
+
+        @Override
+        public OutboundEndPointConfigBuilder setPayloadSaveStrategy(PayloadSaveStrategy payloadSaveStrategy) {
+            instance.setPayloadSaveStrategy(payloadSaveStrategy);
             return this;
         }
 

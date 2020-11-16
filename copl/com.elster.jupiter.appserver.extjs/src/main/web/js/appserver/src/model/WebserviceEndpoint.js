@@ -7,7 +7,8 @@ Ext.define('Apr.model.WebserviceEndpoint', {
     requires: [
         'Apr.model.LogLevel',
         'Apr.model.AuthenticationMethod',
-        'Apr.model.Role'
+        'Apr.model.Role',
+        'Apr.model.PayloadStrategy'
     ],
     fields: [
         {name: 'id', type: 'number'},
@@ -17,6 +18,7 @@ Ext.define('Apr.model.WebserviceEndpoint', {
         {name: 'url', type: 'string'},
         {name: 'previewUrl', type: 'string'},
         {name: 'logLevel', type: 'auto'},
+        {name: 'payloadStrategy', type: 'auto'},
         {name: 'tracing', type: 'boolean'},
         {name: 'traceFile', type: 'string'},
         {name: 'httpCompression', type: 'boolean'},
@@ -38,6 +40,13 @@ Ext.define('Apr.model.WebserviceEndpoint', {
             name: 'logLevel',
             getterName: 'getLogLevel',
             setterName: 'setLogLevel'
+        },
+        {
+            model: 'Apr.model.PayloadStrategy',
+            associationKey: 'payloadStrategy',
+            name: 'payloadStrategy',
+            getterName: 'getPayloadStrategy',
+            setterName: 'setPayloadStrategy'
         },
         {
             model: 'Apr.model.AuthenticationMethod',
