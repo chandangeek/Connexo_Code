@@ -1167,10 +1167,8 @@ sub activate_sso_filters{
                 my $line = <INPUT>;
                 my $line = <INPUT>;
                 my ($name,$token)  = split('=', $line);
-                print "Setting $name  with value \n$token\n\n";
                 my $line = <INPUT>;
                 my ($name,$key)  = split('=', $line);
-                print "Setting $name  with value \n$key\n\n";
                 close(INPUT);
 
 
