@@ -10,10 +10,10 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
@@ -87,6 +87,14 @@ public enum TableSpecs {
                     .varChar()
                     .map(EndPointConfigurationImpl.Fields.CLIENT_SECRET.fieldName())
                     .since(version(10, 8))
+                    .add();
+            table.column(EndPointConfigurationImpl.Fields.PAYLOAD_SAVE_STRATEGY.name())
+                    .number()
+                    .notNull()
+                    .installValue(String.valueOf(PayloadSaveStrategy.ALWAYS.ordinal()))
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(EndPointConfigurationImpl.Fields.PAYLOAD_SAVE_STRATEGY.fieldName())
+                    .since(version(10, 8, 7, 1))
                     .add();
             table.foreignKey("FK_USR_GROUP")
                     .references(Group.class)

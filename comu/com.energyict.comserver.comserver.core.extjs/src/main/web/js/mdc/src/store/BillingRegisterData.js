@@ -9,6 +9,7 @@ Ext.define('Mdc.store.BillingRegisterData', {
     ],
     model: 'Mdc.model.BillingRegisterData',
     storeId: 'BillingRegisterData',
+    alias: 'BillingRegisterData',
     autoLoad: false,
     proxy: {
         type: 'rest',

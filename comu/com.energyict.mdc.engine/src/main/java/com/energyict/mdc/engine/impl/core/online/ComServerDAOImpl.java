@@ -1173,28 +1173,23 @@ public class ComServerDAOImpl implements ComServerDAO {
         device.store(meterReading);
     }
 
-    @Override
-    public void storeLoadProfile(Optional<OfflineLoadProfile> offlineLoadProfile, CollectedLoadProfile collectedLoadProfile, Instant currentDate) {
-        storeLoadProfile(offlineLoadProfile, collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, currentDate );
+    private PreStoreLoadProfile.PreStoredLoadProfile getPrestoredLoadProfile(PreStoreLoadProfile loadProfilePreStorer, Optional<OfflineLoadProfile> offlineLoadProfile,
+                                                                             final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
+        if (offlineLoadProfile.isPresent()) {
+            return loadProfilePreStorer.preStore(offlineLoadProfile, collectedLoadProfile, currentDate);
+        }
+        return loadProfilePreStorer.preStore(collectedLoadProfile, currentDate);
     }
 
     @Override
     public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
-        storeLoadProfile(null, collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, currentDate );
-    }
-
-    private PreStoreLoadProfile.PreStoredLoadProfile getPrestoredLoadProfile(PreStoreLoadProfile loadProfilePreStorer, Optional<OfflineLoadProfile> offlineLoadProfile,
-                                                                             final CollectedLoadProfile collectedLoadProfile, final Instant currentDate){
-        if(offlineLoadProfile != null){
-            return loadProfilePreStorer.preStore(offlineLoadProfile, collectedLoadProfile ,currentDate);
-        }
-        return loadProfilePreStorer.preStore(collectedLoadProfile ,currentDate);
-    }
-
-    public void storeLoadProfile(Optional<OfflineLoadProfile> offlineLoadProfile, final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
+        Optional<OfflineLoadProfile> optionalOfflineLoadProfile = findLoadProfile(loadProfileIdentifier).flatMap(loadProfile -> {
+            loadProfile.getUpdater().setLastReading(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint()).update();
+            return findOfflineLoadProfile(loadProfileIdentifier);
+        });
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.serviceProvider.mdcReadingTypeUtilService(), this);
         if (collectedLoadProfile.getChannelInfo().stream().anyMatch(channelInfo -> channelInfo.getReadingTypeMRID() != null && !channelInfo.getReadingTypeMRID().isEmpty())) {
-            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = getPrestoredLoadProfile(loadProfilePreStorer, offlineLoadProfile, collectedLoadProfile, currentDate);
+            PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile = getPrestoredLoadProfile(loadProfilePreStorer, optionalOfflineLoadProfile, collectedLoadProfile, currentDate);
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
                 Map<DeviceIdentifier, MeterReadingImpl> meterReadings = new HashMap<>();
                 Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
@@ -1561,7 +1556,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device         The Device
+     * @param device The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */

@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundSoapEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundRestEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
@@ -348,6 +349,9 @@ public class WebServicesServiceImpl implements WebServicesService {
             tmp.log(LogLevel.INFO, "Request completed successfully.");
             tmp.setEndTime(clock.instant());
             validateOngoingStatus(tmp);
+            if (PayloadSaveStrategy.ALWAYS != tmp.getEndPointConfiguration().getPayloadSaveStrategy()) {
+                tmp.setPayload(null);
+            }
             tmp.setStatus(WebServiceCallOccurrenceStatus.SUCCESSFUL);
             tmp.save();
             return tmp;
