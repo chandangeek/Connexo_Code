@@ -41,10 +41,11 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.xml.rpc.ServiceException;
+import javax.xml.rpc.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,10 +53,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.apache.log4j.helpers.LogLog.warn;
 
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
 @SuppressWarnings("unused")
@@ -75,6 +79,23 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     private static final String EXCEPTION_PREFIX = "Exception occured: ";
     private static final String ERROR_CODE_PREFIX = "Error code: ";
 
+    /** YellowFin WS functions */
+    public static final String YF_IMPORTCONTENT = "IMPORTCONTENT";
+    public static final String YF_GETUSER = "GETUSER";
+    public static final String YF_ADDUSER = "ADDUSER";
+    public static final String YF_LOGINUSERNOPASSWORD = "LOGINUSERNOPASSWORD";
+    public static final String YF_LOGOUTUSER = "LOGOUTUSER";
+    public static final String YF_RELOADLICENCE = "RELOADLICENCE";
+    public static final String YF_GETALLUSERREPORTS = "GETALLUSERREPORTS";
+    public static final String YF_SCHEMA = "SCHEMA";
+    public static final String YF_FILTEROPTIONS = "FILTEROPTIONS";
+    public static final String YFROLE_YFREPORTCONSUMER = "YFREPORTCONSUMER";
+
+    public static final String SUCCESS = "SUCCESS";
+    public static final String YELLOW_FIN_SERVICE = "[YellowFinService] ";
+
+    public static final String DEFAULT_PASS = "Pass4Yellow.Fin";
+
     private String yellowfinUrl = DEFAULT_YELLOWFIN_URL;
     private String yellowfinExternalUrl = DEFAULT_YELLOWFIN_URL;
     private String yellowfinHost = DEFAULT_YELLOWFIN_HOST;
@@ -89,10 +110,13 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     private volatile UserService userService;
     private volatile UpgradeService upgradeService;
 
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
+
     @Activate
     public void activate(BundleContext context) {
         loadProperties(context);
         parseUrl();
+        logActivationParameters();
         DataModel dataModel = upgradeService.newNonOrmDataModel();
         dataModel.register(new AbstractModule() {
             @Override
@@ -157,7 +181,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             inputStream.read(data);
 
             AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-            AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+            AdministrationServiceService ts = createAdminService();
             AdministrationServiceSoapBindingStub rssbs = null;
             try {
                 rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -168,14 +192,17 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(1);
-            rsr.setFunction("IMPORTCONTENT");
+            rsr.setFunction(YF_IMPORTCONTENT);
             rsr.setParameters(new String[]{Base64.encodeBytes(data)});
+
+            logFunctionCall(ts, rsr);
 
             if (rssbs != null) {
                 try {
                     AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
                     if (rs != null) {
-                        if ("SUCCESS".equals(rs.getStatusCode())) {
+                        logResponse(YF_IMPORTCONTENT, rs);
+                        if (isSuccess(rs)){
                             return true;
                         }
                     }
@@ -193,7 +220,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     public Optional<String> getUser(String username) {
         AdministrationServiceResponse rs;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceService ts = createAdminService();
         AdministrationServiceSoapBindingStub rssbs;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -209,17 +236,20 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
         rsr.setOrgId(1);
-        rsr.setFunction("GETUSER");
+        rsr.setFunction(YF_GETUSER);
         rsr.setPerson(person);
+
+        logFunctionCall(ts, rsr);
 
         if (rssbs != null) {
             try {
                 rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null) {
-                    if ("SUCCESS".equals(rs.getStatusCode())) {
-                        return Optional.of("SUCCESS");
+                    logResponse(YF_GETUSER, rs);
+                    if (isSuccess(rs)) {
+                        return Optional.of(SUCCESS);
                     }
-                    if (rs.getErrorCode() == 9) { // license breach
+                    if (isLicenseBreach(rs)) {
                         return Optional.of(ERROR_CODE_PREFIX + "LICENSE_BREACH");
                     }
                     return Optional.of("NOT_FOUND");
@@ -236,7 +266,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     @Override
     public Optional<String> createUser(String username, String email) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceService ts = createAdminService();
         AdministrationServiceSoapBindingStub rssbs;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -248,10 +278,10 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
-        person.setPassword("test");
+        person.setPassword(DEFAULT_PASS); //TODO is this ever used?!
         person.setFirstName("Connexo");
         person.setLastName(username);
-        person.setRoleCode("YFREPORTCONSUMER");
+        person.setRoleCode(YFROLE_YFREPORTCONSUMER);
         if (email != null) {
             person.setEmailAddress(email);
         } else {
@@ -261,17 +291,20 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
         rsr.setOrgId(1);
-        rsr.setFunction("ADDUSER");
+        rsr.setFunction(YF_ADDUSER);
         rsr.setPerson(person);
+
+        logFunctionCall(ts, rsr);
 
         if (rssbs != null) {
             try {
                 AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null) {
-                    if ("SUCCESS".equals(rs.getStatusCode())) {
-                        return Optional.of("SUCCESS");
+                    logResponse(YF_ADDUSER, rs);
+                    if (isSuccess(rs)) {
+                        return Optional.of(SUCCESS);
                     }
-                    if (rs.getErrorCode() == 9) { // license breach
+                    if (isLicenseBreach(rs)){
                         return Optional.of(ERROR_CODE_PREFIX + "LICENSE_BREACH");
                     }
                     return Optional.of(ERROR_CODE_PREFIX + rs.getErrorCode());
@@ -298,7 +331,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     @Override
     public Optional<String> login(String username, String email) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceService ts = createAdminService();
         AdministrationServiceSoapBindingStub rssbs = null;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -309,7 +342,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
         rsr.setOrgId(1);
-        rsr.setFunction("LOGINUSERNOPASSWORD");
+        rsr.setFunction(YF_LOGINUSERNOPASSWORD);
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
         if (null != email) {
@@ -317,14 +350,17 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         }
         rsr.setPerson(ap);
 
+        logFunctionCall(ts, rsr);
+
         if (rssbs != null) {
             try {
                 AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null) {
-                    if ("SUCCESS".equals(rs.getStatusCode())) {
+                    logResponse(YF_LOGINUSERNOPASSWORD, rs);
+                    if (isSuccess(rs)){
                         return Optional.of(rs.getLoginSessionId());
                     }
-                    if (rs.getErrorCode() == 9) { // license breach
+                    if (isLicenseBreach(rs)){
                         return Optional.of("LICENSE_BREACH");
                     }
                 }
@@ -338,7 +374,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     @Override
     public Optional<Boolean> logout(String username) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceService ts = createAdminService();
         AdministrationServiceSoapBindingStub rssbs = null;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -349,15 +385,20 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
         rsr.setOrgId(1);
-        rsr.setFunction("LOGOUTUSER");
+        rsr.setFunction(YF_LOGOUTUSER);
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
         rsr.setPerson(ap);
 
+        logFunctionCall(ts, rsr);
+
         if (rssbs != null) {
             try {
                 AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
-                if (rs != null && "SUCCESS".equals(rs.getStatusCode())) {
+                if (rs!=null){
+                    logResponse(YF_LOGOUTUSER, rs);
+                }
+                if (rs != null && isSuccess(rs)) {
                     return Optional.of(true);
                 } else {
                     return Optional.of(false);
@@ -371,7 +412,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
     public String reloadLicense(String username) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-        AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+        AdministrationServiceService ts = createAdminService();
         AdministrationServiceSoapBindingStub rssbs = null;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
@@ -381,15 +422,18 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
-        //rsr.setPassword(null);
+
         rsr.setOrgId(1);
-        rsr.setFunction("RELOADLICENCE");
+        rsr.setFunction(YF_RELOADLICENCE);
+
+        logFunctionCall(ts, rsr);
 
         if (rssbs != null) {
             try {
                 AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
                 if (rs != null) {
-                    if ("SUCCESS".equals(rs.getStatusCode())) {
+                    logResponse(YF_RELOADLICENCE, rs);
+                    if (isSuccess(rs)) {
                         return rs.getSessionId();
                     }
                 }
@@ -406,22 +450,26 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         List<YellowfinReportInfo> userReports = new ArrayList<>();
         try {
             AdministrationServiceRequest rsr = new AdministrationServiceRequest();
-            AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
+            AdministrationServiceService ts = createAdminService();
             AdministrationServiceSoapBindingStub rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
 
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(1);
-            rsr.setFunction("GETALLUSERREPORTS");
+            rsr.setFunction(YF_GETALLUSERREPORTS);
 
             AdministrationPerson ap = new AdministrationPerson();
             ap.setUserId(username);
             rsr.setPerson(ap);
+
+            logFunctionCall(ts, rsr);
+
             if (rssbs != null) {
                 try {
                     AdministrationServiceResponse rs = rssbs.remoteAdministrationCall(rsr);
                     if (rs != null) {
-                        if ("SUCCESS".equals(rs.getStatusCode())) {
+                        logResponse(YF_GETALLUSERREPORTS, rs);
+                        if (isSuccess(rs)) {
                             AdministrationReport[] reports = rs.getReports();
                             for (AdministrationReport report : reports) {
                                 YellowfinReportInfoImpl userReport = new YellowfinReportInfoImpl();
@@ -458,7 +506,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     public Optional<List<YellowfinFilterInfo>> getReportFilters(int reportId) {
         List<YellowfinFilterInfo> userFilters = new ArrayList<>();
         try {
-            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
+            ReportServiceService ts = createReportService();
             ReportServiceSoapBindingStub rssbs;
             ReportServiceRequest rsr = new ReportServiceRequest();
 
@@ -466,12 +514,16 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(1);
-            rsr.setReportRequest("SCHEMA");
+            rsr.setReportRequest(YF_SCHEMA);
             rsr.setReportId(reportId);
+
+            logFunctionCall(ts,  rsr);
+
             try {
                 ReportServiceResponse reportServiceResponse = rssbs.remoteReportCall(rsr);
                 if (reportServiceResponse != null) {
-                    if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
+                    logResponse(YF_SCHEMA, reportId, reportServiceResponse);
+                    if (isSuccess(reportServiceResponse)) {
                         ReportSchema[] rs = reportServiceResponse.getColumns();
                         for (ReportSchema r : rs) {
                             if (r.getFilterId() != null) {
@@ -505,7 +557,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     }
 
     public ReportRow[] getFilterList(String filterId, int reportId) {
-        ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
+        ReportServiceService ts = createReportService();
         ReportServiceSoapBindingStub rssbs;
         ReportServiceRequest rsr = new ReportServiceRequest();
         ReportRow[] reportRows = null;
@@ -514,13 +566,17 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(1);
-            rsr.setReportRequest("FILTEROPTIONS");
+            rsr.setReportRequest(YF_FILTEROPTIONS);
             rsr.setObjectName(filterId);
             rsr.setReportId(reportId);
+
+            logFunctionCall(ts, rsr);
+
             try {
                 ReportServiceResponse reportServiceResponse = rssbs.remoteReportCall(rsr);
                 if (reportServiceResponse != null) {
-                    if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
+                    logResponse(YF_FILTEROPTIONS, reportId, reportServiceResponse);
+                    if (isSuccess(reportServiceResponse)) {
                         reportRows = reportServiceResponse.getResults();
                     }
                 }
@@ -536,7 +592,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     public Optional<List<YellowfinFilterListItemInfo>> getFilterListItems(String filterId, int reportId) {
         List<YellowfinFilterListItemInfo> listItems = new ArrayList<>();
         try {
-            ReportServiceService ts = new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/ReportService", useSecureConnection);
+            ReportServiceService ts = createReportService();
             ReportServiceSoapBindingStub rssbs;
             ReportServiceRequest rsr = new ReportServiceRequest();
 
@@ -544,13 +600,17 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
             rsr.setOrgId(1);
-            rsr.setReportRequest("FILTEROPTIONS");
+            rsr.setReportRequest(YF_FILTEROPTIONS);
             rsr.setObjectName(filterId);
             rsr.setReportId(reportId);
+
+            logFunctionCall(ts,rsr);
+
             try {
                 ReportServiceResponse reportServiceResponse = rssbs.remoteReportCall(rsr);
                 if (reportServiceResponse != null) {
-                    if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
+                    logResponse(YF_FILTEROPTIONS, reportId, reportServiceResponse);
+                    if (isSuccess(reportServiceResponse)) {
                         ReportRow[] reportRows = reportServiceResponse.getResults();
                         for (ReportRow reportRow : reportRows) {
                             String[] dataValues = reportRow.getDataValue();
@@ -596,5 +656,238 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     @Override
     public List<MessageSeed> getSeeds() {
         return Arrays.asList(MessageSeeds.values());
+    }
+
+
+    /**
+     * Checks if web-service request was successful
+     */
+    private boolean isSuccess(AdministrationServiceResponse response) {
+        return (SUCCESS.equals(response.getStatusCode()));
+    }
+
+
+    /**
+     * Checks if web-service request was successful
+     */
+    private boolean isSuccess(ReportServiceResponse response) {
+        return (SUCCESS.equals(response.getStatusCode()));
+    }
+
+
+    /**
+     * Checks if web-service responded with a license-breach error-code
+     */
+    private boolean isLicenseBreach(AdministrationServiceResponse rs) {
+        return (rs.getErrorCode() == YellowfinWebServicesErrorCodes.LICENCE_BREACH.getErrorCode());
+    }
+
+
+    /**
+     * @return an {@link AdministrationServiceService} object using the provided connection parameters
+     */
+    private AdministrationServiceService createAdminService() {
+        String serviceUrl = buildServiceUrl("/services/AdministrationService");
+        return new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, serviceUrl , useSecureConnection);
+    }
+
+
+    /**
+     * @return an {@link ReportServiceService} object using the provided connection parameters
+     */
+    private ReportServiceService createReportService() {
+        String serviceUrl = buildServiceUrl("/services/ReportService");
+        return new ReportServiceServiceLocator(yellowfinHost, yellowfinPort, serviceUrl , useSecureConnection);
+    }
+
+
+    /**
+     * Builds a complete url from the YellowFin root URL with sanitization of double slashes
+     *
+     * @param path path to be appended to the root
+     * @return sanitized url or fallback to simple appender
+     */
+    private String buildServiceUrl(String path) {
+        String rootUrl = yellowfinRoot;
+
+        // remove trailing slash
+        if (rootUrl.endsWith("/") ){
+            rootUrl = rootUrl.substring(0, rootUrl.length()-1 );
+        }
+
+        if (!path.startsWith("/")){
+            path = "/"+path;
+        }
+
+        return rootUrl+path;
+    }
+
+
+    /**
+     * @return our eyes in the dark, our salvation, our response to all unknowns ... the mighty logger
+     */
+    private Logger getLogger() {
+        return logger;
+    }
+
+
+    /**
+     * Logs the parameters used to initialize the YellowFin service.
+     * Most of them are important to troubleshoot connectivity issues or badly-configured parameters.
+     */
+    private void logActivationParameters() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("YellowFin service activated with the following parameters: ");
+        builder.append("yellowfinUrl=").append(yellowfinUrl).append(", ");
+        builder.append("yellowfinExternalUrl=").append(yellowfinExternalUrl).append(", ");
+        builder.append("yellowfinWebServiceUser=").append(yellowfinWebServiceUser).append(", ");
+        builder.append("yellowfinHost=").append(yellowfinHost).append(", ");
+        builder.append("yellowfinPort=").append(yellowfinPort).append(", ");
+        builder.append("useSecureConnection=").append(useSecureConnection);
+
+        getLogger().info(builder.toString());
+    }
+
+
+    /**
+     * Logs the start of a YellowFin web-service call to AdministrationService function
+     *
+     * @param adminService administration service parameters
+     * @param request request parameters
+     */
+    private void logFunctionCall(AdministrationServiceService adminService, AdministrationServiceRequest request) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Calling ").append(request.getFunction());
+
+        if (request.getPerson()!=null){
+            stringBuilder.append(", person=");
+            stringBuilder.append(request.getPerson().getUserId());
+            if (request.getPerson().getRoleCode()!=null) {
+                stringBuilder.append("(role: ").append(request.getPerson().getRoleCode()).append(")");
+            }
+        }
+
+        stringBuilder.append(", using loginId=").append(request.getLoginId());
+
+        log(stringBuilder.toString());
+    }
+
+
+    /**
+     * Logs the start of a YellowFin web-service call to ReportService function
+     *
+     * @param reportService report service parameters
+     * @param request request parameters
+     */
+    private void logFunctionCall(ReportServiceService reportService, ReportServiceRequest request) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Calling ").append(request.getReportRequest());
+
+        if (request.getReportId()!=null){
+            stringBuilder.append(", reportId=");
+            stringBuilder.append(request.getReportId());
+        }
+
+        if (request.getObjectName()!=null){
+            stringBuilder.append(", object=");
+            stringBuilder.append(request.getObjectName());
+        }
+
+        stringBuilder.append(", using loginId=").append(request.getLoginId());
+
+        log(stringBuilder.toString());
+    }
+
+
+    /**
+     * Logs details about a YellowFin web-service response after a certain function was called.
+     *
+     * @param function the function called originally (to know exactly where this is coming from)
+     * @param rs the object containing the response details
+     */
+    private void logResponse(String function, AdministrationServiceResponse rs) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Response of called function [");
+        stringBuilder.append(function).append("]: ");
+        stringBuilder.append(" responseCode=");
+        stringBuilder.append(rs.getStatusCode());
+
+        appendErrorDescription(stringBuilder, rs.getErrorCode());
+
+        if (isSuccess(rs)) {
+            log(stringBuilder.toString());
+        } else {
+            logWarn(stringBuilder.toString());
+        }
+    }
+
+
+    /**
+     * Logs details about a YellowFin web-service report call.
+     * @param function the function called
+     * @param reportId report identifier in YellowFin
+     * @param rs the object containing the response details
+     */
+    private void logResponse(String function, int reportId, ReportServiceResponse rs) {
+        StringBuilder stringBuilder = new StringBuilder();
+
+        stringBuilder.append("Response of called function [");
+        stringBuilder.append(function);
+        stringBuilder.append(", reportId=").append(reportId).append("]: ");
+        stringBuilder.append(" responseCode=");
+        stringBuilder.append(rs.getStatusCode());
+
+        appendErrorDescription(stringBuilder, rs.getErrorCode());
+
+        if (isSuccess(rs)) {
+            log(stringBuilder.toString());
+        } else {
+            logWarn(stringBuilder.toString());
+        }
+    }
+
+
+    /**
+     * Extracts the specific web-service name and description and appends it to the string builder
+     *
+     * @param stringBuilder string builder to append to
+     * @param errorCode the web-service error-code
+     */
+    private void appendErrorDescription(StringBuilder stringBuilder, Integer errorCode) {
+        stringBuilder.append(", error Code=");
+        stringBuilder.append(errorCode);
+
+        Optional<YellowfinWebServicesErrorCodes> error = YellowfinWebServicesErrorCodes.getError(errorCode);
+        if (error.isPresent()){
+            stringBuilder.append(": ");
+            stringBuilder.append(error.get().getName());
+            stringBuilder.append(" - ");
+            stringBuilder.append(error.get().getDescription());
+        }
+    }
+
+
+    /**
+     * Generic log with a prefix for easy filtering
+     *
+     * @param message message to be logged
+     */
+    private void log(String message) {
+        getLogger().info(YELLOW_FIN_SERVICE +message);
+    }
+
+
+    /**
+     * You would not gonna believe it! Something wrong happened while calling YellowFin!
+     * Let's check the log to see what's wrong, so we can fix it!
+     *
+     * @param warningMessage a great message explaining the poor application engineer what's wrong with Facts
+     */
+    private void logWarn(String warningMessage) {
+        getLogger().warning(YELLOW_FIN_SERVICE +warningMessage);
     }
 }
