@@ -1184,7 +1184,7 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
         Optional<OfflineLoadProfile> optionalOfflineLoadProfile = findLoadProfile(loadProfileIdentifier).flatMap(loadProfile -> {
-            loadProfile.getUpdater().setLastReading(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint()).update();
+            loadProfile.getUpdater().setLastReading(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint().minusSeconds(1)).update();
             return findOfflineLoadProfile(loadProfileIdentifier);
         });
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.serviceProvider.mdcReadingTypeUtilService(), this);
