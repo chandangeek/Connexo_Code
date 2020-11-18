@@ -43,11 +43,18 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
         })
     },
 
+    getComServerStartRoute : function(){   // Lau
+        var router = this.getController('Uni.controller.history.Router');
+        var offlineServer = router.currentRoute.indexOf("offline") >=0;
+        var routePart = offlineServer ? "offlinecomservers" : "comservers";
+        return 'administration/'+ routePart ;
+    },
+
     editComServer: function (record) {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
 
-        router.getRoute('administration/comservers/detail/edit').forward({id: id});
+        router.getRoute(this.getComServerStartRoute() + '/detail/edit').forward({id: id});
     },
 
     showOverview: function (id) {
@@ -56,7 +63,8 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
             logLevelsStore = me.getStore('Mdc.store.LogLevels'),
             timeUnitsStore = me.getStore('Mdc.store.TimeUnitsWithoutMilliseconds'),
             widget = Ext.widget('comServerOverview', {
-                serverId: id
+                serverId: id,
+                offlineServer : false
             }),
             counter = 0,
             callback;
@@ -74,6 +82,8 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
                             schedulingInterPollDelayUnit = timeUnitsStore.findRecord('timeUnit', record.get('schedulingInterPollDelay').timeUnit).get('localizedValue'),
                             changesInterPollDelay = {count: record.get('changesInterPollDelay').count, timeUnit: changesInterPollDelayUnit},
                             schedulingInterPollDelay = {count: record.get('schedulingInterPollDelay').count , timeUnit: schedulingInterPollDelayUnit};
+
+                        widget.offlineServer = record.get("comServerType") == "Offline";
 
                         record.set('serverLogLevel', serverLogLevel);
                         record.set('communicationLogLevel', communicationLogLevel);
@@ -99,14 +109,18 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
     deleteComserver: function (record) {
         var me = this,
             page = me.getComServerOverview();
+
         page.setLoading('Removing...');
         record.destroy({
             callback: function (model, operation) {
                 page.setLoading(false);
                 if (operation.response.status == 204) {
-                    var router = me.getController('Uni.controller.history.Router');
-                    router.getRoute('administration/comservers').forward();
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC', 'Communication server removed'));
+                    router.getRoute(this.getComServerStartRoute()).forward();
+                    //var router = me.getController('Uni.controller.history.Router');
+                    //router.getRoute('administration/comservers').forward();
+                    me.getApplication().fireEvent('acknowledge',
+                        Uni.I18n.translate('comServer.deleteSuccess.msg', 'MDC',
+                            'Communication server removed'));
                 }
             }
         });
