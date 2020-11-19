@@ -94,6 +94,7 @@ public class HS3300LoadProfileDataReader {
                         " from " + loadProfileReader.getStartReadingTime() + " to " + loadProfileReader.getEndReadingTime());
                 try {
                     ProfileGeneric profile = this.protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(loadProfileReader.getProfileObisCode());
+                    profile.setUseWildcardDayOfWeek(false);
                     profile.setUseWildcardClockStatus(true);
 
                     Calendar fromCalendar = Calendar.getInstance(this.protocol.getTimeZone());
@@ -102,7 +103,7 @@ public class HS3300LoadProfileDataReader {
                     toCalendar.setTime(loadProfileReader.getEndReadingTime());
 
                     DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask, 0, -1, null);
-                    if(Objects.nonNull(loadProfileConfig)) {
+                    if (Objects.nonNull(loadProfileConfig)) {
                         List<IntervalData> collectedIntervalData = intervals.parseIntervals(loadProfileConfig.getProfileInterval(), protocol.getTimeZone());
                         this.protocol.journal(" > load profile intervals parsed: " + collectedIntervalData.size());
                         collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
