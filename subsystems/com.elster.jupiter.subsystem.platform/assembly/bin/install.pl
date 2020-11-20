@@ -194,11 +194,11 @@ sub check_create_users {
                 system("useradd -U -r -m tomcat") == 0 or die "system useradd -U -r -m tomcat failed: $?";
             }
         }
-        #if ("$INSTALL_FLOW" eq "yes") {
-            #if (`cat /etc/passwd|grep jboss:` eq "") {
-                #system("useradd -U -r -m jboss") == 0 or die "system useradd -U -r -m jboss failed: $?";
-            #}
-        #}
+        if ("$INSTALL_FLOW" eq "yes") {
+            if (`cat /etc/passwd|grep jboss-eap:` eq "") {
+                system("useradd -U -r -m jboss-eap") == 0 or die "system useradd -U -r -m jboss failed: $?";
+            }
+        }
     }
 }
 
@@ -791,8 +791,10 @@ sub install_jboss {
 		print "==========================================================================\n";
 
 		chdir "$JBOSS_BASE";
-		print "Extracting JBoss Core Services Jsvc Package\n";
-        system("\"$JAVA_HOME/bin/jar\" -vxf jbcs-jsvc-1.1.0.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf jbcs-jsvc-1.1.0.zip failed: $?";
+		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+		    print "Extracting JBoss Core Services Jsvc Package\n";
+            system("\"$JAVA_HOME/bin/jar\" -vxf jbcs-jsvc-1.1.0.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf jbcs-jsvc-1.1.0.zip failed: $?";
+        }
 		print "Extracting $JBOSS_ZIP.zip\n";
 		system("\"$JAVA_HOME/bin/jar\" -vxf $JBOSS_ZIP.zip") == 0 or die "system $JAVA_HOME/bin/jar -xvf $JBOSS_ZIP.zip failed: $?";
 		if (-d "$JBOSS_DIR") { rmtree("$JBOSS_DIR"); }
@@ -898,9 +900,15 @@ sub install_jboss {
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JAVA_HOME=\"/usr/lib/jvm/default-java\"","JAVA_HOME=\"$JAVA_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_HOME=\"/opt/jboss-eap\"","JBOSS_HOME=\"$STANDALONE_HOME\"");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_USER=jboss-eap","JBOSS_USER=jboss-eap");
+            replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_MODE=standalone","JBOSS_MODE=standalone");
+            replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_CONFIG=standalone.xml","JBOSS_CONFIG=standalone.xml");
+            replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# STARTUP_WAIT=60","STARTUP_WAIT=60");
+            replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# SHUTDOWN_WAIT=60","SHUTDOWN_WAIT=60");
+            replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_CONSOLE_LOG=\"/var/log/jboss-eap/console.log\"","JBOSS_CONSOLE_LOG=\"/var/log/jboss-eap/console.log\"");
             system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf /etc/default");
             system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh /etc/init.d");
             system("sudo chmod +x /etc/init.d/jboss-eap-rhel.sh");
+            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh");
             system("sudo chkconfig --add /etc/init.d/jboss-eap-rhel.sh");
 		}
 	}
@@ -1160,6 +1168,10 @@ sub activate_sso_filters{
                 copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar");
             }
 
+            if ("$OS" eq "linux") {
+                system("chown -R -f jboss-eap:jboss-eap \"$STANDALONE_BASE\"");
+            }
+
             print "Setting SSO properties in $JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml\n";
             my $pubKey = "$CONNEXO_DIR/publicKey.txt";
             if(-e $pubKey){
@@ -1353,7 +1365,8 @@ sub prepare_sso {
 sub change_owner {
 	if ("$OS" eq "linux") {
 		system("chown -R -f connexo:connexo \"$CONNEXO_DIR\"");
-		system("chown -R -f tomcat:tomcat \"$TOMCAT_BASE\"");
+		system("chown -R -f tomcat:tomcat \"$CATALINA_BASE\"");
+		system("chown -R -f jboss-eap:jboss-eap \"$STANDALONE_BASE\"");
 	}
 }
 
@@ -1521,10 +1534,10 @@ sub restart_jboss_service {
           print "\nConnexoJboss$SERVICE_VERSION started!\n";
        } else {
           print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
-          system("sudo service jboss-eap-rhel.sh start");
+          system("sudo service jboss-eap-rhel stop");
           sleep 15;
           print "Starting service ConnexoJboss$SERVICE_VERSION\n";
-          system("sudo service jboss-eap-rhel.sh stop");
+          system("sudo service jboss-eap-rhel start");
           sleep 10;
        }
     }
@@ -1548,7 +1561,7 @@ sub start_jboss_service {
         else {
             system("sudo chkconfig jboss-eap-rhel.sh on");
             print "\n\nStarting Jboss EAP service using: $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.rhel.sh \n";
-            system("sudo service jboss-eap-rhel.sh start");
+            system("sudo service jboss-eap-rhel start");
             print "... waiting for Jboss EAP to start ...";
             sleep(20);
             print " continuing.\n";
@@ -1607,6 +1620,9 @@ sub start_jboss {
 }
 
 sub final_steps {
+    if ("$OS" eq "linux" ){
+        system(chmod "-R 755 $CONNEXO_DIR");
+    }
     if ("$ACTIVATE_SSO" eq "yes") {
         print "\nFinal steps:\n";
 		print "==========================================================================\n";
@@ -1681,8 +1697,9 @@ sub uninstall_all {
         system("/sbin/chkconfig --del ConnexoTomcat$SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$SERVICE_VERSION");
 		print "Stop and remove ConnexoJboss$SERVICE_VERSION service";
-        system("sudo service jboss-eap-rhel.sh stop");
+        system("sudo service jboss-eap-rhel stop");
         sleep 3;
+        system("userdel -r jboss-eap");
         system("sudo chkconfig --del jboss-eap-rhel.sh");
         system("sudo rm /etc/init.d/jboss-eap-rhel.sh");
         system("sudo rm /etc/default/jboss-eap.conf");
@@ -1696,7 +1713,9 @@ sub uninstall_all {
     if (-d "$CONNEXO_DIR/partners/jboss") { rmtree("$CONNEXO_DIR/partners/jboss"); }
 	if (-e "$CONNEXO_DIR/conf/config.properties") { unlink("$CONNEXO_DIR/conf/config.properties"); }
 	if (-d "$CONNEXO_DIR/partners/jbcs-jsvc-1.1") { rmtree("$CONNEXO_DIR/partners/jbcs-jsvc-1.1"); }
-    rmtree("C:\Windows\System32\config\systemprofile\.m2\repository\Honeywell");
+	if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
+        rmtree("C:\Windows\System32\config\systemprofile\.m2\repository\Honeywell");
+    }
 }
 
 sub find_string_value {
