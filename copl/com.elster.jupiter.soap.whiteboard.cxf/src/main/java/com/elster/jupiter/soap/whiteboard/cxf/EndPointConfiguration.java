@@ -124,6 +124,10 @@ public interface EndPointConfiguration extends HasId, HasName, HasDynamicPropert
 
     void setProperties(Map<String, Object> map);
 
+    PayloadSaveStrategy getPayloadSaveStrategy();
+
+    void setPayloadSaveStrategy(PayloadSaveStrategy strategy);
+
     WebServiceCallOccurrence createWebServiceCallOccurrence(Instant startTime,
                                                             String requestName,
                                                             String applicationName);

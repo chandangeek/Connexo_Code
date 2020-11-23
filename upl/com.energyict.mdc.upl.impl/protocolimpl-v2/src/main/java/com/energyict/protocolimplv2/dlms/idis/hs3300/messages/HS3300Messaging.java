@@ -24,6 +24,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.validators.KeyMessageChangeValidator;
@@ -38,6 +39,7 @@ import java.io.ObjectOutputStream;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -97,7 +99,8 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
                 PLCConfigurationDeviceMessage.WritePlcG3Timeout.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.SetAdpLBPAssociationSetup_5_Parameters.get(propertySpecService, nlsService, converter),
                 PLCConfigurationDeviceMessage.WRITE_ADP_LQI_RANGE.get(propertySpecService, nlsService, converter),
-                DeviceActionMessage.ReadDLMSAttribute.get(propertySpecService, nlsService, converter)
+                DeviceActionMessage.ReadDLMSAttribute.get(propertySpecService, nlsService, converter),
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER.get(propertySpecService, nlsService, converter)
         );
     }
 
@@ -122,6 +125,8 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
             return keyRenewalInfo.toJson();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.keyAccessorTypeAttributeName)) {
             return convertKeyAccessorType((KeyAccessorType) messageAttribute, this.keyAccessorTypeExtractor);
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName)) {
+            return String.valueOf(((Date) messageAttribute).getTime());  // Epoch (millis)
         } else if (propertySpec.getName().equals(DeviceMessageConstants.certificateWrapperAttributeName)) {
             //Is it a certificate renewal or just an addition of a certificate (e.g. trusted CA certificate) to the Beacon?
             // ==> If there's a passive (temp) value, it's a renewal for sure, use this value.

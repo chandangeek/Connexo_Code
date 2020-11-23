@@ -62,6 +62,7 @@ public abstract class AbstractCosemObject {
 
     protected ProtocolLink protocolLink = null;
     private boolean dsmr4SelectiveAccessFormat = false;
+    private boolean useWildcardDayOfWeek = true;
     private boolean useWildcardClockStatus = false;
     private ObjectReference objectReference = null;
     private Integer attributeNumber = null;     //State, For logging purposes only
@@ -1892,13 +1893,21 @@ public abstract class AbstractCosemObject {
         this.useWildcardClockStatus = useWildcardClockStatus;
     }
 
+    public void setUseWildcardDayOfWeek(boolean useWildcardDayOfWeek) {
+        this.useWildcardDayOfWeek = useWildcardDayOfWeek;
+    }
+
     private int getDayOfWeek(Calendar fromCalendar) {
         int dlmsDayOfWeek = 0xFF;
-        if (dsmr4SelectiveAccessFormat) {
+        if (isDayOfWeekNotWildcard()) {
             dlmsDayOfWeek = fromCalendar.get(Calendar.DAY_OF_WEEK) - 1;
             dlmsDayOfWeek = dlmsDayOfWeek == 0 ? 7 : dlmsDayOfWeek;
         }
         return dlmsDayOfWeek;
+    }
+
+    private boolean isDayOfWeekNotWildcard() {
+        return dsmr4SelectiveAccessFormat || !useWildcardDayOfWeek;
     }
 
     private byte[] getBufferRangeDescriptorDefault(long fromCalendar, long toCalendar) {

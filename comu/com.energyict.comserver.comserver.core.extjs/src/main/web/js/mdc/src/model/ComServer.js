@@ -31,7 +31,9 @@ Ext.define('Mdc.model.ComServer', {
                 var inboundComPorts = data.inboundComPorts ? data.inboundComPorts.length : 0,
                     outboundComPorts = data.outboundComPorts ? data.outboundComPorts.length : 0,
                     comports = inboundComPorts + outboundComPorts;
-                return '<a href="#/administration/comservers/' + data.id + '/comports">'
+                var offlineServer = data.comServerType === "Offline";
+                var routePart = offlineServer ? "offlinecomservers" : "comservers";
+                return '<a href="#/administration/'+ routePart + '/' + data.id + '/comports">'
                     + Uni.I18n.translatePlural('comserver.preview.communicationPorts', parseInt(comports), 'MDC',
                         'No communication ports', '{0} communication port', '{0} communication ports')
                     + '</a>';

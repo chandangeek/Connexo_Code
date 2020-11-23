@@ -235,11 +235,18 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         router.getRoute(this.currentUrl).forward();
     },
 
+    getMobileComServerStartRoute : function(){   // Lau
+        var router = this.getController('Uni.controller.history.Router');
+        var offlineServer = router.currentRoute.indexOf("offline") >=0;
+        var routePart = offlineServer ? "offlinecomservers" : "comservers";
+        return 'administration/'+ routePart ;
+    },
+
     cancelClick: function () {
         var me = this;
         var router = this.getController('Uni.controller.history.Router');
         delete me.portModel;
-        router.getRoute('administration/comservers/detail/comports').forward();
+        router.getRoute(this.getMobileComServerStartRoute() + '/detail/comports').forward();
     },
 
     addClicked: function (btn) {
@@ -256,7 +263,10 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             typeModel,
             record,
             actionType,
-            ids = [];
+            ids = [],
+            isOffline = me.getController('Uni.controller.history.Router')
+                .currentRoute
+                .indexOf("offline") ? "offinecomservers" : "comservers";
 
         if (form.isValid()) {
             formErrorsPanel.hide();
@@ -311,7 +321,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             }
             me.portModel = null;
             record.save({
-                backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/comservers/detail/comports').buildUrl(),
+                backUrl: me.getController('Uni.controller.history.Router').getRoute(me.getMobileComServerStartRoute()+'/detail/comports').buildUrl(),
                 callback: function (records, operation, success) {
                     if (success) {
                         me.onSuccessSaving(me.portDirection, actionType);
@@ -387,7 +397,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         this.getApplication().fireEvent('acknowledge', messageText);
         delete me.portModel;
         me.portType = me.defaulType;
-        router.getRoute('administration/comservers/detail/comports').forward();
+        router.getRoute(this.getMobileComServerStartRoute()+'/detail/comports').forward();
     },
 
     onFailureSaving: function (response, form) {
@@ -449,7 +459,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         }
 
 
-        me.currentUrl = 'administration/comservers/detail/comports/edit';
+        me.currentUrl = me.getMobileComServerStartRoute()+'/detail/comports/edit';
         me.comServerId = id;
         me.comPortId = parseInt(comPortId);
         me.comportEdit = widget;
@@ -568,7 +578,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             comServerModel = me.getModel('Mdc.model.ComServer');
 
         me.loadTimeUnits();
-        me.currentUrl = 'administration/comservers/detail/comports/addOutbound';
+        me.currentUrl = me.getMobileComServerStartRoute()+'/detail/comports/addOutbound';
         me.comServerId = id;
         me.comportEdit = widget;
         me.portDirection = 'outbound';
@@ -605,7 +615,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             comServerModel = me.getModel('Mdc.model.ComServer');
 
         me.loadTimeUnits();
-        me.currentUrl = 'administration/comservers/detail/comports/addInbound';
+        me.currentUrl = me.getMobileComServerStartRoute()+'/detail/comports/addInbound';
         me.portType = me.defaultType;
         me.comServerId = id;
         me.comportEdit = widget;
@@ -643,7 +653,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             widget.updateCancelHref(me.comServerId, me.comPortId);
             me.filterStore();
         } else {
-            this.currentUrl = 'administration/comservers/detail/comports/addOutbound';
+            this.currentUrl = this.getMobileComServerStartRoute()+'/detail/comports/addOutbound';
             router.getRoute(this.currentUrl).forward();
         }
 

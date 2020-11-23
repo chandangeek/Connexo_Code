@@ -45,7 +45,7 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
     public void doExecute(ComServerDAO comServerDAO) {
         Optional<OfflineLoadProfile> offlineLoadProfile = comServerDAO.findOfflineLoadProfile(collectedLoadProfile.getLoadProfileIdentifier());
         if (offlineLoadProfile.isPresent()) {
-            comServerDAO.storeLoadProfile(offlineLoadProfile, collectedLoadProfile, this.getClock().instant());
+            comServerDAO.storeLoadProfile(collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, this.getClock().instant());
         } else {
             this.addIssue(
                     CompletionCode.ConfigurationWarning,

@@ -134,6 +134,7 @@ Ext.define('Wss.view.Add', {
         values['authenticationMethod'] = null;
         form.getForm().setValues(this.record.data);
         form.down('#logLevelCombo').select(this.record.getLogLevel());
+        form.down('#storePayloadCombo').select(this.record.getPayloadStrategy());
         form.down('#authenticationCombo').select(this.record.getAuthenticationMethod());
         this.down('#property-form').loadRecord(this.record);
         form.down('#webServiceCombo').disable();
@@ -273,6 +274,19 @@ Ext.define('Wss.view.Add', {
                 queryMode: 'local',
                 valueField: 'id',
                 fieldLabel: Uni.I18n.translate('endPointAdd.logLevel', 'WSS', 'Log level'),
+                required: true
+            },
+            {
+                xtype: 'combobox',
+                itemId: 'storePayloadCombo',
+                name: 'payloadStrategy',
+                store: this.payloadStrategyStore,
+                displayField: 'localizedValue',
+                forceSelection: true,
+                value: 'ERROR',
+                queryMode: 'local',
+                valueField: 'id',
+                fieldLabel: Uni.I18n.translate('endPointAdd.storePayload', 'WSS', 'Store request payload'),
                 required: true
             },
             {

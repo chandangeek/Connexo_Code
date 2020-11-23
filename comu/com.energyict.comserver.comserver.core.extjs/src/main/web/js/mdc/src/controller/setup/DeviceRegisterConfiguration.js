@@ -40,7 +40,8 @@ Ext.define('Mdc.controller.setup.DeviceRegisterConfiguration', {
         'Mdc.customattributesonvaluesobjects.store.RegisterCustomAttributeSets',
         'RegisterConfigsOfDevice',
         'Mdc.store.DataLoggerSlaveRegisterHistory',
-        'Mdc.store.RegisterValidationConfiguration'
+        'Mdc.store.RegisterValidationConfiguration',
+        'Mdc.store.RegisterReadings'
     ],
 
     refs: [

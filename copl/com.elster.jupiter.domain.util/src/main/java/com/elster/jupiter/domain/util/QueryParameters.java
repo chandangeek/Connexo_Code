@@ -10,6 +10,7 @@ import com.elster.jupiter.util.conditions.Order;
 import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -27,7 +28,7 @@ public interface QueryParameters {
         stream = getStart().map(stream::skip).orElse(stream);
         stream = getLimit().map(i -> i + 1).map(stream::limit).orElse(stream);
         List<Order> sortingColumns = getSortingColumns();
-        if (!sortingColumns.isEmpty()) {
+        if (Objects.nonNull(sortingColumns) && !sortingColumns.isEmpty()) {
             stream = stream.sorted(sortingColumns);
         }
         return stream;

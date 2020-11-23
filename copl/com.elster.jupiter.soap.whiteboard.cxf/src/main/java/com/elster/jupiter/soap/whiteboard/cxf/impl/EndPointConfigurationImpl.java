@@ -19,6 +19,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -76,6 +77,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     private boolean schemaValidation;
     private EndPointAuthentication authenticationMethod;
     private boolean active;
+    private PayloadSaveStrategy payloadSaveStrategy = PayloadSaveStrategy.ERRORS;
 
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -128,7 +130,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         PASSWD("password"),
         CLIENT_ID("clientId"),
         CLIENT_SECRET("clientSecret"),
-        GROUP("group");
+        GROUP("group"),
+        PAYLOAD_SAVE_STRATEGY("payloadSaveStrategy");
 
         private final String javaFieldName;
 
@@ -287,6 +290,16 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
         }
     }
 
+    @Override
+    public PayloadSaveStrategy getPayloadSaveStrategy() {
+        return payloadSaveStrategy;
+    }
+
+    @Override
+    public void setPayloadSaveStrategy(PayloadSaveStrategy strategy) {
+        this.payloadSaveStrategy = strategy;
+    }
+
     private void doLog(LogLevel logLevel, String message, WebServiceCallOccurrence occurrence) {
         EndPointLogImpl log = dataModel.getInstance(EndPointLogImpl.class)
                 .init(this, message, logLevel, clock.instant(), occurrence);
@@ -332,7 +345,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     @Override
     public Finder<EndPointLog> getLogs() {
-        OccurrenceLogFinderBuilder finderBuilder =  new OccurrenceLogFinderBuilderImpl(dataModel);
+        OccurrenceLogFinderBuilder finderBuilder = new OccurrenceLogFinderBuilderImpl(dataModel);
         finderBuilder.withEndPointConfiguration(this);
         finderBuilder.withNoOccurrence();
         return finderBuilder.build();

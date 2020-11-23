@@ -53,6 +53,8 @@ public class EndPointConfigurationInfoFactory {
         info.logLevel = new IdWithLocalizedValueInfo<>(endPointConfiguration.getLogLevel()
                 .name(), endPointConfiguration.getLogLevel()
                 .getDisplayName(thesaurus));
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(endPointConfiguration.getPayloadSaveStrategy(),
+                endPointConfiguration.getPayloadSaveStrategy().getDisplayName(thesaurus));
         info.httpCompression = endPointConfiguration.isHttpCompression();
         info.tracing = endPointConfiguration.isTracing();
         info.traceFile = endPointConfiguration.getTraceFile();
