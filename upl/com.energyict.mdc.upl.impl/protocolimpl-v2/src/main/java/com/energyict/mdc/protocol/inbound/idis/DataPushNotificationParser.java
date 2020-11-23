@@ -384,7 +384,7 @@ public class DataPushNotificationParser {
                 timeZones.put(deviceIdentifier, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
             } else {
                 TimeZone timeZoneInUse = deviceProtocolProperties.getTypedProperty(TIMEZONE);
-                if (timeZoneInUse == null || timeZoneInUse == null) {
+                if (timeZoneInUse == null) {
                     timeZones.put(deviceIdentifier, TimeZone.getTimeZone(DEFAULT_TIMEZONE));
                 } else {
                     timeZones.put(deviceIdentifier, timeZoneInUse);

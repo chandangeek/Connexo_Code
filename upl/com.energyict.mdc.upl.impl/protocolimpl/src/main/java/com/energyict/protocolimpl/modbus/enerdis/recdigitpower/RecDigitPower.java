@@ -136,7 +136,7 @@ public class RecDigitPower extends Modbus {
         Date from = limiter.getFromDate();
         Date to = limiter.getToDate();
 
-        if (to.before(from)) {
+        if (to != null && to.before(from)) {
             return new ProfileData();
         }
 
