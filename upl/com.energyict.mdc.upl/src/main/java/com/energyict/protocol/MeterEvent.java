@@ -851,7 +851,11 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int COMMUNICATION_ENDED_ON_LOCAL_INTERFACE_WZ = 425;
     public static final int PASSIVE_ACTIVITY_CALENDAR_ACTIVATED = 426;
     public static final int ACTIVITY_CALENDAR_PROGRAMMED = 427;
-
+    public static final int MODEM_FAILS_RESPONSE = 428;
+    public static final int SIGNAL_QUALITY_RESTORED = 429;
+    public static final int TCP_IP_CONNECTION_ESTABLISHMENT_FAILURE = 430;
+    public static final int ACK_NOT_RECEIVED = 431;
+    public static final int PING_RESPONSE_NOT_RECEIVED = 432;
 
     /**
      * Start of Beacon3100 custom codes

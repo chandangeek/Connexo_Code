@@ -1222,6 +1222,10 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.19.261.93");
     }
 
+    public static EndDeviceEventType getModemFailsResponse() {
+        return new EndDeviceEventType("0.19.211.85");
+    }
+
     public static EndDeviceEventType getLocalCommunicationAttempt() {
         return new EndDeviceEventType("0.1.65.2");
     }
@@ -1292,6 +1296,22 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getSignalQualityLow() {
         return new EndDeviceEventType("0.19.0.150");
+    }
+
+    public static EndDeviceEventType getSignalQualityRestored() {
+        return new EndDeviceEventType("0.19.0.216");
+    }
+
+    public static EndDeviceEventType getPingResponseNotReceived() {
+        return new EndDeviceEventType("0.19.211.88");
+    }
+
+    public static EndDeviceEventType getTCPIPConnectionEstablishmentFailure() {
+        return new EndDeviceEventType("0.19.60.67");
+    }
+
+    public static EndDeviceEventType getAckNotReceived() {
+        return new EndDeviceEventType("0.19.30.85");
     }
 
     public static EndDeviceEventType getMeterAlarmEnd() {

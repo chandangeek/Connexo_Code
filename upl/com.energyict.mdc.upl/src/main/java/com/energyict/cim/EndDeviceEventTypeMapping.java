@@ -448,6 +448,11 @@ public enum EndDeviceEventTypeMapping {
     COMMUNICATION_ENDED_ON_LOCAL_INTERFACE_WZ(425, EndDeviceEventTypeFactory.getCommunicationEndedOnLocalInterfaceWZ()),
     PASSIVE_ACTIVITY_CALENDAR_ACTIVATED(426, EndDeviceEventTypeFactory.getPassiveActivityCalendarActivated()),
     ACTIVITY_CALENDAR_PROGRAMMED(427, EndDeviceEventTypeFactory.getActivityCalendarProgrammed()),
+    MODEM_FAILS_RESPONSE(428, EndDeviceEventTypeFactory.getModemFailsResponse()),
+    SIGNAL_QUALITY_RESTORED(429, EndDeviceEventTypeFactory.getSignalQualityRestored()),
+    TCP_IP_CONNECTION_ESTABLISHMENT_FAILURE( 430, EndDeviceEventTypeFactory.getTCPIPConnectionEstablishmentFailure()),
+    ACK_NOT_RECEIVED( 431, EndDeviceEventTypeFactory.getAckNotReceived()),
+    PING_RESPONSE_NOT_RECEIVED( 432, EndDeviceEventTypeFactory.getPingResponseNotReceived()),
 
 
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
