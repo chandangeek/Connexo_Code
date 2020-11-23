@@ -22,7 +22,10 @@ public interface ServiceCallHandler {
 
     /**
      * The default implementation returns true, so implementers who never disallow needn't implement this method.
+     *
+     * @deprecated This method may not always work during Connexo startup, when service call handler is not up yet. Better to use a proper service call lifecycle with required transitions instead
      */
+    @Deprecated
     default boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         return true;
     }
