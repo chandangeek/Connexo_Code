@@ -377,10 +377,6 @@ public class WebServicesServiceImpl implements WebServicesService {
                 tmp.log(LogLevel.SEVERE, message);
             } else {
                 tmp.log(message, exception);
-                // TODO: CXO-12063 why do we log this here? What the crutch?
-                if ((exception.getCause() != null) && (exception.getCause().getLocalizedMessage() != null)) {
-                    tmp.log(LogLevel.SEVERE, exception.getCause().getLocalizedMessage());
-                }
             }
             tmp.setEndTime(clock.instant());
             validateOngoingStatus(tmp);
