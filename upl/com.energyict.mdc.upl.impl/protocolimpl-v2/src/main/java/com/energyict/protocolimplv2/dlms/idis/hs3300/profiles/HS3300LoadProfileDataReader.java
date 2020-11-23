@@ -29,6 +29,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class HS3300LoadProfileDataReader {
 
@@ -93,6 +94,7 @@ public class HS3300LoadProfileDataReader {
                         " from " + loadProfileReader.getStartReadingTime() + " to " + loadProfileReader.getEndReadingTime());
                 try {
                     ProfileGeneric profile = this.protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(loadProfileReader.getProfileObisCode());
+                    profile.setUseWildcardDayOfWeek(false);
                     profile.setUseWildcardClockStatus(true);
 
                     Calendar fromCalendar = Calendar.getInstance(this.protocol.getTimeZone());
@@ -101,10 +103,11 @@ public class HS3300LoadProfileDataReader {
                     toCalendar.setTime(loadProfileReader.getEndReadingTime());
 
                     DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), DLMSProfileIntervals.DefaultClockMask, 0, -1, null);
-                    List<IntervalData> collectedIntervalData = intervals.parseIntervals(loadProfileConfig.getProfileInterval(), protocol.getTimeZone());
-
-                    this.protocol.journal(" > load profile intervals parsed: " + collectedIntervalData.size());
-                    collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
+                    if (Objects.nonNull(loadProfileConfig)) {
+                        List<IntervalData> collectedIntervalData = intervals.parseIntervals(loadProfileConfig.getProfileInterval(), protocol.getTimeZone());
+                        this.protocol.journal(" > load profile intervals parsed: " + collectedIntervalData.size());
+                        collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
+                    }
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, this.protocol.getDlmsSessionProperties().getRetries() + 1)) {
                         Issue problem = this.issueFactory.createProblem(loadProfileReader, "loadProfileXIssue", loadProfileReader.getProfileObisCode(), e);

@@ -3,12 +3,17 @@ package com.energyict.protocolimplv2.dlms.idis.hs3300.messages;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultCode;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -27,6 +32,7 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.PLCConfigurationDeviceMessageExecutor;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
@@ -36,22 +42,29 @@ import com.energyict.sercurity.KeyRenewalInfo;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 import static com.energyict.dlms.aso.SecurityPolicy.REQUESTS_SIGNED_FLAG;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.G3_PLC_BANDPLAN;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.PSK_KEK_RENEWAL_OBISCODE;
 import static com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper.PSK_RENEWAL_OBISCODE;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.certificateIssuerAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateImageIdentifierAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.keyAccessorTypeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.meterSerialNumberAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPSKKEKAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.resumeFirmwareUpdateAttributeName;
 
 public class HS3300MessageExecutor extends AbstractMessageExecutor {
 
@@ -137,6 +150,8 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
             writeADPLQIRange(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
             collectedMessage = this.readDlmsAttribute(collectedMessage, pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
+            upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
         } else {    // Unsupported message
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -324,5 +339,74 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
         }
 
         return collectedMessage;
+    }
+
+    private void upgradeFirmwareWithActivationDateAndImageIdentifier(OfflineDeviceMessage pendingMessage) throws IOException {
+        String path = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateFileAttributeName).getValue();
+        String activationDate = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateActivationDateAttributeName)
+                .getValue();   // Will return empty string if the MessageAttribute could not be found
+        String imageIdentifier = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, firmwareUpdateImageIdentifierAttributeName)
+                .getValue(); // Will return empty string if the MessageAttribute could not be found
+
+        boolean additionalZeros = false;
+
+        getProtocol().journal("Using firmware file: " + path);
+        ImageTransfer it = getCosemObjectFactory().getImageTransfer();
+        if (isResume(pendingMessage)) {
+            int lastTransferredBlockNumber = it.readFirstNotTransferedBlockNumber().intValue();
+            if (lastTransferredBlockNumber > 0) {
+                getProtocol().journal("Resuming transfer from block: " + lastTransferredBlockNumber);
+                it.setStartIndex(lastTransferredBlockNumber - 1);
+            }
+        }
+
+        it.setUsePollingVerifyAndActivate(true); // Poll verification
+        it.setPollingDelay(10000);
+        it.setPollingRetries(30);
+        it.setDelayBeforeSendingBlocks(5000);
+
+        try (RandomAccessFile file = new RandomAccessFile(new File(path), "r")) {
+            String actualIdentifier = ImageTransfer.DEFAULT_IMAGE_NAME;
+            if (!imageIdentifier.isEmpty()) {
+                actualIdentifier = imageIdentifier;
+            }
+            getProtocol().journal("Starting block transfer of image file using identifier " + actualIdentifier);
+            it.upgrade(new ImageTransfer.RandomAccessFileImageBlockSupplier(file), additionalZeros, actualIdentifier, false);
+            getProtocol().journal("Block transfer finished");
+        }
+
+        if (activationDate.isEmpty()) {
+            try {
+                getProtocol().journal("Activating immediately");
+                it.setUsePollingVerifyAndActivate(false); // Don't use polling for the activation!
+                it.imageActivation();
+            } catch (DataAccessResultException e) {
+                if (isTemporaryFailure(e)) {
+                    getProtocol().journal("Received temporary failure. Meter will activate the image when this communication session is closed, moving on.");
+                } else {
+                    getProtocol().journal(Level.WARNING, e.getLocalizedMessage());
+                    throw e;
+                }
+            }
+        } else {
+            getProtocol().journal("Setting future activation date: " + activationDate);
+            SingleActionSchedule sas = getCosemObjectFactory().getSingleActionSchedule(getMeterConfig().getImageActivationSchedule().getObisCode());
+            Array dateArray = convertEpochToDateTimeArray(activationDate);
+            sas.writeExecutionTime(dateArray);
+        }
+    }
+
+    private boolean isResume(OfflineDeviceMessage pendingMessage) {
+        return Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, resumeFirmwareUpdateAttributeName).getValue());
+    }
+
+    private boolean isTemporaryFailure(Throwable e) {
+        if (e == null) {
+            return false;
+        } else if (e instanceof DataAccessResultException) {
+            return (((DataAccessResultException) e).getDataAccessResult() == DataAccessResultCode.TEMPORARY_FAILURE.getResultCode());
+        } else {
+            return false;
+        }
     }
 }

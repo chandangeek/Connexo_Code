@@ -17,6 +17,7 @@ Ext.define('Uni.view.toolbar.CustomExporterButton', {
                 single: true
             }
         });
+        me.widget - this
         me.callParent(arguments);
     },
     onAfterRender: function(){
@@ -44,6 +45,17 @@ Ext.define('Uni.view.toolbar.CustomExporterButton', {
     onClick: function(){
 
         var me = this;
+
+        if (me.up("pagingtoolbartop").needLazyExportInit){
+
+            me.temporaryGrid = me.createTemporaryGrid();
+
+            for (var i = 0; i < me.component.columns.length; i++){
+               var column = me.component.columns[i];
+               me.temporaryGrid.columns[i].setVisible(!column.hidden);
+               me.temporaryGrid.columns[i].setText(column.text);
+            }
+        }
 
         var customExporterWindow = Ext.create('Uni.util.customexport.CustomExporterWindow', {
               grid: me.temporaryGrid,

@@ -298,9 +298,10 @@ public class PkiGogoCommand {
     private void setCertificateRequestData(CertificateRequestData certificateRequestData, CertificateWrapper certificateWrapper) {
         System.out.print("Updating certificate with id:" + certificateWrapper.getId());
         threadPrincipalService.set(() -> "Console");
-        TransactionContext context = transactionService.getContext();
-        certificateWrapper.setCertificateRequestData(Optional.of(certificateRequestData));
-        context.commit();
+        try (TransactionContext context = transactionService.getContext()) {
+            certificateWrapper.setCertificateRequestData(Optional.of(certificateRequestData));
+            context.commit();
+        }
         System.out.println(".... OK");
     }
 

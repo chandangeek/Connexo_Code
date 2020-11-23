@@ -122,7 +122,10 @@ Ext.define('Mdc.view.setup.comserver.OfflineComServerOverview', {
                 {
                     xtype: 'comserversidemenu',
                     itemId: 'comserversidemenu',
-                    serverId: me.serverId
+                    serverId: me.serverId,
+                    isOfflineServer : function(){
+                        return true;
+                    }
                 }
             ]
         };
