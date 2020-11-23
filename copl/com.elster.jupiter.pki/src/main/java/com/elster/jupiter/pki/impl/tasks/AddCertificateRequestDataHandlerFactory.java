@@ -57,7 +57,7 @@ public class AddCertificateRequestDataHandlerFactory implements MessageHandlerFa
     private static final int ADD_CERTIFICATE_REQUEST_DATA_TASK_RETRY_DELAY = 60;
     private static final Logger LOGGER = Logger.getLogger(AddCertificateRequestDataHandlerFactory.class.getName());
 
-    private volatile SecurityManagementService securityManagementService;
+    private volatile SecurityManagementServiceImpl securityManagementServiceImpl;
     private volatile MessageService messageService;
     private volatile NlsService nlsService;
     private volatile TaskService taskService;
@@ -177,7 +177,7 @@ public class AddCertificateRequestDataHandlerFactory implements MessageHandlerFa
 
     @Override
     public MessageHandler newMessageHandler() {
-        return taskService.createMessageHandler(new AddCertificateRequestDataHandler(path, securityManagementService, transactionService, threadPrincipalService, thesaurus, LOGGER));
+        return taskService.createMessageHandler(new AddCertificateRequestDataHandler(path, securityManagementServiceImpl, transactionService, threadPrincipalService, thesaurus, LOGGER));
     }
 
     @Reference
@@ -206,7 +206,7 @@ public class AddCertificateRequestDataHandlerFactory implements MessageHandlerFa
     }
 
     @Reference
-    public void setSecurityManagementService(SecurityManagementService securityManagementService) {
-        this.securityManagementService = securityManagementService;
+    public void setSecurityManagementServiceImpl(SecurityManagementServiceImpl securityManagementServiceImpl) {
+        this.securityManagementServiceImpl = securityManagementServiceImpl;
     }
 }

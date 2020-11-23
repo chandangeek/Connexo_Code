@@ -14,4 +14,8 @@ public interface CertificateUsagesFinder {
      * @return names list of associated devices
      */
     List<String> findAssociatedDevicesNames(CertificateWrapper certificateWrapper);
+
+    AssociatedDeviceType getAssociatedDeviceType(CertificateWrapper certificateWrapper);
+
+    boolean isCertificateRelatedToType(CertificateWrapper certificateWrapper, String prefix);
 }
