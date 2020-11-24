@@ -187,7 +187,9 @@ public enum EndDeviceSubDomain implements HasNumericCode {
     ELSTER_DEFINED_MIB("Mib", 312,  "Elster defined Mib"),
     ELSTER_DEFINED_PM1_AFFILATION("Pm1Affiliation", 313,  "Elster defined Pm1Affiliation"),
     ELSTER_DEFINED_VALVE_PGV("ValvePgv", 314,  "Elster defined ValvePgv"),
-    ELSTER_DEFINED_PDR("Pdr", 315,  "Elster defined Pdr");
+    ELSTER_DEFINED_PDR("Pdr", 315,  "Elster defined Pdr"),
+    ELSTER_DEFINED_LOAD_PROFILE_1("LoadProfile1", 321, "Elster defined Load Profile 1"),
+    ELSTER_DEFINED_LOAD_PROFILE_2("LoadProfile2", 322, "Elster defined Load Profile 2");
 
     private final String mnemonic;
     private final int value;
