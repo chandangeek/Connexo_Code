@@ -159,7 +159,7 @@ public class A1800EventLog {
                     eisEvent = MeterEvent.TAMPER;
                     break;
                 case 2051: // main cover tamper
-                    eisEvent = MeterEvent.COVER_OPENED;
+                    eisEvent = MeterEvent.METER_COVER_OPENED;
                     break;
                 case 2052: // external event 0
                     eisEvent = MeterEvent.OTHER;

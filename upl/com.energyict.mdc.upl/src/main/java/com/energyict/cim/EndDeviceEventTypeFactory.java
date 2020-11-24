@@ -122,10 +122,6 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.12.141.212");
     }
 
-    public static EndDeviceEventType getTerminalOpenedEventType() {
-        return new EndDeviceEventType("0.12.29.212");
-    }
-
     public static EndDeviceEventType getReverseRunEventType() {
         return new EndDeviceEventType("0.12.6.219");
     }
@@ -1014,10 +1010,6 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.0.113.0");
     }
 
-    public static EndDeviceEventType getCoverTemper() {
-        return new EndDeviceEventType("0.12.29.212");
-    }
-
     public static EndDeviceEventType getExternalEvent() {
         return new EndDeviceEventType("0.39.55.242");
     }
@@ -1230,6 +1222,10 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.19.261.93");
     }
 
+    public static EndDeviceEventType getModemFailsResponse() {
+        return new EndDeviceEventType("0.19.211.85");
+    }
+
     public static EndDeviceEventType getLocalCommunicationAttempt() {
         return new EndDeviceEventType("0.1.65.2");
     }
@@ -1300,6 +1296,22 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getSignalQualityLow() {
         return new EndDeviceEventType("0.19.0.150");
+    }
+
+    public static EndDeviceEventType getSignalQualityRestored() {
+        return new EndDeviceEventType("0.19.0.216");
+    }
+
+    public static EndDeviceEventType getPingResponseNotReceived() {
+        return new EndDeviceEventType("0.19.211.88");
+    }
+
+    public static EndDeviceEventType getTCPIPConnectionEstablishmentFailure() {
+        return new EndDeviceEventType("0.19.60.67");
+    }
+
+    public static EndDeviceEventType getAckNotReceived() {
+        return new EndDeviceEventType("0.19.30.85");
     }
 
     public static EndDeviceEventType getMeterAlarmEnd() {
@@ -1525,6 +1537,98 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getTimeBeforeChangeEvent(){ return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.BILLING, EndDeviceSubdomain.TIME,EndDeviceEventOrAction.START); }
     public static EndDeviceEventType getTimeAfterChangeEvent(){ return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.BILLING, EndDeviceSubdomain.TIME,EndDeviceEventOrAction.STOP); }
     public static EndDeviceEventType getValveControlSignalEvent(){ return new EndDeviceEventType(EndDeviceType.NOT_APPLICABLE, EndDeviceDomain.CONFIGURATION, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.CHANGED); }
+
+    public static EndDeviceEventType getEndOfNonperiodicBillingIntervalEventType() {
+        return new EndDeviceEventType("0.20.140.214");
+    }
+
+    public static EndDeviceEventType getLoadProfile1CapturingEnabledEventType() {
+        return new EndDeviceEventType("0.16.321.242");
+    }
+
+    public static EndDeviceEventType getLoadProfile1CapturingDisabledEventType() {
+        return new EndDeviceEventType("0.16.321.243");
+    }
+
+    public static EndDeviceEventType getLoadProfile2CapturingEnabledEventType() {
+        return new EndDeviceEventType("0.16.322.242");
+    }
+
+    public static EndDeviceEventType getLoadProfile2CapturingDisabledEventType() {
+        return new EndDeviceEventType("0.16.322.243");
+    }
+
+    public static EndDeviceEventType getFotaUpgradingInitiatedEventType() {
+        return new EndDeviceEventType("0.11.0.242");
+    }
+
+    public static EndDeviceEventType getFotaUpgradingFinishSuccessEventType() {
+        return new EndDeviceEventType("0.11.0.58");
+    }
+
+    public static EndDeviceEventType getFotaUpgradingFailedEventType() {
+        return new EndDeviceEventType("0.11.0.85");
+    }
+
+    public static EndDeviceEventType getTariffSchemeChangedEventType() {
+        return new EndDeviceEventType("0.20.140.24");
+    }
+
+    public static EndDeviceEventType getStartCertificationModeEventType() {
+        return new EndDeviceEventType("0.0.19.242");
+    }
+
+    public static EndDeviceEventType getEndCertificationModeEventType() {
+        return new EndDeviceEventType("0.0.19.55");
+    }
+
+    public static EndDeviceEventType getLoadManagementPassiveCalendarActivatedEventType() {
+        return new EndDeviceEventType("0.15.83.4");
+    }
+
+    public static EndDeviceEventType getLoadManagementActivityCalendarProgrammedEventType() {
+        return new EndDeviceEventType("0.15.83.24");
+    }
+
+    public static EndDeviceEventType getConsumerMessageUpdateEventType() {
+        return new EndDeviceEventType("0.13.143.24");
+    }
+
+    public static EndDeviceEventType getConsumerInterfaceDeactivatedEventType() {
+        return new EndDeviceEventType("0.11.46.19");
+    }
+
+    public static EndDeviceEventType getConsumerInterfaceReactivatedEventType() {
+        return new EndDeviceEventType("0.11.46.4");
+    }
+
+    public static EndDeviceEventType getModemRemovedEventType() {
+        return new EndDeviceEventType("0.19.0.212");
+    }
+
+    public static EndDeviceEventType getPlcG3PskChangeEventType() {
+        return new EndDeviceEventType("0.12.32.24");
+    }
+
+    public static EndDeviceEventType getLoadRelayChangeRequestRemoteEventType() {
+        return new EndDeviceEventType("0.15.91.24");
+    }
+
+    public static EndDeviceEventType getReinitializationOfRngEventType() {
+        return new EndDeviceEventType("0.0.0.33");
+    }
+
+    public static EndDeviceEventType getLocalInterfaceDeactivatedEventType() {
+        return new EndDeviceEventType("0.1.129.19");
+    }
+
+    public static EndDeviceEventType getLocalInterfaceReactivatedEventType() {
+        return new EndDeviceEventType("0.1.129.4");
+    }
+
+    public static EndDeviceEventType getCurrentReversalEventType() {
+        return new EndDeviceEventType("0.26.6.219");
+    }
 
     /// https://jira.eict.vpdc/secure/attachment/92046/CIM%20Codes%20A2_EI6_7_v1.xlsx
     /// Standard Event Logbook
@@ -1804,4 +1908,17 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getTemperatureSensorError() { return new EndDeviceEventType("0.35.0.79"); }
 
     public static EndDeviceEventType getBindingFlag() { return new EndDeviceEventType("0.6.5.58"); }
+
+    public static EndDeviceEventType getCommunicationStartedOnRemoteInterfaceLAN_WAN() { return new EndDeviceEventType("0.1.60.54"); }
+
+    public static EndDeviceEventType getCommunicationEndedOnRemoteInterfaceLAN_WAN() { return new EndDeviceEventType("0.1.60.55"); }
+
+    public static EndDeviceEventType getCommunicationStartedOnLocalInterfaceWZ() { return new EndDeviceEventType("0.1.129.54"); }
+
+    public static EndDeviceEventType getCommunicationEndedOnLocalInterfaceWZ() { return new EndDeviceEventType("0.1.129.55"); }
+
+    public static EndDeviceEventType getPassiveActivityCalendarActivated() { return new EndDeviceEventType("0.31.83.4"); }
+
+    public static EndDeviceEventType getActivityCalendarProgrammed() { return new EndDeviceEventType("0.31.83.24"); }
+
 }
