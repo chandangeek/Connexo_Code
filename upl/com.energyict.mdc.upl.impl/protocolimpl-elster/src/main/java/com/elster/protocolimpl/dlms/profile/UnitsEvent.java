@@ -37,7 +37,7 @@ public enum UnitsEvent
     Event26(115, MeterEvent.CONFIGURATIONCHANGE, "Disconnection of one or more physical module"),
     Event27(116, MeterEvent.TAMPER, "Magnetic field application appearance"),
     Event28(117, MeterEvent.TAMPER, "Magnetic field application disappearance"),
-    Event29(118, MeterEvent.COVER_OPENED, "Access to electronic part"),
+    Event29(118, MeterEvent.METER_COVER_OPENED, "Access to electronic part"),
     Event30(119, MeterEvent.APPLICATION_ALERT_START, "Decryption error"),
     Event31(120, MeterEvent.APPLICATION_ALERT_START, "Authentication error"),
     Event32(121, MeterEvent.APPLICATION_ALERT_START, "Unauthorized access"),

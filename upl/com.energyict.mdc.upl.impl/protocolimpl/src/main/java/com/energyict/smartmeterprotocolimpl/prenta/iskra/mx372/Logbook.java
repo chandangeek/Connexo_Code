@@ -188,7 +188,7 @@ public class Logbook {
 //				meterEvents.add(new MeterEvent(eventTimeStamp,
 //						MeterEvent.OTHER, "Event status meter cover opened"));
                 /** Current event only supported from EIServer8.3.13, otherwise be sure to use the event above */
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COVER_OPENED, "Event status meter cover opened"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_COVER_OPENED, "Event status meter cover opened"));
             }
             if (aloneEventId == EVENT_STATUS_TERMINAL_COVER_OPENED) {
 //				meterEvents

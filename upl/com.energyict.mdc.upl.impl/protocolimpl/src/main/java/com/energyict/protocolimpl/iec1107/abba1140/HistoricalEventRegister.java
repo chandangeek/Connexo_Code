@@ -151,7 +151,7 @@ public class HistoricalEventRegister {
             shift = (long)ProtocolUtils.getIntLE(data,offset,4)&0xFFFFFFFFL;
             if( shift == 0 ) continue;
             date = ProtocolUtils.getCalendar(timeZone,shift).getTime();
-            MeterEvent me = new MeterEvent(date, MeterEvent.COVER_OPENED, "Main Cover Cumulative Event Count");
+            MeterEvent me = new MeterEvent(date, MeterEvent.METER_COVER_OPENED, "Main Cover Cumulative Event Count");
             events.add(me);
         }
         

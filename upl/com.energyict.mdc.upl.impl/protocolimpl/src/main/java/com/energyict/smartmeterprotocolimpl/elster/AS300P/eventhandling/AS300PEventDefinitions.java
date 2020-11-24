@@ -191,7 +191,7 @@ public enum AS300PEventDefinitions {
     PowerLoss(477, MeterEvent.POWERDOWN, "Power Loss"),
     PowerUp(478, MeterEvent.POWERUP, "Power Up"),
     MeterCoverReplaced(480, MeterEvent.METER_COVER_CLOSED, "Meter Cover Replaced"),
-    MeterCoverRemoved(481, MeterEvent.COVER_OPENED, "Meter Cover Removed"),
+    MeterCoverRemoved(481, MeterEvent.METER_COVER_OPENED, "Meter Cover Removed"),
     StrongMagneticField(484, MeterEvent.STRONG_DC_FIELD_DETECTED, "Strong Magnetic Field Detected"),
     StrongMagneticFieldRemoved(485, MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, "Strong Magnetic Field Removed"),
     TerminalCoverRemoved(486, MeterEvent.TERMINAL_OPENED, "Terminal Cover Removed"),
