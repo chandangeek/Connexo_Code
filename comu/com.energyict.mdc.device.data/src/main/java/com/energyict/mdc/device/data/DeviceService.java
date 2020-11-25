@@ -95,6 +95,8 @@ public interface DeviceService {
 
     Optional<Device> findAndLockDeviceBymRIDAndVersion(String mRID, long version);
 
+    Optional<SecurityAccessor<SecurityValueWrapper>> findAndLockSecurityAccessorById(Device device, SecurityAccessorType securityAccessorType);
+
     /**
      * If the security accessor identified by device & security accessor type exists AND has the expected version, the corresponding
      * security accessor will be returned

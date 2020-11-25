@@ -22,11 +22,13 @@ import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -89,10 +91,15 @@ public class KeyAccessorTypeResource {
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     @Path("/{keyAccessorTypeId}/switch")
     public Response switchKey(@PathParam("mrid") String mrid, @PathParam("keyAccessorTypeId") long keyAccessorTypeId,
-                              @Context UriInfo uriInfo) {
+                              @QueryParam("force") boolean force, @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mrid)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
-        getSecurityAccessorOrThrowException(keyAccessorTypeId, device).swapValues();
+        SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(keyAccessorTypeId, device.getDeviceType());
+        SecurityAccessor securityAccessor = deviceService.findAndLockSecurityAccessorById(device, securityAccessorType)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
+        if (force || !securityAccessor.isSwapped()) {
+            securityAccessor.swapValues();
+        }
         return Response.ok().build();
     }
 
