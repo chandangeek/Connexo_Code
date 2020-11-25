@@ -15,6 +15,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.users.Group;
@@ -209,7 +210,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.schemaValidation = true;
         info.tracing = false;
         info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.NONE, null);
-
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(PayloadSaveStrategy.ALWAYS, null);
         info.url = "/srv";
         info.active = false;
 
@@ -238,6 +239,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.url = "/srv";
         info.group = new LongIdWithNameInfo(group.getId(), "none");
         info.active = false;
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(PayloadSaveStrategy.ALWAYS, null);
         when(userService.getGroup(1L)).thenReturn(Optional.of(group));
 
         InboundEndPointConfiguration endPointConfig = mockInboundEndPointConfig(10, 11, "new", "/url", "someInboundService");
@@ -263,6 +265,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.tracing = true;
         info.traceFile = "yyy";
         info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.NONE, null);
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(PayloadSaveStrategy.ALWAYS, null);
         info.active = false;
         info.url = "/srv";
 
@@ -297,6 +300,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.tracing = true;
         info.traceFile = "yyy";
         info.authenticationMethod = new IdWithLocalizedValueInfo<>(EndPointAuthentication.BASIC_AUTHENTICATION, null);
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(PayloadSaveStrategy.ALWAYS, null);
         info.active = false;
         info.url = "/srv";
 
@@ -332,6 +336,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.group = null;
         info.active = false;
         info.url = "/srv";
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(PayloadSaveStrategy.ALWAYS, null);
 
         Response response = target("/endpointconfigurations/1").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -356,6 +361,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
         info.password = "p";
         info.active = false;
         info.url = "/srv";
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(PayloadSaveStrategy.ALWAYS, null);
 
         Response response = target("/endpointconfigurations/2").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
