@@ -283,7 +283,7 @@ Ext.define('Wss.view.Add', {
                 store: this.payloadStrategyStore,
                 displayField: 'localizedValue',
                 forceSelection: true,
-                value: 'ERROR',
+                value: 'ERRORS',
                 queryMode: 'local',
                 valueField: 'id',
                 fieldLabel: Uni.I18n.translate('endPointAdd.storePayload', 'WSS', 'Store request payload'),

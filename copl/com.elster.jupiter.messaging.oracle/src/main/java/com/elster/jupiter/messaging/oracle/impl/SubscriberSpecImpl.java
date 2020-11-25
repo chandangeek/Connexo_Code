@@ -163,7 +163,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
 
     private Message tryReceive() throws SQLException {
         OracleConnection cancellableConnection = null;
-        Lock lock = lockMap.computeIfAbsent(getName(), key -> new ReentrantLock());
+        Lock lock = lockMap.computeIfAbsent(getDestination().getName() + "_" + getName(), key -> new ReentrantLock());
         lock.lock();
         try (Connection connection = getConnection()) {
             cancellableConnection = connection.unwrap(OracleConnection.class);
