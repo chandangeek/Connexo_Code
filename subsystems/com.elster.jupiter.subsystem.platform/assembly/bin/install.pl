@@ -822,6 +822,7 @@ sub install_jboss {
             system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
             system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
         } else {
+            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/vault.sh");
             system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
             system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
             system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
@@ -834,13 +835,28 @@ sub install_jboss {
         copy("$JBOSS_BASE/flow/business-central-web.xml","$JBOSS_BASE/jboss/standalone/deployments/business-central.war/WEB-INF/web.xml");
         copy("$JBOSS_BASE/flow/kie-server-web.xml","$JBOSS_BASE/jboss/standalone/deployments/kie-server.war/WEB-INF/web.xml");
 
+        #setup vault
+
+        make_path("$JBOSS_BASE/$JBOSS_DIR/vault");
+        postCall("\"$JAVA_HOME/bin/keytool\" -genseckey -alias vault -storetype jceks -keyalg AES -keysize 128 -storepass zorro2020 -keypass zorro2020 -validity 730 -keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore", "Setup of EAP vault failed.");
+        my $VAULTRET = `sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault.sh  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute controller.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl`;
+
+        print "Output: $VAULTRET";
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_URL\" value=\"\"/>","<vault-option name=\"KEYSTORE_URL\" value=\"$JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"\"/>","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"zorro2020\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_ALIAS\" value=\"\"/>","<vault-option name=\"KEYSTORE_ALIAS\" value=\"vault\"/>");
+
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"SALT\" value=\"\"/>","<vault-option name=\"SALT\" value=\"iUQG49vl\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"ITERATION_COUNT\" value=\"\"/>","<vault-option name=\"ITERATION_COUNT\" value=\"120\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"ENC_FILE_DIR\" value=\"\"/>","<vault-option name=\"ENC_FILE_DIR\" value=\"$JBOSS_BASE/$JBOSS_DIR/vault/\"/>");
+
+
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.url\" value=\"\"/>","<property name=\"com.elster.jupiter.url\" value=\"$CONNEXO_URL\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.user\" value=\"\"/>","<property name=\"com.elster.jupiter.user\" value=\"$replaceACCOUNT\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.password\" value=\"\"/>","<property name=\"com.elster.jupiter.password\" value=\"$replacePASSWORD\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.location\" value=\"http://localhost:8080/kie-server/services/rest/server\"/>","<property name=\"org.kie.server.location\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server/services/rest/server\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller\" value=\"http://localhost:8080/business-central/rest/controller\"/>","<property name=\"org.kie.server.controller\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central/rest/controller\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.user\" value=\"\"/>","<property name=\"org.kie.server.controller.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.pwd\" value=\"\"/>","<property name=\"org.kie.server.controller.pwd\" value=\"$JBOSS_ADMIN_PASSWORD\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.user\" value=\"\"/>","<property name=\"org.kie.server.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.pwd\" value=\"\"/>","<property name=\"org.kie.server.pwd\" value=\"$JBOSS_ADMIN_PASSWORD\"/>");
 
