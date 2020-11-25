@@ -48,13 +48,27 @@ enum TableSpecs {
             Column recurrentTaskId = table.column("RECURRENTTASK").number().notNull().conversion(ColumnConversion.NUMBER2LONG).add();
             table.column("LASTRUN").number().conversion(NUMBER2INSTANT).map("lastRun").notAudited().add();
             table.addAuditColumns();
+            Column pairedTask = table.column("PAIRED_TASK")
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2LONGWRAPPER)
+                    .during(Range.closedOpen(version(10, 7, 3), version(10, 8)),
+                            Range.atLeast(version(10, 9)))
+                    .add();
 
+            table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
             table.foreignKey("DES_FK_RTET_RECURRENTTASK")
                     .on(recurrentTaskId)
                     .references(RecurrentTask.class)
                     .map("recurrentTask")
                     .add();
-            table.primaryKey("DES_PK_DATAEXPORTTASK").on(idColumn).add();
+            table.foreignKey("FK_DES_EXPORTTASK_2_PAIRED")
+                    .on(pairedTask)
+                    .references(name())
+                    .map("pairedTask")
+                    .onDelete(DeleteRule.SETNULL)
+                    .during(Range.closedOpen(version(10, 7, 3), version(10, 8)),
+                            Range.atLeast(version(10, 9)))
+                    .add();
         }
     },
     DES_RTDATASELECTOR(DataSelectorConfig.class) {

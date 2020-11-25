@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.AssociatedDeviceType;
 import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -82,6 +83,7 @@ import com.elster.jupiter.upgrade.V10_4_8SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_8SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_9SimpleUpgrader;
 import com.elster.jupiter.users.LdapUserDirectory;
 import com.elster.jupiter.users.UserDirectory;
 import com.elster.jupiter.users.UserDirectorySecurityProvider;
@@ -127,7 +129,7 @@ import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "PkiService",
-        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class, UserDirectorySecurityProvider.class},
+        service = {SecurityManagementService.class, SecurityManagementServiceImpl.class, TranslationKeyProvider.class, MessageSeedProvider.class, UserDirectorySecurityProvider.class},
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
 public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider, UserDirectorySecurityProvider {
@@ -344,6 +346,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         upgraders.put(version(10, 4, 9), V10_4_9SimpleUpgrader.class);
         upgraders.put(version(10, 7), V10_7SimpleUpgrader.class);
         upgraders.put(version(10, 8), V10_8SimpleUpgrader.class);
+        upgraders.put(version(10,9),V10_9SimpleUpgrader.class);
 
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", SecurityManagementService.COMPONENTNAME),
@@ -361,6 +364,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(SecurityManagementService.class).toInstance(SecurityManagementServiceImpl.this);
+                bind(SecurityManagementServiceImpl.class).toInstance(SecurityManagementServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
@@ -796,7 +800,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -814,7 +818,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         }
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.ALIAS.fieldName().toLowerCase()))
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -835,7 +839,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.SUBJECT.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -856,7 +860,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.ISSUER.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -877,7 +881,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
 
         return DefaultFinder.of(CertificateWrapper.class,
                 searchCondition, getDataModel())
-                .sorted("lower(" + AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName() + ")", true)
+                .sorted(Order.ascending(AbstractCertificateWrapperImpl.Fields.KEY_USAGES.fieldName()).toLowerCase())
                 .maxPageSize(thesaurus, DEFAULT_MAX_PAGE_SIZE);
     }
 
@@ -1144,6 +1148,24 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         List<String> names = new ArrayList<>();
         certificateUsagesFinders.forEach(finder -> names.addAll(finder.findAssociatedDevicesNames(certificateWrapper)));
         return names;
+    }
+
+    public boolean isCertificateAssociatedWithDeviceType(CertificateWrapper certificateWrapper, AssociatedDeviceType deviceType) {
+        for (CertificateUsagesFinder finder : certificateUsagesFinders) {
+            if (finder.getAssociatedDeviceType(certificateWrapper).equals(deviceType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isCertificateRelatedToType(CertificateWrapper certificateWrapper, String prefix) {
+        for (CertificateUsagesFinder finder : certificateUsagesFinders) {
+            if (finder.isCertificateRelatedToType(certificateWrapper, prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

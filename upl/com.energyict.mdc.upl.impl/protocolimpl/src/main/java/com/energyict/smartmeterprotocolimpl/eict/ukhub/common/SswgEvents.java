@@ -17,7 +17,7 @@ public class SswgEvents {
 
     static {
         EVENTS = new ArrayList<SswgEvent>();
-        EVENTS.add(new SswgEvent(0x0000, MeterEvent.COVER_OPENED, "Meter cover removed"));
+        EVENTS.add(new SswgEvent(0x0000, MeterEvent.METER_COVER_OPENED, "Meter cover removed"));
         EVENTS.add(new SswgEvent(0x0001, MeterEvent.METER_COVER_CLOSED, "Meter cover closed"));
         EVENTS.add(new SswgEvent(0x0002, MeterEvent.STRONG_DC_FIELD_DETECTED, "Strong Magnetic field"));
         EVENTS.add(new SswgEvent(0x0003, MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, "No Strong Magnetic field"));

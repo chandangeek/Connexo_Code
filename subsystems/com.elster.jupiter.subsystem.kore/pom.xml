@@ -16,6 +16,17 @@
     <name>[Jupiter Subsystem] com.elster.jupiter.subsystem.kore</name>
     <description>This POM details all versions of bundles related to business intelligence (e.g. Metering, Issues,...)</description>
 
+    <repositories>
+        <repository>
+            <id>JBoss GA</id>
+            <url>https://maven.repository.redhat.com/ga/</url>
+        </repository>
+    </repositories>
+
+    <properties>
+        <version.org.kie>7.39.0.Final-redhat-00005</version.org.kie>
+    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -29,6 +40,13 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- jBPM 6 dependencies -->
+
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-services-cdi</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>

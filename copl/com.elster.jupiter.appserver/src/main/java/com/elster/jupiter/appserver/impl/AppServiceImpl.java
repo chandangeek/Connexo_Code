@@ -33,6 +33,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.InvalidateCacheRequest;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.security.thread.AppServerInfoProvider;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -93,10 +94,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 import static com.elster.jupiter.util.streams.Predicates.not;
 
 @Component(name = "com.elster.jupiter.appserver",
-        service = {AppService.class, IAppService.class, Subscriber.class, TopicHandler.class},
+        service = {AppService.class, IAppService.class, Subscriber.class, TopicHandler.class, AppServerInfoProvider.class},
         property = {"name=" + AppService.COMPONENT_NAME},
         immediate = true)
-public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler, BundleWaiter.Startable {
+public final class AppServiceImpl implements IAppService, Subscriber, TranslationKeyProvider, TopicHandler, BundleWaiter.Startable, AppServerInfoProvider {
 
     private static final Logger LOGGER = Logger.getLogger(AppServiceImpl.class.getName());
 
@@ -740,5 +741,10 @@ public final class AppServiceImpl implements IAppService, Subscriber, Translatio
         properties.put(SUBSCRIBER_EXECUTION_SPEC, subscriberExecutionSpec);
         AppServerCommand command = new AppServerCommand(Command.NEW_QUEUE_ADDED, properties);
         commandListeners.forEach(commandListener -> commandListener.notify(command));
+    }
+
+    @Override
+    public Optional<String> getServerName() {
+        return getAppServer().map(AppServer::getName);
     }
 }

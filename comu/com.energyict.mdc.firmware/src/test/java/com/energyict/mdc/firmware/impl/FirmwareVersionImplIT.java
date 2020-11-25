@@ -87,7 +87,6 @@ public class FirmwareVersionImplIT extends PersistenceTest {
 
         meterVersion = inMemoryPersistence.getFirmwareService().getFirmwareVersionById(meterVersion.getId()).get();
         assertThat(meterVersion.getImageIdentifier()).isEqualTo("10.4.1");
-
     }
 
     @Test

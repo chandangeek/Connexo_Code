@@ -91,6 +91,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -120,6 +121,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     private volatile DeviceMicroCheckFactoryImpl deviceMicroCheckFactory;
     private volatile DeviceService deviceService;
     private Optional<Savepoint> savepoint = Optional.empty();
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     // For OSGi purposes
     public DeviceLifeCycleServiceImpl() {
@@ -390,15 +392,19 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     @Override
     public void execute(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) throws
             SecurityException, DeviceLifeCycleActionViolationException {
+        logger.info("Executing transition action "+action.getName()+" on device "+device.getName());
         this.setSavepoint();
         this.validateTriggerExecution(action, device, effectiveTimestamp, properties);
+        synchronizeWithMeteringDevice(device, Optional.empty());
         this.triggerExecution(action, device, effectiveTimestamp, properties);
     }
 
     @Override
     public void execute(AuthorizedBusinessProcessAction action, Device device, Instant effectiveTimestamp) throws SecurityException, DeviceLifeCycleActionViolationException {
+        logger.info("Executing business process action "+action.getName()+" on device "+device.getName());
         this.setSavepoint();
         this.validateTriggerExecution(action, device);
+        synchronizeWithMeteringDevice(device, Optional.empty());
         this.triggerExecution(action, device);
     }
 
@@ -553,6 +559,38 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
         action.getTransitionBusinessProcess().executeOn(device.getId(), action.getState());
     }
 
+    /**
+     * Technical debt: device data is stored in DDC_DEVICE (aka "mdc.device.data.Device")
+     * and also in MTR_DEVICE (aka "metering.EndDevice") ... and the information is duplicate.
+     *
+     * Before calling any handler, synchronize the data.
+     * @return
+     */
+    private Optional<EndDevice> synchronizeWithMeteringDevice(Device device, Optional<EndDevice> mtrDevice) {
+        logger.info("Synchronizing parameters for device with name="+device.getName()+", serialNumber="+device.getSerialNumber());
+        if (!mtrDevice.isPresent()){
+            Optional<AmrSystem> amrSystem = getMdcAmrSystem();
+            if (amrSystem.isPresent()) {
+                logger.info("Searching meter in AMR System: "+amrSystem.get().getName());
+                mtrDevice = amrSystem.get().findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
+            } else {
+                logger.warning("AMR System not present!");
+            }
+        }
+
+        if (mtrDevice.isPresent()){
+            logger.info("Synchronizing with Meter: "+mtrDevice.get().getName());
+            mtrDevice.get().setSerialNumber(device.getSerialNumber());
+            mtrDevice.get().setManufacturer(device.getManufacturer());
+            mtrDevice.get().setModelNumber(device.getModelNumber());
+            mtrDevice.get().setModelVersion(device.getModelVersion());
+            mtrDevice.get().update();
+        } else {
+            logger.warning("Meter with ID "+device.getId()+" not found in the AMR system!");
+        }
+        return mtrDevice;
+    }
+
     private void executeMicroChecks(AuthorizedTransitionAction action, Device device, Instant effectiveTimestamp) throws DeviceLifeCycleActionViolationException {
         List<ExecutableMicroCheckViolation> violations = action.getChecks()
                 .stream()
@@ -618,6 +656,7 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
 
     @Override
     public void triggerEvent(CustomStateTransitionEventType eventType, Device device, Instant effectiveTimestamp) {
+        logger.info("Triggering transition event "+eventType.getSymbol()+" on device "+device.getName());
         this.toEndDevice(device).ifPresent(endDevice -> {
             eventType
                     .newInstance(
@@ -691,7 +730,8 @@ public class DeviceLifeCycleServiceImpl implements DeviceLifeCycleService, Trans
     }
 
     private Optional<EndDevice> findEndDevice(AmrSystem amrSystem, Device device) {
-        return amrSystem.findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
+        Optional<EndDevice> endDevice = amrSystem.findMeter(String.valueOf(device.getId())).map(EndDevice.class::cast);
+        return synchronizeWithMeteringDevice(device, endDevice);
     }
 
     /**

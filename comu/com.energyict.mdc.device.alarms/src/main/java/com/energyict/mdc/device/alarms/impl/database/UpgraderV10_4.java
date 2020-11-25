@@ -104,7 +104,6 @@ public class UpgraderV10_4 implements Upgrader {
                     DeviceAlarmService.COMPONENT_NAME,
                     Layer.DOMAIN,
                     whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/CREATED")
-                            .or(whereCorrelationId().isEqualTo("com/elster/jupiter/metering/enddeviceevent/CREATED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/DELETED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/config/devicetype/dlc/UPDATED"))
                             .or(whereCorrelationId().isEqualTo("com/energyict/mdc/device/lifecycle/config/dlc/update"))

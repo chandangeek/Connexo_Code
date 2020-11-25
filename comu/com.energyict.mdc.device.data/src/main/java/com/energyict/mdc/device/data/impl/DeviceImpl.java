@@ -1004,8 +1004,22 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return new LoadProfileUpdaterForDevice((LoadProfileImpl) loadProfile);
     }
 
+    @Override
+    public long getDeviceEventsCountByFilter(EndDeviceEventRecordFilterSpecification filter) {
+        if (meter.isPresent()) {
+            return meter.get().getDeviceEventsCountByFilter(filter);
+        } else {
+            return 0;
+        }
+    }
+
     public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter) {
         return this.getListMeterAspect(meter -> meter.getDeviceEventsByFilter(filter));
+    }
+
+    @Override
+    public List<EndDeviceEventRecord> getDeviceEventsByFilter(EndDeviceEventRecordFilterSpecification filter, Integer from, Integer to) {
+        return this.getListMeterAspect(meter -> meter.getDeviceEventsByFilter(filter, from, to));
     }
 
     @Override

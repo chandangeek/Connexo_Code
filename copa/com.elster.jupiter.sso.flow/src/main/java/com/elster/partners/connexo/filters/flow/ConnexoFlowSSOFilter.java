@@ -12,6 +12,7 @@ import org.jboss.errai.security.shared.api.Group;
 import org.jboss.errai.security.shared.api.GroupImpl;
 import org.jboss.errai.security.shared.api.Role;
 import org.jboss.errai.security.shared.api.RoleImpl;
+import org.jboss.errai.security.shared.api.identity.UserImpl;
 import org.uberfire.backend.server.security.IOSecurityAuth;
 import org.uberfire.commons.services.cdi.Veto;
 
@@ -45,6 +46,11 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final HttpServletResponse response = (HttpServletResponse) servletResponse;
 
+        if (shouldExcludUrl(request)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = getConnexoToken(request);
 
         ConnexoPrincipal principal = (ConnexoPrincipal) request.getUserPrincipal();
@@ -69,9 +75,9 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
                         .forEach(group -> groups.add(new GroupImpl(group)));
                 appendKieDefaults(roles, groups);
 
-                ConnexoUberfireSubject subject = new ConnexoUberfireSubject(principal.getName(), groups, roles);
-                authenticationService.setUser(subject);
-                filterChain.doFilter(new ConnexoFlowRequestWrapper(subject, request), response);
+                UserImpl ui = new UserImpl(principal.getName(),roles,groups);
+                authenticationService.setUser(ui);
+                filterChain.doFilter(new ConnexoFlowRequestWrapper(ui, request), response);
             }
         }
     }
@@ -97,7 +103,7 @@ public class ConnexoFlowSSOFilter extends ConnexoAbstractSSOFilter {
     }
 
     private boolean isForbidden(HttpServletRequest request, ConnexoPrincipal principal) {
-        return !request.getRequestURI().startsWith("/flow/rest/") && !principal.getPrivileges().contains("privilege.design.bpm");
+        return false;//!request.getRequestURI().startsWith("/flow/rest/") && !principal.getPrivileges().contains("privilege.design.bpm");
     }
 
     private String getConnexoToken(HttpServletRequest request) {

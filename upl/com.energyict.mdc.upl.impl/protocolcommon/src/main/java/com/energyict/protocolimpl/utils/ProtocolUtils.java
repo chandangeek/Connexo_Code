@@ -12,12 +12,17 @@ import com.energyict.cbo.Quantity;
 import com.energyict.protocol.MeterEvent;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -28,6 +33,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 
 /**
@@ -36,6 +42,11 @@ import java.util.TimeZone;
 public class ProtocolUtils {
 
     private static final Log logger = LogFactory.getLog(ProtocolUtils.class);
+    private static final String hexDumpFolder;
+
+    static {
+        hexDumpFolder =  getSystemProperty("com.energyict.mdc.protocols.hexdump.folder", null);
+    }
 
     /**
      * Creates a new instance of ProtocolUtil
@@ -1518,5 +1529,82 @@ public class ProtocolUtils {
             throw new ProtocolException("Parameter IP_Address contains no valid IP address. The Ip-address contains nonnumerical characters (dots excluded)");
         }
     }
+    /**
+     * https://www.wireshark.org/docs/wsug_html_chunked/ChIOImportSection.html
+     *
+     * @param sessionName
+     * @param msg
+     * @return
+     */
+    public static String hexDump(String sessionName, String description, byte[] msg) {
+        StringBuilder sb = new StringBuilder();
+        String dateNow = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
+        sb.append("# "+dateNow).append("\n");
+        sb.append(description);
+        for (int j = 0; j < msg.length; j++) {
+            if (j % 8 == 0 ) {
+                sb.append("\n");
+                sb.append(String.format("%06X ", j ) );
+            }
 
+            sb.append(String.format("%02X ", msg[j]) );
+        }
+        sb.append("\n");
+
+        //System.out.print(sb.toString());
+
+        writeToFile(sessionName, sb.toString());
+
+        return sb.toString();
+    }
+
+    private static void writeToFile(String sessionName, String message) {
+        if (hexDumpFolder==null){
+            return; // writing to file disabled
+        }
+        if (hexDumpFolder.trim().isEmpty()){
+            return; // writing to file disabled
+        }
+
+        String dateToday = new SimpleDateFormat("yyy-MM-dd").format(new Date());
+
+        String directoryName = hexDumpFolder.trim() + "/" + dateToday;
+
+        File directory = new File(directoryName);
+        if (! directory.exists()){
+            directory.mkdirs();
+        }
+
+        File file = new File(directoryName + "/" + sessionName + ".hex");
+
+        try{
+            FileWriter fw = new FileWriter(file, true);
+            BufferedWriter bw = new BufferedWriter(fw);
+            PrintWriter out = new PrintWriter(bw);
+
+            out.println(message);
+            out.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private static String getSystemProperty(String propertyName, String defaultValue) {
+
+        try {
+            Bundle bundle = FrameworkUtil.getBundle(ProtocolUtils.class);
+            if(Objects.nonNull(bundle)) {
+                String property = bundle.getBundleContext().getProperty(propertyName);
+                if (Objects.nonNull(property)) {
+                    return property;
+                } else {
+                    System.err.println("System configuration property [" + propertyName + "] is not defined, using default value of " + defaultValue);
+                }
+            }
+        } catch (Exception ex){
+            System.err.println("Cannot get system configuration property ["+propertyName+"] using default value of "+defaultValue+": "+ex.getLocalizedMessage());
+        }
+        return defaultValue;
+    }
 }

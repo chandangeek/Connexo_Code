@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import java.security.cert.X509Certificate;
 import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -74,32 +75,63 @@ class CSRProcessor {
         return Optional.of(processCSR(alias, csr));
     }
 
+    /**
+     * Call the EJBCA web-service to do the actual signing. Method implements 2 variants:
+     * - the CSR and the resulting certificate are saved in Connexo
+     * - just sign and return
+     *
+     * The second option is preferred in production, since the CSRs are signed before the devices are defined in Connexo
+     * (while devices are still in production), so if we already create the certificates, we'll need to manually link them
+     * to devices after those are are created via shipment file.
+     *
+     * The normal flow is to sign the CSRs (without saving anything in Connexo), then import the devices via shipment file,
+     * then import the certificates via Certificate Importer - which will automatically create the certificate and link them
+     * to the appropiate security accessor.
+     *
+     * @param alias
+     * @param csr
+     * @return
+     */
     private X509Certificate processCSR(String alias, PKCS10CertificationRequest csr) {
-        Optional<CertificateWrapper> certificateWrapperOptional = securityManagementService.findCertificateWrapper(alias);
-        certificateWrapperOptional
-                .filter(this::isInUse)
-                .ifPresent(certificateWrapper -> {
-                    throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.CSR_IS_IN_USE, alias);
-                });
-        CertificateWrapper wrapper = certificateWrapperOptional
-                .orElseGet(() -> securityManagementService.newCertificateWrapper(alias));
-        if (!(wrapper instanceof RequestableCertificateWrapper)) {
-            throw new IllegalStateException("For some reason trusted certificate is found instead of a requestable one.");
+        if (saveCertificateInConnexo()) {
+            Optional<CertificateWrapper> certificateWrapperOptional = securityManagementService.findCertificateWrapper(alias);
+            certificateWrapperOptional
+                    .filter(this::isInUse)
+                    .ifPresent(certificateWrapper -> {
+                        throw new CSRImporterException(logger.getThesaurus(), MessageSeeds.CSR_IS_IN_USE, alias);
+                    });
+            CertificateWrapper wrapper = certificateWrapperOptional
+                    .orElseGet(() -> securityManagementService.newCertificateWrapper(alias));
+            if (!(wrapper instanceof RequestableCertificateWrapper)) {
+                throw new IllegalStateException("For some reason trusted certificate is found instead of a requestable one.");
+            }
+            RequestableCertificateWrapper csrWrapper = (RequestableCertificateWrapper) wrapper;
+            // TODO: what the heck is with this method? should key usages be taken from CSR? or does indication of key usages here override them?
+            csrWrapper.setCSR(csr, EnumSet.noneOf(KeyUsage.class), EnumSet.noneOf(ExtendedKeyUsage.class));
+            csrWrapper.save();
+            logger.log(MessageSeeds.CSR_IMPORTED_SUCCESSFULLY, alias);
+
+            X509Certificate certificate = signCsr(csr, alias);
+            logger.log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, alias);
+
+            csrWrapper.setCertificate(certificate, certificateRequestData);
+            csrWrapper.setWrapperStatus(CertificateWrapperStatus.NATIVE);
+            csrWrapper.save();
+            logger.log(MessageSeeds.CERTIFICATE_IMPORTED_SUCCESSFULLY, alias);
+            return certificate;
+        } else {
+            X509Certificate certificate = signCsr(csr, alias);
+            logger.log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, alias);
+            return certificate;
         }
-        RequestableCertificateWrapper csrWrapper = (RequestableCertificateWrapper) wrapper;
-        // TODO: what the heck is with this method? should key usages be taken from CSR? or does indication of key usages here override them?
-        csrWrapper.setCSR(csr, EnumSet.noneOf(KeyUsage.class), EnumSet.noneOf(ExtendedKeyUsage.class));
-        csrWrapper.save();
-        logger.log(MessageSeeds.CSR_IMPORTED_SUCCESSFULLY, alias);
+    }
 
-        X509Certificate certificate = signCsr(csr, alias);
-        logger.log(MessageSeeds.CSR_SIGNED_SUCCESSFULLY, alias);
-
-        csrWrapper.setCertificate(certificate, certificateRequestData);
-        csrWrapper.setWrapperStatus(CertificateWrapperStatus.NATIVE);
-        csrWrapper.save();
-        logger.log(MessageSeeds.CERTIFICATE_IMPORTED_SUCCESSFULLY, alias);
-        return certificate;
+    private boolean saveCertificateInConnexo() {
+        Object propertyValue = properties.get(CSRImporterTranslatedProperty.SAVE_CERTIFICATE.getPropertyKey());
+        if (Objects.nonNull(propertyValue)){
+            return (boolean) propertyValue;
+        }
+        return false;
     }
 
     private boolean isInUse(CertificateWrapper certificateWrapper) {

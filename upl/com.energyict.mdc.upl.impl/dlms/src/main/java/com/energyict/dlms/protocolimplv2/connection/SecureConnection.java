@@ -34,9 +34,13 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
     private byte[] requestBeforeApplyOfSecurity;
     private boolean isAlreadyEncrypted;
 
-    public SecureConnection(final ApplicationServiceObject aso, final DlmsV2Connection transportConnection) {
+    // used as hex-dump file-name
+    private String sessionName;
+
+    public SecureConnection(final ApplicationServiceObject aso, final DlmsV2Connection transportConnection, final String sessionName) {
         this.aso = aso;
         this.transportConnection = transportConnection;
+        this.sessionName=sessionName;
         if (transportConnection instanceof RetryRequestV2PreparationConsumer) {
             ((RetryRequestV2PreparationConsumer) transportConnection).setRetryRequestPreparationHandler(this);
         }
@@ -143,7 +147,10 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                 // The 'request next blocks' command.
                 // As ComServer doesn't send any content, but only request next blocks, no encryption has to be applied
                 // If ComServer would send actual content, then this content should be encrypted!
-                return communicate(byteRequestBuffer, send, receive);
+                hexDump(">> block transfer", byteRequestBuffer);
+                byte[] response = communicate(byteRequestBuffer, send, receive);
+                hexDump("<< response", response);
+                return response;
             } else {
                 final byte[] leading = ProtocolUtils.getSubArray(byteRequestBuffer, 0, 2);
                 this.requestBeforeApplyOfSecurity = byteRequestBuffer;
@@ -182,9 +189,11 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                             //Check if the response tag is know and decrypt the data if necessary
                             if (cipheredTag == DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE) {
                                 //Return any errors as-is
+                                hexDump("<< response (exception)", securedResponse);
                                 return securedResponse;
                             } else if (XdlmsApduTags.isPlainTag(cipheredTag)) {
                                 if (this.aso.getSecurityContext().getSecurityPolicy().isResponsePlain()) {
+                                    hexDump("<< response (plain)", securedResponse);
                                     return securedResponse;
                                 } else {
                                     ProtocolException protocolException = new ProtocolException("Received an unsecured response, this is not allowed according to the configured (minimum) security policy for responses. Aborting.");
@@ -205,6 +214,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                             } else if (cipheredTag == DLMSCOSEMGlobals.COSEM_GENERAL_BLOCK_TRANSFER) {
                                 // Return as-is, content can only be decrypted once all blocks are received
                                 // and thus should be done by the application layer (~ GeneralBlockTransferHandler)
+                                hexDump("<< response (gbt)", securedResponse);
                                 return securedResponse;
                             } else {
                                 IOException ioException = new IOException("Unknown GlobalCiphering-Tag : " + securedResponse[3]);
@@ -225,12 +235,15 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                         }
                     }
                 }
-
+                hexDump("<< response (decrypted)", decryptedResponse);
                 // FIXME: Last step is to add the three leading bytes you stripped in the beginning -> due to old HDLC code
                 return ProtocolUtils.concatByteArrays(leading, decryptedResponse);
             }
         } else { /* During association request (AARQ and AARE) the request just needs to be forwarded */
-            return communicate(byteRequestBuffer, send, receive);
+            hexDump(">> request ", byteRequestBuffer);
+            byte[] forwardedResponse = communicate(byteRequestBuffer, send, receive);
+            hexDump("<< response ", forwardedResponse);
+            return forwardedResponse;
         }
     }
 
@@ -245,6 +258,8 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
         // FIXME: Strip the 3 leading bytes before encrypting -> due to old HDLC code
         final byte[] leading = ProtocolUtils.getSubArray(plainTextRequest, 0, 2);
         byte[] securedRequest = ProtocolUtils.getSubArray(plainTextRequest, 3);
+
+        hexDump(">> request before security (without leading HLDC)", securedRequest);
 
         //The APDU can be digitally signed in a general-signing APDU.
         //The result can then be wrapped again in a general-ciphering APDU, see below.
@@ -312,6 +327,7 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
                 if (receive) {
                     return getTransportConnection().sendRequest(byteRequestBuffer);
                 } else {
+                    hexDump("send (unconfirmed)", byteRequestBuffer);
                     getTransportConnection().sendUnconfirmedRequest(byteRequestBuffer);
                     return null;
                 }
@@ -420,5 +436,40 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
 
     public ApplicationServiceObject getAso() {
         return aso;
+    }
+    /**
+     * Will dump in hex format, importable to Wireshark for debug purposes, before encryption and after decryption.
+     * Note: this is no security threat, since the content can anyway be seen in Connexo gui afterwords.
+     * Note: no sensitive security data is exported, just plain DLMS packages
+     *
+     * @param description - short description of the package
+     * @param data - payload
+     */
+    protected void hexDump(String description, byte[] data){
+        ProtocolUtils.hexDump(getSessionName(), description, data);
+    }
+
+    /**
+     * Builds a session name which shall be used as a file name for the hex-dump
+     * @return The intended format is ServerSystemTitle-DeviceSystemTitle.
+     */
+    private String getSessionName() {
+        if (this.sessionName == null){
+            StringBuilder sb = new StringBuilder();
+
+            if (this.getAso().getSecurityContext().getSystemTitle()!=null) {
+                sb.append(new String(this.getAso().getSecurityContext().getSystemTitle()));
+            } else {
+                sb.append("CONNEXO");
+            }
+            sb.append("-");
+            if (this.getAso().getAssociationControlServiceElement().getCalledApplicationProcessTitle()!=null) {
+                sb.append(new String(this.getAso().getAssociationControlServiceElement().getCalledApplicationProcessTitle()));
+            } else {
+                sb.append("DEVICE");
+            }
+            this.sessionName = sb.toString();
+        }
+        return this.sessionName;
     }
 }

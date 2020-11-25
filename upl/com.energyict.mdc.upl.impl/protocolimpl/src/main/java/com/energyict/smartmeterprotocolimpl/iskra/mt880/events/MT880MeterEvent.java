@@ -28,7 +28,7 @@ public enum MT880MeterEvent {
     POWER_RESTORED_PHASE_L3 (0x8006, MeterEvent.PHASE_FAILURE, "Power restore phase L3"),
     METER_COVER_CLOSED      (0x800E, MeterEvent.METER_COVER_CLOSED, "Meter cover closed"),
     TERMINAL_COVER_CLOSED   (0x800F, MeterEvent.TERMINAL_COVER_CLOSED, "Terminal cover closed"),
-    METER_COVER_REMOVED     (0x8010, MeterEvent.COVER_OPENED, "Meter cover removed"),
+    METER_COVER_REMOVED     (0x8010, MeterEvent.METER_COVER_OPENED, "Meter cover removed"),
     TERMINAL_COVER_REMOVED  (0x8011, MeterEvent.TERMINAL_OPENED, "Terminal cover removed"),
     NO_CONNECTION_TIMEOUT   (0x8012, MeterEvent.OTHER, "No connection timeout"),
     VOLTAGE_SAG_PHASE_L1    (0x8020, MeterEvent.VOLTAGE_SAG, "Voltage sag phase L1"),

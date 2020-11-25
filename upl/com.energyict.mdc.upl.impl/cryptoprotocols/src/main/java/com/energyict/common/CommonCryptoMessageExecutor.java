@@ -31,6 +31,7 @@ import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382Cache;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,14 +56,52 @@ public class CommonCryptoMessageExecutor extends AbstractMessageExecutor {
         super(protocol, collectedDataFactory, issueFactory);
     }
 
-    private String changeKeyAndUseNewKey(OfflineDeviceMessage offlineDeviceMessage, int keyId, String keyAttributeName, ObisCode clientSecuritySetupObis) throws
-            IOException {
-
-        String[] hsmKeyAndLabelAndSmartMeterKey = getDeviceMessageAttributeValue(offlineDeviceMessage, keyAttributeName).split(SEPARATOR);
+    /**
+     * This will extract the useful parts out of an HSM encoded key
+     * (as in (@link com.energyict.mdc.engine.impl.KeyAccessorTypeExtractorImpl#handleHsmKey)
+     *
+     * @param hsmFormattedKey expected format is label:wrappedKey,smartMeterKey
+     * @return [0]=label:wrappedKey  [1]=smartMeterKey
+     */
+    public String[] extractHsmSmartMeterKey(String hsmFormattedKey){
+        String[] hsmKeyAndLabelAndSmartMeterKey = hsmFormattedKey.split(SEPARATOR);
         if (hsmKeyAndLabelAndSmartMeterKey.length != 2) {
             throw DeviceConfigurationException.unexpectedHsmKeyFormat();
         }
+        return hsmKeyAndLabelAndSmartMeterKey;
+    }
 
+    /**
+     * This will extract the useful parts out of a HSM encoded key
+     * (as in (@link com.energyict.mdc.engine.impl.KeyAccessorTypeExtractorImpl#handleHsmKey)
+     *
+     * @param labelAndWrappedKey expected format is label:wrappedKey
+     * @return [0]=label  [1]=wrappedKey
+     */
+    public String[] extractLabelAndWrappedKey(String labelAndWrappedKey) {
+        String[] parts = labelAndWrappedKey.split(":");
+        if (parts.length != 2) {
+            throw DeviceConfigurationException.unexpectedHsmKeyFormat();
+        }
+        return parts;
+    }
+
+    /**
+     * Extracts the wrapped key from a HSM encoded key
+     * @param hsmFormattedKey expected format is label:wrappedKey,smartMeterKey
+     * @return wrappedKey part of the HSM key
+     */
+    public byte[] extractWrappedKey(String hsmFormattedKey){
+        String[] hsmParts = extractHsmSmartMeterKey(hsmFormattedKey);
+        String[] labelAndPass = extractLabelAndWrappedKey(hsmParts[0]);
+        return DatatypeConverter.parseHexBinary(labelAndPass[1]);
+    }
+
+
+    private String changeKeyAndUseNewKey(OfflineDeviceMessage offlineDeviceMessage, int keyId, String keyAttributeName, ObisCode clientSecuritySetupObis) throws
+            IOException {
+
+        String[] hsmKeyAndLabelAndSmartMeterKey = extractHsmSmartMeterKey(getDeviceMessageAttributeValue(offlineDeviceMessage, keyAttributeName));
         String newKey = hsmKeyAndLabelAndSmartMeterKey[0];
         String newWrappedKey = hsmKeyAndLabelAndSmartMeterKey[1];
         byte[] keyBytes = ProtocolTools.getBytesFromHexString(newWrappedKey, "");

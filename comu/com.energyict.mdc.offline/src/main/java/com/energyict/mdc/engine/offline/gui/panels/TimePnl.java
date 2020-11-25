@@ -107,8 +107,8 @@ public class TimePnl extends javax.swing.JPanel {
             dimNew = new Dimension(new Double(dim.getWidth()).intValue(), height);
             hourSpinner.setPreferredSize(dimNew);
         }
-        if (secondSpinner != null) {
-            dim = secondSpinner.getPreferredSize();
+        if (minuteSpinner != null) {
+            dim = minuteSpinner.getPreferredSize();
             dimNew = new Dimension(new Double(dim.getWidth()).intValue(), height);
             minuteSpinner.setPreferredSize(dimNew);
         }

@@ -137,9 +137,9 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     @Override
     public Optional<ConnectionTask> findConnectionTaskForPartialOnDevice(PartialConnectionTask partialConnectionTask, Device device) {
         Condition condition =
-                    where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
-                and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull()).
-                and(where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask));
+                where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
+                        and(where(ConnectionTaskFields.OBSOLETE_DATE.fieldName()).isNull()).
+                        and(where(ConnectionTaskFields.PARTIAL_CONNECTION_TASK.fieldName()).isEqualTo(partialConnectionTask));
         return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition).stream().findFirst();
     }
 
@@ -156,8 +156,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                     }
                 }
             }
-        }
-        catch (SQLException e) {
+        } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
         return connectionTaskIds;
@@ -166,8 +165,8 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     @Override
     public List<ConnectionTask> findConnectionTasksByDevice(Device device) {
         Condition condition =
-                    where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
-                and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
+                where(ConnectionTaskFields.DEVICE.fieldName()).isEqualTo(device).
+                        and(where(ComTaskExecutionFields.OBSOLETEDATE.fieldName()).isNull());
         return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
     }
 
@@ -344,7 +343,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     public boolean attemptUnlockConnectionTask(ConnectionTask connectionTask) {
         Optional<ConnectionTask> lockResult = deviceDataModelService.dataModel().mapper(ConnectionTask.class).lockNoWait(connectionTask.getId());
         if (lockResult.isPresent()) {
-            ((ConnectionTaskImpl)lockResult.get()).updateExecutingComPort(null);
+            ((ConnectionTaskImpl) lockResult.get()).updateExecutingComPort(null);
             return true;
         }
 
@@ -407,6 +406,41 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
                 .forEach(pool -> timedOutComTasks.addAll(findTimedOutConnectionTasksByPool(pool)));
 
         return timedOutComTasks.stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public List<PartialConnectionTask> findPartialConnectionTasks(){
+        return deviceDataModelService.dataModel()
+                .mapper(ConnectionTask.class)
+                .find()
+                .stream()
+                .map(ct->ct.getPartialConnectionTask())
+                .distinct()
+                .collect(Collectors.toList());
+        // all partial connections are fetched from DB (5000). After that I filter them and only 1-5 remains
+        // THis method could be optimized, to fetch from DB directly last 1-5 results
+    }
+
+    @Override
+    public long getConnectionTasksCount(ConnectionTaskFilterSpecification filter) {
+        ConnectionTaskFilterSqlBuilder sqlBuilder =
+                new ConnectionTaskFilterSqlBuilder(
+                        filter,
+                        deviceDataModelService.clock(),
+                        deviceFromDeviceGroupQueryExecutor());
+        try (Connection connection = deviceDataModelService.dataModel().getConnection(false)) {
+            try (PreparedStatement statement = sqlBuilder.buildCount().prepare(connection)) {
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    long count = 0;
+                    while (resultSet.next()) {
+                        count += resultSet.getLong(1);
+                    }
+                    return count;
+                }
+            }
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
     }
 
     private List<ConnectionTask> findTimedOutConnectionTasksByPool(OutboundComPortPool comPortPool) {

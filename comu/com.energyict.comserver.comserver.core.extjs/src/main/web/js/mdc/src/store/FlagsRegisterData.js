@@ -8,5 +8,6 @@ Ext.define('Mdc.store.FlagsRegisterData', {
         'Mdc.model.FlagsRegisterData'
     ],
     model: 'Mdc.model.FlagsRegisterData',
-    storeId: 'FlagsRegisterData'
+    storeId: 'FlagsRegisterData',
+    alias: 'FlagsRegisterData'
 });

@@ -167,7 +167,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String INVALIDPASSPHRASELENGTH = "InvalidPassphraseLength";
         public static final String INVALID_KEY_SIZE = "InvalidKeySize";
         public static final String EXCESSIVE_TIME_DURATION = "excessiveTimeDuration";
-        public static final String HEXBINARY_EVEN_LENGTH = "HexBinaryEvenLength";
+        public static final String HEXBINARY_EVEN_LENGTH="HexBinaryEvenLength";
     }
 
 }

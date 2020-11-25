@@ -132,7 +132,7 @@ Ext.define('Bpm.startprocess.controller.StartProcess', {
 
             startProcessRecord.save({
                 success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.startprocess.started', 'BPM', 'Process started.'));
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('bpm.startprocess.queued', 'BPM', 'Process is queued for execution.'));
                     window.location.assign(url);
                 },
                 failure: function (record, operation) {

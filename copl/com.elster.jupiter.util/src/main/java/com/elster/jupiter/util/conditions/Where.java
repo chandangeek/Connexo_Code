@@ -205,6 +205,10 @@ public final class Where {
         return result;
     }
 
+    public Condition in(Object... values) {
+        return in(Arrays.asList(values));
+    }
+
     public Condition in(Collection<?> values) {
         return ListOperator.IN.contains(field, values);
     }

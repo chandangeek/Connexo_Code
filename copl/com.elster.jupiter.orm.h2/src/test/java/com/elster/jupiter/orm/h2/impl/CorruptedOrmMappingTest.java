@@ -173,12 +173,12 @@ public class CorruptedOrmMappingTest {
     }
 
     @Test
-    @Expected(value = IllegalTableMappingException.class, message = "Table " + TABLE_NAME + ": primary key columns must be defined first and in order.")
-    public void testPrimaryKeyFirstAndInOrder() {
+    @Expected(value = IllegalStateException.class, message = "Table " +"'"+ TABLE_NAME +"'"+ " : Primary key columns must be defined in order")
+    public void testPrimaryKeyInOrder() {
         table.map(Dummy.class);
-        table.column("ONE").number().map("field").add();
+        Column one = table.column("ONE").number().notNull().map("field").add();
         Column id = table.column("ID").number().notNull().map("id").add();
-        table.primaryKey("PK").on(id).add();
+        table.primaryKey("PK").on(id, one).add();
         table.prepare(EVICTION_TIME, CACHE_IS_ENABLED);
     }
 

@@ -32,7 +32,7 @@ public class FraudDetectionLog extends AbstractEvent{
 			case EVENT_TERMINAL_COVER_CLOSED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TERMINAL_COVER_CLOSED, eventId, "The terminal cover has been closed"));}break;
 			case EVENT_STRONG_DC_FIELD : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.STRONG_DC_FIELD_DETECTED, eventId, "A strong magnetic DC field has been detected"));}break;
 			case EVENT_STRONG_DC_FIELD_GONE : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, eventId, "The strong magnetic DC field disappeared"));}break;
-			case EVENT_METER_COVER_REMOVED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COVER_OPENED, eventId, "The meter cover has been removed"));}break;
+			case EVENT_METER_COVER_REMOVED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_COVER_OPENED, eventId, "The meter cover has been removed"));}break;
 			case EVENT_METER_COVER_CLOSED : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_COVER_CLOSED, eventId, "The meter cover has been closed"));}break;
 			case EVENT_TIMES_WRONG_PASSWORD : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.N_TIMES_WRONG_PASSWORD, eventId, "Intrusion Detection, User tried to gain access with a wrong password"));}break;
 			default : {meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));}break;

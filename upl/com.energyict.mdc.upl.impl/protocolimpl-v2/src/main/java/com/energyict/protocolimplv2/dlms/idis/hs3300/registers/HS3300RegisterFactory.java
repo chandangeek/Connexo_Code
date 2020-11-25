@@ -10,6 +10,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -251,30 +252,40 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
     }
 
     /**
-     * Prepare reading of all standard DLMS Classes (1=DATA, 3=REGISTER, 4=EXTENDED_REGISTER)
+     * Prepare reading of all standard DLMS Classes (1=DATA, 3=REGISTER, 4=EXTENDED_REGISTER, 5=DEMAND_REGISTER)
      *
      * @param register
      * @param universalObject
      */
     private void prepareStandardRegister(OfflineRegister register, UniversalObject universalObject) {
         ComposedRegister composedRegister = new ComposedRegister();
+        final int classId = universalObject.getClassID();
 
-        if (universalObject.getClassID() == DLMSClassId.DATA.getClassId()) {
-            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DataAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
+        if (classId == DLMSClassId.DATA.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DataAttributes.VALUE.getAttributeNumber(), classId);
             composedRegister.setRegisterValue(valueAttribute);
         }
 
-        if (universalObject.getClassID() == DLMSClassId.REGISTER.getClassId()) {
-            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
-            DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.SCALER_UNIT.getAttributeNumber(), universalObject.getClassID());
+        if (classId == DLMSClassId.REGISTER.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.VALUE.getAttributeNumber(), classId);
+            DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), RegisterAttributes.SCALER_UNIT.getAttributeNumber(), classId);
             composedRegister.setRegisterValue(valueAttribute);
             composedRegister.setRegisterUnit(scalerUnitAttribute);
         }
 
-        if (universalObject.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), universalObject.getClassID());
-            DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.UNIT.getAttributeNumber(), universalObject.getClassID());
-            DLMSAttribute captureTimeAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), universalObject.getClassID());
+        if (classId == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.VALUE.getAttributeNumber(), classId);
+            DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.UNIT.getAttributeNumber(), classId);
+            DLMSAttribute captureTimeAttribute = new DLMSAttribute(register.getObisCode(), ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), classId);
+            composedRegister.setRegisterValue(valueAttribute);
+            composedRegister.setRegisterUnit(scalerUnitAttribute);
+            composedRegister.setRegisterCaptureTime(captureTimeAttribute);
+        }
+
+        if (classId == DLMSClassId.DEMAND_REGISTER.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), classId);
+            DLMSAttribute scalerUnitAttribute = new DLMSAttribute(register.getObisCode(), DemandRegisterAttributes.UNIT.getAttributeNumber(), classId);
+            DLMSAttribute captureTimeAttribute = new DLMSAttribute(register.getObisCode(), DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), classId);
             composedRegister.setRegisterValue(valueAttribute);
             composedRegister.setRegisterUnit(scalerUnitAttribute);
             composedRegister.setRegisterCaptureTime(captureTimeAttribute);
@@ -328,7 +339,8 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
                     register.getObisCode(), register.getObisCode().toString() + ": " + errorMessage[0].toString(), register.getObisCode(), errorMessage[0])
             );
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, issueFactory.createWarning(register.getObisCode(),
+                    "Register " + register.getObisCode().toString() + " is not supported.", register.getObisCode()));
         }
         return collectedRegister;
     }

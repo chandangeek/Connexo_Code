@@ -25,6 +25,8 @@ import com.elster.jupiter.export.FtpsDestination;
 import com.elster.jupiter.export.ReadingDataSelectorConfig;
 import com.elster.jupiter.export.SftpDestination;
 import com.elster.jupiter.export.WebServiceDestination;
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.History;
@@ -53,6 +55,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -94,6 +97,9 @@ final class ExportTaskImpl implements IExportTask {
     private List<IDataExportDestination> destinations = new ArrayList<>();
     @Valid
     private List<DataExportRunParameters> runParameters = new ArrayList<>();
+
+    private Reference<ExportTask> pairedTask = ValueReference.absent();
+    private transient List<ExportTask> dirtyTasks = new ArrayList<>(2);
 
     @SuppressWarnings("unused") // Managed by ORM
     private String userName;
@@ -167,12 +173,62 @@ final class ExportTaskImpl implements IExportTask {
     }
 
     @Override
+    public Optional<ExportTask> getPairedTask() {
+        return pairedTask.getOptional();
+    }
+
+    @Override
+    public void pairWith(ExportTask exportTask) {
+        if (!getPairedTask().filter(exportTask::equals).isPresent()) {
+            if (equals(exportTask)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.PAIRED_EXPORT_TASK_CANNOT_BE_PAIRED_WITH_ITSELF, "pairedTask");
+            }
+            unpair();
+            dirtyTasks.add(exportTask);
+            pairedTask.set(exportTask);
+            if (id > 0) { // can't set pairedTask to yet not persisted one on the remote; will do it after saving this one
+                ((ExportTaskImpl) exportTask).setPairedTask(this);
+            }
+        }
+    }
+
+    private void setPairedTask(ExportTask exportTask) {
+        if (pairedTask.isPresent()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.PAIRED_EXPORT_TASK_ALREADY_PAIRED, "pairedTask", getName(), pairedTask.get().getName());
+        }
+        pairedTask.set(exportTask);
+    }
+
+    @Override
+    public void unpair() {
+        getPairedTask().ifPresent(pairedTask -> {
+            ((ExportTaskImpl) pairedTask).pairedTask.setNull();
+            dirtyTasks.add(pairedTask);
+        });
+        pairedTask.setNull();
+    }
+
+    @Override
     public void update() {
         doSave();
     }
 
     void doSave() {
-        // TODO  : separate properties per Factory
+        if (pairedTask.isPresent()) {
+            validateDataSourcesOnPairedTask(this);
+            validateDataSourcesOnPairedTask(pairedTask.get());
+            if (!recurrentTask.getOptional().map(RecurrentTask::getApplication).orElse(application).equals(pairedTask.get().getApplication())) {
+                throw new LocalizedFieldValidationException(MessageSeeds.PAIRED_EXPORT_TASK_HAS_DIFFERENT_APPLICATION, "pairedTask");
+            }
+            if (!dataSelector.equals(((ExportTaskImpl) pairedTask.get()).dataSelector)) {
+                throw new LocalizedFieldValidationException(MessageSeeds.PAIRED_EXPORT_TASK_HAS_DIFFERENT_SELECTOR, "pairedTask");
+            }
+            if (!haveMatchingReadingTypes(this, pairedTask.get())) {
+                throw new LocalizedFieldValidationException(MessageSeeds.PAIRED_EXPORT_TASK_DOES_NOT_HAVE_MATCHING_READING_TYPES, "pairedTask");
+            }
+        }
+
+        // TODO : separate properties per Factory
         List<PropertySpec> propertiesSpecsForProcessor = this.getDataFormatterPropertySpecs();
         List<PropertySpec> propertiesSpecsForDataSelector = this.getDataSelectorPropertySpecs();
         List<DataExportProperty> processorProperties = new ArrayList<>();
@@ -205,6 +261,23 @@ final class ExportTaskImpl implements IExportTask {
         dataSelectorConfig.getOptional().map(StandardDataSelectorConfigImpl.class::cast).ifPresent(StandardDataSelectorConfigImpl::save);
         recurrentTaskDirty = false;
         propertiesDirty = false;
+        dirtyTasks.clear();
+    }
+
+    private static void validateDataSourcesOnPairedTask(ExportTask exportTask) {
+        if (!exportTask.getReadingDataSelectorConfig().isPresent()) {
+            throw new LocalizedFieldValidationException(MessageSeeds.PAIRED_EXPORT_TASK_HAS_NO_DATA_SOURCES, "pairedTask", exportTask.getName());
+        }
+    }
+
+    private static boolean haveMatchingReadingTypes(ExportTask et1, ExportTask et2) {
+        Set<ReadingType> readingTypes1 = et1.getReadingDataSelectorConfig()
+                .map(ReadingDataSelectorConfig::getReadingTypes)
+                .orElseGet(Collections::emptySet);
+        return et2.getReadingDataSelectorConfig()
+                .map(ReadingDataSelectorConfig::getReadingTypes)
+                .filter(readingTypes2 -> readingTypes2.stream().anyMatch(readingTypes1::contains))
+                .isPresent();
     }
 
     @Override
@@ -372,12 +445,12 @@ final class ExportTaskImpl implements IExportTask {
 
     @Override
     public void retryNow(DataExportOccurrence dataExportOccurrence) {
-        recurrentTask.get().triggerNow(((DataExportOccurrenceImpl) dataExportOccurrence).getTaskOccurrence());
+        recurrentTask.get().triggerNow(dataExportOccurrence.getTaskOccurrence());
     }
 
     @Override
     public String getName() {
-        return (recurrentTask.isPresent()) ? recurrentTask.get().getName() : name;
+        return recurrentTask.isPresent() ? recurrentTask.get().getName() : name;
     }
 
     @Override
@@ -390,7 +463,7 @@ final class ExportTaskImpl implements IExportTask {
 
     private void doUpdate() {
         if (recurrentTaskDirty) {
-            if (!recurrentTask.get().getName().equals(this.name)) {
+            if (!recurrentTask.get().getName().equals(name)) {
                 recurrentTask.get().setName(name);
             }
             recurrentTask.get().setLogLevel(this.logLevel);
@@ -400,6 +473,7 @@ final class ExportTaskImpl implements IExportTask {
             properties.forEach(DataExportProperty::save);
         }
         Save.UPDATE.save(dataModel, this);
+        dirtyTasks.forEach(dirtyTask -> Save.UPDATE.save(dataModel, dirtyTask));
     }
 
     private void persist() {
@@ -415,6 +489,9 @@ final class ExportTaskImpl implements IExportTask {
                 .build();
         recurrentTask.set(task);
         Save.CREATE.save(dataModel, this);
+        getPairedTask().map(ExportTaskImpl.class::cast)
+                .ifPresent(pairedTask -> pairedTask.setPairedTask(this)); // we didn't update the remote task in the setter, we only can do it after persisting this one
+        dirtyTasks.forEach(dirtyTask -> Save.UPDATE.save(dataModel, dirtyTask));
     }
 
     RecurrentTask getRecurrentTask() {

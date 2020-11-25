@@ -129,7 +129,7 @@ public class MeterEventParser {
             meterEvents.add(new MeterEvent(date, MeterEvent.OTHER, 0x100000, "wrong password was used"));
         }
         if ((meterEventCode & 0x200000) == 0x200000) {
-            meterEvents.add(new MeterEvent(date, MeterEvent.COVER_OPENED, 0x200000, "main cover is or was opened"));
+            meterEvents.add(new MeterEvent(date, MeterEvent.METER_COVER_OPENED, 0x200000, "main cover is or was opened"));
         }
         if ((meterEventCode & 0x400000) == 0x400000) {
             meterEvents.add(new MeterEvent(date, MeterEvent.TERMINAL_OPENED, 0x400000, "terminal cover is or was opened"));

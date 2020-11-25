@@ -9,6 +9,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
     resizable: false,
     shrinkWrapDock: true,
     securityAccessorRecord: null,
+    checkAccessor: null,
+    indexOfLevels : null,
 
     initComponent: function () {
         var me = this,
@@ -138,10 +140,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
                             xtype: 'button',
                             itemId: 'mdc-security-accessors-privileges-edit-window-cancel',
                             text: Uni.I18n.translate('general.cancel', 'MDC', 'Cancel'),
-                            ui: 'link',
-                            handler: function () {
-                                me.close();
-                            }
+                            ui: 'link'
                         }
                     ]
                 }
@@ -158,8 +157,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
     onCheckBoxClick: function(checkbox, checked, fieldName, defaultLevel) {
         var me = this,
             levels = me.securityAccessorRecord.get(fieldName),
-            indexOfLevel = -1,
-            levelsChanged = false;
+            indexOfLevel = -1
 
         if (checked) {
             Ext.Array.each(levels, function(level, index) {
@@ -169,8 +167,7 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
                 }
             });
             if (indexOfLevel===-1) {
-                levels.push(defaultLevel);
-                levelsChanged = true;
+                me.checkAccessor.push({"fieldName": fieldName, "value": defaultLevel});
             }
         } else {
             Ext.Array.each(levels, function(level, index) {
@@ -180,12 +177,8 @@ Ext.define('Mdc.securityaccessors.view.SecurityAccessorsPrivilegesEditWindow', {
                 }
             });
             if (indexOfLevel!==-1) {
-                Ext.Array.splice(levels, indexOfLevel, 1);
-                levelsChanged = true;
+                me.indexOfLevels.push({"fieldName": fieldName, "value": levels[indexOfLevel]});
             }
-        }
-        if (levelsChanged) {
-            me.securityAccessorRecord.set(fieldName, levels);
         }
     }
 

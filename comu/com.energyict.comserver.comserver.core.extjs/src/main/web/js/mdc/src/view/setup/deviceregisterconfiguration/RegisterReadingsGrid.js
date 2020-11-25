@@ -132,6 +132,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
                 xtype: 'pagingtoolbartop',
                 store: me.store,
                 dock: 'top',
+                needCustomExporter: true,
                 displayMsg: Uni.I18n.translate('registerreadings.pagingtoolbartop.displayMsg', 'MDC', '{0} - {1} of {2} register readings'),
                 displayMoreMsg: Uni.I18n.translate('registerreadings.pagingtoolbartop.displayMoreMsg', 'MDC', '{0} - {1} of more than {2} register readings'),
                 emptyMsg: Uni.I18n.translate('registerreadings.pagingtoolbartop.emptyMsg', 'MDC', 'There are no register readings')
@@ -139,6 +140,7 @@ Ext.define('Mdc.view.setup.deviceregisterconfiguration.RegisterReadingsGrid', {
             {
                 xtype: 'pagingtoolbarbottom',
                 store: me.store,
+                needExtendedData: true,
                 itemsPerPageMsg: Uni.I18n.translate('registerreadings.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Register readings per page'),
                 defaultPageSize: 100,
                 dock: 'bottom'

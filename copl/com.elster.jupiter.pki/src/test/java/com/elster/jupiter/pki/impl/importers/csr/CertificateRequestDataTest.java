@@ -12,8 +12,9 @@ import org.junit.Test;
 public class CertificateRequestDataTest {
 
     private final String name = "name";
-    private final String entity = "name";
-    private final String profile = "name";
+    private final String entity = "entity";
+    private final String profile = "profile";
+    private final String subjectDnFields = "dnFields";
 
     private final Map<String, Object> PROPS = new HashMap<>();
 
@@ -26,37 +27,43 @@ public class CertificateRequestDataTest {
 
     @Test(expected = RuntimeException.class)
     public void testNullCaName(){
-        new CertificateRequestData(null, entity, profile);
+        new CertificateRequestData(null, entity, profile, subjectDnFields);
+
     }
 
     @Test(expected = RuntimeException.class)
     public void testEmptyCaName(){
-        new CertificateRequestData("", entity, profile);
+        new CertificateRequestData("", entity, profile, subjectDnFields);
+
     }
 
     @Test(expected = RuntimeException.class)
     public void testNullEntity(){
-        new CertificateRequestData(name, null, profile);
+        new CertificateRequestData(name, null, profile, subjectDnFields);
+
     }
 
     @Test(expected = RuntimeException.class)
     public void testEmptyEntity(){
-        new CertificateRequestData(name, "", profile);
+        new CertificateRequestData(name, "", profile, subjectDnFields);
+
     }
 
     @Test(expected = RuntimeException.class)
     public void testNullProfile(){
-        new CertificateRequestData(name, entity, null);
+        new CertificateRequestData(name, entity, null, subjectDnFields);
+
     }
 
     @Test(expected = RuntimeException.class)
     public void testEmptyProfile(){
-        new CertificateRequestData(name, entity, "");
+        new CertificateRequestData(name, entity, "", subjectDnFields);
+
     }
 
     @Test
     public void testAllOk(){
-        CertificateRequestData certificateRequestData = new CertificateRequestData(name, entity, profile);
+        CertificateRequestData certificateRequestData = new CertificateRequestData(name, entity, profile, subjectDnFields);
         Assert.assertEquals(name, certificateRequestData.getCaName());
         Assert.assertEquals(entity, certificateRequestData.getEndEntityName());
         Assert.assertEquals(profile, certificateRequestData.getCertificateProfileName());

@@ -389,7 +389,7 @@ public class UsagePointBuilder {
             case PURPOSE_ACTIVE:
                 return activatePurpose(usagePoint);
             case PURPOSE_INACTIVE:
-                return inactivatePurpose(usagePoint);
+                return deactivatePurpose(usagePoint);
             case CHANGE_LIFECYCLE:
                 return updateUsagePointLifeCycle(usagePoint);
             default:
@@ -397,23 +397,27 @@ public class UsagePointBuilder {
         }
     }
 
-    private com.elster.jupiter.metering.UsagePoint inactivatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint)
+    private com.elster.jupiter.metering.UsagePoint deactivatePurpose(com.elster.jupiter.metering.UsagePoint usagePoint)
             throws FaultMessage {
         String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
-        List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
+        MetrologyContract metrologyContract = findMetrologyContractOrThrowException(effectiveMC, purposeName);
+        Instant now = clock.instant();
 
-        for (MetrologyContract metrologyContract : contractsList) {
-            if (!metrologyContract.isMandatory()
-                    && metrologyContract.getMetrologyPurpose().getName().equals(purposeName)) {
-                effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, Instant.now());
-            } else if (metrologyContract.isMandatory()
-                    && metrologyContract.getMetrologyPurpose().getName().equals(purposeName)) {
+        if (!metrologyContract.isMandatory()) {
+            if (effectiveMC.getChannelsContainer(metrologyContract, now).isPresent()) {
+                effectiveMC.deactivateOptionalMetrologyContract(metrologyContract, now);
+            } else {
                 throw messageFactory
                         .usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                                MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT, "Found inactive default purpose", 1)
+                                MessageSeeds.PURPOSE_ALREADY_INACTIVE, purposeName)
                         .get();
             }
+        } else {
+            throw messageFactory
+                    .usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                            MessageSeeds.CANT_DEACTIVATE_REQUIRED_PURPOSE, purposeName)
+                    .get();
         }
         return usagePoint;
     }
@@ -422,16 +426,36 @@ public class UsagePointBuilder {
             throws FaultMessage {
         String purposeName = retrieveConfigurationEventValue(usagePointConfig);
         EffectiveMetrologyConfigurationOnUsagePoint effectiveMC = findEffectiveMetrologyConfiguration(usagePoint);
-        List<MetrologyContract> contractsList = effectiveMC.getMetrologyConfiguration().getContracts();
+        MetrologyContract metrologyContract = findMetrologyContractOrThrowException(effectiveMC, purposeName);
+        Instant now = clock.instant();
 
-        for (MetrologyContract metrologyContract : contractsList) {
-            if (!metrologyContract.isMandatory()
-                    && metrologyContract.getMetrologyPurpose().getName().equals(purposeName)) {
-                checkMeterRequirments(usagePoint, metrologyContract);
-                effectiveMC.activateOptionalMetrologyContract(metrologyContract, Instant.now());
+        if (!metrologyContract.isMandatory()) {
+            checkMeterRequirments(usagePoint, metrologyContract);
+            if (!effectiveMC.getChannelsContainer(metrologyContract, now).isPresent()) {
+                effectiveMC.activateOptionalMetrologyContract(metrologyContract, now);
+            } else {
+                throw messageFactory
+                        .usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                                MessageSeeds.PURPOSE_ALREADY_ACTIVE, purposeName)
+                        .get();
             }
+        } else {
+            throw messageFactory
+                    .usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                            MessageSeeds.CANT_ACTIVATE_REQUIRED_PUPROSE, purposeName)
+                    .get();
         }
         return usagePoint;
+    }
+
+
+    public MetrologyContract findMetrologyContractOrThrowException(EffectiveMetrologyConfigurationOnUsagePoint effectiveMC, String purposeName)
+            throws FaultMessage {
+        return effectiveMC.getMetrologyConfiguration().getContracts().stream()
+                .filter(mc -> mc.getMetrologyPurpose().getName().equals(purposeName))
+                .findFirst()
+                .orElseThrow(messageFactory.usagePointConfigFaultMessageSupplier(basicFaultMessage,
+                        MessageSeeds.NO_PURPOSE_WITH_NAME, purposeName));
     }
 
     private ConfigurationEventReason retrieveReason(ConfigurationEvent event) throws FaultMessage {
@@ -697,7 +721,7 @@ public class UsagePointBuilder {
                 .collect(Collectors.toList()).size() != 0) {
             throw messageFactory
                     .usagePointConfigFaultMessageSupplier(basicFaultMessage,
-                            MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT, "Found inactive default purpose", 1)
+                            MessageSeeds.INVALID_METROLOGY_CONTRACT_REQUIRMENT)
                     .get();
         }
     }

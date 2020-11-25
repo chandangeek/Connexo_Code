@@ -42,7 +42,7 @@
         <target.version>1.8</target.version>
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <baseline>1.0.0-Hermes</baseline>
+        <baseline>1.0.4-Hermes</baseline>
         <commercial.version>10.9.0</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
@@ -344,7 +344,7 @@
                 <plugin>
                     <groupId>com.elster.plugin</groupId>
                     <artifactId>bundle-version-maven-plugin</artifactId>
-                    <version>1.8</version>
+                    <version>1.9</version>
                 </plugin>
                 <plugin>
                     <groupId>com.elster.plugin</groupId>

@@ -52,8 +52,6 @@ import static java.util.stream.Collectors.toList;
 @Path("/keypairs")
 public class KeypairWrapperResource {
 
-    private static final long MAX_FILE_SIZE = 2048;
-
     private final SecurityManagementService securityManagementService;
     private final KeypairInfoFactory keypairInfoFactory;
     private final ExceptionFactory exceptionFactory;
@@ -177,9 +175,6 @@ public class KeypairWrapperResource {
         if (contentDispositionHeader==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
         }
-        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
-        }
         KeypairWrapper keypairWrapper = securityManagementService.findAndLockKeypairWrapper(keypairWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));
         try {
@@ -203,9 +198,6 @@ public class KeypairWrapperResource {
             @FormDataParam("version") long version) {
         if (contentDispositionHeader==null) {
             throw new LocalizedFieldValidationException(MessageSeeds.FIELD_IS_REQUIRED, "file");
-        }
-        if (contentDispositionHeader.getSize() > MAX_FILE_SIZE) {
-            throw new LocalizedFieldValidationException(MessageSeeds.IMPORTFILE_TOO_BIG, "file");
         }
         KeypairWrapper keypairWrapper = securityManagementService.findAndLockKeypairWrapper(keypairWrapperId, version)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_KEYPAIR));

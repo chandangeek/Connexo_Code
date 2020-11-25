@@ -9,6 +9,7 @@ Ext.define('Mdc.store.NumericalRegisterData', {
     ],
     model: 'Mdc.model.NumericalRegisterData',
     storeId: 'NumericalRegisterData',
+    alias: 'NumericalRegisterData',
     autoLoad: false,
     proxy: {
         type: 'rest',

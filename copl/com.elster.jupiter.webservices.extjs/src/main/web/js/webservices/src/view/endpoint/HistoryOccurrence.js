@@ -16,7 +16,8 @@ Ext.define('Wss.view.endpoint.HistoryOccurrence', {
     'Wss.view.webservice.HistoryPreviewContainer',
     'Wss.view.endpoint.OccurrenceForm',
     'Wss.view.endpoint.OccurrenceGrid',
-    'Wss.view.endpoint.ActionMenu'
+    'Wss.view.endpoint.ActionMenu',
+    'Wss.view.endpoint.OccurrenceLogActionMenu'
   ],
 
   initComponent: function () {

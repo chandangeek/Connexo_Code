@@ -13,7 +13,9 @@ import org.jboss.resteasy.spi.ResteasyProviderFactory;
 import org.jbpm.kie.services.impl.FormManagerService;
 import org.jbpm.kie.services.impl.model.ProcessInstanceDesc;
 import org.jbpm.services.api.RuntimeDataService;
+import org.jbpm.services.api.UserTaskService;
 import org.jbpm.services.api.model.ProcessDefinition;
+import org.jbpm.services.api.query.QueryService;
 import org.jbpm.services.cdi.producer.UserGroupInfoProducer;
 import org.jbpm.services.task.impl.model.TaskImpl;
 import org.jbpm.services.task.impl.model.UserImpl;
@@ -47,6 +49,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -71,7 +74,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class JbpmTaskResourceTest {
     @InjectMocks
-    private final static JbpmTaskResource taskResource = new JbpmTaskResource();
+    private final static CustomJbpmResource taskResource = new CustomJbpmResource();
     private static int port;
     private static String baseUri;
     private static TJWSEmbeddedJaxrsServer server;
@@ -90,6 +93,10 @@ public class JbpmTaskResourceTest {
     UserGroupInfoProducer userGroupInfoProducers;
     @Mock
     UserGroupCallback userGroupCallback;
+    @Mock
+    UserTaskService userTaskService;
+    @Mock
+    QueryService queryService;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -110,6 +117,93 @@ public class JbpmTaskResourceTest {
     @AfterClass
     public static void afterClass() throws Exception {
         server.stop();
+    }
+
+    @Test
+    public void testGetProcessAllProcesses() throws Exception{
+        Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+        Date start = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_YEAR, 1);
+        Date end = calendar.getTime();
+        EntityManager em = mock(EntityManager.class);
+        when(emf.createEntityManager()).thenReturn(em);
+        Query query = mock(Query.class);
+        when(em.createNativeQuery(anyString())).thenReturn(query);
+        Object[] obj = new Object[10];
+        obj[0] = new BigDecimal(12);
+        obj[1] = new BigDecimal(-1);
+        obj[2] = "TestProcessName";
+        obj[3] = "1.0";
+        obj[4] = "TestUser";
+        obj[5] = new java.sql.Timestamp(start.getTime());
+        obj[6] = new java.sql.Timestamp(end.getTime());
+        obj[7] = new BigDecimal(23);
+        obj[8] = "TestValue";
+        obj[9] = "TestVar";
+
+        List<Object[]> records = new ArrayList<>();
+        records.add(obj);
+        when(query.getResultList()).thenReturn(records);
+        ClientRequest request = new ClientRequest(baseUri + "/process/allprocesses");
+
+        ClientResponse<ProcessHistoryGenInfos> response = request.get(ProcessHistoryGenInfos.class);
+
+        assertEquals(12L, response.getEntity().processHistories.get(0).status);
+        assertEquals("TestProcessName", response.getEntity().processHistories.get(0).processName);
+        assertEquals("1.0", response.getEntity().processHistories.get(0).processVersion);
+        assertEquals("TestUser", response.getEntity().processHistories.get(0).userIdentity);
+        assertEquals(start, response.getEntity().processHistories.get(0).startDate);
+        assertEquals(end, response.getEntity().processHistories.get(0).endDate);
+        assertEquals(-1L, response.getEntity().processHistories.get(0).processInstanceId);
+        assertEquals(23L, response.getEntity().processHistories.get(0).duration);
+        assertEquals("TestValue", response.getEntity().processHistories.get(0).value);
+        assertEquals("TestVar", response.getEntity().processHistories.get(0).variableId);
+    }
+
+    @Test
+    public  void testGetNodesAndVariables() throws Exception{
+        Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+        EntityManager em = mock(EntityManager.class);
+        ProcessInstanceDesc processInstanceDesc = mock(ProcessInstanceDesc.class);
+        when(runtimeDataService.getProcessInstanceById(anyLong())).thenReturn(processInstanceDesc);
+        when(processInstanceDesc.getState()).thenReturn(2);
+        when(emf.createEntityManager()).thenReturn(em);
+        Query query = mock(Query.class);
+        when(em.createNativeQuery(anyString())).thenReturn(query);
+        Object[] node = new Object[8];
+        node[0] = "TestNodeName";
+        node[1] = "TestTask";
+        node[2] = new java.sql.Timestamp(calendar.getTime().getTime());
+        node[4] = "TestNodeID";
+        node[5] = new BigDecimal(1);
+        node[7] = new BigDecimal(1);
+        Object[] variable = new Object[8];
+        variable[1] = new java.sql.Timestamp(calendar.getTime().getTime());
+        variable[3] = "TestOldValue";
+        variable[6] = "TestValue";
+        variable[7] = "TestVariableName";
+        List<Object[]> nodesRecords = new ArrayList<>();
+        List<Object[]> variableRecords = new ArrayList<>();
+        nodesRecords.add(node);
+        variableRecords.add(variable);
+        when(query.getResultList())
+                .thenReturn(nodesRecords)
+                .thenReturn(variableRecords);
+        ClientRequest request = new ClientRequest(baseUri + "/process/instance/1/node");
+
+        ClientResponse<ProcessInstanceNodeInfos> response = request.get(ProcessInstanceNodeInfos.class);
+
+        assertEquals("TestNodeName", response.getEntity().processInstanceNodes.get(0).nodeName);
+        assertEquals("TestTask", response.getEntity().processInstanceNodes.get(0).nodeType);
+        assertEquals(calendar.getTime(), response.getEntity().processInstanceNodes.get(0).logDate);
+        assertEquals(1L, response.getEntity().processInstanceNodes.get(0).nodeInstanceId);
+        assertEquals("COMPLETED", response.getEntity().processInstanceNodes.get(0).type);
+
+        assertEquals(1L, response.getEntity().processInstanceVariables.get(0).nodeInstanceId);
+        assertEquals(calendar.getTime(), response.getEntity().processInstanceVariables.get(0).logDate);
+        assertEquals("TestValue", response.getEntity().processInstanceVariables.get(0).value);
+        assertEquals("TestOldValue", response.getEntity().processInstanceVariables.get(0).oldValue);
+        assertEquals("TestVariableName", response.getEntity().processInstanceVariables.get(0).variableName);
     }
 
     @Test
@@ -137,6 +231,7 @@ public class JbpmTaskResourceTest {
         when(taskRoot.get(anyString()).get(anyString())).thenReturn(path);
         when(em.createQuery(criteriaQuery)).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(taskMinimals);
+        when(userTaskService.getTask(1L)).thenReturn(task);
         when(internalTaskService.getTaskById(1L)).thenReturn(task);
         when(task.getId()).thenReturn(1L);
         when(task.getName()).thenReturn("TaskName");
@@ -200,6 +295,7 @@ public class JbpmTaskResourceTest {
         when(taskRoot.get(anyString()).get(anyString())).thenReturn(path);
         when(em.createQuery(criteriaQuery)).thenReturn(typedQuery);
         when(typedQuery.getResultList()).thenReturn(taskMinimals);
+        when(userTaskService.getTask(1L)).thenReturn(task);
         when(internalTaskService.getTaskById(1L)).thenReturn(task);
         when(task.getId()).thenReturn(1L);
         when(task.getName()).thenReturn("TaskName");
@@ -248,20 +344,39 @@ public class JbpmTaskResourceTest {
     public void testBulkTasks() throws Exception {
         TaskGroupsInfos taskGroupsInfos = new TaskGroupsInfos();
         TaskGroupsInfo taskGroupsInfo = new TaskGroupsInfo();
+
         List<Long> ids = new ArrayList<>();
         ids.add(1L);
         taskGroupsInfo.taskIds = ids;
         taskGroupsInfos.taskGroups.add(taskGroupsInfo);
+        Task task = mock(TaskImpl.class);
+        TaskData taskData = mock(TaskData.class);
+        PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
+        List<OrganizationalEntity> businessAdministrators = new ArrayList<>();
+        OrganizationalEntity org = mock(OrganizationalEntity.class);
+        businessAdministrators.add(org);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(taskData.getStatus())
+                .thenReturn(Status.Created)
+                .thenReturn(Status.Ready);
+        when(task.getPeopleAssignments()).thenReturn(peopleAssignments);
+        when(peopleAssignments.getBusinessAdministrators()).thenReturn(businessAdministrators);
+        when(org.getId()).thenReturn("userName");
+        when(userGroupInfoProducersInstance.get()).thenReturn(userGroupInfoProducers);
+        when(userGroupInfoProducers.produceCallback()).thenReturn(userGroupCallback);
+        when(userGroupCallback.existsGroup(anyString())).thenReturn(true);
 
         ClientRequest request = new ClientRequest(baseUri + "/managetasks");
         request.body(MediaType.APPLICATION_JSON_TYPE, taskGroupsInfos);
         request.queryParameter("variableid", "mrid");
-        request.queryParameter("assign", "newUser");
+        request.queryParameter("assign", "userName");
         request.queryParameter("currentuser", "currentUser");
         request.queryParameter("workgroup", "workgroup");
         request.queryParameter("setPriority", "1");
         request.queryParameter("setDueDate", "1");
         request.queryParameter("setDueDate", "1");
+
         ClientResponse<TaskBulkReportInfo> response = request.post(TaskBulkReportInfo.class);
 
         assertEquals(1, response.getEntity().total);
@@ -341,7 +456,7 @@ public class JbpmTaskResourceTest {
         ClientRequest request = new ClientRequest(baseUri + "/1");
         request.body(MediaType.APPLICATION_JSON_TYPE, processDefinitionInfos);
 
-        when(internalTaskService.getTaskById(1)).thenReturn(task);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
 
         ClientResponse<TaskSummary> response = request.post(TaskSummary.class);
 
@@ -429,56 +544,10 @@ public class JbpmTaskResourceTest {
     }
 
     @Test
-    public  void testGetNodesAndVariables() throws Exception{
-        Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
-        EntityManager em = mock(EntityManager.class);
-        ProcessInstanceDesc processInstanceDesc = mock(ProcessInstanceDesc.class);
-        when(runtimeDataService.getProcessInstanceById(anyLong())).thenReturn(processInstanceDesc);
-        when(processInstanceDesc.getState()).thenReturn(2);
-        when(emf.createEntityManager()).thenReturn(em);
-        Query query = mock(Query.class);
-        when(em.createNativeQuery(anyString())).thenReturn(query);
-        Object[] node = new Object[8];
-        node[0] = "TestNodeName";
-        node[1] = "TestTask";
-        node[2] = new java.sql.Timestamp(calendar.getTime().getTime());
-        node[4] = "TestNodeID";
-        node[5] = new BigDecimal(1);
-        node[7] = new BigDecimal(1);
-        Object[] variable = new Object[8];
-        variable[1] = new java.sql.Timestamp(calendar.getTime().getTime());
-        variable[3] = "TestOldValue";
-        variable[6] = "TestValue";
-        variable[7] = "TestVariableName";
-        List<Object[]> nodesRecords = new ArrayList<>();
-        List<Object[]> variableRecords = new ArrayList<>();
-        nodesRecords.add(node);
-        variableRecords.add(variable);
-        when(query.getResultList())
-                .thenReturn(nodesRecords)
-                .thenReturn(variableRecords);
-        ClientRequest request = new ClientRequest(baseUri + "/process/instance/1/node");
-
-        ClientResponse<ProcessInstanceNodeInfos> response = request.get(ProcessInstanceNodeInfos.class);
-
-        assertEquals("TestNodeName", response.getEntity().processInstanceNodes.get(0).nodeName);
-        assertEquals("TestTask", response.getEntity().processInstanceNodes.get(0).nodeType);
-        assertEquals(calendar.getTime(), response.getEntity().processInstanceNodes.get(0).logDate);
-        assertEquals(1L, response.getEntity().processInstanceNodes.get(0).nodeInstanceId);
-        assertEquals("COMPLETED", response.getEntity().processInstanceNodes.get(0).type);
-
-        assertEquals(1L, response.getEntity().processInstanceVariables.get(0).nodeInstanceId);
-        assertEquals(calendar.getTime(), response.getEntity().processInstanceVariables.get(0).logDate);
-        assertEquals("TestValue", response.getEntity().processInstanceVariables.get(0).value);
-        assertEquals("TestOldValue", response.getEntity().processInstanceVariables.get(0).oldValue);
-        assertEquals("TestVariableName", response.getEntity().processInstanceVariables.get(0).variableName);
-    }
-
-    @Test
     public  void testGetTaskContent() throws Exception{
         Map<String, Object> content = new HashMap<>();
         content.put("TestContent", "TestContentValue");
-        when(internalTaskService.getTaskContent(anyLong())).thenReturn(content);
+        when(userTaskService.getTaskInputContentByTaskId(anyLong())).thenReturn(content);
         ClientRequest request = new ClientRequest(baseUri + "/1/taskcontent");
 
         ClientResponse<ConnexoForm> response = request.get(ConnexoForm.class);
@@ -509,11 +578,11 @@ public class JbpmTaskResourceTest {
 
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getDeploymentId()).thenReturn("TestDeploymentID");
-        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
         when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
         when(processDefinition.getDeploymentId()).thenReturn("TestDeploymentID");
         when(task.getFormName()).thenReturn("FormName");
-        when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
+        when(userTaskService.getTask(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
         when(formManagerService.getFormByKey("TestDeploymentID", "FormName")).thenReturn(template);
 
         ClientRequest request = new ClientRequest(baseUri + "/1/content");
@@ -588,7 +657,7 @@ public class JbpmTaskResourceTest {
         forms.put("FormName",template);
         processesList.add(processDefinition);
 
-        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getDeploymentId()).thenReturn("deploymentID");
         when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
@@ -597,11 +666,11 @@ public class JbpmTaskResourceTest {
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getDeploymentId()).thenReturn("TestDeploymentID");
         when(taskData.getStatus()).thenReturn(Status.InProgress);
-        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
         when(runtimeDataService.getProcessesByDeploymentId(anyString(), any(QueryContext.class))).thenReturn(processesList);
         when(processDefinition.getDeploymentId()).thenReturn("TestDeploymentID");
         when(task.getFormName()).thenReturn("FormName");
-        when(internalTaskService.getTaskById(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
+        when(userTaskService.getTask(anyLong()).getTaskData().getOutputContentId()).thenReturn(-1L);
         when(formManagerService.getFormByKey("TestDeploymentID", "FormName")).thenReturn(template);
 
         ClientRequest request = new ClientRequest(baseUri + "/mandatory");
@@ -623,8 +692,7 @@ public class JbpmTaskResourceTest {
         List<OrganizationalEntity> businessAdministrators = new ArrayList<>();
         OrganizationalEntity org = mock(OrganizationalEntity.class);
         businessAdministrators.add(org);
-
-        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getStatus())
                 .thenReturn(Status.Created)
@@ -654,7 +722,7 @@ public class JbpmTaskResourceTest {
         OrganizationalEntity org = mock(OrganizationalEntity.class);
         businessAdministrators.add(org);
 
-        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
         when(task.getTaskData()).thenReturn(taskData);
         when(taskData.getStatus())
                 .thenReturn(Status.Created)
@@ -674,7 +742,7 @@ public class JbpmTaskResourceTest {
     public  void testReleaseTask() throws Exception{
         Task task = mock(TaskImpl.class);
 
-        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
 
         ClientRequest request = new ClientRequest(baseUri + "/release/1");
         request.queryParameter("currentuser", "currentUser");
@@ -686,7 +754,9 @@ public class JbpmTaskResourceTest {
     @Test
     public  void testAssignTaskDifferentOptLock() throws Exception{
         Task task = mock(TaskImpl.class);
-        when(internalTaskService.getTaskById(anyLong())).thenReturn(task);
+        TaskData taskData = mock(TaskData.class);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
 
         ClientRequest request = new ClientRequest(baseUri + "/1/99/assign");
         ClientResponse<Response> response = request.post(Response.class);
@@ -697,6 +767,10 @@ public class JbpmTaskResourceTest {
     @Test
     public  void testSetDueDate() throws Exception{
         Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+        Task task = mock(TaskImpl.class);
+        TaskData taskData = mock(TaskData.class);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(userTaskService.getTask(anyLong())).thenReturn(task);
 
         ClientRequest request = new ClientRequest(baseUri + "/1/0/assign");
         request.queryParameter("priority", "1");
@@ -709,18 +783,53 @@ public class JbpmTaskResourceTest {
     @Test
     public void testGetAllProcesses() throws Exception{
         Calendar calendar = new GregorianCalendar(2016, 1, 1, 10, 30, 0);
+        Path path=mock(Path.class);
         EntityManager em = mock(EntityManager.class);
         when(emf.createEntityManager()).thenReturn(em);
         Query query = mock(Query.class);
         when(em.createNativeQuery(anyString())).thenReturn(query);
+        CriteriaBuilder criteriaBuilder = mock(CriteriaBuilder.class);
+        CriteriaQuery criteriaQuery = mock(CriteriaQuery.class);
+        when(em.getCriteriaBuilder()).thenReturn(criteriaBuilder);
+        when(criteriaBuilder.createQuery(TaskMinimal.class)).thenReturn(criteriaQuery);
+        Root taskRoot = mock(Root.class);
+        when(criteriaQuery.from(TaskImpl.class)).thenReturn(taskRoot);
+        when(taskRoot.get(anyString())).thenReturn(path);
+        when(taskRoot.get(anyString()).get(anyString())).thenReturn(path);
+
+        TypedQuery typedQuery = mock(TypedQuery.class);
+        when(em.createQuery(criteriaQuery)).thenReturn(typedQuery);
+        TaskMinimal taskMinimal = new TaskMinimal(1L);
+        List<TaskMinimal> taskMinimals = new ArrayList<>();
+        taskMinimals.add(taskMinimal);
+        when(typedQuery.getResultList()).thenReturn(taskMinimals);
+        TaskImpl task = mock(TaskImpl.class);
+        TaskData taskData = mock(TaskData.class);
+        PeopleAssignments peopleAssignments = mock(PeopleAssignments.class);
+        when(userTaskService.getTask(1L)).thenReturn(task);
+
+        when(task.getId()).thenReturn(1L);
+        when(task.getTaskData()).thenReturn(taskData);
+        when(task.getPriority()).thenReturn(0);
+        when(task.getPeopleAssignments()).thenReturn(peopleAssignments);
+        when(peopleAssignments.getPotentialOwners()).thenReturn(Collections.emptyList());
+        when(taskData.getProcessId()).thenReturn("TaskProcessId");
+        when(taskData.getDeploymentId()).thenReturn("TaskDeploymentId");
+        when(taskData.getExpirationTime()).thenReturn(null);
+        when(taskData.getCreatedOn()).thenReturn(null);
+        when(taskData.getStatus()).thenReturn(Status.Created);
+        when(taskData.getActualOwner()).thenReturn(null);
+        when(taskData.getProcessInstanceId()).thenReturn(10L);
+        when(task.getVersion()).thenReturn(1);
         Object[] obj = new Object[7];
-        obj[0] = new BigDecimal(1);
-        obj[1] = "TestProcessID";
-        obj[2] = "TestProcessName";
-        obj[3] = "1.0";
-        obj[4] = "TestUser";
-        obj[5] = new java.sql.Timestamp(calendar.getTime().getTime());
-        obj[6] = new BigDecimal(-1);
+
+        obj[0]="TestProcessName";
+        obj[1]=new java.sql.Timestamp(calendar.getTime().getTime());
+        obj[2]="1.0";
+        obj[3]="TestUser";
+        obj[4]= new BigDecimal(1);
+        obj[5]=new BigDecimal(1);
+
         List<Object[]> records = new ArrayList<>();
         records.add(obj);
         when(query.getResultList()).thenReturn(records);
@@ -728,14 +837,13 @@ public class JbpmTaskResourceTest {
         request.queryParameter("variableid", "issueid");
         request.queryParameter("variablevalue", "issue01");
 
-        ClientResponse<RunningProcessInfos> response = request.get(RunningProcessInfos.class);
+        ClientResponse<IssueProcessInfos> response = request.get(IssueProcessInfos.class);
 
         assertEquals(1L, response.getEntity().processInstances.get(0).status);
-        assertEquals("TestProcessID", response.getEntity().processInstances.get(0).processId);
-        assertEquals("TestProcessName", response.getEntity().processInstances.get(0).processName);
-        assertEquals("1.0", response.getEntity().processInstances.get(0).processVersion);
-        assertEquals("TestUser", response.getEntity().processInstances.get(0).userIdentity);
+        assertEquals(1L, response.getEntity().processInstances.get(0).processId);
+        assertEquals("TestProcessName", response.getEntity().processInstances.get(0).name);
+        assertEquals("1.0", response.getEntity().processInstances.get(0).version);
+        assertEquals("TestUser", response.getEntity().processInstances.get(0).startedBy);
         assertEquals(calendar.getTime(), response.getEntity().processInstances.get(0).startDate);
-        assertEquals(-1L, response.getEntity().processInstances.get(0).processInstanceId);
     }
 }

@@ -717,10 +717,13 @@ public final class WebPortalSetupV1 extends AbstractCosemObject {
 		final byte[] rawResponse = this.methodInvoke(WebPortalMethods.CHANGE_USER_PASSWORD, passwordData);
 		
 		if (rawResponse != null && rawResponse.length > 0) {
-			final BooleanObject response = AXDRDecoder.decode(rawResponse, BooleanObject.class);
-			
-			if (response.getState() == false) {
-				throw new IOException("Password change was rejected by the device, please check if the password conforms to the instated policy.");
+			AbstractDataType responseObj = AXDRDecoder.decode(rawResponse);
+			if (responseObj.isBooleanObject()) {
+				final BooleanObject response = responseObj.getBooleanObject();
+
+				if (response.getState() == false) {
+					throw new IOException("Password change was rejected by the device, please check if the password conforms to the instated policy.");
+				}
 			}
 		}
 	}

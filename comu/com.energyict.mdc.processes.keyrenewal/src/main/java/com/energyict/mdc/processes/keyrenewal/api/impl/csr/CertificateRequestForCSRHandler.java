@@ -30,6 +30,7 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class CertificateRequestForCSRHandler implements MessageHandler {
 
@@ -39,6 +40,7 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
     private final JsonService jsonService;
     private final ServiceCallService serviceCallService;
     private final DeviceService deviceService;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     public CertificateRequestForCSRHandler(SecurityManagementService securityManagementService, CaService caService, TransactionService transactionService, JsonService jsonService, ServiceCallService serviceCallService, DeviceService deviceService) {
         this.securityManagementService = securityManagementService;
@@ -61,6 +63,10 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
                     .filter(sa -> sa.getKeyAccessorTypeReference()
                             .equals(securityManagementService.findSecurityAccessorTypeByName(certificateRequestForCSRMessage.securityAccessor).get()))
                     .findFirst().get();
+            logger.info("Processing certificate request message for device: "
+                    + device.getSerialNumber()+" and security accessor: "
+                    + securityAccessor.getName()
+                    + " - swapped flag:"+securityAccessor.isSwapped());
             String alias = getCertificateType(securityAccessor.getKeyAccessorTypeReference()).getPrefix() + device.getSerialNumber();
             certificateWrapper = securityManagementService
                     .findCertificateWrappers(Where.where("alias").like("*-" + alias))
@@ -96,7 +102,19 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
             }
 
             // assuming this is called during renew and therefore certificateWrapper received as param is the old one and already populated
+            logger.info("Signing CSR for "+certificateWrapper.getAlias());
             Optional<CertificateRequestData> certificateRequestData = certificateWrapper.getCertificateRequestData();
+            if (!validateCertificateRequestData(certificateRequestData, certificateWrapper.getAlias())){
+                // during renewal process the active slot still contains the "old" certificate
+                logger.info("Loading certificate request data from active slot");
+                Optional actualValue = securityAccessor.getActualPassphraseWrapperReference();
+                certificateRequestData = extractAndValidateCertificateRequestData(actualValue);
+            }
+
+            if (!certificateRequestData.isPresent()){
+                logger.warning("Certificate request data is not available, will fallback to the defaults configured in config.properties!");
+            }
+
             X509Certificate certificate = caService.signCsr(pkcs10CertificationRequest, certificateRequestData);
             certificateWrapper.setCertificate(certificate, certificateRequestData);
             certificateWrapper.save();
@@ -107,6 +125,38 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
         } catch (Exception e) {
             serviceCall.requestTransition(DefaultState.FAILED);
         }
+    }
+    private Optional<CertificateRequestData> extractAndValidateCertificateRequestData(Optional slotValue) {
+        Optional<CertificateRequestData> certificateRequestData = Optional.empty();
+
+        if (slotValue.isPresent()){
+            CertificateWrapper slotCertificate = (CertificateWrapper) slotValue.get();
+            certificateRequestData = slotCertificate.getCertificateRequestData();
+            logger.info("Found certificate with alias "+slotCertificate.getAlias());
+            if (!validateCertificateRequestData(certificateRequestData, slotCertificate.getAlias())){
+                logger.warning("Certificate request data is empty on this slot!");
+            }
+        } else {
+            logger.warning("This slot is empty!");
+        }
+
+        return certificateRequestData;
+    }
+
+    private boolean validateCertificateRequestData(Optional<CertificateRequestData> certificateRequestData, String alias){
+        if (certificateRequestData.isPresent()){
+            if (certificateRequestData.get().getCertificateProfileName().isEmpty()){
+                logger.warning("Certificate request data is present on "+alias+", but not populated!");
+            } else {
+                logger.info("Certificate request data is populated on "+alias
+                        +" with the certificate-profile: " + certificateRequestData.get().getCertificateProfileName());
+                return true;
+            }
+        } else {
+            logger.warning("Empty certificateRequestData on "+alias);
+        }
+
+        return false;
     }
 
     private CertificateType getCertificateType(SecurityAccessorType securityAccessorType) {
