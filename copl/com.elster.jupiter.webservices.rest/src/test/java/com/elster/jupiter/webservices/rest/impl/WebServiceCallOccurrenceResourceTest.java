@@ -181,6 +181,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         OutboundEndPointConfiguration ecpMock = mock(OutboundEndPointConfiguration.class);
         when(ecpMock.getLogLevel()).thenReturn(LogLevel.INFO);
         when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
+        when(ecpMock.getPayloadSaveStrategy()).thenReturn(PayloadSaveStrategy.ALWAYS);
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
