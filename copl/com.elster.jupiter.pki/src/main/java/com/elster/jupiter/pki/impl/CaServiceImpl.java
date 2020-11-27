@@ -45,6 +45,9 @@ import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import javax.naming.ldap.Rdn;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -70,10 +73,15 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -352,6 +360,40 @@ public class CaServiceImpl implements CaService {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getLocalizedMessage());
         }
         return result.toString();
+    }
+
+    /** PKI end-entity profile can be configured to block / allow / optional some DN fields.
+     * Usually everybody accepts CN, but can block others, like OU, O, etc.
+     *
+     * This method will send only the ones configured in Connexo, which should match the PKI config.
+     *
+     * @param fullSubjectDN - full subject from CSR, ex CN=4B464D1010006D3B,OU=KFM,O=SZ Kaifa Technology Co.\,Ltd.,C=CN
+     * @param subjecDNFields - list of fields allowed (comma separated)
+     * @return the allowed SubjectDN, ex:  ex CN=4B464D1010006D3B
+     */
+    public String extractSubjectDN(String fullSubjectDN, String subjecDNFields) throws InvalidNameException {
+        if (subjecDNFields == null){
+            return fullSubjectDN;
+        }
+        if (subjecDNFields.trim().isEmpty()){
+            return fullSubjectDN;
+        }
+
+        String[] allowedFields = subjecDNFields.toUpperCase().replace(" ", ",").split(",");
+        Set<String> fieldsSet = new HashSet<>(Arrays.asList(allowedFields));
+
+        ArrayList<String> finalSubjectDN = new ArrayList<String>();
+
+        LdapName ldapName = new LdapName(fullSubjectDN);
+        for(Rdn rdn : ldapName.getRdns()) {
+            if (fieldsSet.contains(rdn.getType().toUpperCase())){
+                finalSubjectDN.add(rdn.toString());
+            }
+        }
+
+        Collections.reverse(finalSubjectDN);
+        return String.join(",", finalSubjectDN);
+
     }
 
     private Optional<X509CRL> getCrl(String caName, boolean isDelta) {
