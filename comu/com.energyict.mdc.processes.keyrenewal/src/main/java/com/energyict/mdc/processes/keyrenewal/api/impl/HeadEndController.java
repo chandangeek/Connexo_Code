@@ -33,7 +33,6 @@ import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 
 import javax.inject.Inject;
 import javax.ws.rs.core.Response;
-import java.security.cert.CertificateParsingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,30 +56,30 @@ public class HeadEndController {
         this.exceptionFactory = exceptionFactory;
     }
 
-    public void performOperations(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
-        HeadEndInterface headEndInterface = getHeadEndInterface(endDevice);
+    public void performOperations(ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+        HeadEndInterface headEndInterface = getHeadEndInterface(device.getMeter());
         switch (deviceCommandInfo.command) {
             case RENEW_KEY:
-                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device, false);
+                performKeyRenewalOperations(headEndInterface, serviceCall, deviceCommandInfo, device, false);
                 break;
             case UPLOAD_CERTIFICATE:
-                performUploadCertificateOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                performUploadCertificateOperations(headEndInterface, serviceCall, deviceCommandInfo, device);
                 break;
             case GENERATE_KEYPAIR:
-                performGenerateKeyPairOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                performGenerateKeyPairOperations(headEndInterface, serviceCall, deviceCommandInfo, device);
                 break;
             case REQUEST_CSR:
-                performRequestCsrOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                performRequestCsrOperations(headEndInterface, serviceCall, deviceCommandInfo, device);
                 break;
             case RENEW_SERVICE_KEY:
-                performKeyRenewalOperations(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device, true);
+                performKeyRenewalOperations(headEndInterface, serviceCall, deviceCommandInfo, device, true);
                 break;
             default:
-                performDummyOperation(endDevice, headEndInterface, serviceCall, deviceCommandInfo, device);
+                performDummyOperation(headEndInterface, serviceCall, deviceCommandInfo, device);
         }
     }
 
-    private void performKeyRenewalOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device, boolean isServiceKey) {
+    private void performKeyRenewalOperations(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device, boolean isServiceKey) {
         serviceCall.log(LogLevel.INFO, "Handling key renewal.");
         EndDeviceCommand deviceCommand;
         List<SecurityAccessorType> securityAccessorTypes = Arrays.stream(deviceCommandInfo.keyAccessorType.split(","))
@@ -91,24 +90,24 @@ public class HeadEndController {
                     }
                 })
                 .collect(Collectors.toList());
-        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(endDevice, securityAccessorTypes, isServiceKey);
+        deviceCommand = headEndInterface.getCommandFactory().createKeyRenewalCommand(device.getMeter(), securityAccessorTypes, isServiceKey);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
 
-    private void performUploadCertificateOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performUploadCertificateOperations(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling upload certificate.");
         EndDeviceCommand deviceCommand;
         SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
         if (securityAccessorType == null) {
             throw exceptionFactory.newException(MessageSeeds.UNKNOWN_KEYACCESSORTYPE);
         }
-        deviceCommand = headEndInterface.getCommandFactory().createImportCertificateCommand(endDevice, securityAccessorType);
+        deviceCommand = headEndInterface.getCommandFactory().createImportCertificateCommand(device.getMeter(), securityAccessorType);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
 
-    private void performRequestCsrOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performRequestCsrOperations(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling request CSR from device.");
         EndDeviceCommand deviceCommand;
         SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
@@ -117,12 +116,12 @@ public class HeadEndController {
         }
         CertificateType certificateType = Stream.of(CertificateType.values()).filter(e -> e.isApplicableTo(securityAccessorType.getKeyType()))
                 .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_APPLICABLE_CERTIFICATE_TYPE, securityAccessorType.getName()));
-        deviceCommand = headEndInterface.getCommandFactory().createGenerateCSRCommand(endDevice, certificateType);
+        deviceCommand = headEndInterface.getCommandFactory().createGenerateCSRCommand(device.getMeter(), certificateType);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
 
-    private void performGenerateKeyPairOperations(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performGenerateKeyPairOperations(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling generate key pair.");
         EndDeviceCommand deviceCommand;
         SecurityAccessorType securityAccessorType = getKeyAccessorType(deviceCommandInfo.keyAccessorType, device);
@@ -131,12 +130,12 @@ public class HeadEndController {
         }
         CertificateType certificateType = Stream.of(CertificateType.values()).filter(e -> e.isApplicableTo(securityAccessorType.getKeyType()))
                 .findFirst().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_APPLICABLE_CERTIFICATE_TYPE, securityAccessorType.getName()));
-        deviceCommand = headEndInterface.getCommandFactory().createGenerateKeyPairCommand(endDevice, certificateType);
+        deviceCommand = headEndInterface.getCommandFactory().createGenerateKeyPairCommand(device.getMeter(), certificateType);
         CompletionOptions completionOptions = headEndInterface.sendCommand(deviceCommand, deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
 
-    private void performDummyOperation(EndDevice endDevice, HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+    private void performDummyOperation(HeadEndInterface headEndInterface, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
         serviceCall.log(LogLevel.INFO, "Handling command.");
         serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         try {
@@ -146,8 +145,8 @@ public class HeadEndController {
         }
     }
 
-    public void performTestCommunication(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
-        MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(endDevice);
+    public void performTestCommunication(ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+        MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(device.getMeter());
         performTestCommunication(headEndInterface, serviceCall, deviceCommandInfo, device);
     }
 
@@ -168,11 +167,11 @@ public class HeadEndController {
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
 
-    public void performTestCommunicationForSecuritySet(EndDevice endDevice, ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
-        MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(endDevice);
+    public void performTestCommunicationForSecuritySet(ServiceCall serviceCall, DeviceCommandInfo deviceCommandInfo, Device device) {
+        MultiSenseHeadEndInterface headEndInterface = (MultiSenseHeadEndInterface) getHeadEndInterface(device.getMeter());
         serviceCall.log(LogLevel.INFO, "Handling test communication for security set.");
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutions(device, getSecurityPropertySet(deviceCommandInfo.securityPropertySet, device));
-        CompletionOptions completionOptions = ((MultiSenseHeadEndInterface) headEndInterface).runCommunicationTask(device, getFilteredList(comTaskExecutions), deviceCommandInfo.activationDate, serviceCall);
+        CompletionOptions completionOptions = headEndInterface.runCommunicationTask(device, getFilteredList(comTaskExecutions), deviceCommandInfo.activationDate, serviceCall);
         completionOptions.whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), getCompletionOptionsDestinationSpec());
     }
 
