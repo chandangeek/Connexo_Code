@@ -374,9 +374,11 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
     }
 
     private Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional<EndDeviceGroup> deviceGroup) {
-        SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        SqlBuilder sqlBuilder = new SqlBuilder("WITH AS (");
+        String alias = "cte";
+        sqlBuilder.append(alias);
         DeviceStageSqlBuilder
-                .forDefaultExcludedStages("cte")
+                .forDefaultExcludedStages(alias)
                 .appendRestrictedStagesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
         sqlBuilder.append("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());

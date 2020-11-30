@@ -45,39 +45,19 @@ public class DeviceStageSqlBuilder {
     }
 
     public void appendRestrictedStagesWithClause(SqlBuilder sqlBuilder, Instant now) {
-        sqlBuilder.append(this.alias);
-        sqlBuilder.append(" as (");
-        sqlBuilder.append("select ES.enddevice id");
+        sqlBuilder.append(" select ES.enddevice id");
         sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
         sqlBuilder.append("       (select FS.ID");
         sqlBuilder.append("          from FSM_STATE FS");
         sqlBuilder.append("         where FS.OBSOLETE_TIMESTAMP IS NULL");
         sqlBuilder.append("           and FS.STAGE ");
         this.setStrategy.append(sqlBuilder, this.stages);
-        sqlBuilder.append(") FS");
+        sqlBuilder.append(" ) FS");
         sqlBuilder.append(" where ES.STARTTIME <=");
         sqlBuilder.addLong(now.toEpochMilli());
         sqlBuilder.append("   and ES.ENDTIME >");
         sqlBuilder.addLong(now.toEpochMilli());
         sqlBuilder.append("   and ES.STATE = FS.ID)");
-    }
-
-    public void appendRestrictedStagesExistClause(SqlBuilder sqlBuilder, Instant now) {
-        sqlBuilder.append(" and exist ( ");
-        sqlBuilder.append("select ES.enddevice id");
-        sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
-        sqlBuilder.append("       (select FS.ID");
-        sqlBuilder.append("          from FSM_STATE FS");
-        sqlBuilder.append("         where FS.OBSOLETE_TIMESTAMP IS NULL");
-        sqlBuilder.append("           and FS.STAGE ");
-        this.setStrategy.append(sqlBuilder, this.stages);
-        sqlBuilder.append(") FS");
-        sqlBuilder.append(" where ES.STARTTIME <=");
-        sqlBuilder.addLong(now.toEpochMilli());
-        sqlBuilder.append("   and ES.ENDTIME >");
-        sqlBuilder.addLong(now.toEpochMilli());
-        sqlBuilder.append("   and ES.STATE = FS.ID)");
-        sqlBuilder.append(" ) ");
     }
 
     public void appendRestrictedStages(SqlBuilder sqlBuilder) {

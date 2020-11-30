@@ -63,7 +63,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     }
 
     ClauseAwareSqlBuilder newActualBuilder() {
-        ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder.getEmptyBuilder();
+        ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder.getWithBuilder();
         this.setActualBuilder(actualBuilder);
         return actualBuilder;
     }
@@ -95,6 +95,11 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
+        this.appendStatusWhereClauses(taskStatus);
+        this.appendNonStatusWhereClauses();
+    }
+
+    protected void appendWhereClauseWithEmptyStatus(ServerComTaskStatus taskStatus){
         this.appendStatusWhereClauses(taskStatus);
         this.appendNonStatusWhereClauses();
     }

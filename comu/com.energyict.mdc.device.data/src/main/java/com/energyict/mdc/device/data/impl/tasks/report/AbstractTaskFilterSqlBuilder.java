@@ -60,7 +60,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
     }
 
     protected void or() {
-        this.actualBuilder.or();
+        this.actualBuilder.appendWhereOrOr();
     }
 
     protected void append(SqlFragment sqlFragment) {

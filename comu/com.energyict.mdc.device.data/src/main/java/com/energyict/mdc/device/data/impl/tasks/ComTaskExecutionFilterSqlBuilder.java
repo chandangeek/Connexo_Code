@@ -88,22 +88,33 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
         ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
         WithClauses.BUSY_CONNECTION_TASK.append(actualBuilder, BUSY_ALIAS_NAME);
-        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
-        sqlStartClause.insert(sqlStartClause.indexOf("from"), " CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
+        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.toString());
+        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
         this.append(", allctdata as (");
         this.append(sqlStartClause);
-        this.appendDeviceAndBusyTaskStateJoinClauses(communicationTaskAliasName);//appendDeviceAndBusyTaskStateJoinClauses
+        this.appendDeviceAndBusyTaskStateJoinClauses(communicationTaskAliasName);
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
+        this.getActualBuilder().appendWhereOrAnd();
         if (statusIterator.hasNext()) {
             this.appendWhereClause(statusIterator.next());
             this.append(getBuilderForRestrictedStages().getText());
         }
         this.append(" ) ");
-        while (statusIterator.hasNext()) {
-            this.or();
-            this.appendWhereClause(statusIterator.next());
+        if (statusIterator.hasNext()) {
+            sqlStartClause.replace(sqlStartClause.indexOf(" , CASE"), sqlStartClause.length(), " FROM allctdata " + communicationTaskAliasName + " ");
+            this.append(sqlStartClause);
+            this.getActualBuilder().resetToWith();
+
+            this.getActualBuilder().appendWhereOrAnd();
+            while (statusIterator.hasNext()) {
+                this.appendWhereClause(statusIterator.next());
+                if (statusIterator.hasNext()) {
+                    this.or();
+                    this.getActualBuilder().resetToWhere();
+                }
+            }
         }
-        this.append(" ) ");
+
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
@@ -111,8 +122,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.appendWhereOrAnd();
             this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",", "")) + ")");
         }
-        this.appendWhereOrAnd();
-        this.append("obsolete_date is null");
+
         return this.getActualBuilder();
     }
 
@@ -125,6 +135,12 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     @Override
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         super.appendWhereClause(taskStatus);
+        this.appendDeviceInGroupSql();
+    }
+
+    @Override
+    protected void appendWhereClauseWithEmptyStatus(ServerComTaskStatus taskStatus) {
+        super.appendWhereClauseWithEmptyStatus(taskStatus);
         this.appendDeviceInGroupSql();
     }
 
