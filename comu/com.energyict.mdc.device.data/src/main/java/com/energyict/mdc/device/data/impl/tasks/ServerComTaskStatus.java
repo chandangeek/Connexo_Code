@@ -452,7 +452,6 @@ public enum ServerComTaskStatus {
     public abstract boolean appliesTo(ServerComTaskExecution task, Instant now);
 
     public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
-        //sqlBuilder.appendWhereOrAnd();
         this.completeFindBySqlBuilder(sqlBuilder, clock.instant());
     }
 
