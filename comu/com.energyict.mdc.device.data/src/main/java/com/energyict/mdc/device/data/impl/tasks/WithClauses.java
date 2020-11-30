@@ -38,9 +38,9 @@ public enum WithClauses {
         sqlBuilder.appendWith(this.withClause, alias);
     }
 
-    public void append(ClauseAwareSqlBuilder sqlBuilder, String alias) { //alias - busytask
-        sqlBuilder.append(alias + " as (");//sqlBuilder - with
-        sqlBuilder.append(this.withClause);//withClause -select id as connectiontask, lastcommunicationstart, comport from DDC_CONNECTIONTASK where comport is not null
+    public void append(ClauseAwareSqlBuilder sqlBuilder, String alias) {
+        sqlBuilder.append(alias + " as (");
+        sqlBuilder.append(this.withClause);
         sqlBuilder.append(") ");
     }
 

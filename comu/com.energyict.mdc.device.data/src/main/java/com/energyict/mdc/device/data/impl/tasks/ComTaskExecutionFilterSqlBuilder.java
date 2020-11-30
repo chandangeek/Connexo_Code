@@ -71,12 +71,12 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
      * @throws IllegalArgumentException Thrown when the specifications are not valid
      */
     protected void validate(ComTaskExecutionFilterSpecification filterSpecification) throws IllegalArgumentException {
-        if (   !filterSpecification.latestResults.isEmpty()
-            && !this.isNull(filterSpecification.lastSessionEnd)) {
+        if (!filterSpecification.latestResults.isEmpty()
+                && !this.isNull(filterSpecification.lastSessionEnd)) {
             throw new IllegalArgumentException("Latest result and last session end in interval cannot be combined");
         }
-        if (   !filterSpecification.comTasks.isEmpty()
-            && !filterSpecification.comSchedules.isEmpty()) {
+        if (!filterSpecification.comTasks.isEmpty()
+                && !filterSpecification.comSchedules.isEmpty()) {
             throw new IllegalArgumentException("Communication tasks and communication schedules cannot be combined");
         }
     }
@@ -219,7 +219,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     private boolean isNull(Interval interval) {
         return interval == null
-            || (   (interval.getStart() == null)
+                || ((interval.getStart() == null)
                 && (interval.getEnd() == null));
     }
 
