@@ -6,8 +6,12 @@ package com.elster.jupiter.orm.impl;
 
 import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.sql.SqlBuilder;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Instant;
 import java.util.logging.Logger;
 
@@ -64,13 +68,19 @@ public class PartitionDataDropperImpl implements DataDropper {
         return "select partition_name, high_value from user_tab_partitions where table_name = ?";
     }
 
-
     private void dropPartition(String tableName, String partitionName, Connection connection) throws SQLException {
-        try (PreparedStatement statement = connection.prepareStatement("ALTER TABLE ? DROP PARTITION ? UPDATE GLOBAL INDEXES")) {
-            statement.setString(1, tableName);
-            statement.setString(2, partitionName);
+        try (PreparedStatement statement = dropPartitionSql(tableName, partitionName).prepare(connection)) {
             statement.executeUpdate();
         }
+    }
+
+    private SqlBuilder dropPartitionSql(String tableName, String partitionName) {
+        SqlBuilder builder = new SqlBuilder("ALTER TABLE ");
+        builder.append(tableName);
+        builder.append(" DROP PARTITION ");
+        builder.append(partitionName);
+        builder.append(" UPDATE GLOBAL INDEXES");
+        return builder;
     }
 
 }
