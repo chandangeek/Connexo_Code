@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
+
 /**
  * Provides code reuse opportunities to build SQL queries that will
  * match {@link ComTaskExecution}s against a {@link ComTaskExecutionFilterSpecification}.
@@ -90,7 +92,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.append(" dev on ");
         this.append(deviceContainerAliasName);
         this.append(".device = dev.id ");
-        this.append(" left outer join BUSYTASK bt on bt.connectiontask = cte.id ");
+        this.append(" left outer join " + BUSY_TASK_ALIAS_NAME  + " bt on bt.connectiontask = ct.id ");
         this.append(" left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
     }
 
