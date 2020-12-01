@@ -32,7 +32,6 @@ import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyString;
@@ -91,6 +90,12 @@ public class SubscriberSpecImplConcurrencyTest {
         mockConnectionBlockingOnEmptyQueue(connection3);
         mockConnectionBlockingOnEmptyQueue(connection4);
 
+        OracleConnection[] connections = new OracleConnection[4];
+        connections[0] = connection1;
+        connections[1] = connection2;
+        connections[2] = connection3;
+        connections[3] = connection4;
+
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
         for (int i = 0; i < 4; i++) {
@@ -100,11 +105,13 @@ public class SubscriberSpecImplConcurrencyTest {
         allThreadsBlocking.await(2, TimeUnit.SECONDS);
         subscriberSpec.cancel();
         executorService.awaitTermination(2, TimeUnit.SECONDS);
-        assertThat(cancelCounter.get()).isEqualTo(4);
-        verify(connection1, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
-        verify(connection2, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
-        verify(connection3, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
-        verify(connection4, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+        for (int i = 0; i < connections.length; i++) {
+            if (i < cancelCounter.get()) {
+                verify(connections[i], times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+            } else {
+                verify(connections[i], times(0)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+            }
+        }
     }
 
     @Test
@@ -114,6 +121,11 @@ public class SubscriberSpecImplConcurrencyTest {
         mockConnectionBlockingOnEmptyQueue(connection2);
         mockConnectionBlockingOnEmptyQueue(connection3);
         mockConnectionBlockingOnEmptyQueue(connection4);
+        OracleConnection[] connections = new OracleConnection[4];
+        connections[0] = connection1;
+        connections[1] = connection2;
+        connections[2] = connection3;
+        connections[3] = connection4;
 
         ExecutorService executorService = Executors.newFixedThreadPool(4);
 
@@ -125,11 +137,14 @@ public class SubscriberSpecImplConcurrencyTest {
         subscriberSpec.cancel();
         subscriberSpec.cancel();
         executorService.awaitTermination(2, TimeUnit.SECONDS);
-        assertThat(cancelCounter.get()).isEqualTo(4);
-        verify(connection1, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
-        verify(connection2, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
-        verify(connection3, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
-        verify(connection4, times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+
+        for (int i = 0; i < connections.length; i++) {
+            if (i < cancelCounter.get()) {
+                verify(connections[i], times(1)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+            } else {
+                verify(connections[i], times(0)).dequeue(anyString(), any(AQDequeueOptions.class), anyString());
+            }
+        }
     }
 
     private void mockConnectionBlockingOnEmptyQueue(OracleConnection connection) throws SQLException {
