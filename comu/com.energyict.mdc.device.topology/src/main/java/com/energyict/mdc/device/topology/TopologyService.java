@@ -308,6 +308,26 @@ public interface TopologyService {
      */
     List<Device> findDataLoggerSlaves(Device dataLogger);
 
+    /**
+     * Creates a new G3 neighbor link
+     * @param device the fist device in the link
+     * @param neighbor the second device in the link
+     * @param modulationScheme modulation scheme of the link
+     * @param modulation modulation of the link
+     * @param phaseInfo phase info shift of the link
+     * @param g3NodeState state of the link
+     * @return a G3 object with the information above
+     */
+    G3Neighbor newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState);
+
+    /**
+     * Creates a new G3 links from an existing link, but reversing device<->neighbor.
+     * This is handy because in DB the links are persisted in one way, while in GUI and DLMS they are the other way around.
+     *
+     * @param original the existing G3 link
+     * @return clone of the original with the reversed device<->neighbor
+     */
+    G3Neighbor reverseCloneG3Neighbor(G3Neighbor original);
 
     /**
      * @return true if the device is a data logger slave device which is not linked to a data logger
@@ -446,6 +466,8 @@ public interface TopologyService {
     Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices);
 
     List<Device> getSlaveDevices(Device device);
+
+    List<G3Neighbor> getSlaveDevices(Device gateway, long pageStart);
 
     interface G3CommunicationPathSegmentBuilder {
 

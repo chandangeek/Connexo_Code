@@ -61,6 +61,8 @@ import com.energyict.mdc.device.topology.G3CommunicationPathSegment;
 import com.energyict.mdc.device.topology.G3DeviceAddressInformation;
 import com.energyict.mdc.device.topology.G3Neighbor;
 import com.energyict.mdc.device.topology.G3NodeState;
+import com.energyict.mdc.device.topology.G3Topology;
+import com.energyict.mdc.device.topology.G3TopologyBuilder;
 import com.energyict.mdc.device.topology.Modulation;
 import com.energyict.mdc.device.topology.ModulationScheme;
 import com.energyict.mdc.device.topology.PhaseInfo;
@@ -482,6 +484,21 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                 .sorted(new DeviceRecentlyAddedComporator(timeline))
                 .collect(Collectors.toList()));
         return slaveDevices;
+    }
+
+    @Override
+    public List<G3Neighbor> getSlaveDevices(Device gateway, long pageStart) {
+        LOGGER.info("Building the full Slave devices list for "+gateway.getSerialNumber());
+
+        G3TopologyBuilder g3TopologyBuilder = new G3TopologyBuilder(this, gateway);
+
+        G3Topology g3Topology = g3TopologyBuilder.build();
+
+        List<G3Neighbor> g3NeighborList = g3Topology.getReferences();
+
+        LOGGER.info("Returning a list of "+g3NeighborList.size()+" references");
+
+        return g3NeighborList;
     }
 
     private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
