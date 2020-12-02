@@ -52,7 +52,7 @@ public class PartitionDataDropperImpl implements DataDropper {
                             long highValue = Long.parseLong(highValueString);
                             if (highValue > 0 && highValue <= upTo.toEpochMilli()) {
                                 String partitionName = resultSet.getString(1);
-                                dropPartition(tableName, partitionName, connection);
+                                dropPartitionSqlBuilder(tableName, partitionName, connection);
                                 logger.info("Dropped partition " + partitionName + " from table " + tableName + " containing entries up to " + Instant.ofEpochMilli(highValue));
                             }
                         } catch (NumberFormatException ex) {
@@ -68,7 +68,7 @@ public class PartitionDataDropperImpl implements DataDropper {
         return "select partition_name, high_value from user_tab_partitions where table_name = ?";
     }
 
-    private void dropPartition(String tableName, String partitionName, Connection connection) throws SQLException {
+    private void dropPartitionSqlBuilder(String tableName, String partitionName, Connection connection) throws SQLException {
         try (PreparedStatement statement = dropPartitionSql(tableName, partitionName).prepare(connection)) {
             statement.executeUpdate();
         }
