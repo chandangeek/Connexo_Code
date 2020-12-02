@@ -54,6 +54,34 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         return this;
     }
 
+    G3NeighborImpl reverseClone(G3Neighbor original) {
+        this.init(original.getNeighbor(), original.getDevice(), original.getModulationScheme(), original.getModulation());
+        setAll(original);
+
+        return this;
+    }
+
+    private void setAll(G3Neighbor original){
+        this.phaseInfo = original.getPhaseInfo();
+        this.state = original.getState();
+        this.lastPathRequest = original.getLastPathRequest();
+        this.lastUpdate = original.getLastUpdate();
+        this.linkCost = original.getLinkCost();
+        this.linkQualityIndicator = original.getLinkQualityIndicator();
+        this.macPANId = original.getMacPANId();
+        this.nodeAddress = original.getNodeAddress();
+        this.phaseInfo = original.getPhaseInfo();
+        this.nodeAddress = original.getNodeAddress();
+        this.roundTrip = original.getRoundTrip();
+        this.timeToLive = original.getTimeToLive().getSeconds();
+        this.toneMap = original.getToneMap();
+        this.txGain = original.getTxGain();
+        this.txResolution = original.getTxResolution();
+        this.txCoefficient = original.getTxCoefficient();
+        this.toneMapTimeToLive = original.getToneMapTimeToLive().getSeconds();
+        this.shortAddress = original.getShortAddress();
+    }
+
     void setPhaseInfo(PhaseInfo phaseInfo) {
         this.phaseInfo = phaseInfo;
     }

@@ -1290,8 +1290,13 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         return neighbors;
     }
 
-    private G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
+    public G3NeighborImpl newG3Neighbor(Device device, Device neighbor, ModulationScheme modulationScheme, Modulation modulation, PhaseInfo phaseInfo, G3NodeState g3NodeState) {
         return this.dataModel.getInstance(G3NeighborImpl.class).createFor(device, neighbor, modulationScheme, modulation, phaseInfo, g3NodeState);
+    }
+
+    @Override
+    public G3Neighbor reverseCloneG3Neighbor(G3Neighbor original) {
+        return this.dataModel.getInstance(G3NeighborImpl.class).reverseClone(original);
     }
 
     private G3NeighborImpl newG3Neighbor(G3NeighborImpl existingNeighbor) {
