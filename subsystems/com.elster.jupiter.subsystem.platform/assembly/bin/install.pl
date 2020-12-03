@@ -97,11 +97,14 @@ my $SMTP_PORT;
 my $SMTP_USER;
 my $SMTP_FROM;
 my $CLASSPATH_SEPARATOR;
+my $SCRIPT_SUFFIX;
 
 if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 	$CLASSPATH_SEPARATOR=";";
+	$SCRIPT_SUFFIX=".bat";
 } else {
 	$CLASSPATH_SEPARATOR=":";
+	$SCRIPT_SUFFIX=".sh";
 }
 
 # Function Definitions
@@ -838,27 +841,43 @@ sub install_jboss {
         #setup vault
 
         make_path("$JBOSS_BASE/$JBOSS_DIR/vault");
+        my $vaultOutput = "$JBOSS_BASE/$JBOSS_DIR/vault/vault.out";
         postCall("\"$JAVA_HOME/bin/keytool\" -genseckey -alias vault -storetype jceks -keyalg AES -keysize 128 -storepass zorro2020 -keypass zorro2020 -validity 730 -keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore", "Setup of EAP vault failed.");
-        my $VAULTRET = `sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault.sh  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute controller.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl`;
+        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl > $vaultOutput", "Setup of EAP vault failed.");
+        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.password --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute datasource.password --sec-attr $FLOW_DB_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
 
-        print "Output: $VAULTRET";
+        my $vaultPass="";
+        if(-e $vaultOutput){
+            open(my $FH, $vaultOutput);
+            my $kp ='KEYSTORE_PASSWORD';
+            while(<$FH>) {
+                my $line = $_ if /$kp/;
+                if ( $line ne "") {
+                    my @valArr = split('>', substr $line, index($line,'KEYSTORE_PASSWORD'));
+                    my $cutfront = substr $valArr[1], index($valArr[1],"\"")+1;
+                    $vaultPass = substr $cutfront, 0, index($cutfront,"\"");
+                }
+            }
+        }
+
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_URL\" value=\"\"/>","<vault-option name=\"KEYSTORE_URL\" value=\"$JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"\"/>","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"zorro2020\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"\"/>","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"$vaultPass\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_ALIAS\" value=\"\"/>","<vault-option name=\"KEYSTORE_ALIAS\" value=\"vault\"/>");
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"SALT\" value=\"\"/>","<vault-option name=\"SALT\" value=\"iUQG49vl\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"ITERATION_COUNT\" value=\"\"/>","<vault-option name=\"ITERATION_COUNT\" value=\"120\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"ENC_FILE_DIR\" value=\"\"/>","<vault-option name=\"ENC_FILE_DIR\" value=\"$JBOSS_BASE/$JBOSS_DIR/vault/\"/>");
 
+        unlink($vaultOutput);
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.url\" value=\"\"/>","<property name=\"com.elster.jupiter.url\" value=\"$CONNEXO_URL\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.user\" value=\"\"/>","<property name=\"com.elster.jupiter.user\" value=\"$replaceACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.password\" value=\"\"/>","<property name=\"com.elster.jupiter.password\" value=\"$replacePASSWORD\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.location\" value=\"http://localhost:8080/kie-server/services/rest/server\"/>","<property name=\"org.kie.server.location\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server/services/rest/server\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller\" value=\"http://localhost:8080/business-central/rest/controller\"/>","<property name=\"org.kie.server.controller\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central/rest/controller\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.user\" value=\"\"/>","<property name=\"org.kie.server.controller.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.user\" value=\"\"/>","<property name=\"org.kie.server.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.pwd\" value=\"\"/>","<property name=\"org.kie.server.pwd\" value=\"$JBOSS_ADMIN_PASSWORD\"/>");
 
         add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","");
         add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
@@ -868,7 +887,6 @@ sub install_jboss {
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<connection-url></connection-url>","<connection-url>$FLOW_JDBC_URL</connection-url>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<user-name></user-name>","<user-name>$FLOW_DB_USER</user-name>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<password></password>","<password>$FLOW_DB_PASSWORD</password>");
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<inet-address value=\"management\"/>","<inet-address value=\"\${jboss.bind.address.management:$HOST_NAME}\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<inet-address value=\"public\"/>","<inet-address value=\"\${jboss.bind.address:$HOST_NAME}\"/>");
@@ -1199,11 +1217,16 @@ sub activate_sso_filters{
                 my ($name,$key)  = split('=', $line);
                 close(INPUT);
 
+                $token =~ s/\s+$//;
+
+                postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+                postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+                postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
 
                 replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.sso.public.key\" value=\"\"/-->","<property name=\"com.elster.jupiter.sso.public.key\" value=\"$key\"/>");
-                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.token\" value=\"\"/-->","<property name=\"com.elster.jupiter.token\" value=\"$token\"/>");
-                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.token\" value=\"\"/-->","<property name=\"org.kie.server.token\" value=\"$token\"/>");
-                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.controller.token\" value=\"\"/-->","<property name=\"org.kie.server.controller.token\" value=\"$token\"/>");
+                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.token\" value=\"\"/-->","<property name=\"com.elster.jupiter.token\" value=\"\${VAULT::connexo::elster.jupiter.token::1}\"/>");
+                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.token\" value=\"\"/-->","<property name=\"org.kie.server.token\" value=\"\${VAULT::connexo::kie.server.token::1}\"/>");
+                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.controller.token\" value=\"\"/-->","<property name=\"org.kie.server.controller.token\" value=\"\${VAULT::connexo::kie.server.controller.token::1}\"/>");
             }
 
             #replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml", "<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>", "<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
