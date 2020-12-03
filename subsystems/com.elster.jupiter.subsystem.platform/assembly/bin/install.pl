@@ -825,11 +825,11 @@ sub install_jboss {
             system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
             system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
         } else {
-            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/vault.sh");
-            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
-            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
-            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
-            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+            system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/vault.sh");
+            system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
+            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
+            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
         }
 
         copy("$JBOSS_BASE/flow/standalone-full.xml","$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml");
@@ -843,10 +843,10 @@ sub install_jboss {
         make_path("$JBOSS_BASE/$JBOSS_DIR/vault");
         my $vaultOutput = "$JBOSS_BASE/$JBOSS_DIR/vault/vault.out";
         postCall("\"$JAVA_HOME/bin/keytool\" -genseckey -alias vault -storetype jceks -keyalg AES -keysize 128 -storepass zorro2020 -keypass zorro2020 -validity 730 -keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore", "Setup of EAP vault failed.");
-        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl > $vaultOutput", "Setup of EAP vault failed.");
-        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
-        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.password --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
-        postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute datasource.password --sec-attr $FLOW_DB_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl > $vaultOutput", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.password --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute datasource.password --sec-attr $FLOW_DB_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
 
         my $vaultPass="";
         if(-e $vaultOutput){
@@ -939,11 +939,11 @@ sub install_jboss {
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# STARTUP_WAIT=60","STARTUP_WAIT=60");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# SHUTDOWN_WAIT=60","SHUTDOWN_WAIT=60");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_CONSOLE_LOG=\"/var/log/jboss-eap/console.log\"","JBOSS_CONSOLE_LOG=\"/var/log/jboss-eap/console.log\"");
-            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf /etc/default");
-            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh /etc/init.d");
-            system("sudo chmod +x /etc/init.d/jboss-eap-rhel.sh");
-            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh");
-            system("sudo chkconfig --add /etc/init.d/jboss-eap-rhel.sh");
+            system("cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf /etc/default");
+            system("cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh /etc/init.d");
+            system("chmod +x /etc/init.d/jboss-eap-rhel.sh");
+            system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh");
+            system("chkconfig --add /etc/init.d/jboss-eap-rhel.sh");
 		}
 	}
 }
@@ -1219,9 +1219,9 @@ sub activate_sso_filters{
 
                 $token =~ s/\s+$//;
 
-                postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
-                postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
-                postCall("sudo $JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+                postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+                postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+                postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
 
                 replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.sso.public.key\" value=\"\"/-->","<property name=\"com.elster.jupiter.sso.public.key\" value=\"$key\"/>");
                 replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.token\" value=\"\"/-->","<property name=\"com.elster.jupiter.token\" value=\"\${VAULT::connexo::elster.jupiter.token::1}\"/>");
@@ -1573,10 +1573,10 @@ sub restart_jboss_service {
           print "\nConnexoJboss$SERVICE_VERSION started!\n";
        } else {
           print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
-          system("sudo service jboss-eap-rhel stop");
+          system("service jboss-eap-rhel stop");
           sleep 15;
           print "Starting service ConnexoJboss$SERVICE_VERSION\n";
-          system("sudo service jboss-eap-rhel start");
+          system("service jboss-eap-rhel start");
           sleep 10;
        }
     }
@@ -1598,9 +1598,9 @@ sub start_jboss_service {
             print "\nConnexoJboss$SERVICE_VERSION started!\n";
         }
         else {
-            system("sudo chkconfig jboss-eap-rhel.sh on");
+            system("chkconfig jboss-eap-rhel.sh on");
             print "\n\nStarting Jboss EAP service using: $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.rhel.sh \n";
-            system("sudo service jboss-eap-rhel start");
+            system("service jboss-eap-rhel start");
             print "... waiting for Jboss EAP to start ...";
             sleep(20);
             print " continuing.\n";
@@ -1736,14 +1736,12 @@ sub uninstall_all {
         system("/sbin/chkconfig --del ConnexoTomcat$SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$SERVICE_VERSION");
 		print "Stop and remove ConnexoJboss$SERVICE_VERSION service";
-        system("sudo service jboss-eap-rhel stop");
+        system("service jboss-eap-rhel stop");
         sleep 3;
         system("userdel -r jboss-eap");
-        system("sudo chkconfig --del jboss-eap-rhel.sh");
-        system("sudo rm /etc/init.d/jboss-eap-rhel.sh");
-        system("sudo rm /etc/default/jboss-eap.conf");
-        #unlink("/etc/init.d/jboss-eap-rhel.sh");
-        #unlink("/etc/default/jboss-eap.conf");
+        system("chkconfig --del jboss-eap-rhel.sh");
+        unlink("/etc/init.d/jboss-eap-rhel.sh");
+        unlink("/etc/default/jboss-eap.conf");
 	}
     #uninstall Apache httpd 2.2 or 2.4
 	print "Remove folders (tomcat)\n";
