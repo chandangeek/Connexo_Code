@@ -126,7 +126,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     /**
      * The meter cover was opened
      */
-    public static final int COVER_OPENED = 24;        // sometimes you have two events for the tamper detection
+    public static final int METER_COVER_OPENED = 24;        // sometimes you have two events for the tamper detection
     /**
      * The terminal cover was opened
      */
@@ -822,6 +822,40 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int COMM_PORT_STATUS_CHANGE = 397;
     public static final int OUTPUT_VALVE_CONTROL = 398;
 
+    public static final int END_OF_NONPERIODIC_BILLING_INTERVAL = 399;
+    public static final int LOADPROFILE_1_CAPTURING_ENABLED = 400;
+    public static final int LOADPROFILE_1_CAPTURING_DISABLED = 401;
+    public static final int LOADPROFILE_2_CAPTURING_ENABLED = 402;
+    public static final int LOADPROFILE_2_CAPTURING_DISABLED = 403;
+    public static final int FOTA_UPGRADING_INITIATED = 404;
+    public static final int FOTA_UPGRADING_FINISH_SUCCESS = 405;
+    public static final int FOTA_UPGRADING_FAILED = 406;
+    public static final int TARIFF_SCHEME_CHANGED = 407;
+    public static final int START_CERTIFICATION_MODE = 408;
+    public static final int END_CERTIFICATION_MODE = 409;
+    public static final int LOAD_MANAGEMENT_PASSIVE_CALENDAR_ACTIVATED = 410;
+    public static final int LOAD_MANAGEMENT_ACTIVITY_CALENDAR_PROGRAMMED = 411;
+    public static final int CONSUMER_MESSAGE_UPDATE = 412;
+    public static final int CONSUMER_INTERFACE_DEACTIVATED = 413;
+    public static final int CONSUMER_INTERFACE_REACTIVATED = 414;
+    public static final int MODEM_REMOVED = 415;
+    public static final int PLC_G3_PSK_CHANGE = 416;
+    public static final int LOAD_RELAY_CHANGE_REQUEST_REMOTE = 417;
+    public static final int REINITIALIZATION_RNG = 418;
+    public static final int LOCAL_INTERFACE_DEACTIVATED = 419;
+    public static final int LOCAL_INTERFACE_REACTIVATED = 420;
+    public static final int CURRENT_REVERSAL = 421;
+    public static final int COMMUNICATION_STARTED_ON_REMOTE_INTERFACE_LAN_WAN = 422;
+    public static final int COMMUNICATION_ENDED_ON_REMOTE_INTERFACE_LAN_WAN = 423;
+    public static final int COMMUNICATION_STARTED_ON_LOCAL_INTERFACE_WZ = 424;
+    public static final int COMMUNICATION_ENDED_ON_LOCAL_INTERFACE_WZ = 425;
+    public static final int PASSIVE_ACTIVITY_CALENDAR_ACTIVATED = 426;
+    public static final int ACTIVITY_CALENDAR_PROGRAMMED = 427;
+    public static final int MODEM_FAILS_RESPONSE = 428;
+    public static final int SIGNAL_QUALITY_RESTORED = 429;
+    public static final int TCP_IP_CONNECTION_ESTABLISHMENT_FAILURE = 430;
+    public static final int ACK_NOT_RECEIVED = 431;
+    public static final int PING_RESPONSE_NOT_RECEIVED = 432;
 
     /**
      * Start of Beacon3100 custom codes
@@ -1158,7 +1192,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return ("Application alert stop.");
             case TAMPER:
                 return ("Tamper detected.");
-            case COVER_OPENED:
+            case METER_COVER_OPENED:
                 return ("Meter cover opened.");
             case TERMINAL_OPENED:
                 return ("Terminal cover opened.");

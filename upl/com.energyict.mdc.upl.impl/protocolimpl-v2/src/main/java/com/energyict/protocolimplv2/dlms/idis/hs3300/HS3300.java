@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300;
 
+import com.energyict.cim.EndDeviceType;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
@@ -68,6 +69,7 @@ import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.hs3300.events.HS3300LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.messages.HS3300Messaging;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.profiles.HS3300LoadProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300ConfigurationSupport;
@@ -97,6 +99,8 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     private static final ObisCode FC_DATA_READOUT = ObisCode.fromString("0.0.43.1.2.255");
     private static final ObisCode FC_PLC_CLIENT   = ObisCode.fromString("0.0.43.1.4.255");
 
+    private static final EndDeviceType typeMeter = EndDeviceType.ELECTRICMETER;
+
     private final TariffCalendarExtractor calendarExtractor;
     private final NlsService nlsService;
     private final Converter converter;
@@ -108,6 +112,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     private HS3300Cache deviceCache;
     private HS3300RegisterFactory registerFactory;
     private HS3300LoadProfileDataReader loadProfileDataReader;
+    private HS3300LogBookFactory logBookFactory;
     private PLCOFDMType2MACSetup plcMACSetup;
     private SixLowPanAdaptationLayerSetup sixLowPanSetup;
     private Array neighbourTable;
@@ -144,7 +149,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-08-26$";
+        return "$Date: 2020-11-24$";
     }
 
     /**
@@ -516,7 +521,14 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-        return null;
+        return getLogBookFactory().getLogBookData(logBooks);
+    }
+
+    private HS3300LogBookFactory getLogBookFactory() {
+        if (this.logBookFactory == null) {
+            this.logBookFactory = new HS3300LogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
+        }
+        return this.logBookFactory;
     }
 
     @Override
@@ -560,7 +572,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     protected HS3300RegisterFactory getRegisterFactory() {
         if (this.registerFactory == null) {
-            this.registerFactory = new HS3300RegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+            this.registerFactory = new HS3300RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
         }
         return registerFactory;
     }
@@ -814,5 +826,9 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     protected CertificateWrapperExtractor getCertificateWrapperExtractor() {
         return certificateWrapperExtractor;
+    }
+
+    public EndDeviceType getTypeMeter() {
+        return typeMeter;
     }
 }

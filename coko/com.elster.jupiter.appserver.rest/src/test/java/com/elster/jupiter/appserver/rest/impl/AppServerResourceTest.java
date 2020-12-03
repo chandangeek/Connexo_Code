@@ -21,6 +21,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceProtocol;
 import com.elster.jupiter.transaction.Transaction;
@@ -412,6 +413,7 @@ public class AppServerResourceTest extends AppServerApplicationTest {
         when(endPointConfiguration.getGroup()).thenReturn(Optional.of(group));
         when(endPointConfiguration.getName()).thenReturn(endpointConfigurationName);
         when(endPointConfiguration.getLogLevel()).thenReturn(LogLevel.CONFIG);
+        when(endPointConfiguration.getPayloadSaveStrategy()).thenReturn(PayloadSaveStrategy.ALWAYS);
         EndPointAuthentication endPointAuthentication = EndPointAuthentication.NONE;
         when(endPointConfiguration.getAuthenticationMethod()).thenReturn(endPointAuthentication);
 

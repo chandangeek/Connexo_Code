@@ -263,7 +263,7 @@ public class EventData extends AbstractActarisObject {
             case 0x0D:
                 return MeterEvent.COMMUNICATION_ERROR_MBUS;
             case 0x0E:
-                return MeterEvent.COVER_OPENED;
+                return MeterEvent.METER_COVER_OPENED;
             case 0x0F:
                 return MeterEvent.STRONG_DC_FIELD_DETECTED;
             case 0x8F:

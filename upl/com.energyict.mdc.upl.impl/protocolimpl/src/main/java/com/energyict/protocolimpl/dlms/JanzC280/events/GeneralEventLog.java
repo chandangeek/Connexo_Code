@@ -49,7 +49,7 @@ public class GeneralEventLog extends AbstractEvent {
                         meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Password Fraud"));
                         break;
                     case 2:
-                        meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.COVER_OPENED, eventId, "Modem lid opened"));
+                        meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.METER_COVER_OPENED, eventId, "Modem lid opened"));
                         break;
                     default:
                         meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Detection of fraud"));

@@ -27,6 +27,7 @@ import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Created by bvn on 8/4/16.
@@ -72,20 +73,29 @@ public class ServiceCallMessageHandlerTest {
     }
 
     @Test
-    public void testExceptionLoggedIfNoHandler() throws Exception {
+    public void testExceptionLoggedIfNoHandler() {
         when(serviceCallType.getServiceCallHandler()).thenThrow(new HandlerDisappearedException(thesaurus, MessageSeeds.HANDLER_DISAPPEARED, "AAA"));
         NlsMessageFormat nlsMessageFormat = mock(NlsMessageFormat.class);
         when(nlsMessageFormat.format(any())).thenAnswer(iom -> "The service call type was created with a handler '" + iom
                 .getArguments()[0] + "' that can no longer be found in the system");
         when(thesaurus.getFormat(MessageSeeds.HANDLER_DISAPPEARED)).thenReturn(nlsMessageFormat);
         when(thesaurus.getSimpleFormat(MessageSeeds.HANDLER_DISAPPEARED)).thenReturn(nlsMessageFormat);
+
+        assertThatThrownBy(() -> serviceCallMessageHandler.process(message))
+                .isInstanceOf(HandlerDisappearedException.class)
+                .hasMessage("The service call type was created with a handler 'AAA' that can no longer be found in the system");
+    }
+
+    @Test
+    public void testRuntimeExceptionLoggedOnServiceCall() {
+        when(serviceCall.getType().getServiceCallHandler()).thenThrow(new RuntimeException("Test Runtime Exception"));
         serviceCallMessageHandler.process(message);
 
         verify(serviceCall).setState(DefaultState.FAILED);
         ArgumentCaptor<String> stringArgumentCaptor = ArgumentCaptor.forClass(String.class);
         ArgumentCaptor<Exception> exceptionArgumentCaptor = ArgumentCaptor.forClass(Exception.class);
         verify(serviceCall).log(stringArgumentCaptor.capture(), exceptionArgumentCaptor.capture());
-        assertThat(stringArgumentCaptor.getValue()).startsWith("Service call handler failed to process the service call: The service call type was created with a handler 'AAA' that can no longer be found in the system");
-        assertThat(exceptionArgumentCaptor.getValue() instanceof HandlerDisappearedException).isTrue();
+        assertThat(stringArgumentCaptor.getValue()).startsWith("Service call handler failed to process the service call: Test Runtime Exception");
+        assertThat(exceptionArgumentCaptor.getValue()).isInstanceOf(RuntimeException.class);
     }
 }

@@ -211,17 +211,16 @@ public class CaServiceImpl implements CaService {
         LOGGER.info("- CertificateProfile: " + certificateProfile);
         userData.setCertificateProfileName(certificateProfile);
 
+        String subjectDN = pkcs10.getSubject().toString();
+        LOGGER.info(" - Subject DN: " + subjectDN);
+        userData.setSubjectDN(subjectDN);
+
+        String userName = getUsernameFromCn(pkcs10.getSubject());
+        LOGGER.info(" - Username: " + userName);
+        userData.setUsername(userName);
+
+
         try {
-            String fullSubjectDN = pkcs10.getSubject().toString();
-            String subjecDNFields = (certificateUserData.isPresent())? certificateUserData.get().getSubjectDNfields(): "";
-            String subjectDN = extractSubjectDN(fullSubjectDN, subjecDNFields);
-            LOGGER.info(" - Subject DN: " + subjectDN);
-            userData.setSubjectDN(subjectDN);
-
-            String userName = getUsernameFromCn(pkcs10.getSubject());
-            LOGGER.info(" - Username: " + userName);
-            userData.setUsername(userName);
-
             String csrEncoded = new String(Base64.getEncoder().encode(pkcs10.getEncoded()));
 
             LOGGER.info("Sending CSR to EJBCA WebService:\n" + BEGIN_CERTIFICATE_REQUEST + csrEncoded + END_CERTIFICATE_REQUEST);
@@ -249,7 +248,7 @@ public class CaServiceImpl implements CaService {
             LOGGER.info("Final certificate:\n"+ BEGIN_CERTIFICATE +certEncoded+ END_CERTIFICATE);
 
         } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception |
-                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException | InvalidNameException e) {
+                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
@@ -361,6 +360,40 @@ public class CaServiceImpl implements CaService {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getLocalizedMessage());
         }
         return result.toString();
+    }
+
+    /** PKI end-entity profile can be configured to block / allow / optional some DN fields.
+     * Usually everybody accepts CN, but can block others, like OU, O, etc.
+     *
+     * This method will send only the ones configured in Connexo, which should match the PKI config.
+     *
+     * @param fullSubjectDN - full subject from CSR, ex CN=4B464D1010006D3B,OU=KFM,O=SZ Kaifa Technology Co.\,Ltd.,C=CN
+     * @param subjecDNFields - list of fields allowed (comma separated)
+     * @return the allowed SubjectDN, ex:  ex CN=4B464D1010006D3B
+     */
+    public String extractSubjectDN(String fullSubjectDN, String subjecDNFields) throws InvalidNameException {
+        if (subjecDNFields == null){
+            return fullSubjectDN;
+        }
+        if (subjecDNFields.trim().isEmpty()){
+            return fullSubjectDN;
+        }
+
+        String[] allowedFields = subjecDNFields.toUpperCase().replace(" ", ",").split(",");
+        Set<String> fieldsSet = new HashSet<>(Arrays.asList(allowedFields));
+
+        ArrayList<String> finalSubjectDN = new ArrayList<String>();
+
+        LdapName ldapName = new LdapName(fullSubjectDN);
+        for(Rdn rdn : ldapName.getRdns()) {
+            if (fieldsSet.contains(rdn.getType().toUpperCase())){
+                finalSubjectDN.add(rdn.toString());
+            }
+        }
+
+        Collections.reverse(finalSubjectDN);
+        return String.join(",", finalSubjectDN);
+
     }
 
     private Optional<X509CRL> getCrl(String caName, boolean isDelta) {
@@ -524,39 +557,5 @@ public class CaServiceImpl implements CaService {
 
     public byte[] getPKCS7(byte[] pkcs7Data) {
         return Base64.getDecoder().decode(pkcs7Data);
-    }
-
-    /** PKI end-entity profile can be configured to block / allow / optional some DN fields.
-     * Usually everybody accepts CN, but can block others, like OU, O, etc.
-     *
-     * This method will send only the ones configured in Connexo, which should match the PKI config.
-     *
-     * @param fullSubjectDN - full subject from CSR, ex CN=4B464D1010006D3B,OU=KFM,O=SZ Kaifa Technology Co.\,Ltd.,C=CN
-     * @param subjecDNFields - list of fields allowed (comma separated)
-     * @return the allowed SubjectDN, ex:  ex CN=4B464D1010006D3B
-     */
-    public String extractSubjectDN(String fullSubjectDN, String subjecDNFields) throws InvalidNameException {
-        if (subjecDNFields == null){
-            return fullSubjectDN;
-        }
-        if (subjecDNFields.trim().isEmpty()){
-            return fullSubjectDN;
-        }
-
-        String[] allowedFields = subjecDNFields.toUpperCase().replace(" ", ",").split(",");
-        Set<String> fieldsSet = new HashSet<>(Arrays.asList(allowedFields));
-
-        ArrayList<String> finalSubjectDN = new ArrayList<String>();
-
-        LdapName ldapName = new LdapName(fullSubjectDN);
-        for(Rdn rdn : ldapName.getRdns()) {
-            if (fieldsSet.contains(rdn.getType().toUpperCase())){
-                finalSubjectDN.add(rdn.toString());
-            }
-        }
-
-        Collections.reverse(finalSubjectDN);
-        return String.join(",", finalSubjectDN);
-
     }
 }

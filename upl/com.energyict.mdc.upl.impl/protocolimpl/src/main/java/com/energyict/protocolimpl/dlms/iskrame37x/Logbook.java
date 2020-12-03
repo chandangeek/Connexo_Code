@@ -155,7 +155,7 @@ public class Logbook {
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.PHASE_C_ON, aloneEventId, "Event status end of L3 phase failure"));
             }
             if (aloneEventId == EVENT_STATUS_METER_COVER_OPENED) {
-                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.COVER_OPENED, aloneEventId, "Event status meter cover opened"));
+                meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.METER_COVER_OPENED, aloneEventId, "Event status meter cover opened"));
             }
             if (aloneEventId == EVENT_STATUS_TERMINAL_COVER_OPENED) {
                 meterEvents.add(new MeterEvent(eventTimeStamp, MeterEvent.TERMINAL_OPENED, aloneEventId,  "Event status meter cover opened"));

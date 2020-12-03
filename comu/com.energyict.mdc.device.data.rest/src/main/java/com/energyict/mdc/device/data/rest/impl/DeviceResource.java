@@ -1103,124 +1103,29 @@ public class DeviceResource {
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device gateway = resourceHelper.findDeviceByNameOrThrowException(name);
+        logger.info("Getting communication references for "+gateway.getName()+" ("+gateway.getSerialNumber()+")");
         TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(gateway);
 
-        Set<Device> allDevices = buildPersonalAreaNetwork(gateway);
-        Set<G3Neighbor> g3Links = buildG3Neighborhood(allDevices);
-        allDevices.remove(gateway);
-        Stream<Device> stream = allDevices.stream();
+        List<G3Neighbor> g3Neighbors = topologyService.getSlaveDevices(gateway, queryParameters.getStart().orElse(0));
 
-        if (queryParameters.getStart().isPresent() && queryParameters.getStart().get() > 0) {
-            stream = stream.skip(queryParameters.getStart().get());
-        }
-        List<DeviceTopologyInfo> topologyList = stream.map(d -> {
-            logger.info("Mapping topology for "+d.getSerialNumber());
+        logger.info("Mapping final topology list");
+        List<DeviceTopologyInfo> topologyList = g3Neighbors
+                .stream()
+                .skip(queryParameters.getStart().orElse(0))
+                .map(g3n -> DeviceTopologyInfo.from(g3n.getDevice(),
+                        timeline.mostRecentlyAddedOn(g3n.getDevice()),
+                        deviceLifeCycleConfigurationService,
+                        Optional.of(g3n),
+                        thesaurus))
+                .collect(Collectors.toList());
 
-            Optional<G3Neighbor> g3n = g3Links.stream().filter(g3Link -> g3Link.getNeighbor().getmRID().equals(d.getmRID())).findFirst();
-            if (g3n.isPresent()){
-                logger.info("\tFound G3 link: "+g3n.get().getDevice().getSerialNumber());
-            } else {
-                logger.warning("\tNo G3 link found :( ");
-            }
+        logger.info("Returning slave devices of "+topologyList.size()+" slave-devices");
 
-            return DeviceTopologyInfo.from(d, timeline.mostRecentlyAddedOn(d), deviceLifeCycleConfigurationService, g3n, thesaurus);
-        }).collect(Collectors.toList());
-        return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
-    }
-
-    /**
-     * Builds a set with all inter-connected devices from a PAN.
-     * The processing starts from the gateway itself, and will iterate through all neighbors,
-     * and then process each neighbor in a pseudo-recursive manner.
-     *
-     * @param gateway
-     * @return
-     */
-    private Set<Device> buildPersonalAreaNetwork(Device gateway) {
-        Set<Device> neighborhood = new HashSet<>();
-        Set<Device> queue = new HashSet<>();
-        logger.info("Building PAN for "+gateway.getSerialNumber());
-        queue.add(gateway);
-        List<Device> firstHandNodes = topologyService.findPhysicalConnectedDevices(gateway);
-        queue.addAll(firstHandNodes);
-
-        while (queue.size() > 0) {
-            Set<Device> processedDevices = new HashSet<>();
-            for(Iterator<Device> i = queue.iterator(); i.hasNext(); )   {
-                Device device = i.next();
-                processedDevices.add(device);
-                neighborhood.add(device);
-                List<Device> neighbors = topologyService.findPhysicalConnectedDevices(device);
-                for (Device neighbor : neighbors) {
-                    if (!neighborhood.contains(neighbor)){
-                        neighborhood.add(neighbor);
-                        queue.add(neighbor);
-                    }
-                }
-            }
-            queue.removeAll(processedDevices);
-        }
-        logger.info("PAN for "+gateway.getSerialNumber()+" contains "+neighborhood.size()+" devices.");
-        return neighborhood;
-    }
-
-    /**
-     * Builds a set with all G3-Neighbor information from a PAN. Those contain specific G3 information related to
-     * modulation, LQI, phase, etc.
-     *
-     * @param allDevices - the PAN
-     * @return
-     */
-    private Set<G3Neighbor> buildG3Neighborhood(Set<Device> allDevices) {
-        Set<G3Neighbor> processedLinks = new HashSet<>();
-        Set<G3Neighbor> neighborhood = new HashSet<>();
-        Set<Device> queue = new HashSet<>();
-
-        queue.addAll(allDevices);
-
-        while (queue.size() > 0) {
-            Set<Device> devicesToDelete = new HashSet<>();
-            Set<Device> devicesToAdd = new HashSet<>();
-
-            for (Device device : queue) {
-                devicesToDelete.add(device);
-
-                logger.info("Finding neighbors for " + device.getSerialNumber());
-                List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);
-                logger.info("\tFound " + neighbors.size() + " neighbors.");
-
-                for (G3Neighbor g3Link : neighbors) {
-                    //prevent double-processing of links (certain nodes can have backlinks)
-                    if (!processedLinks.contains(g3Link)) {
-                        logger.info("\t\tadding link " + g3Link.getDevice().getSerialNumber() + " -> " + g3Link.getNeighbor().getSerialNumber() + " to list.");
-                        neighborhood.add(g3Link);
-                        processedLinks.add(g3Link);
-
-                        //next iteration will search further links originating from this device
-                        devicesToAdd.add(g3Link.getNeighbor());
-                    } else {
-                        logger.info("\t\tlink from " + g3Link.getDevice().getSerialNumber() + " -> " + g3Link.getNeighbor().getSerialNumber() + " is already in the list.");
-                    }
-                }
-            }
-            queue.addAll(devicesToAdd);
-            queue.removeAll(devicesToDelete);
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("Returning a neighborhood of ").append(neighborhood.size()).append(" G3 links");
-        neighborhood.forEach(n -> {
-            sb.append("\n");
-            sb.append("device=").append(n.getDevice().getSerialNumber()).append("\t");
-            sb.append("neighbor=").append(n.getNeighbor().getSerialNumber()).append("\t");
-            sb.append("id=").append(n.getNeighbor().getId()).append("\t");
-            sb.append("shortAddress=").append(n.getShortAddress()).append("\t");
-            sb.append("phase=").append(n.getPhaseInfo()).append("\t");
-            sb.append("lqi=").append(n.getLinkQualityIndicator()).append("\t");
-            sb.append("panId=").append(n.getMacPANId());
+        topologyList.forEach(t -> {
+            logger.info("\t * "+t.serialNumber+" parent="+t.g3NodePLCInfo.parentName+" modulation="+t.g3NodePLCInfo.modulation +" lqi="+t.g3NodePLCInfo.linkQualityIndicator);
         });
-        logger.info(sb.toString());
-        return neighborhood;
+
+        return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
     }
 
     @GET

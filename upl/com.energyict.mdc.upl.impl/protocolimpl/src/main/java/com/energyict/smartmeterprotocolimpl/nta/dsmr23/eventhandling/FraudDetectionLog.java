@@ -52,7 +52,7 @@ public class FraudDetectionLog extends AbstractEvent {
                 }
                 break;
                 case EVENT_METER_COVER_REMOVED: {
-                    meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.COVER_OPENED, eventId, "The meter cover has been removed"));
+                    meterEvents.add(createNewFraudDetectionLogbookEvent(eventTimeStamp, MeterEvent.METER_COVER_OPENED, eventId, "The meter cover has been removed"));
                 }
                 break;
                 case EVENT_METER_COVER_CLOSED: {

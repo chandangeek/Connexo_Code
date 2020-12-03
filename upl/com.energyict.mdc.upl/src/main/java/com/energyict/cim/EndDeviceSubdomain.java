@@ -193,7 +193,9 @@ public enum EndDeviceSubdomain  implements CimMnemonicProvider {
     ELSTER_DEFINED_MIB(312, "Mib"),
     ELSTER_DEFINED_PM1_AFFILATION(313, "Pm1Affiliation"),
     ELSTER_DEFINED_VALVE_PGV(314, "ValvePgv"),
-    ELSTER_DEFINED_PDR(315, "Pdr");
+    ELSTER_DEFINED_PDR(315, "Pdr"),
+    ELSTER_DEFINED_LOAD_PROFILE_1(321, "LoadProfile1"),
+    ELSTER_DEFINED_LOAD_PROFILE_2(322, "LoadProfile2");
 
     private int value;
     private String mnemonic;

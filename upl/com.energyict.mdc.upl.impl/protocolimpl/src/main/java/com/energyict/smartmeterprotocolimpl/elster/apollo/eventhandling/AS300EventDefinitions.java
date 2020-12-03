@@ -7,7 +7,7 @@ import com.energyict.protocol.MeterEvent;
  */
 public enum AS300EventDefinitions {
 
-    MeterCoverRemoved(0, MeterEvent.COVER_OPENED, "Meter cover removed"),
+    MeterCoverRemoved(0, MeterEvent.METER_COVER_OPENED, "Meter cover removed"),
     MeterCoverReplaced(1, MeterEvent.METER_COVER_CLOSED, "Meter cover replaced"),
     StrongMagneticField(2, MeterEvent.STRONG_DC_FIELD_DETECTED, "Strong Magnetic field"),
     StrongMagneticFieldRemoved(3, MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, "No Strong Magnetic field"),

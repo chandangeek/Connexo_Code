@@ -12,6 +12,7 @@ public enum CertificateType {
     DIGITAL_SIGNATURE("DigitalSignature", "dlms-signature-", EnumSet.of(KeyUsage.digitalSignature), EnumSet.noneOf(ExtendedKeyUsage.class)),
     KEY_AGREEMENT("KeyAgreement", "dlms-agreement-", EnumSet.of(KeyUsage.keyAgreement), EnumSet.noneOf(ExtendedKeyUsage.class)),
     TLS("TLS", "dlms-tls-", EnumSet.of(KeyUsage.keyAgreement, KeyUsage.digitalSignature), EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication)),
+    WEBTLS("WEBTLS", "tls-", EnumSet.of(KeyUsage.keyAgreement, KeyUsage.digitalSignature), EnumSet.of(ExtendedKeyUsage.tlsWebClientAuthentication, ExtendedKeyUsage.tlsWebServerAuthentication)),
     OTHER("Other", "", EnumSet.noneOf(KeyUsage.class), EnumSet.noneOf(ExtendedKeyUsage.class));
 
     private String name;

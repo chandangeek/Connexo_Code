@@ -1,7 +1,16 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
@@ -19,15 +28,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.G3NetworkManagement;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.ConnectionSetupException;
@@ -35,15 +35,13 @@ import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.RtuPlusServer;
-import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Copyrights EnergyICT
@@ -54,9 +52,9 @@ import java.util.stream.Collectors;
 public class G3GatewayPSKProvider {
 
     private final DeviceIdentifier deviceIdentifier;
-    protected ComChannel tcpComChannel;
+    private ComChannel tcpComChannel;
 
-    private Set<String> joiningMacAddresses = Collections.synchronizedSet(new HashSet<>());
+    private Set<String> joiningMacAddresses = ConcurrentHashMap.newKeySet();
     protected DeviceProtocol gatewayProtocol = null;
     private List<CollectedData> collectedData = new ArrayList<>();
 
@@ -72,15 +70,14 @@ public class G3GatewayPSKProvider {
      * Add a mac address to the list of joining mac addresses.
      * This is done when receiving an inbound 'join attempt' notification from the beacon for a certain AM540 node.
      */
-    public synchronized void addJoiningMacAddress(String macAddress) {
+    public void addJoiningMacAddress(String macAddress) {
         joiningMacAddresses.add(macAddress);
     }
 
     /**
-     * This method is synchronized, so that only 1 thread at a time can call it.
-     * The other threads that want to call this method (on the same instance of this class) will automatically wait.
+     * This method is not synchronized as per COMMUNICATION-3610
      */
-    public synchronized void providePSK(String macAddress, DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
+    public void providePSK(String macAddress, DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
 
         if (!joiningMacAddresses.contains(macAddress)) {
             //Another thread already provided the PSK for this MAC address, cool! Let's move on.
@@ -101,14 +98,17 @@ public class G3GatewayPSKProvider {
             if (joiningMacAddresses.isEmpty()) {
                 context.getLogger().info(() -> "Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.");
             } else {
-                context.getLogger().info(() -> "Unable to provide PSKs for following joining nodes: " + joiningMacAddresses.stream().collect(Collectors.joining(", ")) + " the association will be released.");
+                context.getLogger().info(() -> "Unable to provide PSKs for following joining nodes: " + String.join(", ", joiningMacAddresses) + " the association will be released.");
             }
             closeConnection();
         }
 
     }
 
-    private void closeConnection() {
+    /**
+     * Synchronized method to prevent race conditions and NullPointerExceptions on tcpComChannel and gatewayProtocol
+     */
+    private synchronized void closeConnection() {
         try {
             //Our job is done here (for now), release the association and close the TCP connection
             if (tcpComChannel != null && gatewayProtocol != null) {
@@ -156,7 +156,7 @@ public class G3GatewayPSKProvider {
                 this.tcpComChannel.close();
             }
         } finally {
-            //do nothing as we should have another finally clause in upper layer, where we should collect the new farem counter
+            //do nothing as we should have another finally clause in upper layer, where we should collect the new frame counter
         }
     }
 
@@ -248,7 +248,7 @@ public class G3GatewayPSKProvider {
      * Read out attribute 'joining_slaves' of object G3NetworkManagement. It is the list of slaves that are joining and need a PSK.
      * Find their PSK properties in EIServer and provide them to the Rtu+Server.
      */
-    protected void providePSK(DeviceProtocol gatewayProtocol, InboundDiscoveryContext context) {
+    private void providePSK(DeviceProtocol gatewayProtocol, InboundDiscoveryContext context) {
         DlmsSession dlmsSession = getDlmsSession(gatewayProtocol);
         G3NetworkManagement g3NetworkManagement;
         try {
@@ -339,6 +339,21 @@ public class G3GatewayPSKProvider {
 
     public List<CollectedData> getCollectedDataList() {
         return collectedData;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        G3GatewayPSKProvider that = (G3GatewayPSKProvider) o;
+        return deviceIdentifier.equals(that.deviceIdentifier) &&
+                joiningMacAddresses.equals(that.joiningMacAddresses) &&
+                collectedData.equals(that.collectedData);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(deviceIdentifier, joiningMacAddresses, collectedData);
     }
 
 }
