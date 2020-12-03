@@ -120,6 +120,10 @@ Ext.define('Wss.view.webservice.HistoryForm', {
             {
                 name: 'status',
                 fieldLabel: Uni.I18n.translate('general.status', 'WSS', 'Status')
+            },
+            {
+                name: 'appServerName',
+                fieldLabel: Uni.I18n.translate('general.appServerName', 'WSS', 'Application server')
             }
         ];
 

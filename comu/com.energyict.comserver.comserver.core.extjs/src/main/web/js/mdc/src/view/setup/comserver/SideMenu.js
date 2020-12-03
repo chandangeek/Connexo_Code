@@ -10,16 +10,21 @@ Ext.define('Mdc.view.setup.comserver.SideMenu', {
     initComponent: function () {
         var me = this,
             serverId = me.serverId;
+        var offlineServer = location.hash &&location.hash.indexOf("offline") >=0;
+        me.objectType = offlineServer
+            ? Uni.I18n.translate('general.mobileComServer', 'MDC', 'Mobile communication server')
+            : Uni.I18n.translate('general.comServer', 'MDC', 'Communication server');
+        var routePart = offlineServer ? "offlinecomservers" : "comservers";
         me.menuItems = [
             {
                 text: Uni.I18n.translate('comserver.sidemenu.details', 'MDC', 'Details'),
                 itemId: 'comserverLink',
-                href: '#/administration/comservers/' + serverId
+                href: '#/administration/'+ routePart + '/' + serverId
             },
             {
                 text: Uni.I18n.translate('comserver.sidemenu.comports', 'MDC', 'Communication ports'),
                 itemId: 'commportsLink',
-                href: '#/administration/comservers/' + serverId + '/comports'
+                href: '#/administration/'+ routePart + '/' + serverId + '/comports'
             }
         ];
         me.callParent(arguments);

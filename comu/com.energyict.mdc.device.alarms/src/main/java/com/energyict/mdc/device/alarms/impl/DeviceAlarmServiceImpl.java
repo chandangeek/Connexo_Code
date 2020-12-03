@@ -62,7 +62,7 @@ import com.energyict.mdc.device.alarms.impl.database.TableSpecs;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_4_12;
 import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_7;
-import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_9;
+import com.energyict.mdc.device.alarms.impl.database.UpgraderV10_8_7;
 import com.energyict.mdc.device.alarms.impl.database.groups.DeviceAlarmGroupOperation;
 import com.energyict.mdc.device.alarms.impl.i18n.MessageSeeds;
 import com.energyict.mdc.device.alarms.impl.i18n.TranslationKeys;
@@ -207,8 +207,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         });
 
         setBundleContext(bundleContext);
-
-        BasicDeviceAlarmRuleTemplate basicDeviceAlarmRuleTemplate = new BasicDeviceAlarmRuleTemplate(this, nlsService, issueService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, timeService, meteringGroupsService, meteringTranslationService);
+        BasicDeviceAlarmRuleTemplate basicDeviceAlarmRuleTemplate = dataModel.getInstance(BasicDeviceAlarmRuleTemplate.class);
         registrations.add(bundleContext.registerService(CreationRuleTemplate.class, basicDeviceAlarmRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDeviceAlarmRuleTemplate.NAME))));
         registrations.add(bundleContext.registerService(BasicDeviceAlarmRuleTemplate.class, basicDeviceAlarmRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDeviceAlarmRuleTemplate.NAME))));
 
@@ -216,7 +215,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 version(10, 4), UpgraderV10_4.class,
                 version(10, 4, 12), UpgraderV10_4_12.class,
                 version(10, 7), UpgraderV10_7.class,
-                version(10, 9), UpgraderV10_9.class
+                version(10, 8, 7), UpgraderV10_8_7.class
         ));
     }
 

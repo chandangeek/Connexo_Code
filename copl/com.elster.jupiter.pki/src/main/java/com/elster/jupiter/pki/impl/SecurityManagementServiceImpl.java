@@ -26,6 +26,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.AliasParameterFilter;
+import com.elster.jupiter.pki.AssociatedDeviceType;
 import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
@@ -128,7 +129,7 @@ import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Component(name = "PkiService",
-        service = {SecurityManagementService.class, TranslationKeyProvider.class, MessageSeedProvider.class, UserDirectorySecurityProvider.class},
+        service = {SecurityManagementService.class, SecurityManagementServiceImpl.class, TranslationKeyProvider.class, MessageSeedProvider.class, UserDirectorySecurityProvider.class},
         property = "name=" + SecurityManagementService.COMPONENTNAME,
         immediate = true)
 public class SecurityManagementServiceImpl implements SecurityManagementService, TranslationKeyProvider, MessageSeedProvider, UserDirectorySecurityProvider {
@@ -363,6 +364,7 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(SecurityManagementService.class).toInstance(SecurityManagementServiceImpl.this);
+                bind(SecurityManagementServiceImpl.class).toInstance(SecurityManagementServiceImpl.this);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(EventService.class).toInstance(eventService);
                 bind(UserService.class).toInstance(userService);
@@ -1146,6 +1148,24 @@ public class SecurityManagementServiceImpl implements SecurityManagementService,
         List<String> names = new ArrayList<>();
         certificateUsagesFinders.forEach(finder -> names.addAll(finder.findAssociatedDevicesNames(certificateWrapper)));
         return names;
+    }
+
+    public boolean isCertificateAssociatedWithDeviceType(CertificateWrapper certificateWrapper, AssociatedDeviceType deviceType) {
+        for (CertificateUsagesFinder finder : certificateUsagesFinders) {
+            if (finder.getAssociatedDeviceType(certificateWrapper).equals(deviceType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean isCertificateRelatedToType(CertificateWrapper certificateWrapper, String prefix) {
+        for (CertificateUsagesFinder finder : certificateUsagesFinders) {
+            if (finder.isCertificateRelatedToType(certificateWrapper, prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private class ClientCertificateTypeBuilderImpl implements ClientCertificateTypeBuilder {

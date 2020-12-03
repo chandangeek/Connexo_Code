@@ -198,15 +198,21 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         }
     },
 
+    getStartRoute : function(){
+        var router = this.getController('Uni.controller.history.Router');
+        var offlineServer = router.currentRoute.indexOf("offline") >=0;
+        var routePart = offlineServer ? "offlinecomservers" : "comservers";
+        return 'administration/'+ routePart ;
+    },
+
     addComPortToComServer: function (menu, item) {
         var router = this.getController('Uni.controller.history.Router');
-
         switch (item.action) {
             case 'addInbound':
-                router.getRoute('administration/comservers/detail/comports/addInbound').forward();
+                router.getRoute(this.getStartRoute() + '/detail/comports/addInbound').forward();
                 break;
             case 'addOutbound':
-                router.getRoute('administration/comservers/detail/comports/addOutbound').forward();
+                router.getRoute(this.getStartRoute() + '/detail/comports/addOutbound').forward();
                 break;
         }
     },
@@ -274,7 +280,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
     showEdit: function (record) {
         var router = this.getController('Uni.controller.history.Router'),
             id = record.getId();
-        router.getRoute('administration/comservers/detail/comports/edit').forward({id: id});
+        router.getRoute(this.getStartRoute() + '/detail/comports/edit').forward({id: id});
     },
 
     editComPortOnComServer: function (record) {
@@ -284,7 +290,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
         // todo: do not set route params
         router.arguments['comPortId'] = id;
         router.arguments['direction'] = this.getDirection(record).toLowerCase();
-        router.getRoute('administration/comservers/detail/comports/edit').forward(router.arguments);
+        router.getRoute(this.getStartRoute() + '/detail/comports/edit').forward(router.arguments);
     },
 
     lowerFirstLetter: function (string) {

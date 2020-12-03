@@ -51,8 +51,9 @@ class CSRZipFileParser {
         while (entries.hasMoreElements()){
             ZipEntry zipEntry = entries.nextElement();
             InputStream entryStream = zipFile.getInputStream(zipEntry);
-
             processEntry(zipEntry, entryStream);
+            //No resource leak --- Closing this ZIP file will, in turn, close all input
+            //     * streams that have been returned by invocations of this method.
         }
 
         logger.info("Done processing zip file: "+zipFileName);

@@ -5,10 +5,8 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ExtendedRegister;
-import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.attributes.GPRSStandardStatusAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
@@ -23,6 +21,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.a2.A2;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
@@ -176,6 +175,10 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                     Quantity quantity = new Quantity(valueAttr.toBigDecimal(), register.getScalerUnit().getEisUnit());
                     registerValue = new RegisterValue(obisCode, quantity, register.getCaptureTime());
                 }
+            } else if (uo.getClassID() == DLMSClassId.GSM_STANDARD_STATUS.getClassId()) {
+                GPRSStandardStatus gprsStatus = protocol.getDlmsSession().getCosemObjectFactory().getGPRSStandardStatus(obisCode);
+                int strength = gprsStatus.readSignalStrength().getInteger16().intValue();
+                registerValue = new RegisterValue(obisCode, new Quantity(strength, Unit.get("")));
             } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             }

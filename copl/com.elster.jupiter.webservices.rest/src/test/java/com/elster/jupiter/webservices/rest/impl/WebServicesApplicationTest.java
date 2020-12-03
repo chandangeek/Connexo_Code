@@ -17,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.WebServicesDataModelServiceImpl;
@@ -108,6 +109,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         Finder logFinder = mockFinder(Collections.emptyList());
         when(mock.getLogs()).thenReturn(logFinder);
         when(mock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.NONE);
+        when(mock.getPayloadSaveStrategy()).thenReturn(PayloadSaveStrategy.ALWAYS);
         when(mock.isActive()).thenReturn(true);
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);
@@ -135,6 +137,7 @@ public class WebServicesApplicationTest extends FelixRestApplicationJerseyTest {
         Finder logFinder = mockFinder(Collections.emptyList());
         when(mock.getLogs()).thenReturn(logFinder);
         when(mock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.NONE);
+        when(mock.getPayloadSaveStrategy()).thenReturn(PayloadSaveStrategy.ALWAYS);
         when(mock.isActive()).thenReturn(true);
         when(mock.isHttpCompression()).thenReturn(true);
         when(mock.isSchemaValidation()).thenReturn(true);

@@ -86,7 +86,7 @@ public class UmiEvent
                 msg = "Battery (" + msg + ")";
                 break;
             case 10:
-                eisEvent = MeterEvent.COVER_OPENED;
+                eisEvent = MeterEvent.METER_COVER_OPENED;
                 msg = "Case opened";
                 break;
             case 11:

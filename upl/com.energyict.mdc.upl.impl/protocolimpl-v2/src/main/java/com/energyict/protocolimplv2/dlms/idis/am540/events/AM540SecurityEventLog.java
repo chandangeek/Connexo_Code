@@ -84,7 +84,7 @@ public class AM540SecurityEventLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, eventId, "No strong DC field anymore"));
                 break;
             case 44:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.COVER_OPENED, eventId, "Meter cover removed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.METER_COVER_OPENED, eventId, "Meter cover removed"));
                 break;
             case 45:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.METER_COVER_CLOSED, eventId, "Meter cover closed"));

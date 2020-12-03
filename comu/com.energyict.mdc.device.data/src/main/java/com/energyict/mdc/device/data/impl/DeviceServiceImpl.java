@@ -340,6 +340,13 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
+    public Optional<SecurityAccessor<SecurityValueWrapper>> findAndLockSecurityAccessorById(Device device, SecurityAccessorType securityAccessorType) {
+        return Optional.ofNullable((SecurityAccessor<SecurityValueWrapper>) deviceDataModelService.dataModel()
+                .mapper(SecurityAccessor.class)
+                .lock(device.getId(), securityAccessorType.getId()));
+    }
+
+    @Override
     public Optional<SecurityAccessor<SecurityValueWrapper>> findAndLockKeyAccessorByIdAndVersion(Device device, SecurityAccessorType securityAccessorType, long version) {
         return deviceDataModelService.dataModel()
                 .mapper(SecurityAccessor.class)

@@ -47,6 +47,7 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
+import com.energyict.mdc.engine.impl.OfflineDeviceForComTaskGroup;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutionToken;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
@@ -138,6 +139,7 @@ public class MultiThreadedScheduledComPortTest {
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 3;
     private static final int NUMBER_OF_TASKS = NUMBER_OF_SIMULTANEOUS_CONNECTIONS * 2;
     private static final long DEVICE_ID = 1;
+    private static final String DEVICE_MRID = "deviceMrid";
     private static final long COM_PORT_POOL_ID = 2;
     private static final long PROTOCOL_DIALECT_PROPERTIES = 651;
     private static final long SIMULTANEOUS_CONNECTION_TASK_ID_1 = 4456;
@@ -269,6 +271,8 @@ public class MultiThreadedScheduledComPortTest {
     private TimeOfUseCampaign timeOfUseCampaign;
     @Mock
     private FirmwareCampaign firmwareCampaign;
+    @Mock
+    private DeviceIdentifier deviceIdentifier;
 
     private Clock clock = Clock.systemUTC();
     private ComPortRelatedComChannel comChannel;
@@ -351,6 +355,7 @@ public class MultiThreadedScheduledComPortTest {
         when(this.device.getDeviceProtocolPluggableClass()).thenReturn(Optional.of(deviceProtocolPluggableClass));
         when(this.device.getProtocolDialectProperties(anyString())).thenReturn(Optional.<ProtocolDialectProperties>empty());
         when(this.device.getId()).thenReturn(DEVICE_ID);
+        when(this.device.getmRID()).thenReturn(DEVICE_MRID);
         when(this.deviceCommandExecutor.getLogLevel()).thenReturn(ComServer.LogLevel.ERROR);
         when(this.device.getDeviceProtocolProperties()).thenReturn(TypedProperties.empty());
         when(comTask.getId()).thenAnswer(new Answer<Long>() {
@@ -377,6 +382,7 @@ public class MultiThreadedScheduledComPortTest {
 
         when(this.offlineDevice.getDeviceProtocolPluggableClass()).thenReturn(this.deviceProtocolPluggableClass);
         when(this.offlineDevice.getId()).thenReturn(DEVICE_ID);
+        when(this.offlineDevice.getmRID()).thenReturn(DEVICE_MRID);
         when(this.offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
 
 
@@ -421,6 +427,7 @@ public class MultiThreadedScheduledComPortTest {
         when(this.serialConnectionTask3.getComPortPool()).thenReturn(this.comPortPool);
         when(this.serialConnectionTask3.getConnectionStrategy()).thenReturn(ConnectionStrategy.MINIMIZE_CONNECTIONS);
         when(this.serialConnectionTask3.getProtocolDialectConfigurationProperties()).thenReturn(this.protocolDialectConfigurationProperties);
+        when(identificationService.createDeviceIdentifierForAlreadyKnownDevice(DEVICE_ID, DEVICE_MRID)).thenReturn(deviceIdentifier);
     }
 
     @Before
@@ -458,6 +465,7 @@ public class MultiThreadedScheduledComPortTest {
     private ComServerDAO getMockedComServerDAO() {
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
         when(comServerDAO.getComServerUser()).thenReturn(user);
+        when(comServerDAO.findOfflineDevice(eq(deviceIdentifier), any(OfflineDeviceForComTaskGroup.class))).thenReturn(Optional.of(offlineDevice));
         return comServerDAO;
     }
 

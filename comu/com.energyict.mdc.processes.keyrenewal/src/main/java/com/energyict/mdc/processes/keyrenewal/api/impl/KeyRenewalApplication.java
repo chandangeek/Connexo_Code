@@ -21,6 +21,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
+import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -31,6 +32,7 @@ import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.processes.keyrenewal.api.Installer;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
+import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.OperationHandler;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -170,6 +172,11 @@ public class KeyRenewalApplication extends Application implements TranslationKey
     @Reference
     public void setCaService(CaService caService) {
         this.caService = caService;
+    }
+
+    @Reference(target = "(name=" + OperationHandler.HANDLER_NAME + ")")
+    public void setKeyRenewalServiceCallHandler(ServiceCallHandler serviceCallHandler) {
+        // for a proper startup
     }
 
     @Activate

@@ -1288,8 +1288,8 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(7);
         assertThat(model.<List>get("$.slaveDevices")).hasSize(7);
-        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave4");
-        assertThat(model.<String>get("$.slaveDevices[6].name")).isEqualTo("slave6");
+        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave1");
+        assertThat(model.<String>get("$.slaveDevices[6].name")).isEqualTo("slave4");
     }
 
     @Test
@@ -1303,7 +1303,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         JsonModel model = JsonModel.create(response);
         assertThat(model.<Integer>get("$.total")).isEqualTo(6); // 3 (start) + 2 (limit) + 1 (for FE)
         assertThat(model.<List>get("$.slaveDevices")).hasSize(limit);
-        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave6");
+        assertThat(model.<String>get("$.slaveDevices[0].name")).isEqualTo("slave3");
         assertThat(model.<String>get("$.slaveDevices[1].name")).isEqualTo("slave5");
     }
 

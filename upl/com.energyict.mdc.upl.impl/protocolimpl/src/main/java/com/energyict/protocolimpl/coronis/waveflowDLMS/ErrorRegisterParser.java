@@ -34,7 +34,7 @@ public class ErrorRegisterParser {
         errorRegister1Events.put(0x02000000, new MeterEventInfo(MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.EXTERNAL_BATTERY_EMPTY, "External battery empty [F.F.1] [02000000]"));
         errorRegister1Events.put(0x01000000, new MeterEventInfo(MeterEvent.BATTERY_VOLTAGE_LOW, EventStatusAndDescription.INTERNAL_BATTERY_EMPTY, "Internal battery empty [F.F.1] [01000000]"));
         errorRegister1Events.put(0x00100000, new MeterEventInfo(MeterEvent.STRONG_DC_FIELD_DETECTED, EventStatusAndDescription.MAGNETIC_FIELD_DETECTION, "Magnetic field detection [F.F.1] [00100000]"));
-        errorRegister1Events.put(0x00020000, new MeterEventInfo(MeterEvent.COVER_OPENED, EventStatusAndDescription.MAIN_COVER_REMOVAL, "Main cover removal detection [F.F.1] [00020000]"));
+        errorRegister1Events.put(0x00020000, new MeterEventInfo(MeterEvent.METER_COVER_OPENED, EventStatusAndDescription.MAIN_COVER_REMOVAL, "Main cover removal detection [F.F.1] [00020000]"));
         errorRegister1Events.put(0x00010000, new MeterEventInfo(MeterEvent.TERMINAL_OPENED, EventStatusAndDescription.TERMINAL_COVER_REMOVAL, "Terminal cover removal detection [F.F.1] [00010000]"));
         errorRegister1Events.put(0x00001000, new MeterEventInfo(MeterEvent.OTHER, EventStatusAndDescription.CHECKSUM_ERROR, "Non fatal checksum error of setting class [F.F.1] [00001000]"));
         errorRegister1Events.put(0x00000010, new MeterEventInfo(MeterEvent.OTHER, EventStatusAndDescription.UI_LAODPROFILE_INIT_ERROR, "UI load profile initialization error [F.F.1] [00000010]"));

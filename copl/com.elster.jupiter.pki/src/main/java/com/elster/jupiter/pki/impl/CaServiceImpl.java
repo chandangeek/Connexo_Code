@@ -48,11 +48,13 @@ import javax.inject.Inject;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
+import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import javax.xml.namespace.QName;
+import javax.xml.ws.BindingProvider;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -209,17 +211,16 @@ public class CaServiceImpl implements CaService {
         LOGGER.info("- CertificateProfile: " + certificateProfile);
         userData.setCertificateProfileName(certificateProfile);
 
+        String subjectDN = pkcs10.getSubject().toString();
+        LOGGER.info(" - Subject DN: " + subjectDN);
+        userData.setSubjectDN(subjectDN);
+
+        String userName = getUsernameFromCn(pkcs10.getSubject());
+        LOGGER.info(" - Username: " + userName);
+        userData.setUsername(userName);
+
+
         try {
-            String fullSubjectDN = pkcs10.getSubject().toString();
-            String subjecDNFields = (certificateUserData.isPresent())? certificateUserData.get().getSubjectDNfields(): "";
-            String subjectDN = extractSubjectDN(fullSubjectDN, subjecDNFields);
-            LOGGER.info(" - Subject DN: " + subjectDN);
-            userData.setSubjectDN(subjectDN);
-
-            String userName = getUsernameFromCn(pkcs10.getSubject());
-            LOGGER.info(" - Username: " + userName);
-            userData.setUsername(userName);
-
             String csrEncoded = new String(Base64.getEncoder().encode(pkcs10.getEncoded()));
 
             LOGGER.info("Sending CSR to EJBCA WebService:\n" + BEGIN_CERTIFICATE_REQUEST + csrEncoded + END_CERTIFICATE_REQUEST);
@@ -247,7 +248,7 @@ public class CaServiceImpl implements CaService {
             LOGGER.info("Final certificate:\n"+ BEGIN_CERTIFICATE +certEncoded+ END_CERTIFICATE);
 
         } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception |
-                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException | InvalidNameException e) {
+                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
@@ -361,6 +362,40 @@ public class CaServiceImpl implements CaService {
         return result.toString();
     }
 
+    /** PKI end-entity profile can be configured to block / allow / optional some DN fields.
+     * Usually everybody accepts CN, but can block others, like OU, O, etc.
+     *
+     * This method will send only the ones configured in Connexo, which should match the PKI config.
+     *
+     * @param fullSubjectDN - full subject from CSR, ex CN=4B464D1010006D3B,OU=KFM,O=SZ Kaifa Technology Co.\,Ltd.,C=CN
+     * @param subjecDNFields - list of fields allowed (comma separated)
+     * @return the allowed SubjectDN, ex:  ex CN=4B464D1010006D3B
+     */
+    public String extractSubjectDN(String fullSubjectDN, String subjecDNFields) throws InvalidNameException {
+        if (subjecDNFields == null){
+            return fullSubjectDN;
+        }
+        if (subjecDNFields.trim().isEmpty()){
+            return fullSubjectDN;
+        }
+
+        String[] allowedFields = subjecDNFields.toUpperCase().replace(" ", ",").split(",");
+        Set<String> fieldsSet = new HashSet<>(Arrays.asList(allowedFields));
+
+        ArrayList<String> finalSubjectDN = new ArrayList<String>();
+
+        LdapName ldapName = new LdapName(fullSubjectDN);
+        for(Rdn rdn : ldapName.getRdns()) {
+            if (fieldsSet.contains(rdn.getType().toUpperCase())){
+                finalSubjectDN.add(rdn.toString());
+            }
+        }
+
+        Collections.reverse(finalSubjectDN);
+        return String.join(",", finalSubjectDN);
+
+    }
+
     private Optional<X509CRL> getCrl(String caName, boolean isDelta) {
         byte[] crlBytes;
         try {
@@ -386,7 +421,7 @@ public class CaServiceImpl implements CaService {
      * Management CA self-signed certificate should be in CXO truststore.
      * Superadmin client certificate and private key should be in CXO keystore (importSuperAdmin).
      * */
-    private void setNewDefaultSSLSocketFactory() {
+    private SSLContext getSSLContext() {
         TrustStore requiredTrustStore = securityManagementService
                 .getAllTrustStores()
                 .stream()
@@ -464,9 +499,7 @@ public class CaServiceImpl implements CaService {
             tmf.init(trustStore);
             SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
             sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
-            SSLContext.setDefault(sslContext);
-            HttpsURLConnection.setDefaultHostnameVerifier((hostname, session) -> hostname.equals(pkiHost));
-            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            return sslContext;
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException | InvalidKeyException e) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
@@ -474,16 +507,34 @@ public class CaServiceImpl implements CaService {
 
     private EjbcaWS createWSBackend() {
         EjbcaWSService service;
-        setNewDefaultSSLSocketFactory();
+        SSLContext sslContext = getSSLContext();
         QName Q_NAME = new QName("http://ws.protocol.core.ejbca.org/", "EjbcaWSService");
         String WSDL_LOCATION = "https://" + pkiHost.trim() + ':' + pkiPort + "/ejbca/ejbcaws/ejbcaws?wsdl";
+        HostnameVerifier defaultVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
         try {
+            HostnameVerifier verifier = (hostname, session) -> hostname.equals(pkiHost);
+            HttpsURLConnection.setDefaultHostnameVerifier(verifier);
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
             service = new EjbcaWSService(new URL(WSDL_LOCATION), Q_NAME);
+            EjbcaWS ejbcaWSport = service.getEjbcaWSPort();
+            // make ejbcaWSport to use own hostname verifier and SSL socket factory
+            BindingProvider bindingProvider = (BindingProvider) ejbcaWSport;
+            bindingProvider.getRequestContext().put("com.sun.xml.internal.ws.transport.https.client.hostname.verifier", verifier);
+            bindingProvider.getRequestContext().put("com.sun.xml.internal.ws.transport.https.client.SSLSocketFactory", sslContext.getSocketFactory());
+            return ejbcaWSport;
         } catch (MalformedURLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+        } finally {
+            try {
+                // reset to default hostname verifier and SSL socket factory
+                HttpsURLConnection.setDefaultHostnameVerifier(defaultVerifier);
+                HttpsURLConnection.setDefaultSSLSocketFactory(SSLContext.getDefault().getSocketFactory());
+            } catch (NoSuchAlgorithmException ex) {
+                LOGGER.log(Level.SEVERE, ex.getMessage(), ex);
+                throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, ex.getLocalizedMessage());
+            }
         }
-        return service.getEjbcaWSPort();
     }
 
     private void lazyInit() {
@@ -506,39 +557,5 @@ public class CaServiceImpl implements CaService {
 
     public byte[] getPKCS7(byte[] pkcs7Data) {
         return Base64.getDecoder().decode(pkcs7Data);
-    }
-
-    /** PKI end-entity profile can be configured to block / allow / optional some DN fields.
-     * Usually everybody accepts CN, but can block others, like OU, O, etc.
-     *
-     * This method will send only the ones configured in Connexo, which should match the PKI config.
-     *
-     * @param fullSubjectDN - full subject from CSR, ex CN=4B464D1010006D3B,OU=KFM,O=SZ Kaifa Technology Co.\,Ltd.,C=CN
-     * @param subjecDNFields - list of fields allowed (comma separated)
-     * @return the allowed SubjectDN, ex:  ex CN=4B464D1010006D3B
-     */
-    public String extractSubjectDN(String fullSubjectDN, String subjecDNFields) throws InvalidNameException {
-        if (subjecDNFields == null){
-            return fullSubjectDN;
-        }
-        if (subjecDNFields.trim().isEmpty()){
-            return fullSubjectDN;
-        }
-
-        String[] allowedFields = subjecDNFields.toUpperCase().replace(" ", ",").split(",");
-        Set<String> fieldsSet = new HashSet<>(Arrays.asList(allowedFields));
-
-        ArrayList<String> finalSubjectDN = new ArrayList<String>();
-
-        LdapName ldapName = new LdapName(fullSubjectDN);
-        for(Rdn rdn : ldapName.getRdns()) {
-            if (fieldsSet.contains(rdn.getType().toUpperCase())){
-                finalSubjectDN.add(rdn.toString());
-            }
-        }
-
-        Collections.reverse(finalSubjectDN);
-        return String.join(",", finalSubjectDN);
-
     }
 }

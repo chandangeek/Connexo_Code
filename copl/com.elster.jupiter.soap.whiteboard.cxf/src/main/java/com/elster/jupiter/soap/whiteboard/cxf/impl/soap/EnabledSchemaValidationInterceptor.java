@@ -25,9 +25,12 @@ public class EnabledSchemaValidationInterceptor extends AbstractPhaseInterceptor
 
     @Override
     public void handleFault(Message message) {
-        Fault fault = (Fault) message.getContent(Exception.class);
-        if (isNotSchemaCompliantXml(fault.getCause(), fault.getMessage())) {
-            fault.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+        Exception content = message.getContent(Exception.class);
+        if(Objects.nonNull(content)) {
+            Fault fault = (Fault) content;
+            if (isNotSchemaCompliantXml(fault.getCause(), fault.getMessage())) {
+                fault.setStatusCode(HttpServletResponse.SC_BAD_REQUEST);
+            }
         }
     }
 

@@ -6,6 +6,7 @@ Ext.define('Wss.model.Endpoint', {
     extend: 'Uni.model.Version',
     requires: [
         'Wss.model.LogLevel',
+        'Wss.model.PayloadSaveStrategy',
         'Wss.model.AuthenticationMethod',
         'Wss.model.Role',
         'Uni.property.model.Property'
@@ -19,6 +20,7 @@ Ext.define('Wss.model.Endpoint', {
         {name: 'url', type: 'string'},
         {name: 'previewUrl', type: 'string'},
         {name: 'logLevel', type: 'auto'},
+        {name: 'payloadStrategy', type: 'auto'},
         {name: 'tracing', type: 'boolean'},
         {name: 'traceFile', type: 'string'},
         {name: 'httpCompression', type: 'boolean'},
@@ -42,6 +44,13 @@ Ext.define('Wss.model.Endpoint', {
             name: 'logLevel',
             getterName: 'getLogLevel',
             setterName: 'setLogLevel'
+        },
+        {
+            model: 'Wss.model.PayloadSaveStrategy',
+            associationKey: 'payloadStrategy',
+            name: 'payloadStrategy',
+            getterName: 'getPayloadStrategy',
+            setterName: 'setPayloadStrategy'
         },
         {
             model: 'Wss.model.AuthenticationMethod',

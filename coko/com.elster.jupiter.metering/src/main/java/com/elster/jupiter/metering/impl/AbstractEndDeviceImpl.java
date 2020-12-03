@@ -353,7 +353,10 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
         if (filter == null) {
             return Collections.emptyList();
         }
-        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(filterToCondition(filter), Order.descending("createdDateTime"));
+        if (from == null || to == null) {
+            return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(filterToCondition(filter), Order.descending("createdDateTime"));
+        }
+        return dataModel.query(EndDeviceEventRecord.class, EndDeviceEventType.class).select(filterToCondition(filter), new Order[]{Order.descending("createdDateTime")}, true, new String[0], from, to);
     }
 
     private Condition filterToCondition(EndDeviceEventRecordFilterSpecification filter) {

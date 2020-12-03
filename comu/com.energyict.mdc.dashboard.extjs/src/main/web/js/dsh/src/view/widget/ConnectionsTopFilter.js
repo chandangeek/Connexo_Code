@@ -16,7 +16,8 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
         'Dsh.store.filter.LatestResult',
         'Dsh.store.filter.CommPortPool',
         'Dsh.store.filter.ConnectionType',
-        'Dsh.store.filter.DeviceType'
+        'Dsh.store.filter.DeviceType',
+        'Dsh.store.filter.ConnectionMethods'
     ],
 
     initComponent: function () {
@@ -54,6 +55,16 @@ Ext.define('Dsh.view.widget.ConnectionsTopFilter', {
                 valueField: 'id',
                 store: 'Dsh.store.filter.DeviceGroup',
                 itemId: 'device-group-filter'
+            },
+            {
+                type: 'combobox',
+                dataIndex: 'connectionMethods',
+                emptyText: Uni.I18n.translate('general.connectionMethod', 'DSH', 'Connection method'),
+                multiSelect: true,
+                displayField: 'name',
+                valueField: 'id',
+                store: 'Dsh.store.filter.ConnectionMethods',
+                itemId: 'connection-method-filter'
             },
             {
                 type: 'combobox',

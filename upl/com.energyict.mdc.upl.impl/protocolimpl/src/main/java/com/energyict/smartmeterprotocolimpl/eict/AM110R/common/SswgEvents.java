@@ -21,7 +21,7 @@ public class SswgEvents {
         EVENTS = new ArrayList<SswgEvent>();
         ELSTER_FIRMWARE_EVENTS = new ArrayList<SswgEvent>();
         MANUFACTURER_SPECIFIC_EVENTS = new ArrayList<SswgEvent>();
-        EVENTS.add(new SswgEvent(0x01E1, MeterEvent.COVER_OPENED, "Meter cover removed"));
+        EVENTS.add(new SswgEvent(0x01E1, MeterEvent.METER_COVER_OPENED, "Meter cover removed"));
         EVENTS.add(new SswgEvent(0x01E0, MeterEvent.METER_COVER_CLOSED, "Meter cover closed"));
         EVENTS.add(new SswgEvent(0x01E4, MeterEvent.STRONG_DC_FIELD_DETECTED, "Strong Magnetic field"));
         EVENTS.add(new SswgEvent(0x01E5, MeterEvent.NO_STRONG_DC_FIELD_ANYMORE, "No Strong Magnetic field"));

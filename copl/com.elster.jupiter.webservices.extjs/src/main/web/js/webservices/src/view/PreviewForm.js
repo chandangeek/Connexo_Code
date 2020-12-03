@@ -95,6 +95,14 @@ Ext.define('Wss.view.PreviewForm', {
                 },
                 {
                     xtype: 'displayfield',
+                    fieldLabel: Uni.I18n.translate('webservices.payloadStrategy', 'WSS', 'Store request payload'),
+                    name: 'payloadStrategy',
+                    renderer: function (value) {
+                        return value.localizedValue;
+                    }
+                },
+                {
+                    xtype: 'displayfield',
                     fieldLabel: Uni.I18n.translate('general.application', 'WSS', 'Application'),
                     name: 'applicationName'
                 },
