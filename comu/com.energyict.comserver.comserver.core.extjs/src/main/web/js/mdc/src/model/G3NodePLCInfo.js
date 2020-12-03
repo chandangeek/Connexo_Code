@@ -61,6 +61,8 @@ Ext.define('Mdc.model.G3NodePLCInfo', {
                 }
                 return convertedValue;
             }
-        }
+        },
+        'parentName',
+        'parentSerialNumber'
     ]
 });

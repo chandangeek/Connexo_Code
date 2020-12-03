@@ -59,6 +59,16 @@ Ext.define('Mdc.view.setup.devicetopology.Preview', {
                                 renderer: function (value) {
                                     return Ext.isEmpty(value) ? '-' : Uni.DateTime.formatDateTimeShort(new Date(value));
                                 }
+                            },
+                            {
+                                itemId: 'mdc-command-rule-preview-panel-parent-field',
+                                fieldLabel: Uni.I18n.translate('general.parent', 'MDC', 'Parent'),
+                                name: 'parentName'
+                            },
+                            {
+                                itemId: 'mdc-command-rule-preview-panel-parent-serial-number-field',
+                                fieldLabel: Uni.I18n.translate('deviceCommunicationTopology.parentSerialNumber', 'MDC', 'Parent Serial number'),
+                                name: 'parentSerialNumber'
                             }
                         ]
                     }
