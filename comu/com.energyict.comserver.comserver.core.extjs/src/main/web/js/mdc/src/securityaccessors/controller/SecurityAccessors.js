@@ -1310,6 +1310,13 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
 
         url = url.replace('{certificateId}', certificateRecord.get('id'));
 
+        if(!certificateRecord.get("importCapability")) {
+            certificateRecord.set("importCapability", null);
+        }
+        if(!certificateRecord.get("renewCapability")) {
+            certificateRecord.set("renewCapability", null);
+        }
+
         Ext.Ajax.request({
             url: url,
             method: 'PUT',
@@ -1340,6 +1347,12 @@ Ext.define('Mdc.securityaccessors.controller.SecurityAccessors', {
             fn: function (action) {
                 if (action == 'confirm') {
                     url = url.replace('{keyOrCertificateId}', keyOrCertificateRecord.get('id'));
+                    if(!keyOrCertificateRecord.get("importCapability")) {
+                        keyOrCertificateRecord.set("importCapability", null);
+                    }
+                    if(!keyOrCertificateRecord.get("renewCapability")) {
+                        keyOrCertificateRecord.set("renewCapability", null);
+                    }
                     Ext.Ajax.request({
                         url: url,
                         method: 'DELETE',
