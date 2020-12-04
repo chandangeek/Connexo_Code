@@ -97,7 +97,7 @@ public class KeyAccessorTypeResource {
         SecurityAccessorType securityAccessorType = getSecurityAccessorTypeOrThrowException(keyAccessorTypeId, device.getDeviceType());
         SecurityAccessor securityAccessor = deviceService.findAndLockSecurityAccessorById(device, securityAccessorType)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE));
-        if (force || !securityAccessor.isSwapped()) {
+        if ((!force && !securityAccessor.isSwapped()) || (force && securityAccessor.isSwapped())) {
             securityAccessor.swapValues();
         }
         return Response.ok().build();
