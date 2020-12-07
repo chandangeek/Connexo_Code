@@ -31,11 +31,6 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return task.isOnHold();
-        }
-
-        @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             this.completeCountSqlBuilder(sqlBuilder, now);
@@ -55,11 +50,6 @@ public enum ServerComTaskStatus {
         @Override
         public TaskStatus getPublicStatus() {
             return TaskStatus.Busy;
-        }
-
-        @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return !task.isOnHold() && task.isExecuting();
         }
 
         @Override
@@ -86,16 +76,6 @@ public enum ServerComTaskStatus {
         @Override
         public TaskStatus getPublicStatus() {
             return TaskStatus.Pending;
-        }
-
-        @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return !task.isOnHold()
-                && !task.isExecuting()
-                && !isPriorityTask(task)
-                && nextExecutionTimestamp != null
-                && now.isAfter(nextExecutionTimestamp);
         }
 
         @Override
@@ -130,16 +110,6 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
-            return !task.isOnHold()
-                    && !task.isExecuting()
-                    && isPriorityTask(task)
-                    && nextExecutionTimestamp != null
-                    && now.isAfter(nextExecutionTimestamp);
-        }
-
-        @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             sqlBuilder.append("and hp.comtaskexecution = cte.id and cte.onhold = 0 and ((cte.comport is null) and " +
@@ -168,17 +138,6 @@ public enum ServerComTaskStatus {
         @Override
         public TaskStatus getPublicStatus() {
             return TaskStatus.NeverCompleted;
-        }
-
-        @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return !task.isOnHold()
-                && !task.isExecuting()
-                && task.getExecutingComPort() == null
-                && task.getCurrentTryCount() == 1
-                && task.getLastSuccessfulCompletionTimestamp() == null
-                && task.getLastExecutionStartTimestamp() != null
-                && plannedAndNextExecTimeStampForWaitingStates(task, now);
         }
 
         @Override
@@ -211,16 +170,6 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            int retryCount = task.getCurrentTryCount() - 1;
-            return !task.isOnHold()
-                && (task.getNextExecutionTimestamp() != null)
-                && !task.isExecuting()
-                && !isPriorityTask(task)
-                && retryCount > 0;
-        }
-
-        @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             this.completeCountSqlBuilder(sqlBuilder, now);
@@ -245,16 +194,6 @@ public enum ServerComTaskStatus {
         @Override
         public TaskStatus getPublicStatus() {
             return TaskStatus.RetryingWithPriority;
-        }
-
-        @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            int retryCount = task.getCurrentTryCount() - 1;
-            return !task.isOnHold()
-                    && (task.getNextExecutionTimestamp() != null)
-                    && !task.isExecuting()
-                    && isPriorityTask(task)
-                    && retryCount > 0;
         }
 
         @Override
@@ -285,17 +224,6 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            int retryCount = task.getCurrentTryCount() - 1;
-            return !task.isOnHold()
-                && task.getLastSuccessfulCompletionTimestamp() != null
-                && (   task.getLastExecutionStartTimestamp() != null
-                    && task.getLastExecutionStartTimestamp().isAfter(task.getLastSuccessfulCompletionTimestamp()))
-                && task.isLastExecutionFailed()
-                && retryCount == 0;
-        }
-
-        @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             this.completeCountSqlBuilder(sqlBuilder, now);
@@ -322,17 +250,6 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return !task.isOnHold()
-                && !task.isExecuting()
-                && isPriorityTask(task)
-                && !task.isLastExecutionFailed()
-                && task.getCurrentTryCount() == 1
-                && (task.getLastExecutionStartTimestamp() == null || task.getLastSuccessfulCompletionTimestamp() != null)
-                && plannedAndNextExecTimeStampForWaitingStates(task, now);
-        }
-
-        @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
             this.completeCountSqlBuilder(sqlBuilder, now);
@@ -356,17 +273,6 @@ public enum ServerComTaskStatus {
         @Override
         public TaskStatus getPublicStatus() {
             return TaskStatus.Waiting;
-        }
-
-        @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return !task.isOnHold()
-                    && !task.isExecuting()
-                    && !isPriorityTask(task)
-                    && !task.isLastExecutionFailed()
-                    && task.getCurrentTryCount() == 1
-                    && (task.getLastExecutionStartTimestamp() == null || task.getLastSuccessfulCompletionTimestamp() != null)
-                    && plannedAndNextExecTimeStampForWaitingStates(task, now);
         }
 
         @Override
@@ -400,11 +306,6 @@ public enum ServerComTaskStatus {
         }
 
         @Override
-        public boolean appliesTo(ServerComTaskExecution task, Instant now) {
-            return false;
-        }
-
-        @Override
         public void completeCountSqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             sqlBuilder.appendWhereOrAnd();
             sqlBuilder.append("1 = 0");
@@ -420,13 +321,12 @@ public enum ServerComTaskStatus {
     private static long asSeconds(Instant date) {
         if (date == null) {
             return 0;
-        }
-        else {
+        } else {
             return date.getEpochSecond();
         }
     }
 
-    protected boolean plannedAndNextExecTimeStampForWaitingStates(ServerComTaskExecution task, Instant now) {
+    protected static boolean plannedAndNextExecTimeStampForWaitingStates(ServerComTaskExecution task, Instant now) {
         return (task.getPlannedNextExecutionTimestamp() == null && task.getNextExecutionTimestamp() == null)
             || (   task.isAdHoc()
                 && (   task.getNextExecutionTimestamp() == null
@@ -435,21 +335,13 @@ public enum ServerComTaskStatus {
                 && (   task.getNextExecutionTimestamp() == null
                     || task.getNextExecutionTimestamp().isAfter(now)));
     }
+
     /**
      * Returns the public counterpart of this ServerTaskStatus.
      *
      * @return The public counterpart
      */
     public abstract TaskStatus getPublicStatus();
-
-    /**
-     * Checks if this ServerTaskStatus applies to the {@link ComTaskExecution}.
-     *
-     * @param task The ComTaskExecution
-     * @param now  The current time
-     * @return <code>true</code> iff this ServerTaskStatus applies to the ComTaskExecution
-     */
-    public abstract boolean appliesTo(ServerComTaskExecution task, Instant now);
 
     public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
         sqlBuilder.appendWhereOrAnd();
@@ -470,15 +362,48 @@ public enum ServerComTaskStatus {
      * @return The applicable TaskStatus
      */
     public static TaskStatus getApplicableStatusFor(ServerComTaskExecution task, Instant now) {
-        /* Implementation note:
-         * Changing the order of the enum values
-         * will/can have an effect on the outcome. */
-        for (ServerComTaskStatus serverComTaskStatus : values()) {
-            if (serverComTaskStatus.appliesTo(task, now)) {
-                return serverComTaskStatus.getPublicStatus();
+        if (task.isOnHold()) {
+            return TaskStatus.OnHold;
+        }
+        if (task.isExecuting()) {
+            return TaskStatus.Busy;
+        }
+        int currentTryCount = task.getCurrentTryCount();
+        Instant nextExecutionTimestamp = task.getNextExecutionTimestamp();
+        if (nextExecutionTimestamp != null) {
+            if (now.isAfter(nextExecutionTimestamp)) {
+                if (isPriorityTask(task)) {
+                    return TaskStatus.PendingWithPriority;
+                }
+                return TaskStatus.Pending;
+            } else if (currentTryCount > 1) {
+                if (isPriorityTask(task)) {
+                    return TaskStatus.RetryingWithPriority;
+                }
+                return TaskStatus.Retrying;
             }
         }
-        return TaskStatus.initial();
+        if (currentTryCount == 1) {
+            Instant lastExecutionStartTimestamp = task.getLastExecutionStartTimestamp();
+            if (!task.isLastExecutionFailed()) {
+                if ((lastExecutionStartTimestamp == null || task.getLastSuccessfulCompletionTimestamp() != null)
+                        && plannedAndNextExecTimeStampForWaitingStates(task, now)) {
+                    if (isPriorityTask(task)) {
+                        return TaskStatus.WaitingWithPriority;
+                    }
+                    return TaskStatus.Waiting;
+                }
+            } else {
+                if (lastExecutionStartTimestamp != null) {
+                    Instant lastSuccessfulCompletionTimestamp = task.getLastSuccessfulCompletionTimestamp();
+                    if (lastSuccessfulCompletionTimestamp != null
+                            && lastExecutionStartTimestamp.isAfter(lastSuccessfulCompletionTimestamp)) {
+                        return TaskStatus.Failed;
+                    }
+                }
+            }
+        }
+        return TaskStatus.NeverCompleted;
     }
 
     /**
