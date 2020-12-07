@@ -44,13 +44,13 @@
         <property name="org.guvnor.m2repo.dir" value="${jboss.home.dir}/bin/repositories/kie/global"/>
 		<property name="com.elster.jupiter.url" value=""/>
         <property name="com.elster.jupiter.user" value=""/>
-        <property name="com.elster.jupiter.password" value=""/>
+        <property name="com.elster.jupiter.password" value="${VAULT::connexo::elster.jupiter.password::1}"/>
         <property name="org.kie.server.location" value="http://localhost:8080/kie-server/services/rest/server"/>
         <property name="org.kie.server.controller" value="http://localhost:8080/business-central/rest/controller"/>
         <property name="org.kie.server.controller.user" value=""/>
-        <property name="org.kie.server.controller.pwd" value=""/>
+        <property name="org.kie.server.controller.pwd" value="${VAULT::connexo::kie.server.controller.pwd::1}"/>
         <property name="org.kie.server.user" value=""/>
-        <property name="org.kie.server.pwd" value=""/>
+        <property name="org.kie.server.pwd" value="${VAULT::connexo::kie.server.pwd::1}"/>
         <property name="org.kie.server.id" value="default-kieserver"/>
         <property name="org.kie.dmn.server.ext.disabled" value="false"/>
         <property name="org.kie.swagger.server.ext.disabled" value="false"/>
@@ -65,6 +65,14 @@
         <property name="hibernate.hbm2ddl.auto" value=""/>
         <property name="jboss.as.management.blocking.timeout" value="600"/>
     </system-properties>
+    <vault>
+        <vault-option name="KEYSTORE_URL" value=""/>
+        <vault-option name="KEYSTORE_PASSWORD" value=""/>
+        <vault-option name="KEYSTORE_ALIAS" value="vault"/>
+        <vault-option name="SALT" value=""/>
+        <vault-option name="ITERATION_COUNT" value=""/>
+        <vault-option name="ENC_FILE_DIR" value=""/>
+    </vault>
     <management>
         <security-realms>
             <security-realm name="ManagementRealm">
@@ -191,7 +199,7 @@
                     </pool>
                     <security>
                         <user-name></user-name>
-                        <password></password>
+                        <password>${VAULT::connexo::datasource.password::1}</password>
                     </security>
                     <validation>
                         <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.oracle.OracleValidConnectionChecker"/>
