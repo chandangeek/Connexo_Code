@@ -563,7 +563,7 @@ public class PLCConfigurationDeviceMessageExecutor {
         boolean routeRequestEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.routeRequestEnabled).getValue());
         boolean pathRequestEnabled = Boolean.parseBoolean(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.pathRequestEnabled).getValue());
 
-        getG3NetworkManagement().setAutomaticRouteManagement(pingEnabled, routeRequestEnabled, pathRequestEnabled);
+        getG3NetworkManagement().setAutomaticRouteManagement(routeRequestEnabled, pingEnabled, pathRequestEnabled);
     }
 
     private void enableSNR(OfflineDeviceMessage pendingMessage) throws IOException {
