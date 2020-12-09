@@ -277,11 +277,19 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     public List<OfflineUserInfo> getUsersCredentialInformation() {
         List<OfflineUserInfo> userInfos = new ArrayList<OfflineUserInfo>();
+        String defaultDomain = serviceProvider.userService().findDefaultUserDirectory().getDomain();
         for (User user : serviceProvider.userService().getAllUsers()) {
-            boolean canUseComServerMobile = user.getPrivileges().stream().filter(p -> p.getName().equals(Privileges.OPERATE_MOBILE_COMSERVER.getKey())).findFirst().isPresent();
-            userInfos.add(new OfflineUserInfo(user, canUseComServerMobile));
+            boolean canUseComServerMobile = user.getPrivileges().stream().anyMatch(p -> p.getName().equals(Privileges.OPERATE_MOBILE_COMSERVER.getKey()));
+            userInfos.add(new OfflineUserInfo(user, canUseComServerMobile, defaultDomain.equals(user.getDomain())));
         }
         return userInfos;
+    }
+
+    public Optional<OfflineUserInfo> checkAuthentication(String loginPassword) {
+        return serviceProvider.userService().authenticateBase64(loginPassword)
+                .filter(user -> user.getPrivileges().stream().anyMatch(p -> p.getName().equals(Privileges.OPERATE_MOBILE_COMSERVER.getKey())))
+                .map(user -> new OfflineUserInfo(user, true,
+                        serviceProvider.userService().findDefaultUserDirectory().getDomain().equals(user.getDomain())));
     }
 
     @Override
@@ -1236,10 +1244,10 @@ public class ComServerDAOImpl implements ComServerDAO {
     private Pair<DeviceIdentifier, LoadProfileIdentifier> getIdentifiers(PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile, LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
         DeviceIdentifier deviceIdentifier;
         LoadProfileIdentifier localLoadProfileIdentifier;
-        if (preStoredLoadProfile.getOfflineLoadProfile()!=null && preStoredLoadProfile.getOfflineLoadProfile().isDataLoggerSlaveLoadProfile()) {
+        if (preStoredLoadProfile.getOfflineLoadProfile() != null && preStoredLoadProfile.getOfflineLoadProfile().isDataLoggerSlaveLoadProfile()) {
             localLoadProfileIdentifier = preStoredLoadProfile.getLoadProfileIdentifier();
             deviceIdentifier = getDeviceIdentifierFor(localLoadProfileIdentifier);
-            return Pair.of(deviceIdentifier,localLoadProfileIdentifier);
+            return Pair.of(deviceIdentifier, localLoadProfileIdentifier);
         } else {
             deviceIdentifier = getDeviceIdentifierFor(collectedLoadProfile.getLoadProfileIdentifier());
             return Pair.of(deviceIdentifier, loadProfileIdentifier);

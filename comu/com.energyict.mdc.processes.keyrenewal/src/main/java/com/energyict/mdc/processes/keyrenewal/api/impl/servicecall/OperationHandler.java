@@ -11,10 +11,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.energyict.mdc.processes.keyrenewal.api.impl.CompletionOptionsMessageHandlerFactory;
-import org.osgi.service.component.annotations.Activate;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -33,22 +33,20 @@ import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReaso
         immediate = true,
         property = "name=" + OperationHandler.HANDLER_NAME)
 public class OperationHandler implements ServiceCallHandler {
-
     public static final String HANDLER_NAME = "KeyRenewalOperationHandler";
 
     public volatile JsonService jsonService;
     public volatile MessageService messageService;
+    public volatile ServiceCallService serviceCallService;
 
     public OperationHandler() {
+        // for OSGi
     }
 
-    public OperationHandler(JsonService jsonService, MessageService messageService) {
+    public OperationHandler(JsonService jsonService, MessageService messageService, ServiceCallService serviceCallService) {
         setJsonService(jsonService);
         setMessageService(messageService);
-    }
-
-    @Activate
-    public void activate() {
+        setServiceCallService(serviceCallService);
     }
 
     @Reference
@@ -61,17 +59,9 @@ public class OperationHandler implements ServiceCallHandler {
         this.messageService = messageService;
     }
 
-    @Override
-    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        if (newState.equals(DefaultState.CANCELLED)) {
-            switch (oldState) {
-                case WAITING:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-        return true;
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -88,6 +78,7 @@ public class OperationHandler implements ServiceCallHandler {
             case REJECTED:
                 // Fallback path, expecting a message with proper failure reason is already send out the destination spec
                 sendMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.UNEXPECTED_EXCEPTION);
+                break;
             default:
                 break;
         }
@@ -109,9 +100,7 @@ public class OperationHandler implements ServiceCallHandler {
                 break;
             case CANCELLED:
                 parent.log(LogLevel.SEVERE, MessageFormat.format("Child service call {0} (type={1}) has been cancelled", serviceCall.getId(), serviceCall.getType().getName()));
-                if (parent.canTransitionTo(DefaultState.CANCELLED)) {
-                    requestTransitionTo(parent, DefaultState.CANCELLED);
-                }
+                requestTransitionTo(parent, DefaultState.CANCELLED);
                 break;
             default:
                 break;
@@ -119,13 +108,16 @@ public class OperationHandler implements ServiceCallHandler {
     }
 
     private void requestTransitionTo(ServiceCall serviceCall, DefaultState state) {
-        if (serviceCall.getState().equals(DefaultState.WAITING) && !state.equals(DefaultState.CANCELLED)) { // As we can transit directly to CANCELLED state
-            serviceCall.requestTransition(DefaultState.ONGOING);
+        if (serviceCall.getState().isOpen()) {
+            ServiceCall lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId())
+                    .orElseThrow(() -> new IllegalStateException("Service call " + serviceCall.getNumber() + " has gone."));
+            if (lockedServiceCall.getState().equals(DefaultState.WAITING) && !state.equals(DefaultState.CANCELLED)) { // As we can transit directly to CANCELLED state
+                lockedServiceCall.requestTransition(DefaultState.ONGOING);
+            }
+            if (lockedServiceCall.canTransitionTo(state)) {
+                lockedServiceCall.requestTransition(state);
+            } // Else the serviceCall is probably already in an end state
         }
-        if (serviceCall.canTransitionTo(state)) {
-            serviceCall.requestTransition(state);
-        } // Else the serviceCall is probably already in an end state
-
     }
 
     private void sendMessageToDestinationSpec(ServiceCall serviceCall, CompletionMessageStatus status) {

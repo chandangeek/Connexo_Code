@@ -546,6 +546,10 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$KEYFILE_FULLPATH");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.provider=hikari");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.maxstatements=100");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.maxlimit=350");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.connection.wait.timeout=30");
 			add_to_file_if($config_file,"enable.auditing=$ENABLE_AUDITING");
 			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
 			add_to_file_if($config_file,"mail.smtp.host=$SMTP_HOST");
