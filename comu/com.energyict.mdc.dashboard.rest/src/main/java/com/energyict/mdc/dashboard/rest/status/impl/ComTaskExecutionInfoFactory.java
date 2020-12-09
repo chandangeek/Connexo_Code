@@ -85,8 +85,4 @@ public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory
         info.device = new IdWithNameInfo(device.getId(), device.getName());
         return info;
     }
-
-    private CompletionCodeInfo infoFrom(CompletionCode completionCode) {
-        return new CompletionCodeInfo(completionCode.name(), CompletionCodeTranslationKeys.translationFor(completionCode, thesaurus));
-    }
 }

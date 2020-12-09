@@ -56,7 +56,7 @@ public abstract class BaseComTaskExecutionInfoFactory<T extends BaseComTaskExecu
         return info;
     }
 
-    private CompletionCodeInfo infoFrom(CompletionCode completionCode) {
+    protected CompletionCodeInfo infoFrom(CompletionCode completionCode) {
         return new CompletionCodeInfo(completionCode.name(), CompletionCodeTranslationKeys.translationFor(completionCode, thesaurus));
     }
 
