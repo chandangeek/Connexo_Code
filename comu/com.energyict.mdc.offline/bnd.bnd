@@ -33,3 +33,5 @@ Import-Package: !com.sun.jdi.*,\
     *
 Embed-Dependency: artifactId=jcodeedit,groupId=javassist|com.jidesoft|org.eclipse.jetty|org.eclipse.jetty.websocket
 Embed-Transitive: true
+Private-Package: com.energyict.mdc.engine.offline.*
+Export-Package: !com.energyict.mdc.engine.offline.*

@@ -33,8 +33,15 @@ public class ObjectParser<T> {
      * Use this to parse a single object. The object type should be included in the XML.
      */
     public T parseObject(JSONObject jsonObject, String propertyName) throws JSONException {
+        return parseObject(jsonObject, propertyName, null);
+    }
+
+    /**
+     * Use this to parse a single object. The object type should be included in the XML.
+     */
+    public T parseObject(JSONObject jsonObject, String propertyName, Class interfaceClazz) throws JSONException {
         if (jsonObject.has(propertyName) && !jsonObject.get(propertyName).toString().equals(NULL_OBJECT)) {
-            return this.parseQueryResult(jsonObject.get(propertyName), null);
+            return this.parseQueryResult(jsonObject.get(propertyName), interfaceClazz);
         } else {
             return null;        //Null object does either not contain property 'single-value' or has value 'null'
         }

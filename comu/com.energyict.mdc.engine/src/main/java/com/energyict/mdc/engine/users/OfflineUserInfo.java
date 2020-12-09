@@ -16,13 +16,16 @@ import java.util.Map;
  * @author khe
  * @since 16/10/2014 - 15:22
  */
+
 @XmlRootElement
 public class OfflineUserInfo {
 
     private long id;
+    private String domain;
+    private boolean defaultDomain;
     private String userName;
     private final int salt;
-    private final String hash;
+    private String hash;
     private Map<String, PrivilegesWrapper> applicationPrivileges;
     private boolean canUseComServerMobile;
 
@@ -31,23 +34,20 @@ public class OfflineUserInfo {
         this.userName = null;
         this.salt = 0;
         this.hash = "";
-        this.applicationPrivileges = new HashMap<String, PrivilegesWrapper>();
+        this.applicationPrivileges = new HashMap<>();
     }
 
-    public OfflineUserInfo(User user) {
-        this.id =user.getId();
+    public OfflineUserInfo(User user, boolean canUseComServerMobile, boolean defaultDomain) {
+        this.id = user.getId();
+        this.domain = user.getDomain();
         this.userName = user.getName();
         this.salt = user.getSalt();
-        this.hash = user.getDigestHa1();
-        this.applicationPrivileges = new HashMap<String, PrivilegesWrapper>();
-        for(Map.Entry<String,List<Privilege>> entry: user.getApplicationPrivileges().entrySet())
+        this.applicationPrivileges = new HashMap<>();
+        for (Map.Entry<String, List<Privilege>> entry : user.getApplicationPrivileges().entrySet()) {
             this.applicationPrivileges.put(entry.getKey(), new PrivilegesWrapper(entry.getValue()));
-        this.canUseComServerMobile = false;
-    }
-
-    public OfflineUserInfo(User user, boolean canUseComServerMobile) {
-        this(user);
+        }
         this.canUseComServerMobile = canUseComServerMobile;
+        this.defaultDomain = defaultDomain;
     }
 
     @XmlAttribute
@@ -66,6 +66,16 @@ public class OfflineUserInfo {
     }
 
     @XmlAttribute
+    public String getDomain() {
+        return domain;
+    }
+
+    @XmlAttribute
+    public boolean isDefaultDomain() {
+        return defaultDomain;
+    }
+
+    @XmlAttribute
     public String getUserName() {
         return userName;
     }
@@ -78,5 +88,9 @@ public class OfflineUserInfo {
     @XmlElement
     public Map<String, PrivilegesWrapper> getApplicationPrivileges() {
         return applicationPrivileges;
+    }
+
+    public void setHash(String hash) {
+        this.hash = hash;
     }
 }

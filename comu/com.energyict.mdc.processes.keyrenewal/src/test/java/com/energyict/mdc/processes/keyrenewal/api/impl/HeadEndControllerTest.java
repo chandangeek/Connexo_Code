@@ -11,8 +11,8 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.CompletionOptions;
@@ -23,9 +23,7 @@ import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
@@ -36,10 +34,8 @@ import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.time.TimeService;
-import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.beans.BeanService;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -73,8 +69,8 @@ import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -104,19 +100,19 @@ public class HeadEndControllerTest {
     public TestRule expectedRule = new ExpectedExceptionRule();
 
     @Mock
-    EndDevice endDevice;
+    private Meter endDevice;
     @Mock
-    Device device;
+    private Device device;
     @Mock
-    SecurityAccessorType securityAccessorType;
+    private SecurityAccessorType securityAccessorType;
     @Mock
-    ServiceCall serviceCall;
+    private ServiceCall serviceCall;
     @Mock
-    Thesaurus thesaurus;
+    private Thesaurus thesaurus;
     @Mock
-    HeadEndInterface headEndInterface;
+    private HeadEndInterface headEndInterface;
     @Mock(answer = Answers.RETURNS_DEEP_STUBS)
-    CommandFactory commandFactory;
+    private CommandFactory commandFactory;
     @Mock
     private TimeService timeService;
     @Mock
@@ -124,29 +120,21 @@ public class HeadEndControllerTest {
     @Mock
     private BeanService beanService;
     @Mock
-    EndDeviceCommand endDeviceCommand;
+    private EndDeviceCommand endDeviceCommand;
     @Mock
-    EndDeviceControlType endDeviceControlType;
+    private EndDeviceControlType endDeviceControlType;
     @Mock
-    MessageService messageService;
+    private MessageService messageService;
     @Mock
-    JsonService jsonService;
+    private ServiceCallService serviceCallService;
     @Mock
-    SecurityManagementService securityManagementService;
+    private DestinationSpec destinationSpec;
     @Mock
-    CaService caService;
+    private CompletionOptions completionOptions;
     @Mock
-    TransactionService transactionService;
+    private MultiSenseHeadEndInterface multiSenseHeadEndInterface;
     @Mock
-    ServiceCallService serviceCallService;
-    @Mock
-    DestinationSpec destinationSpec;
-    @Mock
-    CompletionOptions completionOptions;
-    @Mock
-    MultiSenseHeadEndInterface multiSenseHeadEndInterface;
-    @Mock
-    ComTaskExecution comTaskExecution;
+    private ComTaskExecution comTaskExecution;
     @Mock
     HsmEnergyService hsmEnergyService;
     @Mock
@@ -156,8 +144,7 @@ public class HeadEndControllerTest {
     @Mock
     private volatile EngineConfigurationService engineConfigurationService;
 
-    ExceptionFactory exceptionFactory;
-
+    private ExceptionFactory exceptionFactory;
     private HeadEndController headEndController;
     private PropertySpecService propertySpecService;
     private List<SecurityAccessorType> securityAccessorTypes = new ArrayList<>();
@@ -169,6 +156,7 @@ public class HeadEndControllerTest {
         headEndController = spy(new HeadEndController(messageService, exceptionFactory));
 
         when(endDevice.getMRID()).thenReturn(END_DEVICE_MRID);
+        when(device.getMeter()).thenReturn(endDevice);
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(headEndInterface));
         when(headEndInterface.getCommandFactory()).thenReturn(commandFactory);
 
@@ -177,7 +165,7 @@ public class HeadEndControllerTest {
 
         when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.of(destinationSpec));
         when(headEndInterface.sendCommand(any(EndDeviceCommand.class), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
-        when(multiSenseHeadEndInterface.runCommunicationTask(any(Device.class), anyList(), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
+        when(multiSenseHeadEndInterface.runCommunicationTask(any(Device.class), anyListOf(ComTaskExecution.class), any(Instant.class), any(ServiceCall.class))).thenReturn(completionOptions);
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
 
         this.propertySpecService = new PropertySpecServiceImpl(this.timeService, this.ormService, this.beanService);
@@ -221,7 +209,7 @@ public class HeadEndControllerTest {
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.empty());
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, new DeviceCommandInfo(), device);
+        headEndController.performOperations(serviceCall, new DeviceCommandInfo(), device);
     }
 
     @Test
@@ -243,14 +231,13 @@ public class HeadEndControllerTest {
         when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(Collections.singletonList(keyAccessorTypeSpec));
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
+        headEndController.performOperations(serviceCall, deviceCommandInfo, device);
 
         // Asserts
         verify(commandFactory).createKeyRenewalCommand(endDevice, securityAccessorTypes, false);
         verify(headEndInterface).sendCommand(endDeviceCommand, deviceCommandInfo.activationDate, serviceCall);
         verify(completionOptions).whenFinishedSendCompletionMessageWith(Long.toString(serviceCall.getId()), destinationSpec);
     }
-
 
     @Test
     @Expected(value = LocalizedException.class, message = "Could not find destination spec with name " + CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)
@@ -259,12 +246,13 @@ public class HeadEndControllerTest {
         deviceCommandInfo.keyAccessorType = KEY_ACCESSOR_TYPE;
         deviceCommandInfo.activationDate = Instant.now();
         deviceCommandInfo.command = Command.RENEW_KEY;
+
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);
 
         when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.empty());
 
         // Business method
-        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
+        headEndController.performOperations(serviceCall, deviceCommandInfo, device);
     }
 
     @Test
@@ -284,7 +272,7 @@ public class HeadEndControllerTest {
 
 
         // Business method
-        headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
+        headEndController.performTestCommunication(serviceCall, deviceCommandInfo, device);
 
         // Asserts
         verify(multiSenseHeadEndInterface).runCommunicationTask(device, comtasks, deviceCommandInfo.activationDate, serviceCall);
@@ -324,7 +312,7 @@ public class HeadEndControllerTest {
         when(securityAccessorType.getTrustStore()).thenReturn(Optional.empty());
 
         // Business method
-        headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
+        headEndController.performTestCommunication(serviceCall, deviceCommandInfo, device);
 
         // asserts
         verify(serviceCall2).update(completionOptionsServiceCallDomainExtension);

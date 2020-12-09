@@ -22,14 +22,20 @@ import com.energyict.mdc.engine.offline.MessageSeeds;
 import com.energyict.mdc.engine.offline.core.Helpers;
 import com.energyict.mdc.engine.offline.core.RegistryConfiguration;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -47,8 +53,8 @@ public class FileManager implements BusinessDataPersister {
     private static final String COMPLETION_CODES_QUERY_ID = "CompletionCodes";
     private static final String EXTENSION = ".txt";
     private static final String SEPARATOR = "/";
-    private static final String COMSERVER =  "comserver.txt";
-    private static final String USERS = "users.txt";
+    private static final String COMSERVER = "comserver.txt";
+    private static final String USERS = "offlinedata";
     private static final String COMPLETIONCODES = "completionCodes.txt";
 
     private static final String DATA_FILES_DIRECTORY_STRING = "datafilesdirectory";
@@ -93,7 +99,7 @@ public class FileManager implements BusinessDataPersister {
     private boolean moveDirectoryIfNeeded(String source, String destination, String sourceKey, String destinationKey) {
         if (!source.equals(destination)) {
             Helpers.createDirectory(destination);
-            if(Helpers.moveFiles(source, destination)) {
+            if (Helpers.moveFiles(source, destination)) {
                 RegistryConfiguration.getDefault().copyKeyValues(sourceKey, destinationKey);
                 return false;
             } else {
@@ -156,7 +162,7 @@ public class FileManager implements BusinessDataPersister {
                 cachedUserInfos = null;
             }
         }
-        return cachedUserInfos;
+        return cachedUserInfos == null ? Collections.emptyList() : cachedUserInfos;
     }
 
     @Override

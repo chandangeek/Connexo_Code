@@ -2,9 +2,10 @@ package com.energyict.mdc.engine.offline.gui.windows;
 
 import com.energyict.mdc.common.ApplicationException;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
-import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
-import com.energyict.mdc.engine.offline.UserEnvironment;
 import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
+import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
+import com.energyict.mdc.engine.offline.MdwIcons;
+import com.energyict.mdc.engine.offline.UserEnvironment;
 import com.energyict.mdc.engine.offline.core.OfflinePropertiesProvider;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.core.Utils;
@@ -17,6 +18,7 @@ import com.energyict.mdc.engine.offline.gui.security.EISLoginException;
 import com.energyict.mdc.engine.offline.gui.util.EisConst;
 import com.energyict.mdc.engine.offline.gui.util.EisIcons;
 import com.energyict.mdc.engine.offline.gui.util.HashingUtil;
+import com.energyict.mdc.engine.offline.impl.PasswordGenerator;
 import com.energyict.mdc.engine.offline.model.OfflineUser;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
 
@@ -26,13 +28,13 @@ import java.awt.*;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyEvent;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.prefs.Preferences;
 
 import static com.elster.jupiter.util.Checks.is;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 
 public class LogonDlg extends EisDialog {
 
@@ -40,7 +42,7 @@ public class LogonDlg extends EisDialog {
     private static final int BACKGROUND_IMAGE_HEIGHT = 344;
     private static final String BACKGROUND_IMAGE = "/mdw/images/ComServerMobile_login.png";
     private static final int TEXTFIELDS_OFFSET_X = 395;
-    private static final int TEXTFIELDS_OFFSET_Y = 90;
+    private static final int TEXTFIELDS_OFFSET_Y = 70;
     private static final String SHA_PASSWORD_HASHING_MECHANISM = "SHA-256";
     private static final String DEFAULT_PASSWORD_HASHING_MECHANISM = "MD5";
 
@@ -54,6 +56,7 @@ public class LogonDlg extends EisDialog {
     private String name = null; // overruling
     private String password = null; // overruling
     private boolean canceled = false;
+    private JLabel onlineLbl;
 
     private Cursor prevCursor;
 
@@ -220,13 +223,30 @@ public class LogonDlg extends EisDialog {
         JPanel thePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         thePanel.setBorder(new javax.swing.border.EmptyBorder(new Insets(TEXTFIELDS_OFFSET_Y, TEXTFIELDS_OFFSET_X, 0, 0)));
         thePanel.setOpaque(false);
+        thePanel.add(getOnlineLbl());
         thePanel.add(userPanel);
         setContentPane(thePanel);
 
+        updateOnlineLbl(getRemoteComServerDAO().isPresent());
         passwordField.setPreferredSize(new Dimension(passwordField.getPreferredSize().width, 23));
         nameField.setPreferredSize(new Dimension(passwordField.getPreferredSize().width, 23));
 
         pack();
+    }
+
+    private JLabel getOnlineLbl() {
+        if (onlineLbl == null) {
+            onlineLbl = new JLabel();
+            onlineLbl.setForeground(Color.white);
+            Font onlineLabelFont = onlineLbl.getFont().deriveFont(12f);
+            onlineLbl.setFont(onlineLabelFont);
+        }
+        return onlineLbl;
+    }
+
+    private void updateOnlineLbl(boolean isOnline) {
+        getOnlineLbl().setIcon(isOnline ? MdwIcons.ONLINE_ICON_24 : MdwIcons.OFFLINE_ICON_24);
+        getOnlineLbl().setText(UiHelper.translate(isOnline ? "goonline" : "offline"));
     }
 
     private void focusPassword() {
@@ -247,57 +267,80 @@ public class LogonDlg extends EisDialog {
         }
     }
 
+    private Optional<ComServerDAO> getRemoteComServerDAO() {
+        if (new RemoteProperties(OfflineComServerProperties.getInstance().getProperties()).getRemoteQueryApiUrl() != null) {
+            try {
+                return Optional.of(offlineFrame.getOfflineExecuter().getRemoteComServerDAO());
+            } catch (Throwable e) {
+                //Cannot go online, let's work offline.
+                return Optional.empty();
+            }
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private JPanel getOfflinePasswordPanel(String offlinePass) {
+        JTextField passwordField = new JTextField(offlinePass);
+        passwordField.setEditable(false);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(new JLabel(UiHelper.translate("offlinePasswordLabel")), BorderLayout.WEST);
+        panel.add(passwordField, BorderLayout.CENTER);
+        return panel;
+    }
+
     private void doLogin() {
 
         this.canceled = false;
         this.logonSuccess = false;
         boolean doClose = true;
-
         while (true) {
             try {
-                boolean online;
-                ComServerDAO remoteComServerDAO = null;
-                if (new RemoteProperties(OfflineComServerProperties.getInstance().getProperties()).getRemoteQueryApiUrl() != null) {
-                    try {
-                        remoteComServerDAO = offlineFrame.getOfflineExecuter().getRemoteComServerDAO();
-                        online = true;
-                    } catch (Throwable e) {
-                        //Cannot go online, let's work offline.
-                        online = false;
+                Optional<ComServerDAO> optionalComServerDAO = getRemoteComServerDAO();
+                updateOnlineLbl(optionalComServerDAO.isPresent());
+                List<OfflineUserInfo> userInfos;
+                if (optionalComServerDAO.isPresent()) {
+                    Optional<OfflineUserInfo> optionalUserInfo = optionalComServerDAO.get().checkAuthentication(getUserName() + ":" + getPassword());
+                    if (optionalUserInfo.isPresent()) {
+                        OfflineUserInfo userInfo = optionalUserInfo.get();
+                        String offlinePass = PasswordGenerator.generatePassword();
+                        userInfo.setHash(HashingUtil.createHash(offlinePass, userInfo.getSalt()));
+                        userInfos = new ArrayList<>();
+                        storeUser();
+                        userInfos.add(userInfo);
+                        offlineFrame.getOfflineWorker().getFileManager().saveUserInfos(userInfos);
+                        JOptionPane.showMessageDialog(this, getOfflinePasswordPanel(offlinePass), UiHelper.translate("offlinePasswordTitle"), INFORMATION_MESSAGE);
+                        logonSuccess = true;
+                        return;
+                    } else {
+                        throw new EISLoginException(EISLoginException.Type.INVALID_PASSWORD, getUserName());
                     }
-                } else {
-                    online = false;
-                }
-
-                List<OfflineUserInfo> userInfos = new ArrayList<OfflineUserInfo>();
-                if (online) {
-                    userInfos = remoteComServerDAO.getUsersCredentialInformation();
-                    offlineFrame.getOfflineWorker().getFileManager().saveUserInfos(userInfos);
                 } else {
                     userInfos = offlineFrame.getOfflineWorker().getFileManager().loadUserInfos();
-                    if (userInfos == null) {
+                    if (userInfos.isEmpty()) {
                         throw new LoginException(TranslatorProvider.instance.get().getTranslator().getTranslation("noUserCredentialsAvailable"));
                     }
-                }
 
-                for (OfflineUserInfo userInfo : userInfos) {
-                    if (userInfo.getUserName().equalsIgnoreCase(getUserName())) {
-                        if (userInfo.isCanUseComServerMobile()) {
-                            this.logonSuccess = !is(getPassword()).empty() && new HashingUtil().createHash(getPassword(), userInfo.getSalt()).equals(userInfo.getHash());
-                            if (this.logonSuccess && (this.name == null) && (this.password == null)) {
-                                offlineFrame.getOfflineExecuter().setComServerUser(new OfflineUser(userInfo));
-                                storeUser(); // if no overruling
-                                return;
+
+                    for (OfflineUserInfo userInfo : userInfos) {
+                        if (checkUserName(getUserName(), userInfo)) {
+                            if (userInfo.isCanUseComServerMobile()) {
+                                this.logonSuccess = !is(getPassword()).empty() && HashingUtil.createHash(getPassword(), userInfo.getSalt()).equals(userInfo.getHash());
+                                if (this.logonSuccess && (this.name == null) && (this.password == null)) {
+                                    offlineFrame.getOfflineExecuter().setComServerUser(new OfflineUser(userInfo));
+                                    storeUser(); // if no overruling
+                                    return;
+                                } else {
+                                    throw new EISLoginException(EISLoginException.Type.INVALID_PASSWORD, getUserName());
+                                }
                             } else {
-                                throw new EISLoginException(EISLoginException.Type.INVALID_PASSWORD, getUserName());
+                                throw new EISLoginException(EISLoginException.Type.USER_NOT_AUTHORIZED, getUserName());
                             }
-                        } else {
-                            throw new EISLoginException(EISLoginException.Type.USER_NOT_AUTHORIZED, getUserName());
                         }
                     }
+                    //If name was not found in the list of user info
+                    throw new EISLoginException(EISLoginException.Type.UNKNOWN_USERNAME, getUserName());
                 }
-                //If name was not found in the list of user info
-                throw new EISLoginException(EISLoginException.Type.UNKNOWN_USERNAME, getUserName());
             } catch (EISLoginException ex) { // Invalid User name/Password
                 switch (ex.getErrorType()) {
                     case INVALID_PASSWORD:
@@ -342,6 +385,29 @@ public class LogonDlg extends EisDialog {
                 }
             }
         } // end of while
+    }
+
+    private boolean checkUserName(String userName, OfflineUserInfo userInfo) {
+        String domain = null;
+        String[] items = userName.split("/");
+        if (items.length > 1) {
+            domain = items[0];
+            userName = items[1];
+        }
+        items = userName.split("\\\\");
+        if (items.length > 1) {
+            domain = items[0];
+            userName = items[1];
+        }
+        if (domain == null) {
+            if (!userInfo.isDefaultDomain()) {
+                return false;
+            } else {
+                return userInfo.getUserName().equals(userName);
+            }
+        } else {
+            return userInfo.getDomain().equals(domain) && userInfo.getUserName().equals(userName);
+        }
     }
 
     protected void okButtonActionPerformed() {
