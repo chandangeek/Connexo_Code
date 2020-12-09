@@ -87,7 +87,6 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
         ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
-        //WithClauses.BUSY_CONNECTION_TASK.append(actualBuilder, BUSY_ALIAS_NAME);//TODO Append AS
         this.append(BUSY_ALIAS_NAME + " as ( "+ WithClauses.BUSY_CONNECTION_TASK.getWithClause() + " ) ");
 
         StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
