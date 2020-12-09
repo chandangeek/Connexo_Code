@@ -37,8 +37,12 @@ Ext.define('Wss.view.webservice.GridActionMenu', {
                 cancelMenuItem = menu.down('#endpoint-occurrence-cancel'),
                 retryMenuItem = menu.down('#endpoint-occurrence-retry');
 
-            cancelMenuItem.setVisible(isOngoing);
-            retryMenuItem.setVisible(!isOngoing && !Ext.isEmpty(endpoint) && endpoint.get('direction').id === "OUTBOUND" && me.record.get('hasPayload'));
+            if (cancelMenuItem) {
+                cancelMenuItem.setVisible(isOngoing);
+            }
+            if (retryMenuItem) {
+                retryMenuItem.setVisible(!isOngoing && !Ext.isEmpty(endpoint) && endpoint.get('direction').id === "OUTBOUND" && me.record.get('hasPayload'));
+            }
         }
     }
 });
