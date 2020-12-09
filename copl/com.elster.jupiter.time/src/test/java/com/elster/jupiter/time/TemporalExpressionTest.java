@@ -340,12 +340,70 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(5);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(7);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(6);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+    }
+
+    /**
+     * Tests summer to winter time transition with 2 hour leaps
+     */
+    @Test
+    public final void testDSTLeapNextOccurrence4hour() {
+        Calendar cal = Calendar.getInstance(TIMEZONE_WITH_DST);
+        cal.clear();
+        cal.set(Calendar.YEAR, 2020);
+        cal.set(Calendar.MONTH, 9);
+        cal.set(Calendar.DATE, 24);
+        cal.set(Calendar.HOUR_OF_DAY, 23);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        TimeDuration every = new TimeDuration(4, TimeDuration.TimeUnit.HOURS);
+        TimeDuration offset = new TimeDuration(10, TimeDuration.TimeUnit.MINUTES);
+
+        TemporalExpression expr = new TemporalExpression(every, offset);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(0);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(8);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+
+        cal.setTime(expr.nextOccurrence(cal));
+
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(12);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+
+        cal.setTime(expr.nextOccurrence(cal));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(16);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+
+        cal.setTime(expr.nextOccurrence(cal));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(20);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+
+
+        cal.setTime(expr.nextOccurrence(cal));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(0);
+        assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
+
+
+        cal.setTime(expr.nextOccurrence(cal));
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(10);
     }
 
@@ -530,12 +588,12 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(2);  // 2h WINTER TIME
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);  // 2h WINTER TIME
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
         cal.setTime(expr.nextOccurrence(cal));
 
-        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(3);
+        assertThat(cal.get(Calendar.HOUR_OF_DAY)).isEqualTo(4);
         assertThat(cal.get(Calendar.MINUTE)).isEqualTo(0);
 
     }
@@ -752,7 +810,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         ZonedDateTime expected1 = ZonedDateTime.of(2013, 3, 29, 2, 0, 0, 0, zone);
         ZonedDateTime expected2 = ZonedDateTime.of(2013, 3, 30, 2, 0, 0, 0, zone);
         ZonedDateTime expected3 = ZonedDateTime.of(2013, 3, 31, 2, 0, 0, 0, zone);
-        ZonedDateTime expected4 = ZonedDateTime.of(2013, 4, 1, 3, 0, 0, 0, zone);
+        ZonedDateTime expected4 = ZonedDateTime.of(2013, 4, 1, 2, 0, 0, 0, zone);
         ZonedDateTime expected5 = ZonedDateTime.of(2013, 4, 2, 2, 0, 0, 0, zone);
 
         assertThat(temporalExpression.nextOccurrence(date)).contains(expected1);
@@ -838,9 +896,9 @@ public final class TemporalExpressionTest extends EqualsContractTest {
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return Arrays.asList(
-            new TemporalExpression(TimeDuration.days(2), TimeDuration.hours(0)),
-            new TemporalExpression(TimeDuration.days(2), TimeDuration.hours(4)),
-            new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(2))
+                new TemporalExpression(TimeDuration.days(2), TimeDuration.hours(0)),
+                new TemporalExpression(TimeDuration.days(2), TimeDuration.hours(4)),
+                new TemporalExpression(TimeDuration.days(1), TimeDuration.hours(2))
         );
     }
 
