@@ -38,11 +38,12 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
     }
 
     public static ClauseAwareSqlBuilder withExcludedStages(String withClauseAliasName, Set<EndDeviceStage> excludedStages, Instant now) {
-        SqlBuilder actual = new SqlBuilder("with as (");
-        actual.append(withClauseAliasName);
+        SqlBuilder actual = new SqlBuilder("with ");
+        actual.append(withClauseAliasName + " as ( ");
         DeviceStageSqlBuilder
                 .forExcludeStages(withClauseAliasName, excludedStages)
-                .appendRestrictedStagesWithClause(actual, now);
+                .appendRestrictedStagesSelectClause(actual, now);
+        actual.append(" ) ");
         ClauseAwareSqlBuilder builder = new ClauseAwareSqlBuilder(actual);
         builder.state.toWith();
         return builder;
@@ -66,10 +67,11 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
     }
 
     public static ClauseAwareSqlBuilder existingExcludedStages(String withClauseAliasName, Set<EndDeviceStage> excludedStages, Instant now) {// todo withExcludedStates
-        SqlBuilder actual = new SqlBuilder("and exists (");
+        SqlBuilder actual = new SqlBuilder("and exists ( ");
         DeviceStageSqlBuilder
                 .forExcludeStages(withClauseAliasName, excludedStages)
-                .appendRestrictedStagesWithClause(actual, now);
+                .appendRestrictedStagesSelectClause(actual, now);
+        actual.append(" ) ");
         return new ClauseAwareSqlBuilder(actual);
     }
 
@@ -209,22 +211,6 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         /**
          * Guess what: the initial state.
          */
-        EMPTY {
-            @Override
-            protected SqlClause appendWhereOrAnd(SqlBuilder sqlBuilder) {
-                return EMPTY;
-            }
-
-            @Override
-            protected SqlClause appendWhereOrOr(SqlBuilder sqlBuilder) {
-                return EMPTY;
-            }
-
-            @Override
-            protected SqlClause with(String withClause, String aliasName, SqlBuilder sqlBuilder) {
-                throw new IllegalStateException("Cannot add with clauses when already generated the from clause");
-            }
-        },
         INITIAL {
             @Override
             protected SqlClause appendWhereOrAnd(SqlBuilder sqlBuilder) {

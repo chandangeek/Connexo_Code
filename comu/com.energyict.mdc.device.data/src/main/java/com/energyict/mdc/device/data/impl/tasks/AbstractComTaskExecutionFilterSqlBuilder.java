@@ -101,11 +101,6 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.appendNonStatusWhereClauses();
     }
 
-    protected void appendWhereClauseWithEmptyStatus(ServerComTaskStatus taskStatus){
-        this.appendStatusWhereClauses(taskStatus);
-        this.appendNonStatusWhereClauses();
-    }
-
     protected abstract void appendStatusWhereClauses(ServerComTaskStatus taskStatus);
 
     protected void appendNonStatusWhereClauses() {

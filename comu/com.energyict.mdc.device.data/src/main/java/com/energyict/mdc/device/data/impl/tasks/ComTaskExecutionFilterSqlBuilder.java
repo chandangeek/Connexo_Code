@@ -87,8 +87,10 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
         ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
-        WithClauses.BUSY_CONNECTION_TASK.append(actualBuilder, BUSY_ALIAS_NAME);
-        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.toString());
+        //WithClauses.BUSY_CONNECTION_TASK.append(actualBuilder, BUSY_ALIAS_NAME);//TODO Append AS
+        this.append(BUSY_ALIAS_NAME + " as ( "+ WithClauses.BUSY_CONNECTION_TASK.getWithClause() + " ) ");
+
+        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
         sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
         this.append(", allctdata as (");
         this.append(sqlStartClause);
@@ -135,12 +137,6 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     @Override
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         super.appendWhereClause(taskStatus);
-        this.appendDeviceInGroupSql();
-    }
-
-    @Override
-    protected void appendWhereClauseWithEmptyStatus(ServerComTaskStatus taskStatus) {
-        super.appendWhereClauseWithEmptyStatus(taskStatus);
         this.appendDeviceInGroupSql();
     }
 

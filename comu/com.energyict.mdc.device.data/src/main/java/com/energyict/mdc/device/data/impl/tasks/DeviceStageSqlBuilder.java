@@ -44,7 +44,7 @@ public class DeviceStageSqlBuilder {
         return new DeviceStageSqlBuilder(alias, setStrategy, stages);
     }
 
-    public void appendRestrictedStagesWithClause(SqlBuilder sqlBuilder, Instant now) {
+    public void appendRestrictedStagesSelectClause(SqlBuilder sqlBuilder, Instant now) {
         sqlBuilder.append(" select ES.enddevice id");
         sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
         sqlBuilder.append("       (select FS.ID");
@@ -57,7 +57,7 @@ public class DeviceStageSqlBuilder {
         sqlBuilder.addLong(now.toEpochMilli());
         sqlBuilder.append("   and ES.ENDTIME >");
         sqlBuilder.addLong(now.toEpochMilli());
-        sqlBuilder.append("   and ES.STATE = FS.ID)");
+        sqlBuilder.append("   and ES.STATE = FS.ID");
     }
 
     public void appendRestrictedStages(SqlBuilder sqlBuilder) {
