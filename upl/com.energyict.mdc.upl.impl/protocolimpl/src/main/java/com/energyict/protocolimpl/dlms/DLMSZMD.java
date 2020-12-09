@@ -310,6 +310,10 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
 
     // KV 15122003
     private void roundUp2nearestInterval(IntervalData intervalData) throws IOException {
+        if(getProfileInterval()==0)
+        {
+            return;
+        }
         int rest = (int) (intervalData.getEndTime().getTime() / 1000) % getProfileInterval();
         if (rest > 0) {
             intervalData.getEndTime().setTime(((intervalData.getEndTime().getTime() / 1000) + (getProfileInterval() - rest)) * 1000);

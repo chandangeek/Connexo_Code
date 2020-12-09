@@ -16,10 +16,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * read out profiles of A1800
@@ -149,6 +146,7 @@ public class A1800Profile extends DLMSProfileHelper {
         getLogger().info("Reading interval buffer from device for profile [" + getObisCode() + "].");
 
         int profileEntriesInUse = getProfileGeneric().getEntriesInUse(); // The number of profile entries currently in use
+        if(this.getProfileInterval()==0){ return Collections.emptyList();}
         long interval = this.getProfileInterval();
         long a1800Time = getCosemObjectFactory().getClock(A1800.CLOCK_OBIS_CODE).getDateTime().getTime() / 1000;
         long fromTime = from.getTimeInMillis() / 1000;

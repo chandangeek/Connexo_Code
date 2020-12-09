@@ -183,7 +183,7 @@ if (DEBUG>=1) System.out.println("read from "+lastReading);
 
         List massMemoryRecords = new ArrayList();
         int recordSize = quantum.getBasePagesFactory().getMassMemoryBasePages(true).getMassMemoryRecordLength();
-
+        if(recordSize==0){return massMemoryRecords;}
 
         int massMemoryStartOffset = quantum.getBasePagesFactory().getMassMemoryBasePages().getLogicalMassMemoryStartOffset();
 

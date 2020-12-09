@@ -45,6 +45,7 @@ public class ProfileDataReader {
         }
 
         Date toDate = new Date();
+        if(profileInterval==0){return profileData;}
         long numberOfRequestedLPEntries = 1 + ((toDate.getTime() - lastReading.getTime()) / (profileInterval * 1000));
         int max = as1253.getMaxNumberOfIntervals();
         if (max != 0) {

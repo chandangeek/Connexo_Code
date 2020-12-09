@@ -313,6 +313,7 @@ public class S4LoadProfile {
         while(true) {
             date = s4.getTime();
             long profileInterval = s4.getProfileInterval();
+            if(profileInterval==0){return;}
             long seconds = date.getTime()/1000;
             offset2IntervalBoundary = seconds%profileInterval;
             if ((offset2IntervalBoundary<5) || (offset2IntervalBoundary>(profileInterval-10))) {

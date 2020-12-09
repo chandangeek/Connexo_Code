@@ -217,8 +217,7 @@ public class VectronProfile {
         
         List massMemoryRecords = new ArrayList();
         int recordSize = vectron.getBasePagesFactory().getMassMemoryBasePages(true).getMassMemoryRecordLength();
-        
-        
+        if(recordSize==0){return massMemoryRecords;}
         int massMemoryStartOffset = vectron.getBasePagesFactory().getMassMemoryBasePages().getLogicalStartAddress();
         int maxNrOfRecords = (vectron.getBasePagesFactory().getMassMemoryBasePages().getLogicalEndAddress()-massMemoryStartOffset)/recordSize;
         int currentMassMemoryRecordNr = vectron.getBasePagesFactory().getMassMemoryBasePages().getCurrentRecordNumber();

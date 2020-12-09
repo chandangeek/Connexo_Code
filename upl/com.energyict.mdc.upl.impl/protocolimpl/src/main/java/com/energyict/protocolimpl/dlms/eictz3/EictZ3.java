@@ -737,6 +737,7 @@ public class EictZ3 extends PluggableMeterProtocol implements HHUEnabler, Protoc
 
         if (btype == 0) {
             if (intervalData.getOctetString(0).getArray()[6] != -1) {
+                if(getProfileInterval()==0){return calendar;}
                 calendar.set(Calendar.MINUTE, ((intervalData.getOctetString(0).getArray()[6] & 0xff) / (getProfileInterval() / 60)) * (getProfileInterval() / 60));
             } else {
                 calendar.set(Calendar.MINUTE, 0);
