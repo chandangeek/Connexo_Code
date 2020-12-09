@@ -84,6 +84,11 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     }
 
     @Override
+    public Optional<WebServiceCallOccurrence> findAndLockWebServiceCallOccurrence(long id) {
+        return Optional.ofNullable(dataModel.mapper(WebServiceCallOccurrence.class).lock(id));
+    }
+
+    @Override
     public Finder<WebServiceCallRelatedAttribute> getRelatedAttributesByValueLike(String value) {
         Condition typeCondition = Condition.TRUE;
         String dbSearchText = (value != null && !value.isEmpty()) ? "*" + value + "*" : "*";

@@ -9,5 +9,6 @@ Ext.define('Wss.store.endpoint.Status', {
       {"value":"failed", "display": Uni.I18n.translate('general.failed', 'WSS', 'Failed')},
       {"value":"ongoing", "display": Uni.I18n.translate('general.ongoing', 'WSS', 'Ongoing')},
       {"value":"successful", "display": Uni.I18n.translate('general.successful', 'WSS', 'Successful')},
+      {"value":"cancelled", "display": Uni.I18n.translate('general.cancelled', 'WSS', 'Cancelled')}
   ]
 });

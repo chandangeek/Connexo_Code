@@ -12,7 +12,7 @@ public class WebServiceCallOccurrenceInfo {
     public String request;
     public String applicationName;
     public EndPointConfigurationInfo endPointConfigurationInfo;
-    public String payload;
+    public boolean hasPayload;
     public String appServerName;
 
 }

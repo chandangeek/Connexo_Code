@@ -270,7 +270,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
         endPointConfigurationService = new EndPointConfigurationServiceImpl(dataModel, eventService);
         webServiceCallOccurrenceService = new WebServiceCallOccurrenceServiceImpl(dataModel, nlsService);
-        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, endPointConfigurationService, webServiceCallOccurrenceService);
+        webServicesService = new WebServicesServiceImpl(dataModel, eventService, transactionService, clock, thesaurus, endPointConfigurationService, webServiceCallOccurrenceService);
         this.dataModel.register(this.getModule(logDirectory));
         upgradeService.register(
                 InstallIdentifier.identifier("Pulse", WebServicesService.COMPONENT_NAME),
@@ -282,9 +282,11 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                         .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
                         .put(UpgraderV10_7.VERSION, UpgraderV10_7.class)
                         .put(UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class)
+                        .put(Version.version(10, 7, 4), UpgraderV10_7_4.class)
                         .put(UpgraderV10_8.VERSION, UpgraderV10_8.class)
                         .put(Version.version(10, 8, 7), UpgraderV10_8_7.class)
                         .put(Version.version(10, 8, 7, 1), UpgraderV10_8_7_1.class)
+                        .put(UpgraderV10_9.VERSION, UpgraderV10_9.class)
                         .build());
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();

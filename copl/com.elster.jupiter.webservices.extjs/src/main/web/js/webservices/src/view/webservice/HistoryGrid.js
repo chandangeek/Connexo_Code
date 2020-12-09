@@ -8,7 +8,8 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
     store: 'Wss.store.endpoint.Occurrence',
     requires: [
         'Uni.view.toolbar.PagingTop',
-        'Uni.view.toolbar.PagingBottom'
+        'Uni.view.toolbar.PagingBottom',
+        'Wss.view.webservice.GridActionMenu'
     ],
     router: null,
     initComponent: function () {
@@ -49,17 +50,17 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 dataIndex: 'endpoint',
                 flex: 49,
                 hidden: Boolean(me.endpoint),
-                renderer: function(value, metaData, record) {
+                renderer: function (value, metaData, record) {
                     var endpoint = record.getEndpoint();
-                        if (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices')){
+                    if (Uni.Auth.hasPrivilege('privilege.administrate.webservices') || Uni.Auth.hasPrivilege('privilege.view.webservices')) {
                         var basename = me.adminView ? 'administration' : 'workspace';
                         var url = me.router.getRoute(basename + '/webserviceendpoints/view').buildUrl({
                             endpointId: endpoint.get('id')
                         });
 
-                        return '<span data-qtip="'+ Ext.String.htmlEncode(endpoint.get('name')) +'"><a href="' + url + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</a></span>';
-                    }else{
-                        return '<span data-qtip="'+ Ext.String.htmlEncode(endpoint.get('name')) +'">' + Ext.String.htmlEncode(endpoint.get('name')) + '</span>';
+                        return '<span data-qtip="' + Ext.String.htmlEncode(endpoint.get('name')) + '"><a href="' + url + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</a></span>';
+                    } else {
+                        return '<span data-qtip="' + Ext.String.htmlEncode(endpoint.get('name')) + '">' + Ext.String.htmlEncode(endpoint.get('name')) + '</span>';
                     }
                 }
             },
@@ -74,7 +75,7 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 hidden: Boolean(me.endpoint),
                 header: Uni.I18n.translate('general.type', 'WSS', 'Type'),
                 flex: 7,
-                renderer: function(value, metaData, record) {
+                renderer: function (value, metaData, record) {
                     const direction = record.getEndpoint().get('direction');
                     return direction
                         ? direction.localizedValue
@@ -97,6 +98,16 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 dataIndex: 'status',
                 header: Uni.I18n.translate('general.status', 'WSS', 'Status'),
                 flex: 7
+            },
+            {
+                dataIndex: 'action',
+                xtype: 'uni-actioncolumn',
+                flex: 7,
+                menu: {
+                    itemId: 'webservices-historygrid-action-menu-id',
+                    xtype: 'webservices-historygrid-action-menu',
+                    endpoint: me.endpoint
+                }
             }
         ];
 

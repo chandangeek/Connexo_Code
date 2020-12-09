@@ -6,7 +6,8 @@ import com.elster.jupiter.nls.TranslationKey;
 public enum WebServiceCallOccurrenceStatus implements TranslationKey {
     ONGOING("Ongoing"),
     FAILED("Failed"),
-    SUCCESSFUL("Successful");
+    SUCCESSFUL("Successful"),
+    CANCELLED("Cancelled");
 
     private String name;
 

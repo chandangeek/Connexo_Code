@@ -30,7 +30,7 @@ public class WebServiceCallOccurrenceInfoFactory {
         this.thesaurus = thesaurus;
     }
 
-    public WebServiceCallOccurrenceInfo from(WebServiceCallOccurrence endPointOccurrence, UriInfo uriInfo, boolean withPayload) {
+    public WebServiceCallOccurrenceInfo from(WebServiceCallOccurrence endPointOccurrence, UriInfo uriInfo) {
         WebServiceCallOccurrenceInfo info = new WebServiceCallOccurrenceInfo();
 
         info.id = endPointOccurrence.getId();
@@ -48,10 +48,7 @@ public class WebServiceCallOccurrenceInfoFactory {
         } else {
             info.applicationName = thesaurus.getFormat(TranslationKeys.NAME_UNSPECIFIED).format();
         }
-
-        if (withPayload) {
-            endPointOccurrence.getPayload().ifPresent(payload -> appendPayload(info, payload, 4));
-        }
+        info.hasPayload = endPointOccurrence.getPayload().isPresent();
         if (uriInfo != null && endPointOccurrence.getEndPointConfiguration() != null) {
             info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointOccurrence.getEndPointConfiguration(), uriInfo);
         }
@@ -59,7 +56,7 @@ public class WebServiceCallOccurrenceInfoFactory {
         return info;
     }
 
-    private void appendPayload(WebServiceCallOccurrenceInfo info, String input, int indent) {
+    public String formatXml(String input, int indent) {
         try {
             // prettyFormatXML
             Source xmlInput = new StreamSource(new StringReader(input));
@@ -70,10 +67,10 @@ public class WebServiceCallOccurrenceInfoFactory {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
             transformer.transform(xmlInput, xmlOutput);
-            info.payload = xmlOutput.getWriter().toString();
+            return xmlOutput.getWriter().toString();
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, thesaurus.getFormat(MessageSeeds.BAD_FORMAT).format(), e);
-            info.payload = input;
+            return input;
         }
     }
 }

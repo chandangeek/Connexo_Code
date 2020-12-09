@@ -85,7 +85,10 @@ public class MdcAppInstaller {
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), UpgraderV10_7.class)
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
-                        .put(version(10, 8), UpgraderV10_8.class).build()
+                        .put(version(10, 7, 4), UpgraderV10_7_4.class)
+                        .put(version(10, 8), UpgraderV10_8.class)
+                        .put(version(10, 9), UpgraderV10_9.class)
+                        .build()
         );
     }
 

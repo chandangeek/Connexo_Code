@@ -44,6 +44,7 @@ import static java.util.stream.Collectors.toList;
 @Path("/occurrences")
 public class WebServiceCallOccurrenceResource extends BaseResource {
 
+    private static final int XML_INDENT = 4;
 
     @Inject
     public WebServiceCallOccurrenceResource(EndPointConfigurationService endPointConfigurationService,
@@ -72,7 +73,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         List<WebServiceCallOccurrence> webServiceCallOccurrences = getWebServiceCallOccurrences(queryParameters, filter, applicationNameToFilter);
         List<WebServiceCallOccurrenceInfo> webServiceCallOccurrenceInfo = webServiceCallOccurrences
                 .stream()
-                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo, false))
+                .map(epco -> endpointConfigurationOccurrenceInfoFactorty.from(epco, uriInfo))
                 .collect(toList());
 
         return PagedInfoList.fromPagedList("occurrences", webServiceCallOccurrenceInfo, queryParameters);
@@ -91,9 +92,26 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
 
         return epOcc
-                .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo, true))
+                .map(epc -> endpointConfigurationOccurrenceInfoFactorty.from(epc, uriInfo))
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
 
+    }
+
+    @GET
+    @Produces(MediaType.APPLICATION_XML + "; charset=UTF-8")
+    @Path("/{id}/payload")
+    @Transactional
+    @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES})
+    public String getPayload(@PathParam("id") long id,
+                             @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
+                             @Context UriInfo uriInfo) {
+        checkApplicationPrivileges(applicationName, Privileges.Constants.VIEW_HISTORY_WEB_SERVICES, Privileges.Constants.VIEW_WEB_SERVICES, Privileges.Constants.ADMINISTRATE_WEB_SERVICES);
+
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
+        return epOcc.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE))
+                .getPayload()
+                .map(payload -> endpointConfigurationOccurrenceInfoFactorty.formatXml(payload, XML_INDENT))
+                .orElse(null);
     }
 
     @PUT
@@ -111,6 +129,25 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         WebServiceCallOccurrence occurrence = epOcc.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
 
         occurrence.retry();
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Path("/{id}/cancel")
+    @Transactional
+    @RolesAllowed(Privileges.Constants.CANCEL_WEB_SERVICES)
+    public Response cancelOccurrence(@PathParam("id") long id,
+                                     @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName) {
+        checkApplicationPrivileges(applicationName, Privileges.Constants.CANCEL_WEB_SERVICES);
+
+        Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
+
+        WebServiceCallOccurrence occurrence = epOcc.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE));
+
+        occurrence.cancel();
 
         return Response.ok().build();
     }

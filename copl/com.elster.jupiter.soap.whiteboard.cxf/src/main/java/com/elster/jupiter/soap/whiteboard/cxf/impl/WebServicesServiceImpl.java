@@ -4,6 +4,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl;
 
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
@@ -44,6 +45,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.soap.whiteboard.cxf.impl.MessageSeeds.WEB_SERVICE_CALL_OCCURRENCE_IS_ALREADY_IN_STATE;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -57,6 +59,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private final EventService eventService;
     private final TransactionService transactionService;
     private final Clock clock;
+    private final Thesaurus thesaurus;
     private final EndPointConfigurationService endPointConfigurationService;
     private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
 
@@ -69,12 +72,14 @@ public class WebServicesServiceImpl implements WebServicesService {
                            EventService eventService,
                            TransactionService transactionService,
                            Clock clock,
+                           Thesaurus thesaurus,
                            EndPointConfigurationService endPointConfigurationService,
                            WebServiceCallOccurrenceService webServiceCallOccurrenceService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.transactionService = transactionService;
         this.clock = clock;
+        this.thesaurus = thesaurus;
         this.endPointConfigurationService = endPointConfigurationService;
         this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
         this.occurrences = CacheBuilder.newBuilder().expireAfterWrite(OCCURRENCES_EXPIRE_AFTER_MINUTES, TimeUnit.MINUTES).build();
@@ -343,8 +348,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence passOccurrence(long id) {
-        WebServiceCallOccurrence tmp = getOngoingOccurrence(id);
-        occurrences.invalidate(tmp.getId());
+        WebServiceCallOccurrence tmp = popOngoingOccurrence(id);
         return transactionService.executeInIndependentTransaction(() -> {
             tmp.log(LogLevel.INFO, "Request completed successfully.");
             tmp.setEndTime(clock.instant());
@@ -370,8 +374,7 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception) {
-        WebServiceCallOccurrence tmp = getOngoingOccurrence(id);
-        occurrences.invalidate(tmp.getId());
+        WebServiceCallOccurrence tmp = popOngoingOccurrence(id);
         return transactionService.executeInIndependentTransaction(() -> {
             if (exception == null) {
                 tmp.log(LogLevel.SEVERE, message);
@@ -386,11 +389,28 @@ public class WebServicesServiceImpl implements WebServicesService {
         });
     }
 
-    private static void validateOngoingStatus(WebServiceCallOccurrence occurrence) {
+    @Override
+    public WebServiceCallOccurrence cancelOccurrence(long id) {
+        WebServiceCallOccurrence tmp = popOngoingOccurrence(id);
+        tmp.log(LogLevel.INFO, "Request has been cancelled.");
+        tmp.setEndTime(clock.instant());
+        validateOngoingStatus(tmp);
+        tmp.setStatus(WebServiceCallOccurrenceStatus.CANCELLED);
+        tmp.save();
+        return tmp;
+    }
+
+    private void validateOngoingStatus(WebServiceCallOccurrence occurrence) {
         WebServiceCallOccurrenceStatus status = occurrence.getStatus();
         if (status != WebServiceCallOccurrenceStatus.ONGOING) {
-            throw new IllegalStateException("Web service call occurrence is already in " + status + " state.");
+            throw new WebServiceCallOccurrenceException(thesaurus, WEB_SERVICE_CALL_OCCURRENCE_IS_ALREADY_IN_STATE, status.translate(thesaurus));
         }
+    }
+
+    private WebServiceCallOccurrence popOngoingOccurrence(long id) {
+        occurrences.invalidate(id);
+        return webServiceCallOccurrenceService.findAndLockWebServiceCallOccurrence(id)
+                .orElseThrow(() -> new IllegalStateException("Web service call occurrence isn't present."));
     }
 
     @Override
