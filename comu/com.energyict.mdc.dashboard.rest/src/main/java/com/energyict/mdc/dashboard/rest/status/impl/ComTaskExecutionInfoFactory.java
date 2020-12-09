@@ -82,7 +82,16 @@ public class ComTaskExecutionInfoFactory extends BaseComTaskExecutionInfoFactory
         info.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         info.nextCommunication = comTaskExecution.getNextExecutionTimestamp();
         Device device = comTaskExecution.getDevice();
-        info.device = new IdWithNameInfo(device.getId(), device.getName());
+        Optional<Location> location = device.getLocation();
+        info.device = new DeviceInfo(device.getId(),
+                device.getName(),
+                location.map(location1 -> new IdWithNameInfo(location1.getId(),
+                        location1.format()
+                                .stream()
+                                .flatMap(List::stream)
+                                .filter(Objects::nonNull)
+                                .collect(Collectors.joining(", "))))
+                        .orElse(null));
         return info;
     }
 }
