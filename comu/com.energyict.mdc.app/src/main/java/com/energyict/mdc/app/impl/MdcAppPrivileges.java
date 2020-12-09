@@ -251,6 +251,7 @@ class MdcAppPrivileges {
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_WEB_SERVICES,
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.VIEW_HISTORY_WEB_SERVICES,
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.RETRY_WEB_SERVICES,
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.CANCEL_WEB_SERVICES,
 
                 //sap soap webservices
                 com.energyict.mdc.sap.soap.webservices.security.Privileges.Constants.SEND_WEB_SERVICE_REQUEST

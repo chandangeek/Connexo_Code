@@ -42,6 +42,7 @@ public interface WebServiceCallOccurrence {
     void saveRelatedAttribute(String key, String value);
     void saveRelatedAttributes(SetMultimap<String, String> values);
     void retry();
+    void cancel();
 
     void save();
 }

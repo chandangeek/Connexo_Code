@@ -64,6 +64,9 @@ Ext.define('Wss.controller.Webservices', {
             'webservices-endpoint-action-menu': {
                 click: this.chooseEndpointAction
             },
+            'webservices-historygrid-action-menu': {
+                click: this.chooseEndpointAction
+            },
             'webservices-endpoint-occurrence-action-menu': {
                 click: this.chooseOccurrenceLogAction
             },
@@ -365,15 +368,46 @@ Ext.define('Wss.controller.Webservices', {
         var me = this;
 
         switch (item.action) {
+            case 'cancel':
+                var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
+                    confirmText: Uni.I18n.translate('general.yes', 'WSS', 'Yes'),
+                    cancelText: Uni.I18n.translate('general.no', 'WSS', 'No'),
+                    green: true
+                });
+                confirmationWindow.show({
+                    title: Uni.I18n.translate('webservices.cancel.title', 'WSS', "Cancel occurrence '{0}'?", Uni.DateTime.formatDateTimeShort(menu.record.data.startTime)),
+                    msg: Uni.I18n.translate(
+                        'webservices.cancel.msg',
+                        'WSS',
+                        'The occurrence will be cancelled.'
+                    ),
+                    fn: function (state) {
+                        if (state === 'confirm') {
+                            me.cancel(menu.record);
+                        }
+                    }
+                });
+                break;
             case 'view-payload':
-                var win = window.open();
-                var payload = Ext.String.htmlEncode(
-                    menu.record.get('payload')
-                );
-
-                win.document.write("<pre>" + payload + "</pre>");
-
-                win.focus();
+                var showPayload = function (payloadText) {
+                    var win = window.open();
+                    win.document.open('content-type: text/xml');
+                    var payload = Ext.String.htmlEncode(payloadText);
+                    win.document.write("<pre>" + payload + "</pre>");
+                    win.document.close();
+                    win.focus();
+                };
+                if (menu.record.get('hasPayload')) {
+                    Ext.Ajax.request({
+                        method: 'GET',
+                        url: '/api/ws/occurrences/' + menu.record.getId() + '/payload',
+                        success: function (operation) {
+                            showPayload(operation.responseText);
+                        }
+                    });
+                } else {
+                    showPayload("");
+                }
                 break;
             case 'retry':
                 var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
@@ -409,6 +443,48 @@ Ext.define('Wss.controller.Webservices', {
                 win.focus();
                 break;
         }
+    },
+
+    cancel: function (occurrence) {
+        var me = this;
+        var router = me.getController('Uni.controller.history.Router');
+        var adminView = Uni.util.Application.getAppNamespace() === 'SystemApp';
+        Ext.Ajax.request({
+            method: 'PUT',
+            url: '/api/ws/occurrences/' + occurrence.getId() + '/cancel',
+            success: function () {
+                if (router.arguments && router.arguments.endpointId && router.arguments.occurenceId) {
+                    var basename = adminView ? 'administration' : 'workspace';
+                    router.getRoute(basename + '/webserviceendpoints/view/history/occurrence').forward({
+                        endpointId: occurrence.getEndpoint().getId(),
+                        occurenceId: occurrence.getId()
+                    });
+                } else {
+                    me.getStore('Wss.store.endpoint.Occurrence').load();
+                }
+                me.getApplication().fireEvent(
+                    'acknowledge',
+                    Uni.I18n.translate(
+                        'webservices.cancel.success',
+                        'WSS',
+                        'Occurrence cancelled'
+                    )
+                );
+            },
+            failure: function () {
+                var errorWindow = Ext.create('Uni.view.window.Confirmation', {
+                    noConfirmBtn: true
+                });
+                errorWindow.show({
+                    title: Uni.I18n.translate('webservices.cancel.error', 'WSS', "Couldn't perform your action"),
+                    msg: Uni.I18n.translate(
+                        'webservices.cancel.error.msg',
+                        'WSS',
+                        'The occurrence couldn\'t be cancelled. Possible reasons: the occurrence\'s state has already been changed, the web service is unavailable, unexpected error has occurred while processing.'
+                    )
+                });
+            }
+        });
     },
 
     retry: function (occurrence) {
