@@ -44,6 +44,7 @@ import static java.util.stream.Collectors.toList;
 @Path("/occurrences")
 public class WebServiceCallOccurrenceResource extends BaseResource {
 
+    private static final int XML_INDENT = 4;
 
     @Inject
     public WebServiceCallOccurrenceResource(EndPointConfigurationService endPointConfigurationService,
@@ -109,7 +110,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
         Optional<WebServiceCallOccurrence> epOcc = webServiceCallOccurrenceService.getWebServiceCallOccurrence(id);
         return epOcc.orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_OCCURRENCE))
                 .getPayload()
-                .map(payload -> endpointConfigurationOccurrenceInfoFactorty.formatXml(payload, 4))
+                .map(payload -> endpointConfigurationOccurrenceInfoFactorty.formatXml(payload, XML_INDENT))
                 .orElse(null);
     }
 
