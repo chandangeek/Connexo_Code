@@ -13,6 +13,7 @@ import java.time.Instant;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class G3NodePLCInfo {
+    public static final String N_A = "n/a";
     public String nodeAddress;
     public long shortAddress;
     public Instant lastUpdate;
@@ -29,6 +30,8 @@ public class G3NodePLCInfo {
     public long txResolution;
     public long txCoefficient;
     public long toneMap;
+    public String parentName;
+    public String parentSerialNumber;
 
     public static G3NodePLCInfo from(G3Neighbor g3Neighbor, Thesaurus thesaurus) {
         G3NodePLCInfo info = new G3NodePLCInfo();
@@ -38,9 +41,9 @@ public class G3NodePLCInfo {
         info.lastPathRequest = g3Neighbor.getLastPathRequest();
         info.state = thesaurus.getFormat(g3Neighbor.getState()).format();
         info.modulationScheme = thesaurus.getFormat(g3Neighbor.getModulationScheme()).format();
-        info.modulation = g3Neighbor.getModulation().toString();
+        info.modulation = info.modulation!=null ? g3Neighbor.getModulation().toString() : N_A;
         info.linkQualityIndicator = g3Neighbor.getLinkQualityIndicator();
-        info.phaseInfo = g3Neighbor.getPhaseInfo().toString();
+        info.phaseInfo = info.phaseInfo!=null ? g3Neighbor.getPhaseInfo().toString() : N_A;
         info.roundTrip = g3Neighbor.getRoundTrip();
         info.linkCost = g3Neighbor.getLinkCost();
         info.macPANId = g3Neighbor.getMacPANId();
@@ -48,6 +51,13 @@ public class G3NodePLCInfo {
         info.txResolution = g3Neighbor.getTxResolution();
         info.txCoefficient = g3Neighbor.getTxCoefficient();
         info.toneMap = g3Neighbor.getToneMap();
+        if (g3Neighbor.getNeighbor()!=null) {
+            info.parentName = g3Neighbor.getNeighbor().getName();
+            info.parentSerialNumber = g3Neighbor.getNeighbor().getSerialNumber();
+        } else {
+            info.parentName = N_A;
+            info.parentSerialNumber = N_A;
+        }
         return info;
     }
 }

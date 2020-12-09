@@ -57,7 +57,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
     private final TransactionService transactionService;
     private final EventService eventService;
     private Logger logger;
-    private final static int MAX_MESSAGE_LENGTH = 3997;
+    private final static int MAX_MESSAGE_LENGTH = 3500;
 
     CrlRequestTaskExecutor(CaService caService,
                            CrlRequestTaskPropertiesService crlRequestTaskPropertiesService,
@@ -187,7 +187,7 @@ class CrlRequestTaskExecutor implements TaskExecutor {
     private void log(MessageSeeds messageSeed, Object... args) {
         String message = thesaurus.getSimpleFormat(messageSeed).format(args);
         StringBuilder messageBuilder = new StringBuilder();
-        if (message.length() >= MAX_MESSAGE_LENGTH) {
+        if (message.length() > MAX_MESSAGE_LENGTH) {
             message = message.substring(0, MAX_MESSAGE_LENGTH);
             messageBuilder.append(message);
             messageBuilder.append("...");
