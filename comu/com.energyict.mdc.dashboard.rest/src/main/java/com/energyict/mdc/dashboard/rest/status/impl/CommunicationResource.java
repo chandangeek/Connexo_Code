@@ -79,7 +79,7 @@ public class CommunicationResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final ResourceHelper resourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-    private final ConnectionTaskService connectionTaskService; //Lau
+    private final ConnectionTaskService connectionTaskService;
 
     @Inject
     public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ProtocolPluggableService protocolPluggableService,

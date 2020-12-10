@@ -43,7 +43,7 @@ Ext.define('Mdc.controller.setup.ComServerOverview', {
         })
     },
 
-    getComServerStartRoute : function(){   // Lau
+    getComServerStartRoute : function(){
         var router = this.getController('Uni.controller.history.Router');
         var offlineServer = router.currentRoute.indexOf("offline") >=0;
         var routePart = offlineServer ? "offlinecomservers" : "comservers";
