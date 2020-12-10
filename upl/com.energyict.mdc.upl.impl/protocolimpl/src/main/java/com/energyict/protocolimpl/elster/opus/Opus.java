@@ -126,7 +126,7 @@ public class Opus extends AbstractProtocol {
 		String[] st;
 		st=(String[]) s.get(0);
 		this.numChan=Integer.parseInt(st[1]);			// set number of channels in this object
-		if(st.length>0 && Integer.parseInt(st[0])!=0) {
+		if(st.length>0 && Integer.parseInt(st[0]) != 0) {
 			this.interval = 24 * 3600 / Integer.parseInt(st[0]);    // set interval in this object
 		}
 		this.firmwareVersion=st[6];

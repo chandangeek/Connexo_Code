@@ -182,14 +182,15 @@ if (DEBUG>=1) System.out.println("read from "+lastReading);
          */
 
         List massMemoryRecords = new ArrayList();
+        int maxNrOfRecords=0;
+        int currentMassMemoryRecordNr=0;
         int recordSize = quantum.getBasePagesFactory().getMassMemoryBasePages(true).getMassMemoryRecordLength();
-        if(recordSize==0){return massMemoryRecords;}
-
         int massMemoryStartOffset = quantum.getBasePagesFactory().getMassMemoryBasePages().getLogicalMassMemoryStartOffset();
-
-        int maxNrOfRecords = (quantum.getBasePagesFactory().getMassMemoryBasePages().getLogicalMassMemoryEndOffset()-massMemoryStartOffset)/recordSize;
-//        boolean firstRoundTrip = false; //quantum.getBasePagesFactory().getMassMemoryBasePages().getCurrentMassMemoryRecordOffset() ;
-        int currentMassMemoryRecordNr = (quantum.getBasePagesFactory().getMassMemoryBasePages().getCurrentMassMemoryRecordOffset()-massMemoryStartOffset) / recordSize;
+        if(recordSize != 0) {
+            maxNrOfRecords = (quantum.getBasePagesFactory().getMassMemoryBasePages().getLogicalMassMemoryEndOffset() - massMemoryStartOffset) / recordSize;
+//          boolean firstRoundTrip = false; //quantum.getBasePagesFactory().getMassMemoryBasePages().getCurrentMassMemoryRecordOffset() ;
+            currentMassMemoryRecordNr= (quantum.getBasePagesFactory().getMassMemoryBasePages().getCurrentMassMemoryRecordOffset() - massMemoryStartOffset) / recordSize;
+        }
 
         if (DEBUG>=1) System.out.println("recordSize="+recordSize+", massMemoryStartOffset=0x"+Integer.toHexString(massMemoryStartOffset)+", maxNrOfRecords="+maxNrOfRecords+", currentMassMemoryRecordNr="+currentMassMemoryRecordNr);
 
@@ -203,7 +204,9 @@ if (DEBUG>=1) System.out.println("read from "+lastReading);
 
         //int massMemoryRecordAddress=currentMassMemoryRecordAddress-recordSize;
         int massMemoryRecordNr=currentMassMemoryRecordNr;
-        massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr-1)) % maxNrOfRecords;
+        if(maxNrOfRecords !=0 ) {
+            massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr - 1)) % maxNrOfRecords;
+        }
 
         // start loop to determine how deep we have to read to get all required intervals
         //while(massMemoryRecordAddress >= massMemoryStartOffset) {
@@ -231,7 +234,9 @@ if (DEBUG>=1) System.out.println("read from "+lastReading);
                 // else, decrement mass memory record pointer and read another record
                 massMemoryRecords.add(massMemoryRecord);
                 //massMemoryRecordAddress-=recordSize;
-                massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr-1)) % maxNrOfRecords;
+                if(maxNrOfRecords != 0) {
+                    massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr - 1)) % maxNrOfRecords;
+                }
             }
 
         } // while(true)

@@ -625,7 +625,6 @@ public class Prometer extends AbstractProtocol implements SerialNumberSupport {
         BigDecimal bd = new BigDecimal( r.asInt(2) );
         int nrDigits = 6;
         int round = BigDecimal.ROUND_HALF_UP;
-
         return new BigDecimal( 1 ).divide(bd, nrDigits, round);
     }
 

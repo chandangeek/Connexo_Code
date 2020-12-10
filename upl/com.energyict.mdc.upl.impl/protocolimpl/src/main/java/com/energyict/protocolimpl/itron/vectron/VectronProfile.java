@@ -216,10 +216,13 @@ public class VectronProfile {
          */
         
         List massMemoryRecords = new ArrayList();
+        int maxNrOfRecords=0;
         int recordSize = vectron.getBasePagesFactory().getMassMemoryBasePages(true).getMassMemoryRecordLength();
         if(recordSize==0){return massMemoryRecords;}
         int massMemoryStartOffset = vectron.getBasePagesFactory().getMassMemoryBasePages().getLogicalStartAddress();
-        int maxNrOfRecords = (vectron.getBasePagesFactory().getMassMemoryBasePages().getLogicalEndAddress()-massMemoryStartOffset)/recordSize;
+        if(recordSize != 0) {
+            maxNrOfRecords = (vectron.getBasePagesFactory().getMassMemoryBasePages().getLogicalEndAddress() - massMemoryStartOffset) / recordSize;
+        }
         int currentMassMemoryRecordNr = vectron.getBasePagesFactory().getMassMemoryBasePages().getCurrentRecordNumber();
 
         getLogger().info("recordSize="+recordSize+", massMemoryStartOffset=0x"+Integer.toHexString(massMemoryStartOffset)+", maxNrOfRecords="+maxNrOfRecords+", currentMassMemoryRecordNr="+currentMassMemoryRecordNr);
@@ -231,7 +234,9 @@ public class VectronProfile {
         int profileInterval = vectron.getProfileInterval()/60;
 
         int massMemoryRecordNr=currentMassMemoryRecordNr;
-        massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr-1)) % maxNrOfRecords;
+        if(maxNrOfRecords != 0) {
+            massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr - 1)) % maxNrOfRecords;
+        }
         
         // start loop to determine how deep we have to read to get all required intervals
         while(true) {
@@ -252,7 +257,9 @@ public class VectronProfile {
             } else {
                 // else, decrement mass memory record pointer and read another record
                 massMemoryRecords.add(massMemoryRecord);
-                massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr-1)) % maxNrOfRecords;
+                if(maxNrOfRecords != 0) {
+                    massMemoryRecordNr = (maxNrOfRecords + (massMemoryRecordNr - 1)) % maxNrOfRecords;
+                }
             }
             
         } // while(true)

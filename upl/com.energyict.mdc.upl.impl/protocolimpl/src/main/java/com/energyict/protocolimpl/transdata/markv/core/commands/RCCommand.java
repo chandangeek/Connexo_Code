@@ -68,8 +68,10 @@ public class RCCommand extends AbstractCommand {
             System.out.println("KV_DEBUG> protocolChannelMap="+pcm);
             System.out.println("KV_DEBUG> nrOfRecords="+nrOfRecords);
         }
-        if(pcm.getNrOfUsedProtocolChannels()==0) { return; }
-        int nrOfIntervals = nrOfRecords/pcm.getNrOfUsedProtocolChannels();
+        int nrOfIntervals=0;
+        if(pcm.getNrOfUsedProtocolChannels() != 0) {
+            nrOfIntervals = nrOfRecords / pcm.getNrOfUsedProtocolChannels();
+        }
         
         intervals = new ArrayList();
         for (int interval=0;interval<nrOfIntervals;interval++) {
