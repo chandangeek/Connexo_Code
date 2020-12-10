@@ -149,8 +149,9 @@ public class A1800Profile extends DLMSProfileHelper {
         long interval = this.getProfileInterval();
         long a1800Time = getCosemObjectFactory().getClock(A1800.CLOCK_OBIS_CODE).getDateTime().getTime() / 1000;
         long fromTime = from.getTimeInMillis() / 1000;
+        long entriesToRead=0;
         if(interval != 0) {
-            long entriesToRead = ((a1800Time - fromTime) / interval) + 1;
+            entriesToRead = ((a1800Time - fromTime) / interval) + 1;
         }
         if (profileEntriesInUse == 0){
             return new ArrayList<IntervalData>();// In case the profile buffer is empty
