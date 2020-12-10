@@ -583,13 +583,11 @@ public class AlphaA3LoadProfile {
         long offset2IntervalBoundary = 0;
         while (true) {
             date = alphaA3.getTime();
-            if(alphaA3.getProfileInterval()==0)
-            {
-                return;
-            }
             long profileInterval = alphaA3.getProfileInterval();
             long seconds = date.getTime() / 1000;
-            offset2IntervalBoundary = seconds % profileInterval;
+            if(profileInterval != 0) {
+                offset2IntervalBoundary = seconds % profileInterval;
+            }
             if ((offset2IntervalBoundary < 5) || (offset2IntervalBoundary > (profileInterval - 10))) {
                 try {
                     Thread.sleep(5000);
