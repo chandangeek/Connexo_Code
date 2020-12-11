@@ -97,11 +97,14 @@ my $SMTP_PORT;
 my $SMTP_USER;
 my $SMTP_FROM;
 my $CLASSPATH_SEPARATOR;
+my $SCRIPT_SUFFIX;
 
 if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
 	$CLASSPATH_SEPARATOR=";";
+	$SCRIPT_SUFFIX=".bat";
 } else {
 	$CLASSPATH_SEPARATOR=":";
+	$SCRIPT_SUFFIX=".sh";
 }
 
 # Function Definitions
@@ -543,6 +546,10 @@ sub install_connexo {
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcurl=$jdbcUrl");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcuser=$dbUserName");
             add_to_file_if($config_file,"com.elster.jupiter.datasource.keyfile=$KEYFILE_FULLPATH");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.provider=hikari");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.maxstatements=100");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.maxlimit=350");
+            add_to_file_if($config_file,"com.elster.jupiter.datasource.pool.connection.wait.timeout=30");
 			add_to_file_if($config_file,"enable.auditing=$ENABLE_AUDITING");
 			add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
 			add_to_file_if($config_file,"mail.smtp.host=$SMTP_HOST");
@@ -822,10 +829,11 @@ sub install_jboss {
             system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
             system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
         } else {
-            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
-            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
-            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
-            system("sudo $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
+            system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/vault.sh");
+            system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
+            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
+            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
         }
 
         copy("$JBOSS_BASE/flow/standalone-full.xml","$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml");
@@ -834,15 +842,46 @@ sub install_jboss {
         copy("$JBOSS_BASE/flow/business-central-web.xml","$JBOSS_BASE/jboss/standalone/deployments/business-central.war/WEB-INF/web.xml");
         copy("$JBOSS_BASE/flow/kie-server-web.xml","$JBOSS_BASE/jboss/standalone/deployments/kie-server.war/WEB-INF/web.xml");
 
+        #setup vault
+
+        make_path("$JBOSS_BASE/$JBOSS_DIR/vault");
+        my $vaultOutput = "$JBOSS_BASE/$JBOSS_DIR/vault/vault.out";
+        postCall("\"$JAVA_HOME/bin/keytool\" -genseckey -alias vault -storetype jceks -keyalg AES -keysize 128 -storepass zorro2020 -keypass zorro2020 -validity 730 -keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl > $vaultOutput", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.pwd --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.password --sec-attr $JBOSS_ADMIN_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+        postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute datasource.password --sec-attr $FLOW_DB_PASSWORD --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+
+        my $vaultPass="";
+        if(-e $vaultOutput){
+            open(my $FH, $vaultOutput);
+            my $kp ='KEYSTORE_PASSWORD';
+            while(<$FH>) {
+                my $line = $_ if /$kp/;
+                if ( $line ne "") {
+                    my @valArr = split('>', substr $line, index($line,'KEYSTORE_PASSWORD'));
+                    my $cutfront = substr $valArr[1], index($valArr[1],"\"")+1;
+                    $vaultPass = substr $cutfront, 0, index($cutfront,"\"");
+                }
+            }
+        }
+
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_URL\" value=\"\"/>","<vault-option name=\"KEYSTORE_URL\" value=\"$JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"\"/>","<vault-option name=\"KEYSTORE_PASSWORD\" value=\"$vaultPass\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"KEYSTORE_ALIAS\" value=\"\"/>","<vault-option name=\"KEYSTORE_ALIAS\" value=\"vault\"/>");
+
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"SALT\" value=\"\"/>","<vault-option name=\"SALT\" value=\"iUQG49vl\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"ITERATION_COUNT\" value=\"\"/>","<vault-option name=\"ITERATION_COUNT\" value=\"120\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<vault-option name=\"ENC_FILE_DIR\" value=\"\"/>","<vault-option name=\"ENC_FILE_DIR\" value=\"$JBOSS_BASE/$JBOSS_DIR/vault/\"/>");
+
+        unlink($vaultOutput);
+
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.url\" value=\"\"/>","<property name=\"com.elster.jupiter.url\" value=\"$CONNEXO_URL\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.user\" value=\"\"/>","<property name=\"com.elster.jupiter.user\" value=\"$replaceACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.password\" value=\"\"/>","<property name=\"com.elster.jupiter.password\" value=\"$replacePASSWORD\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.location\" value=\"http://localhost:8080/kie-server/services/rest/server\"/>","<property name=\"org.kie.server.location\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server/services/rest/server\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller\" value=\"http://localhost:8080/business-central/rest/controller\"/>","<property name=\"org.kie.server.controller\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central/rest/controller\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.user\" value=\"\"/>","<property name=\"org.kie.server.controller.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.pwd\" value=\"\"/>","<property name=\"org.kie.server.controller.pwd\" value=\"$JBOSS_ADMIN_PASSWORD\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.user\" value=\"\"/>","<property name=\"org.kie.server.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.pwd\" value=\"\"/>","<property name=\"org.kie.server.pwd\" value=\"$JBOSS_ADMIN_PASSWORD\"/>");
 
         add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","");
         add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
@@ -852,7 +891,6 @@ sub install_jboss {
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<connection-url></connection-url>","<connection-url>$FLOW_JDBC_URL</connection-url>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<user-name></user-name>","<user-name>$FLOW_DB_USER</user-name>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<password></password>","<password>$FLOW_DB_PASSWORD</password>");
 
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<inet-address value=\"management\"/>","<inet-address value=\"\${jboss.bind.address.management:$HOST_NAME}\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<inet-address value=\"public\"/>","<inet-address value=\"\${jboss.bind.address:$HOST_NAME}\"/>");
@@ -905,11 +943,11 @@ sub install_jboss {
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# STARTUP_WAIT=60","STARTUP_WAIT=60");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# SHUTDOWN_WAIT=60","SHUTDOWN_WAIT=60");
             replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf","\# JBOSS_CONSOLE_LOG=\"/var/log/jboss-eap/console.log\"","JBOSS_CONSOLE_LOG=\"/var/log/jboss-eap/console.log\"");
-            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf /etc/default");
-            system("sudo cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh /etc/init.d");
-            system("sudo chmod +x /etc/init.d/jboss-eap-rhel.sh");
-            system("sudo chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh");
-            system("sudo chkconfig --add /etc/init.d/jboss-eap-rhel.sh");
+            system("cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.conf /etc/default");
+            system("cp $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap-rhel.sh /etc/init.d");
+            system("chmod +x /etc/init.d/jboss-eap-rhel.sh");
+            system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/standalone.sh");
+            system("chkconfig --add /etc/init.d/jboss-eap-rhel.sh");
 		}
 	}
 }
@@ -1006,6 +1044,7 @@ sub install_facts {
 
 		print "Connexo Facts successfully installed\n";
 
+        add_to_file_if($config_file,"\n#Facts");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
@@ -1095,9 +1134,11 @@ sub install_flow {
             replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
             replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
             #JSM send through apache?
+            add_to_file_if($config_file,"\n#Flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/business-central");
         } else {
+            add_to_file_if($config_file,"\n#Flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$JBOSS_ADMIN_PASSWORD");
@@ -1183,11 +1224,16 @@ sub activate_sso_filters{
                 my ($name,$key)  = split('=', $line);
                 close(INPUT);
 
+                $token =~ s/\s+$//;
+
+                postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute elster.jupiter.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+                postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
+                postCall("$JBOSS_BASE/$JBOSS_DIR/bin/vault$SCRIPT_SUFFIX  --keystore $JBOSS_BASE/$JBOSS_DIR/vault/vault.keystore --keystore-password zorro2020 --alias vault --vault-block connexo --attribute kie.server.controller.token --sec-attr $token --enc-dir $JBOSS_BASE/$JBOSS_DIR/vault/ --iteration 120 --salt iUQG49vl", "Setup of EAP vault failed.");
 
                 replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.sso.public.key\" value=\"\"/-->","<property name=\"com.elster.jupiter.sso.public.key\" value=\"$key\"/>");
-                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.token\" value=\"\"/-->","<property name=\"com.elster.jupiter.token\" value=\"$token\"/>");
-                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.token\" value=\"\"/-->","<property name=\"org.kie.server.token\" value=\"$token\"/>");
-                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.controller.token\" value=\"\"/-->","<property name=\"org.kie.server.controller.token\" value=\"$token\"/>");
+                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"com.elster.jupiter.token\" value=\"\"/-->","<property name=\"com.elster.jupiter.token\" value=\"\${VAULT::connexo::elster.jupiter.token::1}\"/>");
+                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.token\" value=\"\"/-->","<property name=\"org.kie.server.token\" value=\"\${VAULT::connexo::kie.server.token::1}\"/>");
+                replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<!--property name=\"org.kie.server.controller.token\" value=\"\"/-->","<property name=\"org.kie.server.controller.token\" value=\"\${VAULT::connexo::kie.server.controller.token::1}\"/>");
             }
 
             #replace_in_file("$CATALINA_BASE/webapps/flow/WEB-INF/beans.xml", "<class>org.jbpm.services.cdi.producer.JAASUserGroupInfoProducer</class>", "<!--class>org.jbpm.kie.services.cdi.producer.JAASUserGroupInfoProducer</class-->");
@@ -1534,10 +1580,10 @@ sub restart_jboss_service {
           print "\nConnexoJboss$SERVICE_VERSION started!\n";
        } else {
           print "Stopping service ConnexoJboss$SERVICE_VERSION\n";
-          system("sudo service jboss-eap-rhel stop");
+          system("service jboss-eap-rhel stop");
           sleep 15;
           print "Starting service ConnexoJboss$SERVICE_VERSION\n";
-          system("sudo service jboss-eap-rhel start");
+          system("service jboss-eap-rhel start");
           sleep 10;
        }
     }
@@ -1559,9 +1605,9 @@ sub start_jboss_service {
             print "\nConnexoJboss$SERVICE_VERSION started!\n";
         }
         else {
-            system("sudo chkconfig jboss-eap-rhel.sh on");
+            system("chkconfig jboss-eap-rhel.sh on");
             print "\n\nStarting Jboss EAP service using: $JBOSS_BASE/$JBOSS_DIR/bin/init.d/jboss-eap.rhel.sh \n";
-            system("sudo service jboss-eap-rhel start");
+            system("service jboss-eap-rhel start");
             print "... waiting for Jboss EAP to start ...";
             sleep(20);
             print " continuing.\n";
@@ -1697,14 +1743,12 @@ sub uninstall_all {
         system("/sbin/chkconfig --del ConnexoTomcat$SERVICE_VERSION");
 		unlink("/etc/init.d/ConnexoTomcat$SERVICE_VERSION");
 		print "Stop and remove ConnexoJboss$SERVICE_VERSION service";
-        system("sudo service jboss-eap-rhel stop");
+        system("service jboss-eap-rhel stop");
         sleep 3;
         system("userdel -r jboss-eap");
-        system("sudo chkconfig --del jboss-eap-rhel.sh");
-        system("sudo rm /etc/init.d/jboss-eap-rhel.sh");
-        system("sudo rm /etc/default/jboss-eap.conf");
-        #unlink("/etc/init.d/jboss-eap-rhel.sh");
-        #unlink("/etc/default/jboss-eap.conf");
+        system("chkconfig --del jboss-eap-rhel.sh");
+        unlink("/etc/init.d/jboss-eap-rhel.sh");
+        unlink("/etc/default/jboss-eap.conf");
 	}
     #uninstall Apache httpd 2.2 or 2.4
 	print "Remove folders (tomcat)\n";
@@ -2026,6 +2070,7 @@ sub perform_upgrade {
             add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             update_properties_file_with_encrypted_password();
             if ("$INSTALL_FACTS" eq "yes") {
+                add_to_file_if($config_file,"\n#Facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
@@ -2035,11 +2080,13 @@ sub perform_upgrade {
             }
             if ("$INSTALL_FLOW" eq "yes") {
                 if ("$ACTIVATE_SSO" eq "yes") {
+                    add_to_file_if($config_file,"\n#Flow");
                     replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
                     replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
                 } else {
+                    add_to_file_if($config_file,"\n#Flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");

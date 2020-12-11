@@ -26,8 +26,13 @@ Ext.define('Wss.privileges.Webservices', {
             Wss.privileges.Webservices.view,
             Wss.privileges.Webservices.admin,
             Wss.privileges.Webservices.viewHistory,
-            Wss.privileges.Webservices.retry
+            Wss.privileges.Webservices.retry,
+            Wss.privileges.Webservices.cancel
         );
+    },
+
+    canCancel: function () {
+        return Uni.Auth.checkPrivileges(Wss.privileges.Webservices.cancel);
     },
 
     canView: function () {
@@ -38,7 +43,7 @@ Ext.define('Wss.privileges.Webservices', {
         return Uni.Auth.checkPrivileges(Wss.privileges.Webservices.viewHistory);
     },
 
-    canAdministrate: function() {
+    canAdministrate: function () {
         return Uni.Auth.checkPrivileges(Wss.privileges.Webservices.admin);
     }
 });

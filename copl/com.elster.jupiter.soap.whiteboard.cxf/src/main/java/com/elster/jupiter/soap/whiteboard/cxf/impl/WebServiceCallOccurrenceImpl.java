@@ -249,6 +249,12 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     @Override
+    public void cancel() {
+        log(LogLevel.INFO, "Cancelling web service call occurrence.");
+        webServicesService.cancelOccurrence(this.id);
+    }
+
+    @Override
     public void saveRelatedAttributes(SetMultimap<String, String> values) {
         if (values.isEmpty()) {
             return;

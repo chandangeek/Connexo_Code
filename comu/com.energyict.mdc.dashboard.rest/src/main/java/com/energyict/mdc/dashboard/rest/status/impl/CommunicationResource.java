@@ -27,7 +27,12 @@ import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
-import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecificationMessage;
+import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
@@ -59,6 +64,7 @@ import static java.util.stream.Collectors.toSet;
 
 @Path("/communications")
 public class CommunicationResource {
+    private static final int MAX_RECORDS_PER_PAGE = 1000;
 
     private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
@@ -73,7 +79,7 @@ public class CommunicationResource {
     private final ProtocolPluggableService protocolPluggableService;
     private final ResourceHelper resourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
-    private final ConnectionTaskService connectionTaskService; //Lau
+    private final ConnectionTaskService connectionTaskService;
 
     @Inject
     public CommunicationResource(CommunicationTaskService communicationTaskService, SchedulingService schedulingService, DeviceConfigurationService deviceConfigurationService, TaskService taskService, ComTaskExecutionInfoFactory comTaskExecutionInfoFactory, MeteringGroupsService meteringGroupsService, ExceptionFactory exceptionFactory, JsonService jsonService, AppService appService, MessageService messageService, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory, ProtocolPluggableService protocolPluggableService,
@@ -105,12 +111,21 @@ public class CommunicationResource {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
         try {
+            List<ComTaskExecutionInfo> comTaskExecutionInfos;
             List<ComTaskExecution> communicationTasks = communicationTaskService.findComTaskExecutionsByFilter(filter, queryParameters.getStart().get(), queryParameters.getLimit().get() + 1);
-            List<ComTaskExecutionInfo> comTaskExecutionInfos =
-                    communicationTasks
-                            .stream()
-                            .map(this::toComTaskExecutionInfo)
-                            .collect(Collectors.toList());
+            if (queryParameters.getLimit().get() > MAX_RECORDS_PER_PAGE) {
+                comTaskExecutionInfos =
+                        communicationTasks
+                                .stream()
+                                .map(comTaskExecutionInfoFactory::getExportInfo)
+                                .collect(Collectors.toList());
+            } else {
+                comTaskExecutionInfos =
+                        communicationTasks
+                                .stream()
+                                .map(this::toComTaskExecutionInfo)
+                                .collect(Collectors.toList());
+            }
             return Response.ok(PagedInfoList.fromPagedList("communicationTasks", comTaskExecutionInfos, queryParameters)).build();
 
         } catch (IllegalArgumentException e) {
@@ -345,7 +360,7 @@ public class CommunicationResource {
             filter.connectionMethods = partialConnectionTasks
                     .stream()
                     .distinct()
-                    .filter(pct->connectionMethods.contains(pct.getName()))
+                    .filter(pct -> connectionMethods.contains(pct.getName()))
                     .map(pct -> pct.getId())
                     .collect(Collectors.toList());
 

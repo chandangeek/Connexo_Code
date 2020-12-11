@@ -10,7 +10,13 @@ Ext.define('Wss.view.endpoint.ActionMenu', {
         var me = this;
         var direction = me.endpoint && me.endpoint.get && me.endpoint.get('direction');
         this.items = [
-            (direction && direction.id === "OUTBOUND" && me.record.get('statusId') !== "ONGOING" && me.record.get('payload') !== "") && {
+            (!Ext.isEmpty(me.record) && me.record.get('statusId') === "ONGOING") && {
+                itemId: 'endpoint-occurrence-cancel',
+                text: Uni.I18n.translate('general.cancel.action', 'WSS', 'Cancel'),
+                action: 'cancel',
+                privileges: Wss.privileges.Webservices.cancel
+            },
+            (direction && direction.id === "OUTBOUND" && me.record.get('statusId') !== "ONGOING" && me.record.get('hasPayload')) && {
                 itemId: 'endpoint-occurrence-retry',
                 text: Uni.I18n.translate('webservices.retry.action', 'WSS', 'Retry now'),
                 action: 'retry',

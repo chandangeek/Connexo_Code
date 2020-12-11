@@ -257,8 +257,7 @@ public final class TemporalExpression implements ScheduleExpression {
 
     @Override
     public Optional<ZonedDateTime> nextOccurrence(ZonedDateTime time) {
-        ZonedDateTime result = time;
-
+        ZonedDateTime result = time.withFixedOffsetZone();
         result = every.getTimeUnit().truncate(result);
         if (indicatesLastOfMonth()) {
             result = result.plusSeconds(offset.getSeconds() % NUMBER_OF_SECONDS_IN_MAXIMUM_DAYS_IN_ALL_MONTHS);
@@ -272,7 +271,7 @@ public final class TemporalExpression implements ScheduleExpression {
                 result = result.with(ChronoField.DAY_OF_MONTH, ChronoField.DAY_OF_MONTH.rangeRefinedBy(result).getMaximum());
             }
         }
-        return Optional.of(result);
+        return Optional.of(result.withZoneSameLocal(time.getZone()));
     }
 
     @Override

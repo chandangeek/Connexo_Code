@@ -12,7 +12,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 public class HashingUtil {
-    public String createHash(String password, int salt) {
+    public static String createHash(String password, int salt) {
         try {
             SecretKeyFactory key = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
             KeySpec spec = new PBEKeySpec(password.toCharArray(), BigInteger.valueOf(salt).toByteArray(), 1000, 256);

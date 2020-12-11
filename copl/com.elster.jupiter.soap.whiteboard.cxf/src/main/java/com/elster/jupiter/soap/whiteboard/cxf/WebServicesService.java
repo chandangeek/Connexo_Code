@@ -72,8 +72,8 @@ public interface WebServicesService {
 
     /**
      * Get a list of web service's property specs by the name on the web service
-     * @param webServiceName the name on the web service
      *
+     * @param webServiceName the name on the web service
      * @return a list of property specs of the web service
      */
     List<PropertySpec> getWebServicePropertySpecs(String webServiceName);
@@ -89,6 +89,8 @@ public interface WebServicesService {
     WebServiceCallOccurrence failOccurrence(long id, Exception exception);
 
     WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception);
+
+    WebServiceCallOccurrence cancelOccurrence(long id);
 
     WebServiceCallOccurrence getOngoingOccurrence(long id);
 

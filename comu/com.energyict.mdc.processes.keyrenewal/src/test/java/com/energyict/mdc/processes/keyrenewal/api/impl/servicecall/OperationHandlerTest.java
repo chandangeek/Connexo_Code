@@ -11,14 +11,15 @@ import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.processes.keyrenewal.api.impl.CompletionOptionsMessageHandlerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.energyict.mdc.processes.keyrenewal.api.impl.CompletionOptionsMessageHandlerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,12 +54,15 @@ public class OperationHandlerTest {
     private MessageService messageService;
     @Mock
     private DestinationSpec destinationSpec;
+    @Mock
+    private ServiceCallService serviceCallService;
 
     private OperationHandler operationHandler;
 
     @Before
     public void setUp() throws Exception {
         when(serviceCall.getId()).thenReturn(SERVICE_CALL_ID);
+        when(serviceCallService.lockServiceCall(SERVICE_CALL_ID)).thenReturn(Optional.of(serviceCall));
         when(serviceCall.getState()).thenReturn(DefaultState.WAITING);
         when(serviceCall.canTransitionTo(any(DefaultState.class))).thenReturn(true);
         when(childServiceCall_1.canTransitionTo(any(DefaultState.class))).thenReturn(true);
@@ -75,7 +79,7 @@ public class OperationHandlerTest {
         children.add(childServiceCall_2);
         when(childServiceCallFinder.stream()).thenReturn(children.stream());
         when(serviceCall.findChildren()).thenReturn(childServiceCallFinder);
-        operationHandler = new OperationHandler(jsonService, messageService);
+        operationHandler = new OperationHandler(jsonService, messageService, serviceCallService);
 
         when(messageService.getDestinationSpec(CompletionOptionsMessageHandlerFactory.COMPLETION_OPTIONS_DESTINATION)).thenReturn(Optional.of(destinationSpec));
         when(jsonService.serialize(any())).then(i -> i.getArgumentAt(0, CompletionMessageInfo.class).toString());

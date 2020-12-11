@@ -14,6 +14,8 @@ public interface WebServiceCallOccurrenceService {
 
     Optional<WebServiceCallOccurrence> getWebServiceCallOccurrence(long id);
 
+    Optional<WebServiceCallOccurrence> findAndLockWebServiceCallOccurrence(long id);
+
     OccurrenceLogFinderBuilder getOccurrenceLogFinderBuilder();
 
     Finder<WebServiceCallRelatedAttribute> getRelatedAttributesByValueLike(String value);

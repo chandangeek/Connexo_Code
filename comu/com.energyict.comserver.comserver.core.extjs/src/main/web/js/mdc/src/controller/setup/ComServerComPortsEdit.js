@@ -235,7 +235,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         router.getRoute(this.currentUrl).forward();
     },
 
-    getMobileComServerStartRoute : function(){   // Lau
+    getMobileComServerStartRoute : function(){
         var router = this.getController('Uni.controller.history.Router');
         var offlineServer = router.currentRoute.indexOf("offline") >=0;
         var routePart = offlineServer ? "offlinecomservers" : "comservers";

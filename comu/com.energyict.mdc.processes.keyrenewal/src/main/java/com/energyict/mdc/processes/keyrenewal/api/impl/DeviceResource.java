@@ -75,20 +75,19 @@ public class DeviceResource {
         try (TransactionContext context = transactionService.getContext()) {
             try {
                 device = findDeviceByMridOrThrowException(mRID);
-                EndDevice endDevice = findEndDeviceByMridOrThrowException(mRID);
                 serviceCall = createRenewKeyServiceCallAndTransition(deviceCommandInfo, device);
                 validateDeviceCommandInfo(serviceCall, deviceCommandInfo);
 
-                serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + endDevice.getMRID());
-                headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, device);
-                if (!serviceCall.getState().equals(DefaultState.SUCCESSFUL)) {
+                serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + mRID);
+                headEndController.performOperations(serviceCall, deviceCommandInfo, device);
+                if (serviceCall.canTransitionTo(DefaultState.WAITING)) {
                     serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
                 }
-
-                context.commit();
                 return Response.accepted().build();
             } catch (RuntimeException e) {
-                return handleException(deviceCommandInfo, serviceCall, device, context, e);
+                return handleException(deviceCommandInfo, serviceCall, device, e);
+            } finally {
+                context.commit();
             }
         }
     }
@@ -103,24 +102,27 @@ public class DeviceResource {
         try (TransactionContext context = transactionService.getContext()) {
             try {
                 device = findDeviceByMridOrThrowException(mRID);
-                EndDevice endDevice = findEndDeviceByMridOrThrowException(mRID);
                 serviceCall = createRenewKeyServiceCallAndTransition(deviceCommandInfo, device);
 
-                serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + endDevice.getMRID());
+                serviceCall.log(LogLevel.INFO, "Handling operations for end device with MRID " + mRID);
 
                 serviceCall = serviceCallService.getServiceCall(serviceCall.getId())
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COULD_NOT_FIND_SERVICE_CALL));
                 DestinationSpec destinationSpec = messageService.getDestinationSpec(CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_DESTINATION)
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COULD_NOT_FIND_DESTINATION_SPEC, CertificateRequestForCSRHandlerFactory.CERTIFICATE_REQUEST_FOR_CSR_DESTINATION));
-                CertificateRequestForCSRMessage message = new CertificateRequestForCSRMessage();;
+                CertificateRequestForCSRMessage message = new CertificateRequestForCSRMessage();
                 message.serviceCall = serviceCall.getId();
                 message.device = device.getId();
                 message.securityAccessor = deviceCommandInfo.keyAccessorType;
                 destinationSpec.message(jsonService.serialize(message)).send();
-                context.commit();
+                if (serviceCall.canTransitionTo(DefaultState.WAITING)) {
+                    serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+                }
                 return Response.accepted().build();
             } catch (RuntimeException e) {
-                return handleException(deviceCommandInfo, serviceCall, device, context, e);
+                return handleException(deviceCommandInfo, serviceCall, device, e);
+            } finally {
+                context.commit();
             }
         }
     }
@@ -135,18 +137,19 @@ public class DeviceResource {
         try (TransactionContext context = transactionService.getContext()) {
             try {
                 device = findDeviceByMridOrThrowException(mRID);
-                EndDevice endDevice = findEndDeviceByMridOrThrowException(mRID);
                 serviceCall = createRenewKeyServiceCallAndTransition(deviceCommandInfo, device);
                 validateDeviceCommandInfo(serviceCall, deviceCommandInfo);
 
-                serviceCall.log(LogLevel.INFO, "Performing test comminication for end device with MRID " + endDevice.getMRID());
-                headEndController.performTestCommunication(endDevice, serviceCall, deviceCommandInfo, device);
-                serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
-
-                context.commit();
+                serviceCall.log(LogLevel.INFO, "Performing test communication for end device with MRID " + mRID);
+                headEndController.performTestCommunication(serviceCall, deviceCommandInfo, device);
+                if (serviceCall.canTransitionTo(DefaultState.WAITING)) {
+                    serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+                }
                 return Response.accepted().build();
             } catch (RuntimeException e) {
-                return handleException(deviceCommandInfo, serviceCall, device, context, e);
+                return handleException(deviceCommandInfo, serviceCall, device, e);
+            } finally {
+                context.commit();
             }
         }
     }
@@ -161,18 +164,19 @@ public class DeviceResource {
         try (TransactionContext context = transactionService.getContext()) {
             try {
                 device = findDeviceByMridOrThrowException(mRID);
-                EndDevice endDevice = findEndDeviceByMridOrThrowException(mRID);
                 serviceCall = createRenewKeyServiceCallAndTransition(deviceCommandInfo, device);
                 validateDeviceCommandInfo(serviceCall, deviceCommandInfo);
 
-                serviceCall.log(LogLevel.INFO, "Performing test comminication for end device with MRID " + endDevice.getMRID());
-                headEndController.performTestCommunicationForSecuritySet(endDevice, serviceCall, deviceCommandInfo, device);
-                serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
-
-                context.commit();
+                serviceCall.log(LogLevel.INFO, "Performing test communication for end device with MRID " + mRID);
+                headEndController.performTestCommunicationForSecuritySet(serviceCall, deviceCommandInfo, device);
+                if (serviceCall.canTransitionTo(DefaultState.WAITING)) {
+                    serviceCallCommands.requestTransition(serviceCall, DefaultState.WAITING);
+                }
                 return Response.accepted().build();
             } catch (RuntimeException e) {
-                return handleException(deviceCommandInfo, serviceCall, device, context, e);
+                return handleException(deviceCommandInfo, serviceCall, device, e);
+            } finally {
+                context.commit();
             }
         }
     }
@@ -195,12 +199,11 @@ public class DeviceResource {
                 .orElseThrow((exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE)));
     }
 
-    private Response handleException(DeviceCommandInfo deviceCommandInfo, ServiceCall serviceCall, Device device, TransactionContext context, Exception e) {
+    private Response handleException(DeviceCommandInfo deviceCommandInfo, ServiceCall serviceCall, Device device, Exception e) {
         if (serviceCall == null) {
             serviceCall = serviceCallCommands.createRenewKeyServiceCall(Optional.ofNullable(device), deviceCommandInfo);
         }
         serviceCallCommands.rejectServiceCall(serviceCall, e.getMessage() != null ? e.getMessage() : e.toString());
-        context.commit();
         return Response.status(Response.Status.BAD_REQUEST).entity(e.getMessage()).build();
     }
 

@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.time.rest.TimeDurationInfo;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
@@ -61,7 +62,10 @@ public class ConnectionTaskInfoFactory {
             info.comServer = new IdWithNameInfo(comSession.getComPort().getComServer());
             info.comSessionId = comSession.getId();
         }
-        info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
+        ComPortPool comPortPool = connectionTask.getComPortPool();
+        if(comPortPool !=null){
+            info.comPortPool = new IdWithNameInfo(connectionTask.getComPortPool());
+        }
         info.direction=thesaurus.getString(connectionTask.getConnectionType().getDirection().name(),connectionTask.getConnectionType().getDirection().name());
         info.connectionType = connectionTask.getPluggableClass().getName();
         info.connectionMethod = new DeviceConnectionTaskInfo.ConnectionMethodInfo();

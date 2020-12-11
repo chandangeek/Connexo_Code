@@ -10,6 +10,7 @@ import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.StateTransitionChangeEvent;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.HandlerDisappearedException;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
@@ -22,7 +23,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component(name = "com.elster.jupiter.servicecall.topichandler", service = TopicHandler.class)
 public class ServiceCallStateChangeTopicHandler implements TopicHandler {
@@ -54,12 +54,18 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
     }
 
     private void handle(ServiceCallImpl serviceCall, DefaultState oldState, DefaultState newState) {
-        ServiceCallHandler serviceCallHandler = serviceCall.getType().getServiceCallHandler();
+        try {
+            ServiceCallHandler serviceCallHandler = serviceCall.getType().getServiceCallHandler();
 
-        if (serviceCallHandler.allowStateChange(serviceCall, oldState, newState)) {
+            if (serviceCallHandler.allowStateChange(serviceCall, oldState, newState)) {
+                doStateChange(serviceCall, oldState, newState);
+            } else {
+                serviceCall.log(LogLevel.WARNING, "Handler rejected the transition from " + oldState.getDefaultFormat() + " to " + newState.getDefaultFormat());
+            }
+        } catch (HandlerDisappearedException handlerDisappearedException) {
+            // TODO temporary solution:
+            // HandlerDisappearedException can be thrown here only from getServiceCallHandler() (needed for allowStateChange()). In fact allowStateChange() is not needed; instead we can use standard FSM transition check if service call lifecycle is properly changed where required (to be refactored in scope of CXO-12911)
             doStateChange(serviceCall, oldState, newState);
-        } else {
-            serviceCall.log(LogLevel.WARNING, "Handler rejected the transition from " + oldState.getDefaultFormat() + " to " + newState.getDefaultFormat());
         }
     }
 

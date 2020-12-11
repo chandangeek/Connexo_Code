@@ -43,28 +43,28 @@ abstract class AbstractChildDataMapper<T> extends JoinDataMapper<T> {
     }
 
     @Override
-    final T set(Object target, ResultSet rs, int index) throws SQLException {
+    final T set(Object value, ResultSet rs, int index) throws SQLException {
         if (constraint.getReverseFieldName() != null) {
-            addTarget(target);
+            addTarget(value);
         }
         KeyValue key = getMapper().getPrimaryKey(rs, index);
-        T value = null;
+        T valueType = null;
         if (key != null) {
-            if (key.isEmpty() || (value = get(key)) == null) {
+            if (key.isEmpty() || (valueType = get(key)) == null) {
                 Optional<T> optionalValue = getMapper().construct(rs, index, false);
                 if (optionalValue.isPresent()) {
-                    value = optionalValue.get();
-                    put(key, value);
+                    valueType = optionalValue.get();
+                    put(key, valueType);
                     if (constraint.getReverseFieldName() != null) {
-                        addTargetEntry(target, value);
+                        addTargetEntry(value, valueType);
                     }
                 }
             }
             if (constraint.getFieldName() != null) {
-                DomainMapper.FIELDSTRICT.set(value, constraint.getFieldName(), target);
+                DomainMapper.FIELDSTRICT.set(valueType, constraint.getFieldName(), value);
             }
         }
-        return value;
+        return valueType;
     }
 
     private void addTarget(Object target) {
