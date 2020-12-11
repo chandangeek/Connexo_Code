@@ -186,8 +186,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                 int rsrqValue = structure.getDataType(1).intValue();
                 String description = "RSRP = "+ rsrpValue + "\nRSRQ = "+rsrqValue;
                 registerValue = new RegisterValue(obisCode, description);
-            }
-            else {
+            } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             }
             return createCollectedRegister(registerValue, offlineRegister);
