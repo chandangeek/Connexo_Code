@@ -17,6 +17,7 @@ public enum GSMDiagnosticsAttributes implements DLMSClassAttributes {
     CELL_INFO(6, 0x28),
     ADJACENT_CELLS(7, 0x30),
     CAPTURE_TIME(8, 0x38),
+    PP3_NETWORk_STATUS(9, 0x040),
     MODEM_TYPE(-1, 0xFF),
     MODEM_VERSION(-2, 0xFF),
     IMEI(-3, 0xFF),

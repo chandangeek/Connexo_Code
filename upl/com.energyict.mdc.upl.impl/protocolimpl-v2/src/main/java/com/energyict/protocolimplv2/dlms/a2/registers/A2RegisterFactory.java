@@ -179,7 +179,15 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                 GPRSStandardStatus gprsStatus = protocol.getDlmsSession().getCosemObjectFactory().getGPRSStandardStatus(obisCode);
                 int strength = gprsStatus.readSignalStrength().getInteger16().intValue();
                 registerValue = new RegisterValue(obisCode, new Quantity(strength, Unit.get("")));
-            } else {
+            } else if (uo.getClassID() == DLMSClassId.GSM_DIAGNOSTICS.getClassId()) {
+                GSMDiagnosticsIC gsmDiagnosticsIC = protocol.getDlmsSession().getCosemObjectFactory().getGSMDiagnosticsIC(obisCode);
+                Structure structure = gsmDiagnosticsIC.readPP3NetworkStatus();
+                int rsrpValue = structure.getDataType(0).intValue();
+                int rsrqValue = structure.getDataType(1).intValue();
+                String description = "RSRP = "+ rsrpValue + "\nRSRQ = "+rsrqValue;
+                registerValue = new RegisterValue(obisCode, description);
+            }
+            else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             }
             return createCollectedRegister(registerValue, offlineRegister);
