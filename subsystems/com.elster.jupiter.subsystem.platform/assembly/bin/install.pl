@@ -1044,6 +1044,7 @@ sub install_facts {
 
 		print "Connexo Facts successfully installed\n";
 
+        add_to_file_if($config_file,"\n#Facts");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
@@ -1133,9 +1134,11 @@ sub install_flow {
             replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
             replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
             #JSM send through apache?
+            add_to_file_if($config_file,"\n#Flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/business-central");
         } else {
+            add_to_file_if($config_file,"\n#Flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$JBOSS_ADMIN_PASSWORD");
@@ -2067,6 +2070,7 @@ sub perform_upgrade {
             add_to_file_if($config_file,"enable.partitioning=$ENABLE_PARTITIONING");
             update_properties_file_with_encrypted_password();
             if ("$INSTALL_FACTS" eq "yes") {
+                add_to_file_if($config_file,"\n#Facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
@@ -2076,11 +2080,13 @@ sub perform_upgrade {
             }
             if ("$INSTALL_FLOW" eq "yes") {
                 if ("$ACTIVATE_SSO" eq "yes") {
+                    add_to_file_if($config_file,"\n#Flow");
                     replace_in_file($config_file,"com.elster.jupiter.bpm.user=","#com.elster.jupiter.bpm.user=");
                     replace_in_file($config_file,"com.elster.jupiter.bpm.password=","#com.elster.jupiter.bpm.password=");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
                 } else {
+                    add_to_file_if($config_file,"\n#Flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
