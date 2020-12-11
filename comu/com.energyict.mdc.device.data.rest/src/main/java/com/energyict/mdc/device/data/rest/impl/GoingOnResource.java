@@ -247,7 +247,8 @@ public class GoingOnResource {
             Optional<CreationRule> creationRule = deviceAlarm.getRule();
             GoingOnInfo goingOnInfo = new GoingOnInfo();
             goingOnInfo.type = "alarm";
-            goingOnInfo.issueType = deviceAlarm.getType().getKey();
+            //goingOnInfo.issueType = deviceAlarm.getType().getKey();
+            goingOnInfo.issueType = deviceAlarm.getReason().getIssueType().getKey();
             goingOnInfo.reason = deviceAlarm.getReason().getName();
             goingOnInfo.id = deviceAlarm.getIssueId();
             goingOnInfo.reference = null;
