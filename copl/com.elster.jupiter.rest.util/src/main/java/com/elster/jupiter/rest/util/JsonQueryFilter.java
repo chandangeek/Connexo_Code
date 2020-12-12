@@ -94,9 +94,9 @@ public class JsonQueryFilter {
     }
 
     private void validateSource(String source) {
-        if(!PathVerification.validateInputPattern(source, HasNotAllowedChars.Constant.SCRIPT_CHARS)){
+       if(!source.contains("\"value\": {\"operator\": \"") && !PathVerification.validateInputPattern(source, HasNotAllowedChars.Constant.SCRIPT_CHARS)){
             throw new LocalizedFieldValidationException(MessageSeeds.INVALID_INPUT_VALUE, "filter");
-        }
+       }
     }
 
     private <T> T unmarshalValue(String name, String value, XmlAdapter<String, T> adapter) {
