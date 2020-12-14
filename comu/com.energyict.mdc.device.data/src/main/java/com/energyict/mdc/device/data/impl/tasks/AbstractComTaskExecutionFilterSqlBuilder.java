@@ -55,15 +55,6 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.queryExecutor = queryExecutor;
     }
 
-    ClauseAwareSqlBuilder newBuilderForRestrictedStages() {
-            return ClauseAwareSqlBuilder
-                    .existingExcludedStages(
-                            DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME,
-                            this.restrictedDeviceStages,
-                            this.getClock().instant());
-
-    }
-
     ClauseAwareSqlBuilder newActualBuilder() {
         ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder.getNewBuilder();
         this.setActualBuilder(actualBuilder);
@@ -71,19 +62,36 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
     }
 
     protected void appendDeviceStateJoinClauses() {
-        this.appendDeviceStateJoinClauses(communicationTaskAliasName());
+        this.appendDeviceStateJoinClause(communicationTaskAliasName());
+        this.appendEndDevicesJoinClause();
+        this.appendHighPrioComtaskExecutionJoinClause();
     }
 
-    void appendDeviceStateJoinClauses(String deviceContainerAliasName) {
+    protected void appendDeviceStateAndBusyTaskJoinClauses() {
+        this.appendDeviceStateJoinClause(communicationTaskAliasName());
+        this.appendHighPrioComtaskExecutionJoinClause();
+        this.appendDeviceAndBusyTaskStateJoinClause(communicationTaskAliasName());
+    }
+
+    void appendDeviceStateJoinClause(String deviceContainerAliasName) {
         this.append(" join ");
         this.append(TableSpecs.DDC_DEVICE.name());
         this.append(" dev on ");
         this.append(deviceContainerAliasName);
         this.append(".device = dev.id ");
-        /*this.append(" join ");
-        this.append(DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME);
-        this.append(" kd on dev.meterid = kd.id ");*/
+    }
+
+    void appendHighPrioComtaskExecutionJoinClause(){
         this.append(" left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
+    }
+
+    void appendEndDevicesJoinClause(){
+        this.append(" join ");
+        this.append(DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME);
+        this.append(" kd on dev.meterid = kd.id ");
+    }
+    void appendDeviceAndBusyTaskStateJoinClause(String communicationTaskAliasName) {
+        this.append(" left join " + BUSY_TASK_ALIAS_NAME + " bt on bt.connectiontask = " + communicationTaskAliasName + ".id ");
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
@@ -135,4 +143,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         }
     }
 
+    Set<EndDeviceStage> getRestrictedDeviceStages(){
+        return this.restrictedDeviceStages;
+    }
 }

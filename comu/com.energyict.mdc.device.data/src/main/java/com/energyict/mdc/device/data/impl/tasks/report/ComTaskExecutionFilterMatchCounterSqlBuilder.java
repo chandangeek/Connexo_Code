@@ -51,7 +51,6 @@ class ComTaskExecutionFilterMatchCounterSqlBuilder extends AbstractComTaskExecut
     }
 
     private void appendWhereClause() {
-        //this.appendWhereOrAnd();
         this.appendWhereClause(this.taskStatus);
         this.appendDeviceInGroupSql();
     }

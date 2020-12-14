@@ -90,36 +90,33 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
-        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();//todo
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
         WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
-
-        this.append(", allctdata as (");
+        String allctedataAlias = "allctedata";
+        this.append(", " + allctedataAlias + " as (");
         StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
-        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");//todo переписать самому?
+        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
         this.append(sqlStartClause);
-        this.appendDeviceStateJoinClauses(communicationTaskAliasName);  //TODO REMOVE join enddevices kd on dev.meterid = kd.id
-        this.append(" left join " + BUSY_TASK_ALIAS_NAME + " bt on bt.connectiontask = " + communicationTaskAliasName + ".id ");
-        Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
-        //this.getActualBuilder().appendWhereOrAnd();
-        if (statusIterator.hasNext()) {
-            this.appendWhereClause(statusIterator.next());
-            //this.append(newBuilderForRestrictedStages().asBuilder());//todo
-        }
-        this.append(newBuilderForRestrictedStages().asBuilder());//todo
+        this.appendDeviceStateAndBusyTaskJoinClauses();
+        this.append(ClauseAwareSqlBuilder.existingExcludedStages(
+                DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME,
+                getRestrictedDeviceStages(),
+                this.getClock().instant())
+                .asBuilder()
+        );
         this.append(" ) ");
 
-        sqlStartClause.replace(sqlStartClause.indexOf(" , CASE"), sqlStartClause.length(), " FROM allctdata " + communicationTaskAliasName + " ");
-        this.append(sqlStartClause);//state - where
-//todo list of builders??? 0 - экшуал, последний - рабочий, в нем стейты меняем как надо. потом удаляем после окончания работы
+        sqlStartClause.replace(sqlStartClause.indexOf(" , CASE"), sqlStartClause.length(), " FROM " + allctedataAlias + " " + communicationTaskAliasName + " ");
+        this.append(sqlStartClause);
+        this.appendHighPrioComtaskExecutionJoinClause();
+
+        Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         if (statusIterator.hasNext()) {
-            //this.getActualBuilder().resetToWith();
             this.getActualBuilder().appendWhereOrAnd();
             while (statusIterator.hasNext()) {
-                //this.appendWhereClause(statusIterator.next());
-                statusIterator.next().completeFindBySqlBuilder(actualBuilder, Instant.now());
+                this.appendWhereClause(statusIterator.next());
                 if (statusIterator.hasNext()) {
                     this.or();
-                    //this.getActualBuilder().resetToWhere();
                 }
             }
         }
@@ -131,7 +128,6 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.appendWhereOrAnd();
             this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",", "")) + ")");
         }
-
         return this.getActualBuilder();
     }
 

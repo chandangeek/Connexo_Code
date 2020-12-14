@@ -37,7 +37,6 @@ public abstract class AbstractTaskFilterSqlBuilder {
 
     private final Clock clock;
     private ClauseAwareSqlBuilder actualBuilder;
-    private List<ClauseAwareSqlBuilder> builders;
 
     public AbstractTaskFilterSqlBuilder(Clock clock) {
         super();

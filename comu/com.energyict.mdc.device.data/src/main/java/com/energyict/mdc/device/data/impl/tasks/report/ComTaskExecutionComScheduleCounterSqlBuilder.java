@@ -65,14 +65,12 @@ class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecut
         this.appendWhereOrAnd();
         this.append("cte.discriminator = ");
         this.append(String.valueOf(ComTaskExecutionImpl.ComTaskExecType.SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR.ordinal()));
-        //this.appendWhereOrAnd();
         this.appendWhereClause(this.taskStatus);
         this.appendDeviceInGroupSql();
     }
 
     @Override
     protected void appendStatusWhereClauses(ServerComTaskStatus taskStatus) {
-        //this.appendWhereOrAnd();
         taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
     }
 
