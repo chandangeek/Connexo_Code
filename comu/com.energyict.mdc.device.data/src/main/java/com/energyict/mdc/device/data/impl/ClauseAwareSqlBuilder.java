@@ -59,11 +59,8 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         return builder;
     }
 
-    public static ClauseAwareSqlBuilder getWithBuilder() {
-        SqlBuilder actual = new SqlBuilder("with ");
-        ClauseAwareSqlBuilder builder = new ClauseAwareSqlBuilder(actual);
-        builder.state.toWith();
-        return builder;
+    public static ClauseAwareSqlBuilder getNewBuilder() {
+        return new ClauseAwareSqlBuilder(new SqlBuilder());
     }
 
     public static ClauseAwareSqlBuilder existingExcludedStages(String withClauseAliasName, Set<EndDeviceStage> excludedStages, Instant now) {// todo withExcludedStates
@@ -89,13 +86,13 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         this.state.reset();
     }
 
-    public void resetToWith() {
+    public void resetToWith() {//todo cleanup
         this.state.toWith();
     }
 
     public void resetToWhere() {
         this.state.toWhere();
-    }
+    }//todo cleanup
 
     public void appendWith(String withClause, String aliasName) {
         this.state.with(withClause, aliasName, this.actualBuilder);

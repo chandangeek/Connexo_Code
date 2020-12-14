@@ -46,7 +46,7 @@ public final class SqlBuilder implements SqlFragment {
         this.builder = new StringBuilder(base);
     }
 
-    public void add(SqlFragment fragment) {
+    public void add(SqlFragment fragment) {//todo
         builder.append(fragment.getText());
         fragments.add(fragment);
     }

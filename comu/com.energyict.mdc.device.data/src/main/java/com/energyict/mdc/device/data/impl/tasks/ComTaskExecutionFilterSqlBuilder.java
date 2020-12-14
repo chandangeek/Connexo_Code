@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
+import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -20,11 +21,14 @@ import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 
 import java.time.Clock;
+import java.time.Instant;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+
+import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
 /**
  * Builds the SQL query that finds all {@link ComTaskExecution}s
@@ -86,32 +90,36 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
-        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
-        this.append(BUSY_ALIAS_NAME + " as ( "+ WithClauses.BUSY_CONNECTION_TASK.getWithClause() + " ) ");
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();//todo
+        WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
 
-        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
-        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
         this.append(", allctdata as (");
+        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
+        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");//todo переписать самому?
         this.append(sqlStartClause);
-        this.appendDeviceAndBusyTaskStateJoinClauses(communicationTaskAliasName);
+        this.appendDeviceStateJoinClauses(communicationTaskAliasName);  //TODO REMOVE join enddevices kd on dev.meterid = kd.id
+        this.append(" left join " + BUSY_TASK_ALIAS_NAME + " bt on bt.connectiontask = " + communicationTaskAliasName + ".id ");
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
-        this.getActualBuilder().appendWhereOrAnd();
+        //this.getActualBuilder().appendWhereOrAnd();
         if (statusIterator.hasNext()) {
             this.appendWhereClause(statusIterator.next());
-            this.append(getBuilderForRestrictedStages().getText());
+            //this.append(newBuilderForRestrictedStages().asBuilder());//todo
         }
+        this.append(newBuilderForRestrictedStages().asBuilder());//todo
         this.append(" ) ");
-        if (statusIterator.hasNext()) {
-            sqlStartClause.replace(sqlStartClause.indexOf(" , CASE"), sqlStartClause.length(), " FROM allctdata " + communicationTaskAliasName + " ");
-            this.append(sqlStartClause);
-            this.getActualBuilder().resetToWith();
 
+        sqlStartClause.replace(sqlStartClause.indexOf(" , CASE"), sqlStartClause.length(), " FROM allctdata " + communicationTaskAliasName + " ");
+        this.append(sqlStartClause);//state - where
+//todo list of builders??? 0 - экшуал, последний - рабочий, в нем стейты меняем как надо. потом удаляем после окончания работы
+        if (statusIterator.hasNext()) {
+            //this.getActualBuilder().resetToWith();
             this.getActualBuilder().appendWhereOrAnd();
             while (statusIterator.hasNext()) {
-                this.appendWhereClause(statusIterator.next());
+                //this.appendWhereClause(statusIterator.next());
+                statusIterator.next().completeFindBySqlBuilder(actualBuilder, Instant.now());
                 if (statusIterator.hasNext()) {
                     this.or();
-                    this.getActualBuilder().resetToWhere();
+                    //this.getActualBuilder().resetToWhere();
                 }
             }
         }
