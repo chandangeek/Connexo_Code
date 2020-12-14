@@ -86,14 +86,6 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
         this.state.reset();
     }
 
-    public void resetToWith() {//todo cleanup
-        this.state.toWith();
-    }
-
-    public void resetToWhere() {
-        this.state.toWhere();
-    }//todo cleanup
-
     public void appendWith(String withClause, String aliasName) {
         this.state.with(withClause, aliasName, this.actualBuilder);
     }
@@ -312,10 +304,6 @@ public class ClauseAwareSqlBuilder implements PreparedStatementProvider {
 
         private void toWith() {
             this.state = SqlClause.WITH;
-        }
-
-        private void toWhere() {
-            this.state = SqlClause.WHERE;
         }
 
         private void whereOrAnd(SqlBuilder sqlBuilder) {

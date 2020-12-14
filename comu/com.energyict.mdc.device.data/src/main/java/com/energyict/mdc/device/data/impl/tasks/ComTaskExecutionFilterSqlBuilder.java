@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.device.data.impl.tasks;
 
-import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -21,14 +20,11 @@ import com.energyict.mdc.device.data.impl.TableSpecs;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 
 import java.time.Clock;
-import java.time.Instant;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-
-import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
 
 /**
  * Builds the SQL query that finds all {@link ComTaskExecution}s
