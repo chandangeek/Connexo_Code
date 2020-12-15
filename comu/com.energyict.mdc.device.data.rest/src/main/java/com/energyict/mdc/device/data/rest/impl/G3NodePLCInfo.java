@@ -39,11 +39,11 @@ public class G3NodePLCInfo {
         info.shortAddress = g3Neighbor.getShortAddress();
         info.lastUpdate = g3Neighbor.getLastUpdate();
         info.lastPathRequest = g3Neighbor.getLastPathRequest();
-        info.state = thesaurus.getFormat(g3Neighbor.getState()).format();
-        info.modulationScheme = thesaurus.getFormat(g3Neighbor.getModulationScheme()).format();
-        info.modulation = info.modulation!=null ? g3Neighbor.getModulation().toString() : N_A;
+        info.state = g3Neighbor.getState()!=null? thesaurus.getFormat(g3Neighbor.getState()).format() : N_A ;
+        info.modulationScheme =  g3Neighbor.getModulationScheme()!=null ? thesaurus.getFormat(g3Neighbor.getModulationScheme()).format() : N_A;
+        info.modulation = g3Neighbor.getModulation() !=null ? g3Neighbor.getModulation().toString() : N_A;
         info.linkQualityIndicator = g3Neighbor.getLinkQualityIndicator();
-        info.phaseInfo = info.phaseInfo!=null ? g3Neighbor.getPhaseInfo().toString() : N_A;
+        info.phaseInfo = g3Neighbor.getPhaseInfo() !=null ? g3Neighbor.getPhaseInfo().toString() : N_A;
         info.roundTrip = g3Neighbor.getRoundTrip();
         info.linkCost = g3Neighbor.getLinkCost();
         info.macPANId = g3Neighbor.getMacPANId();

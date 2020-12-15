@@ -39,6 +39,27 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
                 }
             },
             {
+                header: Uni.I18n.translate('deviceCommunicationTopology.parent', 'MDC', 'Parent'),
+                dataIndex: 'parentName',
+                renderer: function (value, meta, record) {
+                    if (Ext.isEmpty(record.getG3NodePLCInfo().get('parentName'))) {
+                        return '-';
+                    } else {
+                        var href = me.router.getRoute('devices/device').buildUrl({deviceId: encodeURIComponent(record.getG3NodePLCInfo().get('parentName'))});
+                        return '<a href="' + href + '">' + Ext.String.htmlEncode(record.getG3NodePLCInfo().get('parentName')) + '</a>'
+                    }
+                },
+                flex: 1
+            },
+            {
+                header: Uni.I18n.translate('deviceCommunicationTopology.parentSerialNumber', 'MDC', 'Parent Serial number'),
+                dataIndex: 'parentSerialNumber',
+                flex: 1,
+                renderer: function (value, metaData, record) {
+                    return record.getG3NodePLCInfo() && !Ext.isEmpty(record.getG3NodePLCInfo().get('parentSerialNumber')) ? record.getG3NodePLCInfo().get('parentSerialNumber') : '-';
+                }
+            },
+            {
                 header: Uni.I18n.translate('general.associationState', 'MDC', 'Association state'),
                 dataIndex: 'state',
                 flex: 1,
