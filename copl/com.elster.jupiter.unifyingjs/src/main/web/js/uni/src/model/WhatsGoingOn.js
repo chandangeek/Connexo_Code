@@ -8,6 +8,7 @@ Ext.define('Uni.model.WhatsGoingOn', {
     fields: [
         'type',
         'issueType',
+        'reason',
         'id',
         'description',
         {
@@ -52,6 +53,7 @@ Ext.define('Uni.model.WhatsGoingOn', {
                 return {
                     type: record.type,
                     issueType: record.issueType,
+                    reason: record.reason,
                     id: record.id,
                     reference : record.reference,
                     description: record.description,

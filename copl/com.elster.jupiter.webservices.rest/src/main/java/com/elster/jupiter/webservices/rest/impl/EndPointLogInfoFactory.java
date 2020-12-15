@@ -38,7 +38,7 @@ public class EndPointLogInfoFactory {
         EndPointLogInfo info = from(endPointLog);
         info.endPointConfigurationInfo = endPointConfigurationInfoFactory.from(endPointLog.getEndPointConfiguration(), uriInfo);
         info.stackTrace = endPointLog.getStackTrace();
-        info.occurrenceInfo = webServiceCallOccurrenceInfoFactory.from(endPointLog.getOccurrence().get(), uriInfo, false);
+        info.occurrenceInfo = webServiceCallOccurrenceInfoFactory.from(endPointLog.getOccurrence().get(), uriInfo);
         return info;
     }
 }

@@ -73,7 +73,8 @@ public class EndPointConfigurationResource extends BaseResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES,
             Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
-            Privileges.Constants.RETRY_WEB_SERVICES})
+            Privileges.Constants.RETRY_WEB_SERVICES,
+            Privileges.Constants.CANCEL_WEB_SERVICES})
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
                                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                    @Context UriInfo uriInfo) {
@@ -111,7 +112,8 @@ public class EndPointConfigurationResource extends BaseResource {
     @Transactional
     @RolesAllowed({Privileges.Constants.VIEW_WEB_SERVICES,
             Privileges.Constants.ADMINISTRATE_WEB_SERVICES,
-            Privileges.Constants.RETRY_WEB_SERVICES})
+            Privileges.Constants.RETRY_WEB_SERVICES,
+            Privileges.Constants.CANCEL_WEB_SERVICES})
     public EndPointConfigurationInfo getEndPointConfiguration(@PathParam("id") long id, @Context UriInfo uriInfo) {
         return endPointConfigurationService.getEndPointConfiguration(id)
                 .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))

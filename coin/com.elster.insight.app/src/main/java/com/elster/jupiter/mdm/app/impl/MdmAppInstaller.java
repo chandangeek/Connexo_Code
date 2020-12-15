@@ -50,7 +50,9 @@ public class MdmAppInstaller {
         });
         upgradeService.register(InstallIdentifier.identifier("Insight", "DMA"), dataModel, Installer.class,
                 ImmutableMap.of(version(10, 3), UpgraderV10_3.class,
-                        version(10, 7), UpgraderV10_7.class));
+                        version(10, 7), UpgraderV10_7.class,
+                        version(10, 7, 4), UpgraderV10_7_4.class,
+                        version(10, 9), UpgraderV10_9.class));
     }
 
     @Reference

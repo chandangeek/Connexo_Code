@@ -18,7 +18,8 @@ public enum Privileges implements TranslationKey {
     VIEW_WEB_SERVICES(Constants.VIEW_WEB_SERVICES, "View"),
     ADMINISTRATE_WEB_SERVICES(Constants.ADMINISTRATE_WEB_SERVICES, "Administrate"),
     VIEW_HISTORY_WEB_SERVICES(Constants.VIEW_HISTORY_WEB_SERVICES, "View history"),
-    RETRY_WEB_SERVICES(Constants.RETRY_WEB_SERVICES, "Retry");
+    RETRY_WEB_SERVICES(Constants.RETRY_WEB_SERVICES, "Retry"),
+    CANCEL_WEB_SERVICES(Constants.CANCEL_WEB_SERVICES, "Cancel");
 
     private final String key;
     private final String description;
@@ -53,6 +54,7 @@ public enum Privileges implements TranslationKey {
         String ADMINISTRATE_WEB_SERVICES = "privilege.administrate.webservices";
         String VIEW_HISTORY_WEB_SERVICES = "privilege.viewHistory.webservices";
         String RETRY_WEB_SERVICES = "privilege.retry.webservices";
+        String CANCEL_WEB_SERVICES = "privilege.cancel.webservices";
 
     }
 }

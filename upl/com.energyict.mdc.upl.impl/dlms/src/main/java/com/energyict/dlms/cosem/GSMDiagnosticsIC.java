@@ -240,6 +240,10 @@ public class GSMDiagnosticsIC extends AbstractCosemObject {
         return readDataType(GSMDiagnosticsAttributes.MS_ISDN_NUMBER, OctetString.class);
     }
 
+    public Structure readPP3NetworkStatus() throws IOException {
+        return readDataType(GSMDiagnosticsAttributes.PP3_NETWORk_STATUS, Structure.class);
+    }
+
     /**
      * Holds the total amount of data transmitted (bytes) via the modem since the last time the SIM
      * card has been swapped.

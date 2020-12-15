@@ -10,11 +10,7 @@ import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.bpm.UserTaskInfo;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.IssueFilter;
-import com.elster.jupiter.issue.share.entity.Issue;
-import com.elster.jupiter.issue.share.entity.IssueAssignee;
-import com.elster.jupiter.issue.share.entity.IssueReason;
-import com.elster.jupiter.issue.share.entity.IssueStatus;
-import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.*;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -84,6 +80,12 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
     IssueType issueType;
 
     @Mock
+    CreationRule creationRule;
+
+    @Mock
+    CreationRule alarmCreationRule;
+
+    @Mock
     DeviceAlarm deviceAlarm;
 
     @Mock
@@ -139,6 +141,7 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(issue.getIssueId()).thenReturn("DCI-1");
         when(issue.getDueDate()).thenReturn(null);
         when(issue.getStatus()).thenReturn(openStatus);
+        when(issue.getRule()).thenReturn(Optional.of(creationRule));
         when(issue.getAssignee()).thenReturn(issueAssignee);
         when(openStatus.getName()).thenReturn(IssueStatus.OPEN);
 
@@ -157,6 +160,7 @@ public class GoingOnResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(deviceAlarm.getDueDate()).thenReturn(null);
         when(deviceAlarm.getStatus()).thenReturn(openStatus);
         when(deviceAlarm.getAssignee()).thenReturn(issueAssignee);
+        when(deviceAlarm.getRule()).thenReturn(Optional.of(alarmCreationRule));
     }
 
     @Test

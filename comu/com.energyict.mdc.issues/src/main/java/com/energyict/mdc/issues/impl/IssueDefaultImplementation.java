@@ -45,7 +45,7 @@ public abstract class IssueDefaultImplementation implements Issue {
         this.messageArguments = Stream.of(arguments).map(o -> {
             if (o instanceof Exception) {
                 exception = Optional.of((Exception) o);
-                return null;
+                return ((Exception) o).getMessage();
             } else {
                 return o;
             }
