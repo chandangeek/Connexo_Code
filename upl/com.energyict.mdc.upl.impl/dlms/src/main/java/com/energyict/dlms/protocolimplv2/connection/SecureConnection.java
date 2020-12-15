@@ -446,7 +446,9 @@ public class SecureConnection implements DLMSConnection, DlmsV2Connection, Retry
      * @param data - payload
      */
     protected void hexDump(String description, byte[] data){
-        ProtocolUtils.hexDump(getSessionName(), description, data);
+        if (ProtocolUtils.isHexDumpEnabled()) {
+            ProtocolUtils.hexDump(getSessionName(), description, data);
+        }
     }
 
     /**

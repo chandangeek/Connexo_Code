@@ -1516,6 +1516,11 @@ public class ProtocolUtils {
         }
     }
 
+    public static boolean isHexDumpEnabled() {
+        // writing to file disabled if null or empty
+        return hexDumpFolder != null && !hexDumpFolder.trim().isEmpty();
+    }
+
     public static void validateIpAddress(String ipAddress) throws ProtocolException {
         if (ipAddress.split("\\.").length != 4) {
             throw new ProtocolException("Parameter IP_Address contains no valid IP address. The Ip-address does not contain four elements");
@@ -1540,14 +1545,17 @@ public class ProtocolUtils {
         StringBuilder sb = new StringBuilder();
         String dateNow = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
         sb.append("# "+dateNow).append("\n");
-        sb.append(description);
-        for (int j = 0; j < msg.length; j++) {
-            if (j % 8 == 0 ) {
-                sb.append("\n");
-                sb.append(String.format("%06X ", j ) );
-            }
+        if (description != null)
+            sb.append(description);
+        if (msg != null) {
+            for (int j = 0; j < msg.length; j++) {
+                if (j % 8 == 0) {
+                    sb.append("\n");
+                    sb.append(String.format("%06X ", j));
+                }
 
-            sb.append(String.format("%02X ", msg[j]) );
+                sb.append(String.format("%02X ", msg[j]));
+            }
         }
         sb.append("\n");
 
@@ -1559,11 +1567,8 @@ public class ProtocolUtils {
     }
 
     private static void writeToFile(String sessionName, String message) {
-        if (hexDumpFolder==null){
-            return; // writing to file disabled
-        }
-        if (hexDumpFolder.trim().isEmpty()){
-            return; // writing to file disabled
+        if (!isHexDumpEnabled()) {
+            return;
         }
 
         String dateToday = new SimpleDateFormat("yyy-MM-dd").format(new Date());

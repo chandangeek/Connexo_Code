@@ -819,4 +819,14 @@ public class ProtocolToolsTest {
         String dump = ProtocolUtils.hexDump("name","testOutput", msg);
         assertTrue(dump.endsWith(expected));
     }
+
+    @Test
+    public void testHexDumpNull() {
+        assertNotNull(ProtocolUtils.hexDump(null,null,null));
+    }
+
+    @Test
+    public void testIsHexDumpEnabled() {
+        assertFalse(ProtocolUtils.isHexDumpEnabled());
+    }
 }
