@@ -112,7 +112,7 @@ public class RTM extends AbstractProtocol implements MessageProtocol, ProtocolLi
         if (getExtendedLogging() >= 1) {
             getObisCodeMapper().getRegisterExtendedLogging();
         }
-        if (getInitialRFCommand() == 0x07) {
+        if (getInitialRFCommand() == 0x07 && super.getNumberOfChannels() != 0) {
             getRadioCommandFactory().readExtendedDataloggingTable(((int) Math.pow(2, super.getNumberOfChannels())) - 1, 24 / super.getNumberOfChannels());
         }
         if (getInitialRFCommand() == 0x01) {

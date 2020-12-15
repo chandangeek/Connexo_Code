@@ -319,10 +319,12 @@ public class ParseUtils {
     }
 
     public static void roundUp2nearestInterval(Calendar cal, int profileInterval) throws IOException {
-        int rest = (int)(cal.getTime().getTime()/1000) % profileInterval;
-        if (rest > 0) {
-			cal.add(Calendar.SECOND,profileInterval - rest);
-		}
+        if(profileInterval != 0) {
+            int rest = (int) (cal.getTime().getTime() / 1000) % profileInterval;
+            if (rest > 0) {
+                cal.add(Calendar.SECOND, profileInterval - rest);
+            }
+        }
     }
 
     public static void roundDown2nearestInterval(Calendar cal, int profileInterval) {

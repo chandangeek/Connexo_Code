@@ -60,7 +60,7 @@ public class MeterFactors extends AbstractTable {
     
     public BigDecimal getDemandMultiplier() throws IOException {
         BigDecimal bd =  getKFactors().movePointLeft(3); // kW = pulseCount * (kf / 1000) * (intervals/hour) S4 implementation guide page 174
-        bd = bd.multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
+        bd=getTableFactory().getC12ProtocolLink().getProfileInterval()==0 ? bd : bd.multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
         return bd;
     }
     

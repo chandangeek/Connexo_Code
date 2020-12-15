@@ -314,7 +314,9 @@ public class S4LoadProfile {
             date = s4.getTime();
             long profileInterval = s4.getProfileInterval();
             long seconds = date.getTime()/1000;
-            offset2IntervalBoundary = seconds%profileInterval;
+            if(profileInterval != 0) {
+                offset2IntervalBoundary = seconds % profileInterval;
+            }
             if ((offset2IntervalBoundary<5) || (offset2IntervalBoundary>(profileInterval-10))) {
                 try {
                     Thread.sleep(5000);

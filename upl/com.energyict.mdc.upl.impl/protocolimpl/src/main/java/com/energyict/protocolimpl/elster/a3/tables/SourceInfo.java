@@ -128,8 +128,11 @@ public class SourceInfo {
                 bd = bd.multiply(multiplier);
                 if (loadProfile) {
                     bd = applyDivisors(bd, index);
-                    if (!energy) 
-                        bd = bd.multiply(BigDecimal.valueOf((3600/alphaA3.getProfileInterval()))); //,BigDecimal.ROUND_HALF_UP);
+                    if (!energy) {
+                        if (alphaA3.getProfileInterval() != 0) {
+                            bd = bd.multiply(BigDecimal.valueOf((3600 / alphaA3.getProfileInterval())));//,BigDecimal.ROUND_HALF_UP);
+                        }
+                    }
                 }
 //System.out.println("bd="+bd);           
                 

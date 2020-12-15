@@ -74,11 +74,11 @@ public class CTVT extends AbstractLogicalAddress {
     }
     
     private int getCTRatio() {
-        return Integer.parseInt(getCtPrimary())/Integer.parseInt(getCtSecondary()); 
+        return Integer.parseInt(getCtSecondary()) == 0 ? 0 : Integer.parseInt(getCtPrimary())/Integer.parseInt(getCtSecondary());
     }
     
     private int getVTRatio() {
-        return Integer.parseInt(getVtPrimary())/Integer.parseInt(getVtSecondary()); 
+        return Integer.parseInt(getVtSecondary()) == 0 ? 0 : Integer.parseInt(getVtPrimary())/Integer.parseInt(getVtSecondary());
     }
     
     public int getMultiplier() {

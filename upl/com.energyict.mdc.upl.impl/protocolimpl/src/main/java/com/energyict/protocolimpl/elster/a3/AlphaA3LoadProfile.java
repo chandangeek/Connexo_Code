@@ -271,7 +271,10 @@ public class AlphaA3LoadProfile {
         /**************************************************************************************************************************************************
          R E A D  A N D  C O L L E C T  B L O C K S
          **************************************************************************************************************************************************/
-        int intervals2Retrieve = (int) ((((to.getTime() - lastReading.getTime()) / 1000) / alphaA3.getProfileInterval()) + 2) + alphaA3.getRetrieveExtraIntervals();
+        int intervals2Retrieve=0;
+        if(alphaA3.getProfileInterval() != 0) {
+            intervals2Retrieve  = (int) ((((to.getTime() - lastReading.getTime()) / 1000) / alphaA3.getProfileInterval()) + 2) + alphaA3.getRetrieveExtraIntervals();
+        }
         boolean leaveLoop = false;
         while (!leaveLoop) {
 
@@ -582,7 +585,9 @@ public class AlphaA3LoadProfile {
             date = alphaA3.getTime();
             long profileInterval = alphaA3.getProfileInterval();
             long seconds = date.getTime() / 1000;
-            offset2IntervalBoundary = seconds % profileInterval;
+            if(profileInterval != 0) {
+                offset2IntervalBoundary = seconds % profileInterval;
+            }
             if ((offset2IntervalBoundary < 5) || (offset2IntervalBoundary > (profileInterval - 10))) {
                 try {
                     Thread.sleep(5000);

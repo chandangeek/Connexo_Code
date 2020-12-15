@@ -38,7 +38,8 @@ public class ServiceTypeTable extends AbstractTable {
     
     
     public BigDecimal getCurrentMultiplier() throws IOException {
-        return CurrentClass.findCurrentClass(getTypeDescription().getClassType()).getMultiplier().multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
+        BigDecimal bd=CurrentClass.findCurrentClass(getTypeDescription().getClassType()).getMultiplier();
+        return getTableFactory().getC12ProtocolLink().getProfileInterval()==0? bd : bd.multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
     }
     
     public String toString() {

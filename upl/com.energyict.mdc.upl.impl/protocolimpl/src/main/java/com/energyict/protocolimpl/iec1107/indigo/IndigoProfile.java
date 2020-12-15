@@ -138,8 +138,11 @@ public class IndigoProfile {
             
             // *********************************************************************************************************************
             // build the intervaldata
-            if (!noProfileData) { 
-                int intervalsPerDay = (3600*24)/getLogicalAddressFactory().getProtocolLink().getProfileInterval();
+            int intervalsPerDay=0;
+            if (!noProfileData) {
+                if(getLogicalAddressFactory().getProtocolLink().getProfileInterval() != 0) {
+                    intervalsPerDay = (3600 * 24) / getLogicalAddressFactory().getProtocolLink().getProfileInterval();
+                }
                 List intervalDatas=new ArrayList();
                 ProfileDay statusChannel=null;
                 if (profileDays[profileDays.length-1].isStatusChannel())

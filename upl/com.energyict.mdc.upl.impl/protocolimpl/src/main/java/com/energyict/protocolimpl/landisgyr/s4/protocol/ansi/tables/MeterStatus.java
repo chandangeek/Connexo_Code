@@ -51,7 +51,8 @@ public class MeterStatus extends AbstractTable {
     }
 
     public BigDecimal getVoltageMultiplier() throws IOException {
-        return VoltageCode.findVoltageCode(getVoltageCode()).getMultiplier().multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
+        BigDecimal bd=VoltageCode.findVoltageCode(getVoltageCode()).getMultiplier();
+        return getTableFactory().getC12ProtocolLink().getProfileInterval()==0? bd:bd.multiply(BigDecimal.valueOf(3600/getTableFactory().getC12ProtocolLink().getProfileInterval()));
     }
     
     protected void parse(byte[] tableData) throws IOException {
