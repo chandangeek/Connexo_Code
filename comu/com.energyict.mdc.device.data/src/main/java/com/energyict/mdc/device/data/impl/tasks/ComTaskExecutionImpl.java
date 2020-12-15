@@ -922,15 +922,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
         LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = "+this.toString());
-        this.update(ComTaskExecutionFields.COMPORT.fieldName(),
-                ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
-                ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
-                ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
-                ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
-                ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
-                ComTaskExecutionFields.ONHOLD.fieldName(),
-                ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
-
         if (informConnectionTask) {
             this.getConnectionTask().ifPresent(ct -> {
                 if (!calledByConnectionTask) {
@@ -939,6 +930,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 calledByConnectionTask = false;
             });
         }
+        this.update(ComTaskExecutionFields.COMPORT.fieldName(),
+                ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
+                ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
+                ComTaskExecutionFields.NEXTEXECUTIONTIMESTAMP.fieldName(),
+                ComTaskExecutionFields.CURRENTRETRYCOUNT.fieldName(),
+                ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
+                ComTaskExecutionFields.ONHOLD.fieldName(),
+                ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
     }
 
     @Override
@@ -1866,10 +1865,10 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         @SuppressWarnings("unchecked")
         public ComTaskExecutionImpl update() {
-            this.comTaskExecution.update();
             if (this.connectionTaskSchedulingMayHaveChanged) {
                 this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this.comTaskExecution));
             }
+            this.comTaskExecution.update();
             return this.comTaskExecution;
         }
 
