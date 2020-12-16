@@ -288,21 +288,17 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public void scheduledComTaskRescheduled(ComTaskExecution comTask) {
-        List<String> fields = new ArrayList<>();
         if (this.connectionStrategy.equals(ConnectionStrategy.MINIMIZE_CONNECTIONS)) {
             calledByComtaskExecution = true;
             if (comTask.getNextExecutionTimestamp() == null) {
                 updateNextExecutionTimeStampBasedOnComTask();
-                fields.add(ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName());
             } else {
                 this.schedule(comTask.getNextExecutionTimestamp().minusMillis(1));
             }
         } else {
             this.schedule(comTask.getNextExecutionTimestamp());
         }
-        setExecutingComPort(null);
-        fields.add(ConnectionTaskFields.COM_PORT.fieldName());
-        update(fields.toArray(new String[fields.size()]));
+        updateExecutingComPort(null);
     }
 
     @Override
