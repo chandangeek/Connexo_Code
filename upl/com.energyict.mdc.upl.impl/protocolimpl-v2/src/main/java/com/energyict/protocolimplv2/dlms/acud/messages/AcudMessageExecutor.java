@@ -46,6 +46,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     public static final ObisCode STEP_TARIFF_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.9.255");
     public static final ObisCode TAX_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.10.255");
 
+    public static final ObisCode FRIENDLY_DAY_PERIOD_OBIS = ObisCode.fromString("0.0.94.20.72.255");
+    public static final ObisCode FRIENDLY_WEEKDAYS_OBIS = ObisCode.fromString("0.0.94.20.73.255");
+
     private static final int COMMODITY_OBIS_CLASS_ID = 3;
     private static final ObisCode COMMODITY_OBIS_CODE = ObisCode.fromString("7.0.3.1.0.255");
     private static final int COMMODITY_OBIS_ATTRIBUT_INDEX = 3;
@@ -122,6 +125,14 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             changeStepTariffConfig(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_TAX_RATES)) {
             changeTaxRates(pendingMessage);
+
+        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.FRIENDLY_DAY_PERIOD_UPDATE)) {
+            friendlyPeriodUpdate(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.FRIENDLY_WEEKDAYS_UPDATE)) {
+            friendlyWeekdaysUpdate(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
+            writeSpecialDays(pendingMessage);
+
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
             getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
@@ -382,6 +393,47 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     protected void addStepTarifCharge(OfflineDeviceMessage pendingMessage, Structure changeStep, Integer step) throws IOException {
         Integer charge = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, CHARGE_STEP + step));
         changeStep.addDataType(new Unsigned16(charge));
+    }
+
+    private void friendlyPeriodUpdate(OfflineDeviceMessage pendingMessage) throws IOException {
+        Integer hourStart = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyHourStart));
+        Integer minStart = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyMinuteStart));
+        Integer secStart = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlySecondStart));
+        Integer hndStart = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyHundredthsStart));
+
+        Integer hourStop = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyHourStop));
+        Integer minStop = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyMinuteStop));
+        Integer secStop = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlySecondStop));
+        Integer hndStop = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyHundredthsStop));
+
+        Structure startStructure = createTimeStructure(hourStart, minStart, secStart, hndStart);
+        Structure stopStructure = createTimeStructure(hourStop, minStop, secStop, hndStop);
+        Structure periodStructure = new Structure();
+        periodStructure.addDataType(startStructure);
+        periodStructure.addDataType(stopStructure);
+        getCosemObjectFactory().writeObject(FRIENDLY_DAY_PERIOD_OBIS, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), periodStructure.getBEREncodedByteArray());
+    }
+
+    private Structure createTimeStructure(Integer hourStart, Integer minStart, Integer secStart, Integer hndStart) {
+        Structure startStructure = new Structure();
+        startStructure.addDataType(new Unsigned8(hourStart));
+        startStructure.addDataType(new Unsigned8(minStart));
+        startStructure.addDataType(new Unsigned8(secStart));
+        startStructure.addDataType(new Unsigned8(hndStart));
+        return startStructure;
+    }
+
+    private void friendlyWeekdaysUpdate(OfflineDeviceMessage pendingMessage) throws IOException {
+        Integer weekdays = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.friendlyWeekdays),2);
+        BitString weekdaysBits = new BitString(weekdays, 8);
+        getCosemObjectFactory().writeObject(FRIENDLY_WEEKDAYS_OBIS, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), weekdaysBits.getBEREncodedByteArray());
+    }
+
+    private void writeSpecialDays(OfflineDeviceMessage pendingMessage) throws IOException {
+        SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+        String specialDaysHex = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
+        Array specialDaysArray = new Array(ProtocolTools.getBytesFromHexString(specialDaysHex, ""), 0, 0);
+        specialDaysTable.writeSpecialDays(specialDaysArray);
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {

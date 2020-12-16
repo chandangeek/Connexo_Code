@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -11,6 +12,7 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.*;
@@ -26,11 +28,13 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
     private final NlsService nlsService;
     private final Converter converter;
     private final PropertySpecService propertySpecService;
+    private final TariffCalendarExtractor calendarExtractor;
     protected final DeviceMessageFileExtractor messageFileExtractor;
     private AcudMessageExecutor messageExecutor;
 
-    public AcudMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+    public AcudMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         super(protocol);
+        this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
@@ -56,6 +60,9 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 ChargeDeviceMessage.CHANGE_TAX_RATES.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ChargeDeviceMessage.CHANGE_CHARGE_PROPORTION.get(this.propertySpecService, this.nlsService, this.converter),
                 ChargeDeviceMessage.UPDATE_UNIT_CHARGE.get(this.propertySpecService, this.nlsService, this.converter),
+                ChargeDeviceMessage.FRIENDLY_DAY_PERIOD_UPDATE.get(getPropertySpecService(), getNlsService(), getConverter()),
+                ChargeDeviceMessage.FRIENDLY_WEEKDAYS_UPDATE.get(getPropertySpecService(), getNlsService(), getConverter()),
+                ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
                 ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter));
@@ -65,6 +72,8 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
         if (propertySpec.getName().equals(DeviceMessageConstants.activationDate))
             return String.valueOf(((Date) messageAttribute).getTime());
+        if (propertySpec.getName().equals(DeviceMessageConstants.specialDaysAttributeName))
+            return parseSpecialDays((TariffCalendar) messageAttribute, this.calendarExtractor);
         if (propertySpec.getName().equals(DeviceMessageConstants.passiveUnitChargeActivationTime))
             return String.valueOf(((Date) messageAttribute).getTime());
         if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))

@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.acud.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -14,8 +15,8 @@ import java.util.List;
 
 public class AcudElectricMessaging extends AcudMessaging {
 
-    public AcudElectricMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
-        super(protocol, propertySpecService, nlsService, converter, messageFileExtractor);
+    public AcudElectricMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
+        super(protocol, propertySpecService, nlsService, converter, calendarExtractor, messageFileExtractor);
     }
 
     @Override

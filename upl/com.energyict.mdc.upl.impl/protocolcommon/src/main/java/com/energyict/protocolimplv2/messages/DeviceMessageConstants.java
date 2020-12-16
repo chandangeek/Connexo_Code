@@ -2087,4 +2087,24 @@ public final class DeviceMessageConstants {
     public static final String additionalTaxStep10 = "additionalTaxStep10";
     public static final String additionalTaxStep10DefaultTranslation = "Step10 Additional Tax";
 
+    public static final String friendlyHourStart = "friendlyHourStart";
+    public static final String friendlyHourStartDefaultTranslation = "Friendly Hour Start";
+    public static final String friendlyMinuteStart = "friendlyMinuteStart";
+    public static final String friendlyMinuteStartDefaultTranslation = "Friendly Minute Start";
+    public static final String friendlySecondStart = "friendlySecondStart";
+    public static final String friendlySecondStartDefaultTranslation = "Friendly Second Start";
+    public static final String friendlyHundredthsStart = "friendlySecondHundredthsStart";
+    public static final String friendlyHundredthsStartDefaultTranslation = "Friendly Second Hundredths Start";
+
+    public static final String friendlyHourStop = "Friendly Hour Stop";
+    public static final String friendlyHourStopDefaultTranslation = "Friendly Hour Stop";
+    public static final String friendlyMinuteStop = "Friendly Minute Stop";
+    public static final String friendlyMinuteStopDefaultTranslation = "Friendly Minute Stop";
+    public static final String friendlySecondStop = "Friendly Seconds Stop";
+    public static final String friendlySecondStopDefaultTranslation = "Friendly Second Stop";
+    public static final String friendlyHundredthsStop = "friendlySecondHundredthsStop";
+    public static final String friendlyHundredthsStopDefaultTranslation = "Friendly Second Hundredths Stop";
+
+    public static final String friendlyWeekdays = "friendlyWeekdays";
+    public static final String friendlyWeekdaysDefaultTranslation = "Friendly Week Days (SuSaFrThWeTuMo)";
 }

@@ -220,6 +220,31 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
+    FRIENDLY_DAY_PERIOD_UPDATE(41011, "Update the friendly day period") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlyHourStart, DeviceMessageConstants.friendlyHourStartDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(23)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlyMinuteStart, DeviceMessageConstants.friendlyMinuteStartDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(59)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlySecondStart, DeviceMessageConstants.friendlySecondStartDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(59)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlyHundredthsStart, DeviceMessageConstants.friendlyHundredthsStartDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(99)),
+
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlyHourStop, DeviceMessageConstants.friendlyHourStopDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(23)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlyMinuteStop, DeviceMessageConstants.friendlyMinuteStopDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(59)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlySecondStop, DeviceMessageConstants.friendlySecondStopDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(59)),
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.friendlyHundredthsStop, DeviceMessageConstants.friendlyHundredthsStopDefaultTranslation, new BigDecimal(0), new BigDecimal(0), new BigDecimal(99))
+
+            );
+        }
+    },
+    FRIENDLY_WEEKDAYS_UPDATE(41012, "Update the friendly week days") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpecWithDef(service, DeviceMessageConstants.friendlyWeekdays, DeviceMessageConstants.friendlyWeekdaysDefaultTranslation, "0000000")
+            );
+        }
+    }
    ;
     private final long id;
     private final String defaultNameTranslation;
@@ -251,6 +276,13 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
+    protected PropertySpec stringSpecWithDef(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String defaultValue) {
+        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .setDefaultValue(defaultValue)
+                .markRequired()
+                .finish();
+    }
+
     protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
@@ -259,10 +291,23 @@ public enum ChargeDeviceMessage implements DeviceMessageSpecSupplier {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).setDefaultValue(defValue).finish();
     }
 
+    protected PropertySpec boundedBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defValue, BigDecimal minValue, BigDecimal maxValue) {
+        return this.boundedBigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, minValue, maxValue).setDefaultValue(defValue).finish();
+    }
+
     protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .bigDecimalSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired();
+    }
+
+    protected PropertySpecBuilder<BigDecimal> boundedBigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal lowerLimit, BigDecimal upperLimit) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .boundedBigDecimalSpec(lowerLimit, upperLimit)
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired();

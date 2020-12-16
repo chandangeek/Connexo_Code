@@ -23,6 +23,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -63,14 +64,16 @@ public abstract class Acud extends AbstractDlmsProtocol {
 
     private final Converter converter;
     private final NlsService nlsService;
+    private final TariffCalendarExtractor calendarExtractor;
     private final DeviceMessageFileExtractor messageFileExtractor;
 
     private AcudMessaging messaging;
 
-    public Acud(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+    public Acud(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
+        this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
     }
 
@@ -203,7 +206,7 @@ public abstract class Acud extends AbstractDlmsProtocol {
     }
 
     protected AcudMessaging createProtocolMessaging() {
-        return new AcudMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
+        return new AcudMessaging(this, getPropertySpecService(), getNlsService(), getConverter(), getTariffCalendarExtractor(), getMessageFileExtractor());
     }
 
     @Override
@@ -262,6 +265,11 @@ public abstract class Acud extends AbstractDlmsProtocol {
         }
         return super.getFirmwareVersions(serialNumber);
     }
+
+    public TariffCalendarExtractor getTariffCalendarExtractor() {
+        return calendarExtractor;
+    }
+
 
     public DeviceMessageFileExtractor getMessageFileExtractor() {
         return messageFileExtractor;

@@ -3,9 +3,8 @@ package com.energyict.protocolimplv2.dlms.acud;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
@@ -24,7 +23,9 @@ import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class AcudRegisterFactory implements DeviceRegisterSupport {
@@ -37,6 +38,8 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode ACTIVE_STEP_TARIFF = ObisCode.fromString("0.0.94.20.74.255");
     public final static ObisCode PASIVE_STEP_TARIFF = ObisCode.fromString("0.0.94.20.75.255");
     public final static ObisCode CREDIT_DAY_LIMIT = ObisCode.fromString("0.0.94.20.70.255");
+    public final static ObisCode FRIENDLY_DAY_PERIOD = ObisCode.fromString("0.0.94.20.72.255");
+    public final static ObisCode FRIENDLY_WEEKDAYS = ObisCode.fromString("0.0.94.20.73.255");
     public final static ObisCode ACTIVE_FIRMWARE = ObisCode.fromString("0.0.0.2.0.255");
     public static final Integer NEW_ACCOUNT = 1;
     public static final Integer ACTIVE_ACCOUNT = 2;
@@ -86,7 +89,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                 } else if (attribute.isOctetString() && attribute.getOctetString() != null) {
                     registerValue = new RegisterValue(obisCode, attribute.getOctetString().stringValue());
                 } else if (attribute.isBitString() && attribute.getBitString() != null) {
-                    registerValue = new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit.get("")));
+                    registerValue = readBitString(obisCode, attribute);
                 } else if (attribute.isDateTime()) {
                     registerValue = new RegisterValue(obisCode, attribute.getDateTime().getCalendar(protocol.getTimeZone()).getTime());
                 } else {
@@ -123,6 +126,15 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                 CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(obisCode);
                 int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
                 registerValue = new RegisterValue(obisCode, new Quantity(amount, Unit.get("")));
+            } else if (uo.getClassID() == DLMSClassId.SPECIAL_DAYS_TABLE.getClassId()) {
+                SpecialDaysTable specialDaysTable = protocol.getDlmsSession().getCosemObjectFactory().getSpecialDaysTable(obisCode);
+                Array specialDays = specialDaysTable.readSpecialDays();
+                StringBuffer buff = new StringBuffer("");
+                for (int i=0; i < specialDays.nrOfDataTypes(); i++) {
+                    Structure special = specialDays.getDataType(i).getStructure();
+                    appendSpecialDayString(buff, special);
+                }
+                registerValue = new RegisterValue(obisCode, buff.toString());
             } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             }
@@ -135,6 +147,15 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                 return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
             }
         }
+    }
+
+    private void appendSpecialDayString(StringBuffer buff, Structure special)  {
+        buff.append(String.valueOf(special.getDataType(0).getUnsigned16().getValue()));
+        buff.append(",");
+        buff.append(AXDRDate.toDescription(special.getDataType(1).getOctetString()));
+        buff.append(",");
+        buff.append(String.valueOf(special.getDataType(2).getUnsigned8().getValue()));
+        buff.append(";\n");
     }
 
     protected RegisterValue readStructure(ObisCode obisCode, Structure structure) throws IOException {
@@ -166,9 +187,18 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             description = readTax(structure);
         } else if (obisCode.equals(ACTIVE_STEP_TARIFF) || obisCode.equals(PASIVE_STEP_TARIFF)) {
             description = readStepTariff(structure);
+        } else if (obisCode.equals(FRIENDLY_DAY_PERIOD)) {
+            description = readFriendlyDayPeriod(structure);
         } else
             throw new ProtocolException("Cannot decode the structure data for the obis code: " + obisCode);
         return new RegisterValue(obisCode, description);
+    }
+
+    protected RegisterValue readBitString(ObisCode obisCode, AbstractDataType attribute) {
+        if (obisCode.equals(FRIENDLY_WEEKDAYS)) {
+            return new RegisterValue(obisCode, Integer.toString(attribute.getBitString().intValue(), 2));
+        }
+        return new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit.get("")));
     }
 
     protected RegisterValue readArray(ObisCode obisCode, Array array) throws IOException {
@@ -243,6 +273,28 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             buff.append("Aditional Taxe = " + additionalTax + ", \n");
         }
         return buff.toString();
+    }
+
+    private String readFriendlyDayPeriod(Structure structure) {
+        StringBuffer buff = new StringBuffer();
+        Structure start = structure.getDataType(0).getStructure();
+        buff.append("Start period: ");
+        appendTimeString(buff, start);
+        Structure stop = structure.getDataType(1).getStructure();
+        buff.append(" Stop period: ");
+        appendTimeString(buff, stop);
+        buff.append(".");
+        return buff.toString();
+    }
+
+    private void appendTimeString(StringBuffer buff, Structure structure) {
+        buff.append(Integer.toString(structure.getDataType(0).getUnsigned8().getValue()));
+        buff.append(":");
+        buff.append(Integer.toString(structure.getDataType(1).getUnsigned8().getValue()));
+        buff.append(":");
+        buff.append(Integer.toString(structure.getDataType(2).getUnsigned8().getValue()));
+        buff.append(".");
+        buff.append(Integer.toString(structure.getDataType(3).getUnsigned8().getValue()));
     }
 
     @SuppressWarnings("unchecked")
