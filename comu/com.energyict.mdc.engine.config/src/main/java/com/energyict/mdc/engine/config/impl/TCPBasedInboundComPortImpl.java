@@ -6,10 +6,7 @@ package com.energyict.mdc.engine.config.impl;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.comserver.ComPort;
-import com.energyict.mdc.common.comserver.IPBasedInboundComPort;
-import com.energyict.mdc.common.comserver.InboundComPort;
-import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
+import com.energyict.mdc.common.comserver.*;
 import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
@@ -20,7 +17,7 @@ import javax.inject.Inject;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements TCPBasedInboundComPort, IPBasedInboundComPort, ComPort, InboundComPort {
+public class TCPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements TCPBasedInboundComPort, IPBasedInboundComPort, OutboundComPort, InboundComPort {
 
     @Inject
     protected TCPBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
