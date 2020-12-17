@@ -935,6 +935,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
                 ComTaskExecutionFields.ONHOLD.fieldName(),
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
+
         if (informConnectionTask) {
             this.getConnectionTask().ifPresent(ct -> {
                 if (!calledByConnectionTask) {

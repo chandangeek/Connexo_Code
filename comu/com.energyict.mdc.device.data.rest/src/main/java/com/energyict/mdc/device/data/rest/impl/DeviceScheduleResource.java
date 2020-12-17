@@ -17,7 +17,6 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.tasks.TaskService;

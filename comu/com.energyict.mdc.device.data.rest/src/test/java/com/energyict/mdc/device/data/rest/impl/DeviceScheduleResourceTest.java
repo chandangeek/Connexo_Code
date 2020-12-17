@@ -8,6 +8,7 @@ import com.elster.jupiter.rest.util.VersionInfo;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
+
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
@@ -18,12 +19,14 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.ComTaskExecutionUpdater;
 import com.energyict.mdc.scheduling.rest.TemporalExpressionInfo;
+
 import com.jayway.jsonpath.JsonModel;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.time.Instant;
