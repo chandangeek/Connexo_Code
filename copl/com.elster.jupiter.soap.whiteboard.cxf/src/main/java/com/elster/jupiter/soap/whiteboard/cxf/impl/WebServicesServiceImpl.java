@@ -348,8 +348,9 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence passOccurrence(long id) {
-        WebServiceCallOccurrence tmp = popOngoingOccurrence(id);
+        occurrences.invalidate(id);
         return transactionService.executeInIndependentTransaction(() -> {
+            WebServiceCallOccurrence tmp = lockOccurrenceOrThrowException(id);
             tmp.log(LogLevel.INFO, "Request completed successfully.");
             tmp.setEndTime(clock.instant());
             validateOngoingStatus(tmp);
@@ -374,8 +375,9 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence failOccurrence(long id, String message, Exception exception) {
-        WebServiceCallOccurrence tmp = popOngoingOccurrence(id);
+        occurrences.invalidate(id);
         return transactionService.executeInIndependentTransaction(() -> {
+            WebServiceCallOccurrence tmp = lockOccurrenceOrThrowException(id);
             if (exception == null) {
                 tmp.log(LogLevel.SEVERE, message);
             } else {
@@ -391,13 +393,16 @@ public class WebServicesServiceImpl implements WebServicesService {
 
     @Override
     public WebServiceCallOccurrence cancelOccurrence(long id) {
-        WebServiceCallOccurrence tmp = popOngoingOccurrence(id);
-        tmp.log(LogLevel.INFO, "Request has been cancelled.");
-        tmp.setEndTime(clock.instant());
-        validateOngoingStatus(tmp);
-        tmp.setStatus(WebServiceCallOccurrenceStatus.CANCELLED);
-        tmp.save();
-        return tmp;
+        occurrences.invalidate(id);
+        return transactionService.executeInIndependentTransaction(() -> {
+            WebServiceCallOccurrence tmp = lockOccurrenceOrThrowException(id);
+            tmp.log(LogLevel.INFO, "Request has been cancelled.");
+            tmp.setEndTime(clock.instant());
+            validateOngoingStatus(tmp);
+            tmp.setStatus(WebServiceCallOccurrenceStatus.CANCELLED);
+            tmp.save();
+            return tmp;
+        });
     }
 
     private void validateOngoingStatus(WebServiceCallOccurrence occurrence) {
@@ -407,8 +412,7 @@ public class WebServicesServiceImpl implements WebServicesService {
         }
     }
 
-    private WebServiceCallOccurrence popOngoingOccurrence(long id) {
-        occurrences.invalidate(id);
+    private WebServiceCallOccurrence lockOccurrenceOrThrowException(long id) {
         return webServiceCallOccurrenceService.findAndLockWebServiceCallOccurrence(id)
                 .orElseThrow(() -> new IllegalStateException("Web service call occurrence isn't present."));
     }
