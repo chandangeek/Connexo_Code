@@ -11,7 +11,7 @@ Ext.define('Uni.button.Action', {
     text: Uni.I18n.translate('general.actions', 'UNI', 'Actions'),
     itemId: 'actionButton',
     iconCls: 'icon icon-cog2',
-    disabled: true,
+    disabled: false,
     menuAlign: 'tr-br',
     listeners: {
         beforerender: function (button) {
