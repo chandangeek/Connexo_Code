@@ -171,6 +171,7 @@ Ext.define('Mdc.controller.setup.Messages', {
                     }
 
                     this.getMessagesActionBtn().menu = menu;
+                    this.getMessagesActionBtn().setDisabled(!inactiveEnablements && !activeEnablements);
                 }
             } else {
                 gridContainer.add(

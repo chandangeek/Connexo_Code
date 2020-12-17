@@ -89,8 +89,12 @@ Ext.define('Mdc.view.setup.messages.MessagesGrid', {
                 {
                     xtype: 'uni-button-action',
                     privileges: Mdc.privileges.DeviceType.admin,
-                    itemId: 'messages-actionbutton'
+                    itemId: 'messages-actionbutton',
+                    menu: {
+                        xtype: 'menu'
+                    }
                 }
+
             ]
         }
 
