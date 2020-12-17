@@ -17,6 +17,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.tasks.TaskService;
@@ -176,7 +177,9 @@ public class DeviceScheduleResource {
     public Response updateComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo info, @Context SecurityContext securityContext) {
         // In this method, id == id of comtaskexec
         checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
-        ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
+        ComTaskExecution comTaskExecution = resourceHelper.findComTaskExecutionOrThrowException(info.id);
+        comTaskExecution.getConnectionTask().ifPresent(ct -> resourceHelper.getLockedConnectionTask(ct.getId(), ct.getVersion()));
+        comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
         User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutionPrivilegeCheck.canExecute(comTaskExecution.getComTask(), user)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();

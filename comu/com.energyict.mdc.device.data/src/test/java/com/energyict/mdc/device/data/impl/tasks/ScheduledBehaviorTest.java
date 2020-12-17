@@ -7,7 +7,9 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 
 import java.time.Clock;
@@ -37,6 +39,8 @@ public class ScheduledBehaviorTest {
     @Mock
     private CommunicationTaskService communicationTaskService;
     @Mock
+    private ConnectionTaskService connectionTaskService;
+    @Mock
     private SchedulingService schedulingService;
     @Mock
     private Device device;
@@ -61,7 +65,7 @@ public class ScheduledBehaviorTest {
     }
 
     private ComTaskExecutionImpl setup() {
-        ComTaskExecutionImpl comTaskExecution = new ComTaskExecutionImpl(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService);
+        ComTaskExecutionImpl comTaskExecution = new ComTaskExecutionImpl(dataModel, eventService, thesaurus, clock, communicationTaskService, schedulingService, connectionTaskService);
         when(comTaskEnablement.getConnectionFunction()).thenReturn(Optional.empty());
         when(comTaskEnablement.getPartialConnectionTask()).thenReturn(Optional.empty());
         when(comTaskEnablement.getMaxNumberOfTries()).thenReturn(maxNumberOfTries);
