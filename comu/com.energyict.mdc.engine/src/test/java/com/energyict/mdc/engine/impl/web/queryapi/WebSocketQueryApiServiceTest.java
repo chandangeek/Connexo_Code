@@ -72,6 +72,7 @@ import java.util.concurrent.Future;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
@@ -90,6 +91,7 @@ import static org.mockito.Mockito.when;
  * @since 2013-04-10 (11:19)
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class WebSocketQueryApiServiceTest {
 
     private static Injector injector;

@@ -98,18 +98,18 @@ public class WebSocketQueryApiService {
      */
     @OnWebSocketMessage
     public void onMessage(byte[] data, int offset, int length) {
-        try {
+       /* try {
             String decompressedData = DataCompressor.decompressAndDecode(ProtocolUtils.getSubArray2(data, offset, offset + length), getOnlineComServer().isCompressingEnabled());
             onMessage(decompressedData);
         } catch (IOException e) {
             sendMessage(ERROR_PREFIX + FAILURE_TO_DECODE_REQUEST + e.getMessage());
             return;
-        }
+        }*/
     }
 
     @OnWebSocketMessage
     public void onMessage(String message) {
-        JSONObject jsonQuery;
+      /*  JSONObject jsonQuery;
         String queryMethodName;
         String queryId;
 
@@ -129,7 +129,7 @@ public class WebSocketQueryApiService {
             );
         } catch (JSONException e) {
             executeQuery(jsonQuery, queryMethodName, queryId);
-        }
+        }*/
 
     }
 
@@ -212,12 +212,13 @@ public class WebSocketQueryApiService {
 
     @OnWebSocketConnect
     public void onOpen(Session connection) {
-        this.connection = connection;
+        //these methods commented as no security on start up to sync the data.
+       /* this.connection = connection;
         this.connection.setIdleTimeout(0); //Infinite
         int maxMessageSize = getMaxMessageSize();
         logger.info("Setting max message size for binary/text messages to " + maxMessageSize);
         this.connection.getPolicy().setMaxBinaryMessageSize(maxMessageSize);
-        this.connection.getPolicy().setMaxTextMessageSize(maxMessageSize);
+        this.connection.getPolicy().setMaxTextMessageSize(maxMessageSize);*/
     }
 
     private int getMaxMessageSize() {
