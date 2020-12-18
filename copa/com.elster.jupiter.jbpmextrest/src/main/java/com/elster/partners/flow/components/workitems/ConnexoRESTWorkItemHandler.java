@@ -22,6 +22,7 @@ import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 @Veto
@@ -76,6 +77,7 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
             return httpclient.execute(request);
         } catch (IOException e) {
             if (RETRY_MAX_ATTEMPTS > attempt) {
+                logger.warn("Couldn't execute request on Connexo REST API. Will retry in " + RETRY_DELAY + " seconds.");
                 TimeUnit.SECONDS.sleep(RETRY_DELAY);
                 return executeHttpRequest(httpclient, request, attempt + 1);
             } else {
