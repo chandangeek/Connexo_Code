@@ -6,6 +6,8 @@ package com.energyict.protocol;
 
 public interface FrameCounterCache {
 
+    long DEFAULT_FC= -1;
+
     /**
      * Update the TX frame counter for given client ID.
      *

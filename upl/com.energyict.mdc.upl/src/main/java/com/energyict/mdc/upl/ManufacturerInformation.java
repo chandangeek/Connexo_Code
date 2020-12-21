@@ -5,7 +5,15 @@ package com.energyict.mdc.upl;
  */
 public class ManufacturerInformation {
 
-    private Manufacturer manufacturer = Manufacturer.Eict;
+    private final Manufacturer manufacturer;
+
+    public ManufacturerInformation() {
+        this.manufacturer = Manufacturer.Eict;
+    }
+
+    public ManufacturerInformation(Manufacturer manufacturer) {
+        this.manufacturer = manufacturer;
+    }
 
     public Manufacturer getManufacturer() {
         return manufacturer;
