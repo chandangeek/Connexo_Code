@@ -1237,7 +1237,7 @@
 		<apache.cxf.version>3.2.13</apache.cxf.version>
         <bouncycastle.version>1.64</bouncycastle.version>
 		<opensaml.version>1.0.1</opensaml.version>
-        <jackson.version>2.10.3</jackson.version>
+        <jackson.version>2.10.5.1</jackson.version>
 		<glassfish-jersey.version>2.13</glassfish-jersey.version>
 		<hk2.version>2.3.0-b10</hk2.version>
     </properties>
