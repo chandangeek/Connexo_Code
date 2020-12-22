@@ -21,6 +21,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import java.util.stream.Stream;
 
 @Veto
@@ -35,6 +37,9 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
     private static final String FLOW_CSRF_HEADER = "BFlowProcess";
     private static final String FLOW_PROCESS_KEY = "BPMconnexoflowProcess";
     private static final Logger logger = LoggerFactory.getLogger(ConnexoRESTWorkItemHandler.class);
+
+    private static final int RETRY_MAX_ATTEMPTS = Integer.parseInt(System.getProperty("connexo.rest.retries", "3"));
+    private static final int RETRY_DELAY = Integer.parseInt(System.getProperty("connexo.rest.delay.seconds", "60"));
 
     @Override
     protected HttpResponse doRequestWithAuthorization(HttpClient httpclient, RequestBuilder requestBuilder, Map<String, Object> params, AuthenticationType type) {
@@ -61,9 +66,23 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
             if (isFormSubmitRequest(request)) {
                 request.addHeader(FLOW_CSRF_HEADER, Base64.getEncoder().encodeToString(FLOW_PROCESS_KEY.getBytes()));
             }
+            return executeHttpRequest(httpclient, request, 0);
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Couldn't execute request on Connexo REST API.", e);
+        }
+    }
+
+    private HttpResponse executeHttpRequest(HttpClient httpclient, HttpUriRequest request, int attempt) throws IOException, InterruptedException {
+        try {
             return httpclient.execute(request);
         } catch (IOException e) {
-            throw new RuntimeException("Could not execute request on Connexo REST API!", e);
+            if (RETRY_MAX_ATTEMPTS > attempt) {
+                logger.warn("Couldn't execute request on Connexo REST API. Will retry in " + RETRY_DELAY + " seconds.");
+                TimeUnit.SECONDS.sleep(RETRY_DELAY);
+                return executeHttpRequest(httpclient, request, attempt + 1);
+            } else {
+                throw e;
+            }
         }
     }
 

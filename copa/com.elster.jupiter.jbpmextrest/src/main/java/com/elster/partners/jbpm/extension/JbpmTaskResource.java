@@ -700,12 +700,17 @@ public class JbpmTaskResource {
                 .valueOf(String.valueOf(value).replace("\"", "").replaceAll("\'", ""));
         
         EntityManager em = emf.createEntityManager();
-        String queryString = "select p.STATUS, p.PROCESSINSTANCEID as processLogid, p.PROCESSNAME, p.PROCESSVERSION, p.USER_IDENTITY, p.START_DATE, p.END_DATE, p.DURATION , v.VALUE, v.VARIABLEID"
-                + " from processinstancelog p"
-                + " LEFT JOIN (select count(*) as VARCOUNT, v1.PROCESSINSTANCEID as VPID from VARIABLEINSTANCELOG v1"
-                + " where v1.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')"
-                + " group by v1.PROCESSINSTANCEID) ON VPID = p.PROCESSINSTANCEID"
-                + " LEFT JOIN VARIABLEINSTANCELOG v ON p.PROCESSINSTANCEID = v.PROCESSINSTANCEID and VARCOUNT = 1 and v.VARIABLEID in ('alarmId', 'issueId', 'deviceId', 'usagePointId')";
+        final String outerSelectBegin = "select STATUS, PROCESSLOGID, PROCESSNAME, PROCESSVERSION, "
+                + "USER_IDENTITY, START_DATE, END_DATE, DURATION, " + "(select value from "
+                + "(select id, value from VARIABLEINSTANCELOG WHERE PROCESSINSTANCEID = PROCESSLOGID and VARIABLEID in ( 'alarmId', 'issueId', 'deviceId', 'usagePointId' ) order by id) "
+                + "where rownum = 1) as value, " + "(select variableid from "
+                + "(select id, variableid from VARIABLEINSTANCELOG WHERE PROCESSINSTANCEID = PROCESSLOGID and VARIABLEID in ( 'alarmId', 'issueId', 'deviceId', 'usagePointId' ) order by id) "
+                + "where rownum = 1) as variableid " + "from ( ";
+        final String outerSelectEnd = " ) ";
+        String queryString = "SELECT /*+ FIRST_ROWS */ "
+                + "STATUS, PROCESSINSTANCEID as PROCESSLOGID, PROCESSNAME, PROCESSVERSION, "
+                + "USER_IDENTITY, START_DATE, END_DATE, DURATION " + "FROM PROCESSINSTANCELOG p ";
+        String variableIdAndValueFilter = "";
         if (searchInAllProcesses) {
             queryString += addProcessInstanceIdFilterToQuery(filterProperties);
             queryString += addSortingToQuery(sortingProperties);
@@ -716,6 +721,14 @@ public class JbpmTaskResource {
             }
             queryString += filterToQuery;
             queryString += addSortingToQuery(sortingProperties);
+            variableIdAndValueFilter = addAllProcessesVariableIdAndValueFilter(filterProperties);
+        }
+
+        if (variableIdAndValueFilter.trim().isEmpty()) {
+            queryString = outerSelectBegin + queryString + outerSelectEnd;
+        } else {
+            queryString = "SELECT * FROM ( " + outerSelectBegin + queryString + outerSelectEnd + " ) "
+                    + variableIdAndValueFilter;
         }
 
         Query query = em.createNativeQuery(queryString);
@@ -1333,21 +1346,27 @@ public class JbpmTaskResource {
             if (theKey.equals("startedOnTo")) {
                 startedOnTo = "AND (p.START_DATE < FROM_TZ(timestamp '1970-01-01 00:00:00' + numtodsinterval(" + filterProperties.get("startedOnTo").toString() +"/1000, 'second'),'UTC') AT TIME ZONE SESSIONTIMEZONE)";
             }
-            if (theKey.equals("value")) {
-                for(int i=0;i<filterProperties.get("value").size();i++) {
-                    if(variableValue.equals("")) {
-                        variableValue += "v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"","'");
-                    }else{
-                        variableValue+= " OR v.VALUE = " + filterProperties.get("value").get(i).toString().replace("\"", "'");;
+            if (onlyHistoryProcesses) {
+                if (theKey.equals("value")) {
+                    for (int i = 0; i < filterProperties.get("value").size(); i++) {
+                        if (variableValue.equals("")) {
+                            variableValue += "v.VALUE = "
+                                    + filterProperties.get("value").get(i).toString().replace("\"", "'");
+                        } else {
+                            variableValue += " OR v.VALUE = "
+                                    + filterProperties.get("value").get(i).toString().replace("\"", "'");
+                        }
                     }
                 }
-            }
-            if (theKey.equals("variableId")) {
-                for(int i=0;i<filterProperties.get("variableId").size();i++) {
-                    if(variableId.equals("")) {
-                        variableId += "v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"","'");
-                    }else{
-                        variableId += " OR v.VARIABLEID = " + filterProperties.get("variableId").get(i).toString().replace("\"", "'");;
+                if (theKey.equals("variableId")) {
+                    for (int i = 0; i < filterProperties.get("variableId").size(); i++) {
+                        if (variableId.equals("")) {
+                            variableId += "v.VARIABLEID = "
+                                    + filterProperties.get("variableId").get(i).toString().replace("\"", "'");
+                        } else {
+                            variableId += " OR v.VARIABLEID = "
+                                    + filterProperties.get("variableId").get(i).toString().replace("\"", "'");
+                        }
                     }
                 }
             }
@@ -1381,6 +1400,48 @@ public class JbpmTaskResource {
             filter += startedOnTo;
         }
         //filter += order;
+        return filter;
+    }
+    
+    private String addAllProcessesVariableIdAndValueFilter(Map<String, JsonNode> filterProperties) {
+        String filter = "";
+        String variableId = "";
+        String variableValue = "";
+        Iterator<String> it = filterProperties.keySet().iterator();
+        while (it.hasNext()) {
+            String theKey = (String) it.next();
+            if (theKey.equals("value")) {
+                for (int i = 0; i < filterProperties.get("value").size(); i++) {
+                    if (variableValue.equals("")) {
+                        variableValue += "VALUE = "
+                                + filterProperties.get("value").get(i).toString().replace("\"", "'");
+                    } else {
+                        variableValue += " OR VALUE = "
+                                + filterProperties.get("value").get(i).toString().replace("\"", "'");
+                    }
+                }
+            }
+            if (theKey.equals("variableId")) {
+                for (int i = 0; i < filterProperties.get("variableId").size(); i++) {
+                    if (variableId.equals("")) {
+                        variableId += "VARIABLEID = "
+                                + filterProperties.get("variableId").get(i).toString().replace("\"", "'");
+                    } else {
+                        variableId += " OR VARIABLEID = "
+                                + filterProperties.get("variableId").get(i).toString().replace("\"", "'");
+                    }
+                }
+            }
+        }
+        if (!variableId.isEmpty()) {
+            filter += "AND ( " + variableId + ")";
+        }
+        if (!variableValue.isEmpty()) {
+            filter += "AND ( " + variableValue + ")";
+        }
+        if (!filter.isEmpty()) {
+            filter = "WHERE " + filter.substring(3);
+        }
         return filter;
     }
 
