@@ -398,6 +398,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_AS1253(332, "com.energyict.protocolimplv2.dlms.as253.AS1253"),
 
     WEBCATCH_DEVICE_PROTOCOL(333, "com.energyict.protocolimplv2.eict.webcatch.WebCatch", FamilyRule.EICT_RTU_EMS),
+    ELSTER_AS3000(334, "com.energyict.protocolimplv2.dlms.as3000.AS3000"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

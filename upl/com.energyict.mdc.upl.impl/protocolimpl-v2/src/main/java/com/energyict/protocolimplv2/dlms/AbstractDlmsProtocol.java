@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumberSupport {
 
-    protected DlmsProperties dlmsProperties;
+    protected DlmsSessionProperties dlmsProperties;
     protected AbstractMeterTopology meterTopology;
     protected OfflineDevice offlineDevice;
     protected HasDynamicProperties dlmsConfigurationSupport;
