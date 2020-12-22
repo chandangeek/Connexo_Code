@@ -127,7 +127,7 @@ public class IssueResource extends BaseResource {
                 String rest = "/services/rest/tasks/allprocesses?";
                 rest += "variableid=" + params.get("variableid").get(0);
                 rest += "&variablevalue=" + params.get("variablevalue").get(0);
-                jsonContent = bpmService.getBpmServer().doGet(rest, auth);
+                jsonContent = bpmService.getBpmServer().doGet(rest, auth);///rest/tasks/allprocesses?variableid=issueId&variablevalue=18005
                 if (!"".equals(jsonContent)) {
                     JSONObject obj = new JSONObject(jsonContent);
                     arr = obj.getJSONArray("processInstances");

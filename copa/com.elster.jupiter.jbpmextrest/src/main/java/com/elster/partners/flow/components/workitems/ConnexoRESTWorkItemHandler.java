@@ -38,8 +38,16 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
     private static final String FLOW_PROCESS_KEY = "BPMconnexoflowProcess";
     private static final Logger logger = LoggerFactory.getLogger(ConnexoRESTWorkItemHandler.class);
 
-    private static final int RETRY_MAX_ATTEMPTS = Integer.parseInt(System.getProperty("connexo.rest.retries", "3"));
-    private static final int RETRY_DELAY = Integer.parseInt(System.getProperty("connexo.rest.delay.seconds", "60"));
+    private static int RETRY_MAX_ATTEMPTS = Integer.parseInt(System.getProperty("connexo.rest.retries", "3"));
+    private static int RETRY_DELAY = Integer.parseInt(System.getProperty("connexo.rest.delay.seconds", "60"));
+    static {
+        if (RETRY_MAX_ATTEMPTS < 0) {
+            RETRY_MAX_ATTEMPTS = 0;
+        }
+        if (RETRY_DELAY < 0) {
+            RETRY_DELAY = 0;
+        }
+    }
 
     @Override
     protected HttpResponse doRequestWithAuthorization(HttpClient httpclient, RequestBuilder requestBuilder, Map<String, Object> params, AuthenticationType type) {
@@ -66,23 +74,35 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
             if (isFormSubmitRequest(request)) {
                 request.addHeader(FLOW_CSRF_HEADER, Base64.getEncoder().encodeToString(FLOW_PROCESS_KEY.getBytes()));
             }
-            return executeHttpRequest(httpclient, request, 0);
+            return executeHttpRequest(httpclient, request);
         } catch (IOException | InterruptedException e) {
             throw new RuntimeException("Couldn't execute request on Connexo REST API.", e);
         }
     }
 
-    private HttpResponse executeHttpRequest(HttpClient httpclient, HttpUriRequest request, int attempt) throws IOException, InterruptedException {
-        try {
-            return httpclient.execute(request);
-        } catch (IOException e) {
-            if (RETRY_MAX_ATTEMPTS > attempt) {
+    private HttpResponse executeHttpRequest(HttpClient httpclient, HttpUriRequest request) throws IOException, InterruptedException {
+        IOException exception = null;
+        HttpResponse response = null;
+
+        for (int i = 0; i <= RETRY_MAX_ATTEMPTS; i++) {
+            if (i != 0) {
                 logger.warn("Couldn't execute request on Connexo REST API. Will retry in " + RETRY_DELAY + " seconds.");
                 TimeUnit.SECONDS.sleep(RETRY_DELAY);
-                return executeHttpRequest(httpclient, request, attempt + 1);
-            } else {
-                throw e;
             }
+            try {
+                response = httpclient.execute(request);
+                if (response.getStatusLine().getStatusCode() < 400) {
+                    return response;
+                }
+                exception = null;
+            } catch (IOException e) {
+                exception = e;
+            }
+        }
+        if (exception == null) {
+            return response;
+        } else {
+            throw exception;
         }
     }
 
