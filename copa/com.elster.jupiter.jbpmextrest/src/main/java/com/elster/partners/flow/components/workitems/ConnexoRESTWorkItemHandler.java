@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.commons.services.cdi.Veto;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -90,6 +91,10 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
                 TimeUnit.SECONDS.sleep(RETRY_DELAY);
             }
             try {
+                if (response instanceof Closeable) {
+                    // if we've already got one: it's not null and if it's closeable, close it before requesting again
+                    ((Closeable) response).close();
+                }
                 response = httpclient.execute(request);
                 if (response.getStatusLine().getStatusCode() < 400) {
                     return response;
