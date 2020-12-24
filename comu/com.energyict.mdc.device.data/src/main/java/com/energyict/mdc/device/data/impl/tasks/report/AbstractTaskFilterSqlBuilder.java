@@ -59,7 +59,7 @@ public abstract class AbstractTaskFilterSqlBuilder {
         this.actualBuilder.unionAll();
     }
 
-    protected void or() {
+    protected void appendWhereOrOr() {
         this.actualBuilder.appendWhereOrOr();
     }
 

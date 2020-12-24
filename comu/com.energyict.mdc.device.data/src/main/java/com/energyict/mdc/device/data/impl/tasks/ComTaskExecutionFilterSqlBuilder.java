@@ -94,12 +94,9 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
         this.append(sqlStartClause);
         this.appendDeviceStateAndBusyTaskJoinClauses();
-        this.append(ClauseAwareSqlBuilder.existingExcludedStages(
-                DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME,
-                getRestrictedDeviceStages(),
-                this.getClock().instant())
-                .asBuilder()
-        );
+        this.append(" and exists ( ");
+        DeviceStageSqlBuilder.forExcludeStages(getRestrictedDeviceStages()).appendRestrictedStagesSelectClause(this.getActualBuilder().asBuilder(),this.getClock().instant());
+        this.append(" ) ");
         this.append(" ) ");
 
         sqlStartClause.replace(sqlStartClause.indexOf(" , CASE"), sqlStartClause.length(), " FROM " + allctedataAlias + " " + communicationTaskAliasName + " ");
@@ -112,7 +109,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             while (statusIterator.hasNext()) {
                 this.appendWhereClause(statusIterator.next());
                 if (statusIterator.hasNext()) {
-                    this.or();
+                    this.appendWhereOrOr();
                 }
             }
         }

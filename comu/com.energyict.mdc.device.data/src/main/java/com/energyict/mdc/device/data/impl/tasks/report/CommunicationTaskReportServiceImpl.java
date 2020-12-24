@@ -376,7 +376,7 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
         String alias = "cte";
         sqlBuilder.append(alias + "  as ( ");
         DeviceStageSqlBuilder
-                .forDefaultExcludedStages(alias)
+                .forDefaultExcludedStages()
                 .appendRestrictedStagesSelectClause(sqlBuilder, this.deviceDataModelService.clock().instant());
         sqlBuilder.append(" ) ");
         sqlBuilder.append("select cte.lastsess_highestpriocomplcode, count(*) from ");

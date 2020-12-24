@@ -71,6 +71,7 @@ class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecut
 
     @Override
     protected void appendStatusWhereClauses(ServerComTaskStatus taskStatus) {
+        this.appendWhereOrAnd();
         taskStatus.completeFindBySqlBuilder(this.getActualBuilder(), this.getClock());
     }
 
