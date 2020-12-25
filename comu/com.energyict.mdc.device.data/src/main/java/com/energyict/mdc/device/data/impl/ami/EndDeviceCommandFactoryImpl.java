@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.StepTariffInfo;
+import com.elster.jupiter.metering.ami.ChangeTaxRatesInfo;
 import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -264,6 +265,9 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
     public EndDeviceCommand createChangeStepTariffCommand(EndDevice endDevice, StepTariffInfo stepTariffInfo) throws UnsupportedCommandException {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.CHANGE_STEP_TARIFF));
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.tariffCode), stepTariffInfo.tariffCode);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxesType), stepTariffInfo.additionalTaxesType);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceRecalculationType), stepTariffInfo.graceRecalculationType);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceRecalculationValue), stepTariffInfo.graceRecalculationValue);
 
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeStep1), stepTariffInfo.chargeStep1);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.priceStep1), stepTariffInfo.priceStep1);
@@ -325,6 +329,39 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.graceWarningStep10), stepTariffInfo.graceWarningStep10);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.additionalTaxStep10), stepTariffInfo.additionalTaxStep10);
 
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createChangeTaxRatesCommand(EndDevice endDevice, ChangeTaxRatesInfo taxRatesInfo) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.CHANGE_TAX_RATES));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.monthlyTax), taxRatesInfo.monthlyTax);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.zeroConsumptionTax), taxRatesInfo.zeroConsumptionTax);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.consumptionTax), taxRatesInfo.consumptionTax);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.consumptionAmount), taxRatesInfo.consumptionAmount);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.consumptionLimit), taxRatesInfo.consumptionLimit);
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createSwitchTaxAndStepTariffCommand(EndDevice endDevice, String tariffType, Instant activationDate) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.SWITCH_TAX_AND_STEP_TARIFF));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.tariffType), tariffType);
+        if (activationDate != null) {
+            PropertySpec activationDatePropertySpec = getActivationDatePropertySpec(command);
+            command.setPropertyValue(activationDatePropertySpec, Date.from(activationDate));
+        }
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createSwitchChargeModeCommand(EndDevice endDevice, String chargeMode, Instant activationDate) {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.SWITCH_CHARGE_MODE));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.chargeMode), chargeMode);
+        if (activationDate != null) {
+            PropertySpec activationDatePropertySpec = getActivationDatePropertySpec(command);
+            command.setPropertyValue(activationDatePropertySpec, Date.from(activationDate));
+        }
         return command;
     }
 

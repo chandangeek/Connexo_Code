@@ -29,3 +29,6 @@ n/a,n/a,n/a,n/a
 *,Billing,Credit,Change
 *,Billing,Charge,Change
 *,Billing,Tariff,Change
+*,Billing,Rate,Change
+*,Billing,Activation,Start
+*,Billing,Pricing,Change

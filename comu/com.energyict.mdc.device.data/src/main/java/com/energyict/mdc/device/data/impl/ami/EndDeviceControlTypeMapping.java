@@ -12,6 +12,7 @@ import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.ChangeStepTariffCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.ChangeTaxRatesCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.GenerateCSRCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.GenerateKeyPairCommand;
@@ -20,6 +21,8 @@ import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.LoadControlInitiateCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.LoadControlTerminateCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.SwitchChargeModeCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.SwitchTaxAndStepTariffCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditAmountCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditDaysLimitCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -78,6 +81,27 @@ public enum EndDeviceControlTypeMapping {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new ChangeStepTariffCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    CHANGE_TAX_RATES("0.20.86.13", Collections.singletonList(DeviceMessageId.CHANGE_TAX_RATE)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new ChangeTaxRatesCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    SWITCH_TAX_AND_STEP_TARIFF("0.20.283.54", Collections.singletonList(DeviceMessageId.SWITCH_TAX_AND_STEP_TARIFF)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new SwitchTaxAndStepTariffCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    SWITCH_CHARGE_MODE("0.20.9.13", Collections.singletonList(DeviceMessageId.SWITCH_CHARGE_MODE)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new SwitchChargeModeCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
         }
     },
 

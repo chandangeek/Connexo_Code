@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.devtools.tests.rules.TimeZoneNeutral;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
+import com.elster.jupiter.metering.ami.ChangeTaxRatesInfo;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
@@ -22,7 +23,6 @@ import com.elster.jupiter.properties.impl.PropertySpecServiceImpl;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.beans.BeanService;
-
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 
 import ch.iec.tc57._2011.enddevicecontrols.EndDeviceControlAttribute;
@@ -32,6 +32,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -40,12 +41,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
 
 @RunWith(MockitoJUnitRunner.class)
 public class HeadEndControllerTest {
@@ -54,8 +59,15 @@ public class HeadEndControllerTest {
         CREDIT_AMOUNT("creditAmount", "Credit Amount"),
         CREDIT_DAYS_LIMIT_FIRST("creditDaysLimitFirst", "Grace period before warning (days)"),
         CREDIT_DAYS_LIMIT_SCND("creditDaysLimitScnd", "Grace period before relay shall be opened (days)"),
+        TARIFF_TYPE("tariffType", "Tariff to switch"),
+        CHARGE_MODE("chargeMode", "Choose charge mode"),
+        ACTIVATION_DATE("activationDate", "Activation date"),
         CREDIT_TYPE("creditType", "Credit Type"),
-        ;
+        MONTHLY_TAX("monthlyTax", "MonthlyTax"),
+        ZERO_CONSUMPTION_TAX("zeroConsumptionTax", "Zero Consumption Tax"),
+        CONSUMPTION_TAX("consumptionTax", "Consumption Tax"),
+        CONSUMPTION_AMOUNT("consumptionAmount", "Consumption Amount (KWH)"),
+        CONSUMPTION_LIMIT("consumptionLimit", "Consumption Limit (KWH)");
 
         private final String key;
         private final String defaultFormat;
@@ -80,6 +92,10 @@ public class HeadEndControllerTest {
     private static final String OPEN_REMOTE_SWITCH = "3.31.0.23";
     private static final String UPDATE_CREDIT_DAYS_LIMIT = "9.20.8.13";
     private static final String UPDATE_CREDIT_AMOUNT = "3.20.22.13";
+    private static final String CHANGE_TAX_RATES = "3.20.86.13";
+    private static final String SWITCH_TAX_AND_STEP_TARIFF = "3.20.283.54";
+    private static final String SWITCH_CHARGE_MODE = "3.20.9.13";
+
     private static final String UNSUPPORTED_CODE = "9.9.9.9";
     private static final String UNSUPPORTED_CODE_BY_CIM_HEADEND_CONTROLLER = "0.12.32.13";
     private static final Instant NOW_DATE = ZonedDateTime.of(2020, 6, 24, 9, 5, 0, 0,
@@ -226,6 +242,178 @@ public class HeadEndControllerTest {
 
         // Asserts
         verify(commandFactory).createDisconnectCommand(endDevice, NOW_DATE);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
+    }
+
+
+    @Test
+    public void testChangeTaxRatesOperation() throws Exception {
+        mockEndDeviceControlType(CHANGE_TAX_RATES);
+
+
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Arrays.asList(
+                createAttribute(TranslationKeys.MONTHLY_TAX, "1"),
+                createAttribute(TranslationKeys.ZERO_CONSUMPTION_TAX, "1"),
+                createAttribute(TranslationKeys.CONSUMPTION_TAX, "1"),
+                createAttribute(TranslationKeys.CONSUMPTION_AMOUNT, "1"),
+                createAttribute(TranslationKeys.CONSUMPTION_LIMIT, "1")));
+
+        DeviceCommandInfo deviceCommandInfo = headEndController.checkOperation(CHANGE_TAX_RATES, attributes);
+
+        when(commandFactory.createChangeTaxRatesCommand(eq(endDevice), any(ChangeTaxRatesInfo.class))).thenReturn(endDeviceCommand);
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        PropertySpec monthlyTaxSpec = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.MONTHLY_TAX)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec zeroConsumptionTaxSpec = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.ZERO_CONSUMPTION_TAX)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec consumptionTaxSpec = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.CONSUMPTION_TAX)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec consumptionLimitSpec = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.CONSUMPTION_LIMIT)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec consumptionAmountSpec = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.CONSUMPTION_AMOUNT)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        propertySpecs.add(monthlyTaxSpec);
+        propertySpecs.add(zeroConsumptionTaxSpec);
+        propertySpecs.add(consumptionTaxSpec);
+        propertySpecs.add(consumptionLimitSpec);
+        propertySpecs.add(consumptionAmountSpec);
+
+        when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(propertySpecs);
+
+        // Business method
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
+
+        // Asserts
+        ArgumentCaptor<ChangeTaxRatesInfo> argument = ArgumentCaptor.forClass(ChangeTaxRatesInfo.class);
+        verify(commandFactory).createChangeTaxRatesCommand(eq(endDevice), argument.capture());
+        assert (argument.getValue().monthlyTax.equals(BigDecimal.ONE));
+        assert (argument.getValue().zeroConsumptionTax.equals(BigDecimal.ONE));
+        assert (argument.getValue().consumptionTax.equals(BigDecimal.ONE));
+        assert (argument.getValue().consumptionAmount.equals(BigDecimal.ONE));
+        assert (argument.getValue().consumptionLimit.equals(BigDecimal.ONE));
+
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
+    }
+
+    @Test(expected = CommandException.class)
+    public void testSwitchTaxAndStepTariffOperationTariffTypeAttributeMissing() throws Exception {
+        mockEndDeviceControlType(SWITCH_TAX_AND_STEP_TARIFF);
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Collections.singletonList(createAttribute(TranslationKeys.ACTIVATION_DATE, NOW_DATE.toString())));
+
+        headEndController.checkOperation(SWITCH_TAX_AND_STEP_TARIFF, attributes);
+    }
+
+    @Test(expected = CommandException.class)
+    public void testSwitchTaxAndStepTariffOperationActivationDateAttributeMissing() throws Exception {
+        mockEndDeviceControlType(SWITCH_TAX_AND_STEP_TARIFF);
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Collections.singletonList(createAttribute(TranslationKeys.TARIFF_TYPE, "Some")));
+
+        headEndController.checkOperation(SWITCH_TAX_AND_STEP_TARIFF, attributes);
+    }
+
+    @Test
+    public void testSwitchTaxAndStepTariffOperation() throws Exception {
+        mockEndDeviceControlType(SWITCH_TAX_AND_STEP_TARIFF);
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Arrays.asList(
+                createAttribute(TranslationKeys.TARIFF_TYPE, "Passive step tariff"),
+                createAttribute(TranslationKeys.ACTIVATION_DATE, NOW_DATE.toString())));
+
+        DeviceCommandInfo deviceCommandInfo = headEndController.checkOperation(SWITCH_TAX_AND_STEP_TARIFF, attributes);
+
+        when(commandFactory.createSwitchTaxAndStepTariffCommand(endDevice, "Passive step tariff", NOW_DATE)).thenReturn(endDeviceCommand);
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        PropertySpec tariffTypeSpec = propertySpecService
+                .specForValuesOf(new StringFactory())
+                .named(TranslationKeys.TARIFF_TYPE)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec dateTimeSpec = propertySpecService
+                .specForValuesOf(new DateAndTimeFactory())
+                .named(TranslationKeys.ACTIVATION_DATE)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        propertySpecs.add(tariffTypeSpec);
+        propertySpecs.add(dateTimeSpec);
+        when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(propertySpecs);
+
+        // Business method
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
+
+        // Asserts
+        verify(commandFactory).createSwitchTaxAndStepTariffCommand(endDevice, "Passive step tariff", NOW_DATE);
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
+    }
+
+    @Test(expected = CommandException.class)
+    public void testSwitchSwitchChargeModeOperationTariffTypeAttributeMissing() throws Exception {
+        mockEndDeviceControlType(SWITCH_CHARGE_MODE);
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Collections.singletonList(createAttribute(TranslationKeys.ACTIVATION_DATE, NOW_DATE.toString())));
+
+        headEndController.checkOperation(SWITCH_CHARGE_MODE, attributes);
+    }
+
+    @Test(expected = CommandException.class)
+    public void testSwitchSwitchChargeModeOperationActivationDateAttributeMissing() throws Exception {
+        mockEndDeviceControlType(SWITCH_CHARGE_MODE);
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Collections.singletonList(createAttribute(TranslationKeys.CHARGE_MODE, "Some")));
+
+        headEndController.checkOperation(SWITCH_CHARGE_MODE, attributes);
+    }
+
+    @Test
+    public void testSwitchChargeModeOperation() throws Exception {
+        mockEndDeviceControlType(SWITCH_CHARGE_MODE);
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Arrays.asList(
+                createAttribute(TranslationKeys.CHARGE_MODE, "Prepaid"),
+                createAttribute(TranslationKeys.ACTIVATION_DATE, NOW_DATE.toString())));
+
+        DeviceCommandInfo deviceCommandInfo = headEndController.checkOperation(SWITCH_CHARGE_MODE, attributes);
+
+        when(commandFactory.createSwitchChargeModeCommand(endDevice, "Prepaid", NOW_DATE)).thenReturn(endDeviceCommand);
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        PropertySpec chargeTypeSpec = propertySpecService
+                .specForValuesOf(new StringFactory())
+                .named(TranslationKeys.CHARGE_MODE)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec dateTimeSpec = propertySpecService
+                .specForValuesOf(new DateAndTimeFactory())
+                .named(TranslationKeys.ACTIVATION_DATE)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        propertySpecs.add(chargeTypeSpec);
+        propertySpecs.add(dateTimeSpec);
+        when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(propertySpecs);
+
+        // Business method
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
+
+        // Asserts
+        verify(commandFactory).createSwitchChargeModeCommand(endDevice, "Prepaid", NOW_DATE);
         verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 

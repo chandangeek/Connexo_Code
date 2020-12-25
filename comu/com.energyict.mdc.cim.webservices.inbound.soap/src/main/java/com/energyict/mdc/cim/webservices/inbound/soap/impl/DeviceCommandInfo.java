@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
+import com.elster.jupiter.metering.ami.ChangeTaxRatesInfo;
 import com.elster.jupiter.metering.ami.StepTariffInfo;
 
 import java.math.BigDecimal;
@@ -18,6 +19,9 @@ public class DeviceCommandInfo {
     private String creditType;
     private BigDecimal creditAmount;
     private StepTariffInfo stepTariffInfo;
+    private ChangeTaxRatesInfo changeTaxRatesInfo;
+    private String tariffType;
+    private String chargeMode;
 
     public EndDeviceControlTypeMapping getEndDeviceControlTypeMapping() {
         return endDeviceControlTypeMapping;
@@ -73,5 +77,30 @@ public class DeviceCommandInfo {
 
     public void setStepTariffInfo(StepTariffInfo stepTariffInfo) {
         this.stepTariffInfo = stepTariffInfo;
+    }
+
+
+    public ChangeTaxRatesInfo getChangeTaxRatesInfo() {
+        return changeTaxRatesInfo;
+    }
+
+    public void setChangeTaxRatesInfo(ChangeTaxRatesInfo changeTaxRatesInfo) {
+        this.changeTaxRatesInfo = changeTaxRatesInfo;
+    }
+
+    public String getTariffType() {
+        return tariffType;
+    }
+
+    public void setTariffType(String tariffType) {
+        this.tariffType = tariffType;
+    }
+
+    public String getChargeMode() {
+        return chargeMode;
+    }
+
+    public void setChargeMode(String chargeMode) {
+        this.chargeMode = chargeMode;
     }
 }
