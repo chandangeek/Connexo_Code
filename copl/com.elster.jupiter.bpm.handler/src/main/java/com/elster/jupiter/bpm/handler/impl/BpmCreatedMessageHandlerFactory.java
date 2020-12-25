@@ -9,10 +9,7 @@ import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.util.json.JsonService;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Clock;
@@ -24,21 +21,13 @@ public class BpmCreatedMessageHandlerFactory implements MessageHandlerFactory {
     private volatile BpmService bpmService;
     private volatile Clock clock;
 
-    public BpmCreatedMessageHandlerFactory(){
+    public BpmCreatedMessageHandlerFactory() {
+        // for OSGi
     }
 
     @Override
     public MessageHandler newMessageHandler() {
-        return new BpmCreatedMessageHandler(jsonService, bpmService.getBpmServer());
-    }
-
-    @Activate
-    public void activate(BundleContext context) {
-    }
-
-    @Deactivate
-    public void deactivate() {
-
+        return new BpmCreatedMessageHandler(jsonService, bpmService);
     }
 
     @Reference

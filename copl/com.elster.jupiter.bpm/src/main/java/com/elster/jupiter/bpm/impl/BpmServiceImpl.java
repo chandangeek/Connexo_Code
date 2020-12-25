@@ -53,7 +53,6 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -206,14 +205,14 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     @Override
     public boolean startProcess(String deploymentId, String process, Map<String, Object> parameters) {
         verifyProcessIsAlreadyRunning(deploymentId, process, parameters, null);
-        return runProcess(deploymentId, process, parameters);
+        return runProcess(BpmProcess.identifiedByDeploymentIdAndId(deploymentId, process, parameters));
     }
 
-    private boolean runProcess(String deploymentId, String process, Map<String, Object> parameters) {
+    private boolean runProcess(BpmProcess bpmProcess) {
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
         if (found.isPresent()) {
-            String json = jsonService.serialize(new BpmProcess(deploymentId, process, parameters));
+            String json = jsonService.serialize(bpmProcess);
             found.get().message(json).send();
             result = true;
         }
@@ -242,12 +241,14 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
                     String version = task.getString("process-version");
                     if (processName.equals(bpmProcessDefinition.getProcessName()) && version.equals(bpmProcessDefinition.getVersion())) {
                         checkProcessIsAlreadyRunning(processName, version, parameters, null);
-                        return runProcess(task.getString("container-id"), task.getString("process-id"), parameters);
+                        return runProcess(BpmProcess.identifiedByDeploymentIdAndId(task.getString("container-id"), task.getString("process-id"), parameters));
                     }
                 } catch (JSONException e) {
                     throw new RuntimeException(e);
                 }
             }
+        } else {
+            return runProcess(BpmProcess.identifiedByProcessNameAndVersion(bpmProcessDefinition.getProcessName(), bpmProcessDefinition.getVersion(), parameters));
         }
         return false;
     }
@@ -258,7 +259,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
         boolean result = false;
         Optional<DestinationSpec> found = messageService.getDestinationSpec(BPM_QUEUE_DEST);
         if (found.isPresent()) {
-            String json = jsonService.serialize(new BpmProcess(deploymentId, process, parameters, auth));
+            String json = jsonService.serialize(BpmProcess.identifiedByDeploymentIdAndId(deploymentId, process, parameters, auth));
             found.get().message(json).send();
             result = true;
         }
