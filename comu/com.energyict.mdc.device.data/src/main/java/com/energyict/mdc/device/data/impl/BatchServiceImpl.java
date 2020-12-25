@@ -6,6 +6,7 @@ package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Operator;
 import com.energyict.mdc.common.device.data.Batch;
@@ -26,7 +27,16 @@ public class BatchServiceImpl implements BatchService {
 
     @Override
     public Batch findOrCreateBatch(String name) {
-        return findBatch(name).orElseGet(() -> this.createBatch(name));
+        Optional<Batch> batchOptional = findBatch(name);
+        if (batchOptional.isPresent()) {
+            return batchOptional.get();
+        } else {
+            try {
+                return createBatch(name);
+            } catch (UnderlyingSQLFailedException e) {
+                return findBatch(name).get();
+            }
+        }
     }
 
     private Optional<Batch> findBatch(String name) {

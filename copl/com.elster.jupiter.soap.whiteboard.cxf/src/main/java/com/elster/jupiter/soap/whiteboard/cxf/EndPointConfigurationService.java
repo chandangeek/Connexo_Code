@@ -4,10 +4,11 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.users.Group;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Map;
@@ -125,6 +126,8 @@ public interface EndPointConfigurationService {
 
         InboundEndPointConfigBuilder logLevel(LogLevel logLevel);
 
+        InboundEndPointConfigBuilder setPayloadSaveStrategy(PayloadSaveStrategy payloadSaveStrategy);
+
         InboundEndPointConfigBuilder withProperties(Map<String, Object> properties);
 
         EndPointConfiguration create();
@@ -145,6 +148,8 @@ public interface EndPointConfigurationService {
         OutboundEndPointConfigBuilder schemaValidation();
 
         OutboundEndPointConfigBuilder logLevel(LogLevel logLevel);
+
+        OutboundEndPointConfigBuilder setPayloadSaveStrategy(PayloadSaveStrategy payloadSaveStrategy);
 
         EndPointConfiguration create();
 

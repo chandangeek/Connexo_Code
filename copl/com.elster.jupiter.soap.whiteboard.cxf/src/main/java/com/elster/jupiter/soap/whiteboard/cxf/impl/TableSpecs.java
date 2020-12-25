@@ -12,10 +12,11 @@ import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
 import com.elster.jupiter.users.Group;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -87,6 +88,14 @@ public enum TableSpecs {
                     .map(EndPointConfigurationImpl.Fields.CLIENT_SECRET.fieldName())
                     .since(version(10, 8))
                     .add();
+            table.column(EndPointConfigurationImpl.Fields.PAYLOAD_SAVE_STRATEGY.name())
+                    .number()
+                    .notNull()
+                    .installValue(String.valueOf(PayloadSaveStrategy.ALWAYS.ordinal()))
+                    .conversion(ColumnConversion.NUMBER2ENUM)
+                    .map(EndPointConfigurationImpl.Fields.PAYLOAD_SAVE_STRATEGY.fieldName())
+                    .since(version(10, 8, 7, 1))
+                    .add();
             table.foreignKey("FK_USR_GROUP")
                     .references(Group.class)
                     .on(group)
@@ -147,13 +156,17 @@ public enum TableSpecs {
                     .conversion(CLOB2STRING)
                     .map(WebServiceCallOccurrenceImpl.Fields.PAYLOAD.fieldName())
                     .add();
-
+            table.column(WebServiceCallOccurrenceImpl.Fields.APP_SERVER_NAME.name())
+                    .varChar(14)  // Application server name should be less then 25 characters due to DB constrains (including "APPSERVER_" prefix)
+                    .map(WebServiceCallOccurrenceImpl.Fields.APP_SERVER_NAME.fieldName())
+                    .since(version(10, 8, 7))
+                    .add();
 
             table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
-    WS_OCC_RELATED_ATTR{
+    WS_OCC_RELATED_ATTR {
         @Override
         void addTo(DataModel dataModel) {
             Table<WebServiceCallRelatedAttribute> table = dataModel.addTable(this.name(), WebServiceCallRelatedAttribute.class);

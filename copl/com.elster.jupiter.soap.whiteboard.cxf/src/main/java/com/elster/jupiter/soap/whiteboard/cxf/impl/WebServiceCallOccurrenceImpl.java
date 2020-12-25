@@ -7,6 +7,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
+import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
@@ -42,6 +43,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private final DataModel dataModel;
     private final TransactionService transactionService;
     private final WebServicesService webServicesService;
+    private final ThreadPrincipalService threadPrincipalService;
 
     private long id;
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
@@ -50,6 +52,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private String requestName;
     private WebServiceCallOccurrenceStatus status;
     private String applicationName;
+    private String appServerName;
     private String payload;
 
     public enum Fields {
@@ -60,7 +63,8 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         ENDPOINT_CONFIGURATION("endPointConfiguration"),
         STATUS("status"),
         APPLICATION_NAME("applicationName"),
-        PAYLOAD("payload");
+        PAYLOAD("payload"),
+        APP_SERVER_NAME("appServerName");
 
         private final String javaFieldName;
 
@@ -76,10 +80,12 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     @Inject
     public WebServiceCallOccurrenceImpl(DataModel dataModel,
                                         TransactionService transactionService,
-                                        WebServicesService webServicesService) {
+                                        WebServicesService webServicesService,
+                                        ThreadPrincipalService threadPrincipalService) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.webServicesService = webServicesService;
+        this.threadPrincipalService  = threadPrincipalService;
     }
 
     public WebServiceCallOccurrenceImpl init(Instant startTime,
@@ -101,6 +107,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         this.status = WebServiceCallOccurrenceStatus.ONGOING;
         this.endPointConfiguration.set(endPointConfiguration);
         this.payload = payload;
+        this.appServerName = threadPrincipalService.getAppServerName().orElse(null);
         return this;
     }
 
@@ -137,6 +144,11 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     @Override
     public Optional<String> getPayload() {
         return Optional.ofNullable(payload);
+    }
+
+    @Override
+    public Optional<String> getAppServerName() {
+        return Optional.ofNullable(appServerName);
     }
 
     @Override

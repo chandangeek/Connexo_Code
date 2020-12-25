@@ -14,6 +14,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceFinderBuilder;
@@ -39,10 +40,7 @@ import org.junit.Test;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.anyList;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -60,6 +58,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
         when(user.getPrivileges(anyString())).thenReturn(Collections.singleton(privilege));
+        when(threadPrincipalService.getAppServerName()).thenReturn(Optional.of("AppServerTestName"));
     }
 
     @Test
@@ -77,6 +76,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         OutboundEndPointConfiguration ecpMock = mock(OutboundEndPointConfiguration.class);
         when(ecpMock.getLogLevel()).thenReturn(LogLevel.INFO);
         when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
+        when(ecpMock.getPayloadSaveStrategy()).thenReturn(PayloadSaveStrategy.ALWAYS);
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
@@ -136,6 +136,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         OutboundEndPointConfiguration ecpMock = mock(OutboundEndPointConfiguration.class);
         when(ecpMock.getLogLevel()).thenReturn(LogLevel.INFO);
         when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
+        when(ecpMock.getPayloadSaveStrategy()).thenReturn(PayloadSaveStrategy.ALWAYS);
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
@@ -193,6 +194,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
         OutboundEndPointConfiguration ecpMock = mock(OutboundEndPointConfiguration.class);
         when(ecpMock.getLogLevel()).thenReturn(LogLevel.INFO);
         when(ecpMock.getAuthenticationMethod()).thenReturn(EndPointAuthentication.BASIC_AUTHENTICATION);
+        when(ecpMock.getPayloadSaveStrategy()).thenReturn(PayloadSaveStrategy.ALWAYS);
         when((ecpMock).getUsername()).thenReturn("USER");
         when((ecpMock).getPassword()).thenReturn("PASSWORD");
 
@@ -303,7 +305,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
 
     private WebServiceCallOccurrence createOccurrence(Instant time, String request, String application, EndPointConfiguration endPointConfiguration) {
-        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService)
+        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService, threadPrincipalService)
                 .init(time, request, application, endPointConfiguration);
     }
 }

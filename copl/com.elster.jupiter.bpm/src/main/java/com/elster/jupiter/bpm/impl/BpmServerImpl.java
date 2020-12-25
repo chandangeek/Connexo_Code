@@ -139,16 +139,13 @@ public class BpmServerImpl implements BpmServer {
 
             int responseCode = httpConnection.getResponseCode();
             if (responseCode < 200 || responseCode >= 300) {
-                if (responseCode == 409 || responseCode == 500) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader((httpConnection.getErrorStream())));
-                    StringBuilder jsonContent = new StringBuilder();
-                    String output;
-                    while ((output = br.readLine()) != null) {
-                        jsonContent.append(output);
-                    }
-                    throw new RuntimeException(String.valueOf(responseCode) + jsonContent.toString());
+                BufferedReader br = new BufferedReader(new InputStreamReader((httpConnection.getErrorStream())));
+                StringBuilder jsonContent = new StringBuilder();
+                String output;
+                while ((output = br.readLine()) != null) {
+                    jsonContent.append(output);
                 }
-                return null;
+                throw new RuntimeException(String.valueOf(responseCode) + jsonContent.toString());
             } else {
                 BufferedReader br = new BufferedReader(new InputStreamReader(
                         (httpConnection.getInputStream())));
