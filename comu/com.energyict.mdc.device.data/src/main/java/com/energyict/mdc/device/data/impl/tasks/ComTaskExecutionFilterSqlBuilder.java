@@ -90,27 +90,27 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
         String allctedataAlias = "allctedata";
         this.append(", " + allctedataAlias + " as (");
-        StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
-        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , hp.COMTASKEXECUTION , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
-        this.append(sqlStartClause);
-        this.appendDeviceStateAndBusyTaskJoinClauses();
-        this.append(" and exists ( ");
+        String sqlStartClause = sqlBuilder.getText();
+        this.append(sqlStartClause.replace("from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName , " , hp.COMTASKEXECUTION , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName));
+        this.appendDeviceAndHighPrioAndBusyTaskJoinClauses();
+        this.append(" where exists ( ");
         DeviceStageSqlBuilder.forExcludeStages(getRestrictedDeviceStages()).appendRestrictedStagesSelectClause(this.getActualBuilder().asBuilder(),this.getClock().instant());
         this.append(" ) ");
         this.append(" ) ");
 
-        sqlStartClause.replace(sqlStartClause.indexOf(" , hp.COMTASKEXECUTION , CASE"), sqlStartClause.length(), " FROM " + allctedataAlias + " " + communicationTaskAliasName + " ");
-        this.append(sqlStartClause);
+        this.append(sqlStartClause.replace( TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName,   allctedataAlias + " " + communicationTaskAliasName + " "));
 
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         if (statusIterator.hasNext()) {
             this.getActualBuilder().appendWhereOrAnd();
+            this.append(" ( ");
             while (statusIterator.hasNext()) {
                 this.appendWhereClause(statusIterator.next());
                 if (statusIterator.hasNext()) {
                     this.appendWhereOrOr();
                 }
             }
+            this.append(" ) ");
         }
 
         if (this.taskStatuses.isEmpty()) {

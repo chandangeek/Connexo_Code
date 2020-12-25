@@ -61,19 +61,19 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         return actualBuilder;
     }
 
-    protected void appendDeviceStateJoinClauses() {
-        this.appendDeviceStateJoinClause(communicationTaskAliasName());
-        this.appendEndDevicesJoinClause();
+    protected void appendDeviceStateAndHighPrioTaskJoinClauses() {
+        this.appendDeviceJoinClause(communicationTaskAliasName());
+        this.appendDeviceStateJoinClause();
         this.appendHighPrioComtaskExecutionJoinClause();
     }
 
-    protected void appendDeviceStateAndBusyTaskJoinClauses() {
-        this.appendDeviceStateJoinClause(communicationTaskAliasName());
+    protected void appendDeviceAndHighPrioAndBusyTaskJoinClauses() {
+        this.appendDeviceJoinClause(communicationTaskAliasName());
         this.appendHighPrioComtaskExecutionJoinClause();
-        this.appendDeviceAndBusyTaskStateJoinClause(communicationTaskAliasName());
+        this.appendBusyTaskJoinClause(communicationTaskAliasName());
     }
 
-    void appendDeviceStateJoinClause(String deviceContainerAliasName) {
+    void appendDeviceJoinClause(String deviceContainerAliasName) {
         this.append(" join ");
         this.append(TableSpecs.DDC_DEVICE.name());
         this.append(" dev on ");
@@ -85,12 +85,12 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.append(" left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
     }
 
-    void appendEndDevicesJoinClause(){
+    void appendDeviceStateJoinClause(){
         this.append(" join ");
         this.append(DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME);
         this.append(" kd on dev.meterid = kd.id ");
     }
-    void appendDeviceAndBusyTaskStateJoinClause(String communicationTaskAliasName) {
+    void appendBusyTaskJoinClause(String communicationTaskAliasName) {
         this.append(" left join " + BUSY_TASK_ALIAS_NAME + " bt on bt.connectiontask = " + communicationTaskAliasName + ".id ");
     }
 

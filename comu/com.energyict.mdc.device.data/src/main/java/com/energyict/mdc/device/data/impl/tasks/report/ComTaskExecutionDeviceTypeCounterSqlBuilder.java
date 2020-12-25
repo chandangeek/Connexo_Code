@@ -55,7 +55,7 @@ class ComTaskExecutionDeviceTypeCounterSqlBuilder extends AbstractComTaskExecuti
     }
 
     private void appendJoinClauses() {
-        this.appendDeviceStateJoinClauses();
+        this.appendDeviceStateAndHighPrioTaskJoinClauses();
     }
 
     private void appendWhereClause() {

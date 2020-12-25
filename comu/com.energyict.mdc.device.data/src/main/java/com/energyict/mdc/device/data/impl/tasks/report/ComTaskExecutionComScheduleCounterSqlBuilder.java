@@ -56,7 +56,7 @@ class ComTaskExecutionComScheduleCounterSqlBuilder extends AbstractComTaskExecut
     }
 
     private void appendJoinClauses() {
-        this.appendDeviceStateJoinClauses();
+        this.appendDeviceStateAndHighPrioTaskJoinClauses();
         this.append(" join sch_comschedule cs on cte.comschedule = cs.id");
         this.append(" join sch_comtaskincomschedule ctincs on ctincs.comschedule = cs.id");
     }
