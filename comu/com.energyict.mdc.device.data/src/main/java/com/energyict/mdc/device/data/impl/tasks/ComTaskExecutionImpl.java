@@ -1898,6 +1898,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             if (this.comTaskExecution.getNextExecutionTimestamp() == null) {
                 this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
             }
+            connectionTaskSchedulingMayHaveChanged = true;
             return this;
         }
 
