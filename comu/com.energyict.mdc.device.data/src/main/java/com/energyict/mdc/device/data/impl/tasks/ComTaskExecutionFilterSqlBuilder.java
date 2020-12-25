@@ -91,7 +91,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         String allctedataAlias = "allctedata";
         this.append(", " + allctedataAlias + " as (");
         StringBuilder sqlStartClause = new StringBuilder(sqlBuilder.getText());
-        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
+        sqlStartClause.insert(sqlStartClause.indexOf("from"), " , hp.COMTASKEXECUTION , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists ");
         this.append(sqlStartClause);
         this.appendDeviceStateAndBusyTaskJoinClauses();
         this.append(" and exists ( ");
@@ -99,9 +99,8 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         this.append(" ) ");
         this.append(" ) ");
 
-        sqlStartClause.replace(sqlStartClause.indexOf(" , CASE"), sqlStartClause.length(), " FROM " + allctedataAlias + " " + communicationTaskAliasName + " ");
+        sqlStartClause.replace(sqlStartClause.indexOf(" , hp.COMTASKEXECUTION , CASE"), sqlStartClause.length(), " FROM " + allctedataAlias + " " + communicationTaskAliasName + " ");
         this.append(sqlStartClause);
-        this.appendHighPrioComtaskExecutionJoinClause();
 
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         if (statusIterator.hasNext()) {
