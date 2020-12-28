@@ -91,7 +91,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         String allctedataAlias = "allctedata";
         this.append(", " + allctedataAlias + " as (");
         String sqlStartClause = sqlBuilder.getText();
-        this.append(sqlStartClause.replace("from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName , " , hp.COMTASKEXECUTION , CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName));
+        this.append(sqlStartClause.replace("from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName , " , hp.COMTASKEXECUTION, dev.DEVICETYPE, dev.NAME, CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName));
         this.appendDeviceAndHighPrioAndBusyTaskJoinClauses();
         this.append(" where exists ( ");
         DeviceStageSqlBuilder.forExcludeStages(getRestrictedDeviceStages()).appendRestrictedStagesSelectClause(this.getActualBuilder().asBuilder(),this.getClock().instant());
