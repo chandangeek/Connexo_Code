@@ -38,6 +38,10 @@ public class AcudLoadProfileDataReader {
     private final CollectedDataFactory collectedDataFactory;
     private List<CollectedLoadProfileConfiguration> loadProfileConfigs;
     /**
+     * Keep track of a list of statusMask per LoadProfileReader
+     */
+    private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<>();
+    /**
      * Keeps track of the link between a LoadProfileReader and channel lists
      */
     private Map<LoadProfileReader, List<ChannelInfo>> channelInfosMap;
@@ -67,8 +71,10 @@ public class AcudLoadProfileDataReader {
                             ci -> ci.setName(ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 2, 5).toString())
                     );
                 }
+                // Remember these, they are re-used in method #getLoadProfileData();
+                getStatusMasksMap().put(loadProfileReader,getStatusMask(captureObjects));
+                getChannelInfosMap().put(loadProfileReader, channelInfos);
 
-                getChannelInfosMap().put(loadProfileReader, channelInfos); // Remember these, they are re-used in method #getLoadProfileData();
                 loadProfileConfiguration.setProfileInterval( profileGeneric.getCapturePeriod() );
                 loadProfileConfiguration.setChannelInfos(channelInfos);
                 loadProfileConfiguration.setSupportedByMeter(true);
@@ -98,7 +104,7 @@ public class AcudLoadProfileDataReader {
                     Calendar toCalendar = Calendar.getInstance(this.protocol.getTimeZone());
                     toCalendar.setTime(loadProfileReader.getEndReadingTime());
                     AcudProfileIntervals intervals = new AcudProfileIntervals(profile.getBufferData(fromCalendar, toCalendar),
-                            DLMSProfileIntervals.DefaultClockMask, 0, -1, null,
+                            DLMSProfileIntervals.DefaultClockMask, getStatusMasksMap().get(loadProfileReader), -1, null,
                             loadProfileReader.getProfileObisCode());
                     List<IntervalData> collectedIntervalData = intervals.parseIntervals(loadProfileConfig.getProfileInterval(), protocol.getTimeZone());
                     this.protocol.journal(" > load profile intervals parsed: " + collectedIntervalData.size());
@@ -135,6 +141,19 @@ public class AcudLoadProfileDataReader {
         return null;
     }
 
+    private int getStatusMask(List<CapturedObject> capturedObjects){
+        int counter = 0;
+        int statusMask = 0;
+        for (CapturedObject capturedObject : capturedObjects) {
+            if (isStatusChannelData(capturedObject)) {
+                statusMask |= (int) Math.pow(2, counter);
+                break;
+            }
+            counter++;
+        }
+        return statusMask;
+    }
+
     private List<ChannelInfo> getChannelInfo(List<CapturedObject> capturedObjects, String serialNumber) throws IOException {
         List<ChannelInfo> channelInfos = new ArrayList<>();
 
@@ -153,11 +172,9 @@ public class AcudLoadProfileDataReader {
                     channelInfo.setCumulative();
                 }
                 channelInfos.add(channelInfo);
-
                 counter++;
             }
         }
-
         return channelInfos;
     }
 
@@ -203,11 +220,26 @@ public class AcudLoadProfileDataReader {
         }
     }
 
+    protected Map<LoadProfileReader, Integer> getStatusMasksMap() {
+        return statusMasksMap;
+    }
+
     private Map<LoadProfileReader, List<ChannelInfo>> getChannelInfosMap() {
         if (channelInfosMap == null) {
             channelInfosMap = new HashMap<>();
         }
         return channelInfosMap;
+    }
+
+    /**
+     * Check if the data is a interval status.
+     *
+     * @param capturedObject The captured object to validate
+     * @return true if the channel is not a timestamp and a interval state bit
+     */
+    private boolean isStatusChannelData(CapturedObject capturedObject) {
+        DLMSClassId classId = DLMSClassId.findById(capturedObject.getClassId());
+        return classId != DLMSClassId.CLOCK && classId == DLMSClassId.DATA;
     }
 
     /**
