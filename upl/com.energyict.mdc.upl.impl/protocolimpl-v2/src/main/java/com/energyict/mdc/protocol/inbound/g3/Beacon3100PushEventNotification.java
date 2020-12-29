@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.cbo.ObservationDateProperty;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
@@ -14,7 +15,6 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100AbstractEventLog;
-import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +53,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      * Note that this one (Beacon main logbook) is different from the G3 gateway main logbook.
      */
     protected static final ObisCode OBIS_STANDARD_EVENT_LOG = ObisCode.fromString("0.0.99.98.1.255");
-    protected static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
+    private static final String PROVIDE_PROTOCOL_JAVA_CLASS_NAME_PROPERTY = "ProvideProtocolJavaClassName";
     private static final int PLC_G3_REGISTER_NODE = 0xC20000;
     private static final int PLC_G3_UNREGISTER_NODE = 0xC30000;
     private static final int PLC_G3_NODE_LINK_LOST = 0xCB0000;
@@ -97,7 +97,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-12-17$";
+        return "$Date: 2020-12-29$";
     }
 
     @Override
@@ -207,9 +207,8 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
             return null;
         }
 
-        CollectedTopology deviceTopology = null;
+        CollectedTopology deviceTopology = extractRegisterEventBeacon10(message);
 
-        deviceTopology = extractRegisterEventBeacon10(message);
         if (deviceTopology != null) {
             return deviceTopology;
         }

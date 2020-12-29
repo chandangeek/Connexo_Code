@@ -15,7 +15,6 @@ import com.energyict.protocol.exception.CommunicationException;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -31,9 +30,9 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     protected InboundDiscoveryContext context;
     protected ComChannel comChannel;
     protected CollectedLogBook collectedLogBook;
-    protected List<CollectedDeviceInfo> collectedDeviceInfoList;
     protected EventPushNotificationParser parser;
-    List<CollectedData> collectedDatas;
+    private List<CollectedDeviceInfo> collectedDeviceInfoList;
+    private List<CollectedData> collectedDataList;
 
     @Override
     public void initComChannel(ComChannel comChannel) {
@@ -63,10 +62,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         context.getLogger().info(this::getLoggingMessage);
         if (isJoinAttempt()) {
             G3GatewayPSKProvider pskProvider = getPskProvider();
-            String joiningMacAddress = getMeterProtocolEvent().getMessage();
-            pskProvider.addJoiningMacAddress(joiningMacAddress);
             try {
-                doProvide(pskProvider, joiningMacAddress);
+                if (!pskProvider.isInUse()) {
+                    doProvide(pskProvider);
+                }
             } catch (CommunicationException e) {
                 pskProvider.provideError(e.getMessage(), context);
             } finally {
@@ -76,13 +75,13 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
         return DiscoverResultType.DATA;
     }
 
-    protected void doProvide(G3GatewayPSKProvider pskProvider, String joiningMacAddress) throws CommunicationException {
+    private void doProvide(G3GatewayPSKProvider pskProvider) throws CommunicationException {
         DeviceProtocolSecurityPropertySet securityPropertySet = getEventPushNotificationParser().getSecurityPropertySet();
         Boolean onHold = getEventPushNotificationParser().getInboundComTaskOnHold();
         if (onHold) {
             pskProvider.provideError(getErrorMessage(), context);
         } else {
-            pskProvider.providePSK(joiningMacAddress, securityPropertySet, context);
+            pskProvider.providePSK(securityPropertySet, context);
         }
     }
 
@@ -96,12 +95,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                 logMessage.append("unknown");
             }
 
-            if (collectedLogBook!=null) {
+            if (collectedLogBook != null) {
                 if (collectedLogBook.getCollectedMeterEvents() != null) {
                     logMessage.append("].  Message: '");
-                    Iterator<MeterProtocolEvent> iterator = collectedLogBook.getCollectedMeterEvents().iterator();
-                    while (iterator.hasNext()) {
-                        MeterProtocolEvent collectedEvent = iterator.next();
+                    for (MeterProtocolEvent collectedEvent : collectedLogBook.getCollectedMeterEvents()) {
                         if (collectedEvent != null) {
                             logMessage.append(collectedEvent.getMessage());
                             logMessage.append("', protocol code: '");
@@ -149,8 +146,8 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     }
 
     protected MeterProtocolEvent getMeterProtocolEvent() {
-        if (collectedLogBook!=null){
-            if (collectedLogBook.getCollectedMeterEvents().size()>0) {
+        if (collectedLogBook != null) {
+            if (collectedLogBook.getCollectedMeterEvents().size() > 0) {
                 return collectedLogBook.getCollectedMeterEvents().get(0);
             }
         }
@@ -167,7 +164,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
-        //Nothing to do here
+        // Nothing to do here
     }
 
     @Override
@@ -177,20 +174,20 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<CollectedData> getCollectedData() {
-        if (collectedDatas == null) {
-            collectedDatas = new ArrayList<>();
-            collectedDatas.add(collectedLogBook);
+        if (collectedDataList == null) {
+            collectedDataList = new ArrayList<>();
+            collectedDataList.add(collectedLogBook);
 
             if (collectedDeviceInfoList != null && !collectedDeviceInfoList.isEmpty()) {
-                collectedDatas.addAll(collectedDeviceInfoList);
+                collectedDataList.addAll(collectedDeviceInfoList);
             }
         }
-        return collectedDatas;
+        return collectedDataList;
     }
 
     @Override
     public String getVersion() {
-        return "$Date: Fri Dec 30 14:28:09 2016 +0100 $";
+        return "$Date: 2020-12-29$";
     }
 
     @Override

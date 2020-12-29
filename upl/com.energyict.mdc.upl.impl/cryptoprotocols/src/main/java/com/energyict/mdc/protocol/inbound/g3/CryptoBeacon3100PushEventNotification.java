@@ -21,7 +21,7 @@ public class CryptoBeacon3100PushEventNotification extends Beacon3100PushEventNo
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-12-17$";
+        return "$Date: 2020-12-29$";
     }
 
     @Override
