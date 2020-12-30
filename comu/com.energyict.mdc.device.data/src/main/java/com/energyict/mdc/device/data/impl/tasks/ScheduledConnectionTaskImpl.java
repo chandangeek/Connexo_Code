@@ -46,6 +46,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import java.util.logging.Logger;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
