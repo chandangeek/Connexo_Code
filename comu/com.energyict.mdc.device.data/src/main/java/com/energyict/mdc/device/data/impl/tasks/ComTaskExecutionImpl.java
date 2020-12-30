@@ -9,7 +9,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -65,25 +64,13 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.SaveScheduled;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SharedScheduleComScheduleRequired;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.InboundConnectionTask;
-import com.energyict.mdc.device.data.tasks.ScheduledConnectionTask;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
-import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.device.data.tasks.history.CompletionCode;
-import com.energyict.mdc.engine.config.ComPort;
-import com.energyict.mdc.protocol.api.ConnectionFunction;
-import com.energyict.mdc.protocol.api.DeviceProtocolPluggableClass;
-import com.energyict.mdc.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import org.drools.core.rule.Behavior;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -115,7 +102,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private Clock clock;
-    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
 
     private CommunicationTaskService communicationTaskService;
     private SchedulingService schedulingService;
