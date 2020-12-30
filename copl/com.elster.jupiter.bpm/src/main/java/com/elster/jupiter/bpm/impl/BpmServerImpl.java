@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.bpm.impl;
 
+import com.elster.jupiter.bpm.HttpException;
 import com.elster.jupiter.bpm.BpmServer;
 import com.elster.jupiter.bpm.ProcessInstanceInfos;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -51,7 +52,7 @@ public class BpmServerImpl implements BpmServer {
 
         String user = this.getUserFromContext(context);
         String password = this.getPasswordFromContext(context);
-        if(user != null && password != null) {
+        if (user != null && password != null) {
             this.basicAuthString = "Basic " + new String(Base64.getEncoder().encode((user + ":" + password).getBytes()));
         }
     }
@@ -121,6 +122,7 @@ public class BpmServerImpl implements BpmServer {
     public String doPost(String targetURL, String payload, String authorization, long version) {
         HttpURLConnection httpConnection = null;
         authorization = (basicAuthString != null) ? basicAuthString : authorization != null ? authorization : staticTokenAuth;
+
         try {
             URL targetUrl = buildTargetUrl(targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
@@ -145,7 +147,7 @@ public class BpmServerImpl implements BpmServer {
                 while ((output = br.readLine()) != null) {
                     jsonContent.append(output);
                 }
-                throw new RuntimeException(String.valueOf(responseCode) + jsonContent.toString());
+                throw new HttpException(jsonContent.toString(), responseCode);
             } else {
                 BufferedReader br = new BufferedReader(new InputStreamReader(
                         (httpConnection.getInputStream())));
@@ -183,7 +185,7 @@ public class BpmServerImpl implements BpmServer {
         String basePath = getUrl();
         String finalPath;
 
-        if (basePath.charAt(basePath.length() - 1) == '/'){
+        if (basePath.charAt(basePath.length() - 1) == '/') {
             basePath = basePath.substring(0, basePath.length() - 1);
         }
 
@@ -207,7 +209,7 @@ public class BpmServerImpl implements BpmServer {
         String authorizationHeader = (basicAuthString != null) ? basicAuthString : authorization != null ? authorization : staticTokenAuth;
         try {
             URL targetUrl = new URL(url + targetURL);
-            getLogger().info("BpmServer: GET: "+targetUrl.toString());
+            getLogger().info("BpmServer: GET: " + targetUrl.toString());
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
             httpConnection.setConnectTimeout(60000);
             httpConnection.setDoOutput(true);
@@ -216,7 +218,7 @@ public class BpmServerImpl implements BpmServer {
             httpConnection.setRequestProperty("Accept", "application/json");
 
             int responseCode = httpConnection.getResponseCode();
-            getLogger().info("BpmServer: GET: "+targetUrl.toString()+" - Response: "+responseCode);
+            getLogger().info("BpmServer: GET: " + targetUrl.toString() + " - Response: " + responseCode);
             if (responseCode != 200 && responseCode != 204) {
                 throw new RuntimeException(Integer.toString(responseCode));
             }
