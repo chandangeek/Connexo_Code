@@ -64,13 +64,13 @@ import com.energyict.mdc.device.data.impl.constraintvalidators.SaveScheduled;
 import com.energyict.mdc.device.data.impl.constraintvalidators.SharedScheduleComScheduleRequired;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.scheduling.model.impl.NextExecutionSpecsImpl;
 import com.energyict.mdc.tasks.impl.ComTaskDefinedByUserImpl;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.base.Strings;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlAttribute;
@@ -104,6 +104,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
 
     private CommunicationTaskService communicationTaskService;
+    private ConnectionTaskService connectionTaskService;
     private SchedulingService schedulingService;
     protected Reference<ComSchedule> comSchedule = ValueReference.absent();
     protected Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
@@ -173,12 +174,14 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Inject
-    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, CommunicationTaskService communicationTaskService, SchedulingService schedulingService) {
+    public ComTaskExecutionImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, CommunicationTaskService communicationTaskService, SchedulingService schedulingService,
+                                ConnectionTaskService connectionTaskService) {
         super(ComTaskExecution.class, dataModel, eventService, thesaurus);
         this.clock = clock;
         this.communicationTaskService = communicationTaskService;
         this.schedulingService = schedulingService;
         this.usingComTaskExecutionTriggers = shouldUseComTaskExecutionTriggers(dataModel);
+        this.connectionTaskService = connectionTaskService;
     }
 
     private boolean shouldUseComTaskExecutionTriggers(DataModel dataModel){
@@ -921,6 +924,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
+        this.getConnectionTask().ifPresent(ct -> connectionTaskService.findAndLockConnectionTaskByIdAndVersion(ct.getId(), ct.getVersion()));
+        communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(this.getId(), version);
         LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = "+this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
