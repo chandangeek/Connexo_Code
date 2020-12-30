@@ -254,6 +254,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.empty());
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
         ComTask comTask = mockComTask(comTaskEnablement, comTaskId);
@@ -309,6 +310,7 @@ public class DeviceScheduleResourceTest extends DeviceDataRestApplicationJerseyT
         ComTaskExecution comTaskExecution = mock(ComTaskExecution.class);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution));
         ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
+        when(comTaskExecution.getConnectionTask()).thenReturn(Optional.empty());
 
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Arrays.asList(comTaskEnablement));
         ComTask comTask = mockComTask(comTaskEnablement, comTaskId);
