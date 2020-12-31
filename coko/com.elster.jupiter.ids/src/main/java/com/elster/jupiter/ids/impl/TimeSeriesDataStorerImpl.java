@@ -114,9 +114,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
     @Override
     public void add(TimeSeries timeSeries, Instant timeStamp, Object... values) {
-        if (!timeSeries.isValidInstant(timeStamp)) {
-            throw new MeasurementTimeIsNotValidException(this.thesaurus);
-        }
+        timeSeries.validateInstant(timeStamp, thesaurus);
         if (values.length != timeSeries.getRecordSpec().getFieldSpecs().size()) {
             throw new IllegalArgumentException();
         }
@@ -134,9 +132,7 @@ public class TimeSeriesDataStorerImpl implements TimeSeriesDataStorer {
 
     @Override
     public void remove(TimeSeries timeSeries, Instant timeStamp) {
-        if (!timeSeries.isValidInstant(timeStamp)) {
-            throw new MeasurementTimeIsNotValidException(this.thesaurus);
-        }
+        timeSeries.validateInstant(timeStamp, thesaurus);
         TimeSeriesImpl timeSeriesImpl = (TimeSeriesImpl) timeSeries;
         TimeSeriesEntryImpl entry = new TimeSeriesEntryImpl(timeSeriesImpl, timeStamp, new Object[0]);// no values
         RecordSpecInVault recordSpecInVault = new RecordSpecInVault(timeSeriesImpl);
