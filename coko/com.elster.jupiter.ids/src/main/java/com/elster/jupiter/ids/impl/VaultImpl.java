@@ -9,7 +9,6 @@ import com.elster.jupiter.ids.RecordSpec;
 import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.TimeSeriesJournalEntry;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -310,16 +309,6 @@ public final class VaultImpl implements IVault {
     @Override
     public boolean isValidInstant(Instant instant) {
         return isActive() && minTime.isBefore(instant) && !maxTime.isBefore(instant);
-    }
-
-    @Override
-    public void validateInstant(Instant instant, Thesaurus thesaurus) {
-        if (!isActive()) {
-            throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.VAULT_INACTIVE, description);
-        }
-        if (minTime.isBefore(instant) && !maxTime.isBefore(instant)) {
-            throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.TIME_OUTSIDE_OF_RANGE, instant, description, minTime, maxTime);
-        }
     }
 
     private SqlBuilder selectSql(TimeSeriesImpl timeSeries) {

@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.ids;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -68,8 +67,8 @@ public interface TimeSeries {
     boolean isValidInstant(Instant instant);
 
     ZoneId getZoneId();
-    void updateZoneId(ZoneId zoneId);
 
+    void updateZoneId(ZoneId zoneId);
 
     void removeEntries(Range<Instant> range);
 
@@ -84,6 +83,4 @@ public interface TimeSeries {
     Instant getPreviousDateTime(Instant instant);
 
     void updateOffset(long offset);
-
-    void validateInstant(Instant timeStamp, Thesaurus thesaurus);
 }

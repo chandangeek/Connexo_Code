@@ -9,13 +9,9 @@ import com.elster.jupiter.nls.Thesaurus;
 
 public class MeasurementTimeIsNotValidException extends LocalizedException {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    public MeasurementTimeIsNotValidException(Thesaurus thesaurus, MessageSeeds messageSeed) {
-        super(thesaurus, messageSeed);
-    }
-
-    public MeasurementTimeIsNotValidException(Thesaurus thesaurus, MessageSeeds messageSeed, Object... args) {
-        super(thesaurus, messageSeed, args);
+	public MeasurementTimeIsNotValidException(Thesaurus thesaurus) {
+        super(thesaurus, MessageSeeds.MEASUREMENT_TIME_IS_INCORRECT);
     }
 }

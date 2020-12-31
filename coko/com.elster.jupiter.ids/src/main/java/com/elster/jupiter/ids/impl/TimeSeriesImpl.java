@@ -11,7 +11,6 @@ import com.elster.jupiter.ids.TimeSeries;
 import com.elster.jupiter.ids.TimeSeriesDataStorer;
 import com.elster.jupiter.ids.TimeSeriesEntry;
 import com.elster.jupiter.ids.TimeSeriesJournalEntry;
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OptimisticLockException;
 import com.elster.jupiter.orm.associations.Reference;
@@ -272,14 +271,6 @@ public final class TimeSeriesImpl implements TimeSeries {
     @Override
     public boolean isValidInstant(Instant instant) {
         return getVault().isValidInstant(instant) && isValid(instant);
-    }
-
-    @Override
-    public void validateInstant(Instant instant, Thesaurus thesaurus) {
-        getVault().validateInstant(instant, thesaurus);
-        if (!isValid(instant)) {
-            throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.INTERVAL_TIMESTAMP_IS_NOT_VALID, instant, timeZoneName);
-        }
     }
 
     private boolean isValid(Instant instant) {
