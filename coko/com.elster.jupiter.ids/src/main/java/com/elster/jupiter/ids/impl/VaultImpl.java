@@ -79,15 +79,13 @@ public final class VaultImpl implements IVault {
     private final Clock clock;
     private final ThreadPrincipalService threadPrincipalService;
     private final Provider<TimeSeriesImpl> timeSeriesProvider;
-    private final Thesaurus thesaurus;
 
     @Inject
-    VaultImpl(DataModel dataModel, Clock clock, ThreadPrincipalService threadPrincipalService, Provider<TimeSeriesImpl> timeSeriesProvider, Thesaurus thesaurus) {
+    VaultImpl(DataModel dataModel, Clock clock, ThreadPrincipalService threadPrincipalService, Provider<TimeSeriesImpl> timeSeriesProvider) {
         this.dataModel = dataModel;
         this.clock = clock;
         this.threadPrincipalService = threadPrincipalService;
         this.timeSeriesProvider = timeSeriesProvider;
-        this.thesaurus = thesaurus;
     }
 
     VaultImpl init(String componentName, long id, String description, int slotCount, int textSlotCount, boolean regular) {
@@ -315,11 +313,11 @@ public final class VaultImpl implements IVault {
     }
 
     @Override
-    public void validateInstant(Instant instant) {
+    public void validateInstant(Instant instant, Thesaurus thesaurus) {
         if (!isActive()) {
             throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.VAULT_INACTIVE, description);
         }
-        if (minTime.isBefore(instant) || !maxTime.isBefore(instant)) {
+        if (minTime.isBefore(instant) && !maxTime.isBefore(instant)) {
             throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.TIME_OUTSIDE_OF_RANGE, instant, description, minTime, maxTime);
         }
     }

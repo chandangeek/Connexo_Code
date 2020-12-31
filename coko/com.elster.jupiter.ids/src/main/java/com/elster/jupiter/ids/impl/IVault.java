@@ -19,8 +19,6 @@ import java.util.Optional;
 
 public interface IVault extends Vault {
 
-    void validateInstant(Instant instant);
-
     List<TimeSeriesEntry> getEntries(TimeSeriesImpl timeSeries, Range<Instant> interval);
 
     SqlFragment getRawValuesSql(TimeSeriesImpl timeSeries, Range<Instant> interval, Pair<String, String>... fieldSpecAndAliasNames);

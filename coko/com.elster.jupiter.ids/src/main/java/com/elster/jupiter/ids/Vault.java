@@ -5,6 +5,7 @@
 package com.elster.jupiter.ids;
 
 import com.elster.jupiter.ids.impl.TimeSeriesImpl;
+import com.elster.jupiter.nls.Thesaurus;
 
 import java.time.Instant;
 import java.time.Period;
@@ -63,4 +64,6 @@ public interface Vault {
     Period getRetention();
 
     void setRetentionDays(int numberOfDays);
+
+    void validateInstant(Instant instant, Thesaurus thesaurus);
 }
