@@ -319,7 +319,7 @@ public final class VaultImpl implements IVault {
         if (!isActive()) {
             throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.VAULT_INACTIVE, description);
         }
-        if (!minTime.isBefore(instant) || maxTime.isBefore(instant)) {
+        if (minTime.isBefore(instant) || !maxTime.isBefore(instant)) {
             throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.TIME_OUTSIDE_OF_RANGE, instant, description, minTime, maxTime);
         }
     }
