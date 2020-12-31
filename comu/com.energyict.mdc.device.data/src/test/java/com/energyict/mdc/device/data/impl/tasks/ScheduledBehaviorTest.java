@@ -42,8 +42,6 @@ public class ScheduledBehaviorTest {
     @Mock
     private SchedulingService schedulingService;
     @Mock
-    private ConnectionTaskService connectionTaskService;
-    @Mock
     private Device device;
     @Mock
     private ComTaskEnablement comTaskEnablement = mock(ComTaskEnablement.class);
