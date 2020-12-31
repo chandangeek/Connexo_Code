@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.ids;
 
-import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.sql.SqlFragment;
 

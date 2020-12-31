@@ -68,11 +68,13 @@ public final class TimeSeriesImpl implements TimeSeries {
 
     private final DataModel dataModel;
     private final IdsService idsService;
+    private final Thesaurus thesaurus;
 
     @Inject
-    TimeSeriesImpl(DataModel dataModel, IdsService idsService) {
+    TimeSeriesImpl(DataModel dataModel, IdsService idsService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.idsService = idsService;
+        this.thesaurus = thesaurus;
     }
 
     TimeSeriesImpl init(IVault vault, RecordSpec recordSpec, ZoneId zoneId) {
@@ -274,9 +276,8 @@ public final class TimeSeriesImpl implements TimeSeries {
         return getVault().isValidInstant(instant) && isValid(instant);
     }
 
-    @Override
-    public void validateInstant(Instant instant, Thesaurus thesaurus) {
-        getVault().validateInstant(instant, thesaurus);
+    public void validateInstant(Instant instant) {
+        getVault().validateInstant(instant);
         if (!isValid(instant)) {
             throw new MeasurementTimeIsNotValidException(thesaurus, MessageSeeds.INTERVAL_TIMESTAMP_IS_NOT_VALID, instant, timeZoneName);
         }
