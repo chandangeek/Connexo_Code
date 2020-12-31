@@ -44,8 +44,8 @@ public interface Vault {
 
     Instant extendTo(Instant to, Logger logger);
 
-        return createRegularTimeSeries(spec, timeZone.toZoneId(), interval, offset);
     default TimeSeries createRegularTimeSeries(RecordSpec spec, TimeZone timeZone, TemporalAmount interval, long offset) {
+        return createRegularTimeSeries(spec, timeZone.toZoneId(), interval, offset);
     }
 
     default TimeSeries createIrregularTimeSeries(RecordSpec spec, TimeZone timeZone) {
