@@ -38,6 +38,8 @@ public class ScheduledBehaviorTest {
     @Mock
     private CommunicationTaskService communicationTaskService;
     @Mock
+    private ConnectionTaskService connectionTaskService;
+    @Mock
     private SchedulingService schedulingService;
     @Mock
     private ConnectionTaskService connectionTaskService;

@@ -104,6 +104,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private Clock clock;
 
     private CommunicationTaskService communicationTaskService;
+    private ConnectionTaskService connectionTaskService;
     private SchedulingService schedulingService;
     private ConnectionTaskService connectionTaskService;
     protected Reference<ComSchedule> comSchedule = ValueReference.absent();
