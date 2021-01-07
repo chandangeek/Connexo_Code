@@ -25,7 +25,9 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
     SetVoltageSagThreshold(26005, "Set voltage sag threshold", DeviceMessageConstants.VoltageSagThresholdAttributeName, DeviceMessageConstants.VoltageSagThresholdAttributeDefaultTranslation),
     SetVoltageSwellThreshold(26006, "Set voltage swell threshold", DeviceMessageConstants.VoltageSwellThresholdAttributeName, DeviceMessageConstants.VoltageSwellThresholdAttributeDefaultTranslation),
     SetLongPowerFailureTimeThreshold(26007, "Set long power failure time threshold", DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName, DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeDefaultTranslation),
-    SetLongPowerFailureThreshold(26008, "Set long power failure threshold", DeviceMessageConstants.LongPowerFailureThresholdAttributeName, DeviceMessageConstants.LongPowerFailureThresholdAttributeDefaultTranslation);
+    SetLongPowerFailureThreshold(26008, "Set long power failure threshold", DeviceMessageConstants.LongPowerFailureThresholdAttributeName, DeviceMessageConstants.LongPowerFailureThresholdAttributeDefaultTranslation),
+    SetPowerQualityMeasurePeriod(26009, "Set power quality measure period", DeviceMessageConstants.SetPowerQualityMeasurePeriodAttributeName, DeviceMessageConstants.SetPowerQualityMeasurePeriodDefaultTranslation);
+
 
     private final long id;
     private final String defaultNameTranslation;

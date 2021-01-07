@@ -15,15 +15,17 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractFacadeDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DeviceInformation;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000Cache;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000DlmsSession;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000PublicSessionProvider;
-import com.energyict.protocolimplv2.dlms.as3000.messages.AS3000Messaging;
+import com.energyict.protocolimplv2.dlms.as3000.writers.AS3000Messaging;
 import com.energyict.protocolimplv2.dlms.as3000.properties.AS3000ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.as3000.properties.AS3000Properties;
 import com.energyict.protocolimplv2.dlms.as3000.readers.AS3000ReadableLoadprofiles;
@@ -45,14 +47,17 @@ import java.util.List;
 import java.util.Optional;
 
 public class AS3000 extends AbstractFacadeDlmsProtocol {
+
     private final NlsService nlsService;
+    private final Converter converter;
 
     private AS3000Cache deviceCache;
 
-    public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService) {
+    public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
                 new ManufacturerInformation(Manufacturer.Elster), "15-10-2020", "AS3000"), new AS3000Properties());
         this.nlsService = nlsService;
+        this.converter = converter;
     }
 
     @Override
@@ -71,8 +76,8 @@ public class AS3000 extends AbstractFacadeDlmsProtocol {
     }
 
     @Override
-    public AS3000Messaging getDeviceMessageSupport() {
-        return new AS3000Messaging(this);
+    public DeviceMessageSupport getDeviceMessageSupport() {
+        return new AS3000Messaging(getCollectedDataFactory(), getIssueFactory(), getPropertySpecService(), this.nlsService, this.converter, this).getMessageHandler();
     }
 
     @Override

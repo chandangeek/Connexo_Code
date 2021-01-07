@@ -520,6 +520,20 @@ public enum DeviceActionMessage implements DeviceMessageSpecSupplier {
                     );
 
         }
+    },
+    LimitationActionDelay(8073, "Limitation action delay") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    PropertySpecFactory.boundedBigDecimalSpec(service, DeviceMessageConstants.limitationActionDelay, DeviceMessageConstants.limitationActionDelayDefaultTranslate, new BigDecimal(0), new BigDecimal(1275)));
+        }
+    },
+    LimitationQuantityMeasure(8074, "Limitation quantity measure") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(
+                    PropertySpecFactory.hexStringSpecOfExactLength(service, DeviceMessageConstants.limitationMeasurementQuantity, DeviceMessageConstants.limitationMeasurementQuantityDefaultTranslate, 2));
+        }
     };
 
 
