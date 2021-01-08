@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.dlms.common.writers.providers;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.common.writers.AttributeProvider;
