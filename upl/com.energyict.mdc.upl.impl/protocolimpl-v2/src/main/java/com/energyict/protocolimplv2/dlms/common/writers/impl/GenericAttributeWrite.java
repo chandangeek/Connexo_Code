@@ -10,7 +10,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.dlms.common.writers.MessageAttributeConverter;
+import com.energyict.protocolimplv2.dlms.common.writers.AttributeProvider;
 import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 
 import java.io.IOException;
@@ -23,24 +23,24 @@ public class GenericAttributeWrite extends AbstractMessage {
     private final Converter converter;
 
     private final DLMSAttribute dlmsAttribute;
-    private final MessageAttributeConverter messageAttributeConverter;
+    private final AttributeProvider attributeProvider;
     private final DeviceMessageSpecSupplier deviceMessageSpecSupplier;
 
-    public GenericAttributeWrite(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol, PropertySpecService propSpecService, NlsService nlsService, Converter converter, DLMSAttribute dlmsAttribute, MessageAttributeConverter messageAttributeConverter, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
+    public GenericAttributeWrite(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol, PropertySpecService propSpecService, NlsService nlsService, Converter converter, DLMSAttribute dlmsAttribute, AttributeProvider attributeProvider, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
         super(collectedDataFactory, issueFactory);
         this.dlmsProtocol = dlmsProtocol;
         this.propSpecService = propSpecService;
         this.nlsService = nlsService;
         this.converter = converter;
         this.dlmsAttribute = dlmsAttribute;
-        this.messageAttributeConverter = messageAttributeConverter;
+        this.attributeProvider = attributeProvider;
         this.deviceMessageSpecSupplier = deviceMessageSpecSupplier;
     }
 
     @Override
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
-            this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().writeObject(dlmsAttribute.getObisCode(), dlmsAttribute.getDLMSClassId().getClassId(), dlmsAttribute.getAttribute(), messageAttributeConverter.convert(dlmsProtocol, message));
+            this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().writeObject(dlmsAttribute.getObisCode(), dlmsAttribute.getDLMSClassId().getClassId(), dlmsAttribute.getAttribute(), attributeProvider.provide(dlmsProtocol, message));
             return super.createCollectedMessage(message);
         } catch (IOException e) {
             return super.createErrorCollectedMessage(message, e);

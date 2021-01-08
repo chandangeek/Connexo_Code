@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.common.writers.converters;
+package com.energyict.protocolimplv2.dlms.common.writers.providers;
 
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.mdc.upl.ProtocolException;
@@ -8,15 +8,15 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import java.util.Calendar;
 import java.util.TimeZone;
 
-public class AXRDateTimeConverter extends AbstractConverter {
+public class AXRDateTimeProvider extends AbstractProvider {
 
 
-    public AXRDateTimeConverter(String attName) {
+    public AXRDateTimeProvider(String attName) {
         super(attName);
     }
 
     @Override
-    public byte[] convert(AbstractDlmsProtocol dlmsProtocol, OfflineDeviceMessage message) throws ProtocolException {
+    public byte[] provide(AbstractDlmsProtocol dlmsProtocol, OfflineDeviceMessage message) throws ProtocolException {
         long value = Long.parseLong(super.getAttValue(message));
         TimeZone timeZone = dlmsProtocol.getTimeZone();
         Calendar cal = Calendar.getInstance(timeZone);

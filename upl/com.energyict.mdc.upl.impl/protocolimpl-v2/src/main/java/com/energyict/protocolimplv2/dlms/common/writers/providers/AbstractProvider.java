@@ -1,14 +1,14 @@
-package com.energyict.protocolimplv2.dlms.common.writers.converters;
+package com.energyict.protocolimplv2.dlms.common.writers.providers;
 
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.protocolimplv2.dlms.common.writers.MessageAttributeConverter;
+import com.energyict.protocolimplv2.dlms.common.writers.AttributeProvider;
 
-public abstract class AbstractConverter implements MessageAttributeConverter {
+public abstract class AbstractProvider implements AttributeProvider {
 
     private final String attName;
 
-    protected AbstractConverter(String attName) {
+    protected AbstractProvider(String attName) {
         this.attName = attName;
     }
 

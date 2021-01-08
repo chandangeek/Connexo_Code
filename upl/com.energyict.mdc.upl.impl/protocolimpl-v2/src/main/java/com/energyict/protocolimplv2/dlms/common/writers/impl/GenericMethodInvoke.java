@@ -12,11 +12,12 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.common.writers.AttributeProvider;
 import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 
 import java.io.IOException;
 
-public class GenericNoParamMethodInvoke extends AbstractMessage {
+public class GenericMethodInvoke extends AbstractMessage {
 
     private final AbstractDlmsProtocol dlmsProtocol;
     private final PropertySpecService propSpecService;
@@ -26,9 +27,10 @@ public class GenericNoParamMethodInvoke extends AbstractMessage {
     private final ObisCode obisCode;
     private final DLMSClassId classId;
     private final int method;
+    private final AttributeProvider attributeProvider;
     private final DeviceMessageSpecSupplier deviceMessageSpecSupplier;
 
-    public GenericNoParamMethodInvoke(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol, PropertySpecService propSpecService, NlsService nlsService, Converter converter, ObisCode obisCode, DLMSClassId classId, int method, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
+    public GenericMethodInvoke(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol, PropertySpecService propSpecService, NlsService nlsService, Converter converter, ObisCode obisCode, DLMSClassId classId, int method, AttributeProvider attributeProvider, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
         super(collectedDataFactory, issueFactory);
         this.dlmsProtocol = dlmsProtocol;
         this.propSpecService = propSpecService;
@@ -37,13 +39,14 @@ public class GenericNoParamMethodInvoke extends AbstractMessage {
         this.obisCode = obisCode;
         this.classId = classId;
         this.method = method;
+        this.attributeProvider = attributeProvider;
         this.deviceMessageSpecSupplier = deviceMessageSpecSupplier;
     }
 
     @Override
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
-            this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().getGenericInvoke(obisCode, classId.getClassId(), method).invoke();
+            this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().getGenericInvoke(obisCode, classId.getClassId(), method).invoke(attributeProvider.provide(dlmsProtocol, message));
             return super.createCollectedMessage(message);
         } catch (NotInObjectListException e) {
             return super.createNotSupportedMessage(message);
