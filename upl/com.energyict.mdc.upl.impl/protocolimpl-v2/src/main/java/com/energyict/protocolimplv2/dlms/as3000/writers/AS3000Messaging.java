@@ -58,8 +58,6 @@ public class AS3000Messaging  {
                 ObisCode.fromString("0.0.10.0.1.255"),DLMSClassId.SCRIPT_TABLE, 1, DeviceActionMessage.DEMAND_RESET));
         // Write attributes section
         messages.add(new GenericAttributeWrite(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter,
-                new DLMSAttribute(ObisCode.fromString("0.0.1.0.0.255"), 2, DLMSClassId.CLOCK),new AXRDateTimeConverter(DeviceMessageConstants.meterTimeAttributeName), ClockDeviceMessage.SET_TIME));
-        messages.add(new GenericAttributeWrite(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter,
                 new DLMSAttribute(ObisCode.fromString("1.1.130.8.1.255"), 2, DLMSClassId.DATA),new U16Converter(DeviceMessageConstants.SetPowerQualityMeasurePeriodAttributeName), PowerConfigurationDeviceMessage.SetPowerQualityMeasurePeriod));
         messages.add(new GenericAttributeWrite(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter,
                 new DLMSAttribute(ObisCode.fromString("1.1.132.1.1.255"), 2, DLMSClassId.DATA),new U16Converter(DeviceMessageConstants.limitationActionDelay), DeviceActionMessage.LimitationActionDelay));
