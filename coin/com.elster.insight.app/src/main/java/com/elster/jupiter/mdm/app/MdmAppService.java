@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.mdm.app;
 
+/**
+ * MdmAppService
+ */
 public interface MdmAppService {
     
     String COMPONENTNAME = "MDMAPP";
