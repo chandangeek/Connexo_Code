@@ -8,6 +8,7 @@ import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
+import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.base.ProfileIntervalStatusBits;
 
@@ -65,6 +66,10 @@ public class DLMSProfileIntervals extends Array {
 
     protected int profileInterval;
     private boolean roundDownToNearestInterval = false;
+    private boolean roundUpToNearestInterval = false;
+    private boolean mergeSmallerThanConfiguredIntervals = false;
+
+    private List<ChannelInfo> channelInfos = null;
 
     /**
      * Constructor with the default masks enabled:
@@ -202,14 +207,23 @@ public class DLMSProfileIntervals extends Array {
                 intervalList.add(currentInterval);
             }
         }
+
+        if (isMergeSmallerThanConfiguredIntervals()) {
+            return filterDuplicatesAndMerge(intervalList);
+        }
+
         return intervalList;
+    }
+
+    private List<IntervalData> filterDuplicatesAndMerge(List<IntervalData> intervalDataList) {
+       return new DLMSProfileIntervalsValueFilter().filter(intervalDataList, channelInfos);
     }
 
     /**
      * Get the numerical value of a given data type.
      *
      * @param dataType The data type to get the value from
-     * @param tz       The timezone to use if there are dates involved
+     * @param tz The timezone to use if there are dates involved
      * @return The numerical value of the data type
      */
     protected Number getValueFromDataType(AbstractDataType dataType, TimeZone tz) {
@@ -239,7 +253,7 @@ public class DLMSProfileIntervals extends Array {
     /**
      * Construct the calendar depending on the type of the dataType
      *
-     * @param cal      the working Calender in the parser
+     * @param cal the working Calender in the parser
      * @param dataType the dataType from the rawData
      * @param timeZone the timezone to be used for constructing the AXDRDateTime object - leave null when the deviation information is present in the octetString
      * @return the new Calendar object
@@ -255,6 +269,10 @@ public class DLMSProfileIntervals extends Array {
                 } else {
                     cal = new AXDRDateTime(os.getBEREncodedByteArray(), 0, timeZone).getValue();
                 }
+                if (isRoundUpToNearestInterval()) {
+                    Date roundedDate = roundUpToNearestInterval(cal.getTime(), profileInterval / 60);
+                    cal.setTime(roundedDate);
+                }
             } else if (cal != null) {
                 cal.add(Calendar.SECOND, profileInterval);
             } else {
@@ -263,7 +281,7 @@ public class DLMSProfileIntervals extends Array {
         } else if (dataType instanceof NullData && cal != null) {
             // Adjust the calendar to start of next interval
             cal.add(Calendar.SECOND, profileInterval);
-            if (roundDownToNearestInterval) {
+            if (isRoundDownToNearestInterval()) {
                 Date roundedDate = roundDownToNearestInterval(cal.getTime(), profileInterval / 60);
                 cal.setTime(roundedDate);
             }
@@ -385,4 +403,24 @@ public class DLMSProfileIntervals extends Array {
         return profileInterval;
     }
 
+    public boolean isMergeSmallerThanConfiguredIntervals() {
+        return mergeSmallerThanConfiguredIntervals;
+    }
+
+    public void setMergeSmallerThanConfiguredIntervals(boolean mergeSmallerThanConfiguredIntervals) {
+        this.mergeSmallerThanConfiguredIntervals = mergeSmallerThanConfiguredIntervals;
+        setRoundUpToNearestInterval(true);
+    }
+
+    public boolean isRoundUpToNearestInterval() {
+        return roundUpToNearestInterval;
+    }
+
+    public void setRoundUpToNearestInterval(boolean roundUpToNearestInterval) {
+        this.roundUpToNearestInterval = roundUpToNearestInterval;
+    }
+
+    public void setChannelInfos(List<ChannelInfo> channelInfos) {
+        this.channelInfos = channelInfos;
+    }
 }
