@@ -135,7 +135,7 @@ public class LoadProfileBuilder {
             i ++;
         }
 
-        channelMaskMap.put(lpr, new int[] {clockMask, statusMask, Integer.parseInt(channelMask, 2)});
+        channelMaskMap.put(lpr, new int[] {clockMask, statusMask, channelMask.length() > 2 ? Integer.parseInt(channelMask, 2): 1});
         List<RegisterValue> registerValues = meterProtocol.readRegisters(registerList);
         for (RegisterValue channelInformation : registerValues) {
             if (channelInformation.getQuantity().getBaseUnit().getDlmsCode() != 0) {
@@ -190,6 +190,8 @@ public class LoadProfileBuilder {
                     throw new IOException("Failed to build the load profile data: Invalid ChannelMask!");
                 }
                 DLMSProfileIntervals intervals = new DLMSProfileIntervals(profile.getBufferData(fromCalendar, toCalendar), channelMask[0], channelMask[1], channelMask[2], new ZMDProfileIntervalStatusBits());
+                intervals.setMergeSmallerThanConfiguredIntervals(true);
+                intervals.setChannelInfos(channelInfoMap.get(lpr));
                 profileData.setIntervalDatas(intervals.parseIntervals(lpc.getProfileInterval(), meterProtocol.getTimeZone()));
                 profileDataList.add(profileData);
             }

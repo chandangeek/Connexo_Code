@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -91,8 +92,6 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
     private ZMDProperties properties = null;
 
     private final ZMDMessages messageProtocol;
-
-    private DeviceProtocolSecurityCapabilities securitySupport;
 
     public ZMD(DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor messageFileExtractor, PropertySpecService propertySpecService) {
         this.propertySpecService = propertySpecService;
@@ -260,7 +259,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
 
     @Override
     public String getVersion() {
-        return "$Date: 2017-03-03 10:23:42 +0200 (Fr, 03 Mar 2017)$";
+        return "$Date: 2021-01-13 14:10:00 +0100 (We, 13 Jan 2021)$";
     }
 
     public void resetDemand() throws IOException {
@@ -342,7 +341,10 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
 
     public int requestConfigurationProgramChanges() throws IOException {
         if (iConfigProgramChange == -1) {
-            iConfigProgramChange = (int) getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode()).getValue();
+            CosemObject cosemObject = getCosemObjectFactory().getCosemObject(getMeterConfig().getConfigObject().getObisCode());
+            if (cosemObject != null) {
+                iConfigProgramChange = (int) cosemObject.getValue();
+            }
         }
         return iConfigProgramChange;
     }
