@@ -27,7 +27,6 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.Ranges.intersection;
 
 public class IndexImpl implements Index {
-
     private final String name;
     private int compress;
     private final List<ColumnImpl> columns = new ArrayList<>();
@@ -38,7 +37,6 @@ public class IndexImpl implements Index {
         this.table = table;
         this.name = name;
     }
-
 
     @Override
     public List<ColumnImpl> getColumns() {

@@ -48,6 +48,15 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry("Create event types", this::createEventTypes, logger);
         userService.addModulePrivileges(this);
+        execute(dataModel,
+                // TODO: support all this in the default upgrader
+                "alter table WS_OCC_RELATED_ATTR drop constraint WS_UQ_KEY_VALUE",
+                "alter table WS_OCC_RELATED_ATTR add constraint WS_UQ_KEY_VALUE unique (ATTR_KEY, ATTR_VALUE) using index compress 1",
+                "create index IX_WS_CALL_ATTR_VALUE on WS_OCC_RELATED_ATTR(upper(ATTR_VALUE))",
+                "create index IX_WS_CALL_START on WS_CALL_OCCURRENCE(STARTTIME desc)",
+                "create index IX_WS_CALL_END on WS_CALL_OCCURRENCE(ENDTIME desc)",
+                "create index IX_WS_CALL_STATUS on WS_CALL_OCCURRENCE(STATUS)",
+                "create index IX_WS_CALL_APP on WS_CALL_OCCURRENCE(APPLICATIONNAME)");
     }
 
     @Override

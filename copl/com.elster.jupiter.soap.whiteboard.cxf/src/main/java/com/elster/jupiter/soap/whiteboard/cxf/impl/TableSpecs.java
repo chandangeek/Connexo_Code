@@ -163,6 +163,10 @@ public enum TableSpecs {
                     .add();
 
             table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
+            // table.index("IX_WS_CALL_START").on(desc(startTimeColumn)).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
+            // table.index("IX_WS_CALL_END").on(desc(endTimeColumn)).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
+            // table.index("IX_WS_CALL_STATUS").bitmap().on(statusColumn).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
+            // table.index("IX_WS_CALL_APP").bitmap().on(applicationColumn).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
@@ -185,7 +189,10 @@ public enum TableSpecs {
                     .notNull()
                     .map(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName())
                     .add();
-            table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn).add();
+            table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn)
+                    // .compressIndex(1) // done in UpgraderV10_7_4
+                    .add();
+            // table.index("IX_WS_CALL_ATTR_VALUE").on(upper(valueColumn)).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
             table.primaryKey("PK_WS_RELATED_ATTRBT").on(idColumn).add();
         }
     },
