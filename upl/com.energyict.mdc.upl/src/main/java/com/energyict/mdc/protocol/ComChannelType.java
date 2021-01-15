@@ -17,8 +17,10 @@ public enum ComChannelType {
     DatagramComChannel(3),          //UDP connection layer
     WavenisGatewayComChannel(4),
     WavenisSerialComChannel(5),
-    ProximusSmsComChannel(6);
+    ProximusSmsComChannel(6),
+    WebServiceComChannel(7);
 
+    public static final String TYPE = "ComChannelType";
     private Integer type;
 
     ComChannelType(Integer type) {
@@ -28,4 +30,16 @@ public enum ComChannelType {
     public Integer getType() {
         return type;
     }
+
+    public boolean is(ComChannel comChannel) {
+        Integer type = comChannel.getProperties().<Integer>getTypedProperty(TYPE);
+        if(type != null){
+            return getType().equals(type);
+        } else {
+            // TODO workaround, this object should be moved to an API package so both protocols and ComServer can access it
+            // See JIRA: https://jira.eict.vpdc/browse/EISERVERSG-4553
+            return this.name().equals(comChannel.getClass().getSimpleName());
+        }
+    }
+
 }
