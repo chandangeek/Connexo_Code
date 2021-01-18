@@ -41,9 +41,4 @@ public class CollectedLogBookReader implements DeviceLogBookSupport {
         return logBooks;
     }
 
-    @Override
-    public List<String> supportedEventTypes() {
-        return null;
-    }
-
 }

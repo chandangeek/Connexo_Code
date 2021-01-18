@@ -8,11 +8,11 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 
 import java.io.IOException;
 
-public class OctetStringProvider extends AbstractProvider {
+public class OctetStringFromHexProvider extends AbstractProvider {
 
     private final int length;
 
-    public OctetStringProvider(String attName, int length) {
+    public OctetStringFromHexProvider(String attName, int length) {
         super(attName);
         this.length = length;
     }
@@ -20,7 +20,7 @@ public class OctetStringProvider extends AbstractProvider {
     @Override
     public byte[] provide(AbstractDlmsProtocol dlmsProtocol, OfflineDeviceMessage message) throws ProtocolException {
         try {
-            return new OctetString(ProtocolTools.getBytesFromHexString(super.getAttValue(message)), length).getBEREncodedByteArray();
+            return  OctetString.fromByteArray(ProtocolTools.getBytesFromHexString(super.getAttValue(message), 1), length).getBEREncodedByteArray();
         } catch (IOException e) {
             throw new ProtocolException(e);
         }

@@ -14,7 +14,7 @@ import com.energyict.protocolimplv2.dlms.common.writers.Message;
 import com.energyict.protocolimplv2.dlms.common.writers.MessageHandler;
 import com.energyict.protocolimplv2.dlms.common.writers.impl.GenericMethodInvoke;
 import com.energyict.protocolimplv2.dlms.common.writers.providers.ConstantValueProvider;
-import com.energyict.protocolimplv2.dlms.common.writers.providers.OctetStringProvider;
+import com.energyict.protocolimplv2.dlms.common.writers.providers.OctetStringFromHexProvider;
 import com.energyict.protocolimplv2.dlms.common.writers.providers.U16Provider;
 import com.energyict.protocolimplv2.dlms.common.writers.impl.GenericAttributeWrite;
 import com.energyict.protocolimplv2.dlms.common.writers.impl.GenericNoParamMethodInvoke;
@@ -63,7 +63,7 @@ public class AS3000Messaging  {
         messages.add(new GenericAttributeWrite(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter,
                 new DLMSAttribute(ObisCode.fromString("1.1.132.1.1.255"), 2, DLMSClassId.DATA),new U16Provider(DeviceMessageConstants.limitationActionDelay), DeviceActionMessage.LimitationActionDelay));
         messages.add(new GenericAttributeWrite(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter,
-                new DLMSAttribute(ObisCode.fromString("1.1.132.1.2.255"), 2, DLMSClassId.DATA),new OctetStringProvider(DeviceMessageConstants.limitationMeasurementQuantity, 1), DeviceActionMessage.LimitationQuantityMeasure));
+                new DLMSAttribute(ObisCode.fromString("1.1.132.1.2.255"), 2, DLMSClassId.DATA),new OctetStringFromHexProvider(DeviceMessageConstants.limitationMeasurementQuantity, 1), DeviceActionMessage.LimitationQuantityMeasure));
         messages.add(new GenericAttributeWrite(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter,
                 new DLMSAttribute(ObisCode.fromString("1.1.134.1.0.255"), 2, DLMSClassId.DATA),new U16Provider(DeviceMessageConstants.engineerPin), ConfigurationChangeDeviceMessage.SET_ENGINEER_PIN_4DIGITS_NO_TIMEOUT));
 

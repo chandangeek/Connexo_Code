@@ -38,7 +38,7 @@ public abstract class AbstractMessage implements Message {
         CollectedMessage collectedMessage = collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
         collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
         collectedMessage.setFailureInformation(ResultType.Other, createError(message, e));
-        collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
+        collectedMessage.setDeviceProtocolInformation("Error encountered during execution:" + e.getMessage());
         return collectedMessage;
     }
 
