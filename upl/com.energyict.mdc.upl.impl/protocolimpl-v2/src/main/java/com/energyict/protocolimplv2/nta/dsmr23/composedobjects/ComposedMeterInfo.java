@@ -23,33 +23,57 @@ import java.util.Date;
  */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
-    public static final DLMSAttribute SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
-    public static final DLMSAttribute EQUIPMENT_IDENTIFIER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
-    public static final DLMSAttribute CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
-    public static final DLMSAttribute FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
-    public static final DLMSAttribute CLOCK = DLMSAttribute.fromString("8:0.0.1.0.0.255:2");
+    private static final DLMSAttribute DEFAULT_SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
+    private static final DLMSAttribute DEFAULT_EQUIPMENT_IDENTIFIER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
+    private static final DLMSAttribute DEFAULT_CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
+    private static final DLMSAttribute DEFAULT_FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
+    private static final DLMSAttribute DEFAULT_CLOCK = DLMSAttribute.fromString("8:0.0.1.0.0.255:2");
+
+    private final DLMSAttribute serialnr;
+    private final DLMSAttribute equipMentIdentitifer;
+    private final DLMSAttribute configNumber;
+    private final DLMSAttribute firmwareVersion;
+    private final DLMSAttribute clock;
+
     private final int roundTripCorrection;
     private final int retries;
     private Long timeDifference = null;
 
-    public ComposedMeterInfo(final ProtocolLink dlmsSession, final boolean bulkRequest, final int roundTripCorrection, final int retries) {
-        super(dlmsSession, bulkRequest, getDlmsAttributes());
+
+    public ComposedMeterInfo(final ProtocolLink dlmsSession, final boolean bulkRequest, final int roundTripCorrection, final int retries, DLMSAttribute serialnr, DLMSAttribute clock) {
+        super(dlmsSession, bulkRequest, serialnr,
+                DEFAULT_EQUIPMENT_IDENTIFIER,
+                DEFAULT_CONFIG_NUMBER,
+                clock,
+                DEFAULT_FIRMWARE_VERSION);
+        this.serialnr = serialnr;
+        this.equipMentIdentitifer = DEFAULT_EQUIPMENT_IDENTIFIER;
+        this.configNumber = DEFAULT_CONFIG_NUMBER;
+        this.firmwareVersion = DEFAULT_FIRMWARE_VERSION;
+        this.clock = clock;
         this.roundTripCorrection = roundTripCorrection;
         this.retries = retries;
     }
 
-    private static DLMSAttribute[] getDlmsAttributes() {
-        return new DLMSAttribute[]{
-                SERIALNR,
-                EQUIPMENT_IDENTIFIER,
-                CONFIG_NUMBER,
-                CLOCK,
-                FIRMWARE_VERSION
-        };
+    public ComposedMeterInfo(final ProtocolLink dlmsSession, final boolean bulkRequest, final int roundTripCorrection, final int retries) {
+        super(dlmsSession, bulkRequest,
+                DEFAULT_SERIALNR,
+                DEFAULT_EQUIPMENT_IDENTIFIER,
+                DEFAULT_CONFIG_NUMBER,
+                DEFAULT_CLOCK,
+                DEFAULT_FIRMWARE_VERSION
+        );
+        this.serialnr = DEFAULT_SERIALNR;
+        this.equipMentIdentitifer = DEFAULT_EQUIPMENT_IDENTIFIER;
+        this.configNumber = DEFAULT_CONFIG_NUMBER;
+        this.firmwareVersion = DEFAULT_FIRMWARE_VERSION;
+        this.clock = DEFAULT_CLOCK;
+        this.roundTripCorrection = roundTripCorrection;
+        this.retries = retries;
     }
 
     public String getFirmwareVersion() {
-        AbstractDataType attribute = getAttribute(FIRMWARE_VERSION);
+        AbstractDataType attribute = getAttribute(firmwareVersion);
         if (attribute instanceof OctetString) {
             return attribute.getOctetString().stringValue();
         } else {
@@ -60,7 +84,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
 
     public Date getClock() {
         if (timeDifference == null) {
-            AbstractDataType attribute = getAttribute(CLOCK);
+            AbstractDataType attribute = getAttribute(clock);
             try {
                 Date meterTime = new Clock(getProtocolLink()).getDateTime(attribute.getBEREncodedByteArray(), roundTripCorrection);
                 timeDifference = System.currentTimeMillis() - meterTime.getTime();
@@ -72,7 +96,7 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     }
 
     public String getSerialNr() {
-        AbstractDataType attribute = getAttribute(SERIALNR);
+        AbstractDataType attribute = getAttribute(serialnr);
         if (attribute instanceof OctetString) {
             return attribute.getOctetString().stringValue();
         } else {
@@ -82,11 +106,11 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     }
 
     public int getConfigurationChanges() {
-        return getAttribute(CONFIG_NUMBER).intValue();
+        return getAttribute(configNumber).intValue();
     }
 
     public String getEquipmentIdentifier() {
-        AbstractDataType attribute = getAttribute(EQUIPMENT_IDENTIFIER);
+        AbstractDataType attribute = getAttribute(equipMentIdentitifer);
         if (attribute instanceof OctetString) {
             return attribute.getOctetString().stringValue();
         } else {

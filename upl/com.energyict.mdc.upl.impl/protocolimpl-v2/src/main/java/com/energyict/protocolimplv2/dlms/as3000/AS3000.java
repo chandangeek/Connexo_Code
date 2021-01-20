@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.as3000;
 
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -25,21 +26,22 @@ import com.energyict.protocolimplv2.dlms.DeviceInformation;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000Cache;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000DlmsSession;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000PublicSessionProvider;
-import com.energyict.protocolimplv2.dlms.as3000.writers.AS3000Messaging;
 import com.energyict.protocolimplv2.dlms.as3000.properties.AS3000ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.as3000.properties.AS3000Properties;
 import com.energyict.protocolimplv2.dlms.as3000.readers.AS3000ReadableLoadprofiles;
 import com.energyict.protocolimplv2.dlms.as3000.readers.AS3000ReadableLogbook;
 import com.energyict.protocolimplv2.dlms.as3000.readers.AS3000ReadableRegister;
+import com.energyict.protocolimplv2.dlms.as3000.writers.AS3000Messaging;
 import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounter;
 import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterBuilder;
 import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterCacheBuilder;
 import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterHandler;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedRegisterBuilder;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.logbook.CollectedLogBookBuilder;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedRegisterBuilder;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLogBookReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
+import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -164,4 +166,13 @@ public class AS3000 extends AbstractFacadeDlmsProtocol {
     public boolean useDsmr4SelectiveAccessFormat() {
         return true;
     }
+
+    protected ComposedMeterInfo getMeterInfo() {
+        return  new ComposedMeterInfo(getDlmsSession(),
+                    getDlmsSessionProperties().isBulkRequest(),
+                    getDlmsSessionProperties().getRoundTripCorrection(),
+                    getDlmsSessionProperties().getRetries(), DLMSAttribute.fromString("1:1.1.96.1.0.255:2"), DLMSAttribute.fromString("8:0.0.1.0.0.255:2"));
+    }
+
+
 }
