@@ -7,6 +7,7 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -31,12 +32,14 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final DataModel dataModel;
     private final EventService eventService;
     private final UserService userService;
+    private final OrmService ormService;
 
     @Inject
-    public Installer(DataModel dataModel, EventService eventService, UserService userService) {
+    public Installer(DataModel dataModel, EventService eventService, UserService userService, OrmService ormService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.userService = userService;
+        this.ormService = ormService;
     }
 
     private void createEventTypes() {
@@ -48,15 +51,17 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         doTry("Create event types", this::createEventTypes, logger);
         userService.addModulePrivileges(this);
-        execute(dataModel,
-                // TODO: support all this in the default upgrader
-                "alter table WS_OCC_RELATED_ATTR drop constraint WS_UQ_KEY_VALUE",
-                "alter table WS_OCC_RELATED_ATTR add constraint WS_UQ_KEY_VALUE unique (ATTR_KEY, ATTR_VALUE) using index compress 1",
-                "create index IX_WS_CALL_ATTR_VALUE on WS_OCC_RELATED_ATTR(upper(ATTR_VALUE))",
-                "create index IX_WS_CALL_START on WS_CALL_OCCURRENCE(STARTTIME desc)",
-                "create index IX_WS_CALL_END on WS_CALL_OCCURRENCE(ENDTIME desc)",
-                "create index IX_WS_CALL_STATUS on WS_CALL_OCCURRENCE(STATUS)",
-                "create index IX_WS_CALL_APP on WS_CALL_OCCURRENCE(APPLICATIONNAME)");
+        if (!ormService.isTest()) {
+            execute(dataModel,
+                    // TODO: support all this in the default upgrader
+                    "alter table WS_OCC_RELATED_ATTR drop constraint WS_UQ_KEY_VALUE",
+                    "alter table WS_OCC_RELATED_ATTR add constraint WS_UQ_KEY_VALUE unique (ATTR_KEY, ATTR_VALUE) using index compress 1",
+                    "create index IX_WS_CALL_ATTR_VALUE on WS_OCC_RELATED_ATTR(upper(ATTR_VALUE))",
+                    "create index IX_WS_CALL_START on WS_CALL_OCCURRENCE(STARTTIME desc)",
+                    "create index IX_WS_CALL_END on WS_CALL_OCCURRENCE(ENDTIME desc)",
+                    "create index IX_WS_CALL_STATUS on WS_CALL_OCCURRENCE(STATUS) compress 1",
+                    "create index IX_WS_CALL_APP on WS_CALL_OCCURRENCE(APPLICATIONNAME) compress 1");
+        }
     }
 
     @Override

@@ -89,6 +89,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     private volatile UpgradeService upgradeService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
+    private volatile OrmService ormService;
 
     private volatile List<ServiceRegistration> registrations = new ArrayList<>();
 
@@ -155,6 +156,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     @Reference
     public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
         this.dataModel = ormService.newDataModel(WebServicesService.COMPONENT_NAME, "Web services");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
@@ -238,6 +240,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(Clock.class).toInstance(clock);
+                bind(OrmService.class).toInstance(ormService);
                 bind(NlsService.class).toInstance(nlsService);
 
                 bind(WebServicesService.class).toInstance(webServicesService);
