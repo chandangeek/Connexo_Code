@@ -23,6 +23,7 @@ import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractFacadeDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DeviceInformation;
+import com.energyict.protocolimplv2.dlms.as3000.custom.ComposedMeterInfo;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000Cache;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000DlmsSession;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000PublicSessionProvider;
@@ -41,7 +42,6 @@ import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedR
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLogBookReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
-import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
 
 import java.util.Arrays;
 import java.util.Collections;

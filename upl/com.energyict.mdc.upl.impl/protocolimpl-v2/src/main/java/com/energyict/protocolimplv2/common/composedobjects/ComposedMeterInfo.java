@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.nta.dsmr23.composedobjects;
+package com.energyict.protocolimplv2.common.composedobjects;
 
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.ProtocolLink;
