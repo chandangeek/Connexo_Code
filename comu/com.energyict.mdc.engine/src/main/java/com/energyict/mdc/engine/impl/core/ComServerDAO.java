@@ -447,6 +447,10 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      */
     void executionFailed(ComTaskExecution comTaskExecution);
 
+    default void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry) {
+        executionFailed(comTaskExecution);
+    }
+
     /**
      * Notifies that execution of the specified ComTaskExecution failed.
      *

@@ -56,6 +56,8 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      */
     void executionFailed();
 
+    void executionFailed(boolean noRetry);
+
     /**
      * Notifies this ComTaskExecution that it should be rescheduled based on the given date. The number of tries is incremented.
      *
@@ -120,6 +122,8 @@ public interface ServerComTaskExecution extends ComTaskExecution, HasLastComTask
      */
     public void injectConnectionTask(OutboundConnectionTask connectionTask);
 
-    default boolean isUsingComTaskExecutionTriggers() {return true;}
+    default boolean isUsingComTaskExecutionTriggers() {
+        return true;
+    }
 
 }
