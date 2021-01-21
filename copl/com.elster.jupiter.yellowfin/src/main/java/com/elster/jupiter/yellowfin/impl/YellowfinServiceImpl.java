@@ -237,8 +237,11 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     }
 
     @Override
-    public Optional<String> createUser(String username) {
+    public Optional<String> createUser(String userName, String email) {
+        return createUserDetails(userName, email);
+    }
 
+    public Optional<String> createUserDetails(String username, String email){
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -256,7 +259,12 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         person.setFirstName("Connexo");
         person.setLastName(username);
         person.setRoleCode("YFREPORTCONSUMER");
-        person.setEmailAddress(username + "@elster.com");
+        if(email != null){
+            person.setEmailAddress(email);
+        } else {
+            person.setEmailAddress("Not Available");
+        }
+
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
@@ -284,6 +292,10 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         }
 
         return Optional.empty();
+    }
+    @Override
+    public Optional<String> createUser(String username) {
+       return createUserDetails(username, null);
     }
 
     @Override

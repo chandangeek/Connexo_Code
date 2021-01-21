@@ -65,6 +65,11 @@ Ext.define('Usr.view.user.Details', {
                                 },
                                 {
                                     xtype: 'displayfield',
+                                    name: 'email',
+                                    fieldLabel: "Email"
+                                },
+                                {
+                                    xtype: 'displayfield',
                                     name: 'domain',
                                     fieldLabel: Uni.I18n.translate('user.userdirectory', 'USR', 'User directory')
                                 },

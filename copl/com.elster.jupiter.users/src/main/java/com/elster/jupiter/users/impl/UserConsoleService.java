@@ -37,7 +37,12 @@ public class UserConsoleService {
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
 
+    private volatile String email;
 
+    public void addUser(String name, String pass, String email) {
+        this.email = email;
+        addUser(name, pass);
+    }
     public void addUser(String name, String pass) {
 
         this.threadPrincipalService.set(() -> "Console");
@@ -58,6 +63,7 @@ public class UserConsoleService {
                 }
                 User user = userDirectory.newUser(name, "", false, true);
                 user.setPassword(pass);
+                user.setEmail(email);
                 user.update();
                 context.commit();
             }

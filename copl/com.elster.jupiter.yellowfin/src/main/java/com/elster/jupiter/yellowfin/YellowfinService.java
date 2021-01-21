@@ -17,6 +17,7 @@ public interface YellowfinService {
 
     Optional<String> getUser(String username);
 
+    Optional<String> createUser(String userName, String email);
     Optional<String> createUser(String username);
 
     Optional<String> login(String username);

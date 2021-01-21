@@ -57,6 +57,11 @@ public class ConsoleUser implements User {
     }
 
     @Override
+    public String getEmail() {
+        return "@see DemoServiceImpl";
+    }
+
+    @Override
     public boolean hasPrivilege(String applicationName, String privilege) {
         return true;
     }
@@ -73,6 +78,11 @@ public class ConsoleUser implements User {
 
     @Override
     public void setDescription(String description) {
+
+    }
+
+    @Override
+    public void setEmail(String email) {
 
     }
 
