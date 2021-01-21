@@ -66,6 +66,7 @@ public class ChannelValidationContainer {
 
     static Optional<Instant> getLastCheckedForChannel(List<ChannelValidation> channelValidations) {
         return Optional.ofNullable(channelValidations.stream()
+                .filter(channelValidation -> channelValidation.getChannelsContainerValidation().isActive())
                 .filter(ChannelValidation::hasActiveRules)
                 .filter(channelValidation -> !channelValidation.isLastValidationComplete())
                 .map(ChannelValidation::getLastChecked)
