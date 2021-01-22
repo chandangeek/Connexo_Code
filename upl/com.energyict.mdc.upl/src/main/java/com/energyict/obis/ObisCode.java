@@ -227,13 +227,13 @@ public class ObisCode implements Serializable {
     @JsonIgnore
     @XmlTransient
     public boolean isCurrentBillingPeriod() {
-        return isLastBillingPeriod() && f == 1;
+        return isRelativeBillingPeriod() && f == 1;
     }
 
     @JsonIgnore
     @XmlTransient
     public boolean isLastBillingPeriod() {
-        return isCurrentBillingPeriod() && f == 0;
+        return isRelativeBillingPeriod() && f == 0;
     }
 
     public boolean hasBillingPeriod() {
