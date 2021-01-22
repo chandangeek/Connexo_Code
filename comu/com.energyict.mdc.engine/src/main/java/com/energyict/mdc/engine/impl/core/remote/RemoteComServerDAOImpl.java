@@ -12,6 +12,9 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.common.ApplicationException;
+import com.energyict.mdc.device.data.Device;
+import com.energyict.mdc.device.data.tasks.*;
+import com.energyict.mdc.device.data.tasks.history.ComSession;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.HighPriorityComJob;
@@ -787,6 +790,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+    }
+
+    @Override
+    public void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue) {
     }
 
     @Override

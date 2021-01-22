@@ -15,6 +15,7 @@ import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -30,25 +31,24 @@ public class UpdateDeviceConnectionProperty extends DeviceCommandImpl<UpdateDevi
     public static final String DESCRIPTION_TITLE = "Update device connection property";
 
     private DeviceIdentifier deviceIdentifier;
-    protected Object propertyValue;
+    protected Map<String, Object> connectionPropertyNameAndValue;
     protected ConnectionTask connectionTask;
-    protected String connectionTaskPropertyName;
 
     public UpdateDeviceConnectionProperty(DeviceConnectionProperty connectionProperty, ComTaskExecution comTaskExecution, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
         this.deviceIdentifier = connectionProperty.getDeviceIdentifier();
-        this.propertyValue = connectionProperty.getPropertyValue();
         this.connectionTask = connectionProperty.getConnectionTask();
-        this.connectionTaskPropertyName = connectionProperty.getConnectionTaskPropertyName();
+        this.connectionPropertyNameAndValue = connectionProperty.getConnectionPropertyNameAndValue();
+
     }
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
-        comServerDAO.updateConnectionTaskProperty(this.propertyValue, this.connectionTask, this.connectionTaskPropertyName);
+        comServerDAO.updateConnectionTaskProperties(this.connectionTask, this.connectionPropertyNameAndValue);
     }
 
     @Override
-    public ComServer.LogLevel getJournalingLogLevel () {
+    public ComServer.LogLevel getJournalingLogLevel() {
         return ComServer.LogLevel.INFO;
     }
 
@@ -56,13 +56,15 @@ public class UpdateDeviceConnectionProperty extends DeviceCommandImpl<UpdateDevi
     protected void toJournalMessageDescription(DescriptionBuilder builder, ComServer.LogLevel serverLogLevel) {
         if (isJournalingLevelEnabled(serverLogLevel, ComServer.LogLevel.INFO)) {
             builder.addProperty("deviceIdentifier").append(this.deviceIdentifier);
-            builder.addProperty("connection property name").append(this.connectionTaskPropertyName);
-            builder.addProperty("connection property value").append(this.propertyValue);
+            connectionPropertyNameAndValue.forEach((key, value) -> {
+                builder.addProperty("connection property name").append(key);
+                builder.addProperty("connection property value").append(value);
+            });
         }
     }
 
     protected Optional<UpdateDeviceConnectionPropertyEvent> newEvent(List<Issue> issues) {
-        UpdateDeviceConnectionPropertyEvent event  =  new UpdateDeviceConnectionPropertyEvent(new ComServerEventServiceProvider(), this.deviceIdentifier);
+        UpdateDeviceConnectionPropertyEvent event = new UpdateDeviceConnectionPropertyEvent(new ComServerEventServiceProvider(), this.deviceIdentifier);
         event.addIssues(issues);
         return Optional.of(event);
     }

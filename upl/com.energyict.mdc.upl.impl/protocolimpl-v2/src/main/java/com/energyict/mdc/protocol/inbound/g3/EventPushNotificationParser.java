@@ -374,8 +374,10 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                     try {
                         PowerUp event = PowerUp.fromJson(description);
                         collectedDeviceInfoList = new ArrayList<>();
-                        collectedDeviceInfoList.add( getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.address, IP_ADDRESS_PROPERTY_NAME) );
-                        collectedDeviceInfoList.add( getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.port, PORT_NUMBER_PROPERTY_NAME) );
+                        Map<String, Object> properties = new HashMap<>();
+                        properties.put(IP_ADDRESS_PROPERTY_NAME, event.address);
+                        properties.put(PORT_NUMBER_PROPERTY_NAME, event.port);
+                        collectedDeviceInfoList.add(getCollectedDataFactory().createDeviceConnectionProperties(deviceIdentifier, properties));
                         //this.getCollectedDataFactory().createDeviceConnectionProperty(deviceIdentifier, event.transport.toString(), "TRANSPORT?");
                     } catch (final IOException ex) {
                         throw DataParseException.ioException(new ProtocolException("Received POWER_UP event but failed parsing payload " + description));
@@ -545,7 +547,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
                     AbstractDataType dataType = eventHeaderAndBody.getNextDataType();
                     long value = dataType.getUnsigned32().getValue();
                     Date dateTime = Calendar.getInstance().getTime();
-                            /*addCollectedRegister(obisCode, value, null, dateTime, null);*/
+                    /*addCollectedRegister(obisCode, value, null, dateTime, null);*/
                 }
             }
         }
@@ -629,7 +631,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
     private void parseEvent(Structure structure) {
         int numberOfElements = structure.nrOfDataTypes();
 
-        if (numberOfElements == 2){
+        if (numberOfElements == 2) {
             Date dateTime = new Date();
             Unsigned32 protocolCode = structure.getDataType(1).getUnsigned32();
             logbookObisCode = DEFAULT_OBIS_STANDARD_EVENT_LOG;
@@ -677,7 +679,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         getComChannel().startReading();
         final int readBytes = getComChannel().read(header);
 
-        Supplier<String> message2 = () -> "Received frame header [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header);
+        Supplier<String> message2 = () -> "[" + source + "] Received frame header [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header);
         getContext().getLogger().info(message2);
 
         if (readBytes != 8) {
@@ -703,7 +705,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         byte[] frame = new byte[length];
         final int moreReadBytes = getComChannel().read(frame);
 
-        Supplier<String> message = () -> "Received frame [" + moreReadBytes + "]: " + ProtocolTools.getHexStringFromBytes(frame);
+        Supplier<String> message = () -> "[" + source + "] Received frame [" + moreReadBytes + "]: " + ProtocolTools.getHexStringFromBytes(frame);
         getContext().getLogger().info(message);
 
         if (moreReadBytes != length) {

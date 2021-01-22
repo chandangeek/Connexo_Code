@@ -10,6 +10,7 @@ import com.energyict.protocol.LoadProfileReader;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -83,6 +84,8 @@ public interface CollectedDataFactory {
     CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileName, String fileExtension, byte[] contents);
 
     CollectedDeviceInfo createDeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object connectionPropertyValue, String connectionTaskPropertyName);
+
+    CollectedDeviceInfo createDeviceConnectionProperties(DeviceIdentifier deviceIdentifier, Map<String, Object> connectionPropertyNameAndValue);
 
     CollectedMessageAcknowledgement createDeviceProtocolMessageAcknowledgement(MessageIdentifier messageIdentifier);
 
