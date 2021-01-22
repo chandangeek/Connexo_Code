@@ -193,7 +193,7 @@ public abstract class BaseResource {
 
                 Optional<WebServiceCallRelatedAttribute> relatedAttribute = webServiceCallOccurrenceService.getRelatedAttributesByValue(txtToFind.trim())
                         .stream()
-                        // CXO-12977 TODO: find by key, not translation! need to have both on FE
+                        // CONM-1727 TODO: find by key, not translation! need to have both on FE
                         .filter(attr -> webServiceCallOccurrenceService.translateAttributeType(attr.getKey()).equals(translationTxt))
                         .findFirst();
                 if (relatedAttribute.isPresent()) {

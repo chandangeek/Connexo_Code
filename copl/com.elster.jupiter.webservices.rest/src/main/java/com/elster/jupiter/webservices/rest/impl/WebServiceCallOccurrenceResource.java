@@ -205,7 +205,7 @@ public class WebServiceCallOccurrenceResource extends BaseResource {
                         .thenComparingInt(obj -> obj.getValue().toLowerCase().indexOf(toFind.toLowerCase()))
                         .thenComparing(WebServiceCallRelatedAttribute::getValue))
                 .filter(obj -> translationTxt == null || webServiceCallOccurrenceService.translateAttributeType(obj.getKey()).equals(translationTxt));
-        // CXO-12977 TODO: move sorting & pagination to query level
+        // CONM-1728 TODO: move sorting & pagination to query level
         streamInfo = params.getStart().map(streamInfo::skip).orElse(streamInfo);
         streamInfo = params.getLimit().map(i -> i + 1).map(streamInfo::limit).orElse(streamInfo);
         List<RelatedAttributeInfo> listInfo = streamInfo

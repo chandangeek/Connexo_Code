@@ -165,8 +165,8 @@ public enum TableSpecs {
             table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
             // table.index("IX_WS_CALL_START").on(desc(startTimeColumn)).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
             // table.index("IX_WS_CALL_END").on(desc(endTimeColumn)).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
-            // table.index("IX_WS_CALL_STATUS").bitmap().on(statusColumn).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
-            // table.index("IX_WS_CALL_APP").bitmap().on(applicationColumn).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
+            // table.index("IX_WS_CALL_STATUS").on(statusColumn).compress(1).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
+            // table.index("IX_WS_CALL_APP").on(applicationColumn).compress(1).add().since(Version.version(10, 7, 4)); // done in UpgraderV10_7_4
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
