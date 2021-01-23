@@ -258,7 +258,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName())
                     .notNull()
                     .add();
-            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.databaseName())
+            Column meterReadingDocumentId = table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName())
                     .notNull()
@@ -373,6 +373,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
+            table.index("IX_" + TABLE_NAME + "_MRDID").on(meterReadingDocumentId).add().since(Version.version(10, 7, 4));
         }
 
         @Override
