@@ -186,6 +186,10 @@ public class Beacon3100Properties extends DlmsProperties {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(100)).longValue();
     }
 
+    public long getFrameCounterLimit() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.FRAME_COUNTER_LIMIT, BigDecimal.valueOf(0)).longValue();
+    }
+
     public boolean getReadOldObisCodes(){
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.READ_OLD_OBIS_CODES, false);
     }

@@ -946,6 +946,14 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.emptyList();
         }
+    },
+    SET_ENGINEER_PIN_4DIGITS_NO_TIMEOUT(31097, "Set Engineer PIN") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.boundedBigDecimalSpec(service, DeviceMessageConstants.engineerPin, DeviceMessageConstants.engineerPinDefaultTranslation, new BigDecimal(0), new BigDecimal(9999))
+            );
+        }
     };
 
     private final long id;

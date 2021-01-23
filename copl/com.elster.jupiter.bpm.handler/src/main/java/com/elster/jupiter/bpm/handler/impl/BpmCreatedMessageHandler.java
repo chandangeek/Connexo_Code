@@ -63,7 +63,8 @@ public class BpmCreatedMessageHandler implements MessageHandler {
         try {
             bpmRestClient.doPost(targetURL, payload, bpmProcess.getAuth().orElse(null));
         } catch (HttpException httpException) {
-            if (httpException.getResponseCode() == 404) {
+            int responseCode = httpException.getResponseCode();
+            if (responseCode == 404 || responseCode == 500 || responseCode == 400) {
                 findAndRunProcessWithHighestDeploymentVersion(bpmProcess);
             } else {
                 throw httpException;

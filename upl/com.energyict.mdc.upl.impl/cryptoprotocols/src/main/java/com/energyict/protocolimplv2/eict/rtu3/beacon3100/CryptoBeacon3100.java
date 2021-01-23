@@ -48,7 +48,7 @@ public class CryptoBeacon3100 extends Beacon3100 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-08-27 $" + "/" + super.getVersion();
+        return "$Date: 2021-01-11 $" + "/" + super.getVersion();
     }
 
     @Override

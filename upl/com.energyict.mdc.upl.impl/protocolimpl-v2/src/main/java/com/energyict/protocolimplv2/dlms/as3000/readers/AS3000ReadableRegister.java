@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.as3000.readers;
 
-import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
@@ -10,21 +9,19 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.DlmsClassIdMatcher;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.GenricMatcher;
-import com.energyict.protocolimplv2.dlms.common.obis.matchers.ObisChannel;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.IgnoreChannelMatcher;
+import com.energyict.protocolimplv2.dlms.common.obis.matchers.ObisChannel;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.ObisCodeMatcher;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedRegisterBuilder;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.AttributeReader;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.DynamicAttributeReader;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.ArrayPositionMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.AttributeMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.BooleanMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.DefaultMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.DynamicMapper;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.custom.OctetStringDateTimeMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.OctetStringMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.PerTypeMapper;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.U32Mapper;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.custom.OctetStringDateTimeMapper;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedRegisterBuilder;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.DefaultExtendedRegisterClass;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.DefaultRegisterClass;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
@@ -51,7 +48,7 @@ public class AS3000ReadableRegister {
         readableRegisters.add(specialDayActive());
         readableRegisters.add(specialDayPassive());
         readableRegisters.add(activityCalendar());
-        readableRegisters.add(diconnectUnit());
+        readableRegisters.add(disconnectUnit());
         readableRegisters.add(optionBoardRelay1());
         readableRegisters.add(optionBoardRelay2());
         DLMSReaderRegistry<CollectedRegister, OfflineRegister, DLMSClassId> dataClassReadableRegisters = new DLMSReaderRegistry<>();
@@ -93,7 +90,7 @@ public class AS3000ReadableRegister {
                 collectedRegisterBuilder, attributeMapper);
     }
 
-    private DynamicAttributeReader diconnectUnit() {
+    private DynamicAttributeReader disconnectUnit() {
         List<AttributeMapper<? extends AbstractDataType>> mappers = new ArrayList<>();
         mappers.add(new OctetStringMapper());
         mappers.add(new BooleanMapper());

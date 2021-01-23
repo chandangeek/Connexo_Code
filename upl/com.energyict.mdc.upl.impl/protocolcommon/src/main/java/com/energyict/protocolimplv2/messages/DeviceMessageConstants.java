@@ -1040,6 +1040,8 @@ public final class DeviceMessageConstants {
     public static final String LongPowerFailureTimeThresholdAttributeDefaultTranslation = "Long power failure time threshold";
     public static final String LongPowerFailureThresholdAttributeName = "PowerConfigurationDeviceMessage.longpowerfailurethreshold";
     public static final String LongPowerFailureThresholdAttributeDefaultTranslation = "Long power failure threshold";
+    public static final String SetPowerQualityMeasurePeriodAttributeName = "PowerConfigurationDeviceMessage.measureperiod";
+    public static final String SetPowerQualityMeasurePeriodDefaultTranslation = "Set power quality measure period";
 
     public static final String CurrentOverLimitThresholdAttributeName = "PowerConfigurationDeviceMessage.currentOverLimitThreshold";
     public static final String CurrentOverLimitThresholdAttributeDefaultTranslation = "Current Over Limit Threshold";
@@ -1643,6 +1645,10 @@ public final class DeviceMessageConstants {
     public static final String daysOfWeekScheduleDefaultTranslation = "Days of week when the modem will be reset";
     public static final String enableModemResetSchedule = "DeviceActionMessage.SetModemSchedule.EnableModemResetScheduler";
     public static final String enableModemResetScheduleDefaultTranslation = "Enable modem reset scheduler";
+    public static final String limitationActionDelay = "DeviceActionMessage.limitationActionDelay";
+    public static final String limitationActionDelayDefaultTranslate = "Limitation action delay (steps of 5s, 0 to 1275)";
+    public static final String limitationMeasurementQuantity = "DeviceActionMessage.limitationMeasurementQuantity";
+    public static final String limitationMeasurementQuantityDefaultTranslate = "Limitation measurement quantity";
     ;
 
     // Hide constructor for class with only public constants

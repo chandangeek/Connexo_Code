@@ -72,10 +72,10 @@ public class AcudLoadProfileDataReader {
                     );
                 }
                 // Remember these, they are re-used in method #getLoadProfileData();
-                getStatusMasksMap().put(loadProfileReader,getStatusMask(captureObjects));
+                getStatusMasksMap().put(loadProfileReader, getStatusMask(captureObjects));
                 getChannelInfosMap().put(loadProfileReader, channelInfos);
 
-                loadProfileConfiguration.setProfileInterval( profileGeneric.getCapturePeriod() );
+                loadProfileConfiguration.setProfileInterval(profileGeneric.getCapturePeriod());
                 loadProfileConfiguration.setChannelInfos(channelInfos);
                 loadProfileConfiguration.setSupportedByMeter(true);
                 this.loadProfileConfigs.add(loadProfileConfiguration);
@@ -141,7 +141,7 @@ public class AcudLoadProfileDataReader {
         return null;
     }
 
-    private int getStatusMask(List<CapturedObject> capturedObjects){
+    private int getStatusMask(List<CapturedObject> capturedObjects) {
         int counter = 0;
         int statusMask = 0;
         for (CapturedObject capturedObject : capturedObjects) {
@@ -165,8 +165,6 @@ public class AcudLoadProfileDataReader {
                 if (unit.isUndefined()) {
                     unit = Unit.get(BaseUnit.NOTAVAILABLE, unit.getScale());
                 }
-                unit = Unit.get(unit.getBaseUnit().getDlmsCode(), 0); // SET SCALE to ZERO since it's already applied and converted to Engineering Unit by the protocol
-
                 ChannelInfo channelInfo = new ChannelInfo(counter, obisCode.toString(), unit, serialNumber);
                 if (isCumulative(obisCode)) {
                     channelInfo.setCumulative();

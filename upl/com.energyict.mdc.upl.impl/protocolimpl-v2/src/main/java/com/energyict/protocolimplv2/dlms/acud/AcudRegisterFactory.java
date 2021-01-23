@@ -3,7 +3,10 @@ package com.energyict.protocolimplv2.dlms.acud;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -23,9 +26,8 @@ import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.Calendar;
 import java.util.List;
 
 public class AcudRegisterFactory implements DeviceRegisterSupport {
@@ -130,7 +132,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                 SpecialDaysTable specialDaysTable = protocol.getDlmsSession().getCosemObjectFactory().getSpecialDaysTable(obisCode);
                 Array specialDays = specialDaysTable.readSpecialDays();
                 StringBuffer buff = new StringBuffer("");
-                for (int i=0; i < specialDays.nrOfDataTypes(); i++) {
+                for (int i = 0; i < specialDays.nrOfDataTypes(); i++) {
                     Structure special = specialDays.getDataType(i).getStructure();
                     appendSpecialDayString(buff, special);
                 }
@@ -149,7 +151,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private void appendSpecialDayString(StringBuffer buff, Structure special)  {
+    private void appendSpecialDayString(StringBuffer buff, Structure special) {
         buff.append(String.valueOf(special.getDataType(0).getUnsigned16().getValue()));
         buff.append(",");
         buff.append(AXDRDate.toDescription(special.getDataType(1).getOctetString()));
@@ -196,9 +198,16 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
 
     protected RegisterValue readBitString(ObisCode obisCode, AbstractDataType attribute) {
         if (obisCode.equals(FRIENDLY_WEEKDAYS)) {
-            return new RegisterValue(obisCode, Integer.toString(attribute.getBitString().intValue(), 2));
+            return new RegisterValue(obisCode, bitStringToWeekdays(attribute.getBitString()));
         }
         return new RegisterValue(obisCode, new Quantity(attribute.getBitString().toBigDecimal().longValue(), Unit.get("")));
+    }
+
+    private String bitStringToWeekdays(BitString bitString) {
+        StringBuffer buff = new StringBuffer();
+        for (int i = 1; i < Math.min(bitString.getNrOfBits(), Calendar.SATURDAY + 1); i++)
+            buff.append(bitString.get(i) ? "1" : "0");
+        return buff.toString();
     }
 
     protected RegisterValue readArray(ObisCode obisCode, Array array) throws IOException {

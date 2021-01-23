@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.protocol.MeterEvent;
+import com.energyict.protocol.MeterProtocolEvent;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -253,6 +254,10 @@ public abstract class Beacon3100AbstractEventLog {
         }
 
         return meterEvents;
+    }
+
+    public List<MeterProtocolEvent> getMeterProtocolEvents() throws IOException {
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(this.getMeterEvents());
     }
 
     protected String getDefaultEventDescription(int dlmsCode, int deviceCode, String message){
