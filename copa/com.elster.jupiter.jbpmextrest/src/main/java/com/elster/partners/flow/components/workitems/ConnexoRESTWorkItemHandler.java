@@ -4,6 +4,7 @@
 
 package com.elster.partners.flow.components.workitems;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -96,7 +97,11 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
                     ((Closeable) response).close();
                 }
                 response = httpclient.execute(request);
-                if (response.getStatusLine().getStatusCode() < 400) {
+                if (StringUtils.contains(response.getEntity().getContentType().getValue(), "application/json")) {
+                    logger.warn("Couldn't execute request on Connexo REST API. Device doesn't exist.");
+                    break;
+                }
+                if (response.getStatusLine().getStatusCode() < 400 ) {
                     return response;
                 }
                 exception = null;
