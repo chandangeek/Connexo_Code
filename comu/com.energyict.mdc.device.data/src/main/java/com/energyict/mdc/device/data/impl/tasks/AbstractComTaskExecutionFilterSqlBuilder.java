@@ -23,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.energyict.mdc.device.data.impl.tasks.ServerConnectionTaskStatus.BUSY_TASK_ALIAS_NAME;
+
 /**
  * Provides code reuse opportunities to build SQL queries that will
  * match {@link ComTaskExecution}s against a {@link ComTaskExecutionFilterSpecification}.
@@ -53,30 +55,43 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         this.queryExecutor = queryExecutor;
     }
 
-    ClauseAwareSqlBuilder newActualBuilderForRestrictedStages() {
-        ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder
-                .withExcludedStages(
-                        DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME,
-                        this.restrictedDeviceStages,
-                        this.getClock().instant());
+    ClauseAwareSqlBuilder newActualBuilder() {
+        ClauseAwareSqlBuilder actualBuilder = ClauseAwareSqlBuilder.getNewBuilder();
         this.setActualBuilder(actualBuilder);
         return actualBuilder;
     }
 
-    protected void appendDeviceStateJoinClauses() {
-        this.appendDeviceStateJoinClauses(communicationTaskAliasName());
+    protected void appendDeviceStateAndHighPrioTaskJoinClauses() {
+        this.appendDeviceJoinClause(communicationTaskAliasName());
+        this.appendDeviceStateJoinClause();
+        this.appendHighPrioComtaskExecutionJoinClause();
     }
 
-    void appendDeviceStateJoinClauses(String deviceContainerAliasName) {
+    protected void appendDeviceAndHighPrioAndBusyTaskJoinClauses() {
+        this.appendDeviceJoinClause(communicationTaskAliasName());
+        this.appendHighPrioComtaskExecutionJoinClause();
+        this.appendBusyTaskJoinClause(communicationTaskAliasName());
+    }
+
+    void appendDeviceJoinClause(String deviceContainerAliasName) {
         this.append(" join ");
         this.append(TableSpecs.DDC_DEVICE.name());
         this.append(" dev on ");
         this.append(deviceContainerAliasName);
         this.append(".device = dev.id ");
+    }
+
+    void appendHighPrioComtaskExecutionJoinClause(){
+        this.append(" left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
+    }
+
+    void appendDeviceStateJoinClause(){
         this.append(" join ");
         this.append(DeviceStageSqlBuilder.DEVICE_STAGE_ALIAS_NAME);
         this.append(" kd on dev.meterid = kd.id ");
-        this.append(" left join DDC_HIPRIOCOMTASKEXEC hp ON hp.comtaskexecution = cte.id ");
+    }
+    void appendBusyTaskJoinClause(String communicationTaskAliasName) {
+        this.append(" left join " + BUSY_TASK_ALIAS_NAME + " bt on bt.connectiontask = " + communicationTaskAliasName + ".id ");
     }
 
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
@@ -128,4 +143,7 @@ public abstract class AbstractComTaskExecutionFilterSqlBuilder extends AbstractT
         }
     }
 
+    Set<EndDeviceStage> getRestrictedDeviceStages(){
+        return this.restrictedDeviceStages;
+    }
 }

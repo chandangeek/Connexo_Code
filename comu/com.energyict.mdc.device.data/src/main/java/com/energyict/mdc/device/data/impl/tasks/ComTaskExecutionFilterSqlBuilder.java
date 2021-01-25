@@ -71,12 +71,12 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
      * @throws IllegalArgumentException Thrown when the specifications are not valid
      */
     protected void validate(ComTaskExecutionFilterSpecification filterSpecification) throws IllegalArgumentException {
-        if (   !filterSpecification.latestResults.isEmpty()
-            && !this.isNull(filterSpecification.lastSessionEnd)) {
+        if (!filterSpecification.latestResults.isEmpty()
+                && !this.isNull(filterSpecification.lastSessionEnd)) {
             throw new IllegalArgumentException("Latest result and last session end in interval cannot be combined");
         }
-        if (   !filterSpecification.comTasks.isEmpty()
-            && !filterSpecification.comSchedules.isEmpty()) {
+        if (!filterSpecification.comTasks.isEmpty()
+                && !filterSpecification.comSchedules.isEmpty()) {
             throw new IllegalArgumentException("Communication tasks and communication schedules cannot be combined");
         }
     }
@@ -86,29 +86,40 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
-        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStages();
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
         WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
-        actualBuilder.append(sqlBuilder);
-        this.appendDeviceStateJoinClauses(communicationTaskAliasName);
+        String allctedataAlias = "allctedata";
+        this.append(", " + allctedataAlias + " as (");
         String sqlStartClause = sqlBuilder.getText();
+        this.append(sqlStartClause.replace("from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName , " , hp.COMTASKEXECUTION, dev.DEVICETYPE, dev.NAME, CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName));
+        this.appendDeviceAndHighPrioAndBusyTaskJoinClauses();
+        this.append(" where exists ( ");
+        DeviceStageSqlBuilder.forExcludeStages(getRestrictedDeviceStages()).appendRestrictedStagesSelectClause(this.getActualBuilder().asBuilder(),this.getClock().instant());
+        this.append(" ) ");
+        this.append(" ) ");
+
+        this.append(sqlStartClause.replace( TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName,   allctedataAlias + " " + communicationTaskAliasName + " "));
+
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
-        while (statusIterator.hasNext()) {
-            this.appendWhereClause(statusIterator.next());
-            if (statusIterator.hasNext()) {
-                this.unionAll();
-                this.append(sqlStartClause);
-                this.appendDeviceStateJoinClauses(communicationTaskAliasName);
+        if (statusIterator.hasNext()) {
+            this.getActualBuilder().appendWhereOrAnd();
+            this.append(" ( ");
+            while (statusIterator.hasNext()) {
+                this.appendWhereClause(statusIterator.next());
+                if (statusIterator.hasNext()) {
+                    this.appendWhereOrOr();
+                }
             }
+            this.append(" ) ");
         }
+
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
-        if(!this.connectionTasksIds.isEmpty()){
+        if (!this.connectionTasksIds.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",","")) + ")");
+            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",", "")) + ")");
         }
-        this.appendWhereOrAnd();
-        this.append("obsolete_date is null");
         return this.getActualBuilder();
     }
 
@@ -199,7 +210,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
 
     private boolean isNull(Interval interval) {
         return interval == null
-            || (   (interval.getStart() == null)
+                || ((interval.getStart() == null)
                 && (interval.getEnd() == null));
     }
 
