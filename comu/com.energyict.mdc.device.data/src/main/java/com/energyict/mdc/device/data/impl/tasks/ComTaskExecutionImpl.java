@@ -184,11 +184,11 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         this.connectionTaskService = connectionTaskService;
     }
 
-    private boolean shouldUseComTaskExecutionTriggers(DataModel dataModel){
+    private boolean shouldUseComTaskExecutionTriggers(DataModel dataModel) {
         return Optional.ofNullable(dataModel).filter(dm -> dm instanceof DataModelImpl)
                 .map(DataModelImpl.class::cast).map(DataModelImpl::getOrmService)
                 .map(ormService -> ormService.getProperty("com.elster.jupiter.comtaskexecution.useTriggers"))
-                .filter(value -> value.trim().length()>0)
+                .filter(value -> value.trim().length() > 0)
                 .map(Boolean::valueOf)
                 .orElse(true);
     }
@@ -402,7 +402,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public void update() {
-        LOGGER.info("CXO-11731: UPDATE EXECUTION TASK = "+this.toString());
+        LOGGER.info("CXO-11731: UPDATE EXECUTION TASK = " + this.toString());
         Save.UPDATE.save(getDataModel(), this, Save.Create.class, Save.Update.class);
         LOGGER.info("CXO-11731: Updated.");
         this.notifyUpdated();
@@ -410,33 +410,32 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
 
     @Override
     public String toString() {
-        return " DEVICE="+ (device.isPresent() ? device.get().getId() : "NO_DEVICE")+
-               " COMTASK="+(comTask.isPresent()? comTask.get().getId(): "NO_COMTASK")+
-               " COMSCHEDULE ="+(comSchedule.isPresent()? comSchedule.get().getId() : "NO_COMSCHEDULE ")+
-               " NEXTEXECUTIONSPECS ="+(nextExecutionSpecs.isPresent()?nextExecutionSpecs.get().getId() : "NO_NEXTEXECUTIONSPECS")+
-                "LASTEXECUTIONTIMESTAMP ="+lastExecutionTimestamp+
-                "NEXTEXECUTIONTIMESTAMP = "+nextExecutionTimestamp+
-                "COMPORT ="+(comPort.isPresent()? comPort.get().getId(): "NO_COMPORT")+
-                "OBSOLETE_DATE = " + obsoleteDate+
+        return " DEVICE=" + (device.isPresent() ? device.get().getId() : "NO_DEVICE") +
+                " COMTASK=" + (comTask.isPresent() ? comTask.get().getId() : "NO_COMTASK") +
+                " COMSCHEDULE =" + (comSchedule.isPresent() ? comSchedule.get().getId() : "NO_COMSCHEDULE ") +
+                " NEXTEXECUTIONSPECS =" + (nextExecutionSpecs.isPresent() ? nextExecutionSpecs.get().getId() : "NO_NEXTEXECUTIONSPECS") +
+                "LASTEXECUTIONTIMESTAMP =" + lastExecutionTimestamp +
+                "NEXTEXECUTIONTIMESTAMP = " + nextExecutionTimestamp +
+                "COMPORT =" + (comPort.isPresent() ? comPort.get().getId() : "NO_COMPORT") +
+                "OBSOLETE_DATE = " + obsoleteDate +
                 "PRIORITY = " + executionPriority +
-                "USEDEFAULTCONNECTIONTASK =  " + useDefaultConnectionTask+
-                "CURRENTRETRYCOUNT = " + currentRetryCount+
-                "PLANNEDNEXTEXECUTIONTIMESTAMP = " + plannedNextExecutionTimestamp+
-                "EXECUTIONPRIORITY = " + executionPriority+
+                "USEDEFAULTCONNECTIONTASK =  " + useDefaultConnectionTask +
+                "CURRENTRETRYCOUNT = " + currentRetryCount +
+                "PLANNEDNEXTEXECUTIONTIMESTAMP = " + plannedNextExecutionTimestamp +
+                "EXECUTIONPRIORITY = " + executionPriority +
                 "EXECUTIONSTART = " + executionStart +
-                "LASTSUCCESSFULCOMPLETION =" + lastSuccessfulCompletionTimestamp+
-                "LASTEXECUTIONFAILED = " + lastExecutionFailed+
+                "LASTSUCCESSFULCOMPLETION =" + lastSuccessfulCompletionTimestamp +
+                "LASTEXECUTIONFAILED = " + lastExecutionFailed +
                 "ONHOLD =  " + onHold +
-                "CONNECTIONTASK = " + connectionTask+
-                "IGNORENEXTEXECSPECS = " + ignoreNextExecutionSpecsForInbound+
-                "CONNECTIONFUNCTION = " +(connectionFunction.isPresent()?connectionFunction.get().getId():"NO_CONNECTIONFUNCTION")+
-                "LASTSESSION =  " + (lastSession.isPresent()?lastSession.get().getId():"NO_LASTSESSION")+
-                "LASTSESS_HIGHESTPRIOCOMPLCODE = " + lastSessionHighestPriorityCompletionCode+
-                "LASTSESS_SUCCESSINDICATOR = " + lastSessionSuccessIndicator+
-                "MODTIME= " + modTime+
-                "USERNAME=" +userName+
-                "VERSION="+version;
-
+                "CONNECTIONTASK = " + connectionTask +
+                "IGNORENEXTEXECSPECS = " + ignoreNextExecutionSpecsForInbound +
+                "CONNECTIONFUNCTION = " + (connectionFunction.isPresent() ? connectionFunction.get().getId() : "NO_CONNECTIONFUNCTION") +
+                "LASTSESSION =  " + (lastSession.isPresent() ? lastSession.get().getId() : "NO_LASTSESSION") +
+                "LASTSESS_HIGHESTPRIOCOMPLCODE = " + lastSessionHighestPriorityCompletionCode +
+                "LASTSESS_SUCCESSINDICATOR = " + lastSessionSuccessIndicator +
+                "MODTIME= " + modTime +
+                "USERNAME=" + userName +
+                "VERSION=" + version;
 
 
     }
@@ -926,7 +925,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private void updateForScheduling(boolean informConnectionTask) {
         this.getConnectionTask().ifPresent(ct -> connectionTaskService.findAndLockConnectionTaskByIdAndVersion(ct.getId(), ct.getVersion()));
         communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(this.getId(), version);
-        LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = "+this.toString());
+        LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = " + this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
                 ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName(),
@@ -1008,6 +1007,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.doExecutionFailed();
         }
         updateForScheduling(true);
+    }
+
+    @Override
+    public void executionFailed(boolean noRetry) {
+        if (noRetry) {
+            this.currentRetryCount++;
+            this.doExecutionFailed();
+            updateForScheduling(true);
+        } else {
+            executionFailed();
+        }
     }
 
     protected void doExecutionAttemptFailed() {
