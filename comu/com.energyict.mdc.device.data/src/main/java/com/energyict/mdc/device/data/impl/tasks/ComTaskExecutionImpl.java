@@ -1022,6 +1022,17 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         updateForScheduling(true);
     }
 
+    @Override
+    public void executionFailed(boolean noRetry) {
+        if (noRetry) {
+            this.currentRetryCount++;
+            this.doExecutionFailed();
+            updateForScheduling(true);
+        } else {
+            executionFailed();
+        }
+    }
+
     protected void doExecutionAttemptFailed() {
         this.lastExecutionFailed = true;
         Instant rescheduleDate = calculateNextExecutionTimestampAfterFailure();

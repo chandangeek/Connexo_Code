@@ -37,7 +37,15 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -54,7 +62,13 @@ import com.google.common.collect.Range;
 
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ComServerDAO} interface
@@ -312,6 +326,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     public void executionFailed(ComTaskExecution comTaskExecution) {
         this.executionFailed.increment();
         this.actual.executionFailed(comTaskExecution);
+    }
+
+    @Override
+    public void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry) {
+        executionFailed(comTaskExecution);
     }
 
     @Override
@@ -698,7 +717,7 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void storePathSegments( List<TopologyPathSegment> topologyPathSegment) {
+        public void storePathSegments(List<TopologyPathSegment> topologyPathSegment) {
         }
 
         @Override
@@ -927,6 +946,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public void executionFailed(ComTaskExecution comTaskExecution) {
             this.verifier.verify(executionFailed);
+        }
+
+        @Override
+        public void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry) {
+            executionFailed(comTaskExecution);
         }
 
         @Override

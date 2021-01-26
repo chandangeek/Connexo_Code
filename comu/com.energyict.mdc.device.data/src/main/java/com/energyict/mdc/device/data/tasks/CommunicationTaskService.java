@@ -60,7 +60,7 @@ public interface CommunicationTaskService {
      * Gets all {@link ComTaskExecution}s of the specified {@link Device}
      * that are using the specified {@link ConnectionFunction}
      *
-     * @param device             The Device
+     * @param device The Device
      * @param connectionFunction the ConnectionFunction
      * @return The List of ComTaskExecution
      */
@@ -69,6 +69,7 @@ public interface CommunicationTaskService {
     /**
      * Gets all {@link ComTaskExecution}s that have {@link ConnectionTask} linked to a {@link ComPortPool}
      * containing the {@link ComPort} given as parameter, and started communication before the timeout value specified on the {@link ComPortPool}.
+     *
      * @param comPort the comPort to check for timed out ComTaskExecutions
      * @return the List of ComTaskExecutions
      */
@@ -102,9 +103,9 @@ public interface CommunicationTaskService {
     /**
      * Finds all {@link ConnectionTask}s that match the specified filter.
      *
-     * @param filter    The ComTaskExecutionFilterSpecification
+     * @param filter The ComTaskExecutionFilterSpecification
      * @param pageStart The first ComTaskExecution
-     * @param pageSize  The maximum number of ComTaskExecutions
+     * @param pageSize The maximum number of ComTaskExecutions
      * @return The List of ComTaskExecution
      */
     List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize);
@@ -132,7 +133,7 @@ public interface CommunicationTaskService {
      * Note that this MUST run in an existing transactional context.
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param comPort          The ComPort that is about to execute the ComTaskExecution
+     * @param comPort The ComPort that is about to execute the ComTaskExecution
      * @return <code>true</code> iff the lock succeeds
      */
     ComTaskExecution attemptLockComTaskExecution(ComTaskExecution comTaskExecution, ComPort comPort);
@@ -210,9 +211,9 @@ public interface CommunicationTaskService {
      *
      * @param comServer
      * @param comPortPools
-     * @param delta        - duration to add to current time
-     * @param limit        - nr of entries to be returned.
-     * @param skip         - nr of entries to skip.
+     * @param delta - duration to add to current time
+     * @param limit - nr of entries to be returned.
+     * @param skip - nr of entries to skip.
      * @return a list of ComTaskExecutions already having the connectionTask fetched
      */
     List<ComTaskExecution> getPendingComTaskExecutionsListFor(ComServer comServer, List<OutboundComPortPool> comPortPools, Duration delta, long limit, long skip);
@@ -220,7 +221,7 @@ public interface CommunicationTaskService {
     /**
      * Finds all the ComTaskExecutions having ComTask in the received comTaskIds from the devices in deviceIds
      *
-     * @param deviceIds  list of device IDs to search for
+     * @param deviceIds list of device IDs to search for
      * @param comTaskIds list of ComTask IDs to search for
      * @return a fetcher for the ComTaskExecutions found
      */
@@ -247,8 +248,8 @@ public interface CommunicationTaskService {
      * communication errors of the specified type
      * that have occurred in the specified {@link Interval}.
      *
-     * @param devices                   The List of Devices that are used for counting
-     * @param interval                  The Interval during which the communication errors have occurred
+     * @param devices The List of Devices that are used for counting
+     * @param interval The Interval during which the communication errors have occurred
      * @param successIndicatorCondition The condition that specifies the type of communication error
      * @return The number of communication errors
      */
@@ -268,6 +269,8 @@ public interface CommunicationTaskService {
     void executionCompletedFor(ComTaskExecution comTaskExecution);
 
     void executionFailedFor(ComTaskExecution comTaskExecution);
+
+    void executionFailedFor(ComTaskExecution comTaskExecution, boolean noRetry);
 
     void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort);
 

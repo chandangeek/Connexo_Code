@@ -688,7 +688,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public void unlockComTaskExecution(ComTaskExecution comTaskExecution) {
         try {
             getServerComTaskExecution(comTaskExecution).setLockedComPort(null);
-        } catch(OptimisticLockException e) {
+        } catch (OptimisticLockException e) {
             refreshComTaskExecution(comTaskExecution).setLockedComPort(null);
         }
     }
@@ -833,21 +833,26 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         start = System.currentTimeMillis();
         comTaskExecutions.sort((cte1, cte2) -> {
             int result = cte1.getNextExecutionTimestamp().compareTo(cte2.getNextExecutionTimestamp());
-            if (result != 0)
+            if (result != 0) {
                 return result;
+            }
 
             if (isRandomizationOn) {
-                if (cte1.getConnectionTaskId() % 100 < cte2.getConnectionTaskId() % 100)
+                if (cte1.getConnectionTaskId() % 100 < cte2.getConnectionTaskId() % 100) {
                     return -1;
-                if (cte1.getConnectionTaskId() % 100 > cte2.getConnectionTaskId() % 100)
+                }
+                if (cte1.getConnectionTaskId() % 100 > cte2.getConnectionTaskId() % 100) {
                     return 1;
+                }
             }
 
             if (isTrueMinimizedOn) {
-                if (cte1.getConnectionTaskId() < cte2.getConnectionTaskId())
+                if (cte1.getConnectionTaskId() < cte2.getConnectionTaskId()) {
                     return -1;
-                if (cte1.getConnectionTaskId() > cte2.getConnectionTaskId())
+                }
+                if (cte1.getConnectionTaskId() > cte2.getConnectionTaskId()) {
                     return 1;
+                }
             }
 
             return cte1.getPlannedPriority() - cte2.getPlannedPriority();
@@ -1077,17 +1082,22 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public void executionCompletedFor(ComTaskExecution comTaskExecution) {
         try {
             getServerComTaskExecution(comTaskExecution).executionCompleted();
-        } catch(OptimisticLockException e) {
+        } catch (OptimisticLockException e) {
             refreshComTaskExecution(comTaskExecution).executionCompleted();
         }
     }
 
     @Override
     public void executionFailedFor(ComTaskExecution comTaskExecution) {
+        this.executionFailedFor(comTaskExecution, false);
+    }
+
+    @Override
+    public void executionFailedFor(ComTaskExecution comTaskExecution, boolean noRetry) {
         try {
-            getServerComTaskExecution(comTaskExecution).executionFailed();
-        } catch(OptimisticLockException e) {
-            refreshComTaskExecution(comTaskExecution).executionFailed();
+            getServerComTaskExecution(comTaskExecution).executionFailed(noRetry);
+        } catch (OptimisticLockException e) {
+            refreshComTaskExecution(comTaskExecution).executionFailed(noRetry);
         }
     }
 
@@ -1095,7 +1105,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public void executionStartedFor(ComTaskExecution comTaskExecution, ComPort comPort) {
         try {
             getServerComTaskExecution(comTaskExecution).executionStarted(comPort);
-        } catch(OptimisticLockException e) {
+        } catch (OptimisticLockException e) {
             refreshComTaskExecution(comTaskExecution).executionStarted(comPort);
         }
     }
@@ -1104,7 +1114,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate) {
         try {
             getServerComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
-        } catch(OptimisticLockException e) {
+        } catch (OptimisticLockException e) {
             refreshComTaskExecution(comTaskExecution).executionRescheduled(rescheduleDate);
         }
     }
@@ -1112,7 +1122,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate) {
         try {
             getServerComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
-        } catch(OptimisticLockException e) {
+        } catch (OptimisticLockException e) {
             refreshComTaskExecution(comTaskExecution).executionRescheduledToComWindow(comWindowStartDate);
         }
     }
