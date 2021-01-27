@@ -373,7 +373,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
-            table.index("IX_" + TABLE_NAME + "_MRDID").on(meterReadingDocumentId).add().since(Version.version(10, 7, 4));
+            table.index("IX_" + TABLE_NAME + "_MRDID").on(meterReadingDocumentId).add().since(Version.version(10, 7, 5));
         }
 
         @Override
