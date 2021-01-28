@@ -386,9 +386,10 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             url: url,
             method: 'POST',
             jsonData: Ext.encode(payload),
-            success: function () {
+            success: function (deviceMessageInfo) {
                 me.redirectToOverview(deviceId);
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
+                //me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
+                me.getApplication().fireEvent('triggerConfirmation', deviceId, deviceMessageInfo.id)
             },
             callback: function () {
                 me.getSendCalendarContainer().setLoading(false);

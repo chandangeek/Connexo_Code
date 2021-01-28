@@ -122,7 +122,7 @@ public class DeviceMessageInfoFactory {
         final List<DeviceMessageInfo> infos = new ArrayList<>();
         for (DeviceMessage deviceMessage : deviceMessages) {
             Device device = (Device) deviceMessage.getDevice();
-            DeviceMessageInfo info = getSimpleInfo(deviceMessage, uriInfo, device);
+            DeviceMessageInfo info = getSimpleInfo(deviceMessage, device);
             info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
             if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
                 info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
@@ -132,7 +132,7 @@ public class DeviceMessageInfoFactory {
         return infos;
     }
 
-    public DeviceMessageInfo getSimpleInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
+    public DeviceMessageInfo getSimpleInfo(DeviceMessage deviceMessage, Device device) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
 
@@ -159,7 +159,7 @@ public class DeviceMessageInfoFactory {
     }
 
     private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
-        DeviceMessageInfo info = getSimpleInfo(deviceMessage, uriInfo, device);
+        DeviceMessageInfo info = getSimpleInfo(deviceMessage, device);
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
         if (deviceMessage.getTrackingCategory() != null) {
             info.trackingCategory = new DeviceMessageInfo.TrackingCategoryInfo();
