@@ -20,7 +20,6 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
-import com.elster.jupiter.rest.util.JSONQueryValidator;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -106,8 +105,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -188,6 +185,7 @@ public class DeviceResource {
     private final BpmService bpmService;
     private final JsonService jsonService;
     private final MeteringTranslationService meteringTranslationService;
+    private final DeviceMessageInfoFactory deviceMessageInfoFactory;
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
@@ -240,7 +238,8 @@ public class DeviceResource {
             DataLoggerSlaveDeviceInfoFactory dataLoggerSlaveDeviceInfoFactory,
             BpmService bpmService,
             JsonService jsonService,
-            MeteringTranslationService meteringTranslationService) {
+            MeteringTranslationService meteringTranslationService,
+            DeviceMessageInfoFactory deviceMessageInfoFactory) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -291,6 +290,7 @@ public class DeviceResource {
         this.bpmService = bpmService;
         this.jsonService = jsonService;
         this.meteringTranslationService = meteringTranslationService;
+        this.deviceMessageInfoFactory = deviceMessageInfoFactory;
     }
 
     @GET
@@ -1189,7 +1189,7 @@ public class DeviceResource {
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_2,
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_3,
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
-    public Response sendCalendar(@PathParam("name") String name, SendCalendarInfo sendCalendarInfo) {
+    public DeviceMessageInfo sendCalendar(@PathParam("name") String name, SendCalendarInfo sendCalendarInfo) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         Set<ProtocolSupportedCalendarOptions> allowedOptions = getAllowedTimeOfUseOptions(device);
         AllowedCalendar calendar = device.getDeviceType().getAllowedCalendars().stream()
@@ -1200,7 +1200,7 @@ public class DeviceResource {
 
         DeviceMessage deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
         device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
-        return Response.ok().build();
+        return deviceMessageInfoFactory.getSimpleInfo(deviceMessage, device);
     }
 
 

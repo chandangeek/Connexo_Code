@@ -90,6 +90,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     ],
 
     init: function () {
+        this.getApplication().on('triggerConfirmation', this.showTriggerConfirmation);
         this.control({
             '#deviceCommandsGrid': {
                 selectionchange: this.selectCommand
@@ -204,8 +205,15 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     },
 
     triggerCommand: function (deviceId, comTaskId, device) {
-        var me = this,
-            infoData = {
+        var me = this;
+        if (!device) {
+            Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
+                success: function (device) {
+                   me.triggerCommand(deviceId, comTaskId, device);
+                }
+            });
+        } else {
+            var infoData = {
                 'device': {
                     'version': device.data.version,
                     'name': device.data.name,
@@ -215,20 +223,21 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                     }
                 }
             };
-        var info = Ext.encode(infoData);
-        Ext.Ajax.request({
-            url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/runnow',
-            jsonData: info,
-            method: 'PUT',
-            success: function () {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
-                if (Ext.isDefined(me.getDeviceCommandsGrid())) {
-                    me.getDeviceCommandsGrid().getStore().load();
-                } else if (Ext.isDefined(me.getCommandsGrid())) {
-                    me.getCommandsGrid().getStore().load();
+            var info = Ext.encode(infoData);
+            Ext.Ajax.request({
+                url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/runnow',
+                jsonData: info,
+                method: 'PUT',
+                success: function () {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
+                    if (Ext.isDefined(me.getDeviceCommandsGrid())) {
+                        me.getDeviceCommandsGrid().getStore().load();
+                    } else if (Ext.isDefined(me.getCommandsGrid())) {
+                        me.getCommandsGrid().getStore().load();
+                    }
                 }
-            }
-        })
+            })
+        }
     },
 
     revokeCommand: function (record, device) {
