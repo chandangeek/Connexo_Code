@@ -62,7 +62,7 @@ public class DeviceMessageInfoFactory {
 
     public DeviceMessageInfo asFullInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
         Device device = (Device) deviceMessage.getDevice();
-        DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+        DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo);
         ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
         if (comTaskForDeviceMessage!=null) {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
@@ -89,7 +89,7 @@ public class DeviceMessageInfoFactory {
         return deviceMessages.stream().
                 map(deviceMessage -> {
                     Device device = (Device) deviceMessage.getDevice();
-                    DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo, device);
+                    DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo);
                     ComTask comTaskForDeviceMessage = preferredComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
                             key -> deviceMessageService.getPreferredComTask(device, deviceMessage));
                     if (comTaskForDeviceMessage!=null) {
@@ -116,13 +116,13 @@ public class DeviceMessageInfoFactory {
                 collect(toList());
     }
 
-    public List<DeviceMessageInfo> asFasterInfo(Collection<DeviceMessage> deviceMessages, UriInfo uriInfo) {
+    public List<DeviceMessageInfo> asFasterInfo(Collection<DeviceMessage> deviceMessages) {
         final Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache = new HashMap<>();
         final Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache = new HashMap<>();
         final List<DeviceMessageInfo> infos = new ArrayList<>();
         for (DeviceMessage deviceMessage : deviceMessages) {
             Device device = (Device) deviceMessage.getDevice();
-            DeviceMessageInfo info = getSimpleInfo(deviceMessage, device);
+            DeviceMessageInfo info = getSimpleInfo(deviceMessage);
             info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
             if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
                 info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
@@ -132,10 +132,10 @@ public class DeviceMessageInfoFactory {
         return infos;
     }
 
-    public DeviceMessageInfo getSimpleInfo(DeviceMessage deviceMessage, Device device) {
+    public DeviceMessageInfo getSimpleInfo(DeviceMessage deviceMessage) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
-
+        Device device = (Device) deviceMessage.getDevice();
         DeviceMessageSpec specification = deviceMessage.getSpecification();
 
         info.status = new DeviceMessageInfo.StatusInfo();
@@ -155,11 +155,15 @@ public class DeviceMessageInfoFactory {
 
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.version = deviceMessage.getVersion();
+        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
+        if (comTaskForDeviceMessage!=null) {
+            info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
+        }
         return info;
     }
 
-    private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo, Device device) {
-        DeviceMessageInfo info = getSimpleInfo(deviceMessage, device);
+    private DeviceMessageInfo getBaseInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
+        DeviceMessageInfo info = getSimpleInfo(deviceMessage);
         info.trackingIdAndName = new IdWithNameInfo(deviceMessage.getTrackingId(), "");
         if (deviceMessage.getTrackingCategory() != null) {
             info.trackingCategory = new DeviceMessageInfo.TrackingCategoryInfo();

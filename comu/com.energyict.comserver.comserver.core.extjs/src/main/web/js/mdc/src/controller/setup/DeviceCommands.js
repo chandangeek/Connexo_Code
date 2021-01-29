@@ -90,7 +90,6 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
     ],
 
     init: function () {
-        this.getApplication().on('triggerConfirmation', this.showTriggerConfirmation);
         this.control({
             '#deviceCommandsGrid': {
                 selectionchange: this.selectCommand
@@ -182,11 +181,11 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 }
             });
         } else {
-            me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
+            me.showTriggerConfirmation(function () {me.triggerCommand(menu.deviceId, comTaskId, menu.device)});
         }
     },
 
-    showTriggerConfirmation: function (deviceId, comTaskId, device) {
+    showTriggerConfirmation: function (callback) {
         var me = this;
         Ext.widget('confirmation-window', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.trigger', 'MDC', 'Trigger'),
@@ -196,7 +195,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             closable: false,
             fn: function (btnId) {
                 if (btnId == 'confirm') {
-                    me.triggerCommand(deviceId, comTaskId, device);
+                    callback();
                 }
             },
             msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger a communication task to execute this command?'),

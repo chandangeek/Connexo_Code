@@ -1200,7 +1200,7 @@ public class DeviceResource {
 
         DeviceMessage deviceMessage = sendNewMessage(device, deviceMessageId, sendCalendarInfo, calendar);
         device.calendars().setPassive(calendar, sendCalendarInfo.activationDate, deviceMessage);
-        return deviceMessageInfoFactory.getSimpleInfo(deviceMessage, device);
+        return deviceMessageInfoFactory.getSimpleInfo(deviceMessage);
     }
 
 
