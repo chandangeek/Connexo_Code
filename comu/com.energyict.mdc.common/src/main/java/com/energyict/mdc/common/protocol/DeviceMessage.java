@@ -6,7 +6,7 @@ package com.energyict.mdc.common.protocol;
 
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.common.device.data.Device;
 
 import aQute.bnd.annotation.ConsumerType;
 
@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 /**
- * Models a message that is sent to a {@link com.energyict.mdc.upl.meterdata.Device device}.
+ * Models a message that is sent to a {@link com.energyict.mdc.common.device.data.Device device}.
  * The lifecycle of a DeviceMessage is as following:
  * <ol>
  * <li>{@link DeviceMessageStatus#WAITING}</li>
