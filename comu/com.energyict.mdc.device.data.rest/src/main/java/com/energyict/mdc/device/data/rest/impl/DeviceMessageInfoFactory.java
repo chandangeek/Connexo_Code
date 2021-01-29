@@ -61,10 +61,10 @@ public class DeviceMessageInfoFactory {
     }
 
     public DeviceMessageInfo asFullInfo(DeviceMessage deviceMessage, UriInfo uriInfo) {
-        Device device = (Device) deviceMessage.getDevice();
+        Device device = deviceMessage.getDevice();
         DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo);
         ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
-        if (comTaskForDeviceMessage!=null) {
+        if (comTaskForDeviceMessage != null) {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
         }
         info.userCanAdministrate = deviceMessageService.canUserAdministrateDeviceMessage(device.getDeviceConfiguration(), deviceMessage.getDeviceMessageId());
@@ -74,7 +74,7 @@ public class DeviceMessageInfoFactory {
                 info.willBePickedUpByComTask = true; // shortcut
             }
         }
-        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+        if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask == null) {
             info.willBePickedUpByComTask = this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage);
         }
         return info;
@@ -88,11 +88,11 @@ public class DeviceMessageInfoFactory {
 
         return deviceMessages.stream().
                 map(deviceMessage -> {
-                    Device device = (Device) deviceMessage.getDevice();
+                    Device device = deviceMessage.getDevice();
                     DeviceMessageInfo info = getBaseInfo(deviceMessage, uriInfo);
                     ComTask comTaskForDeviceMessage = preferredComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
                             key -> deviceMessageService.getPreferredComTask(device, deviceMessage));
-                    if (comTaskForDeviceMessage!=null) {
+                    if (comTaskForDeviceMessage != null) {
                         info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
                     }
 
@@ -107,7 +107,7 @@ public class DeviceMessageInfoFactory {
                         }
                     }
 
-                    if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+                    if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask == null) {
                         info.willBePickedUpByComTask = willDeviceMessageBePickedUpByComTaskCache.computeIfAbsent(deviceMessage.getSpecification().getCategory().getId(),
                                 key -> this.deviceMessageService.willDeviceMessageBePickedUpByComTask(device, deviceMessage));
                     }
@@ -121,10 +121,10 @@ public class DeviceMessageInfoFactory {
         final Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache = new HashMap<>();
         final List<DeviceMessageInfo> infos = new ArrayList<>();
         for (DeviceMessage deviceMessage : deviceMessages) {
-            Device device = (Device) deviceMessage.getDevice();
+            Device device = deviceMessage.getDevice();
             DeviceMessageInfo info = getSimpleInfo(deviceMessage);
             info.userCanAdministrate = getUserCanAdministrateFromCache(userCanAdministrateCache, deviceMessage, device);
-            if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask==null) {
+            if (EnumSet.of(DeviceMessageStatus.PENDING, DeviceMessageStatus.WAITING).contains(deviceMessage.getStatus()) && info.willBePickedUpByComTask == null) {
                 info.willBePickedUpByComTask = getWillBePickedUpByComTaskFromCache(willBePickedUpByComTaskCache, deviceMessage, device);
             }
             infos.add(info);
@@ -135,7 +135,7 @@ public class DeviceMessageInfoFactory {
     public DeviceMessageInfo getSimpleInfo(DeviceMessage deviceMessage) {
         DeviceMessageInfo info = new DeviceMessageInfo();
         info.id = deviceMessage.getId();
-        Device device = (Device) deviceMessage.getDevice();
+        Device device = deviceMessage.getDevice();
         DeviceMessageSpec specification = deviceMessage.getSpecification();
 
         info.status = new DeviceMessageInfo.StatusInfo();
@@ -156,7 +156,7 @@ public class DeviceMessageInfoFactory {
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.version = deviceMessage.getVersion();
         ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
-        if (comTaskForDeviceMessage!=null) {
+        if (comTaskForDeviceMessage != null) {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
         }
         return info;
@@ -171,15 +171,15 @@ public class DeviceMessageInfoFactory {
             info.trackingCategory.name = thesaurus.getFormat(deviceMessage.getTrackingCategory()).format();
             info.trackingCategory.activeLink = isActive(deviceMessage.getTrackingId(), deviceMessage.getTrackingCategory(), info);
         }
-        info.deviceConfiguration = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceConfiguration());
-        info.deviceType = new IdWithNameInfo(((Device)deviceMessage.getDevice()).getDeviceType());
+        info.deviceConfiguration = new IdWithNameInfo((deviceMessage.getDevice()).getDeviceConfiguration());
+        info.deviceType = new IdWithNameInfo((deviceMessage.getDevice()).getDeviceType());
 
         info.creationDate = deviceMessage.getCreationDate();
         info.errorMessage = deviceMessage.getProtocolInfo();
         info.properties = new ArrayList<>();
 
         TypedProperties typedProperties = TypedProperties.empty();
-        deviceMessage.getAttributes().stream().forEach(attribute->typedProperties.setProperty(attribute.getName(), attribute.getValue()));
+        deviceMessage.getAttributes().stream().forEach(attribute -> typedProperties.setProperty(attribute.getName(), attribute.getValue()));
         mdcPropertyUtils.convertPropertySpecsToPropertyInfos(uriInfo,
                 deviceMessage.getAttributes().stream()
                         .map(DeviceMessageAttribute.class::cast)        //Downcast to Connexo DeviceMessageAttribute
@@ -189,10 +189,10 @@ public class DeviceMessageInfoFactory {
                 typedProperties,
                 info.properties
         );
-        if(typedProperties.size() > 0 && info.properties.size() < typedProperties.size()){
+        if (typedProperties.size() > 0 && info.properties.size() < typedProperties.size()) {
             HashMap<String, PropertyInfo> props = new HashMap<>();
             info.properties.stream().forEach(p -> props.put(p.key, p));
-            typedProperties.stream().filter(e-> Objects.isNull(props.get(e.getKey())))
+            typedProperties.stream().filter(e -> Objects.isNull(props.get(e.getKey())))
                     .forEach(entry -> props.put(entry.getKey(), getArchivedProperty(entry)));
             info.properties.clear();
             deviceMessage.getAttributes().forEach(a -> info.properties.add((PropertyInfo) props.get(a.getName())));
@@ -201,14 +201,14 @@ public class DeviceMessageInfoFactory {
         return info;
     }
 
-    private PropertyInfo getArchivedProperty(Map.Entry<String, Object> entry){
+    private PropertyInfo getArchivedProperty(Map.Entry<String, Object> entry) {
         String name = thesaurus.getString(entry.getKey(), null);
         String key = entry.getKey();
         String decription = "Description for " + key;
         PropertyValueInfo propertyValueInfo = new PropertyValueInfo(entry.getValue(), null, null, null);
         PropertyTypeInfo propertyTypeInfo = new PropertyTypeInfo();
         propertyTypeInfo.simplePropertyType = SimplePropertyType.UNKNOWN;
-        return  new PropertyInfo(name, key, decription, propertyValueInfo, propertyTypeInfo, true);
+        return new PropertyInfo(name, key, decription, propertyValueInfo, propertyTypeInfo, true);
     }
 
     private Boolean getUserCanAdministrateFromCache(Map<Long, Map<DeviceMessageId, Boolean>> userCanAdministrateCache, DeviceMessage deviceMessage, Device device) {
@@ -219,6 +219,7 @@ public class DeviceMessageInfoFactory {
         return deviceMessageCache.computeIfAbsent(deviceMessageId,
                 deviceMessageIdx -> deviceMessageService.canUserAdministrateDeviceMessage(deviceConfiguration, deviceMessageId));
     }
+
     private Boolean getWillBePickedUpByComTaskFromCache(Map<Long, Map<Integer, Boolean>> willBePickedUpByComTaskCache, DeviceMessage deviceMessage, Device device) {
         Map<Integer, Boolean> deviceMessageCache = willBePickedUpByComTaskCache.computeIfAbsent(device.getDeviceConfiguration()
                 .getId(), x -> new HashMap<>());
@@ -232,7 +233,7 @@ public class DeviceMessageInfoFactory {
                 try {
                     long id = Long.parseLong(trackingId);
                     Optional<ServiceCall> serviceCall = serviceCallService.getServiceCall(id);
-                    if(serviceCall.isPresent()) {
+                    if (serviceCall.isPresent()) {
                         info.trackingIdAndName = new IdWithNameInfo(serviceCall.get().getId(), serviceCall.get().getNumber());
                     }
                     return serviceCall.isPresent();

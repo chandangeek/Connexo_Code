@@ -386,10 +386,12 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             success: function (responce) {
                 me.redirectToOverview(deviceId);
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
-                me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(function () {
-                    let preferredComTask = Ext.decode(responce.responseText).preferredComTask;
-                    me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id);
-                });
+                var preferredComTask = Ext.decode(responce.responseText).preferredComTask;
+                if (preferredComTask) {
+                    me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(function () {
+                        me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id);
+                    });
+                }
             },
             callback: function () {
                 me.getSendCalendarContainer().setLoading(false);
