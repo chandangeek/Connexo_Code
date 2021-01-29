@@ -119,7 +119,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                     view.down('device-tou-preview-form').fillPassiveCalendars(resultSet.records[0].get('passiveCalendars'));
                                     view.down('#wrappingPanel').setLoading(false);
 
-                                    if(resultSet.records[0].get('passiveCalendars') === null && noActiveCalendar) {
+                                    if (resultSet.records[0].get('passiveCalendars') === null && noActiveCalendar) {
                                         view.down('device-tou-preview-form').hide();
                                     }
                                 }
@@ -137,7 +137,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                                 }
 
                             }
-                            if(!Uni.Auth.checkPrivileges(Mdc.privileges.DeviceCommands.executeCommands) && view.down('tou-device-action-menu').showPreview === false) {
+                            if (!Uni.Auth.checkPrivileges(Mdc.privileges.DeviceCommands.executeCommands) && view.down('tou-device-action-menu').showPreview === false) {
                                 view.down('#tou-device-actions-button').hide();
                             }
                         }
@@ -379,17 +379,17 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     sendCalendar: function (deviceId, payload) {
         var me = this,
             url = '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse/send';
-
-
-        me.getSendCalendarContainer().setLoading(true);
         Ext.Ajax.request({
             url: url,
             method: 'POST',
             jsonData: Ext.encode(payload),
-            success: function (deviceMessageInfo) {
+            success: function (responce) {
                 me.redirectToOverview(deviceId);
-                //me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
-                me.getApplication().fireEvent('triggerConfirmation', deviceId, deviceMessageInfo.id)
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
+                me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(function () {
+                    let preferredComTask = Ext.decode(responce.responseText).preferredComTask;
+                    me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id);
+                });
             },
             callback: function () {
                 me.getSendCalendarContainer().setLoading(false);
