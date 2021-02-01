@@ -166,13 +166,13 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             comTaskId = Ext.isEmpty(record.get('preferredComTask')) ? undefined : record.get('preferredComTask').id;
 
         if (Ext.isEmpty(comTaskId)) { // True when the "Trigger now" action is triggered from the overview page containing ALL commands
-                                      // False when the "Trigger now" action is triggered from the commands page of ONE device
+            // False when the "Trigger now" action is triggered from the commands page of ONE device
             var viewport = Ext.ComponentQuery.query('viewport')[0],
                 deviceMessageModel = me.getModel('Mdc.model.DeviceCommand');
             viewport.setLoading();
             deviceMessageModel.getProxy().setUrl(menu.deviceId);
             deviceMessageModel.load(record.get('id'), {
-                success: function(deviceMessage) {
+                success: function (deviceMessage) {
                     comTaskId = deviceMessage.get('preferredComTask').id;
                     me.showTriggerConfirmation(menu.deviceId, comTaskId, menu.device);
                 },
@@ -181,7 +181,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 }
             });
         } else {
-            me.showTriggerConfirmation(function () {me.triggerCommand(menu.deviceId, comTaskId, menu.device)});
+            me.showTriggerConfirmation(function () {
+                me.triggerCommand(menu.deviceId, comTaskId, menu.device)
+            });
         }
     },
 
@@ -208,7 +210,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         if (!device) {
             Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
                 success: function (device) {
-                   me.triggerCommand(deviceId, comTaskId, device);
+                    me.triggerCommand(deviceId, comTaskId, device);
                 }
             });
         } else {
@@ -269,7 +271,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                             if (operation.response.status === 409) {
                                 return
                             }
-                            var title =Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
+                            var title = Uni.I18n.translate('general.failedToMakeActionTitle', 'MDC', 'Couldn\'t perform your action'),
                                 json = Ext.decode(operation.response.responseText),
                                 message = '',
                                 code = '';
@@ -448,8 +450,8 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             commandCombo.enable();
             commandCombo.reset();
             commandCombo.bindStore(cat.deviceMessageSpecs(), true);
-            if (cat.deviceMessageSpecs().getCount()===1) {
-                commandCombo.setValue( cat.deviceMessageSpecs().getAt(0).get('name') );
+            if (cat.deviceMessageSpecs().getCount() === 1) {
+                commandCombo.setValue(cat.deviceMessageSpecs().getAt(0).get('name'));
                 var recordsArray = [];
                 recordsArray.push(cat.deviceMessageSpecs().getAt(0));
                 me.commandChange(commandCombo, recordsArray);
@@ -476,8 +478,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             }
             if (!command.get('willBePickedUpByComTask')) {
                 combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByComTask', 'MDC', 'This command is not part of a communication task on this device.'))
-            }
-            else if (!command.get('willBePickedUpByPlannedComTask')) {
+            } else if (!command.get('willBePickedUpByPlannedComTask')) {
                 combo.markInvalid(Uni.I18n.translate('deviceCommand.add.willBePickedUpByPlannedComTask', 'MDC', 'This command is part of a communication task that is not planned to execute.'))
             }
         }

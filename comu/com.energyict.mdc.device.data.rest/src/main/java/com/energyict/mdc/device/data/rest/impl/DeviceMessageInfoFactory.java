@@ -155,7 +155,12 @@ public class DeviceMessageInfoFactory {
 
         info.parent = new VersionInfo<>(device.getName(), device.getVersion());
         info.version = deviceMessage.getVersion();
-        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(device, deviceMessage);
+        return info;
+    }
+
+    public DeviceMessageInfo getSimpleInfoWithPreferredComTask(DeviceMessage deviceMessage) {
+        DeviceMessageInfo info = getSimpleInfo(deviceMessage);
+        ComTask comTaskForDeviceMessage = deviceMessageService.getPreferredComTask(deviceMessage.getDevice(), deviceMessage);
         if (comTaskForDeviceMessage != null) {
             info.preferredComTask = new IdWithNameInfo(comTaskForDeviceMessage);
         }

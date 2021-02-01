@@ -379,6 +379,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
     sendCalendar: function (deviceId, payload) {
         var me = this,
             url = '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse/send';
+        me.getSendCalendarContainer().setLoading(true);
         Ext.Ajax.request({
             url: url,
             method: 'POST',
