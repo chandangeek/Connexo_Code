@@ -408,7 +408,7 @@ public class WebServicesServiceImpl implements WebServicesService {
     private void validateOngoingStatus(WebServiceCallOccurrence occurrence) {
         WebServiceCallOccurrenceStatus status = occurrence.getStatus();
         if (status != WebServiceCallOccurrenceStatus.ONGOING) {
-            throw new WebServiceCallOccurrenceException(thesaurus, WEB_SERVICE_CALL_OCCURRENCE_IS_ALREADY_IN_STATE, status.translate(thesaurus));
+            throw new IllegalWebServiceCallOccurrenceStateException(thesaurus, WEB_SERVICE_CALL_OCCURRENCE_IS_ALREADY_IN_STATE, status.translate(thesaurus));
         }
     }
 

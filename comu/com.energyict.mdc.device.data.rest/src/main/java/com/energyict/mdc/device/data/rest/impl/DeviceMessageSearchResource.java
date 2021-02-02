@@ -61,7 +61,7 @@ public class DeviceMessageSearchResource {
                 .stream()
                 .collect(toList());
 
-        return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfoFactory.asFasterInfo(deviceMessages, uriInfo), queryParameters);
+        return PagedInfoList.fromPagedList("deviceMessages", deviceMessageInfoFactory.asFasterInfo(deviceMessages), queryParameters);
     }
 
     @GET
