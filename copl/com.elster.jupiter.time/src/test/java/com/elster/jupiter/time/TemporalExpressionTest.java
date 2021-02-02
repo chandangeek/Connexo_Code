@@ -13,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static com.elster.jupiter.devtools.tests.assertions.JupiterAssertions.assertThat;
@@ -598,6 +599,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
 
     }
 
+    @Ignore("TODO: CXO-13119")
     @Test
     public void testEiserver2255() {
         TemporalExpression expression = new TemporalExpression(new TimeDuration(12, TimeDuration.TimeUnit.MONTHS), new TimeDuration(1, TimeDuration.TimeUnit.MONTHS));
