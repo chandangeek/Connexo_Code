@@ -19,6 +19,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.common.collect.Range;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
@@ -373,7 +374,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName())
                     .since(Version.version(10, 7, 2))
                     .add();
-            table.index("IX_" + TABLE_NAME + "_MRDID").on(meterReadingDocumentId).add().since(Version.version(10, 7, 5));
+            table.index("IX_" + TABLE_NAME + "_MRDID")
+                    .on(meterReadingDocumentId)
+                    .during(Range.closedOpen(Version.version(10, 7, 5), Version.version(10, 8)),
+                            Range.atLeast(Version.version(10, 9)))
+                    .add();
         }
 
         @Override

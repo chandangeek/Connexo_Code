@@ -91,8 +91,8 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     @Override
     public Finder<WebServiceCallRelatedAttribute> getRelatedAttributesByValueLike(String value) {
         String dbSearchText = (value != null && !value.isEmpty()) ? "*" + value + "*" : "*";
-        Condition typeCondition = where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).likeIgnoreCase(dbSearchText);
-        return DefaultFinder.of(WebServiceCallRelatedAttribute.class, typeCondition, this.dataModel).sorted(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName(), true);
+        Condition typeCondition = where(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName()).likeIgnoreCase(dbSearchText);
+        return DefaultFinder.of(WebServiceCallRelatedAttribute.class, typeCondition, this.dataModel).sorted(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName(), true);
     }
 
     @Override
@@ -104,7 +104,7 @@ public class WebServiceCallOccurrenceServiceImpl implements WebServiceCallOccurr
     @Override
     public List<WebServiceCallRelatedAttribute> getRelatedAttributesByValue(String value) {
         return dataModel.mapper(WebServiceCallRelatedAttribute.class)
-                .select(where(WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()).isEqualToIgnoreCase(value));
+                .select(where(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName()).isEqualToIgnoreCase(value));
     }
 
     void addRelatedObjectTypes(String component, Layer layer, Map<String, TranslationKey> typesMap) {

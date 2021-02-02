@@ -171,6 +171,20 @@ public interface DataModel {
         }
     }
 
+    default boolean doesIndexExist(String table, String name) {
+        try (Connection connection = getConnection(false);
+             ResultSet resultSet = connection.getMetaData().getIndexInfo(connection.getCatalog(), connection.getSchema(), table, false, true)) {
+            while (resultSet.next()) {
+                if (name.equals(resultSet.getString("INDEX_NAME"))) {
+                    return true;
+                }
+            }
+            return false;
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
     default boolean doesColumnExist(String table, String name) {
         try (Connection connection = getConnection(false);
              ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), table, name)) {

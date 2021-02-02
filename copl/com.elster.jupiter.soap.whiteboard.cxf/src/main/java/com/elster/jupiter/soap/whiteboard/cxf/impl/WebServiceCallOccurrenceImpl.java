@@ -231,7 +231,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
         if (key != null && !Checks.is(value).emptyOrOnlyWhiteSpace()) {
             transactionService.runInIndependentTransaction(() -> {
                 String valueToSave = value.trim();
-                String[] fieldNames = {WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_KEY.fieldName(), WebServiceCallRelatedAttributeImpl.Fields.ATTRIBUTE_VALUE.fieldName()};
+                String[] fieldNames = {WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.fieldName(), WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName()};
                 String[] values = {key, valueToSave};
                 Optional<WebServiceCallRelatedAttributeImpl> relatedAttribute = dataModel.mapper(WebServiceCallRelatedAttributeImpl.class)
                         .getUnique(fieldNames, values);
