@@ -14,18 +14,10 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.search.SearchDomain;
-import com.elster.jupiter.search.SearchableProperty;
-import com.elster.jupiter.search.SearchablePropertyCondition;
-import com.elster.jupiter.search.SearchablePropertyConstriction;
-import com.elster.jupiter.search.SearchablePropertyValue;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Subquery;
-import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.search.*;
+import com.elster.jupiter.util.conditions.*;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -195,6 +187,11 @@ public class EndDeviceSearchDomain implements SearchDomain {
         @Override
         public Finder<EndDevice> sorted(Order order) {
             return finder.sorted(order);
+        }
+
+        @Override
+        public Finder<EndDevice> withHint(Hint hint) {
+            return finder.withHint(hint);
         }
 
         @Override

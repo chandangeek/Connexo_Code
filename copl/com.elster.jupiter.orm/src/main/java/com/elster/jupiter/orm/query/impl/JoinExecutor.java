@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm.query.impl;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -23,16 +24,22 @@ final class JoinExecutor<T> {
     private final int from;
     private final int to;
     private final Instant effectiveDate;
+    private List<Hint> hints;
 
     JoinExecutor(JoinTreeNode<T> root, Instant effectiveDate) {
         this(root, effectiveDate, 0, 0);
     }
 
     JoinExecutor(JoinTreeNode<T> root, Instant effectiveDate, int from, int to) {
+        this(root, effectiveDate, from, to, new ArrayList<>());
+    }
+
+    JoinExecutor(JoinTreeNode<T> root, Instant effectiveDate, int from, int to, List<Hint> hints) {
         this.root = root;
         this.effectiveDate = effectiveDate;
         this.from = from;
         this.to = to;
+        this.hints = hints;
     }
 
     SqlBuilder getSqlBuilder(Condition condition, String[] fieldNames, Order[] orderBy) {
@@ -81,6 +88,7 @@ final class JoinExecutor<T> {
         if (needsDistinct()) {
             builder.append("distinct ");
         }
+        root.appendHints(builder, hints);
         root.appendColumns(builder, "");
         builder.append(" from ");
         root.appendFromClause(builder, null, false);
@@ -156,7 +164,7 @@ final class JoinExecutor<T> {
         }
     }
 
-    List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions) throws SQLException {
+    List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions, List<Hint> hints) throws SQLException {
         builder = new SqlBuilder();
         boolean initialMarkDone = false;
         if (eager) {

@@ -7,10 +7,7 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.ListOperator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.*;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import javax.inject.Inject;
@@ -25,12 +22,14 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
     private int start = -1;
     private int pageSize = 10;
     private List<Order> orders;
+    private List<Hint> hints;
 
     @Inject
     public LinkableMetrologyConfigurationFinder(DataModel dataModel) {
         this.dataModel = dataModel;
         this.builders = new HashSet<>();
         this.orders = new ArrayList<>();
+        this.hints = new ArrayList<>();
     }
 
     LinkableMetrologyConfigurationFinder addBuilder(UsagePointRequirementSqlBuilder builder) {
@@ -58,6 +57,12 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
     }
 
     @Override
+    public Finder<UsagePointMetrologyConfiguration> withHint(Hint hint) {
+        hints.add(hint);
+        return this;
+    }
+
+    @Override
     public List<UsagePointMetrologyConfiguration> find() {
         Order[] orders = this.orders.isEmpty()
                 ? new Order[]{Order.ascending("name")}
@@ -68,10 +73,10 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
         }
         if (this.start >= 0) {
             return this.dataModel.query(UsagePointMetrologyConfiguration.class)
-                    .select(condition, orders, true, new String[0], this.start + 1, this.start + this.pageSize + 1);
+                    .select(condition, hints, orders, true, new String[0], this.start + 1, this.start + this.pageSize + 1);
         }
         return this.dataModel.query(UsagePointMetrologyConfiguration.class)
-                .select(condition, orders, false, null);
+                .select(condition, hints, orders, false, null, 0, 0);
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 
@@ -148,6 +149,14 @@ final class JoinTreeNode<T> {
             // do children first, so they can set collection relations before postLoad does.
             children.forEach(child -> child.completeFind(effectiveDate));
             value.completeFind(effectiveDate);
+        }
+    }
+
+    void appendHints(SqlBuilder builder, List<Hint> hints) {
+        if (!hints.isEmpty()) {
+            builder.append("/*+ ");
+            builder.append(hints.stream().map(Hint::toSqlString).collect(Collectors.joining(" ")));
+            builder.append(" */");
         }
     }
 

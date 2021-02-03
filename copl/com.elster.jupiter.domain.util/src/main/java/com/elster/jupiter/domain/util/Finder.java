@@ -5,6 +5,7 @@
 package com.elster.jupiter.domain.util;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -33,6 +34,8 @@ public interface Finder<T> {
     Finder<T> paged(int start, int pageSize);
 
     Finder<T> sorted(String sortColumn, boolean ascending);
+
+    Finder<T> withHint(Hint hint);
 
     Finder<T> sorted(Order order);
 

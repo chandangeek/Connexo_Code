@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -14,6 +15,7 @@ import aQute.bnd.annotation.ProviderType;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * This interface is only intended for use by domain classes,
@@ -26,10 +28,14 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
     // creation api
     void setRestriction(Condition condition);
 
+    void setHints(Hint...hints);
+
     // domain util query support
     List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions);
 
     List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions, int from, int to);
+
+    List<T> select(Condition condition, List<Hint> hints, Order[] orderBy, boolean eager, String[] exceptions, int from, int to);
 
     Object convert(String fieldName, String value);
 

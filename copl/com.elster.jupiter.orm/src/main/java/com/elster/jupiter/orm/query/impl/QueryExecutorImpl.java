@@ -9,14 +9,12 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
-import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Operator;
-import com.elster.jupiter.util.conditions.Order;
-import com.elster.jupiter.util.conditions.Subquery;
+import com.elster.jupiter.util.conditions.*;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +25,7 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
     private final AliasFactory aliasFactory = new AliasFactory();
     private Condition restriction = Condition.TRUE;
     private Instant effectiveInstant;
+    private Hint[] hints = new Hint[0];
 
     public QueryExecutorImpl(DataMapperImpl<T> mapper) {
         RootDataMapper<T> rootDataMapper = new RootDataMapper<>(mapper);
@@ -43,9 +42,9 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
         }
     }
 
-    public List<T> select(Condition condition, Order[] ordering, boolean eager, String[] exceptions, int from, int to) {
+    public List<T> select(Condition condition, List<Hint> hints, Order[] ordering, boolean eager, String[] exceptions, int from, int to) {
         try {
-            return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).select(restriction.and(condition), ordering, eager, exceptions);
+            return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).select(restriction.and(condition), ordering, eager, exceptions, hints);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
@@ -127,6 +126,11 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
     }
 
     @Override
+    public void setHints(Hint... hints) {
+        this.hints = hints;
+    }
+
+    @Override
     public Optional<T> getOptional(Object... values) {
         return get(values, true, new String[0]);
     }
@@ -155,7 +159,17 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
     }
 
     @Override
+    public List<T> select(Condition condition, List<Hint> hints, Order... orders) {
+        return select(condition, hints, orders, true, new String[0], 0, 0);
+    }
+
+    @Override
     public List<T> select(Condition condition, Order[] orders, boolean eager, String[] exceptions) {
         return select(condition, orders, eager, exceptions, 0, 0);
+    }
+
+    @Override
+    public List<T> select(Condition condition, Order[] orders, boolean eager, String[] exceptions, int from, int to) {
+        return select(condition, new ArrayList<>(), orders, eager, exceptions, 0, 0);
     }
 }
