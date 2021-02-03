@@ -607,7 +607,7 @@ public final class TemporalExpressionTest extends EqualsContractTest {
         Date date = expression.nextOccurrence(now);
         Calendar returnedDate = Calendar.getInstance();
         returnedDate.setTime(date);
-        assertThat(now.get(Calendar.YEAR) == returnedDate.get(Calendar.YEAR)).describedAs("Calculated date is not correct !").isTrue();
+        assertThat(returnedDate.get(Calendar.YEAR)).describedAs("Calculated date is Not correct !").isNotEqualTo(now.get(Calendar.YEAR));
     }
 
     @Test
