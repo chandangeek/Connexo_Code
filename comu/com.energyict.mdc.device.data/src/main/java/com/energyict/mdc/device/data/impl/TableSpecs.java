@@ -60,6 +60,7 @@ import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
@@ -966,6 +967,29 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("PK_DDC_BREAKER_STATUS").on(idColumn).add();
             table.foreignKey("FK_DDC_BREAKER_STATUS_DEVICE")
+                    .on(deviceColumn)
+                    .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
+                    .references(DDC_DEVICE.name())
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+        }
+    },
+
+    DDC_CREDIT_AMOUNT {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<CreditAmount> table = dataModel.addTable(name(), CreditAmount.class);
+            table.since(version(10, 9));
+            table.map(CreditAmountImpl.class);
+            Column idColumn = table.addAutoIdColumn();
+            Column deviceColumn = table.column("DEVICEID").number().notNull().add();
+            table.column("CREDIT_TYPE").varChar(NAME_LENGTH).map(CreditAmountImpl.Fields.CREDIT_TYPE.fieldName()).notNull().add();
+            table.column("CREDIT_AMOUNT").number().map(CreditAmountImpl.Fields.CREDIT_AMOUNT.fieldName()).notNull().add();
+            table.column("LASTCHECKED").number().map(CreditAmountImpl.Fields.LAST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.addIntervalColumns(CreditAmountImpl.Fields.INTERVAL.fieldName());
+            table.addAuditColumns();
+            table.primaryKey("PK_DDC_CREDIT_AMOUNT").on(idColumn).add();
+            table.foreignKey("FK_DDC_CREDIT_AMOUNT_DEVICE")
                     .on(deviceColumn)
                     .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
                     .references(DDC_DEVICE.name())

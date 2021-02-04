@@ -112,6 +112,8 @@ public enum EventType {
     ACTIVATED_BREAKER_STATUS_CREATED("activatedbreakerstatus/CREATED"),
     ACTIVATED_BREAKER_STATUS_UPDATED("activatedbreakerstatus/UPDATED"),
     ACTIVATED_BREAKER_STATUS_DELETED("activatedbreakerstatus/DELETED"),
+    CREDIT_AMOUNT_CREATED("creditamount/CREATED"),
+    CREDIT_AMOUNT_UPDATED("creditamount/UPDATED"),
     RESTARTED_METERACTIVATION("meteractivation/RESTARTED"),
     DEVICE_CONFIG_CHANGE_VALIDATE(null) {
         @Override
