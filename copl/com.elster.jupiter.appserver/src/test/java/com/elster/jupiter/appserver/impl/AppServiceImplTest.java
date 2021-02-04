@@ -199,8 +199,8 @@ public class AppServiceImplTest {
         when(schedule2.isObsolete()).thenReturn(false);
         setupBlockingCancellableSubscriberSpec();
         setupFakeTransactionService();
-        when(bundleContext.registerService(Class.class.getName(), anyObject(), any(Dictionary.class))).thenReturn(registration);
-        when(context.registerService(Class.class.getName(), anyObject(), any(Dictionary.class))).thenReturn(registration);
+        when(bundleContext.registerService(any(Class.class), any(Class.class), any(Dictionary.class))).thenReturn(registration);
+        when(context.registerService(any(Class.class), any(Class.class), any(Dictionary.class))).thenReturn(registration);
 
 
         appService = new AppServiceImpl(ormService, nlsService, transactionService, messageService, new DefaultCronExpressionParser(),

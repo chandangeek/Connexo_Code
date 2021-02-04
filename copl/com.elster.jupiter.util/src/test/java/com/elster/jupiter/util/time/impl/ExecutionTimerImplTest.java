@@ -48,7 +48,7 @@ public class ExecutionTimerImplTest {
 
     @Before
     public void initializeMocks() {
-        when(this.bundleContext.registerService(Class.class.getName(), anyObject(), any(Dictionary.class))).thenReturn(this.serviceRegistration);
+        when(this.bundleContext.registerService(any(Class.class), any(Class.class), any(Dictionary.class))).thenReturn(this.serviceRegistration);
     }
 
     @Test

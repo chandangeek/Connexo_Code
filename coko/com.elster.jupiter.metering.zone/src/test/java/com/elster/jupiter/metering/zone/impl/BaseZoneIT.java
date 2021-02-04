@@ -82,7 +82,7 @@ public abstract class BaseZoneIT {
 
     @BeforeClass
     public static void setUp() {
-        when(bundleContext.registerService(Class.class.getName(), anyObject(), any(Dictionary.class))).thenReturn(serviceRegistration);
+        when(bundleContext.registerService(any(Class.class), any(Class.class), any(Dictionary.class))).thenReturn(serviceRegistration);
         try {
             injector = Guice.createInjector(
                     new MockModule(),

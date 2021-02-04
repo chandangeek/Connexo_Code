@@ -128,7 +128,7 @@ public class QueryUsagePointGroupImplIT {
     public static void setUp() {
         License license = mock(License.class);
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.of(license));
-        when(bundleContext.registerService(Class.class.getName(), anyObject(), any(Dictionary.class)))
+        when(bundleContext.registerService(any(Class.class), any(Class.class), any(Dictionary.class)))
                 .thenReturn(serviceRegistration);
         when(nlsService.getThesaurus(anyString(), any(Layer.class))).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
         try {
