@@ -15,7 +15,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
-
 import com.google.inject.Inject;
 
 import java.time.Instant;
@@ -65,11 +64,21 @@ public class ConnectionDynamicSearchableProperty extends AbstractDynamicSearchab
         builder.openBracket();
         builder.add(this.toSqlFragment("props." + getPropertySpec().getName(), condition, now));
         builder.append(" AND props.STARTTIME < ");
-        builder.append(Long.toString(now.toEpochMilli()));
+        builder.addLong(now.toEpochMilli());
         builder.append(" AND props.ENDTIME > ");
-        builder.append(Long.toString(now.toEpochMilli()));
+        builder.addLong(now.toEpochMilli());
         builder.append(" OR props." + getPropertySpec().getName());
         builder.append(" IS NULL AND ");
+        builder.openBracket();
+        builder.append(" props.STARTTIME < ");
+        builder.addLong(now.toEpochMilli());
+        builder.append(" AND props.ENDTIME > ");
+        builder.addLong(now.toEpochMilli());
+        builder.append(" OR ");
+        builder.append(" props.STARTTIME is NULL ");
+        builder.append(" AND props.ENDTIME is NULL ");
+        builder.closeBracket();
+        builder.append(" AND ");
         builder.add(selectDeviceConfigurationProperties(condition, now));
         builder.closeBracket();
         return builder;
@@ -77,8 +86,8 @@ public class ConnectionDynamicSearchableProperty extends AbstractDynamicSearchab
 
     private SqlFragment selectDeviceConfigurationProperties(Condition condition, Instant now) {
         SqlBuilder builder = new SqlBuilder();
-        builder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID IN (");
-        builder.append("select DEVICECONFIG \n" +
+        builder.append("ct.PARTIALCONNECTIONTASK IN (");
+        builder.append("select ID \n" +
                 " from DTC_PARTIALCONNECTIONTASK join DTC_PARTIALCONNECTIONTASKPROPS on " +
                 " DTC_PARTIALCONNECTIONTASK.ID = DTC_PARTIALCONNECTIONTASKPROPS.PARTIALCONNECTIONTASK" +
                 " where DTC_PARTIALCONNECTIONTASKPROPS.NAME = '");
@@ -90,7 +99,7 @@ public class ConnectionDynamicSearchableProperty extends AbstractDynamicSearchab
     }
 
     @Override
-    public List<String> getAvailableOperators(){
+    public List<String> getAvailableOperators() {
         return Arrays.asList(SearchablePropertyOperator.EQUAL.code(), SearchablePropertyOperator.IN.code(), SearchablePropertyOperator.NOT_EQUAL.code());
     }
 }

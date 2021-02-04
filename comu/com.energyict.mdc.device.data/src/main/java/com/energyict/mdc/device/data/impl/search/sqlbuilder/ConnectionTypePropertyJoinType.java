@@ -19,7 +19,7 @@ public class ConnectionTypePropertyJoinType implements JoinType {
 
     @Override
     public void appendTo(SqlBuilder sqlBuilder) {
-        sqlBuilder.append(" join ");
+        sqlBuilder.append(" left join ");
         sqlBuilder.append(this.getDynamicAttributeTableName());
         sqlBuilder.append(" props on props.");
         sqlBuilder.append(this.getConnectionTaskColumnName());
