@@ -39,7 +39,6 @@ public class UpdateDeviceConnectionProperty extends DeviceCommandImpl<UpdateDevi
         this.deviceIdentifier = connectionProperty.getDeviceIdentifier();
         this.connectionTask = connectionProperty.getConnectionTask();
         this.connectionPropertyNameAndValue = connectionProperty.getConnectionPropertyNameAndValue();
-
     }
 
     @Override

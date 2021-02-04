@@ -679,7 +679,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         getComChannel().startReading();
         final int readBytes = getComChannel().read(header);
 
-        Supplier<String> message2 = () -> "[" + source + "] Received frame header [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header);
+        Supplier<String> message2 = () -> "Received frame header [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header);
         getContext().getLogger().info(message2);
 
         if (readBytes != 8) {
@@ -705,7 +705,7 @@ public class EventPushNotificationParser extends DataPushNotificationParser {
         byte[] frame = new byte[length];
         final int moreReadBytes = getComChannel().read(frame);
 
-        Supplier<String> message = () -> "[" + source + "] Received frame [" + moreReadBytes + "]: " + ProtocolTools.getHexStringFromBytes(frame);
+        Supplier<String> message = () -> "Received frame [" + moreReadBytes + "]: " + ProtocolTools.getHexStringFromBytes(frame);
         getContext().getLogger().info(message);
 
         if (moreReadBytes != length) {

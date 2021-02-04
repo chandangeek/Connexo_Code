@@ -84,7 +84,7 @@ public class DeviceIpAddressTest {
         DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
-        String propertyValue = deviceIpAddress.getPropertyValue().toString();
+        String propertyValue = deviceIpAddress.getConnectionPropertyNameAndValue().get(IP_ADDRESS_PROPERTY_NAME).toString();
 
         // Asserts
         assertThat(propertyValue).isEqualTo(IP_ADDRESS);
@@ -96,7 +96,7 @@ public class DeviceIpAddressTest {
         DeviceConnectionProperty deviceIpAddress = new DeviceConnectionProperty(deviceIdentifier, IP_ADDRESS, IP_ADDRESS_PROPERTY_NAME);
 
         // Business method
-        String connectionTaskPropertyName = deviceIpAddress.getConnectionTaskPropertyName();
+        String connectionTaskPropertyName = deviceIpAddress.getConnectionPropertyNameAndValue().keySet().stream().findFirst().get();
 
         // Asserts
         assertThat(connectionTaskPropertyName).isEqualTo(IP_ADDRESS_PROPERTY_NAME);
