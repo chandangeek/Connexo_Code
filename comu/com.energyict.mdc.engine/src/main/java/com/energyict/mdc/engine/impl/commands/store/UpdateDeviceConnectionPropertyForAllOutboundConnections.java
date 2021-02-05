@@ -6,6 +6,9 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.meterdata.DeviceConnectionProperty;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 /**
  * Ported from EIServer 9.1
  * Credits for this goes to Claudiu Isac
@@ -22,8 +25,11 @@ public class UpdateDeviceConnectionPropertyForAllOutboundConnections extends Upd
     public void doExecute(ComServerDAO comServerDAO) {
         for (ConnectionTask connTask : connectionTask.getDevice().getConnectionTasks()) {
             TypedProperties properties = connTask.getTypedProperties();
-            if (properties.getProperty(connectionTaskPropertyName) != null) {
-                comServerDAO.updateConnectionTaskProperty(this.propertyValue, connTask, this.connectionTaskPropertyName);
+            Map<String, Object> filteredMap = connectionPropertyNameAndValue.entrySet().stream()
+                    .filter(entry -> properties.getProperty(entry.getKey()) != null)
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+            if (!filteredMap.isEmpty()) {
+                comServerDAO.updateConnectionTaskProperties(connTask, filteredMap);
             }
         }
     }

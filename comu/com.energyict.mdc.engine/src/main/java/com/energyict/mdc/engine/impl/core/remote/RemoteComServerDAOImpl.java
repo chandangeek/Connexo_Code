@@ -790,6 +790,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue) {
+    }
+
+    @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
         Map<String, Object> queryParameters = new HashMap<>();
         TypedProperties protocolTypedProperties = TypedProperties.empty();

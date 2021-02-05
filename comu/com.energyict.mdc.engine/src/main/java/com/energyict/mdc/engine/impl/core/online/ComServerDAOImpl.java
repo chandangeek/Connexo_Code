@@ -625,6 +625,20 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue) {
+        try {
+            connectionPropertyNameAndValue.forEach(connectionTask::setProperty);
+            connectionTask.saveAllProperties();
+        } catch (OptimisticLockException e) {
+            Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
+            if (reloaded.isPresent()) {
+                connectionPropertyNameAndValue.forEach(connectionTask::setProperty);
+                reloaded.get().saveAllProperties();
+            }
+        }
+    }
+
+    @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
         handleCertificatePropertyValue(propertyValue); //TODO: is this step still required?
 

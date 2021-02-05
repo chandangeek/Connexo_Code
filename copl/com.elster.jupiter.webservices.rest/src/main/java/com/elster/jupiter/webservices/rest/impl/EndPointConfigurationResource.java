@@ -13,6 +13,7 @@ import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -34,6 +35,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -78,30 +80,20 @@ public class EndPointConfigurationResource extends BaseResource {
     public PagedInfoList getEndPointConfigurations(@BeanParam JsonQueryParameters queryParams,
                                                    @HeaderParam("X-CONNEXO-APPLICATION-NAME") String applicationName,
                                                    @Context UriInfo uriInfo) {
+        Set<String> applicationNamesFilter = prepareApplicationNames(applicationName);
+        Set<String> webServiceNames = webServicesService.getWebServices().stream()
+                .filter(ws -> applicationNamesFilter.contains(ws.getApplicationName()))
+                .map(WebService::getName)
+                .collect(toSet());
 
-        List<EndPointConfigurationInfo> infoList;
-        if ("SYS".equals(applicationName)) {
-            infoList = endPointConfigurationService.findEndPointConfigurations()
-                    .from(queryParams)
-                    .stream()
-                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
-                    .collect(toList());
-        } else {
-            Set<String> applicationNameToFilter = prepareApplicationNames(applicationName);
-
-            Set<String> webServiceNames = webServicesService.getWebServices().stream()
-                    .filter(ws -> applicationNameToFilter.contains(ws.getApplicationName()))
-                    .map(ws -> ws.getName())
-                    .collect(toSet());
-
-            infoList = endPointConfigurationService.findEndPointConfigurations(webServiceNames)
-                    .from(queryParams)
-                    .stream()
-                    .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
-                    .collect(toList());
-        }
-
-
+        List<EndPointConfigurationInfo> infoList = webServiceNames.isEmpty() && !applicationNamesFilter.isEmpty() ?
+                // had filter for applications, but found no related web services
+                Collections.emptyList() :
+                endPointConfigurationService.findEndPointConfigurations(webServiceNames)
+                        .from(queryParams)
+                        .stream()
+                        .map(epc -> endPointConfigurationInfoFactory.from(epc, uriInfo))
+                        .collect(toList());
         return PagedInfoList.fromPagedList("endpoints", infoList, queryParams);
     }
 

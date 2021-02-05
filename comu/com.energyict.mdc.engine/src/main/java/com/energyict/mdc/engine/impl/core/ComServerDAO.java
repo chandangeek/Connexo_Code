@@ -607,6 +607,16 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName);
 
     /**
+     * Updates the connection task property of the Device device
+     * that is configured in the specified ConnectionTask
+     * only when the value has actually changed.
+     *
+     * @param connectionTask             The ConnectionTask
+     * @param connectionPropertyNameAndValue The map of ConnectionTask's properties that holds the ip address
+     */
+    void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue);
+
+    /**
      * Updates a protocol property of the Device
      * that is uniquely identified by the specified identifier with the given value.
      *

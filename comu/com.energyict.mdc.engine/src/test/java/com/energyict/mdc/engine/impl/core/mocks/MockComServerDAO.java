@@ -516,6 +516,10 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue) {
+    }
+
+    @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
     }
 

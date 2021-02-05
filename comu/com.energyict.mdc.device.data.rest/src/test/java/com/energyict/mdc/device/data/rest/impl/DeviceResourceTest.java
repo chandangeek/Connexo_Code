@@ -97,14 +97,7 @@ import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.common.masterdata.RegisterType;
-import com.energyict.mdc.common.protocol.ConnectionFunction;
-import com.energyict.mdc.common.protocol.ConnectionType;
-import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
-import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.common.protocol.DeviceMessageId;
-import com.energyict.mdc.common.protocol.DeviceMessageSpec;
-import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
+import com.energyict.mdc.common.protocol.*;
 import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.scheduling.NextExecutionSpecs;
 import com.energyict.mdc.common.tasks.ComTask;
@@ -124,6 +117,7 @@ import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datavalidation.IssueDataValidationService;
 import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.scheduling.SchedulingService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedCalendarOptions;
 
 import com.energyict.cbo.Unit;
@@ -487,6 +481,10 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         infoWithDateAndType.type = type;
         infoWithDateAndType.releaseDate = releaseDate;
 
+        when(device.newDeviceMessage(Matchers.any(DeviceMessageId.class))).thenReturn(builder);
+        DeviceMessage deviceMessage = mockDeviceMessage(device);
+        when(builder.add()).thenReturn(deviceMessage);
+
         Response response1 = target("/devices/" + deviceName + "/timeofuse/send").request().post(Entity.json(infoWithDateAndType));
         assertThat(response1.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         verify(builder, times(4)).addProperty(anyString(), anyObject());
@@ -507,6 +505,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         infoWithDateAndContract.releaseDate = releaseDate;
         Device.DeviceMessageBuilder builder2 = mock(Device.DeviceMessageBuilder.class);
         when(device.newDeviceMessage(Matchers.any(DeviceMessageId.class))).thenReturn(builder2);
+        when(builder2.add()).thenReturn(deviceMessage);
 
         Response response2 = target("/devices/" + deviceName + "/timeofuse/send").request().post(Entity.json(infoWithDateAndContract));
         assertThat(response2.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
@@ -1564,7 +1563,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(slice.getDevices()).thenReturn(slavesList);
         when(slice.getPeriod()).thenReturn(range);
 
-        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline,  meteringTranslationService);
+        List<DeviceTopologyInfo> infos = DeviceTopologyInfo.from(topologyTimeline, meteringTranslationService);
 
         assertThat(infos.size()).isEqualTo(5);
         assertThat(infos.get(0).name).isEqualTo("slave7");
@@ -3223,5 +3222,20 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         propertyInfos.add(propertyInfo);
         info.properties = propertyInfos;
         return info;
+    }
+
+    private DeviceMessage mockDeviceMessage(Device device) {
+        DeviceMessage deviceMessage = mock(DeviceMessage.class);
+        when(deviceMessage.getDevice()).thenReturn(device);
+        when(deviceMessage.getId()).thenReturn(1L);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
+        DeviceMessageSpec deviceMessageSpec = mock(DeviceMessageSpec.class);
+        when(deviceMessage.getSpecification()).thenReturn(deviceMessageSpec);
+        DeviceMessageCategory category = mock(DeviceMessageCategory.class);
+        when(category.getName()).thenReturn("categoryName");
+        when(deviceMessageSpec.getCategory()).thenReturn(category);
+        when(deviceMessageSpec.getId()).thenReturn(DeviceMessageId.CLOCK_SET_TIME);
+        when(deviceMessage.getSentDate()).thenReturn(Optional.empty());
+        return deviceMessage;
     }
 }
