@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.conditions.Condition;
@@ -18,6 +19,8 @@ import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.UpdateCreditAmountServiceCallHandler;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -49,15 +52,17 @@ public class UpgraderV10_9 implements Upgrader {
     private final DataModel dataModel;
     private final MessageService messageService;
     private final EventService eventService;
+    private final ServiceCallService serviceCallService;
 
     private long id;
 
     @Inject
-    UpgraderV10_9(DataModel dataModel, DeviceService deviceService, MessageService messageService, EventService eventService) {
+    UpgraderV10_9(DataModel dataModel, DeviceService deviceService, MessageService messageService, EventService eventService, ServiceCallService serviceCallService) {
         this.deviceService = deviceService;
         this.dataModel = dataModel;
         this.messageService = messageService;
         this.eventService = eventService;
+        this.serviceCallService = serviceCallService;
     }
 
     @Override
@@ -65,6 +70,7 @@ public class UpgraderV10_9 implements Upgrader {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
         EventType.CREDIT_AMOUNT_CREATED.createIfNotExists(eventService);
         EventType.CREDIT_AMOUNT_UPDATED.createIfNotExists(eventService);
+        updateServiceCallTypes();
         createUnsubscriberForMessageQueue();
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
@@ -224,6 +230,27 @@ public class UpgraderV10_9 implements Upgrader {
                 throw new UnderlyingSQLFailedException(e);
             }
         }
+    }
+
+    private void updateServiceCallTypes() {
+        for (ServiceCallCommands.ServiceCallTypeMapping type : ServiceCallCommands.ServiceCallTypeMapping.values()) {
+            type.getApplication().ifPresent(
+                    application ->
+                            serviceCallService
+                                    .findServiceCallType(type.getTypeName(), type.getTypeVersion()).ifPresent(
+                                    serviceCallType -> {
+                                        serviceCallType.setApplication(application);
+                                        serviceCallType.save();
+                                    }
+                            ));
+        }
+
+        serviceCallService.findServiceCallType(UpdateCreditAmountServiceCallHandler.SERVICE_CALL_HANDLER_NAME, UpdateCreditAmountServiceCallHandler.VERSION).ifPresent(
+                serviceCallType -> {
+                    serviceCallType.setApplication(UpdateCreditAmountServiceCallHandler.APPLICATION);
+                    serviceCallType.save();
+                }
+        );
     }
 
 }

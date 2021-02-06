@@ -618,8 +618,8 @@ class DeviceServiceImpl implements ServerDeviceService {
     }
 
     @Override
-    public CreditAmount creditAmountFrom(Device device, String collectedCreditType, BigDecimal collectedCreditAmount, Interval interval) {
-        return CreditAmountImpl.from(deviceDataModelService.dataModel(), device, collectedCreditType, collectedCreditAmount, interval);
+    public CreditAmount creditAmountFrom(Device device, String collectedCreditType, BigDecimal collectedCreditAmount) {
+        return CreditAmountImpl.from(deviceDataModelService.dataModel(), device, collectedCreditType, collectedCreditAmount);
     }
 
     @Override

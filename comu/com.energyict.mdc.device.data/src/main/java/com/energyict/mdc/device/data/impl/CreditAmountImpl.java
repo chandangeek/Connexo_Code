@@ -26,8 +26,7 @@ public class CreditAmountImpl implements CreditAmount {
         CREDIT_TYPE("creditType"),
         CREDIT_AMOUNT("creditAmount"),
         DEVICE("device"),
-        LAST_CHECKED("lastChecked"),
-        INTERVAL("interval");
+        LAST_CHECKED("lastChecked");
 
         private final String javaFieldName;
 
@@ -49,8 +48,6 @@ public class CreditAmountImpl implements CreditAmount {
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
     private Instant lastChecked;
-    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
-    private Interval interval;
 
     @SuppressWarnings("unused")
     private long version;
@@ -72,16 +69,15 @@ public class CreditAmountImpl implements CreditAmount {
         this.deviceDataService = deviceDataService;
     }
 
-    public CreditAmount init(Device device, String creditType, BigDecimal creditAmount, Interval interval) {
+    public CreditAmount init(Device device, String creditType, BigDecimal creditAmount) {
         setDevice(device);
         setCreditType(creditType);
         setCreditAmount(creditAmount);
-        this.interval = interval;
         return this;
     }
 
-    public static CreditAmount from(DataModel dataModel, Device device, String creditType, BigDecimal creditAmount, Interval interval) {
-        return dataModel.getInstance(CreditAmountImpl.class).init(device, creditType, creditAmount, interval);
+    public static CreditAmount from(DataModel dataModel, Device device, String creditType, BigDecimal creditAmount) {
+        return dataModel.getInstance(CreditAmountImpl.class).init(device, creditType, creditAmount);
     }
 
     @Override
@@ -140,7 +136,7 @@ public class CreditAmountImpl implements CreditAmount {
         return creditAmount;
     }
 
-    public void setCreditAmount(BigDecimal creditType) {
+    public void setCreditAmount(BigDecimal creditAmount) {
         this.creditAmount = creditAmount;
     }
 

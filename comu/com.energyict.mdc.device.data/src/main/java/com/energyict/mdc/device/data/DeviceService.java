@@ -202,7 +202,7 @@ public interface DeviceService {
 
     Optional<CreditAmount> getCreditAmount(Device device);
 
-    CreditAmount creditAmountFrom(Device device, String collectedCreditType, BigDecimal collectedCreditAmount, Interval interval);
+    CreditAmount creditAmountFrom(Device device, String collectedCreditType, BigDecimal collectedCreditAmount);
 
     List<Device> findActiveValidatedDevices(List<Device> domainObjects);
 

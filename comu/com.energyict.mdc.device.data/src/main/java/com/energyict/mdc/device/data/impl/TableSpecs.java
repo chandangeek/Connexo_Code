@@ -986,7 +986,6 @@ public enum TableSpecs {
             table.column("CREDIT_TYPE").varChar(NAME_LENGTH).map(CreditAmountImpl.Fields.CREDIT_TYPE.fieldName()).notNull().add();
             table.column("CREDIT_AMOUNT").number().map(CreditAmountImpl.Fields.CREDIT_AMOUNT.fieldName()).notNull().add();
             table.column("LASTCHECKED").number().map(CreditAmountImpl.Fields.LAST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.addIntervalColumns(CreditAmountImpl.Fields.INTERVAL.fieldName());
             table.addAuditColumns();
             table.primaryKey("PK_DDC_CREDIT_AMOUNT").on(idColumn).add();
             table.foreignKey("FK_DDC_CREDIT_AMOUNT_DEVICE")

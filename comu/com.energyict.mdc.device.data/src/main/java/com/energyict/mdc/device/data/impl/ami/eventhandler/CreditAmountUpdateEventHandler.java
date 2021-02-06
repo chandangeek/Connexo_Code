@@ -18,11 +18,13 @@ import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.UpdateCreditAmountServiceCallHandler;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -88,9 +90,7 @@ public class CreditAmountUpdateEventHandler implements TopicHandler {
     private List<ServiceCall> findAllUpdateCreditAmountServiceCallsLinkedTo(Device device) {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObjects.add(device);
-        filter.types = Arrays.asList(
-                // TODO
-                );
+        filter.types = Collections.singletonList(UpdateCreditAmountServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
         return serviceCallService.getServiceCallFinder(filter).find();
     }
 }
