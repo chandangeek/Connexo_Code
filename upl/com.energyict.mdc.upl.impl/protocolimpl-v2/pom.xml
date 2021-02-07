@@ -139,28 +139,6 @@
             <version>2.10.5</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>connectiontypes</artifactId>
-            <version>9.1.102-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdw</artifactId>
-            <version>9.1.102-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>connectiontypes</artifactId>
-            <version>1.0.0-Kratos-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.common</artifactId>
-            <version>1.0.0-Kratos-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 
     <build>
