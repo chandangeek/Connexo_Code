@@ -167,6 +167,6 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
 
     @Override
     public List<T> select(Condition condition, Order[] orders, boolean eager, String[] exceptions, int from, int to) {
-        return select(condition, new Hint[0], orders, eager, exceptions, 0, 0);
+        return select(condition, new Hint[0], orders, eager, exceptions, from, to);
     }
 }
