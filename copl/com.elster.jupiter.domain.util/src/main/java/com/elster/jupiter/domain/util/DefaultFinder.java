@@ -193,7 +193,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
 
         private void loadNextPage() {
-            items = query.select(condition, getActualSortingColumns(), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
+            items = query.select(condition, hints.toArray(new Hint[0]), getActualSortingColumns(), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
             currentPage += pageSize;
             currentItemInPage = 0;
         }
