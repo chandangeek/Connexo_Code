@@ -323,7 +323,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public void save() {
-        isValidDeviceMessageId();
+      //  isValidDeviceMessageId();
         super.save();
         if (getId() > 0) {
             getDataModel().touch(device.get());

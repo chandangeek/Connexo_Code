@@ -60,9 +60,10 @@ public class DeviceFinder implements Finder<Device> {
         sqlBuilder.append(" ORDER BY " + this.orders.stream()
                 .map(order -> order.getClause(order.getName()))
                 .collect(Collectors.joining(", ")));
+        Hint[] hintsArray = hints.toArray(new Hint[0]);
         final SqlBuilder finalBuilder = this.pager.finalize(sqlBuilder, "id");
         QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class, Batch.class);
-        return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), hints, this.orders.toArray(new Order[orders.size()]));
+        return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), hintsArray, this.orders.toArray(new Order[orders.size()]));
     }
 
     @Override

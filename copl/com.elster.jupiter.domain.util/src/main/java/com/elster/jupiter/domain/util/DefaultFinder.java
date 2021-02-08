@@ -94,9 +94,10 @@ public final class DefaultFinder<T> implements Finder<T> {
     @Override
     public List<T> find() {
         Range<Integer> limits = getActualPageLimits();
+        Hint[] hintsArray = hints.toArray(new Hint[0]);
         return Range.all().equals(limits) ?
-                query.select(condition, hints, getActualSortingColumns()) :
-                query.select(condition, hints, getActualSortingColumns(), true, new String[0], limits.lowerEndpoint(), limits.upperEndpoint());
+                query.select(condition, hintsArray, getActualSortingColumns()) :
+                query.select(condition, hintsArray, getActualSortingColumns(), true, new String[0], limits.lowerEndpoint(), limits.upperEndpoint());
     }
 
     @Override

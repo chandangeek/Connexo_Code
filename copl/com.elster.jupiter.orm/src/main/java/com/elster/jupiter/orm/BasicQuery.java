@@ -13,15 +13,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- *
  * Fetches tuples from the database and converts them to objects
  * Defines the common methods between DataMapper and QueryExecutor
- *
  */
 @ProviderType
 public interface BasicQuery<T> {
-	Optional<T> getOptional(Object... values);
-	T getExisting(Object... values);
-    List<T> select(Condition condition, Order ... orders);
-	List<T> select(Condition condition, List<Hint> hints, Order ... orders);
+    Optional<T> getOptional(Object... values);
+    T getExisting(Object... values);
+    List<T> select(Condition condition, Order... orders);
+    List<T> select(Condition condition, Hint[] hints, Order... orders);
 }

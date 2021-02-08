@@ -4,21 +4,45 @@
 
 package com.elster.jupiter.util.conditions;
 
+import java.util.Objects;
+
 public class Hint {
 
-    private final HintName hintName;
-    private final String tableAlias;
+    private final HintType hintType;
+    private final String tableName;
 
-    public Hint(HintName hintName, String tableAlias) {
-        this.hintName = hintName;
-        this.tableAlias = tableAlias;
+    public Hint(HintType hintType, String tableName) {
+        this.hintType = hintType;
+        this.tableName = tableName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Hint hint = (Hint) o;
+        return hintType == hint.hintType && tableName.equals(hint.tableName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(hintType, tableName);
     }
 
     public String toSqlString() {
-        return hintName.hintName + "(" + tableAlias + ")";
+        return hintType.hintName + "(" + tableName + ")";
     }
 
-    public enum HintName {
+    @Override
+    public String toString() {
+        return toSqlString();
+    }
+
+    public enum HintType {
 
         INDEX("INDEX"),
         LEADING("LEADING"),
@@ -26,7 +50,7 @@ public class Hint {
 
         private final String hintName;
 
-        HintName(String hintName) {
+        HintType(String hintName) {
             this.hintName = hintName;
         }
     }

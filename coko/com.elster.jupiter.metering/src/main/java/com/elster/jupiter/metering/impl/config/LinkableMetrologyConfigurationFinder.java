@@ -67,16 +67,17 @@ public class LinkableMetrologyConfigurationFinder implements Finder<UsagePointMe
         Order[] orders = this.orders.isEmpty()
                 ? new Order[]{Order.ascending("name")}
                 : this.orders.toArray(new Order[this.orders.size()]);
+        Hint[] hintsArray = hints.toArray(new Hint[0]);
         Condition condition = Condition.FALSE;
         for (UsagePointRequirementSqlBuilder builder : builders) {
             condition = condition.or(ListOperator.IN.contains(builder, "id"));
         }
         if (this.start >= 0) {
             return this.dataModel.query(UsagePointMetrologyConfiguration.class)
-                    .select(condition, hints, orders, true, new String[0], this.start + 1, this.start + this.pageSize + 1);
+                    .select(condition, hintsArray, orders, true, new String[0], this.start + 1, this.start + this.pageSize + 1);
         }
         return this.dataModel.query(UsagePointMetrologyConfiguration.class)
-                .select(condition, hints, orders, false, null, 0, 0);
+                .select(condition, hintsArray, orders, false, null, 0, 0);
     }
 
     @Override

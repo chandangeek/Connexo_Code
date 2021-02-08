@@ -20,10 +20,13 @@ import com.elster.jupiter.metering.impl.UsagePointStateTemporalImpl;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.search.SearchablePropertyCondition;
-import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-
 import com.google.common.collect.Range;
 
 import java.sql.Connection;

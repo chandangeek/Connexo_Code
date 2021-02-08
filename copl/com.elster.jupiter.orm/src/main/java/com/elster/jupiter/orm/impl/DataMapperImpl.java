@@ -492,7 +492,7 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     }
 
     @Override
-    public List<T> select(Condition condition, List<Hint> hints, Order... orders) {
+    public List<T> select(Condition condition, Hint[] hints, Order... orders) {
         return with().select(condition, hints, orders);
     }
 

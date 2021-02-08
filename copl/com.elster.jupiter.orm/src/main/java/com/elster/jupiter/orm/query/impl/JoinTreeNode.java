@@ -152,10 +152,10 @@ final class JoinTreeNode<T> {
         }
     }
 
-    void appendHints(SqlBuilder builder, List<Hint> hints) {
-        if (!hints.isEmpty()) {
+    void appendHints(SqlBuilder builder, Hint[] hints) {
+        if (hints.length > 0) {
             builder.append("/*+ ");
-            builder.append(hints.stream().map(Hint::toSqlString).collect(Collectors.joining(" ")));
+            builder.append(Stream.of(hints).map(Hint::toSqlString).collect(Collectors.joining(" ")));
             builder.append(" */");
         }
     }

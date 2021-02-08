@@ -638,12 +638,12 @@ public class DeviceMessageImplTest extends PersistenceIntegrationTest {
         Instant myReleaseInstant = initializeClockWithCurrentBeforeReleaseInstant();
 
         Device device = createSimpleDeviceWithName("invalidDeviceMessageAttributeTest", "invalidDeviceMessageAttributeTest");
-        DeviceMessageId contactorOpenWithOutput = DeviceMessageId.CONTACTOR_OPEN_WITH_OUTPUT;
+        DeviceMessageId contactorOpenWithOutput = DeviceMessageId.PLC_CONFIGURATION_WRITE_PLC_G3_TIMEOUT;
         String value = "This should have been a BigDecimal";
 
         device.newDeviceMessage(contactorOpenWithOutput)
                 .setReleaseDate(myReleaseInstant)
-                .addProperty("ContactorDeviceMessage.digitalOutput", value)
+                .addProperty("PLCConfigurationDeviceMessage.plcg3timeout", 1440)
                 .add();
     }
 

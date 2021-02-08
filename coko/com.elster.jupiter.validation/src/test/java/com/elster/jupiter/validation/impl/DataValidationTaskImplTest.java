@@ -20,8 +20,12 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.validation.DataValidationOccurrence;
-
 import com.google.common.collect.ImmutableList;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -31,19 +35,10 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.logging.Level;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
-
 import static org.fest.reflect.core.Reflection.field;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataValidationTaskImplTest extends EqualsContractTest {
@@ -76,7 +71,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
     private Validator validator;
 
     private DataValidationTaskImpl newTask() {
-        DataValidationTaskImpl newTask = new DataValidationTaskImpl(dataModel,taskService, thesaurus, () -> destinationSpec);
+        DataValidationTaskImpl newTask = new DataValidationTaskImpl(dataModel, taskService, thesaurus, () -> destinationSpec);
         newTask.setRecurrentTask(recurrentTask);
         return newTask;
     }
@@ -187,7 +182,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         verify(dataModel).update(task);
 
         when(dataModel.query(any(), any())).thenReturn(queryExecutor);
-        when(queryExecutor.select(any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
+        when(queryExecutor.select(any(), any(), any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
 
         DataMapper<DataValidationOccurrence> mapper = mock(DataMapper.class);
         when(dataModel.mapper(DataValidationOccurrence.class)).thenReturn(mapper);
@@ -210,7 +205,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         verify(dataModel).update(task);
 
         when(dataModel.query(any(), any())).thenReturn(queryExecutor);
-        when(queryExecutor.select(any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
+        when(queryExecutor.select(any(), any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
 
         DataMapper<DataValidationOccurrence> mapper = mock(DataMapper.class);
         when(dataModel.mapper(DataValidationOccurrence.class)).thenReturn(mapper);

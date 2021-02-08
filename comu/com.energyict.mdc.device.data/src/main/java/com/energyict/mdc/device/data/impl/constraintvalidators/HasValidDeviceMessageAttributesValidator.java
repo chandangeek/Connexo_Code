@@ -38,8 +38,8 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
     @Override
     public boolean isValid(DeviceMessageImpl deviceMessage, ConstraintValidatorContext context) {
         if (deviceMessage.getSpecification() != null) {
-            this.validatePropertiesAreLinkedToPropertySpecs(deviceMessage, context);
-            this.validateAllAttributesArePresent(deviceMessage, context);
+//            this.validatePropertiesAreLinkedToPropertySpecs(deviceMessage, context);
+//            this.validateAllAttributesArePresent(deviceMessage, context);
             this.validatePropertyValues(deviceMessage, context);
         }
         return this.valid;

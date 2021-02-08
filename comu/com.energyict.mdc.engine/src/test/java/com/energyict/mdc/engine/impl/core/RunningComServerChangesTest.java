@@ -159,8 +159,8 @@ public class RunningComServerChangesTest {
         verify(scheduledComPort, times(1)).start();
     }
 
-    @Ignore
     @Test(timeout = 20000)
+    @Ignore
     public void testAddOutboundComPortThatShouldBeIgnored() throws InterruptedException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
         comServerDAO.addEmptyComServer();
@@ -336,7 +336,7 @@ public class RunningComServerChangesTest {
 
     @Test
     public void testAddInboundComPortThatShouldBeIgnored() throws InterruptedException, SQLException {
-        MockComServerDAO comServerDAO = new MockComServerDAO();
+        DeviceMessageImplTest comServerDAO = new MockComServerDAO();
         comServerDAO.addEmptyComServer();
         OnlineComServer comServer = (OnlineComServer) comServerDAO.getThisComServer();
         ScheduledComPortFactory scheduledComPortFactory = mock(ScheduledComPortFactory.class);
