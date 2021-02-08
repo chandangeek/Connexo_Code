@@ -153,7 +153,7 @@ final class JoinTreeNode<T> {
     }
 
     void appendHints(SqlBuilder builder, Hint[] hints) {
-        if (hints.length > 0) {
+        if (hints.length > 0 && value.getMapper().getDataModel().getSqlDialect().allowHints()) {
             builder.append("/*+ ");
             builder.append(Stream.of(hints).map(Hint::toSqlString).collect(Collectors.joining(" ")));
             builder.append(" */");
