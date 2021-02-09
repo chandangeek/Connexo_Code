@@ -11,17 +11,5 @@ Ext.define('Uni.button.Action', {
     text: Uni.I18n.translate('general.actions', 'UNI', 'Actions'),
     itemId: 'actionButton',
     iconCls: 'icon icon-cog2',
-    disabled: true,
-    menuAlign: 'tr-br',
-    listeners: {
-        beforerender: function (button) {
-            button.menu.items.each(function (item) {
-                if ((item.visible === undefined || item.visible === true)
-                    && (item.disabled === undefined || item.disabled === false)) {
-                    button.enable();
-                    return 0;
-                }
-            })
-        }
-    }
+    menuAlign: 'tr-br'
 });
