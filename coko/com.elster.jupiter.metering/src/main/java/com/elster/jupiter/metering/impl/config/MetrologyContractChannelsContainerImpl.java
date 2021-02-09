@@ -114,6 +114,11 @@ public class MetrologyContractChannelsContainerImpl extends ChannelsContainerImp
     }
 
     @Override
+    public Optional<BigDecimal> getDefaultMultiplier() {
+        return Optional.empty();
+    }
+
+    @Override
     public Optional<Meter> getMeter(Instant instant) {
         return Optional.empty();
     }

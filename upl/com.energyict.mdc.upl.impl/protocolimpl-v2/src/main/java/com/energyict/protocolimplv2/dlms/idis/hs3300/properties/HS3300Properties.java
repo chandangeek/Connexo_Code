@@ -212,6 +212,10 @@ public class HS3300Properties extends IDISProperties {
         return getProperties().getTypedProperty(HS3300ConfigurationSupport.INITIAL_FRAME_COUNTER, BigDecimal.valueOf(100)).longValue();
     }
 
+    public long getFrameCounterLimit() {
+        return getProperties().getTypedProperty(DlmsProtocolProperties.FRAME_COUNTER_LIMIT, BigDecimal.valueOf(0)).longValue();
+    }
+
     /**
      * Indicates whether or not to skip the frame counter authentication tag check.
      *
