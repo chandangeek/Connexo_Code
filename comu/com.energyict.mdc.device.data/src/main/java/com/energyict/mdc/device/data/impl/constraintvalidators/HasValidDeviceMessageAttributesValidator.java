@@ -38,8 +38,8 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
     @Override
     public boolean isValid(DeviceMessageImpl deviceMessage, ConstraintValidatorContext context) {
         if (deviceMessage.getSpecification() != null) {
-//            this.validatePropertiesAreLinkedToPropertySpecs(deviceMessage, context);
-//            this.validateAllAttributesArePresent(deviceMessage, context);
+            this.validatePropertiesAreLinkedToPropertySpecs(deviceMessage, context);
+            this.validateAllAttributesArePresent(deviceMessage, context);
             this.validatePropertyValues(deviceMessage, context);
         }
         return this.valid;
@@ -47,8 +47,8 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
 
     private void validatePropertyValues(DeviceMessageImpl deviceMessage, ConstraintValidatorContext context) {
         deviceMessage
-            .getAttributes()
-            .forEach(deviceMessageAttribute -> this.validatePropertyValues(deviceMessageAttribute, context));
+                .getAttributes()
+                .forEach(deviceMessageAttribute -> this.validatePropertyValues(deviceMessageAttribute, context));
     }
 
     private void validatePropertyValues(DeviceMessageAttribute deviceMessageAttribute, ConstraintValidatorContext context) {
@@ -58,10 +58,10 @@ public class HasValidDeviceMessageAttributesValidator implements ConstraintValid
             }
             catch (InvalidValueException e) {
                 context
-                    .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
-                    .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
-                    .addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
-                    .disableDefaultConstraintViolation();
+                        .buildConstraintViolationWithTemplate(MessageFormat.format(e.getDefaultPattern(), e.getArguments()))
+                        .addPropertyNode(DeviceMessageImpl.Fields.DEVICEMESSAGEATTRIBUTES.fieldName())
+                        .addPropertyNode(deviceMessageAttribute.getName()).addConstraintViolation()
+                        .disableDefaultConstraintViolation();
                 this.valid = false;
             }
         }
