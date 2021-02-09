@@ -7,7 +7,11 @@ package com.elster.jupiter.metering.impl.config;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.config.UsagePointMetrologyConfiguration;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.util.conditions.*;
+import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
+import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
 
 import javax.inject.Inject;
