@@ -361,9 +361,12 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                                 image: record.get('type') === 'Image'
                             });
                         }));
-                        actionsStore.load();
-                        Ext.resumeLayouts();
-                        container.doLayout();
+                        actionsStore.load({
+                            callback: function (records, operation, success) {
+                                Ext.resumeLayouts();
+                                container.doLayout();
+                            }
+                        });
                     }
 
                     widget.setLoading(false);
