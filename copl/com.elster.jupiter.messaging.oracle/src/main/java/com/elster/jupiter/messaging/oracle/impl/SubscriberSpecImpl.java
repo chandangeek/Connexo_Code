@@ -242,6 +242,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             options.setVisibility(AQDequeueOptions.VisibilityOption.IMMEDIATE);
             options.setDeliveryFilter(AQDequeueOptions.DeliveryFilter.BUFFERED);
         }
+        options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
         return options;
     }
 
