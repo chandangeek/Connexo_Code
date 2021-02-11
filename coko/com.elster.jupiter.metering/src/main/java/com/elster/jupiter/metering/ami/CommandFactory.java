@@ -51,4 +51,10 @@ public interface CommandFactory {
 
     EndDeviceCommand createSwitchChargeModeCommand(EndDevice endDevice, String chargeMode, Instant activationDate);
 
+    EndDeviceCommand createUpdateFriendlyDayPeriodCommand(EndDevice endDevice, FriendlyDayPeriodInfo friendlyDayPeriodInfo) throws UnsupportedCommandException;
+
+    EndDeviceCommand createUpdateFriendlyWeekdaysCommand(EndDevice endDevice, String friendlyWeekdays) throws UnsupportedCommandException;
+
+    EndDeviceCommand createSendSpecialDayCalendarCommand(EndDevice endDevice, String specialDaysCalendarName)throws UnsupportedCommandException;
+
 }

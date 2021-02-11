@@ -7,9 +7,10 @@ package com.energyict.mdc.device.data.impl.ami;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.metering.ami.EndDeviceCommand;
-import com.elster.jupiter.metering.ami.StepTariffInfo;
 import com.elster.jupiter.metering.ami.ChangeTaxRatesInfo;
+import com.elster.jupiter.metering.ami.EndDeviceCommand;
+import com.elster.jupiter.metering.ami.FriendlyDayPeriodInfo;
+import com.elster.jupiter.metering.ami.StepTariffInfo;
 import com.elster.jupiter.metering.ami.UnsupportedCommandException;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -18,9 +19,7 @@ import com.elster.jupiter.pki.CertificateType;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.util.units.Quantity;
-
-import com.energyict.cbo.Unit;
-
+import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.config.SecurityAccessorTypeOnDeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
@@ -32,6 +31,7 @@ import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
+import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -362,6 +362,40 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
             PropertySpec activationDatePropertySpec = getActivationDatePropertySpec(command);
             command.setPropertyValue(activationDatePropertySpec, Date.from(activationDate));
         }
+        return command;
+    }
+    @Override
+    public EndDeviceCommand createUpdateFriendlyDayPeriodCommand(EndDevice endDevice, FriendlyDayPeriodInfo friendlyDayPeriodInfo) throws UnsupportedCommandException {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.FRIENDLY_DAY_PERIOD_UPDATE));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHourStart), friendlyDayPeriodInfo.friendlyHourStart);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyMinuteStart), friendlyDayPeriodInfo.friendlyMinuteStart);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlySecondStart), friendlyDayPeriodInfo.friendlySecondStart);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHundredthsStart), friendlyDayPeriodInfo.friendlyHundredthsStart);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHourStop), friendlyDayPeriodInfo.friendlyHourStop);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyMinuteStop), friendlyDayPeriodInfo.friendlyMinuteStop);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlySecondStop), friendlyDayPeriodInfo.friendlySecondStop);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHundredthsStop), friendlyDayPeriodInfo.friendlyHundredthsStop);
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createUpdateFriendlyWeekdaysCommand(EndDevice endDevice, String friendlyWeekdays) {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.FRIENDLY_WEEKDAYS_UPDATE));
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyWeekdays), friendlyWeekdays);
+        return command;
+    }
+
+    @Override
+    public EndDeviceCommand createSendSpecialDayCalendarCommand(EndDevice endDevice, String specialDaysCalendarName) {
+        EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.SPECIAL_DAY_CALENDAR_SEND));
+        Device device = findDeviceForEndDevice(endDevice);
+        AllowedCalendar calendar = device.getDeviceType().getAllowedCalendars().stream()
+                .filter(allowedCalendar -> allowedCalendar.getCalendar().isPresent())
+                .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getCalendar().get().getName().equals(specialDaysCalendarName))
+                .findFirst().orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.CAN_NOT_FIND_FOR_ALLOWED_CALENDAR).format(specialDaysCalendarName)));
+
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.specialDaysAttributeName), calendar.getCalendar().get());
+
         return command;
     }
 

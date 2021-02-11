@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.EndDeviceControlType;
 import com.elster.jupiter.metering.ami.ChangeTaxRatesInfo;
 import com.elster.jupiter.metering.ami.CommandFactory;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
+import com.elster.jupiter.metering.ami.FriendlyDayPeriodInfo;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
@@ -67,7 +68,17 @@ public class HeadEndControllerTest {
         ZERO_CONSUMPTION_TAX("zeroConsumptionTax", "Zero Consumption Tax"),
         CONSUMPTION_TAX("consumptionTax", "Consumption Tax"),
         CONSUMPTION_AMOUNT("consumptionAmount", "Consumption Amount (KWH)"),
-        CONSUMPTION_LIMIT("consumptionLimit", "Consumption Limit (KWH)");
+        CONSUMPTION_LIMIT("consumptionLimit", "Consumption Limit (KWH)"),
+        FRIENDLY_HOUR_START("friendlyHourStart", "Friendly Hour Start"),
+        FRIENDLY_MINUTE_START("friendlyMinuteStart", "Friendly Minute Start"),
+        FRIENDLY_SECOND_START("friendlySecondStart", "Friendly Second Start"),
+        FRIENDLY_HUNDREDTHS_START("friendlySecondHundredthsStart", "Friendly Second Hundredths Start"),
+        FRIENDLY_HOUR_STOP("friendlyHourStop", "Friendly Hour Stop"),
+        FRIENDLY_MINUTE_STOP("friendlyMinuteStop", "Friendly Minute Stop"),
+        FRIENDLY_SECOND_STOP("friendlySecondsStop", "Friendly Second Stop"),
+        FRIENDLY_HUNDREDTHS_STOP("friendlySecondHundredthsStop", "Friendly Second Hundredths Stop"),
+        FRIENDLY_WEEKDAYS("friendlyWeekdays", "Friendly Week Days (SuSaFrThWeTuMo)")
+        ;
 
         private final String key;
         private final String defaultFormat;
@@ -95,6 +106,9 @@ public class HeadEndControllerTest {
     private static final String CHANGE_TAX_RATES = "3.20.86.13";
     private static final String SWITCH_TAX_AND_STEP_TARIFF = "3.20.283.54";
     private static final String SWITCH_CHARGE_MODE = "3.20.9.13";
+    private static final String FRIENDLY_DAY_PERIOD_UPDATE = "0.20.114.13";
+    private static final String FRIENDLY_WEEKDAYS_UPDATE = "0.20.35.13";
+    private static final String SPECIAL_DAY_CALENDAR_SEND = "0.20.97.13";
 
     private static final String UNSUPPORTED_CODE = "9.9.9.9";
     private static final String UNSUPPORTED_CODE_BY_CIM_HEADEND_CONTROLLER = "0.12.32.13";
@@ -486,6 +500,131 @@ public class HeadEndControllerTest {
 
         // Asserts
         verify(commandFactory).createUpdateCreditDaysLimitCommand(endDevice, BigDecimal.valueOf(1), BigDecimal.valueOf(2));
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
+    }
+
+    @Test
+    public void testUpdateFriendlyDayPeriodOperation() throws Exception {
+        mockEndDeviceControlType(FRIENDLY_DAY_PERIOD_UPDATE);
+
+
+        List<EndDeviceControlAttribute> attributes = new ArrayList<>(Arrays.asList(
+                createAttribute(TranslationKeys.FRIENDLY_HOUR_START, "1"),
+                createAttribute(TranslationKeys.FRIENDLY_MINUTE_START, "1"),
+                createAttribute(TranslationKeys.FRIENDLY_SECOND_START, "1"),
+                createAttribute(TranslationKeys.FRIENDLY_HUNDREDTHS_START, "1"),
+                createAttribute(TranslationKeys.FRIENDLY_HOUR_STOP, "10"),
+                createAttribute(TranslationKeys.FRIENDLY_MINUTE_STOP, "10"),
+                createAttribute(TranslationKeys.FRIENDLY_SECOND_STOP, "10"),
+                createAttribute(TranslationKeys.FRIENDLY_HUNDREDTHS_STOP, "10")));
+
+        DeviceCommandInfo deviceCommandInfo = headEndController.checkOperation(FRIENDLY_DAY_PERIOD_UPDATE, attributes);
+
+        when(commandFactory.createUpdateFriendlyDayPeriodCommand(eq(endDevice), any(FriendlyDayPeriodInfo.class))).thenReturn(endDeviceCommand);
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        PropertySpec friendlyHourStart = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_HOUR_START)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec friendlyMinuteStart = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_MINUTE_START)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec friendlySecondStart = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_SECOND_START)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec friendlyHundredthsStart = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_HUNDREDTHS_START)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec friendlyHourStop = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_HOUR_STOP)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec friendlyMinuteStop = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_MINUTE_STOP)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec friendlySecondStop = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_SECOND_STOP)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        PropertySpec friendlyHundredthsStop = propertySpecService
+                .specForValuesOf(new BigDecimalFactory())
+                .named(TranslationKeys.FRIENDLY_HUNDREDTHS_STOP)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+        propertySpecs.add(friendlyHourStart);
+        propertySpecs.add(friendlyMinuteStart);
+        propertySpecs.add(friendlySecondStart);
+        propertySpecs.add(friendlyHundredthsStart);
+        propertySpecs.add(friendlyHourStop);
+        propertySpecs.add(friendlyMinuteStop);
+        propertySpecs.add(friendlySecondStop);
+        propertySpecs.add(friendlyHundredthsStop);
+
+        when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(propertySpecs);
+
+        // Business method
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
+
+        // Asserts
+        ArgumentCaptor<FriendlyDayPeriodInfo> argument = ArgumentCaptor.forClass(FriendlyDayPeriodInfo.class);
+        verify(commandFactory).createUpdateFriendlyDayPeriodCommand(eq(endDevice), argument.capture());
+        assert (argument.getValue().friendlyHourStart.equals(BigDecimal.ONE));
+        assert (argument.getValue().friendlyMinuteStart.equals(BigDecimal.ONE));
+        assert (argument.getValue().friendlySecondStart.equals(BigDecimal.ONE));
+        assert (argument.getValue().friendlyHundredthsStart.equals(BigDecimal.ONE));
+        assert (argument.getValue().friendlyHourStop.equals(BigDecimal.TEN));
+        assert (argument.getValue().friendlyMinuteStop.equals(BigDecimal.TEN));
+        assert (argument.getValue().friendlySecondStop.equals(BigDecimal.TEN));
+        assert (argument.getValue().friendlyHundredthsStop.equals(BigDecimal.TEN));
+
+        verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
+    }
+
+    @Test
+    public void testUpdateFriendlyWeekdaysOperation() throws Exception {
+        mockEndDeviceControlType(FRIENDLY_WEEKDAYS_UPDATE);
+        List<EndDeviceControlAttribute> attributes = Collections.singletonList(
+                createAttribute(TranslationKeys.FRIENDLY_WEEKDAYS, "0000000"));
+
+        DeviceCommandInfo deviceCommandInfo = headEndController.checkOperation(FRIENDLY_WEEKDAYS_UPDATE, attributes);
+
+        when(commandFactory.createUpdateFriendlyWeekdaysCommand(endDevice, "0000000")).thenReturn(endDeviceCommand);
+        List<PropertySpec> propertySpecs = new ArrayList<>();
+        PropertySpec friendlyWeekdays = propertySpecService
+                .specForValuesOf(new StringFactory())
+                .named(TranslationKeys.FRIENDLY_WEEKDAYS)
+                .fromThesaurus(thesaurus)
+                .markRequired()
+                .finish();
+
+        propertySpecs.add(friendlyWeekdays);
+
+        when(endDeviceCommand.getCommandArgumentSpecs()).thenReturn(propertySpecs);
+
+        // Business method
+        headEndController.performOperations(endDevice, serviceCall, deviceCommandInfo, NOW_DATE, false);
+
+        // Asserts
+        verify(commandFactory).createUpdateFriendlyWeekdaysCommand(endDevice, "0000000");
         verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }
 

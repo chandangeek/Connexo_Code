@@ -7,13 +7,17 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ami.ChangeTaxRatesInfo;
 import com.elster.jupiter.metering.ami.EndDeviceCommand;
+import com.elster.jupiter.metering.ami.FriendlyDayPeriodInfo;
 import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.ami.StepTariffInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
+import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 
 import ch.iec.tc57._2011.enddevicecontrols.EndDeviceControlAttribute;
@@ -60,6 +64,15 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.credi
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditDaysLimitFirst;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditDaysLimitScnd;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.creditType;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlyHourStart;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlyHourStop;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlyHundredthsStart;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlyHundredthsStop;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlyMinuteStart;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlyMinuteStop;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlySecondStart;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlySecondStop;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.friendlyWeekdays;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.graceRecalculationType;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.graceRecalculationValue;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.graceWarningStep1;
@@ -93,6 +106,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recal
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recalculationTypeStep7;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recalculationTypeStep8;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recalculationTypeStep9;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffCode;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffType;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.zeroConsumptionTax;
@@ -139,6 +153,15 @@ public class HeadEndController {
             case SWITCH_CHARGE_MODE:
                 checkAndSetSwitchChargeModeAttributes(deviceCommandInfo, attributes, commandCode);
                 break;
+            case FRIENDLY_DAY_PERIOD_UPDATE:
+                checkAndSetUpdateFriendlyDayPeriodAttributes(deviceCommandInfo, attributes, commandCode);
+                break;
+            case FRIENDLY_WEEKDAYS_UPDATE:
+                checkAndSetUpdateFriendlyWeekdaysAttributes(deviceCommandInfo, attributes, commandCode);
+                break;
+            case SPECIAL_DAY_CALENDAR_SEND:
+                checkAndSetSendSpecialDayCalendarAttributes(deviceCommandInfo, attributes, commandCode);
+                break;
             default:
                 throw CommandException.unsupportedEndDeviceControlType(thesaurus, commandCode);
         }
@@ -177,6 +200,15 @@ public class HeadEndController {
                 break;
             case SWITCH_CHARGE_MODE:
                 deviceCommand = headEndInterface.getCommandFactory().createSwitchChargeModeCommand(endDevice, deviceCommandInfo.getChargeMode(), deviceCommandInfo.getActivationDate());
+                break;
+            case FRIENDLY_DAY_PERIOD_UPDATE:
+                deviceCommand = headEndInterface.getCommandFactory().createUpdateFriendlyDayPeriodCommand(endDevice, deviceCommandInfo.getFriendlyDayPeriodInfo());
+                break;
+            case FRIENDLY_WEEKDAYS_UPDATE:
+                deviceCommand = headEndInterface.getCommandFactory().createUpdateFriendlyWeekdaysCommand(endDevice, deviceCommandInfo.getFriendlyWeekdays());
+                break;
+            case SPECIAL_DAY_CALENDAR_SEND:
+                deviceCommand = headEndInterface.getCommandFactory().createSendSpecialDayCalendarCommand(endDevice, deviceCommandInfo.getSpecialDaysCalendarName());
                 break;
             default:
                 throw CommandException.unsupportedEndDeviceControlType(thesaurus, deviceCommandInfo.getEndDeviceControlTypeMapping().getEndDeviceControlTypeMRID());
@@ -404,6 +436,57 @@ public class HeadEndController {
         }
     }
 
+    private void checkAndSetUpdateFriendlyDayPeriodAttributes(DeviceCommandInfo deviceCommandInfo, List<EndDeviceControlAttribute> attributes, String commandCode) {
+        List<EndDeviceControlAttribute> copyAttributes = new ArrayList<>(attributes);
+        try {
+            FriendlyDayPeriodInfo friendlyDayPeriodInfo = new FriendlyDayPeriodInfo();
+
+            friendlyDayPeriodInfo.friendlyHourStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHourStart));
+            friendlyDayPeriodInfo.friendlyMinuteStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyMinuteStart));
+            friendlyDayPeriodInfo.friendlySecondStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlySecondStart));
+            friendlyDayPeriodInfo.friendlyHundredthsStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHundredthsStart));
+            friendlyDayPeriodInfo.friendlyHourStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHourStop));
+            friendlyDayPeriodInfo.friendlyMinuteStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyMinuteStop));
+            friendlyDayPeriodInfo.friendlySecondStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlySecondStop));
+            friendlyDayPeriodInfo.friendlyHundredthsStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHundredthsStop));
+
+            deviceCommandInfo.setFriendlyDayPeriodInfo(friendlyDayPeriodInfo);
+        } catch (Exception ex) {
+            throw CommandException.inappropriateCommandAttributes(thesaurus, commandCode);
+        }
+
+        if (!copyAttributes.isEmpty()) {
+            throw CommandException.inappropriateCommandAttributes(thesaurus, commandCode);
+        }
+    }
+
+    private void checkAndSetUpdateFriendlyWeekdaysAttributes(DeviceCommandInfo deviceCommandInfo, List<EndDeviceControlAttribute> attributes, String commandCode) {
+        List<EndDeviceControlAttribute> copyAttributes = new ArrayList<>(attributes);
+        try {
+            deviceCommandInfo.setFriendlyWeekdays(extractMandatoryAttribute(copyAttributes, commandCode, friendlyWeekdays));
+        } catch (Exception ex) {
+            throw CommandException.inappropriateCommandAttributes(thesaurus, commandCode);
+        }
+
+        if (!copyAttributes.isEmpty()) {
+            throw CommandException.inappropriateCommandAttributes(thesaurus, commandCode);
+        }
+    }
+
+
+    private void checkAndSetSendSpecialDayCalendarAttributes(DeviceCommandInfo deviceCommandInfo, List<EndDeviceControlAttribute> attributes, String commandCode) {
+        List<EndDeviceControlAttribute> copyAttributes = new ArrayList<>(attributes);
+        try {
+            deviceCommandInfo.setSpecialDaysCalendarName(extractMandatoryAttribute(copyAttributes, commandCode, "specialDaysCalendarName"));
+        } catch (Exception ex) {
+            throw CommandException.inappropriateCommandAttributes(thesaurus, commandCode);
+        }
+
+        if (!copyAttributes.isEmpty()) {
+            throw CommandException.inappropriateCommandAttributes(thesaurus, commandCode);
+        }
+    }
+
     private Optional<EndDeviceControlAttribute> findAndGetAttribute(List<EndDeviceControlAttribute> attributes, String attributeName) {
         return attributes.stream().filter(attr -> attr.getName().equals(attributeName))
                 .findFirst();
@@ -430,5 +513,4 @@ public class HeadEndController {
         }
         return activationDate;
     }
-
 }
