@@ -1,6 +1,6 @@
 package com.energyict.mdc.upl.meterdata;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.identifiers.*;
@@ -10,13 +10,13 @@ import com.energyict.protocol.LoadProfileReader;
 
 import java.security.cert.X509Certificate;
 import java.util.List;
+import java.util.Map;
 
 /**
- *
  * Date: 8/05/13
  * Time: 16:30
  */
-@ProviderType
+@ConsumerType
 public interface CollectedDataFactory {
 
     CollectedLoadProfile createCollectedLoadProfile(LoadProfileIdentifier loadProfileIdentifier);
@@ -83,6 +83,8 @@ public interface CollectedDataFactory {
     CollectedConfigurationInformation createCollectedConfigurationInformation(DeviceIdentifier deviceIdentifier, String fileName, String fileExtension, byte[] contents);
 
     CollectedDeviceInfo createDeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object connectionPropertyValue, String connectionTaskPropertyName);
+
+    CollectedDeviceInfo createDeviceConnectionProperties(DeviceIdentifier deviceIdentifier, Map<String, Object> connectionPropertyNameAndValue);
 
     CollectedMessageAcknowledgement createDeviceProtocolMessageAcknowledgement(MessageIdentifier messageIdentifier);
 

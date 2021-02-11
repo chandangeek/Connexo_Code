@@ -523,6 +523,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue) {
+    }
+
+    @Override
     public void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
 
     }
@@ -1001,6 +1005,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
             // No implementation required
+        }
+
+        @Override
+        public void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue) {
         }
 
         @Override

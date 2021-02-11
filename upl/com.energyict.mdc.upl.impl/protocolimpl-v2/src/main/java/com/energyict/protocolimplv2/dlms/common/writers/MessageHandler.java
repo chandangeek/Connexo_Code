@@ -27,7 +27,7 @@ public class MessageHandler implements DeviceMessageSupport {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.messages = messages;
-        validate(messages);
+        //validate(messages); TODO
     }
 
     // this is kind of ugly but needed due to model of messages specs/id's and FF principle

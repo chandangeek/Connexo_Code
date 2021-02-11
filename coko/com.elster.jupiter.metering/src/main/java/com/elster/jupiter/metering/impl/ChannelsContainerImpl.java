@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ChannelsContainer;
 import com.elster.jupiter.metering.EventType;
 import com.elster.jupiter.metering.Meter;
+import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.ReadingContainer;
 import com.elster.jupiter.metering.ReadingQualityRecord;
 import com.elster.jupiter.metering.ReadingType;
@@ -23,6 +24,7 @@ import com.google.common.collect.Range;
 
 import javax.inject.Inject;
 import javax.inject.Provider;
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -119,6 +121,11 @@ public abstract class ChannelsContainerImpl implements ChannelsContainer {
     @Override
     public Optional<UsagePoint> getUsagePoint() {
         return getUsagePoint(this.meteringService.getClock().instant());
+    }
+
+    @Override
+    public Optional<BigDecimal> getDefaultMultiplier() {
+        return meteringService.getMultiplierType(MeteringService.DEFAULT_MULTIPLIER_TYPE).flatMap(this::getMultiplier);
     }
 
     @Override

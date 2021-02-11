@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DeleteRule;
 import com.elster.jupiter.orm.LifeCycleClass;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointProperty;
@@ -18,6 +19,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttributeBinding;
 import com.elster.jupiter.users.Group;
+
+import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
@@ -141,13 +144,13 @@ public enum TableSpecs {
                     .map(WebServiceCallOccurrenceImpl.Fields.REQUEST_NAME.fieldName())
                     .add();
 
-            table.column("STATUS")
+            Column statusColumn = table.column("STATUS")
                     .varChar(NAME_LENGTH)
                     .conversion(ColumnConversion.CHAR2ENUM)
                     .notNull()
                     .map(WebServiceCallOccurrenceImpl.Fields.STATUS.fieldName())
                     .add();
-            table.column("APPLICATIONNAME")
+            Column applicationColumn = table.column("APPLICATIONNAME")
                     .varChar(NAME_LENGTH)
                     .map(WebServiceCallOccurrenceImpl.Fields.APPLICATION_NAME.fieldName())
                     .add();
@@ -163,6 +166,20 @@ public enum TableSpecs {
                     .add();
 
             table.primaryKey("PK_WS_CALL_OCCURRENCE").on(idColumn).add();
+            // table.index("IX_WS_CALL_START").on(desc(startTimeColumn)).add().since(Version.version(10, 7, 5)); // done in UpgraderV10_7_5 and 10_9
+            // table.index("IX_WS_CALL_END").on(desc(endTimeColumn)).add().since(Version.version(10, 7, 5)); // done in UpgraderV10_7_5 and 10_9
+            table.index("IX_WS_CALL_STATUS")
+                    .on(statusColumn)
+                    .compress(1)
+                    .during(Range.closedOpen(Version.version(10, 7, 5), Version.version(10, 8)),
+                            Range.atLeast(Version.version(10, 9)))
+                    .add();
+            table.index("IX_WS_CALL_APP")
+                    .on(applicationColumn)
+                    .compress(1)
+                    .during(Range.closedOpen(Version.version(10, 7, 5), Version.version(10, 8)),
+                            Range.atLeast(Version.version(10, 9)))
+                    .add();
             table.autoPartitionOn(startTimeColumn, LifeCycleClass.WEBSERVICES);
         }
     },
@@ -185,7 +202,10 @@ public enum TableSpecs {
                     .notNull()
                     .map(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName())
                     .add();
-            table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn).add();
+            table.unique("WS_UQ_KEY_VALUE").on(keyColumn, valueColumn)
+                    // .compressIndex(1) // done in UpgraderV10_7_5 and 10_9
+                    .add();
+            // table.index("IX_WS_CALL_ATTR_VALUE").on(upper(valueColumn)).add().since(Version.version(10, 7, 5)); // done in UpgraderV10_7_5 and 10_9
             table.primaryKey("PK_WS_RELATED_ATTRBT").on(idColumn).add();
         }
     },

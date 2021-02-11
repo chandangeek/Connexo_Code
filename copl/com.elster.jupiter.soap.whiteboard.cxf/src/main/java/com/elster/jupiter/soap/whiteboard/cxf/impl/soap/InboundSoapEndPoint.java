@@ -12,6 +12,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.AbstractEndPointInitializer;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.ManagedEndpoint;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
+import com.elster.jupiter.soap.whiteboard.cxf.impl.IllegalWebServiceCallOccurrenceStateException;
 import com.elster.jupiter.util.osgi.ContextClassLoaderResource;
 
 import org.apache.cxf.annotations.SchemaValidation;
@@ -98,7 +99,7 @@ public final class InboundSoapEndPoint implements ManagedEndpoint {
     private boolean logFault(Message message, Exception exception) {
         try {
             webServicesService.failOccurrence(MessageUtils.getOccurrenceId(message), exception);
-        } catch (IllegalStateException e) {
+        } catch (IllegalWebServiceCallOccurrenceStateException e) {
             // means occurrence has already been failed and removed from context; so just ignore
         }
         return true;
