@@ -109,5 +109,10 @@ public class MessageHandler implements DeviceMessageSupport {
         public DeviceMessageSpec asMessageSpec() {
             return null;
         }
+
+        @Override
+        public String format(PropertySpec propertySpec, Object messageAttribute) {
+            return messageAttribute.toString();
+        }
     }
 }

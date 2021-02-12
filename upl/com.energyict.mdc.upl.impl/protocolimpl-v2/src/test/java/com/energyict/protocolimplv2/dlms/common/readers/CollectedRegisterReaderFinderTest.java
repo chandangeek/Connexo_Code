@@ -34,18 +34,18 @@ public class CollectedRegisterReaderFinderTest {
     @Mock
     private UniversalObject ual;
     @Mock
-    private DLMSReaderRegistry<CollectedRegister, OfflineRegister, ObisCode> specificReaders;
+    private ReaderRegistry<CollectedRegister, OfflineRegister, ObisCode, AbstractDlmsProtocol> specificReaders;
     @Mock
-    private DLMSReaderRegistry<CollectedRegister, OfflineRegister, DLMSClassId> dataClassReaders;
+    private ReaderRegistry<CollectedRegister, OfflineRegister, DLMSClassId, AbstractDlmsProtocol> dataClassReaders;
     @Mock
     private ObisCode obisCode;
-    private DLMSClassId dlmsClassId = DLMSClassId.DATA;
+    private final DLMSClassId dlmsClassId = DLMSClassId.DATA;
 
     // returned objects (placed here due to assignment warning (see mocking generic typed classes)
     @Mock
-    private ObisReader<CollectedRegister, OfflineRegister, ObisCode> specificReader;
+    private ObisReader<CollectedRegister, OfflineRegister, ObisCode, AbstractDlmsProtocol> specificReader;
     @Mock
-    private ObisReader<CollectedRegister, OfflineRegister, DLMSClassId> dataClassReader;
+    private ObisReader<CollectedRegister, OfflineRegister, DLMSClassId, AbstractDlmsProtocol> dataClassReader;
 
     @Before
     public void setUp() throws NotInObjectListException {
@@ -60,7 +60,7 @@ public class CollectedRegisterReaderFinderTest {
     public void noReaders() {
         Mockito.when(specificReaders.from(obisCode)).thenReturn(Optional.empty());
         Mockito.when(dataClassReaders.from(dlmsClassId)).thenReturn(Optional.empty());
-        Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?>> obisReader = new CollectedRegisterReaderFinder(specificReaders, dataClassReaders).find(dlmsProtocol, offlineRegister);
+        Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?, AbstractDlmsProtocol>> obisReader = new CollectedRegisterReaderFinder<>(specificReaders, dataClassReaders).find(dlmsProtocol, offlineRegister);
         Assert.assertFalse(obisReader.isPresent());
     }
 
@@ -68,7 +68,7 @@ public class CollectedRegisterReaderFinderTest {
     @Test
     public void specificReader() {
         Mockito.when(specificReaders.from(obisCode)).thenReturn(Optional.of(specificReader));
-        Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?>> obisReader = new CollectedRegisterReaderFinder(specificReaders, dataClassReaders).find(dlmsProtocol, offlineRegister);
+        Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?, AbstractDlmsProtocol>> obisReader = new CollectedRegisterReaderFinder<>(specificReaders, dataClassReaders).find(dlmsProtocol, offlineRegister);
         Assert.assertTrue(obisReader.isPresent());
     }
 
@@ -76,7 +76,7 @@ public class CollectedRegisterReaderFinderTest {
     public void classReader() {
         Mockito.when(specificReaders.from(obisCode)).thenReturn(Optional.empty());
         Mockito.when(dataClassReaders.from(dlmsClassId)).thenReturn(Optional.of(dataClassReader));
-        Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?>> obisReader = new CollectedRegisterReaderFinder(specificReaders, dataClassReaders).find(dlmsProtocol, offlineRegister);
+        Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?, AbstractDlmsProtocol>> obisReader = new CollectedRegisterReaderFinder<>(specificReaders, dataClassReaders).find(dlmsProtocol, offlineRegister);
         Assert.assertTrue(obisReader.isPresent());
     }
 

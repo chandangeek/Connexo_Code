@@ -17,7 +17,7 @@ import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.Dyn
 
 import java.io.IOException;
 
-public class DynamicAttributeReader extends AbstractObisReader<CollectedRegister, OfflineRegister, ObisCode> {
+public class DynamicAttributeReader<T extends AbstractDlmsProtocol> extends AbstractObisReader<CollectedRegister, OfflineRegister, ObisCode, T> {
 
     private final ObisChannel ignoredObisChannel;
     private final CollectedRegisterBuilder collectedRegisterBuilder;
@@ -47,7 +47,7 @@ public class DynamicAttributeReader extends AbstractObisReader<CollectedRegister
             ObisCode cxoObisCode = offlineRegister.getObisCode();
             AbstractDataType read = actualAttributeReader.read(dlmsProtocol, super.map(cxoObisCode), ignoredObisChannel.getValue(cxoObisCode));
             AttributeMapper<? extends AbstractDataType> mapper = this.dynamicMapper.get(ignoredObisChannel, cxoObisCode);
-            return collectedRegisterBuilder.createCollectedRegister(offlineRegister, mapper.map(read, cxoObisCode));
+            return collectedRegisterBuilder.createCollectedRegister(offlineRegister, mapper.map(read, offlineRegister));
         } catch (MappingException | IOException e) {
             return collectedRegisterBuilder.createCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
         }

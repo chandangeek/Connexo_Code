@@ -5,9 +5,12 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.common.obis.ObisReader;
+import com.energyict.protocolimplv2.dlms.common.obis.matchers.Matcher;
 
-public interface LoadProfileReader  extends ObisReader<CollectedLoadProfile, com.energyict.protocol.LoadProfileReader, ObisCode> {
+import java.io.IOException;
 
-    CollectedLoadProfileConfiguration getChannelInfo(com.energyict.protocol.LoadProfileReader lpr, AbstractDlmsProtocol dlmsProtocol);
+public interface LoadProfileReader<K extends AbstractDlmsProtocol>  extends ObisReader<CollectedLoadProfile, com.energyict.protocol.LoadProfileReader, ObisCode, K> {
+
+    CollectedLoadProfileConfiguration readConfiguration(AbstractDlmsProtocol dlmsProtocol, com.energyict.protocol.LoadProfileReader lpr);
 
 }

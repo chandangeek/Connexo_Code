@@ -13,27 +13,27 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CollectedLogBookReader implements DeviceLogBookSupport {
+public class CollectedLogBookReader<T extends AbstractDlmsProtocol> implements DeviceLogBookSupport {
 
-    private final DLMSReaderRegistry<CollectedLogBook, LogBookReader, ObisCode> specificReadableRegisters;
+    private final ReaderRegistry<CollectedLogBook, LogBookReader, ObisCode, T> specificReadableRegisters;
 
-    private final AbstractDlmsProtocol dlmsProtocol;
+    private final T protocol;
     private final CollectedLogBookBuilder collectedLogBookBuilder;
 
-    public CollectedLogBookReader(DLMSReaderRegistry<CollectedLogBook, LogBookReader, ObisCode> specificReadableRegisters, AbstractDlmsProtocol dlmsProtocol, CollectedLogBookBuilder collectedLogBookBuilder) {
+    public CollectedLogBookReader(ReaderRegistry<CollectedLogBook, LogBookReader, ObisCode, T> specificReadableRegisters, T protocol, CollectedLogBookBuilder collectedLogBookBuilder) {
         this.specificReadableRegisters = specificReadableRegisters;
         this.collectedLogBookBuilder = collectedLogBookBuilder;
-        this.dlmsProtocol = dlmsProtocol;
+        this.protocol = protocol;
     }
 
     @Override
     public List<CollectedLogBook> getLogBookData(List<com.energyict.protocol.LogBookReader> logBookReaders) {
         List<CollectedLogBook> logBooks = new ArrayList<>(logBookReaders.size());
         for (com.energyict.protocol.LogBookReader lbr : logBookReaders) {
-            Optional<ObisReader<CollectedLogBook, LogBookReader, ObisCode>> optionalReader = specificReadableRegisters.from(lbr.getLogBookObisCode());
+            Optional<ObisReader<CollectedLogBook, LogBookReader, ObisCode, T>> optionalReader = specificReadableRegisters.from(lbr.getLogBookObisCode());
             if (optionalReader.isPresent()) {
-                ObisReader<CollectedLogBook, LogBookReader, ObisCode> reader = optionalReader.get();
-                logBooks.add(reader.read(dlmsProtocol, lbr));
+                ObisReader<CollectedLogBook, LogBookReader, ObisCode, T> reader = optionalReader.get();
+                logBooks.add(reader.read(protocol, lbr));
             } else {
                 logBooks.add(collectedLogBookBuilder.createLogBook(lbr, ResultType.NotSupported,"No reader found for:" + lbr.getLogBookObisCode()));
             }

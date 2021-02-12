@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -55,5 +56,10 @@ public class GenericNoParamMethodInvoke extends AbstractMessage {
     @Override
     public DeviceMessageSpec asMessageSpec() {
         return this.deviceMessageSpecSupplier.get(propSpecService, nlsService, converter);
+    }
+
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        return messageAttribute.toString();
     }
 }

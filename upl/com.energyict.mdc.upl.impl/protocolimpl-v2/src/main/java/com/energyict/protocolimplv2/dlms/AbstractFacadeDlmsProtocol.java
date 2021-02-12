@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms;
 
+import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
@@ -16,10 +17,15 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocolimplv2.dlms.common.dlms.PublicClientDlmsSessionProvider;
+import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounter;
+import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterBuilder;
+import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterCacheBuilder;
+import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterHandler;
+import com.energyict.protocolimplv2.dlms.common.properties.DlmsPropertiesFrameCounterSupport;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLogBookReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
@@ -29,7 +35,7 @@ import java.util.List;
 /**
  * This class should be used just to delegate towards specialized implementations making it possible to write specialised classes for certain domains of interest.
  */
-public abstract class AbstractFacadeDlmsProtocol extends AbstractDlmsProtocol {
+public abstract class AbstractFacadeDlmsProtocol<T extends DLMSCache> extends AbstractDlmsProtocol {
 
     protected final DeviceInformation deviceInformation;
     protected DeviceMessageSupport messageSupport;
@@ -60,6 +66,15 @@ public abstract class AbstractFacadeDlmsProtocol extends AbstractDlmsProtocol {
      * therefore not available at constructor time.
      */
     public abstract DeviceMessageSupport getDeviceMessageSupport();
+
+    public void handleFrameCounter(PublicClientDlmsSessionProvider publicClientDlmsSessionProvider) {
+        DlmsPropertiesFrameCounterSupport dlmsSessionProperties = getDlmsSessionProperties();
+        FrameCounter frameCounter = FrameCounterBuilder.build(dlmsSessionProperties.getAuthenticationSecurityLevel(),
+                new FrameCounterCacheBuilder(getDeviceCache(), dlmsSessionProperties.useCachedFrameCounter()),
+                publicClientDlmsSessionProvider, dlmsSessionProperties.frameCounterObisCode(), dlmsSessionProperties);
+
+        new FrameCounterHandler(frameCounter.get()).handle(dlmsSessionProperties);
+    }
 
     @Override
     public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
@@ -102,9 +117,7 @@ public abstract class AbstractFacadeDlmsProtocol extends AbstractDlmsProtocol {
     }
 
     @Override
-    public DlmsSessionProperties getDlmsSessionProperties() {
-        return this.dlmsProperties;
-    }
+    public abstract DlmsPropertiesFrameCounterSupport getDlmsSessionProperties();
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
@@ -118,12 +131,49 @@ public abstract class AbstractFacadeDlmsProtocol extends AbstractDlmsProtocol {
 
     @Override
     public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-        return loadProfileReader.getLoadProfileData(loadProfiles);
+        return loadProfileReader.readData(loadProfiles);
     }
 
     @Override
     public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-        return loadProfileReader.fetchLoadProfileConfiguration(loadProfilesToRead);
+        return loadProfileReader.readConfiguration(loadProfilesToRead);
     }
+
+    /**
+     * This is here only because of: https://acsjira.honeywell.com/browse/COMMUNICATION-3602
+     * Needed only for creating proper instance of cache (not DLMSCache)
+     */
+    protected void checkCacheObjects() {
+        int configNumber = -1;
+        boolean changed = false;
+        try {
+            if (super.dlmsCache != null && super.dlmsCache.getObjectList() != null) { // the dlmsCache exists
+                getDlmsSession().getMeterConfig().setInstantiatedObjectList(super.dlmsCache.getObjectList());
+
+                journal("Checking the configuration parameters.");
+                configNumber = getMeterInfo().getConfigurationChanges();
+
+                if (super.dlmsCache.getConfProgChange() != configNumber) {
+                    journal("Meter configuration has changed, configuration is forced to be read.");
+                    readObjectList();
+                    changed = true;
+                }
+
+            } else { // cache does not exist
+                super.dlmsCache = buildNewDLMSCache();
+                journal("Cache does not exist, configuration is forced to be read.");
+                readObjectList();
+                configNumber = getMeterInfo().getConfigurationChanges();
+                changed = true;
+            }
+        } finally {
+            if (changed) {
+                super.dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+                super.dlmsCache.setConfProgChange(configNumber);
+            }
+        }
+    }
+
+    protected abstract T buildNewDLMSCache();
 
 }

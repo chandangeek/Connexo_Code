@@ -15,7 +15,7 @@ import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.Att
 
 import java.io.IOException;
 
-public class AttributeReader<T> extends AbstractObisReader<CollectedRegister, OfflineRegister, T> {
+public class AttributeReader<T, K extends AbstractDlmsProtocol> extends AbstractObisReader<CollectedRegister, OfflineRegister, T, K> {
 
     private final CollectedRegisterBuilder collectedRegisterBuilder;
     private final AttributeMapper<? extends AbstractDataType> attributeMapper;
@@ -41,9 +41,8 @@ public class AttributeReader<T> extends AbstractObisReader<CollectedRegister, Of
     @Override
     public CollectedRegister read(AbstractDlmsProtocol dlmsProtocol, OfflineRegister offlineRegister) {
         try {
-            ObisCode cxoObisCode = offlineRegister.getObisCode();
-            AbstractDataType read = actualAttributeReader.read(dlmsProtocol, super.map(cxoObisCode), attributeNumber);
-            return collectedRegisterBuilder.createCollectedRegister(offlineRegister, attributeMapper.map(read, cxoObisCode));
+            AbstractDataType read = actualAttributeReader.read(dlmsProtocol, super.map(offlineRegister.getObisCode()), attributeNumber);
+            return collectedRegisterBuilder.createCollectedRegister(offlineRegister, attributeMapper.map(read, offlineRegister));
         } catch (MappingException | IOException e) {
             return collectedRegisterBuilder.createCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
         }

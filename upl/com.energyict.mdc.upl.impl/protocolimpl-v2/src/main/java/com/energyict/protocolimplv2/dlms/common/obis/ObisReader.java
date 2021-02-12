@@ -8,11 +8,10 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
  * @param <N> is the type of reading input (OfflineRegister, LogBookReader...)
  * @param <L> is the type given by the matcher. The way we registered this reader (see Matcher), normal way it should be ObisCode or DlmsClassId type.
  */
-public interface ObisReader<M, N, L> {
+public interface ObisReader<M, N, L, K extends AbstractDlmsProtocol> {
 
-    M read(AbstractDlmsProtocol dlmsProtocol, N readingSpecs);
+     M read(K protocol, N readingSpecs);
 
     boolean isApplicable(L l);
-
 
 }

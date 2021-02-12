@@ -1,8 +1,6 @@
 package com.energyict.protocolimplv2.dlms.common.framecounter;
 
 import com.energyict.dlms.DLMSCache;
-import com.energyict.protocol.FrameCounterCache;
-import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000Cache;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +16,7 @@ public class FrameCounterCacheBuilderTest  {
     private DLMSCache dlmsCache;
 
     @Mock
-    private AS3000Cache as3000Cache;
+    private FrameCounterCache frameCounterCache;
 
     @Test(expected = FrameCounterException.class)
     public void useCacheAndNullDlmsSession(){
@@ -27,20 +25,20 @@ public class FrameCounterCacheBuilderTest  {
 
     @Test
     public void doNotUseCacheAndNullDlmsSession(){
-        Optional<FrameCounterCache> frameCounterCache = new FrameCounterCacheBuilder(null, false).build();
+        Optional<com.energyict.protocol.FrameCounterCache> frameCounterCache = new FrameCounterCacheBuilder(null, false).build();
         Assert.assertFalse(frameCounterCache.isPresent());
     }
 
     @Test(expected = FrameCounterException.class)
     public void useCacheAndNoFrameCacheInstanceDlmsSession(){
-        Optional<FrameCounterCache> frameCounterCache = new FrameCounterCacheBuilder(dlmsCache, true).build();
+        Optional<com.energyict.protocol.FrameCounterCache> frameCounterCache = new FrameCounterCacheBuilder(dlmsCache, true).build();
     }
 
     @Test
     public void useCacheAndFrameCacheInstanceDlmsSession(){
-        Optional<FrameCounterCache> frameCounterCache = new FrameCounterCacheBuilder(as3000Cache, true).build();
+        Optional<com.energyict.protocol.FrameCounterCache> frameCounterCache = new FrameCounterCacheBuilder(this.frameCounterCache, true).build();
         Assert.assertTrue(frameCounterCache.isPresent());
-        Assert.assertEquals(as3000Cache, frameCounterCache.get());
+        Assert.assertEquals(this.frameCounterCache, frameCounterCache.get());
     }
 
 }

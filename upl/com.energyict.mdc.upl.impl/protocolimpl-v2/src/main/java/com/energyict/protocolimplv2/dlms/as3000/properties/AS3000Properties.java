@@ -4,7 +4,7 @@ import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.dlms.common.properties.PublicClientSpecs;
+import com.energyict.protocolimplv2.dlms.common.properties.DlmsPropertiesFrameCounterSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
@@ -13,12 +13,8 @@ import java.math.BigDecimal;
 import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERTY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
 
-public class AS3000Properties extends DlmsProperties {
+public class AS3000Properties extends DlmsPropertiesFrameCounterSupport {
 
-
-    public PublicClientSpecs getPublicClientSpecs() {
-        return new PublicClientSpecs(DlmsProtocolProperties.DEFAULT_CLIENT_MAC_ADDRESS);
-    }
 
     public ObisCode frameCounterObisCode() {
         return FrameCounterProvider.getDefaultObisCode();

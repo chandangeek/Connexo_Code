@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
 
-public class GenericLogBookReader extends AbstractObisReader<CollectedLogBook, com.energyict.protocol.LogBookReader, ObisCode> implements LogBookReader<ObisCode> {
+public class GenericLogBookReader<T extends AbstractDlmsProtocol> extends AbstractObisReader<CollectedLogBook, com.energyict.protocol.LogBookReader, ObisCode, T> implements LogBookReader<ObisCode, T> {
 
     private EventMapper mapper;
     private final CollectedLogBookBuilder collectedLogBookBuilder;
@@ -28,17 +28,17 @@ public class GenericLogBookReader extends AbstractObisReader<CollectedLogBook, c
     }
 
     @Override
-    public CollectedLogBook read(AbstractDlmsProtocol dlmsProtocol, com.energyict.protocol.LogBookReader lbr) {
+    public CollectedLogBook read(T protocol, com.energyict.protocol.LogBookReader lbr) {
         try {
-            ProfileGeneric profileGeneric = dlmsProtocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lbr.getLogBookObisCode());
+            ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lbr.getLogBookObisCode());
             CollectedLogBook logBook = collectedLogBookBuilder.createLogBook(lbr.getLogBookIdentifier());
 
             if (profileGeneric != null) {
-                Calendar fromDate = getCalendar(dlmsProtocol);
+                Calendar fromDate = getCalendar(protocol);
                 fromDate.setTime(lbr.getLastLogBook());
 
-                DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar(dlmsProtocol));
-                List<MeterProtocolEvent> meterProtocolEvents = mapper.map(dataContainer);
+                DataContainer dataContainer = profileGeneric.getBuffer(fromDate, getCalendar(protocol));
+                List<MeterProtocolEvent> meterProtocolEvents = mapper.map(protocol, lbr, dataContainer);
                 logBook.setCollectedMeterEvents(meterProtocolEvents);
             } else {
                 return collectedLogBookBuilder.createLogBook(lbr, ResultType.NotSupported, "Null received when reading generic profile");

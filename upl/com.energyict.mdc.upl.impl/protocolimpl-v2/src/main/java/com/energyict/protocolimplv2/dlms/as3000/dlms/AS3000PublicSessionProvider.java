@@ -23,7 +23,7 @@ public class AS3000PublicSessionProvider implements PublicClientDlmsSessionProvi
     @Override
     public DlmsSession provide() {
         AS3000Properties properties = new AS3000Properties();
-        BigDecimal publicClientMacAddress = properties.getPublicClientSpecs().getPublicClientMacAddress();
+        BigDecimal publicClientMacAddress = properties.getPublicClientMacAddress();
         properties.getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, publicClientMacAddress);
         properties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(publicClientMacAddress, 0,0,0,0,0, properties.getProperties()));
         return new AS3000DlmsSession(comChannel, properties, logger);

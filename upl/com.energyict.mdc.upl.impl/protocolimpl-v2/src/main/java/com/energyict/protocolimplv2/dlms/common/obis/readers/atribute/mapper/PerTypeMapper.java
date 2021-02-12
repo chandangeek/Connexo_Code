@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.MappingException;
@@ -38,13 +39,13 @@ public class PerTypeMapper implements AttributeMapper<AbstractDataType> {
     }
 
     @Override
-    public RegisterValue map(AbstractDataType attribute, ObisCode obisCode) throws MappingException {
+    public RegisterValue map(AbstractDataType attribute, OfflineRegister offlineRegister) throws MappingException {
         for (AttributeMapper<? extends AbstractDataType> mapper: mappers) {
             if (mapper.dataType().equals(attribute.getClass())) {
-                return mapper.map(attribute, obisCode);
+                return mapper.map(attribute, offlineRegister);
             }
         }
-        return defaultMapper.map(attribute, obisCode);
+        return defaultMapper.map(attribute, offlineRegister);
     }
 
     @Override

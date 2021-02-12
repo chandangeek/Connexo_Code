@@ -19,7 +19,15 @@ public enum Manufacturer {
         public Set<EictModel> getModels() {
             return EnumSet.allOf(EictModel.class);
         }
+    },
+    Actaris {
+        @Override
+        public Set<ActarisModel> getModels() {
+            return EnumSet.allOf(ActarisModel.class);
+
+        }
     };
 
     abstract public Set<? extends Model> getModels();
+
 }

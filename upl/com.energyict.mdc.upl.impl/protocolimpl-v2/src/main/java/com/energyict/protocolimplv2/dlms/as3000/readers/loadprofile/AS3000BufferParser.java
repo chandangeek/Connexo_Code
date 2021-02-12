@@ -3,9 +3,11 @@ package com.energyict.protocolimplv2.dlms.as3000.readers.loadprofile;
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.DataStructure;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.buffer.BufferParser;
+import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.data.BufferParser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -18,7 +20,7 @@ import java.util.TimeZone;
  */
 public class AS3000BufferParser implements BufferParser {
     @Override
-    public List<IntervalData> parse(DataContainer buffer) throws ProtocolException {
+    public List<IntervalData> parse(DataContainer buffer, CollectedLoadProfileConfiguration collectedLoadProfileConfiguration, LoadProfileReader lpr) throws ProtocolException {
         List<IntervalData> intervalData = new ArrayList<>();
         Object[] loadProfileEntries;
         loadProfileEntries = buffer.getRoot().getElements();

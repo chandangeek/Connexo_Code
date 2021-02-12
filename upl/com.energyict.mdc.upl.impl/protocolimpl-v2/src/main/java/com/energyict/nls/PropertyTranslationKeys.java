@@ -363,10 +363,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_BROADCAST_AUTHENTICATION_KEY("upl.property.v2.eict.broadcastAuthenticationKey", "Broadcast authentication Key"),
     V2_BROADCAST_ENCRYPTION_KEY("upl.property.v2.eict.broadcastEncryptionKey", "Broadcast encryption Key"),
     V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS("upl.property.v2.eict.incrementFrameCounterForReplyToHLS", "Increment frame counter when replying to HLS"),
+    V2_USE_REGISTER_PROFILE("upl.property.v2.eict.useRegisterProfile", "Use register profile"),
     TIME_INTERVAL_OVER_CLOCK_SYNC("upl.property.v2.eict.TIME_INTERVAL_OVER_CLOCK_SYNC", "Skip clock synchronization around time intervals"),
     IPV6_ADDRESS_AND_PREFIX_LENGTH("upl.property.v2.eict.IPV6_ADDRESS_AND_PREFIX_LENGTH", "IPv6 address and prefix length"),
     EEK_STORAGE_LABEL("upl.property.v2.eict.EEK_STORAGE_LABEL", "Ephemeral encryption key storage label");
-
     private final String key;
     private final String defaultFormat;
 

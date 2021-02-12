@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -44,5 +45,10 @@ public class RemoteReConnect extends AbstractMessage {
     @Override
     public DeviceMessageSpec asMessageSpec() {
         return ContactorDeviceMessage.CONTACTOR_CLOSE.get(propSpecService, nlsService, converter);
+    }
+
+    @Override
+    public String format(PropertySpec propertySpec, Object messageAttribute) {
+        return messageAttribute.toString();
     }
 }

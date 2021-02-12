@@ -24,7 +24,6 @@ import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractFacadeDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DeviceInformation;
 import com.energyict.protocolimplv2.dlms.as3000.custom.ComposedMeterInfo;
-import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000Cache;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000DlmsSession;
 import com.energyict.protocolimplv2.dlms.as3000.dlms.AS3000PublicSessionProvider;
 import com.energyict.protocolimplv2.dlms.as3000.properties.AS3000ConfigurationSupport;
@@ -33,10 +32,7 @@ import com.energyict.protocolimplv2.dlms.as3000.readers.AS3000ReadableLoadprofil
 import com.energyict.protocolimplv2.dlms.as3000.readers.AS3000ReadableLogbook;
 import com.energyict.protocolimplv2.dlms.as3000.readers.AS3000ReadableRegister;
 import com.energyict.protocolimplv2.dlms.as3000.writers.AS3000Messaging;
-import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounter;
-import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterBuilder;
-import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterCacheBuilder;
-import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterHandler;
+import com.energyict.protocolimplv2.dlms.common.framecounter.FrameCounterCache;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.logbook.CollectedLogBookBuilder;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedRegisterBuilder;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileReader;
@@ -48,12 +44,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-public class AS3000 extends AbstractFacadeDlmsProtocol {
+public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     private final NlsService nlsService;
     private final Converter converter;
-
-    private AS3000Cache deviceCache;
 
     public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
@@ -63,17 +57,17 @@ public class AS3000 extends AbstractFacadeDlmsProtocol {
     }
 
     @Override
-    protected CollectedLogBookReader getLogBookReader() {
+    protected CollectedLogBookReader<AS3000> getLogBookReader() {
         return new AS3000ReadableLogbook(new CollectedLogBookBuilder(getCollectedDataFactory(), getIssueFactory())).getCollectedLogBookReader(this);
     }
 
     @Override
-    protected CollectedRegisterReader getRegistryReader() {
+    protected CollectedRegisterReader<AS3000> getRegistryReader() {
         return new AS3000ReadableRegister(new CollectedRegisterBuilder(getCollectedDataFactory(), getIssueFactory()), this.getDlmsSessionProperties().getTimeZone()).getRegistryReader(this);
     }
 
     @Override
-    protected CollectedLoadProfileReader getLoadProfileReader() {
+    protected CollectedLoadProfileReader<AS3000> getLoadProfileReader() {
         return new AS3000ReadableLoadprofiles(getCollectedDataFactory(), getIssueFactory(), getDlmsSessionProperties().getMaxDaysToReadLoadProfile()).getCollectedLogBookReader(this);
     }
 
@@ -86,12 +80,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol {
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         AS3000Properties dlmsSessionProperties = getDlmsSessionProperties();
-        FrameCounter frameCounter = FrameCounterBuilder.build(dlmsSessionProperties.getAuthenticationSecurityLevel(),
-                new FrameCounterCacheBuilder(getDeviceCache(), dlmsSessionProperties.useCachedFrameCounter()),
-                new AS3000PublicSessionProvider(comChannel, getLogger()), dlmsSessionProperties.frameCounterObisCode(), dlmsSessionProperties);
-
-        new FrameCounterHandler(frameCounter.get()).handle(dlmsSessionProperties);
-        // fc handling end!
+        super.handleFrameCounter(new AS3000PublicSessionProvider(comChannel, getLogger()));
         setDlmsSession(new AS3000DlmsSession(comChannel, dlmsSessionProperties, getLogger()));
     }
 
@@ -134,18 +123,18 @@ public class AS3000 extends AbstractFacadeDlmsProtocol {
     }
 
     @Override
-    public AS3000Cache getDeviceCache() {
+    public FrameCounterCache getDeviceCache() {
         // this is so wrong that cannot be described: see COMMUNICATION-3602
-        if (deviceCache == null) {
-            deviceCache = new AS3000Cache();
+        if (super.dlmsCache == null) {
+            super.dlmsCache = new FrameCounterCache();
         }
-        return deviceCache;
+        return (FrameCounterCache) super.dlmsCache;
     }
 
     @Override
     public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
-        if (deviceProtocolCache instanceof AS3000Cache) {
-            deviceCache = (AS3000Cache) deviceProtocolCache;
+        if (deviceProtocolCache instanceof FrameCounterCache) {
+            super.dlmsCache = (FrameCounterCache) deviceProtocolCache;
         }
     }
 
@@ -174,5 +163,9 @@ public class AS3000 extends AbstractFacadeDlmsProtocol {
                     getDlmsSessionProperties().getRetries(), DLMSAttribute.fromString("1:1.1.96.1.0.255:2"), DLMSAttribute.fromString("8:0.0.1.0.0.255:2"));
     }
 
+    @Override
+    protected FrameCounterCache buildNewDLMSCache() {
+        return new FrameCounterCache();
+    }
 
 }

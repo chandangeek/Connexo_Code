@@ -12,14 +12,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CollectedRegisterReader implements DeviceRegisterSupport {
+public class CollectedRegisterReader<T extends AbstractDlmsProtocol> implements DeviceRegisterSupport {
 
 
-    private final CollectedRegisterReaderFinder collectedRegisterReaderFinder;
-    private final AbstractDlmsProtocol dlmsProtocol;
+    private final CollectedRegisterReaderFinder<T> collectedRegisterReaderFinder;
+
+    private final T dlmsProtocol;
     private final CollectedRegisterBuilder collectedRegisterBuilder;
-
-    public CollectedRegisterReader(CollectedRegisterReaderFinder collectedRegisterReaderFinder, AbstractDlmsProtocol dlmsProtocol, CollectedRegisterBuilder collectedRegisterBuilder) {
+    public CollectedRegisterReader(CollectedRegisterReaderFinder<T> collectedRegisterReaderFinder, T dlmsProtocol, CollectedRegisterBuilder collectedRegisterBuilder) {
         this.collectedRegisterReaderFinder = collectedRegisterReaderFinder;
         this.dlmsProtocol = dlmsProtocol;
         this.collectedRegisterBuilder = collectedRegisterBuilder;
@@ -29,15 +29,19 @@ public class CollectedRegisterReader implements DeviceRegisterSupport {
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> collectedRegisters = new ArrayList<>(registers.size());
         for (OfflineRegister register : registers) {
-            Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?>> optionalReadableRegisterObisCode = collectedRegisterReaderFinder.find(dlmsProtocol, register);
+            Optional<? extends ObisReader<CollectedRegister, OfflineRegister, ?, T>> optionalReadableRegisterObisCode = collectedRegisterReaderFinder.find(dlmsProtocol, register);
             if (optionalReadableRegisterObisCode.isPresent()) {
-                ObisReader<CollectedRegister, OfflineRegister, ?> collectedRegister = optionalReadableRegisterObisCode.get();
+                ObisReader<CollectedRegister, OfflineRegister, ?, T> collectedRegister = optionalReadableRegisterObisCode.get();
                 collectedRegisters.add(collectedRegister.read(dlmsProtocol, register));
             } else {
                 collectedRegisters.add(collectedRegisterBuilder.createCollectedRegister(register, ResultType.NotSupported, "No reader found"));
             }
         }
         return collectedRegisters;
+    }
+
+    public CollectedRegisterReaderFinder<T> getCollectedRegisterReaderFinder() {
+        return collectedRegisterReaderFinder;
     }
 
 }
