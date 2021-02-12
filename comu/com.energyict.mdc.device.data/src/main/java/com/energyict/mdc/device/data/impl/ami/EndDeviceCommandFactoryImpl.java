@@ -370,11 +370,11 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHourStart), friendlyDayPeriodInfo.friendlyHourStart);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyMinuteStart), friendlyDayPeriodInfo.friendlyMinuteStart);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlySecondStart), friendlyDayPeriodInfo.friendlySecondStart);
-        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHundredthsStart), friendlyDayPeriodInfo.friendlyHundredthsStart);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHundredthsStart), friendlyDayPeriodInfo.friendlySecondHundredthsStart);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHourStop), friendlyDayPeriodInfo.friendlyHourStop);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyMinuteStop), friendlyDayPeriodInfo.friendlyMinuteStop);
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlySecondStop), friendlyDayPeriodInfo.friendlySecondStop);
-        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHundredthsStop), friendlyDayPeriodInfo.friendlyHundredthsStop);
+        command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.friendlyHundredthsStop), friendlyDayPeriodInfo.friendlySecondHundredthsStop);
         return command;
     }
 

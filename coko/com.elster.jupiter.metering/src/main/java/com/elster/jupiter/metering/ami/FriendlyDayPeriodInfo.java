@@ -10,10 +10,10 @@ public class FriendlyDayPeriodInfo {
     public BigDecimal friendlyHourStart;
     public BigDecimal friendlyMinuteStart;
     public BigDecimal friendlySecondStart;
-    public BigDecimal friendlyHundredthsStart;
+    public BigDecimal friendlySecondHundredthsStart;
 
     public BigDecimal friendlyHourStop;
     public BigDecimal friendlyMinuteStop;
     public BigDecimal friendlySecondStop;
-    public BigDecimal friendlyHundredthsStop;
+    public BigDecimal friendlySecondHundredthsStop;
 }

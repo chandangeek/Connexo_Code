@@ -75,7 +75,7 @@ public class HeadEndControllerTest {
         FRIENDLY_HUNDREDTHS_START("friendlySecondHundredthsStart", "Friendly Second Hundredths Start"),
         FRIENDLY_HOUR_STOP("friendlyHourStop", "Friendly Hour Stop"),
         FRIENDLY_MINUTE_STOP("friendlyMinuteStop", "Friendly Minute Stop"),
-        FRIENDLY_SECOND_STOP("friendlySecondsStop", "Friendly Second Stop"),
+        FRIENDLY_SECOND_STOP("friendlySecondStop", "Friendly Second Stop"),
         FRIENDLY_HUNDREDTHS_STOP("friendlySecondHundredthsStop", "Friendly Second Hundredths Stop"),
         FRIENDLY_WEEKDAYS("friendlyWeekdays", "Friendly Week Days (SuSaFrThWeTuMo)")
         ;
@@ -590,11 +590,11 @@ public class HeadEndControllerTest {
         assert (argument.getValue().friendlyHourStart.equals(BigDecimal.ONE));
         assert (argument.getValue().friendlyMinuteStart.equals(BigDecimal.ONE));
         assert (argument.getValue().friendlySecondStart.equals(BigDecimal.ONE));
-        assert (argument.getValue().friendlyHundredthsStart.equals(BigDecimal.ONE));
+        assert (argument.getValue().friendlySecondHundredthsStart.equals(BigDecimal.ONE));
         assert (argument.getValue().friendlyHourStop.equals(BigDecimal.TEN));
         assert (argument.getValue().friendlyMinuteStop.equals(BigDecimal.TEN));
         assert (argument.getValue().friendlySecondStop.equals(BigDecimal.TEN));
-        assert (argument.getValue().friendlyHundredthsStop.equals(BigDecimal.TEN));
+        assert (argument.getValue().friendlySecondHundredthsStop.equals(BigDecimal.TEN));
 
         verify(headEndInterface).sendCommand(endDeviceCommand, NOW_DATE, serviceCall, false);
     }

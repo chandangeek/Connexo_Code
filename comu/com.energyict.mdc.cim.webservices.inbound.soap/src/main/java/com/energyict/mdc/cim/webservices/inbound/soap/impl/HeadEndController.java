@@ -12,12 +12,9 @@ import com.elster.jupiter.metering.ami.HeadEndInterface;
 import com.elster.jupiter.metering.ami.StepTariffInfo;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 
 import ch.iec.tc57._2011.enddevicecontrols.EndDeviceControlAttribute;
@@ -106,7 +103,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recal
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recalculationTypeStep7;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recalculationTypeStep8;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.recalculationTypeStep9;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffCode;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.tariffType;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.zeroConsumptionTax;
@@ -444,11 +440,11 @@ public class HeadEndController {
             friendlyDayPeriodInfo.friendlyHourStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHourStart));
             friendlyDayPeriodInfo.friendlyMinuteStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyMinuteStart));
             friendlyDayPeriodInfo.friendlySecondStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlySecondStart));
-            friendlyDayPeriodInfo.friendlyHundredthsStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHundredthsStart));
+            friendlyDayPeriodInfo.friendlySecondHundredthsStart = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHundredthsStart));
             friendlyDayPeriodInfo.friendlyHourStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHourStop));
             friendlyDayPeriodInfo.friendlyMinuteStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyMinuteStop));
             friendlyDayPeriodInfo.friendlySecondStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlySecondStop));
-            friendlyDayPeriodInfo.friendlyHundredthsStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHundredthsStop));
+            friendlyDayPeriodInfo.friendlySecondHundredthsStop = new BigDecimal(extractMandatoryAttribute(copyAttributes, commandCode, friendlyHundredthsStop));
 
             deviceCommandInfo.setFriendlyDayPeriodInfo(friendlyDayPeriodInfo);
         } catch (Exception ex) {
