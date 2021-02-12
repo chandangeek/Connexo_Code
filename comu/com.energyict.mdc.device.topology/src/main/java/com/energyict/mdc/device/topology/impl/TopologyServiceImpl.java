@@ -557,6 +557,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
                                 (where("interval").isEffective(Instant.now())), PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
     }
 
+    @Override
     public Optional<PhysicalGatewayReference> getPhysicalGatewayReference(Device slave, Instant when) {
         DataMapper<PhysicalGatewayReference> mapper = this.dataModel.mapper(PhysicalGatewayReference.class);
         List<PhysicalGatewayReference> allEffective =
@@ -594,10 +595,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public void setPhysicalGateway(Device slave, Device gateway) {
         Instant now = this.clock.instant();
-        this.getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
-        this.newPhysicalGatewayReference(slave, gateway, now);
+        getPhysicalGatewayReference(slave, now).ifPresent(r -> terminateTemporal(r, now));
+        newPhysicalGatewayReference(slave, gateway, now);
         eventService.postEvent(EventType.REGISTERED_TO_GATEWAY.topic(), new DeviceEventInfo(slave.getId()));
-        this.slaveTopologyChanged(slave, Optional.of(gateway));
+        slaveTopologyChanged(slave, Optional.of(gateway));
     }
 
     private PhysicalGatewayReferenceImpl newPhysicalGatewayReference(Device slave, Device gateway, Instant start) {
