@@ -32,7 +32,7 @@ class SL7000Properties extends DlmsProtocolProperties {
     private static final boolean DEFAULT_USE_REGISTER_PROFILE = false;
     private static final int DEFAULT_LIMIT_MAX_NR_OF_DAYS = 0;
     private static final int DEFAULT_USE_LEGACY_HDLC_CONNECTION = 0;
-
+    public static final String READCACHE_PROPERTY = "ReadCache";
     private final PropertySpecService propertySpecService;
 
     SL7000Properties(PropertySpecService propertySpecService) {
@@ -48,7 +48,8 @@ class SL7000Properties extends DlmsProtocolProperties {
                 this.stringSpec(SERVER_MAC_ADDRESS),
                 this.integerSpec(USE_REGISTER_PROFILE),
                 this.integerSpec(LIMIT_MAX_NR_OF_DAYS),
-                this.integerSpec(USE_LEGACY_HDLC_CONNECTION));
+                this.integerSpec(USE_LEGACY_HDLC_CONNECTION),
+                this.booleanSPec(READCACHE_PROPERTY));
     }
 
     private <T> PropertySpec spec(String name, Supplier<PropertySpecBuilderWizard.NlsOptions<T>> optionsSupplier) {
@@ -61,6 +62,10 @@ class SL7000Properties extends DlmsProtocolProperties {
 
     private PropertySpec integerSpec(String name) {
         return this.spec(name, this.propertySpecService::integerSpec);
+    }
+
+    private PropertySpec booleanSPec(String name) {
+        return this.spec(name, this.propertySpecService::booleanSpec);
     }
 
     public DLMSReference getReference() {
@@ -129,5 +134,9 @@ class SL7000Properties extends DlmsProtocolProperties {
     @ProtocolProperty
     public boolean getUseLegacyHDLCConnection() {
         return getIntProperty(USE_LEGACY_HDLC_CONNECTION, DEFAULT_USE_LEGACY_HDLC_CONNECTION) == 1;
+    }
+
+    public boolean isReadCache() {
+        return this.getBooleanProperty(READCACHE_PROPERTY, false);
     }
 }

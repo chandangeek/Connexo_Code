@@ -10,6 +10,8 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 
 import java.io.IOException;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -54,8 +56,11 @@ public class RegisterProfileMapper {
         int channelIndex = getChannelIndexForRegister(getProfileGenerics()[profileGenericIndex], register.getObisCode());
 
         long value = buffer.getRoot().getStructure(0).getStructure(channelIndex).getValue(1);
+        Date now = nowWithTimeZone();
         ScalerUnit scalerUnit = new ScalerUnit(buffer.getRoot().getStructure(0).getStructure(channelIndex).getStructure(2).getInteger(0), buffer.getRoot().getStructure(0).getStructure(channelIndex).getStructure(2).getInteger(1));
-        return new RegisterValue(register, new Quantity(value, scalerUnit.getEisUnit()));
+        RegisterValue registerValue = new RegisterValue(register, new Quantity(value, scalerUnit.getEisUnit()));
+        registerValue.setTimes(now, null, now, now);
+        return registerValue;
     }
 
     private RegisterValue getAllCumulativeMaximumDemandRegister(Register register) throws IOException {
@@ -63,8 +68,15 @@ public class RegisterProfileMapper {
         int channelIndex = getChannelIndexForRegister(getProfileGenerics()[2], register.getObisCode());
 
         long value = buffer.getRoot().getStructure(0).getValue(channelIndex);
+        Date now = nowWithTimeZone();
         ScalerUnit scalerUnit = new ScalerUnit(buffer.getRoot().getStructure(0).getStructure(channelIndex + 1).getInteger(0), buffer.getRoot().getStructure(0).getStructure(channelIndex + 1).getInteger(1));
-        return new RegisterValue(register, new Quantity(value, scalerUnit.getEisUnit()));
+        RegisterValue registerValue = new RegisterValue(register, new Quantity(value, scalerUnit.getEisUnit()));
+        registerValue.setTimes(now, null, now, now);
+        return registerValue;
+    }
+
+    private Date nowWithTimeZone() {
+        return Calendar.getInstance(meterProtocol.getTimeZone()).getTime();
     }
 
     /**
