@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.issue.Issue;
@@ -15,16 +16,14 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.common.obis.AbstractObisReader;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.Matcher;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.buffer.BufferParser;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.buffer.BufferReader;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.channel.CacheableChannelInfoReader;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.channel.ChannelInfoReader;
-import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.channel.GenericChannelInfoReader;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.configuration.ChannelInfoReader;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.data.BufferParser;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.data.BufferReader;
 
 import java.io.IOException;
 import java.util.List;
 
-public class GenericLoadProfileReader extends AbstractObisReader<CollectedLoadProfile, com.energyict.protocol.LoadProfileReader, ObisCode> implements LoadProfileReader {
+public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends AbstractObisReader<CollectedLoadProfile, com.energyict.protocol.LoadProfileReader, ObisCode, T> implements LoadProfileReader<T> {
 
     private final ChannelInfoReader channelInfoReader;
     private final BufferReader bufferReader;
@@ -34,21 +33,21 @@ public class GenericLoadProfileReader extends AbstractObisReader<CollectedLoadPr
 
     public GenericLoadProfileReader(Matcher<ObisCode> matcher, IssueFactory issueFactory, CollectedDataFactory collectedDataFactory, ChannelInfoReader channelInfoReader, BufferReader bufferReader, BufferParser bufferParser) {
         super(matcher);
-        this.channelInfoReader = channelInfoReader;
         this.bufferParser = bufferParser;
         this.bufferReader = bufferReader;
+        this.channelInfoReader = channelInfoReader;
         this.issueFactory = issueFactory;
         this.collectedDataFactory = collectedDataFactory;
     }
 
     @Override
-    public CollectedLoadProfile read(AbstractDlmsProtocol protocol, com.energyict.protocol.LoadProfileReader loadProfileReader) {
+    public CollectedLoadProfile read(T protocol, com.energyict.protocol.LoadProfileReader loadProfileReader) {
         CollectedLoadProfile collectedLoadProfile = collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier()));
-        List<ChannelInfo> channelInfos = channelInfoReader.getChannelInfo(loadProfileReader, protocol).getChannelInfos();
         ObisCode lpObisCode = loadProfileReader.getProfileObisCode();
         try {
+            CollectedLoadProfileConfiguration collectedLoadProfileConfiguration = this.readConfiguration(protocol, loadProfileReader);
             DataContainer dataContainer = bufferReader.read(protocol, super.map(loadProfileReader.getProfileObisCode()), loadProfileReader);
-            collectedLoadProfile.setCollectedIntervalData(bufferParser.parse(dataContainer), channelInfos);
+            collectedLoadProfile.setCollectedIntervalData(bufferParser.parse(dataContainer, collectedLoadProfileConfiguration, loadProfileReader), collectedLoadProfileConfiguration.getChannelInfos());
             collectedLoadProfile.setDoStoreOlderValues(true);
         } catch (DataAccessResultException e) {
             // this can happen when the load profile is read twice in the same time window (day for daily lp), than the data block is not accessible. It could also happen when the load profile is not configured properly.
@@ -67,8 +66,17 @@ public class GenericLoadProfileReader extends AbstractObisReader<CollectedLoadPr
     }
 
     @Override
-    public CollectedLoadProfileConfiguration getChannelInfo(com.energyict.protocol.LoadProfileReader lpr, AbstractDlmsProtocol protocol) {
-        return channelInfoReader.getChannelInfo(lpr, protocol);
+    public CollectedLoadProfileConfiguration readConfiguration(AbstractDlmsProtocol protocol, com.energyict.protocol.LoadProfileReader lpr) {
+        try {
+            CollectedLoadProfileConfiguration lpc = collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier(), lpr.getMeterSerialNumber());
+            ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpr.getProfileObisCode());
+            List<ChannelInfo> channelInfos = this.channelInfoReader.getChannelInfo(protocol, lpr, profileGeneric);
+            lpc.setSupportedByMeter(true);
+            lpc.setChannelInfos(channelInfos);
+            return lpc;
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
+        }
     }
 
 }

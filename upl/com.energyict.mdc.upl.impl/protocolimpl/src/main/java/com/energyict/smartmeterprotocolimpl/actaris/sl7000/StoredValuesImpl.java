@@ -95,8 +95,9 @@ public class StoredValuesImpl implements StoredValues {
         ExtendedRegister extendedRegister = cof.getExtendedRegister(obisCode);
         extendedRegister.setValue(billingValue.getValue());
         extendedRegister.setScalerUnit(billingValue.getScalerUnit());
-        extendedRegister.setCaptureTime(billingValue.getEventDateTime());
+        extendedRegister.setCaptureTime(billingValue.getEventDateTime() == null ? billingSet.getBillingDate() : null);
         historicalValue.setCosemObject(extendedRegister);
+        historicalValue.setEventTime(billingSet.getBillingDate());
         
         return historicalValue;
     }

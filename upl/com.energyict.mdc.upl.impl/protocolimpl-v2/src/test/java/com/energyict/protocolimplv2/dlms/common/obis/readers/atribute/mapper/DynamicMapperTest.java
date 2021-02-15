@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.ObisChannel;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.MappingException;

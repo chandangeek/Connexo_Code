@@ -55,9 +55,10 @@ public interface FullInstaller {
             return resultMapper.apply(resultSet);
         } catch (SQLException e) {
             String name = this.getClass().getName();
-            Logger.getLogger(name)
-                    .severe("Exception during installation by " + name + System.lineSeparator() +
-                            "Failed statement: " + sql);
+            String message = "Exception during installation by " + name + System.lineSeparator() +
+                    "Failed statement: " + sql;
+            Logger.getLogger(name).severe(message);
+            System.err.println(message);
             throw new UnderlyingSQLFailedException(e);
         }
     }
@@ -76,9 +77,10 @@ public interface FullInstaller {
             statement.execute(sql);
         } catch (SQLException e) {
             String name = this.getClass().getName();
-            Logger.getLogger(name)
-                    .severe("Exception during installation by " + name + System.lineSeparator() +
-                            "Failed statement: " + sql);
+            String message = "Exception during installation by " + name + System.lineSeparator() +
+                    "Failed statement: " + sql;
+            Logger.getLogger(name).severe(message);
+            System.err.println(message);
             throw new UnderlyingSQLFailedException(e);
         }
     }

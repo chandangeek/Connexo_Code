@@ -23,31 +23,39 @@ import com.energyict.protocolimplv2.dlms.common.obis.readers.MappingException;
 import java.io.IOException;
 import java.util.Date;
 
-public abstract class AbstractRegisterClass<T> extends AbstractObisReader<CollectedRegister, OfflineRegister, T> {
+public abstract class AbstractRegisterClass<T, K extends  AbstractDlmsProtocol> extends AbstractObisReader<CollectedRegister, OfflineRegister, T, K> {
 
     private final CollectedRegisterBuilder collectedRegisterBuilder;
+    private final boolean readCaptureTime;
 
     public AbstractRegisterClass(Matcher<T> matcher, CollectedRegisterBuilder collectedRegisterBuilder) {
         super(matcher);
         this.collectedRegisterBuilder = collectedRegisterBuilder;
+        this.readCaptureTime = false;
     }
 
-    protected abstract RegisterValue map(AbstractDataType attributeValue, Unit unit, Date captureTime, ObisCode obisCode) throws MappingException;
+    public AbstractRegisterClass(Matcher<T> matcher, CollectedRegisterBuilder collectedRegisterBuilder, boolean readCaptureTime) {
+        super(matcher);
+        this.collectedRegisterBuilder = collectedRegisterBuilder;
+        this.readCaptureTime = readCaptureTime;
+    }
+
+    protected abstract RegisterValue map(AbstractDataType attributeValue, Unit unit, Date captureTime, OfflineRegister offlineRegister) throws MappingException;
 
     protected abstract ComposedRegister getComposedRegister(UniversalObject universalObject, ObisCode obisCode);
 
     @Override
-    public CollectedRegister read(AbstractDlmsProtocol dlmsProtocol, OfflineRegister offlineRegister) {
+    public CollectedRegister read(K protocol, OfflineRegister offlineRegister) {
         try {
             ObisCode cxoObisCode = offlineRegister.getObisCode();
             ObisCode deviceObisCode = super.map(cxoObisCode);
-            UniversalObject universalObject = dlmsProtocol.getDlmsSession().getMeterConfig().findObject(deviceObisCode);
+            UniversalObject universalObject = protocol.getDlmsSession().getMeterConfig().findObject(deviceObisCode);
             ComposedRegister composedRegister = getComposedRegister(universalObject, deviceObisCode);
-            ComposedCosemObject composedCosemObject = new ComposedCosemObject(dlmsProtocol.getDlmsSession(), dlmsProtocol.getDlmsSession().getProperties().isBulkRequest(), composedRegister.getAllAttributes());
+            ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSession().getProperties().isBulkRequest(), composedRegister.getAllAttributes());
             Unit unit = getUnit(composedRegister, composedCosemObject);
-            Date captureTime = getDate(composedRegister, composedCosemObject, dlmsProtocol.getDlmsSession());
+            Date captureTime = getDate(composedRegister, composedCosemObject, protocol.getDlmsSession());
             AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
-            return collectedRegisterBuilder.createCollectedRegister(offlineRegister, map(attributeValue, unit, captureTime, cxoObisCode));
+            return collectedRegisterBuilder.createCollectedRegister(offlineRegister, map(attributeValue, unit, captureTime, offlineRegister));
         } catch (IOException | MappingException e) {
             return collectedRegisterBuilder.createCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
         }
@@ -55,7 +63,7 @@ public abstract class AbstractRegisterClass<T> extends AbstractObisReader<Collec
 
     private Date getDate(ComposedRegister composedRegister, ComposedCosemObject composedCosemObject, DlmsSession dlmsSession) throws IOException {
         Date captureTime = null;
-        if (composedRegister.getRegisterCaptureTime() != null) {
+        if (readCaptureTime && composedRegister.getRegisterCaptureTime() != null) {
             AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
             captureTime = captureTimeOctetString.getOctetString().getDateTime(dlmsSession.getTimeZone()).getValue().getTime();
         }

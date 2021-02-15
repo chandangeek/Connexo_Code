@@ -23,11 +23,11 @@ import java.util.Date;
  */
 public class ComposedMeterInfo extends ComposedCosemObject {
 
-    private static final DLMSAttribute DEFAULT_SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
-    private static final DLMSAttribute DEFAULT_EQUIPMENT_IDENTIFIER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
-    private static final DLMSAttribute DEFAULT_CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
-    private static final DLMSAttribute DEFAULT_FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
-    private static final DLMSAttribute DEFAULT_CLOCK = DLMSAttribute.fromString("8:0.0.1.0.0.255:2");
+    protected static final DLMSAttribute DEFAULT_SERIALNR = DLMSAttribute.fromString("1:0.0.96.1.0.255:2");
+    protected static final DLMSAttribute DEFAULT_EQUIPMENT_IDENTIFIER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
+    protected static final DLMSAttribute DEFAULT_CONFIG_NUMBER = DLMSAttribute.fromString("1:0.0.96.2.0.255:2");
+    protected static final DLMSAttribute DEFAULT_FIRMWARE_VERSION = DLMSAttribute.fromString("1:1.0.0.2.0.255:2");
+    protected static final DLMSAttribute DEFAULT_CLOCK = DLMSAttribute.fromString("8:0.0.1.0.0.255:2");
 
     private final DLMSAttribute serialnr;
     private final DLMSAttribute equipMentIdentitifer;
@@ -39,6 +39,16 @@ public class ComposedMeterInfo extends ComposedCosemObject {
     private final int retries;
     private Long timeDifference = null;
 
+    public ComposedMeterInfo(final ProtocolLink dlmsSession, final boolean bulkRequest, final int roundTripCorrection, final int retries, DLMSAttribute serialnr, DLMSAttribute equipMentIdentitifer, DLMSAttribute configNumber, DLMSAttribute firmwareVersion, DLMSAttribute clock) {
+        super(dlmsSession, bulkRequest, serialnr, equipMentIdentitifer, configNumber, firmwareVersion, clock);
+        this.serialnr = serialnr;
+        this.equipMentIdentitifer = equipMentIdentitifer;
+        this.configNumber = configNumber;
+        this.firmwareVersion = firmwareVersion;
+        this.clock = clock;
+        this.roundTripCorrection = roundTripCorrection;
+        this.retries = retries;
+    }
 
     public ComposedMeterInfo(final ProtocolLink dlmsSession, final boolean bulkRequest, final int roundTripCorrection, final int retries, DLMSAttribute serialnr, DLMSAttribute clock) {
         super(dlmsSession, bulkRequest, serialnr,

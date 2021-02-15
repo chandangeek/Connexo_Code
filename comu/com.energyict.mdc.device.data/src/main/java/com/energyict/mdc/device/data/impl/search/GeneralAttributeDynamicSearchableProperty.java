@@ -10,11 +10,12 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.search.SearchableProperty;
 import com.elster.jupiter.search.SearchablePropertyGroup;
+import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
-
 import com.google.inject.Inject;
 
 import java.time.Instant;
@@ -86,6 +87,16 @@ public class GeneralAttributeDynamicSearchableProperty extends AbstractDynamicSe
             builder.append(") AND ");
             Object defaultValue = propertySpec.getPossibleValues().getDefault();
             builder.add(toSqlFragment("'" + propertySpec.getValueFactory().valueToDatabase(defaultValue) + "'", condition, now));
+        } else if (condition instanceof Comparison &&
+                Operator.NOT_LIKEIGNORECASE.equals(((Comparison) condition).getOperator())) {
+            // if property is not set anywhere it should be found anyway by 'not like' pattern
+            builder.append(" OR ");
+            builder.append(JoinClauseBuilder.Aliases.DEVICE + ".ID NOT IN (");
+            builder.add(selectDevicesHavingPropertyValue());
+            builder.append(") AND ");
+            builder.append(JoinClauseBuilder.Aliases.DEVICE + ".DEVICECONFIGID NOT IN (");
+            builder.add(selectDeviceConfigurationsHavingPropertyValue());
+            builder.closeBracket();
         }
         builder.closeBracket();
         return builder;

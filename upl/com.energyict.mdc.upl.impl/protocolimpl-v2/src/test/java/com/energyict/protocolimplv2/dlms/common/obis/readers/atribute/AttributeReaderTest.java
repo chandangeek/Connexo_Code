@@ -47,7 +47,7 @@ public class AttributeReaderTest {
     @Test
     public void objectNotInList() throws IOException {
         int attributeNo = 1;
-        AttributeReader<?> attributeReader = new AttributeReader<>(matcher, collectedRegisterBuilder, atributeMapper, attributeNo, actualAttributeReader);
+        AttributeReader<?, AbstractDlmsProtocol> attributeReader = new AttributeReader<>(matcher, collectedRegisterBuilder, atributeMapper, attributeNo, actualAttributeReader);
         ObisCode cxoObisCode = ObisCode.fromString("1.2.3.4.5.6");
         ObisCode deviceObisCode = ObisCode.fromString("6.5.4.3.2.1");
         Mockito.when(offlineRegister.getObisCode()).thenReturn(cxoObisCode);
@@ -62,7 +62,7 @@ public class AttributeReaderTest {
     @Test
     public void differentMapperType() throws IOException, MappingException {
         int attributeNo = 1;
-        AttributeReader<?> attributeReader = new AttributeReader<>(matcher, collectedRegisterBuilder, atributeMapper, attributeNo, actualAttributeReader);
+        AttributeReader<?, AbstractDlmsProtocol> attributeReader = new AttributeReader<>(matcher, collectedRegisterBuilder, atributeMapper, attributeNo, actualAttributeReader);
         ObisCode cxoObisCode = ObisCode.fromString("1.2.3.4.5.6");
         ObisCode deviceObisCode = ObisCode.fromString("6.5.4.3.2.1");
         Mockito.when(offlineRegister.getObisCode()).thenReturn(cxoObisCode);
@@ -70,7 +70,7 @@ public class AttributeReaderTest {
         Integer8 deviceActualRead = new Integer8(8);
         Mockito.when(actualAttributeReader.read(dlmsProtocol, deviceObisCode, attributeNo)).thenReturn(deviceActualRead);
         String msg = "msg";
-        Mockito.when(atributeMapper.map(deviceActualRead, cxoObisCode)).thenThrow(new MappingException(msg));
+        Mockito.when(atributeMapper.map(deviceActualRead, offlineRegister)).thenThrow(new MappingException(msg));
         Mockito.when(collectedRegisterBuilder.createCollectedRegister(offlineRegister, ResultType.InCompatible, msg)).thenReturn(collectedRegister);
         CollectedRegister read = attributeReader.read(dlmsProtocol, offlineRegister);
         Assert.assertEquals(collectedRegister, read);
@@ -79,14 +79,14 @@ public class AttributeReaderTest {
     @Test
     public void allOkUseCase() throws IOException, MappingException {
         int attributeNo = 1;
-        AttributeReader<?> attributeReader = new AttributeReader<>(matcher, collectedRegisterBuilder, atributeMapper, attributeNo, actualAttributeReader);
+        AttributeReader<?, AbstractDlmsProtocol> attributeReader = new AttributeReader<>(matcher, collectedRegisterBuilder, atributeMapper, attributeNo, actualAttributeReader);
         ObisCode cxoObisCode = ObisCode.fromString("1.2.3.4.5.6");
         ObisCode deviceObisCode = ObisCode.fromString("6.5.4.3.2.1");
         Mockito.when(offlineRegister.getObisCode()).thenReturn(cxoObisCode);
         Mockito.when(matcher.map(cxoObisCode)).thenReturn(deviceObisCode);
         Integer8 deviceActualRead = new Integer8(8);
         Mockito.when(actualAttributeReader.read(dlmsProtocol, deviceObisCode, attributeNo)).thenReturn(deviceActualRead);
-        Mockito.when(atributeMapper.map(deviceActualRead, cxoObisCode)).thenReturn(registerValue);
+        Mockito.when(atributeMapper.map(deviceActualRead, offlineRegister)).thenReturn(registerValue);
         Mockito.when(collectedRegisterBuilder.createCollectedRegister(offlineRegister, registerValue)).thenReturn(collectedRegister);
         CollectedRegister read = attributeReader.read(dlmsProtocol, offlineRegister);
         Assert.assertEquals(collectedRegister, read);

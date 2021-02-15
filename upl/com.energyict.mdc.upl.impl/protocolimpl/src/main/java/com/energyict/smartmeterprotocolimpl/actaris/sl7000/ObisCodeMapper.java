@@ -33,6 +33,7 @@ public class ObisCodeMapper {
     public static final ObisCode OBISCODE_SERIAL_NUMBER_OBJ1 = ObisCode.fromString("0.0.96.1.0.255");
     public static final ObisCode OBISCODE_SERIAL_NUMBER_OBJ2 = ObisCode.fromString("0.0.96.1.255.255");
     private static ObisCode OBIS_NUMBER_OF_AVAILABLE_HISTORICAL_SETS = ObisCode.fromString("0.0.0.1.1.255");
+    private static final ObisCode BATTERY_VOLTAGE = ObisCode.fromString("0.0.96.6.3.255");
 
     ActarisSl7000 meterProtocol;
     RegisterProfileMapper registerProfileMapper;
@@ -104,6 +105,13 @@ public class ObisCodeMapper {
         // Battery end of life date
         if (obisCode.equals(ObisCode.fromString("0.0.96.6.2.255"))) {
             return getBatteryExpiryDate(register);
+        }
+        // Battery voltage
+        if (obisCode.equals(BATTERY_VOLTAGE)) {
+            final com.energyict.dlms.cosem.Register cosmeRegister = meterProtocol.getDlmsSession().getCosemObjectFactory().getRegister(BATTERY_VOLTAGE);
+            double value = cosmeRegister.getQuantityValue().getAmount().intValue() * 6.93 / 255;
+            Unit unit = cosmeRegister.getQuantityValue().getUnit();
+            return new RegisterValue(register, new Quantity(value, unit));
         }
         // Operation status fatal alarms
         if (obisCode.equals(ObisCode.fromString("0.0.97.97.1.255"))) {

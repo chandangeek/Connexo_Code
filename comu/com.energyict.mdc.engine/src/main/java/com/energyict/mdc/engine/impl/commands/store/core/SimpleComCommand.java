@@ -28,11 +28,6 @@ import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-
-import com.energyict.protocol.ChannelInfo;
-import com.energyict.protocol.IntervalData;
-import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exceptions.CommunicationException;
 import com.energyict.protocol.exceptions.CommunicationInterruptedException;
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
@@ -44,9 +39,7 @@ import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Provides an implementation for the {@link ComCommand} interface.

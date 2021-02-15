@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.common.obis;
 
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.Matcher;
 
-public abstract class AbstractObisReader<M, N, L> implements ObisReader<M, N, L> {
+public abstract class AbstractObisReader<M, N, L, K extends AbstractDlmsProtocol> implements ObisReader<M, N, L, K> {
 
     private final Matcher<L> matcher;
 

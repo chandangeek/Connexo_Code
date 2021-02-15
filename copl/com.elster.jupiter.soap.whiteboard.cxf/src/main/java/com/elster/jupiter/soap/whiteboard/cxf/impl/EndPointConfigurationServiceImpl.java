@@ -21,7 +21,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -83,14 +82,9 @@ public class EndPointConfigurationServiceImpl implements EndPointConfigurationSe
 
     @Override
     public Finder<EndPointConfiguration> findEndPointConfigurations(Set<String> webServiceNames) {
-
-        Condition condition = Condition.TRUE;
-
-        if (!webServiceNames.isEmpty()) {
-            List<String> namesList = new ArrayList<>(webServiceNames);
-            condition = condition.and(where(EndPointConfigurationImpl.Fields.WEB_SERVICE_NAME.fieldName()).in(namesList));
-        }
-
+        Condition condition = webServiceNames.isEmpty() ?
+                Condition.TRUE :
+                where(EndPointConfigurationImpl.Fields.WEB_SERVICE_NAME.fieldName()).in(webServiceNames);
         return DefaultFinder.of(EndPointConfiguration.class, condition, this.dataModel)
                 .defaultSortColumn(EndPointConfigurationImpl.Fields.NAME.fieldName());
     }

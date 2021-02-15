@@ -95,7 +95,7 @@ public class DynamicAttributeReaderTest {
         String msg = "msg";
         Mockito.when(actualAttributeReader.read(dlmsProtocol, expectedDeviceObisCode, ignoredChannel.getValue(cxoObisCode))).thenReturn(readData);
         Mockito.<AttributeMapper<? extends AbstractDataType>>when(dynamicMapper.get(ignoredChannel, cxoObisCode)).thenReturn(actualMapper);
-        Mockito.when(actualMapper.map(readData, cxoObisCode)).thenReturn(registerValue);
+        Mockito.when(actualMapper.map(readData, offlineRegister)).thenReturn(registerValue);
         Mockito.when(collectedRegisterBuilder.createCollectedRegister(offlineRegister, registerValue)).thenReturn(collectedRegister);
 
         DynamicAttributeReader attributeReader = new DynamicAttributeReader(matcher, collectedRegisterBuilder, dynamicMapper, actualAttributeReader);

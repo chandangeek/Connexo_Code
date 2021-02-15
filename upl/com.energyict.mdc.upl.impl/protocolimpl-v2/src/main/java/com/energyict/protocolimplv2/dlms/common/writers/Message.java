@@ -22,7 +22,5 @@ public interface Message {
 
     DeviceMessageSpec asMessageSpec();
 
-    default String format(PropertySpec propertySpec, Object messageAttribute) {
-        return messageAttribute.toString();
-    }
+    String format(PropertySpec propertySpec, Object messageAttribute);
 }

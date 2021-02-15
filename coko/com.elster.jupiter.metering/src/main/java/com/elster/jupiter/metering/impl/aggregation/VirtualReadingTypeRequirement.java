@@ -27,6 +27,7 @@ import com.elster.jupiter.util.sql.SqlFragment;
 
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
@@ -144,6 +145,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.fieldSpecName());
+        addMultiplier(sqlBuilder);
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.fieldSpecName());
         sqlBuilder.append(" FROM (");
@@ -173,10 +175,10 @@ class VirtualReadingTypeRequirement {
                                     this.targetReadingType.getIntervalLength().toTemporalAmount(),
                                     preferredChannel.getZoneId())
                             .joinSql(
-                                this.timeSeriesWithReadingQualitiesSqlBuilder(preferredChannel.getTimeSeries()),
-                                "ts",
-                                new EventFromReadingType(this.targetReadingType),
-                                this.rawDataPeriod));
+                                    this.timeSeriesWithReadingQualitiesSqlBuilder(preferredChannel.getTimeSeries()),
+                                    "ts",
+                                    new EventFromReadingType(this.targetReadingType),
+                                    this.rawDataPeriod));
         } else {
             /* One of the following erroneous conditions:
              * 1. Not requested but time of use bucket is provided
@@ -209,9 +211,9 @@ class VirtualReadingTypeRequirement {
         return this.timeSeriesWithReadingQualitiesSqlBuilder(
                 timeSeries,
                 timeSeries.getRawValuesSql(
-                    this.rawDataPeriod,
-                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
-                    this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)),
+                        this.rawDataPeriod,
+                        this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.VALUE),
+                        this.toFieldSpecAndAliasNamePair(SqlConstants.TimeSeriesColumnNames.LOCALDATE)),
                 true);
     }
 
@@ -265,6 +267,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.SOURCECHANNELS.sqlName());
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
+        addMultiplier(sqlBuilder);
         sqlBuilder.append(", ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.LOCALDATE.sqlName());
         sqlBuilder.append(" FROM(");
@@ -278,6 +281,14 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(tempSqlName());
     }
 
+
+    private void addMultiplier(SqlBuilder sqlBuilder) {
+        this.getPreferredChannel().getChannelsContainer().getDefaultMultiplier().ifPresent(multiplier -> {
+            sqlBuilder.append(" * ");
+            sqlBuilder.addObject(multiplier);
+        });
+    }
+
     private void appendAggregatedReadingQuality(SqlBuilder sqlBuilder) {
         sqlBuilder.append(" FULL OUTER JOIN (SELECT readingtimestamp, MAX(CASE");
         sqlBuilder.append(" WHEN TYPE LIKE '%.5.258' THEN " + CalculatedReadingRecordImpl.SUSPECT);
@@ -286,7 +297,7 @@ class VirtualReadingTypeRequirement {
         sqlBuilder.append(" END) AS ");
         sqlBuilder.append(SqlConstants.TimeSeriesColumnNames.VALUE.sqlName());
         sqlBuilder.append(" FROM mtr_readingquality WHERE readingtypeid = ");
-        sqlBuilder.addLong(((IReadingType)this.getPreferredChannel().getMainReadingType()).getId());
+        sqlBuilder.addLong(((IReadingType) this.getPreferredChannel().getMainReadingType()).getId());
         sqlBuilder.append(" AND channelid = ");
         sqlBuilder.addLong(this.getPreferredChannel().getId());
         sqlBuilder.append(" AND (TYPE LIKE '%.5.258' OR TYPE LIKE '%.5.259' OR TYPE LIKE '%.7.%' OR TYPE LIKE '%.8.%')");
@@ -295,7 +306,7 @@ class VirtualReadingTypeRequirement {
             sqlBuilder.addLong(this.rawDataPeriod.lowerEndpoint().toEpochMilli());
         }
         if (rawDataPeriod.hasUpperBound()) {
-        sqlBuilder.append(" AND readingtimestamp <= ");
+            sqlBuilder.append(" AND readingtimestamp <= ");
             sqlBuilder.addLong(this.rawDataPeriod.upperEndpoint().toEpochMilli());
         }
         sqlBuilder.append(" GROUP BY readingtimestamp) rq");
@@ -340,7 +351,7 @@ class VirtualReadingTypeRequirement {
 
     private boolean aggregationIsRequired() {
         return Formula.Mode.AUTO.equals(this.mode)
-            && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
+                && IntervalLength.from(this.getPreferredChannel().getMainReadingType()) != this.targetReadingType.getIntervalLength();
     }
 
     void appendSimpleReferenceTo(SqlBuilder sqlBuilder) {

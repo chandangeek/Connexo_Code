@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.cu
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.AttributeMapper;
@@ -18,9 +19,8 @@ public class OctetStringDateTimeMapper implements AttributeMapper<OctetString> {
     }
 
     @Override
-    public RegisterValue map(AbstractDataType attribute, ObisCode obisCode) {
-
-        return new RegisterValue(obisCode, attribute.getOctetString().getDateTime(timeZone).toString());
+    public RegisterValue map(AbstractDataType attribute, OfflineRegister offlineRegister) {
+        return new RegisterValue(offlineRegister, attribute.getOctetString().getDateTime(timeZone).toString());
     }
 
     @Override

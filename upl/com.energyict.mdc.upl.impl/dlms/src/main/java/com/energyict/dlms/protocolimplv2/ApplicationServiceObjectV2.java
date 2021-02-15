@@ -345,8 +345,7 @@ public class ApplicationServiceObjectV2 extends ApplicationServiceObject {
                 return;
             } else {
                 silentDisconnect();
-                ProtocolException protocolException = new ProtocolException("Verification of the received digital signature (HLS7 using ECDSA) using the server signing certificate failed.");
-                throw CommunicationException.protocolConnectFailed(protocolException);
+                throw ConnectionCommunicationException.signatureVerificationError();
             }
         }
 

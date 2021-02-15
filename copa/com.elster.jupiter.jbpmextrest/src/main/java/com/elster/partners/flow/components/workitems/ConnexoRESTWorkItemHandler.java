@@ -4,7 +4,8 @@
 
 package com.elster.partners.flow.components.workitems;
 
-import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -17,14 +18,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.commons.services.cdi.Veto;
 
+import javax.ws.rs.core.MediaType;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.stream.Stream;
 
 @Veto
@@ -97,11 +99,7 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
                     ((Closeable) response).close();
                 }
                 response = httpclient.execute(request);
-                if (StringUtils.contains(response.getEntity().getContentType().getValue(), "application/json")) {
-                    logger.warn("Couldn't execute request on Connexo REST API. Device doesn't exist.");
-                    break;
-                }
-                if (response.getStatusLine().getStatusCode() < 400 ) {
+                if (response.getStatusLine().getStatusCode() < 400 || hasJsonPayload(response)) {
                     return response;
                 }
                 exception = null;
@@ -114,6 +112,15 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
         } else {
             throw exception;
         }
+    }
+
+    private boolean hasJsonPayload(HttpResponse response) {
+        return Optional.ofNullable(response)
+                .map(HttpResponse::getEntity)
+                .map(HttpEntity::getContentType)
+                .map(Header::getValue)
+                .filter(contentType -> contentType.contains(MediaType.APPLICATION_JSON))
+                .isPresent();
     }
 
     @Override

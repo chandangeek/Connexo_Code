@@ -27,7 +27,7 @@ public class MessageHandler implements DeviceMessageSupport {
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
         this.messages = messages;
-        validate(messages);
+        //validate(messages); TODO
     }
 
     // this is kind of ugly but needed due to model of messages specs/id's and FF principle
@@ -108,6 +108,11 @@ public class MessageHandler implements DeviceMessageSupport {
         @Override
         public DeviceMessageSpec asMessageSpec() {
             return null;
+        }
+
+        @Override
+        public String format(PropertySpec propertySpec, Object messageAttribute) {
+            return messageAttribute.toString();
         }
     }
 }
