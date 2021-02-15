@@ -44,12 +44,12 @@ public class MappableUnitChannelReader extends AbstractChannelInfoReader {
         DataStructure dataStructure = buffer.getRoot().getStructure(0);
 
         int index = 0;
-        Map<ObisCode, ScalerUnit> channelInfoMap = new HashMap<>();
+        channelInfoMap = new HashMap<>();
         while (dataStructure.isOctetString(index) && dataStructure.isStructure(index + 1)) {
             ObisCode obisCode = dataStructure.getOctetString(index).toObisCode();
             ScalerUnit scalerUnit = new ScalerUnit(dataStructure.getStructure(index + 1).getInteger(0),
                     dataStructure.getStructure(index + 1).getInteger(1));
-            channelInfoMap.put(obisCode, scalerUnit);
+            channelInfoMap.put(obisCode, scalerUnit.getEisUnit());
             index = index + 2;
         }
     }

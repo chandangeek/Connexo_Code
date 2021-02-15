@@ -19,7 +19,6 @@ public class ActarisSl7000ChannelReader extends MappableUnitChannelReader {
     @Override
     public List<ChannelInfo> getChannelInfo(AbstractDlmsProtocol protocol, LoadProfileReader loadProfileReader, ProfileGeneric profileGeneric) throws IOException {
         List<ChannelInfo> channelInfo = super.getChannelInfo(protocol, loadProfileReader, profileGeneric);
-        // removing first 2 channels since they are timestamp and status
         return channelInfo.subList(4,channelInfo.size());
     }
 }
