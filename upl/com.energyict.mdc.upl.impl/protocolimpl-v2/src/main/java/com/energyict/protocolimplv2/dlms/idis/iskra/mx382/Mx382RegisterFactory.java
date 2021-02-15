@@ -25,7 +25,7 @@ public class Mx382RegisterFactory extends AM130RegisterFactory{
     protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
         try {
             HistoricalValue historicalValue = ((Mx382) getMeterProtocol()).getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
-            RegisterValue registerValue = new RegisterValue(offlineRegister.getObisCode(), historicalValue.getQuantityValue(), historicalValue.getEventTime());
+            RegisterValue registerValue = new RegisterValue(offlineRegister.getObisCode(), historicalValue.getQuantityValue(), historicalValue.getEventTime(), historicalValue.getBillingDate());
             return createCollectedRegister(registerValue, offlineRegister);
         } catch (NoSuchRegisterException e) {
             return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported, e.getMessage());
