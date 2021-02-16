@@ -1,7 +1,10 @@
 package com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile;
 
+import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
@@ -25,11 +28,11 @@ import java.util.List;
 
 public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends AbstractObisReader<CollectedLoadProfile, com.energyict.protocol.LoadProfileReader, ObisCode, T> implements LoadProfileReader<T> {
 
-    private final ChannelInfoReader channelInfoReader;
-    private final BufferReader bufferReader;
-    private final BufferParser bufferParser;
-    private final IssueFactory issueFactory;
-    private final CollectedDataFactory collectedDataFactory;
+    protected final ChannelInfoReader channelInfoReader;
+    protected final BufferReader bufferReader;
+    protected final BufferParser bufferParser;
+    protected final IssueFactory issueFactory;
+    protected final CollectedDataFactory collectedDataFactory;
 
     public GenericLoadProfileReader(Matcher<ObisCode> matcher, IssueFactory issueFactory, CollectedDataFactory collectedDataFactory, ChannelInfoReader channelInfoReader, BufferReader bufferReader, BufferParser bufferParser) {
         super(matcher);
@@ -66,11 +69,11 @@ public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends Ab
     }
 
     @Override
-    public CollectedLoadProfileConfiguration readConfiguration(AbstractDlmsProtocol protocol, com.energyict.protocol.LoadProfileReader lpr) {
+    public CollectedLoadProfileConfiguration readConfiguration(T protocol, com.energyict.protocol.LoadProfileReader lpr) {
         try {
             CollectedLoadProfileConfiguration lpc = collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier(), lpr.getMeterSerialNumber());
-            ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpr.getProfileObisCode());
-            List<ChannelInfo> channelInfos = this.channelInfoReader.getChannelInfo(protocol, lpr, profileGeneric);
+            ProfileGeneric pg = new ProfileGeneric(protocol.getDlmsSession(), new ObjectReference(DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode()).getLNArray(), DLMSClassId.PROFILE_GENERIC.getClassId()));
+            List<ChannelInfo> channelInfos = this.channelInfoReader.getChannelInfo(protocol, lpr, pg);
             lpc.setSupportedByMeter(true);
             lpc.setChannelInfos(channelInfos);
             return lpc;
