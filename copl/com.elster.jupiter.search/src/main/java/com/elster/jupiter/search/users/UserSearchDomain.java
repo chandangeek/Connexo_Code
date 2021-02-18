@@ -26,6 +26,7 @@ import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserInGroup;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -205,6 +206,11 @@ public class UserSearchDomain implements SearchDomain {
         @Override
         public Finder<User> sorted(Order order) {
             return finder.sorted(order);
+        }
+
+        @Override
+        public Finder<User> withHint(Hint hint) {
+            return finder.withHint(hint);
         }
 
         @Override

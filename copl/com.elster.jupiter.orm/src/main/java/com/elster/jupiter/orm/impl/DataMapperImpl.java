@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.fields.impl.FieldMapping;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.Fetcher;
 import com.elster.jupiter.util.sql.SqlBuilder;
@@ -488,6 +489,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     @Override
     public List<T> select(Condition condition, Order... orders) {
         return with().select(condition, orders);
+    }
+
+    @Override
+    public List<T> select(Condition condition, Hint[] hints, Order... orders) {
+        return with().select(condition, hints, orders);
     }
 
     DataMapperType<? super T> getMapperType() {

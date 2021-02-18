@@ -14,6 +14,7 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Comparison;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Contains;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
@@ -341,6 +342,11 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         @Override
         public Finder<T> sorted(Order order) {
             return actualFinder.sorted(order);
+        }
+
+        @Override
+        public Finder<T> withHint(Hint hint) {
+            return actualFinder.withHint(hint);
         }
 
         @Override

@@ -21,12 +21,12 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlBuilder;
 import com.elster.jupiter.util.sql.SqlFragment;
-
 import com.google.common.collect.Range;
 
 import java.sql.Connection;
@@ -93,6 +93,12 @@ public class UsagePointFinder implements Finder<UsagePoint> {
     @Override
     public Finder<UsagePoint> sorted(String sortColumn, boolean ascending) {
         finder = finder.sorted(sortColumn, ascending);
+        return this;
+    }
+
+    @Override
+    public Finder<UsagePoint> withHint(Hint hint) {
+        finder.withHint(hint);
         return this;
     }
 

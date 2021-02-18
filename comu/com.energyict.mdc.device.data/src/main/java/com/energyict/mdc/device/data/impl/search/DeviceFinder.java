@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -43,6 +44,7 @@ public class DeviceFinder implements Finder<Device> {
     private final DeviceSearchSqlBuilder sqlBuilder;
     private Pager pager = new NoPaging();
     private List<Order> orders;
+    private List<Hint> hints;
 
     public DeviceFinder(DeviceSearchSqlBuilder sqlBuilder, DataModel dataModel) {
         super();
@@ -58,9 +60,10 @@ public class DeviceFinder implements Finder<Device> {
         sqlBuilder.append(" ORDER BY " + this.orders.stream()
                 .map(order -> order.getClause(order.getName()))
                 .collect(Collectors.joining(", ")));
+        Hint[] hintsArray = hints.toArray(new Hint[0]);
         final SqlBuilder finalBuilder = this.pager.finalize(sqlBuilder, "id");
         QueryExecutor<Device> query = this.dataModel.query(Device.class, DeviceConfiguration.class, DeviceType.class, Batch.class);
-        return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), this.orders.toArray(new Order[orders.size()]));
+        return query.select(ListOperator.IN.contains(() -> finalBuilder, "id"), hintsArray, this.orders.toArray(new Order[orders.size()]));
     }
 
     @Override
@@ -78,6 +81,12 @@ public class DeviceFinder implements Finder<Device> {
     @Override
     public Finder<Device> sorted(Order order) {
         orders.add(order);
+        return this;
+    }
+
+    @Override
+    public Finder<Device> withHint(Hint hint) {
+        hints.add(hint);
         return this;
     }
 
