@@ -197,6 +197,7 @@ public class ActarisSl7000BufferParser implements BufferParser {
 
     private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar, LoadProfileReader lpr) throws IOException {
         // Add interval data...
+        calendar.set(Calendar.MILLISECOND, 0); // fix to reset milliseconds to 0 to prevent errors when storing
         IntervalData intervalData = new IntervalData(((Calendar) calendar.clone()).getTime());
         List<CapturedObject> captureObjects = meterProtocol.getDlmsSession().getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects();
         for (int i = 0; i < captureObjects.size(); i++) {
