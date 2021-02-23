@@ -299,7 +299,16 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     }
 
     @Override
-    public Optional<String> login(String username) {
+    public Optional<String> login(String username){
+        return loginUser(username, null);
+    }
+
+    @Override
+    public Optional<String> login(String username, String email){
+        return loginUser(username, email);
+    }
+
+    public Optional<String> loginUser(String username, String email) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -315,6 +324,9 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         rsr.setFunction("LOGINUSERNOPASSWORD");
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
+        if(null != email){
+            ap.setEmailAddress(email);
+        }
         rsr.setPerson(ap);
 
         if (rssbs != null) {

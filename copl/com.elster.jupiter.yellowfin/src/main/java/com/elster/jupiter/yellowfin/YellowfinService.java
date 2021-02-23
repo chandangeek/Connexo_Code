@@ -21,6 +21,8 @@ public interface YellowfinService {
     Optional<String> createUser(String username);
 
     Optional<String> login(String username);
+    Optional<String> login(String username, String email);
+
     Optional<Boolean> logout(String username);
 
     boolean importContent(String filePath);

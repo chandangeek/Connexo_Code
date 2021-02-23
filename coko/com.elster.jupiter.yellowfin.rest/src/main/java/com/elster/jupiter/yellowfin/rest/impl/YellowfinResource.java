@@ -67,7 +67,7 @@ public class YellowfinResource {
         }
 
         if (found.equals("SUCCESS")) {
-            String webServiceLoginToken = yellowfinService.login(userName).
+            String webServiceLoginToken = yellowfinService.login(userName, email).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
             YellowfinInfo info = new YellowfinInfo();
