@@ -51,6 +51,7 @@ public class DeviceFinder implements Finder<Device> {
         this.sqlBuilder = sqlBuilder;
         this.dataModel = dataModel;
         this.orders = new ArrayList<>();
+        this.hints = new ArrayList<>();
         this.orders.add(Order.ascending("name"));
     }
 
