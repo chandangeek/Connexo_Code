@@ -208,6 +208,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
+        person.setEmailAddress("YelloFinServiceImpl@123");
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
@@ -256,7 +257,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
         person.setUserId(username);
         person.setPassword("test");
-        person.setFirstName("Connexo");
+        person.setFirstName("Testing");
         person.setLastName(username);
         person.setRoleCode("YFREPORTCONSUMER");
         if(email != null){

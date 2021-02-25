@@ -53,6 +53,7 @@ public class ConnexoFactsWebServiceManager {
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
+        person.setEmailAddress("kjhjkhjkhdf");
 
         rsr.setLoginId(this.adminUser);
         rsr.setPassword(this.adminPwd);
@@ -109,7 +110,7 @@ public class ConnexoFactsWebServiceManager {
         else {
             person.setRoleCode("YFCORPWRITER");
         }
-        person.setEmailAddress(username + "@elster.com");
+        person.setEmailAddress("test" + "@elster.com");
 
         rsr.setLoginId(this.adminUser);
         rsr.setPassword(this.adminPwd);
@@ -152,6 +153,7 @@ public class ConnexoFactsWebServiceManager {
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
+        person.setEmailAddress("testing@123");
         if (privileges.contains("privilege.administrate.reports")) {
             person.setRoleCode("YFADMIN");
         } else {
