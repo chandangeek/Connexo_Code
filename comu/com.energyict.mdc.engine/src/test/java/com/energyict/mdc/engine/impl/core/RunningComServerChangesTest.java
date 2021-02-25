@@ -70,6 +70,7 @@ import static org.mockito.Mockito.when;
  * @since 2012-04-10 (13:43)
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class RunningComServerChangesTest {
 
     @Mock
