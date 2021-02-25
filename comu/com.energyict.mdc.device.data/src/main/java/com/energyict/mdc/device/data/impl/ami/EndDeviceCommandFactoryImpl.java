@@ -364,6 +364,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         }
         return command;
     }
+
     @Override
     public EndDeviceCommand createUpdateFriendlyDayPeriodCommand(EndDevice endDevice, FriendlyDayPeriodInfo friendlyDayPeriodInfo) throws UnsupportedCommandException {
         EndDeviceCommand command = this.createCommand(endDevice, findEndDeviceControlType(EndDeviceControlTypeMapping.FRIENDLY_DAY_PERIOD_UPDATE));
@@ -399,7 +400,6 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         return command;
     }
 
-
     private PropertySpec getKeyTypePropertySpec(EndDeviceCommand command) {
         return command.getCommandArgumentSpecs()
                 .stream()
@@ -423,7 +423,6 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COMMAND_ARGUMENT_SPEC_NOT_FOUND)
                         .format(commandArgumentName, endDeviceCommand.getEndDeviceControlType().getName())));
     }
-
 
     private EndDeviceControlType findEndDeviceControlType(EndDeviceControlTypeMapping controlTypeMapping) {
         String mrid = controlTypeMapping.getEndDeviceControlTypeMRID();

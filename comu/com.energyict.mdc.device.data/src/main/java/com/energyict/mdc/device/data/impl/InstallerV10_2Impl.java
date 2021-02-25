@@ -10,13 +10,16 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.PrivilegesProvider;
 import com.elster.jupiter.users.ResourceDefinition;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.impl.ami.servicecall.*;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.OnDemandReadServiceCallCustomPropertySet;
+import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.CommunicationTestServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.OnDemandReadServiceCallHandler;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -26,7 +29,6 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.device.data.impl.SyncDeviceWithKoreMeter.MULTIPLIER_TYPE;
@@ -93,7 +95,7 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
 
     private void createServiceCallTypes() {
         for (ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping : ServiceCallCommands.ServiceCallTypeMapping.values()) {
-            createServiceCallType(serviceCallTypeMapping);
+            createServiceCallTypeIfNotPresent(serviceCallTypeMapping);
         }
         createOnDemandReadServiceCallType();
         createCommunicationTestServiceCallType();
@@ -118,13 +120,12 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
                         .create());
     }
 
-    private void createServiceCallType(ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping) {
-        Optional<ServiceCallType> serviceCallTypeOptional = serviceCallService.findServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion());
-        if (!serviceCallTypeOptional.isPresent()) {
+    void createServiceCallTypeIfNotPresent(ServiceCallCommands.ServiceCallTypeMapping serviceCallTypeMapping) {
+        if (!serviceCallService.findServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion()).isPresent()) {
             RegisteredCustomPropertySet commandCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CommandCustomPropertySet().getId())
-                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set {0}", CommandCustomPropertySet.class.getSimpleName())));
+                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Couldn''t find active custom property set {0}.", CommandCustomPropertySet.class.getSimpleName())));
             RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet().getId())
-                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Could not find active custom property set {0}", CommandCustomPropertySet.class.getSimpleName())));
+                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Couldn''t find active custom property set {0}.", CommandCustomPropertySet.class.getSimpleName())));
 
             serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), serviceCallTypeMapping.getApplication().orElse(null))
                     .handler(serviceCallTypeMapping.getTypeName())

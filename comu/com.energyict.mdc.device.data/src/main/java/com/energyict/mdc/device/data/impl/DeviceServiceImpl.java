@@ -610,10 +610,8 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Optional<CreditAmount> getCreditAmount(Device device) {
-        QueryExecutor<CreditAmount> CreditAmountQuery = deviceDataModelService.dataModel().query(CreditAmount.class);
-        return CreditAmountQuery
-                .select(where("device").isEqualTo(device))
-                .stream()
+        return deviceDataModelService.dataModel().stream(CreditAmount.class)
+                .filter(where("device").isEqualTo(device))
                 .findFirst();
     }
 

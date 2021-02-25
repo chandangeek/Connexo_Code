@@ -10,7 +10,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.DeviceService;
@@ -19,7 +18,6 @@ import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.util.Optional;
 
 public class CreditAmountImpl implements CreditAmount {
     public enum Fields {
@@ -90,8 +88,7 @@ public class CreditAmountImpl implements CreditAmount {
     }
 
     private void doPersist() {
-        Save.CREATE.validate(dataModel, this);
-        dataModel.persist(this);
+        Save.CREATE.save(dataModel, this);
         notifyCreated();
     }
 
@@ -115,7 +112,7 @@ public class CreditAmountImpl implements CreditAmount {
 
     @Override
     public Device getDevice() {
-        return device.orNull();
+        return device.get();
     }
 
     public void setDevice(Device device) {

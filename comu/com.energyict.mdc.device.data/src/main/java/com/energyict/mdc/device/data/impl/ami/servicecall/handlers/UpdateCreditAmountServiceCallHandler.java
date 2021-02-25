@@ -33,7 +33,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDoma
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
+import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import org.osgi.service.component.annotations.Component;
@@ -44,7 +44,6 @@ import java.text.MessageFormat;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Component(name = "com.energyict.servicecall.ami.creditamount.handler",
         service = ServiceCallHandler.class,
@@ -150,7 +149,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
             throw NoSuchElementException.comTaskToRunWithPriorityCouldNotBeLocated(getThesaurus()).get();
         }
 
-        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(existingComTaskExecution.getId(), existingComTaskExecution.getVersion())
+        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(existingComTaskExecution.getId())
                 .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())));
 
         if (withPriority) {
@@ -180,10 +179,8 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
                 .getComTaskEnablements()
                 .stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
-                .filter(cte -> cte.getComTask().getProtocolTasks().stream().
-                        filter(task -> task instanceof StatusInformationTask).
-                        findFirst().
-                        isPresent())
+                .filter(cte -> cte.getComTask().getProtocolTasks().stream()
+                        .anyMatch(StatusInformationTask.class::isInstance))
                 .findAny();
         if (enablementOptional.isPresent()) {
             return enablementOptional.get();
@@ -219,7 +216,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         }
     }
 
-    protected CreditAmount getDesiredCreditAmount(Device device, ServiceCall serviceCall) {
+    private CreditAmount getDesiredCreditAmount(Device device, ServiceCall serviceCall) {
         String creditType = null;
         BigDecimal creditAmount = null;
         CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
@@ -227,25 +224,22 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         if (deviceMessageIdOptional.isPresent()) {
             Optional<DeviceMessage> deviceMessageOptional = deviceMessageService.findDeviceMessageById(deviceMessageIdOptional.get());
             if (deviceMessageOptional.isPresent()) {
-                List<DeviceMessageAttribute> attributes = deviceMessageOptional.get().getAttributes().stream()
-                        .map(DeviceMessageAttribute.class::cast)      //Downcast to Connexo DeviceMessageAttribute
-                        .collect(Collectors.toList());
-                Optional<DeviceMessageAttribute> creditTypeOptional = attributes.stream().filter(attr -> attr.getName().equals(DeviceMessageConstants.creditType)).findFirst();
+                List<? extends DeviceMessageAttribute> attributes = deviceMessageOptional.get().getAttributes();
+                Optional<? extends DeviceMessageAttribute> creditTypeOptional = attributes.stream().filter(attr -> attr.getName().equals(DeviceMessageConstants.creditType)).findFirst();
                 if (creditTypeOptional.isPresent()) {
                     creditType = (String) creditTypeOptional.get().getValue();
                 }
-                Optional<DeviceMessageAttribute> creditAmountOptional = attributes.stream().filter(attr -> attr.getName().equals(DeviceMessageConstants.creditAmount)).findFirst();
+                Optional<? extends DeviceMessageAttribute> creditAmountOptional = attributes.stream().filter(attr -> attr.getName().equals(DeviceMessageConstants.creditAmount)).findFirst();
                 if (creditAmountOptional.isPresent()) {
                     creditAmount = (BigDecimal) creditAmountOptional.get().getValue();
                 }
             }
         }
         return deviceService.creditAmountFrom(device, creditType, creditAmount);
-
     }
 
-    private Optional<ComTaskExecution> getLockedComTaskExecution(long id, long version) {
-        return communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(id, version)
+    private Optional<ComTaskExecution> getLockedComTaskExecution(long id) {
+        return communicationTaskService.findAndLockComTaskExecutionById(id)
                 .filter(candidate -> !candidate.isObsolete());
     }
 

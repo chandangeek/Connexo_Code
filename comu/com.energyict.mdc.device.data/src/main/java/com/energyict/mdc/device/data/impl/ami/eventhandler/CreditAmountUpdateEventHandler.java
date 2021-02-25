@@ -23,7 +23,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.UpdateCreditA
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.Arrays;
+import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
@@ -34,11 +34,8 @@ import java.util.List;
  * <li>they refer to a create or update operation</li>
  * <li>the {@link Device} having the credit amount was used as target of a {@link ServiceCall} used in the {@link MultiSenseHeadEndInterface} for an update credit amount operation</li>
  * </ul>
- * If this is the case, then the linked {@link ServiceCall} will be transited to state ONGOING (which will delegate furtherprocessingg to the
- * {@link ServiceCallHandler} of the {@link ServiceCall}
- *
- * @author sva
- * @since 14/06/2016 - 9:59
+ * If this is the case, then the linked {@link ServiceCall} will be transited to state ONGOING (which will delegate further processing to the
+ * {@link ServiceCallHandler} of the {@link ServiceCall}).
  */
 @Component(name = "com.energyict.mdc.device.data.ami.creditamount.update.eventhandler", service = TopicHandler.class, immediate = true)
 public class CreditAmountUpdateEventHandler implements TopicHandler {
@@ -47,10 +44,13 @@ public class CreditAmountUpdateEventHandler implements TopicHandler {
     private volatile ServiceCallService serviceCallService;
 
     public CreditAmountUpdateEventHandler() {
+        // for OSGi
     }
 
+    // for unit test
+    @Inject
     public CreditAmountUpdateEventHandler(ServiceCallService serviceCallService) {
-        this.serviceCallService = serviceCallService;
+        setServiceCallService(serviceCallService);
     }
 
     @Reference
