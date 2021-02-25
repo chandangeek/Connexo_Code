@@ -233,7 +233,7 @@ public enum MessageSeeds implements MessageSeed {
     RUN_STATUS_INFORMATION_COMTASK_WITH_PRIO_IMPOSSIBLE(2207,
             "runStatusInformationComTaskWithPrioImpossible",
             "Running the communication task to read out status information with priority isn''t possible, since there are no priority connections allowed on its communication port pool."),
-    CAN_NOT_FIND_FOR_ALLOWED_CALENDAR(2208, Keys.CAN_NOT_FIND_FOR_ALLOWED_CALENDAR, "Could not find an allowed calendar for identifier ''{0}''");
+    CAN_NOT_FIND_FOR_ALLOWED_CALENDAR(2208, Keys.CAN_NOT_FIND_FOR_ALLOWED_CALENDAR, "Couldn''t find an allowed calendar for identifier ''{0}''.");
 
 
     private final int number;

@@ -202,6 +202,8 @@ public interface DeviceService {
 
     Optional<CreditAmount> getCreditAmount(Device device);
 
+    Optional<CreditAmount> getCreditAmount(Device device, Instant instant);
+
     CreditAmount creditAmountFrom(Device device, String collectedCreditType, BigDecimal collectedCreditAmount);
 
     List<Device> findActiveValidatedDevices(List<Device> domainObjects);

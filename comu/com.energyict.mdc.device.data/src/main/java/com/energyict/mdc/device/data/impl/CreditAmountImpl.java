@@ -17,13 +17,16 @@ import com.energyict.mdc.device.data.DeviceService;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 
 public class CreditAmountImpl implements CreditAmount {
     public enum Fields {
         CREDIT_TYPE("creditType"),
         CREDIT_AMOUNT("creditAmount"),
         DEVICE("device"),
+        FIRST_CHECKED("firstChecked"),
         LAST_CHECKED("lastChecked");
 
         private final String javaFieldName;
@@ -37,34 +40,28 @@ public class CreditAmountImpl implements CreditAmount {
         }
     }
 
-    @SuppressWarnings("unused")
-    private long id;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private String creditType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal creditAmount;
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Reference<Device> device = ValueReference.absent();
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    private Instant firstChecked;
+    @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private Instant lastChecked;
-
-    @SuppressWarnings("unused")
-    private long version;
-    @SuppressWarnings("unused")
-    private Instant createTime;
-    @SuppressWarnings("unused")
-    private Instant modTime;
-    @SuppressWarnings("unused")
-    private String userName;
 
     private final DataModel dataModel;
     private final EventService eventService;
-    private final DeviceService deviceDataService;
+    private final DeviceService deviceService;
+    private final Clock clock;
 
     @Inject
-    public CreditAmountImpl(DataModel dataModel, EventService eventService, DeviceService deviceDataService) {
+    public CreditAmountImpl(DataModel dataModel, EventService eventService, DeviceService deviceService, Clock clock) {
         this.dataModel = dataModel;
         this.eventService = eventService;
-        this.deviceDataService = deviceDataService;
+        this.deviceService = deviceService;
+        this.clock = clock;
     }
 
     public CreditAmount init(Device device, String creditType, BigDecimal creditAmount) {
@@ -80,34 +77,33 @@ public class CreditAmountImpl implements CreditAmount {
 
     @Override
     public void save() {
-        if (getId() == 0) {
-            doPersist();
-            return;
+        if (lastChecked == null) {
+            lastChecked = clock.instant();
         }
-        doUpdate();
+        Optional<CreditAmount> previous = deviceService.getCreditAmount(getDevice(), lastChecked);
+        Optional<CreditAmount> matchingPrevious = previous
+                .filter(credit -> credit.matches(creditType, creditAmount));
+        if (matchingPrevious.isPresent()) {
+            firstChecked = matchingPrevious.get().getFirstChecked();
+            lastChecked = max(lastChecked, matchingPrevious.get().getLastChecked());
+            Save.UPDATE.save(dataModel, this);
+        } else {
+            firstChecked = lastChecked;
+            Save.CREATE.save(dataModel, this);
+        }
+        this.eventService.postEvent(
+                previous.isPresent() ? EventType.CREDIT_AMOUNT_UPDATED.topic() : EventType.CREDIT_AMOUNT_CREATED.topic(),
+                this);
     }
 
-    private void doPersist() {
-        Save.CREATE.save(dataModel, this);
-        notifyCreated();
-    }
-
-    private void doUpdate() {
-        Save.UPDATE.save(dataModel, this);
-        notifyUpdated();
-    }
-
-    private void notifyCreated() {
-        this.eventService.postEvent(EventType.CREDIT_AMOUNT_CREATED.topic(), this);
-    }
-
-    private void notifyUpdated() {
-        this.eventService.postEvent(EventType.CREDIT_AMOUNT_UPDATED.topic(), this);
+    private static Instant max(Instant i1, Instant i2) {
+        return i1.isBefore(i2) ? i2 : i1;
     }
 
     @Override
-    public long getId() {
-        return id;
+    public boolean matches(String type, BigDecimal amount) {
+        return getCreditType().equalsIgnoreCase(type)
+                && getCreditAmount().equals(amount);
     }
 
     @Override
@@ -138,13 +134,17 @@ public class CreditAmountImpl implements CreditAmount {
     }
 
     @Override
+    public Instant getFirstChecked() {
+        return firstChecked;
+    }
+
+    @Override
     public Instant getLastChecked() {
-        return this.lastChecked;
+        return lastChecked;
     }
 
     @Override
     public void setLastChecked(Instant lastChecked) {
         this.lastChecked = lastChecked;
     }
-
 }

@@ -89,7 +89,6 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -981,13 +980,14 @@ public enum TableSpecs {
             Table<CreditAmount> table = dataModel.addTable(name(), CreditAmount.class);
             table.since(version(10, 9));
             table.map(CreditAmountImpl.class);
-            Column idColumn = table.addAutoIdColumn();
-            Column deviceColumn = table.column("DEVICEID").number().notNull().add();
-            table.column("CREDIT_TYPE").varChar(NAME_LENGTH).map(CreditAmountImpl.Fields.CREDIT_TYPE.fieldName()).notNull().add();
-            table.column("CREDIT_AMOUNT").number().map(CreditAmountImpl.Fields.CREDIT_AMOUNT.fieldName()).notNull().add();
-            table.column("LASTCHECKED").number().map(CreditAmountImpl.Fields.LAST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).add();
-            table.addAuditColumns();
-            table.primaryKey("PK_DDC_CREDIT_AMOUNT").on(idColumn).add();
+            Column deviceColumn = table.column(ActivatedBreakerStatusImpl.Fields.DEVICE.name()).number().notNull().add();
+            table.column(CreditAmountImpl.Fields.CREDIT_TYPE.name()).varChar(NAME_LENGTH).map(CreditAmountImpl.Fields.CREDIT_TYPE.fieldName()).notNull().add();
+            table.column(CreditAmountImpl.Fields.CREDIT_AMOUNT.name()).number().map(CreditAmountImpl.Fields.CREDIT_AMOUNT.fieldName()).notNull().add();
+            Column firstCheckedColumn = table.column(CreditAmountImpl.Fields.FIRST_CHECKED.name())
+                    .number().map(CreditAmountImpl.Fields.FIRST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            table.column(CreditAmountImpl.Fields.LAST_CHECKED.name())
+                    .number().map(CreditAmountImpl.Fields.LAST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            table.primaryKey("PK_DDC_CREDIT_AMOUNT").on(deviceColumn, firstCheckedColumn).add();
             table.foreignKey("FK_DDC_CREDIT_AMOUNT_DEVICE")
                     .on(deviceColumn)
                     .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())

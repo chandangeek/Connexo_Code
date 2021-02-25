@@ -610,9 +610,15 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Optional<CreditAmount> getCreditAmount(Device device) {
+        return getCreditAmount(device, clock.instant());
+    }
+
+    @Override
+    public Optional<CreditAmount> getCreditAmount(Device device, Instant instant) {
         return deviceDataModelService.dataModel().stream(CreditAmount.class)
-                .filter(where("device").isEqualTo(device))
-                .findFirst();
+                .filter(where(CreditAmountImpl.Fields.DEVICE.fieldName()).isEqualTo(device))
+                .filter(where(CreditAmountImpl.Fields.FIRST_CHECKED.fieldName()).isLessThanOrEqual(instant))
+                .max(CreditAmountImpl.Fields.FIRST_CHECKED.fieldName());
     }
 
     @Override
