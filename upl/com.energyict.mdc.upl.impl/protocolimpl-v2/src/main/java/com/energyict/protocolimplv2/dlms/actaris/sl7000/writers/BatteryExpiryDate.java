@@ -49,6 +49,7 @@ public class BatteryExpiryDate extends AbstractMessage implements Message {
             cal.setTimeInMillis(Long.valueOf(batteryExpiry));
             dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
             month = cal.get(Calendar.MONTH);
+            month++;
             year = cal.get(Calendar.YEAR);
 
             Data expiryObject = dlmsProtocol.getDlmsSession().getCosemObjectFactory().getData(BATTERY_EXPIRY_OBIS);
