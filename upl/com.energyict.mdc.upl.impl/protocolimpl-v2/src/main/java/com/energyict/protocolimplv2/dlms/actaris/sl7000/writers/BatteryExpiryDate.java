@@ -5,7 +5,6 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -18,10 +17,9 @@ import com.energyict.protocolimplv2.dlms.common.writers.Message;
 import com.energyict.protocolimplv2.dlms.common.writers.impl.AbstractMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -46,11 +44,9 @@ public class BatteryExpiryDate extends AbstractMessage implements Message {
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
             int year, month, dayOfMonth;
-            OfflineDeviceMessageAttribute messageAttribute = super.getMessageAttribute(message, DeviceMessageConstants.ConfigurationChangeDate);
-            SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-            Date date = formatter.parse(messageAttribute.getValue());
+            String batteryExpiry = MessageConverterTools.getDeviceMessageAttribute(message, DeviceMessageConstants.ConfigurationChangeDate).getValue();
             Calendar cal = Calendar.getInstance();
-            cal.setTime(date);
+            cal.setTimeInMillis(Long.valueOf(batteryExpiry));
             dayOfMonth = cal.get(Calendar.DAY_OF_MONTH);
             month = cal.get(Calendar.MONTH);
             year = cal.get(Calendar.YEAR);
@@ -68,8 +64,8 @@ public class BatteryExpiryDate extends AbstractMessage implements Message {
             OctetString data = new OctetString(expiryDate);
             expiryObject.setValueAttr(data);
 
-            return super.createCollectedMessage(message);
-        } catch (ParseException | IOException e) {
+            return super.createConfirmedCollectedMessage(message);
+        } catch (IOException e) {
             return super.createErrorCollectedMessage(message, e);
         }
     }
@@ -81,6 +77,9 @@ public class BatteryExpiryDate extends AbstractMessage implements Message {
 
     @Override
     public String format(PropertySpec propertySpec, Object messageAttribute) {
+        if (DeviceMessageConstants.ConfigurationChangeDate.equals(propertySpec.getName())) {
+            return String.valueOf(((Date) messageAttribute).getTime());
+        }
         return messageAttribute.toString();
     }
 }

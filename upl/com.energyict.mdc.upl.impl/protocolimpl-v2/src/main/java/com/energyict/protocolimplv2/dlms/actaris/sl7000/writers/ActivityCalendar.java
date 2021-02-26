@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.actaris.sl7000.writers;
 
-import com.energyict.dlms.DLMSAttribute;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -14,12 +13,10 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.dlms.common.writers.AttributeProvider;
 import com.energyict.protocolimplv2.dlms.common.writers.Message;
 import com.energyict.protocolimplv2.dlms.common.writers.impl.AbstractMessage;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
 
 import java.io.IOException;
 
@@ -53,7 +50,7 @@ public class ActivityCalendar extends AbstractMessage implements Message {
         } catch (IOException e) {
             super.createErrorCollectedMessage(message, e);
         }
-        return super.createCollectedMessage(message);
+        return super.createConfirmedCollectedMessage(message);
     }
 
     @Override

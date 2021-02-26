@@ -22,8 +22,10 @@ public abstract class AbstractMessage implements Message {
         this.issueFactory = issueFactory;
     }
 
-    protected CollectedMessage createCollectedMessage(OfflineDeviceMessage message) {
-        return this.collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
+    protected CollectedMessage createConfirmedCollectedMessage(OfflineDeviceMessage message) {
+        CollectedMessage collectedMessage = collectedDataFactory.createCollectedMessage(new DeviceMessageIdentifierById(message.getDeviceMessageId(), message.getDeviceIdentifier()));
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+        return collectedMessage;
     }
 
     public CollectedMessage createNotSupportedMessage(OfflineDeviceMessage message) {

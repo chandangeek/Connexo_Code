@@ -90,7 +90,7 @@ public abstract class DSTTime extends AbstractMessage implements Message {
         } catch (IOException e) {
             super.createErrorCollectedMessage(message, e);
         }
-        return super.createCollectedMessage(message);
+        return super.createConfirmedCollectedMessage(message);
     }
 
     protected int getAsInt(OfflineDeviceMessage message, String attName) throws ProtocolException {

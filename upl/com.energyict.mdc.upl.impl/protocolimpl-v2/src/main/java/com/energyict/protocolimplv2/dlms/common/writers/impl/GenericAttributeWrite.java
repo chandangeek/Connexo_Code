@@ -42,7 +42,7 @@ public class GenericAttributeWrite extends AbstractMessage {
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
             this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().writeObject(dlmsAttribute.getObisCode(), dlmsAttribute.getDLMSClassId().getClassId(), dlmsAttribute.getAttribute(), attributeProvider.provide(dlmsProtocol, message));
-            return super.createCollectedMessage(message);
+            return super.createConfirmedCollectedMessage(message);
         } catch (IOException e) {
             return super.createErrorCollectedMessage(message, e);
         }

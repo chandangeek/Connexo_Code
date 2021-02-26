@@ -45,7 +45,7 @@ public class GenericNoParamMethodInvoke extends AbstractMessage {
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
             this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().getGenericInvoke(obisCode, classId.getClassId(), method).invoke();
-            return super.createCollectedMessage(message);
+            return super.createConfirmedCollectedMessage(message);
         } catch (NotInObjectListException e) {
             return super.createNotSupportedMessage(message);
         } catch (IOException e) {

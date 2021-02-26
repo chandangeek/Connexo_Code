@@ -34,7 +34,7 @@ public class RemoteReConnect extends AbstractMessage {
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
             dlmsProtocol.getDlmsSession().getCosemObjectFactory().getDisconnector().remoteReconnect();
-            return super.createCollectedMessage(message);
+            return super.createConfirmedCollectedMessage(message);
         } catch (NotInObjectListException e) {
             return super.createNotSupportedMessage(message);
         } catch (IOException e) {

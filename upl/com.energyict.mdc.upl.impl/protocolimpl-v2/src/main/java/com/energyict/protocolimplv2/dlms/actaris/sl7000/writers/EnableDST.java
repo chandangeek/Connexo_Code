@@ -56,7 +56,7 @@ public class EnableDST extends AbstractMessage implements Message {
         } catch (IOException e) {
             super.createErrorCollectedMessage(message, e);
         }
-        return super.createCollectedMessage(message);
+        return super.createConfirmedCollectedMessage(message);
     }
 
     @Override
