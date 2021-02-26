@@ -14,7 +14,6 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
-import com.energyict.mdc.device.data.impl.EventType;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
@@ -24,8 +23,10 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Handles events that are being sent when a {@link CreditAmount} has been created/updated/deleted.
@@ -65,12 +66,10 @@ public class CreditAmountUpdateEventHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent event) {
-        if (event.getType().getTopic().endsWith(EventType.CREDIT_AMOUNT_CREATED.topic()) || event.getType().getTopic().endsWith(EventType.CREDIT_AMOUNT_UPDATED.topic())) {
-            CreditAmount creditAmount = (CreditAmount) event.getSource();
-            List<ServiceCall> serviceCalls = findAllUpdateCreditAmountServiceCallsLinkedTo(creditAmount.getDevice());
-            for (ServiceCall serviceCall : serviceCalls) {
-                handle(serviceCall, creditAmount);
-            }
+        CreditAmount creditAmount = (CreditAmount) event.getSource();
+        List<ServiceCall> serviceCalls = findAllUpdateCreditAmountServiceCallsLinkedTo(creditAmount.getDevice());
+        for (ServiceCall serviceCall : serviceCalls) {
+            handle(serviceCall, creditAmount);
         }
     }
 
@@ -91,6 +90,10 @@ public class CreditAmountUpdateEventHandler implements TopicHandler {
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObjects.add(device);
         filter.types = Collections.singletonList(UpdateCreditAmountServiceCallHandler.SERVICE_CALL_HANDLER_NAME);
+        filter.states = Arrays.stream(DefaultState.values())
+                .filter(DefaultState::isOpen)
+                .map(DefaultState::name)
+                .collect(Collectors.toList());
         return serviceCallService.getServiceCallFinder(filter).find();
     }
 }

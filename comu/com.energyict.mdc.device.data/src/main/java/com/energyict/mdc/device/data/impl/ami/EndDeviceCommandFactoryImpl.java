@@ -393,7 +393,7 @@ public class EndDeviceCommandFactoryImpl implements EndDeviceCommandFactory {
         AllowedCalendar calendar = device.getDeviceType().getAllowedCalendars().stream()
                 .filter(allowedCalendar -> allowedCalendar.getCalendar().isPresent())
                 .filter(allowedCalendar -> !allowedCalendar.isGhost() && allowedCalendar.getCalendar().get().getName().equals(specialDaysCalendarName))
-                .findFirst().orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.CAN_NOT_FIND_FOR_ALLOWED_CALENDAR).format(specialDaysCalendarName)));
+                .findFirst().orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.COULD_NOT_FIND_ALLOWED_CALENDAR).format(specialDaysCalendarName)));
 
         command.setPropertyValue(getCommandArgumentSpec(command, DeviceMessageConstants.specialDaysAttributeName), calendar.getCalendar().get());
 

@@ -129,7 +129,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     }
 
     private void triggerStatusInformationTask(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
-        serviceCall.log(LogLevel.INFO, "Scheduling 'Status information' task to verify credit amount");
+        serviceCall.log(LogLevel.INFO, "Scheduling status information task to verify credit amount...");
         Device device = (Device) serviceCall.getTargetObject().get();
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         serviceCall.update(domainExtension);
@@ -200,14 +200,14 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         if (creditAmount.isPresent()) {
             if (creditAmount.get().getCreditAmount().equals(desiredCreditAmount.getCreditAmount())
                     && creditAmount.get().getCreditType().equals(desiredCreditAmount.getCreditType())) {
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} {1}", creditAmount.get().getCreditAmount(), creditAmount.get().getCreditType()));
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", creditAmount.get().getCreditAmount(), creditAmount.get().getCreditType()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount {0} {1} doesn''t match expected amount {2} {3}",
+                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount {0} of type {1} doesn''t match the expected amount: {2} of type {3}.",
                         creditAmount.get().getCreditAmount(), creditAmount.get().getCreditType(),
                         desiredCreditAmount.getCreditAmount(), desiredCreditAmount.getCreditType())
                 );
-                getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
+                getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         } else {
