@@ -125,7 +125,7 @@ public class InstallerV10_2Impl implements FullInstaller, PrivilegesProvider {
             RegisteredCustomPropertySet commandCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CommandCustomPropertySet().getId())
                     .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Couldn''t find active custom property set {0}.", CommandCustomPropertySet.class.getSimpleName())));
             RegisteredCustomPropertySet completionOptionsCustomPropertySet = customPropertySetService.findActiveCustomPropertySet(new CompletionOptionsCustomPropertySet().getId())
-                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Couldn''t find active custom property set {0}.", CommandCustomPropertySet.class.getSimpleName())));
+                    .orElseThrow(() -> new IllegalStateException(MessageFormat.format("Couldn''t find active custom property set {0}.", CompletionOptionsCustomPropertySet.class.getSimpleName())));
 
             serviceCallService.createServiceCallType(serviceCallTypeMapping.getTypeName(), serviceCallTypeMapping.getTypeVersion(), serviceCallTypeMapping.getApplication().orElse(null))
                     .handler(serviceCallTypeMapping.getTypeName())
