@@ -32,3 +32,6 @@ n/a,n/a,n/a,n/a
 *,Billing,Rate,Change
 *,Billing,Activation,Start
 *,Billing,Pricing,Change
+*,Billing,Time,Change
+*,Billing,Day,Change
+*,Billing,Holiday,Change

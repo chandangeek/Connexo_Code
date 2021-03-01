@@ -54,6 +54,7 @@ import com.energyict.mdc.device.data.impl.ServerDeviceMessage;
 import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditAmountCommand;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallDomainExtension;
@@ -446,7 +447,8 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         try {
             boolean needToExecuteComTaskWithPriority = withPriority && releaseDate.isBefore(clock.instant());
             checkComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
-            if (endDeviceCommand instanceof OpenRemoteSwitchCommand || endDeviceCommand instanceof CloseRemoteSwitchCommand || endDeviceCommand instanceof ArmRemoteSwitchCommand) {
+            if (endDeviceCommand instanceof OpenRemoteSwitchCommand || endDeviceCommand instanceof CloseRemoteSwitchCommand
+                    || endDeviceCommand instanceof ArmRemoteSwitchCommand || endDeviceCommand instanceof UpdateCreditAmountCommand) {
                 // check Status Information com task exists and is manual system for 3 command types which trigger it in service call handlers
                 checkStatusInformationComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
             }

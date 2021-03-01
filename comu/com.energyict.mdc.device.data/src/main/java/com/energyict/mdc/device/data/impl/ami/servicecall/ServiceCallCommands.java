@@ -21,6 +21,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisableLoadLi
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.DisconnectServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.EnableLoadLimitServiceCallHandler;
 import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.KeyRenewalServiceCallHandler;
+import com.energyict.mdc.device.data.impl.ami.servicecall.handlers.UpdateCreditAmountServiceCallHandler;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -39,6 +40,7 @@ public class ServiceCallCommands {
         connectBreaker(ConnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ConnectServiceCallHandler.VERSION, ConnectServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH),
         disconnectBreaker(DisconnectServiceCallHandler.SERVICE_CALL_HANDLER_NAME, DisconnectServiceCallHandler.VERSION, DisconnectServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH),
         armBreaker(ArmServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, ArmServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.ARM_REMOTE_SWITCH_FOR_CLOSURE),
+        updateCreditAmount(UpdateCreditAmountServiceCallHandler.SERVICE_CALL_HANDLER_NAME, UpdateCreditAmountServiceCallHandler.VERSION, UpdateCreditAmountServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.UPDATE_CREDIT_AMOUNT),
 
         loadControlInitiate(EnableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, EnableLoadLimitServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.LOAD_CONTROL_INITIATE),
         loadControlTerminate(DisableLoadLimitServiceCallHandler.SERVICE_CALL_HANDLER_NAME, ArmServiceCallHandler.VERSION, DisableLoadLimitServiceCallHandler.APPLICATION, EndDeviceControlTypeMapping.LOAD_CONTROL_TERMINATE),

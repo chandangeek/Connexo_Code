@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 import com.elster.jupiter.metering.ami.ChangeTaxRatesInfo;
+import com.elster.jupiter.metering.ami.FriendlyDayPeriodInfo;
 import com.elster.jupiter.metering.ami.StepTariffInfo;
 
 import java.math.BigDecimal;
@@ -22,6 +23,9 @@ public class DeviceCommandInfo {
     private ChangeTaxRatesInfo changeTaxRatesInfo;
     private String tariffType;
     private String chargeMode;
+    private FriendlyDayPeriodInfo friendlyDayPeriodInfo;
+    private String friendlyWeekdays;
+    private String specialDaysCalendarName;
 
     public EndDeviceControlTypeMapping getEndDeviceControlTypeMapping() {
         return endDeviceControlTypeMapping;
@@ -102,5 +106,30 @@ public class DeviceCommandInfo {
 
     public void setChargeMode(String chargeMode) {
         this.chargeMode = chargeMode;
+    }
+
+
+    public void setFriendlyDayPeriodInfo(FriendlyDayPeriodInfo friendlyDayPeriodInfo) {
+        this.friendlyDayPeriodInfo = friendlyDayPeriodInfo;
+    }
+
+    public FriendlyDayPeriodInfo getFriendlyDayPeriodInfo() {
+        return friendlyDayPeriodInfo;
+    }
+
+    public void setFriendlyWeekdays(String friendlyWeekdays) {
+        this.friendlyWeekdays = friendlyWeekdays;
+    }
+
+    public String getFriendlyWeekdays() {
+        return friendlyWeekdays;
+    }
+
+    public String getSpecialDaysCalendarName() {
+        return specialDaysCalendarName;
+    }
+
+    public void setSpecialDaysCalendarName(String specialDaysCalendarName) {
+        this.specialDaysCalendarName = specialDaysCalendarName;
     }
 }
