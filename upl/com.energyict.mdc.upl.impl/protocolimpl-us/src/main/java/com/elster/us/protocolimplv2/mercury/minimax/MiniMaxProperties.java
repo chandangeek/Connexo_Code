@@ -18,7 +18,7 @@ import java.util.List;
 public class MiniMaxProperties {
 
     public static final String DEVICE_PWD = "DevicePassword";
-    public static final String DEVICE_ID = "DevideId";
+    public static final String DEVICE_ID = "DeviceId";
     public static final String DEVICE_TIMEZONE = "DeviceTimezone";
     public static final String TIMEZONE = "Timezone";
     public static final String TIMEOUT = "Timeout";
