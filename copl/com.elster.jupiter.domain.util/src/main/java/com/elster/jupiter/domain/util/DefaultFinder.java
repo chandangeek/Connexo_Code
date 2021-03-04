@@ -10,6 +10,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -35,6 +36,7 @@ public final class DefaultFinder<T> implements Finder<T> {
     private Integer start;
     private Integer pageSize;
     private List<Order> sortingColumns = new ArrayList<>();
+    private List<Hint> hints = new ArrayList<>();
     private Order defaultSort;
     private Integer maxPageSize;
     private Thesaurus thesaurus;
@@ -68,6 +70,12 @@ public final class DefaultFinder<T> implements Finder<T> {
     }
 
     @Override
+    public DefaultFinder<T> withHint(Hint hint) {
+        hints.add(hint);
+        return this;
+    }
+
+    @Override
     public DefaultFinder<T> sorted(Order order) {
         sortingColumns.add(order);
         return this;
@@ -85,10 +93,11 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public List<T> find() {
+        Hint[] hintsArray = hints.toArray(new Hint[0]);
         Range<Integer> limits = getActualPageLimits();
         return Range.all().equals(limits) ?
-                query.select(condition, getActualSortingColumns()) :
-                query.select(condition, getActualSortingColumns(), true, new String[0], limits.lowerEndpoint(), limits.upperEndpoint());
+                query.select(condition, hintsArray, getActualSortingColumns()) :
+                query.select(condition, hintsArray, getActualSortingColumns(), true, new String[0], limits.lowerEndpoint(), limits.upperEndpoint());
     }
 
     @Override
@@ -184,7 +193,7 @@ public final class DefaultFinder<T> implements Finder<T> {
         }
 
         private void loadNextPage() {
-            items = query.select(condition, getActualSortingColumns(), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
+            items = query.select(condition, hints.toArray(new Hint[0]), getActualSortingColumns(), true, new String[0], currentPage + 1, currentPage + pageSize + 1);
             currentPage += pageSize;
             currentItemInPage = 0;
         }

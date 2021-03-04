@@ -20,6 +20,7 @@ import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.search.SearchablePropertyConstriction;
 import com.elster.jupiter.search.SearchablePropertyValue;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.conditions.Where;
@@ -195,6 +196,11 @@ public class EndDeviceSearchDomain implements SearchDomain {
         @Override
         public Finder<EndDevice> sorted(Order order) {
             return finder.sorted(order);
+        }
+
+        @Override
+        public Finder<EndDevice> withHint(Hint hint) {
+            return finder.withHint(hint);
         }
 
         @Override

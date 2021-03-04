@@ -19,6 +19,7 @@ import com.elster.jupiter.tasks.RecurrentTaskBuilder;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.validation.DataValidationOccurrence;
 
 import com.google.common.collect.ImmutableList;
@@ -38,8 +39,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -187,7 +187,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         verify(dataModel).update(task);
 
         when(dataModel.query(any(), any())).thenReturn(queryExecutor);
-        when(queryExecutor.select(any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
+        when(queryExecutor.select(any(Condition.class), anyObject(), anyBoolean(), anyObject())).thenReturn(new ArrayList<DataValidationOccurrence>());
 
         DataMapper<DataValidationOccurrence> mapper = mock(DataMapper.class);
         when(dataModel.mapper(DataValidationOccurrence.class)).thenReturn(mapper);
@@ -210,7 +210,7 @@ public class DataValidationTaskImplTest extends EqualsContractTest {
         verify(dataModel).update(task);
 
         when(dataModel.query(any(), any())).thenReturn(queryExecutor);
-        when(queryExecutor.select(any(), any(), any(), any(), any())).thenReturn(new ArrayList<DataValidationOccurrence>());
+        when(queryExecutor.select(any(Condition.class), anyObject(), anyBoolean(), anyObject())).thenReturn(new ArrayList<DataValidationOccurrence>());
 
         DataMapper<DataValidationOccurrence> mapper = mock(DataMapper.class);
         when(dataModel.mapper(DataValidationOccurrence.class)).thenReturn(mapper);

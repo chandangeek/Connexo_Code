@@ -52,6 +52,11 @@ public enum SqlDialect {
         }
 
         @Override
+        public boolean allowHints() {
+            return false;
+        }
+
+        @Override
         public List<Long> getMultipleNextVals(Statement statement, String sequenceName, int number) {
             List<Long> nextVals = new ArrayList<>();
             for (int i = 0; i < number; i++) {
@@ -100,6 +105,11 @@ public enum SqlDialect {
         }
 
         @Override
+        public boolean allowHints() {
+            return true;
+        }
+
+        @Override
         public List<Long> getMultipleNextVals(Statement statement, String sequenceName, int number) {
             List<Long> nextVals = new ArrayList<>();
             try (ResultSet resultSet = statement.executeQuery("SELECT " + sequenceName + ".nextval FROM dual connect by level <= " + number)) {
@@ -142,6 +152,11 @@ public enum SqlDialect {
         }
 
         @Override
+        public boolean allowHints() {
+            return true;
+        }
+
+        @Override
         public List<Long> getMultipleNextVals(Statement statement, String sequenceName, int number) {
             List<Long> nextVals = new ArrayList<>();
             try (ResultSet resultSet = statement.executeQuery("SELECT " + sequenceName + ".nextval FROM dual connect by level <= " + number)) {
@@ -181,6 +196,8 @@ public enum SqlDialect {
     }
 
     public abstract String leftPad(String id, int zerofillSize, String s);
+
+    public abstract boolean allowHints();
 
     public abstract List<Long> getMultipleNextVals(Statement statement, String sequenceName, int number);
 }

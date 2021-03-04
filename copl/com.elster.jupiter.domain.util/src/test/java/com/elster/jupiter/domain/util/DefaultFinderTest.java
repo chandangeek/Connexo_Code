@@ -6,21 +6,22 @@ package com.elster.jupiter.domain.util;
 
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.QueryExecutor;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import com.elster.jupiter.util.conditions.Condition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
@@ -90,26 +91,26 @@ public class DefaultFinderTest {
         final List<Integer> integers = intList(1000);
         mockQuery(integers);
 
-        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100).paged(0,10);
+        Finder<Integer> finder = DefaultFinder.of(Integer.class, dataModel).maxPageSize(null, 100).paged(0, 10);
         List<Integer> results = finder.stream().collect(toList());
         assertList(results, 11);
     }
 
     private void mockQuery(List<Integer> integers) {
-        when(queryExecutor.select(any(), any(), anyBoolean(), any(), anyInt(), anyInt())).thenAnswer(invocationOnMock -> integers.subList((int)invocationOnMock.getArguments()[4]-1, Math.min((int)invocationOnMock.getArguments()[5], integers.size())));
+        when(queryExecutor.select(any(Condition.class), anyObject(), anyObject(), anyBoolean(), anyObject(), anyInt(), anyInt())).thenAnswer(invocationOnMock -> integers.subList((int) invocationOnMock.getArguments()[5] - 1, Math.min((int) invocationOnMock.getArguments()[6], integers.size())));
         doReturn(queryExecutor).when(dataModel).query(any());
     }
 
     private void assertList(List<Integer> results, int max) {
         assertThat(results).hasSize(max);
-        for (int t=0; t<max; t++) {
-            assertThat(results.get(t)).isEqualTo(t+1);
+        for (int t = 0; t < max; t++) {
+            assertThat(results.get(t)).isEqualTo(t + 1);
         }
     }
 
     private List<Integer> intList(int max) {
         final List<Integer> integers = new ArrayList<>();
-        for (int i=1; i<=max; i++) {
+        for (int i = 1; i <= max; i++) {
             integers.add(i);
         }
         return integers;
