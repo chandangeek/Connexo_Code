@@ -10,6 +10,7 @@ import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
@@ -28,6 +29,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -155,6 +157,10 @@ public class DeviceMultiplierTest {
     private ConnectionTaskService connectionTaskService;
     @Mock
     private MeteringZoneService meteringZoneService;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -226,13 +232,14 @@ public class DeviceMultiplierTest {
         when(deviceLifeCycle.getMaximumPastEffectiveTimestamp()).thenReturn(now.minus(3000, ChronoUnit.DAYS));
         when(deviceLifeCycle.getMaximumFutureEffectiveTimestamp()).thenReturn(Instant.MAX);
         when(deviceLifeCycle.getFiniteStateMachine()).thenReturn(finiteStateMachine);
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
     }
 
     private Device createMockedDevice(Instant startOfMeterActivation) {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService);
+                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();

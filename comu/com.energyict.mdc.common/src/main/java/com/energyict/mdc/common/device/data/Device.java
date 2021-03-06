@@ -199,6 +199,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
     @Deprecated
     TimeZone getTimeZone();
 
+    @Deprecated
     void setTimeZone(TimeZone timeZone);
 
     ZoneId getZone();

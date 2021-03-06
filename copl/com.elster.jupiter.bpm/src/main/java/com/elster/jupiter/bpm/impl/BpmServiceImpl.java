@@ -83,7 +83,7 @@ public final class BpmServiceImpl implements BpmService, TranslationKeyProvider,
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile UpgradeService upgradeService;
     private List<ProcessAssociationProvider> processAssociationProviders = new CopyOnWriteArrayList<>();
-    private Map<String, String> singletonInstanceProcesses = new ConcurrentHashMap();
+    private Map<String, String> singletonInstanceProcesses = new ConcurrentHashMap<>();
 
     private final static String TOKEN_AUTH = "com.elster.jupiter.token";
 

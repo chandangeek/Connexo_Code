@@ -46,7 +46,7 @@ public class StateTriggerEventTopicHandler extends StateTransitionTriggerEventTo
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile EventService eventService;
     private volatile BpmService bpmService;
-    private volatile StateTransitionPropertiesProvider usagePointProvider;
+    private volatile StateTransitionPropertiesProvider propertiesProvider;
 
     // For OSGi purposes
     public StateTriggerEventTopicHandler() {
@@ -56,11 +56,11 @@ public class StateTriggerEventTopicHandler extends StateTransitionTriggerEventTo
     // For testing purposes
     @Inject
     public StateTriggerEventTopicHandler(EventService eventService, BpmService bpmService,
-                                         StateTransitionPropertiesProvider usagePointProvider) {
+                                         StateTransitionPropertiesProvider propertiesProvider) {
         this();
         this.setEventService(eventService);
         this.setBpmService(bpmService);
-        this.setFsmUsagePointProvider(usagePointProvider);
+        this.setPropertiesProvider(propertiesProvider);
         this.setFiniteStateMachineService(finiteStateMachineService);
     }
 
@@ -75,8 +75,8 @@ public class StateTriggerEventTopicHandler extends StateTransitionTriggerEventTo
     }
 
     @Reference
-    public void setFsmUsagePointProvider(StateTransitionPropertiesProvider usagePointProvider) {
-        this.usagePointProvider = usagePointProvider;
+    public void setPropertiesProvider(StateTransitionPropertiesProvider propertiesProvider) {
+        this.propertiesProvider = propertiesProvider;
     }
 
     @Reference
@@ -95,7 +95,7 @@ public class StateTriggerEventTopicHandler extends StateTransitionTriggerEventTo
 
         finiteStateMachineService.findFiniteStateById(Long.parseLong(stateId))
                 .ifPresent(state -> {
-                    new StateTransitionTriggerEventTopicHandler.StartExternalProcessesOnEntry(bpmService, usagePointProvider, state.getOnEntryProcesses(), sourceId, state, sourceType).startAll();
+                    new StateTransitionTriggerEventTopicHandler.StartExternalProcessesOnEntry(bpmService, propertiesProvider, state.getOnEntryProcesses(), sourceId, state, sourceType).startAll();
                     new StateTransitionTriggerEventTopicHandler.CallWebServiceClientOnEntry(finiteStateMachineService.getStateTransitionWebServiceClients(), state.getOnEntryEndPointConfigurations(), sourceId, state, sourceType).callAll();
 
                 });

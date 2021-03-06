@@ -26,6 +26,7 @@ import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.BaseReadingRecord;
 import com.elster.jupiter.metering.ChannelsContainer;
@@ -85,6 +86,7 @@ import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -277,9 +279,9 @@ import static java.util.stream.Collectors.toList;
 @ValidOverruledAttributes(groups = {Save.Update.class})
 @XmlRootElement
 public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDevice {
-
     public static final String IP_V6_ADDRESS = "IPv6Address";
     static final String TIME_ZONE_PROPERTY_NAME = "TimeZone";
+    private static final String DEVICE = "com.energyict.mdc.common.device.data.Device";
     private static final String HOST_PROPERTY_SPEC_NAME = "host";
     private static final BigDecimal maxMultiplier = BigDecimal.valueOf(Integer.MAX_VALUE);
     private static Map<Predicate<Class<? extends ProtocolTask>>, Integer> scorePerProtocolTask;
@@ -299,6 +301,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private ThreadPrincipalService threadPrincipalService;
     private UserPreferencesService userPreferencesService;
     private DeviceConfigurationService deviceConfigurationService;
+    private MessageService messageService;
+    private JsonService jsonService;
+
     private final List<LoadProfile> loadProfiles = new ArrayList<>();
     private final List<LogBook> logBooks = new ArrayList<>();
     private final List<SecurityAccessor> keyAccessors = new ArrayList<>();
@@ -394,8 +399,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             LockService lockService,
             SecurityManagementService securityManagementService,
             ConnectionTaskService connectionTaskService,
-            MeteringZoneService meteringZoneService
-    ) {
+            MeteringZoneService meteringZoneService,
+            MessageService messageService,
+            JsonService jsonService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -419,6 +425,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.koreHelper = new SyncDeviceWithKoreForInfo(this, this.deviceService, this.readingTypeUtilService, clock, this.eventService);
         this.securityManagementService = securityManagementService;
         this.connectionTaskService = connectionTaskService;
+        this.messageService = messageService;
+        this.jsonService = jsonService;
         this.koreHelper.syncWithKore(this);
         this.meteringZoneService = meteringZoneService;
     }
@@ -906,7 +914,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         Optional<SyncDeviceWithKoreForSimpleUpdate> currentKoreUpdater = getKoreMeterUpdater();
         if (currentKoreUpdater.isPresent()) {
             return currentKoreUpdater.get().getSerialNumber();
-        } else if (meter != null && meter.isPresent() && meter.get().getSerialNumber() != null && !meter.get().getSerialNumber().isEmpty()) {
+        } else if (meter.isPresent() && meter.get().getSerialNumber() != null && !meter.get().getSerialNumber().isEmpty()) {
             return meter.get().getSerialNumber();
         }
         return this.serialNumber;
@@ -1781,6 +1789,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             this.saveNewDialectProperties();
             this.createComTaskExecutionsForEnablementsMarkedAsAlwaysExecuteForInbound();
             this.notifyCreated();
+            sendMessageCreated();
         }
         executeSyncs();
     }
@@ -1831,6 +1840,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @XmlAttribute
+    @Override
     public String getName() {
         return name;
     }
@@ -1882,6 +1892,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.deviceConfiguration.set(deviceConfiguration);
     }
 
+    @Deprecated
+    @Override
     @JsonIgnore
     @XmlTransient
     public TimeZone getTimeZone() {
@@ -3122,6 +3134,21 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         if (securityAccessorType.isManagedCentrally()) {
             throw new UnmanageableSecurityAccessorException(thesaurus, securityAccessorType);
         }
+    }
+
+    private void sendMessageCreated() {
+        // send the InitialStateActions message in order to execute on entry actions for default life cycle states
+        // called only when the device is created
+        messageService
+                .getDestinationSpec("InitialStateActions")
+                .ifPresent(destinationSpec -> {
+                    Map<String, String> message = new HashMap<String, String>() {{
+                        put("stateId", String.valueOf(getState().getId()));
+                        put("sourceId", String.valueOf(getId()));
+                        put("sourceType", DEVICE);
+                    }};
+                    destinationSpec.message(jsonService.serialize(message)).send();
+                });
     }
 
     private enum RegisterFactory {
