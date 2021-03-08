@@ -15,7 +15,13 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
 import java.util.Arrays;
@@ -63,6 +69,7 @@ public class AcudMessaging extends AbstractDlmsMessaging implements DeviceMessag
                 ChargeDeviceMessage.FRIENDLY_DAY_PERIOD_UPDATE.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ChargeDeviceMessage.FRIENDLY_WEEKDAYS_UPDATE.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND.get(getPropertySpecService(), getNlsService(), getConverter()),
+                ConfigurationChangeDeviceMessage.SPECIAL_DAY_CSV_STRING.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ContactorDeviceMessage.CONTACTOR_OPEN.get(this.propertySpecService, this.nlsService, this.converter),
                 ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.propertySpecService, this.nlsService, this.converter),
                 FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER.get(this.propertySpecService, this.nlsService, this.converter));

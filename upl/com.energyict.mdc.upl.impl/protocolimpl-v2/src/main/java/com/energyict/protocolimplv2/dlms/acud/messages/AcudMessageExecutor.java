@@ -1,7 +1,22 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.Integer32;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.cosem.ChargeSetup;
+import com.energyict.dlms.cosem.CreditSetup;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.cosem.attributes.ChargeSetupAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
@@ -19,13 +34,26 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysDayIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysFormatDatesAttributeName;
 
 public class AcudMessageExecutor extends AbstractMessageExecutor {
 
@@ -132,7 +160,8 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             friendlyWeekdaysUpdate(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
             writeSpecialDays(pendingMessage);
-
+        } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SPECIAL_DAY_CSV_STRING)) {
+            writeSpecialDaysCsv(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
             getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
@@ -433,6 +462,51 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
         String specialDaysHex = pendingMessage.getDeviceMessageAttributes().get(0).getValue();
         Array specialDaysArray = new Array(ProtocolTools.getBytesFromHexString(specialDaysHex, ""), 0, 0);
+        specialDaysTable.writeSpecialDays(specialDaysArray);
+    }
+
+    private void writeSpecialDaysCsv(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String dayId = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysDayIdAttributeName).getValue();
+        final String rawInput = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysFormatDatesAttributeName).getValue();
+        SpecialDaysTable specialDaysTable = getCosemObjectFactory().getSpecialDaysTable(getMeterConfig().getSpecialDaysTable().getObisCode());
+
+        final SimpleDateFormat dateFormat = new SimpleDateFormat("d/M/yyyy");
+        int dayIndex = 1;
+        Array specialDaysArray = new Array();
+
+        final List<String> specialDaysList = Arrays.asList(rawInput.split("\\n"));
+
+        for (final String specialDay : specialDaysList) {
+            try {
+                Date date = dateFormat.parse(specialDay);
+                Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
+                cal.setTime(date);
+
+                final int day = cal.get(Calendar.DAY_OF_MONTH);
+                final int month = cal.get(Calendar.MONTH) + 1; // Java month starts from 0
+                final int year = cal.get(Calendar.YEAR);
+
+                byte[] timeStampBytes = {
+                        (byte) ((year >> 8) & 0xFF),
+                        (byte) (year & 0xFF),
+                        (byte) (month),
+                        (byte) (day),
+                        (byte) 0xFF
+                };
+                OctetString timeStamp = OctetString.fromByteArray(timeStampBytes, timeStampBytes.length);
+                Unsigned8 dayType = new Unsigned8(Integer.parseInt(dayId));
+                Structure specialDayStructure = new Structure();
+                specialDayStructure.addDataType(new Unsigned16(dayIndex));
+                specialDayStructure.addDataType(timeStamp);
+                specialDayStructure.addDataType(dayType);
+                specialDaysArray.addDataType(specialDayStructure);
+                dayIndex++;
+
+            } catch (ParseException e) {
+                throw new ProtocolException("Invalid format for date given: " + e.getMessage() + ", expected day/month/year.");
+            }
+        }
+
         specialDaysTable.writeSpecialDays(specialDaysArray);
     }
 

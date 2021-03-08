@@ -77,6 +77,11 @@ public class PropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpecBuilderWizard.NlsOptions<String> textareaStringSpec() {
+        return this.specForValuesOf(new TextareaStringFactory());
+    }
+
+    @Override
     public PropertySpecBuilderWizard.NlsOptions<Boolean> booleanSpec() {
         return this.specForValuesOf(new BooleanFactory());
     }
