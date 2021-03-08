@@ -2,7 +2,11 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecBuilder;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.protocolimplv2.messages.enums.AuthenticationMechanism;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
@@ -14,6 +18,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysDayIdAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysDayIdAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysFormatDatesAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysFormatDatesAttributeName;
 
 /**
  * Copyrights EnergyICT
@@ -954,6 +963,15 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                     this.boundedBigDecimalSpec(service, DeviceMessageConstants.engineerPin, DeviceMessageConstants.engineerPinDefaultTranslation, new BigDecimal(0), new BigDecimal(9999))
             );
         }
+    },
+    SPECIAL_DAY_CSV_STRING(31098, "Send special days calendar with CSV values") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.bigDecimalSpec(service, specialDaysDayIdAttributeName, specialDaysDayIdAttributeDefaultTranslation),
+                    this.stringTextareaSpec(service, specialDaysFormatDatesAttributeName, specialDaysFormatDatesAttributeDefaultTranslation)
+            );
+        }
     };
 
     private final long id;
@@ -965,6 +983,16 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     }
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+
+    protected PropertySpec stringTextareaSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .textareaStringSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
 
     protected PropertySpec dateSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);

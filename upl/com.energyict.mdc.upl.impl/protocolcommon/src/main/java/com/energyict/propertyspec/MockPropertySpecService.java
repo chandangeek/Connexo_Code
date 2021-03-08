@@ -51,6 +51,11 @@ public class MockPropertySpecService implements PropertySpecService {
     }
 
     @Override
+    public PropertySpecBuilderWizard.NlsOptions<String> textareaStringSpec() {
+        return propertySpecBuilder;
+    }
+
+    @Override
     public PropertySpecBuilderWizard.NlsOptions<String> encryptedStringSpec() {
         return propertySpecBuilder;
     }

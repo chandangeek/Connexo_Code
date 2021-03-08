@@ -50,6 +50,8 @@ public interface PropertySpecService {
      */
     PropertySpecBuilderWizard.NlsOptions<String> base64StringSpec();
 
+    PropertySpecBuilderWizard.NlsOptions<String> textareaStringSpec();
+
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of Boolean values.

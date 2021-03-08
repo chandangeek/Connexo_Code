@@ -63,6 +63,8 @@ public interface PropertySpecService {
      */
     PropertySpecBuilderWizard.NlsOptions<HexString> hexStringSpecOfExactLength(int length);
 
+    PropertySpecBuilderWizard.NlsOptions<String> textareaStringSpec();
+
     /**
      * Creates a new {@link PropertySpecBuilder} for building a custom
      * {@link PropertySpec} of encrypted String values.

@@ -4,7 +4,17 @@
 
 package com.elster.jupiter.properties.rest;
 
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.properties.Base64StringFactory;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.ListReadingQualityFactory;
+import com.elster.jupiter.properties.ListValueFactory;
+import com.elster.jupiter.properties.NoneOrBigDecimalValueFactory;
+import com.elster.jupiter.properties.NoneOrTimeDurationValueFactory;
+import com.elster.jupiter.properties.RelativePeriodFactory;
+import com.elster.jupiter.properties.TextareaStringFactory;
+import com.elster.jupiter.properties.ThreeStateFactory;
+import com.elster.jupiter.properties.TwoValuesDifferenceValueFactory;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.units.Quantity;
 
@@ -70,6 +80,9 @@ public enum SimplePropertyType implements PropertyType {
 
     public static SimplePropertyType getTypeFrom(ValueFactory valueFactory) {
         if (valueFactory instanceof StringAreaFactory) {
+            return TEXTAREA;
+        }
+        if (valueFactory instanceof TextareaStringFactory) {
             return TEXTAREA;
         }
 

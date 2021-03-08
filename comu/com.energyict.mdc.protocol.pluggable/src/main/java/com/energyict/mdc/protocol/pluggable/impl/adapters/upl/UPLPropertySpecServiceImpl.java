@@ -124,6 +124,11 @@ public class UPLPropertySpecServiceImpl implements PropertySpecService {
     }
 
     @Override
+    public PropertySpecBuilderWizard.NlsOptions<String> textareaStringSpec() {
+        return new NlsOptionsAdapter<>(this.actual.textareaStringSpec(), getProtocolThesaurus());
+    }
+
+    @Override
     public PropertySpecBuilderWizard.NlsOptions<String> encryptedStringSpec() {
         return new NlsOptionsAdapter<>(this.actual.encryptedStringSpec(), getProtocolThesaurus());
     }
