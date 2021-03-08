@@ -60,7 +60,7 @@ public class ActarisSl7000 extends AbstractFacadeDlmsProtocol<FrameCounterCache>
 
     public ActarisSl7000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, DeviceMessageFileExtractor deviceMessageFileExtractor, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
-                new ManufacturerInformation(Manufacturer.Actaris), "26-02-2021", "ActarisSl7000"), new ActarisSl7000Properties());
+                new ManufacturerInformation(Manufacturer.Actaris), "08-03-2021", "ActarisSl7000"), new ActarisSl7000Properties());
         this.nlsService = nlsService;
         this.deviceMessageFileExtractor = deviceMessageFileExtractor;
         this.converter = converter;

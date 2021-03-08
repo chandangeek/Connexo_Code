@@ -29,7 +29,9 @@ public class GenericNoParamMethodInvoke extends AbstractMessage {
     private final int method;
     private final DeviceMessageSpecSupplier deviceMessageSpecSupplier;
 
-    public GenericNoParamMethodInvoke(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol, PropertySpecService propSpecService, NlsService nlsService, Converter converter, ObisCode obisCode, DLMSClassId classId, int method, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
+    public GenericNoParamMethodInvoke(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol,
+                                      PropertySpecService propSpecService, NlsService nlsService, Converter converter,
+                                      ObisCode obisCode, DLMSClassId classId, int method, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
         super(collectedDataFactory, issueFactory);
         this.dlmsProtocol = dlmsProtocol;
         this.propSpecService = propSpecService;

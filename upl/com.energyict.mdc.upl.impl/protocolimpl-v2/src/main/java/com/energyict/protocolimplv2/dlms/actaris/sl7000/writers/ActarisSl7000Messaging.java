@@ -1,14 +1,20 @@
 package com.energyict.protocolimplv2.dlms.actaris.sl7000.writers;
 
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.common.writers.Message;
 import com.energyict.protocolimplv2.dlms.common.writers.MessageHandler;
+import com.energyict.protocolimplv2.dlms.common.writers.impl.GenericMethodInvoke;
+import com.energyict.protocolimplv2.dlms.common.writers.providers.ConstantValueProvider;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 
 import java.util.ArrayList;
 
@@ -36,7 +42,8 @@ public class ActarisSl7000Messaging {
     public MessageHandler getMessageHandler() {
         ArrayList<Message> messages = new ArrayList<>();
         // Invoke method section
-        messages.add(new BillingReset(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter));
+        messages.add(new GenericMethodInvoke(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter,
+                ObisCode.fromString("0.0.10.0.1.255"), DLMSClassId.SCRIPT_TABLE, 1, new ConstantValueProvider(new Unsigned16(1)), DeviceActionMessage.BILLING_RESET));
         // write attributes
         messages.add(new ActivityCalendar(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter, deviceMessageFileExtractor));
         messages.add(new BatteryExpiryDate(collectedDataFactory, issueFactory, dlmsProtocol, propSpecService, nlsService, converter));

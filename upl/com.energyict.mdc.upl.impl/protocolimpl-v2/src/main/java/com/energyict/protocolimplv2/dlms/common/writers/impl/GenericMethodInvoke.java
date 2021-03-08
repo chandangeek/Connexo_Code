@@ -31,7 +31,9 @@ public class GenericMethodInvoke extends AbstractMessage {
     private final AttributeProvider attributeProvider;
     private final DeviceMessageSpecSupplier deviceMessageSpecSupplier;
 
-    public GenericMethodInvoke(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol, PropertySpecService propSpecService, NlsService nlsService, Converter converter, ObisCode obisCode, DLMSClassId classId, int method, AttributeProvider attributeProvider, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
+    public GenericMethodInvoke(CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, AbstractDlmsProtocol dlmsProtocol,
+                               PropertySpecService propSpecService, NlsService nlsService, Converter converter,
+                               ObisCode obisCode, DLMSClassId classId, int method, AttributeProvider attributeProvider, DeviceMessageSpecSupplier deviceMessageSpecSupplier) {
         super(collectedDataFactory, issueFactory);
         this.dlmsProtocol = dlmsProtocol;
         this.propSpecService = propSpecService;
@@ -47,7 +49,8 @@ public class GenericMethodInvoke extends AbstractMessage {
     @Override
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
-            this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().getGenericInvoke(obisCode, classId.getClassId(), method).invoke(attributeProvider.provide(dlmsProtocol, message));
+            this.dlmsProtocol.getDlmsSession().getCosemObjectFactory().getGenericInvoke(obisCode, classId.getClassId(), method)
+                    .invoke(attributeProvider.provide(dlmsProtocol, message));
             return super.createConfirmedCollectedMessage(message);
         } catch (NotInObjectListException e) {
             return super.createNotSupportedMessage(message);
