@@ -423,7 +423,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "A2 ThemisUno DLMS Protocol";
+        return "EI6 ThemisUno DLMS Protocol";
     }
 
     @Override
