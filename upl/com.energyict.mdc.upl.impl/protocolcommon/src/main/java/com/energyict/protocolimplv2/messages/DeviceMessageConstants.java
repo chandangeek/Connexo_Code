@@ -221,6 +221,11 @@ public final class DeviceMessageConstants {
     public static final String specialDaysXmlUserFileAttributeName = "ActivityCalendarDeviceMessage.xml.specialdaystable";
     public static final String specialDaysXmlUserFileAttributeDefaultTranslation = "Special days XML file";
     public static final String XmlUserFileAttributeDefaultTranslation = "XML file";
+    public static final String specialDaysExportFolderAttributeName = "ActivityCalendarDeviceMessage.specialdaystable.exportfolder";
+    public static final String specialDaysFormatDatesAttributeName = "ActivityCalendarDeviceMessage.specialdaystable.formatdates";
+    public static final String specialDaysFormatDatesAttributeDefaultTranslation = "Special Days format dates (d/m/yyyy)";
+    public static final String specialDaysDayIdAttributeName = "ActivityCalendarDeviceMessage.specialdaystable.dayid";
+    public static final String specialDaysDayIdAttributeDefaultTranslation = "Day ID";
     public static final String activityCalendarActivationDateAttributeName = "ActivityCalendarDeviceMessage.activitycalendar.activationdate";
     public static final String activityCalendarActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String encryptionLevelAttributeName = "SecurityMessage.dlmsencryption.encryptionlevel";
