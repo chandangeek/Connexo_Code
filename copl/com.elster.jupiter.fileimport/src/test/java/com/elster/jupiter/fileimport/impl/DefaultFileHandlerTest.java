@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.transaction.Transaction;
@@ -48,6 +49,8 @@ public class DefaultFileHandlerTest {
     private MessageBuilder messageBuilder;
     @Mock
     private Clock clock;
+    @Mock
+    private FileImportService fileImportService;
 
     private FileSystem testFileSystem;
 
@@ -64,7 +67,7 @@ public class DefaultFileHandlerTest {
         when(transactionService.execute(any())).thenAnswer(invocationOnMock ->
                 ((VoidTransaction) invocationOnMock.getArguments()[0]).get());
 
-        fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService, clock);
+        fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService);
     }
 
     @After

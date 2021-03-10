@@ -68,7 +68,8 @@ class ImportScheduleJob implements CronJob {
                     LOGGER.fine("import folder: " + importFolder.toString());
                     FolderScanningJob folderScanningJob = new FolderScanningJob(
                             new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
-                            new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
+                            new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
+                            fileImportService);
                     folderScanningJob.run();
 
                 });

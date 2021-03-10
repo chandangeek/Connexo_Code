@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.security.thread.AppServerInfoProvider;
 import com.elster.jupiter.time.PeriodicalScheduleExpressionParser;
 import com.elster.jupiter.time.TemporalExpressionParser;
 import com.elster.jupiter.transaction.TransactionService;
@@ -48,9 +49,9 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.CompositeScheduleExpressionParser;
 import com.elster.jupiter.util.time.Never;
 import com.elster.jupiter.util.time.ScheduleExpressionParser;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -90,6 +91,8 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     private static final Logger LOGGER = Logger.getLogger(FileImportServiceImpl.class.getName());
     private static final String COMPONENTNAME = "FIS";
 
+    private static final String FILE_IMPORT_TYPE_PROPERTY_NAME = "com.elster.jupiter.fileimport.local.only";
+
     private volatile FileUtilsImpl fileUtils;
     private volatile MessageService messageService;
     private volatile CronExpressionParser cronExpressionParser;
@@ -104,6 +107,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     private volatile FileSystem fileSystem;
     private volatile UpgradeService upgradeService;
     private volatile LicenseService licenseService;
+    private volatile AppServerInfoProvider appServerInfoProvider;
 
     private List<FileImporterFactory> importerFactories = new CopyOnWriteArrayList<>();
 
@@ -114,12 +118,13 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     @GuardedBy("delayedSchedulerLock")
     private Set<DelayedScheduler> delayedSchedulers = new HashSet<>();
     private final FileImportServiceReferenceUsages referenceUsages = new FileImportServiceReferenceUsages();
+    private boolean isLocalImport;
 
     public FileImportServiceImpl() {
     }
 
     @Inject
-    public FileImportServiceImpl(OrmService ormService, MessageService messageService, EventService eventService, NlsService nlsService, QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem, UpgradeService upgradeService, LicenseService licenseService) {
+    public FileImportServiceImpl(OrmService ormService, MessageService messageService, EventService eventService, NlsService nlsService, QueryService queryService, Clock clock, UserService userService, JsonService jsonService, TransactionService transactionService, CronExpressionParser cronExpressionParser, FileSystem fileSystem, UpgradeService upgradeService, LicenseService licenseService, BundleContext context) {
         this();
         setOrmService(ormService);
         setMessageService(messageService);
@@ -134,7 +139,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
         setFileSystem(fileSystem);
         setUpgradeService(upgradeService);
         setLicenseService(licenseService);
-        activate();
+        activate(context);
     }
 
     private void createScheduler() {
@@ -241,7 +246,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -272,6 +277,8 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
                         version(10, 4, 9), UpgraderV10_4_9.class,
                         version(10, 8), UpgraderV10_8.class)
         );
+        isLocalImport = Boolean.parseBoolean(context.getProperty(FILE_IMPORT_TYPE_PROPERTY_NAME));
+
         createScheduler();
     }
 
@@ -329,6 +336,11 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     @Override
     public MessageHandler createMessageHandler() {
         return new StreamImportMessageHandler(jsonService, thesaurus, clock, this, transactionService);
+    }
+
+    @Override
+    public boolean isLocalImportAllowedOnly() {
+        return isLocalImport;
     }
 
     public FileNameCollisionResolver getFileNameCollisionResolver() {
@@ -405,6 +417,20 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
     @Override
     public List<ImportSchedule> getImportSchedules() {
         return dataModel.mapper(ImportSchedule.class).select(where("obsoleteTime").isNull());
+    }
+
+    @Reference(policy = ReferencePolicy.DYNAMIC, cardinality = ReferenceCardinality.OPTIONAL)
+    void setAppServerInfoProvider(AppServerInfoProvider appServerInfo) {
+        this.appServerInfoProvider = appServerInfo;
+    }
+
+    void unsetAppServerInfoProvider(AppServerInfoProvider appServerInfo) {
+        this.appServerInfoProvider = null;
+    }
+
+    @Override
+    public Optional<String> getAppServerName() {
+        return Optional.ofNullable(appServerInfoProvider).flatMap(AppServerInfoProvider::getServerName);
     }
 
     @Override

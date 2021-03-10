@@ -38,6 +38,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 /**
@@ -148,9 +149,18 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     }
 
     @Override
+    public Message receive(Predicate<Message> validationFunction) {
+        try {
+            return tryReceive(validationFunction);
+        } catch (SQLException e) {
+            throw new UnderlyingSQLFailedException(e);
+        }
+    }
+
+    @Override
     public Message receive() {
         try {
-            return tryReceive();
+            return tryReceive(null);
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
@@ -161,7 +171,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         return systemManaged;
     }
 
-    private Message tryReceive() throws SQLException {
+    private Message tryReceive(Predicate<Message> validationFunction) throws SQLException {
         OracleConnection cancellableConnection = null;
         Lock lock = lockMap.computeIfAbsent(getDestination().getName() + "_" + getName(), key -> new ReentrantLock());
         lock.lock();
@@ -171,7 +181,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             AQMessage aqMessage = null;
             try {
                 while (aqMessage == null && continueRunning.get()) {
-                    aqMessage = dequeueMessage(cancellableConnection);
+                    aqMessage = dequeueMessage(cancellableConnection, validationFunction);
                 }
                 if (aqMessage == null) {
                     LOGGER.info("subscriber [" + getName() + "] was cancelled");
@@ -200,8 +210,22 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         return dataModel.getConnection(false);
     }
 
-    private AQMessage dequeueMessage(OracleConnection cancellableConnection) throws SQLException {
-        return cancellableConnection.dequeue(destination.get().getName(), basicOptions(), getDestination().getPayloadType());
+    private AQMessage dequeueMessage(OracleConnection cancellableConnection, Predicate<Message> validationFunction) throws SQLException {
+        AQDequeueOptions options = basicOptions();
+        if (validationFunction != null) {
+            options.setDequeueMode(AQDequeueOptions.DequeueMode.BROWSE);
+            AQMessage aqMessage = cancellableConnection.dequeue(destination.get().getName(), options, getDestination().getPayloadType());
+            if (aqMessage != null) {
+                if (!validationFunction.test(new MessageImpl(aqMessage))) {
+                    return null;
+                } else {
+                    return cancellableConnection.dequeue(destination.get().getName(), optionsNoWait(), getDestination().getPayloadType());
+                }
+            } else {
+                return null;
+            }
+        }
+        return cancellableConnection.dequeue(destination.get().getName(), options, getDestination().getPayloadType());
     }
 
     @Override
