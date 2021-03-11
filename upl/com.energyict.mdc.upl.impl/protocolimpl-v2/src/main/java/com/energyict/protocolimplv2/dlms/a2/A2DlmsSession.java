@@ -5,6 +5,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.SecureConnection;
 import com.energyict.dlms.protocolimplv2.connection.TCPIPConnection;
+import com.energyict.dlms.protocolimplv2.connection.UDPIPConnection;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exception.DeviceConfigurationException;
@@ -40,8 +41,11 @@ public class A2DlmsSession extends DlmsSession {
             return new A2HHUHDLCConnection(getComChannel(), getProperties(), null);//the A2HHUHDLCConnection class in replacement of the HDLCConnection
         } else if (ComChannelType.SocketComChannel.equals(getComChannel().getComChannelType())) {
             return new TCPIPConnection(getComChannel(), getProperties());
+        }  else if (ComChannelType.DatagramComChannel.equals(getComChannel().getComChannelType())) {
+            return new UDPIPConnection(getComChannel(), getProperties());
         } else {
-            throw DeviceConfigurationException.unexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.SocketComChannel.name(), getComChannel().getClass().getSimpleName());        }
+            throw DeviceConfigurationException.unexpectedComChannel(ComChannelType.SerialComChannel.name() + ", " + ComChannelType.SocketComChannel.name(), getComChannel().getClass().getSimpleName());
+        }
     }
 
     @Override
