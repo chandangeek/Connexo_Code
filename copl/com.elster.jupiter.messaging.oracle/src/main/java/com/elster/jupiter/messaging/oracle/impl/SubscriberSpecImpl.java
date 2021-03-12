@@ -81,6 +81,7 @@ public class SubscriberSpecImpl implements SubscriberSpec {
     private final DataModel dataModel;
     private final NlsService nlsService;
     private static final Logger LOGGER = Logger.getLogger(SubscriberSpec.class.getName());
+    private static final int WAIT_FOR_NEXT_MESSAGE = 500;
 
     @Inject
     SubscriberSpecImpl(DataModel dataModel, NlsService nlsService) {
@@ -217,6 +218,11 @@ public class SubscriberSpecImpl implements SubscriberSpec {
             AQMessage aqMessage = cancellableConnection.dequeue(destination.get().getName(), options, getDestination().getPayloadType());
             if (aqMessage != null) {
                 if (!validationFunction.test(new MessageImpl(aqMessage))) {
+                    try {
+                        Thread.sleep(WAIT_FOR_NEXT_MESSAGE);
+                    } catch (InterruptedException e) {
+                        return null;
+                    }
                     return null;
                 } else {
                     return cancellableConnection.dequeue(destination.get().getName(), optionsNoWait(), getDestination().getPayloadType());
