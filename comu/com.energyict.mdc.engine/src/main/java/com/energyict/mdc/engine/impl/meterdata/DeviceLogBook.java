@@ -4,15 +4,15 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
+import com.energyict.mdc.identifiers.LogBookIdentifierById;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.store.CollectedLogBookDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
-import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
-import com.energyict.mdc.identifiers.LogBookIdentifierById;
-import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.identifiers.LogBookIdentifierForAlreadyKnowLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
@@ -23,7 +23,6 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElements;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -78,17 +77,7 @@ public class DeviceLogBook extends CollectedDeviceData implements CollectedLogBo
         if (this.meterEvents == null) {
             return Collections.emptyList();
         }
-        return getCollectedMeterEventsWithoutFutureEvents();
-    }
-
-    private List<MeterProtocolEvent> getCollectedMeterEventsWithoutFutureEvents() {
-        List<MeterProtocolEvent> filteredEvents = new ArrayList<>();
-        for (MeterProtocolEvent meterEvent : this.meterEvents) {
-            if (!meterEvent.getTime().after(new Date())) {
-                filteredEvents.add(meterEvent);
-            }
-        }
-        return filteredEvents;
+        return this.meterEvents;
     }
 
     @XmlElements( {

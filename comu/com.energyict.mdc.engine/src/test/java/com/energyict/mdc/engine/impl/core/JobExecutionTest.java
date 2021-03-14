@@ -14,7 +14,6 @@ import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.comserver.ComServer;
-import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
@@ -30,7 +29,14 @@ import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.protocol.ProtocolDialectConfigurationProperties;
 import com.energyict.mdc.common.protocol.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.common.protocol.security.EncryptionDeviceAccessLevel;
-import com.energyict.mdc.common.tasks.*;
+import com.energyict.mdc.common.tasks.BasicCheckTask;
+import com.energyict.mdc.common.tasks.ComTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.LogBooksTask;
+import com.energyict.mdc.common.tasks.ProtocolTask;
+import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -57,9 +63,21 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.google.common.base.Strings;
 import org.joda.time.DateTime;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -67,15 +85,21 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.logging.Logger;
-
 import static org.fest.assertions.api.Assertions.assertThat;
-import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 @RunWith(MockitoJUnitRunner.class)
 public class JobExecutionTest {
@@ -85,8 +109,6 @@ public class JobExecutionTest {
     private static final long COMPORT_POOL_ID = 1;
     private static final long COMPORT_ID = COMPORT_POOL_ID + 1;
     private static final long CONNECTION_TASK_ID = COMPORT_ID + 1;
-    public static final String TEST_SERVER = "TestServer";
-    public static final String TEST_PORT = "TestPort";
     private static final long DEVICE_ID = CONNECTION_TASK_ID + 1;
     private static final String MY_PROPERTY = "myProperty";
     private static final String MY_PROPERTY_VALUE = "myPropertyValue";
@@ -281,11 +303,7 @@ public class JobExecutionTest {
 
     @Test
     public void testNormalDeviceProtocol() throws ConnectionException {
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getName()).thenReturn(TEST_SERVER);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
-        when(outboundComPort.getName()).thenReturn(TEST_PORT);
-        when(outboundComPort.getComServer()).thenReturn(comServer);
         ScheduledComTaskExecutionGroup jobExecution = spy(new ScheduledComTaskExecutionGroup(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask, jobExecutionServiceProvider));
         ExecutionContext executionContext = newTestExecutionContext();
         when(jobExecution.getExecutionContext()).thenReturn(executionContext);
@@ -305,11 +323,7 @@ public class JobExecutionTest {
 
     @Test
     public void testNormalDeviceProtocolAndParallelScheduling() throws ConnectionException {
-        OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getName()).thenReturn(TEST_SERVER);
         OutboundComPort outboundComPort = mock(OutboundComPort.class);
-        when(outboundComPort.getName()).thenReturn(TEST_PORT);
-        when(outboundComPort.getComServer()).thenReturn(comServer);
         CountDownLatch start = new CountDownLatch(1);
         ParallelRootScheduledJob jobExecution = spy(new ParallelRootScheduledJob(outboundComPort, comServerDAO, this.deviceCommandExecutor, connectionTask,  start, jobExecutionServiceProvider));
         ExecutionContext executionContext = newTestExecutionContext();

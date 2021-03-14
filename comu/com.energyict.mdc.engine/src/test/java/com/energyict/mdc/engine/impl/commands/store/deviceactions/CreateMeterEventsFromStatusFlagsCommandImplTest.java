@@ -6,14 +6,17 @@ package com.energyict.mdc.engine.impl.commands.store.deviceactions;
 
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.events.EndDeviceEventType;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
-import com.energyict.mdc.common.tasks.*;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.common.tasks.ConnectionTaskPropertyProvider;
+import com.energyict.mdc.common.tasks.LoadProfilesTask;
+import com.energyict.mdc.common.tasks.OutboundConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.impl.commands.collect.CommandRoot;
@@ -35,6 +38,8 @@ import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
+import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
@@ -43,6 +48,17 @@ import com.energyict.protocol.ProtocolReadingQualities;
 import com.energyict.protocol.exceptions.ConnectionException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
+
+import java.time.Clock;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,14 +68,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.time.Clock;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.logging.Logger;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * @author sva
@@ -69,8 +83,6 @@ import static org.mockito.Mockito.*;
 public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
     private static final Long DEVICE_ID = 1L;
-    public static final String TEST_SERVER = "TestServer";
-    public static final String TEST_PORT = "TestPort";
 
     @Mock
     private LoadProfileCommand loadProfileCommand;
@@ -171,10 +183,8 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(mock(ComPortPool.class));
         ComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getName()).thenReturn(TEST_SERVER);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPort comPort = mock(ComPort.class);
-        when(comPort.getName()).thenReturn(TEST_PORT);
         when(comPort.getComServer()).thenReturn(comServer);
         ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, true, this.executionContextServiceProvider);
 
@@ -251,10 +261,8 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(mock(ComPortPool.class));
         OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getName()).thenReturn(TEST_SERVER);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPort comPort = mock(ComPort.class);
-        when(comPort.getName()).thenReturn(TEST_PORT);
         when(comPort.getComServer()).thenReturn(comServer);
         ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, false, jobExecutionServiceProvider);
 
@@ -269,10 +277,8 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
         ConnectionTask connectionTask = mock(ConnectionTask.class);
         when(connectionTask.getComPortPool()).thenReturn(mock(ComPortPool.class));
         OnlineComServer comServer = mock(OnlineComServer.class);
-        when(comServer.getName()).thenReturn(TEST_SERVER);
         when(comServer.getCommunicationLogLevel()).thenReturn(ComServer.LogLevel.INFO);
         ComPort comPort = mock(ComPort.class);
-        when(comPort.getName()).thenReturn(TEST_PORT);
         when(comPort.getComServer()).thenReturn(comServer);
         ExecutionContext executionContext = new ExecutionContext(new MockJobExecution(), connectionTask, comPort, false, jobExecutionServiceProvider);
 
@@ -351,10 +357,6 @@ public class CreateMeterEventsFromStatusFlagsCommandImplTest {
 
         private MockJobExecution() {
             super(mock(ComPort.class), mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), jobExecutionServiceProvider);
-        }
-
-        private MockJobExecution(ComPort comport) {
-            super(comport, mock(ComServerDAO.class), mock(DeviceCommandExecutor.class), jobExecutionServiceProvider);
         }
 
         @Override
