@@ -45,5 +45,7 @@ public interface EventDescription {
 
     String getName();
 
-    boolean validateEvent(DataCollectionEvent dcEvent);
+    default boolean validateEvent(DataCollectionEvent dcEvent){
+        return true;
+    }
 }
