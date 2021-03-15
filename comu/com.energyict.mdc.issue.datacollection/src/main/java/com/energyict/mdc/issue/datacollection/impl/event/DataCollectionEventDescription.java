@@ -5,7 +5,9 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.data.tasks.history.CommunicationErrorType;
+import com.energyict.mdc.issue.datacollection.event.ConnectionEvent;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureEvent;
@@ -37,6 +39,14 @@ public enum DataCollectionEventDescription implements EventDescription {
                 return !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
             }
             return false;
+        }
+
+        public boolean validateEvent(DataCollectionEvent dataCollectionEvent) {
+            return ((ConnectionEvent) dataCollectionEvent).getComSession()
+                    .map(ComSession::getSuccessIndicator)
+                    .filter(successIndicator -> !successIndicator.equals(ComSession.SuccessIndicator.Success))
+                    .isPresent();
+
         }
     },
 
@@ -113,6 +123,11 @@ public enum DataCollectionEventDescription implements EventDescription {
     public boolean validateEvent(Map<?, ?> map) {
         String topic = String.class.cast(map.get(EventConstants.EVENT_TOPIC));
         return this.topic.equalsIgnoreCase(topic);
+    }
+
+    @Override
+    public boolean validateEvent(DataCollectionEvent dcEvent) {
+        return true;
     }
 
     @Override
