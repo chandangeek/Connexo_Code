@@ -44,4 +44,6 @@ public interface EventDescription {
     String getTopic();
 
     String getName();
+
+    boolean validateEvent(DataCollectionEvent dcEvent);
 }
