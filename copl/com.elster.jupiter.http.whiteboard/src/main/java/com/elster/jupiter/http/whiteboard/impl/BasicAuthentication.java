@@ -834,6 +834,7 @@ public final class BasicAuthentication implements HttpAuthenticationService {
 
         final HashMap<String, Object> result = new HashMap<>();
         result.put("username", user.getName());
+        result.put("email", user.getEmail());
         result.put("roles", roles);
         result.put("privileges", privileges);
         result.put("cnt", count);
