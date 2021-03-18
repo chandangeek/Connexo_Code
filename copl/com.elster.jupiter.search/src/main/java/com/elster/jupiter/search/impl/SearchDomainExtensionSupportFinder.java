@@ -15,6 +15,7 @@ import com.elster.jupiter.search.SearchDomainExtension;
 import com.elster.jupiter.search.SearchablePropertyCondition;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.Fetcher;
@@ -41,6 +42,7 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
 
     private Pagination pagination = new NoPagination();
     private List<Order> orders = new ArrayList<>();
+    private List<Hint> hints = new ArrayList<>();
 
     public static Finder<?> getFinder(OrmService ormService, SearchDomain searchDomain,
                                       List<SearchablePropertyCondition> conditions) {
@@ -99,6 +101,12 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
     }
 
     @Override
+    public Finder<T> withHint(Hint hint) {
+        hints.add(hint);
+        return this;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public List<T> find() {
         try (Fetcher<T> fetcher = (Fetcher<T>) dataModel
@@ -132,8 +140,13 @@ public class SearchDomainExtensionSupportFinder<T> implements Finder<T> {
 
     @Override
     public SqlBuilder asFragment(String... strings) {
-        SqlBuilder sqlBuilder = new SqlBuilder("select "
-                + Stream.of(strings).collect(Collectors.joining(", "))
+        SqlBuilder sqlBuilder = new SqlBuilder("select ");
+        if (!hints.isEmpty()) {
+            sqlBuilder.append("/*+ ");
+            sqlBuilder.append(hints.stream().map(Hint::toSqlString).collect(Collectors.joining(" ")));
+            sqlBuilder.append(" */");
+        }
+        sqlBuilder.append(Stream.of(strings).collect(Collectors.joining(", "))
                 + " from ");
         sqlBuilder.openBracket();
         String[] allFields = dataModel.mapper(searchDomain.getDomainClass())

@@ -1021,10 +1021,10 @@ public class BpmResource {
     @RolesAllowed({Privileges.Constants.VIEW_BPM, Privileges.Constants.ADMINISTRATE_BPM})
     public PagedInfoList getBpmProcessesDefinitions(@Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters, @HeaderParam("Authorization") String auth, @Context HttpHeaders headers) {
         List<BpmProcessDefinition> connexoProcesses = bpmService.getBpmProcessDefinitions();
-        ProcessDefinitionInfos bpmProcessDefinition = getBpmProcessDefinitions(auth);
+        ProcessDefinitionInfos flowProcessDefinitions = getBpmProcessDefinitions(auth);
         for (BpmProcessDefinition eachConnexo : connexoProcesses) {
             boolean notFound = true;
-            for (ProcessDefinitionInfo eachBpm : bpmProcessDefinition.processes) {
+            for (ProcessDefinitionInfo eachBpm : flowProcessDefinitions.processes) {
                 if (eachConnexo.getProcessName().equals(eachBpm.name) && eachConnexo.getVersion()
                         .equals(eachBpm.version)) {
                     eachBpm.active = eachConnexo.getStatus();
@@ -1038,12 +1038,13 @@ public class BpmResource {
                     notFound = false;
                 }
             }
-            if (notFound && !bpmProcessDefinition.processes.isEmpty()) {
-                eachConnexo.setStatus("UNDEPLOYED");
-                eachConnexo.save();
-            }
+            //todo implement specific undeployed status that does not hide the process on ui
+//            if (notFound && !bpmProcessDefinition.processes.isEmpty()) {
+//                eachConnexo.setStatus("UNDEPLOYED");
+//                eachConnexo.save();
+//            }
         }
-        List<ProcessDefinitionInfo> list = bpmProcessDefinition.processes.stream()
+        List<ProcessDefinitionInfo> list = flowProcessDefinitions.processes.stream()
                 .sorted((s1, s2) -> s1.name.toLowerCase().compareTo(s2.name.toLowerCase()))
                 .collect(Collectors.toList());
         return PagedInfoList.fromCompleteList("processes", list, queryParameters);

@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm.query.impl;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
@@ -57,8 +58,8 @@ final class JoinExecutor<T> {
         return from == 0 ? builder : builder.asPageBuilder(from, to, fieldNames);
     }
 
-    private void appendSql(Condition condition, Order[] orderBy) {
-        appendSelectClause();
+    private void appendSql(Condition condition, Order[] orderBy, Hint[] hints) {
+        appendSelectClause(hints);
         appendWhereClause(builder, condition, " where ");
         appendOrderByClause(builder, orderBy);
         if (from != 0) {
@@ -80,8 +81,9 @@ final class JoinExecutor<T> {
         appendWhereClause(builder, condition, " where ");
     }
 
-    private void appendSelectClause() {
+    private void appendSelectClause(Hint[] hints) {
         builder.append("select ");
+        root.appendHints(builder, hints);
         if (needsDistinct()) {
             builder.append("distinct ");
         }
@@ -160,7 +162,7 @@ final class JoinExecutor<T> {
         }
     }
 
-    List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions) throws SQLException {
+    List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions, Hint... hints) throws SQLException {
         builder = new SqlBuilder();
         boolean initialMarkDone = false;
         if (eager) {
@@ -189,7 +191,7 @@ final class JoinExecutor<T> {
         root.clearCache();
         // remark all nodes with a where  or order clause contribution.
         JoinTreeMarker.on(root).visit(condition).visit(orderBy);
-        appendSql(condition, orderBy);
+        appendSql(condition, orderBy, hints);
         List<T> result = new ArrayList<>();
         try (Connection connection = root.getTable().getDataModel().getConnection(false)) {
             try (PreparedStatement statement = builder.prepare(connection)) {

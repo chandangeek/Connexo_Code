@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.config.MetrologyPurpose;
 import com.elster.jupiter.metering.groups.UsagePointGroup;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
@@ -56,6 +57,12 @@ public class UsagePointDataQualityKpiFinderImpl implements DataQualityKpiService
 
     @Override
     public Finder<UsagePointDataQualityKpi> sorted(String sortColumn, boolean ascending) {
+        // not supported
+        return this;
+    }
+
+    @Override
+    public Finder<UsagePointDataQualityKpi> withHint(Hint hint) {
         // not supported
         return this;
     }

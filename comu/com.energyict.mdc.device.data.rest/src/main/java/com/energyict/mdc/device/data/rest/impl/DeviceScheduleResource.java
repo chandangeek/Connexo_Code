@@ -176,7 +176,9 @@ public class DeviceScheduleResource {
     public Response updateComTaskExecution(@PathParam("name") String name, DeviceSchedulesInfo info, @Context SecurityContext securityContext) {
         // In this method, id == id of comtaskexec
         checkForNoActionsAllowedOnSystemComTaskExecutions(info.id);
-        ComTaskExecution comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
+        ComTaskExecution comTaskExecution = resourceHelper.findComTaskExecutionOrThrowException(info.id);
+        comTaskExecution.getConnectionTask().ifPresent(ct -> resourceHelper.getLockedConnectionTask(ct.getId(), ct.getVersion()));
+        comTaskExecution = resourceHelper.lockComTaskExecutionOrThrowException(info);
         User user = (User) securityContext.getUserPrincipal();
         if (!comTaskExecutionPrivilegeCheck.canExecute(comTaskExecution.getComTask(), user)) {
             return Response.status(Response.Status.UNAUTHORIZED).build();

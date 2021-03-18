@@ -18,22 +18,20 @@ public class DeviceStageSqlBuilder {
 
     static final String DEVICE_STAGE_ALIAS_NAME = "enddevices";
 
-    private final String alias;
     private final Set<EndDeviceStage> stages;
     private final SetStrategy setStrategy;
 
-    private DeviceStageSqlBuilder(String alias, SetStrategy setStrategy, Set<EndDeviceStage> stages) {
+    private DeviceStageSqlBuilder(SetStrategy setStrategy, Set<EndDeviceStage> stages) {
         super();
-        this.alias = alias;
         this.stages = stages;
         this.setStrategy = setStrategy;
     }
 
-    public static DeviceStageSqlBuilder forDefaultExcludedStages(String alias) {
-        return forExcludeStages(alias, EnumSet.of(EndDeviceStage.POST_OPERATIONAL, EndDeviceStage.PRE_OPERATIONAL));
+    public static DeviceStageSqlBuilder forDefaultExcludedStages() {
+        return forExcludeStages(EnumSet.of(EndDeviceStage.POST_OPERATIONAL, EndDeviceStage.PRE_OPERATIONAL));
     }
 
-    public static DeviceStageSqlBuilder forExcludeStages(String alias, Set<EndDeviceStage> stages) {
+    public static DeviceStageSqlBuilder forExcludeStages(Set<EndDeviceStage> stages) {
         SetStrategy setStrategy;
         if (stages.size() == 1) {
             setStrategy = SetStrategy.EXCLUDE_ONE;
@@ -41,25 +39,23 @@ public class DeviceStageSqlBuilder {
         else {
             setStrategy = SetStrategy.EXCLUDE_MULTIPLE;
         }
-        return new DeviceStageSqlBuilder(alias, setStrategy, stages);
+        return new DeviceStageSqlBuilder(setStrategy, stages);
     }
 
-    public void appendRestrictedStagesWithClause(SqlBuilder sqlBuilder, Instant now) {
-        sqlBuilder.append(this.alias);
-        sqlBuilder.append(" as (");
-        sqlBuilder.append("select ES.enddevice id");
+    public void appendRestrictedStagesSelectClause(SqlBuilder sqlBuilder, Instant now) {
+        sqlBuilder.append(" select ES.enddevice id");
         sqlBuilder.append("  from MTR_ENDDEVICESTATUS ES,");
         sqlBuilder.append("       (select FS.ID");
         sqlBuilder.append("          from FSM_STATE FS");
         sqlBuilder.append("         where FS.OBSOLETE_TIMESTAMP IS NULL");
         sqlBuilder.append("           and FS.STAGE ");
         this.setStrategy.append(sqlBuilder, this.stages);
-        sqlBuilder.append(") FS");
+        sqlBuilder.append(" ) FS");
         sqlBuilder.append(" where ES.STARTTIME <=");
         sqlBuilder.addLong(now.toEpochMilli());
         sqlBuilder.append("   and ES.ENDTIME >");
         sqlBuilder.addLong(now.toEpochMilli());
-        sqlBuilder.append("   and ES.STATE = FS.ID)");
+        sqlBuilder.append("   and ES.STATE = FS.ID");
     }
 
     public void appendRestrictedStages(SqlBuilder sqlBuilder) {

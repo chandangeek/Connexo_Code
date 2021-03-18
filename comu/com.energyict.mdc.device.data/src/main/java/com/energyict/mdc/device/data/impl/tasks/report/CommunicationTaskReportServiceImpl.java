@@ -15,7 +15,6 @@ import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
@@ -50,7 +49,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -378,9 +376,12 @@ public class CommunicationTaskReportServiceImpl implements CommunicationTaskRepo
 
     private Map<CompletionCode, Long> getComTaskLastComSessionHighestPriorityCompletionCodeCount(Optional<EndDeviceGroup> deviceGroup) {
         SqlBuilder sqlBuilder = new SqlBuilder("WITH ");
+        String alias = "cte";
+        sqlBuilder.append(alias + "  as ( ");
         DeviceStageSqlBuilder
-                .forDefaultExcludedStages("cte")
-                .appendRestrictedStagesWithClause(sqlBuilder, this.deviceDataModelService.clock().instant());
+                .forDefaultExcludedStages()
+                .appendRestrictedStagesSelectClause(sqlBuilder, this.deviceDataModelService.clock().instant());
+        sqlBuilder.append(" ) ");
         sqlBuilder.append("select cte.lastsess_highestpriocomplcode, count(*) from ");
         sqlBuilder.append(TableSpecs.DDC_COMTASKEXEC.name());
         sqlBuilder.append(" cte join ");

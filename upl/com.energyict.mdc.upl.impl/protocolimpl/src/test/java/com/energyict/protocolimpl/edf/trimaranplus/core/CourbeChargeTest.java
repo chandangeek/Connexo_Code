@@ -1,6 +1,3 @@
-/**
- *
- */
 package com.energyict.protocolimpl.edf.trimaranplus.core;
 
 

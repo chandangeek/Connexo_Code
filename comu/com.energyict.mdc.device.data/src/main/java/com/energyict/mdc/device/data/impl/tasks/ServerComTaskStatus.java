@@ -112,7 +112,7 @@ public enum ServerComTaskStatus {
         @Override
         public void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Instant now) {
             super.completeFindBySqlBuilder(sqlBuilder, now);
-            sqlBuilder.append("and hp.comtaskexecution = cte.id and cte.onhold = 0 and ((cte.comport is null) and " +
+            sqlBuilder.append("and comtaskexecution = cte.id and cte.onhold = 0 and ((cte.comport is null) and " +
                     " (not exists (select * from busytask where busytask.comport is not null and busytask.connectiontask = cte.connectiontask " +
                     " and busytask.lastcommunicationstart <= cte.lastexecutiontimestamp " +
                     " and busytask.lastCommunicationStart > cte.nextexecutiontimestamp)) " +
@@ -344,7 +344,6 @@ public enum ServerComTaskStatus {
     public abstract TaskStatus getPublicStatus();
 
     public final void completeFindBySqlBuilder(ClauseAwareSqlBuilder sqlBuilder, Clock clock) {
-        sqlBuilder.appendWhereOrAnd();
         this.completeFindBySqlBuilder(sqlBuilder, clock.instant());
     }
 

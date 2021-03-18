@@ -5,6 +5,7 @@
 package com.elster.jupiter.orm;
 
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 
 import aQute.bnd.annotation.ProviderType;
@@ -23,6 +24,8 @@ public interface BasicQuery<T> {
     T getExisting(Object... values);
 
     List<T> select(Condition condition, Order... orders);
+
+    List<T> select(Condition condition, Hint[] hints, Order... orders);
 
     long count(Condition condition);
 }

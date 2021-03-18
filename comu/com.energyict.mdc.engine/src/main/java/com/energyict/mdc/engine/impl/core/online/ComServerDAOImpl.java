@@ -1018,6 +1018,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry) {
+        getCommunicationTaskService().executionFailedFor(comTaskExecution, noRetry);
+    }
+
+    @Override
     public void executionFailed(final List<? extends ComTaskExecution> comTaskExecutions) {
         comTaskExecutions.forEach(comTaskExecution -> getCommunicationTaskService().executionFailedFor(comTaskExecution));
     }

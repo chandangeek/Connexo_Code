@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection;
 
+import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.State;
@@ -18,7 +19,6 @@ import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
-import com.elster.jupiter.devtools.persistence.test.rules.Transactional;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
@@ -34,9 +34,6 @@ import com.energyict.mdc.issue.datacollection.event.UnknownSlaveDeviceEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.event.DataCollectionEventHandlerFactory;
 
-import org.junit.Test;
-import org.mockito.Matchers;
-
 import org.osgi.service.event.EventConstants;
 
 import java.time.Instant;
@@ -46,6 +43,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.junit.Test;
+import org.mockito.Matchers;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -114,8 +114,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(ConnectionLostEvent.class, UnableToConnectResolvedEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
-        verify(state, times(2)).getStage();
-        verify(meter, times(2)).getState();
+        verify(state, times(1)).getStage();
+        verify(meter, times(1)).getState();
     }
 
     @Test
@@ -131,9 +131,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(2);
-        verify(state, times(2)).getStage();
-        verify(meter, times(2)).getState();
+        assertThat(service.getCounter()).isEqualTo(1);
+        verify(state, times(1)).getStage();
+        verify(meter, times(1)).getState();
     }
 
     @Test
@@ -186,9 +186,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(5);
-        verify(state, times(5)).getStage();
-        verify(meter, times(5)).getState();
+        assertThat(service.getCounter()).isEqualTo(4);
+        verify(state, times(4)).getStage();
+        verify(meter, times(4)).getState();
     }
 
     @Test

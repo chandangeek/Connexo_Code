@@ -131,7 +131,9 @@ public class DataCollectionEventHandler implements MessageHandler {
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
             try {
                 dcEvent.wrap(mapForSingleEvent, description, device);
-                events.add(dcEvent);
+                if (description.validateEvent(dcEvent)) {
+                    events.add(dcEvent);
+                }
             } catch (UnableToCreateIssueException e) {
                 LOG.severe(e.getMessage());
             }

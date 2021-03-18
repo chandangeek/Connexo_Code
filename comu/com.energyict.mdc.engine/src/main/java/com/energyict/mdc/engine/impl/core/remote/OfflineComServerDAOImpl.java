@@ -456,6 +456,11 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry) {
+        executionFailed(comTaskExecution);
+    }
+
+    @Override
     public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         for (ComTaskExecution comTaskExecution : comTaskExecutions) {
             comJobExecutionModel.setResult(ComJobResult.Failed);
