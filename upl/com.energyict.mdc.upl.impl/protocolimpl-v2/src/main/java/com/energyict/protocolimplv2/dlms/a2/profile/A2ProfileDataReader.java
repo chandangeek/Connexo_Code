@@ -208,6 +208,7 @@ public class A2ProfileDataReader {
     }
 
    /*
+    !!! USED ALSO BY EI7 PROTOCOL !!!
     bit 0 - Clock Synchronisation Failed
     bit 1 - Metrological Event Log Full
     bit 2 - Metrological Event Log >= 90 %
@@ -231,33 +232,50 @@ public class A2ProfileDataReader {
     bit 14 - Reserved
     bit 15 - Reserved
     */
-
-    private int getEiServerStatus(int protocolStatus) {
-        int status = IntervalStateBits.OK;
-        BigInteger protocolStatusBig = BigInteger.valueOf(protocolStatus);
-        if (protocolStatusBig.testBit(10)) {
-            status = status | IntervalStateBits.CORRUPTED;
-        }
-        if (protocolStatusBig.testBit(9)) {
-            status = status | IntervalStateBits.BATTERY_LOW;
-        }
-        if (protocolStatusBig.testBit(8)) {
-            status = status | IntervalStateBits.BATTERY_LOW;
-        }
-        if (protocolStatusBig.testBit(6)) {
-            status = status | IntervalStateBits.DEVICE_ERROR;
-        }
-        if (protocolStatusBig.testBit(5)) {
-            status = status | IntervalStateBits.OVERFLOW;
-        }
-        if (protocolStatusBig.testBit(4)) {
-            status = status | IntervalStateBits.DEVICE_ERROR;
-        }
-        if (protocolStatusBig.testBit(3)) {
-            status = status | IntervalStateBits.DEVICE_ERROR;
-        }
-        return status;
-    }
+   public static int getEiServerStatus(int intervalStatus) {
+       int status = IntervalStateBits.OK;
+       BigInteger intervalStatusBig = BigInteger.valueOf(intervalStatus);
+       if (intervalStatusBig.testBit(0)) {
+           status = status | IntervalStateBits.OTHER;
+       }
+       if (intervalStatusBig.testBit(1)) {
+           status = status | IntervalStateBits.OTHER;
+       }
+       if (intervalStatusBig.testBit(2)) {
+           status = status | IntervalStateBits.OTHER;
+       }
+       if (intervalStatusBig.testBit(3)) {
+           status = status | IntervalStateBits.DEVICE_ERROR;
+       }
+       if (intervalStatusBig.testBit(4)) {
+           status = status | IntervalStateBits.DEVICE_ERROR;
+       }
+       if (intervalStatusBig.testBit(5)) {
+           status = status | IntervalStateBits.OVERFLOW;
+       }
+       if (intervalStatusBig.testBit(6)) {
+           status = status | IntervalStateBits.DEVICE_ERROR;
+       }
+       if (intervalStatusBig.testBit(7)) {
+           status = status | IntervalStateBits.OTHER;
+       }
+       if (intervalStatusBig.testBit(8)) {
+           status = status | IntervalStateBits.BATTERY_LOW;
+       }
+       if (intervalStatusBig.testBit(9)) {
+           status = status | IntervalStateBits.BATTERY_LOW;
+       }
+       if (intervalStatusBig.testBit(10)) {
+           status = status | IntervalStateBits.OTHER;
+       }
+       if (intervalStatusBig.testBit(11)) {
+           status = status | IntervalStateBits.OTHER;
+       }
+       if (intervalStatusBig.testBit(12)) {
+           status = status | IntervalStateBits.OTHER;
+       }
+       return status;
+   }
 
     private Calendar getFromCalendar(LoadProfileReader loadProfileReader) {
         ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) limitMaxNrOfDays);
