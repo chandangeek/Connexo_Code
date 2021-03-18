@@ -503,17 +503,8 @@ public class IssueResource extends BaseResource {
     }
 
     private List<? extends Issue> getIssuesForBulk(JsonQueryFilter filter) {
-        return getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter)).stream()
-                .map(issue -> {
-                    if (issue.getStatus().isHistorical()) {
-                        return getIssueService().findHistoricalIssue(issue.getId());
-                    } else {
-                        return getIssueService().findOpenIssue(issue.getId());
-                    }
-                })
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        return getIssueService().findIssues(issueResourceHelper.buildFilterFromQueryParameters(filter)).find().stream()
+                .map(issue -> getIssueService().wrapOpenOrHistorical(issue)).collect(Collectors.toList());
     }
 
     private List<? extends Issue> getUserSelectedIssues(BulkIssueRequest request, ActionInfo bulkResult) {

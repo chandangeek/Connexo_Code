@@ -20,6 +20,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.LogBookType;
@@ -39,7 +40,6 @@ import com.energyict.mdc.common.tasks.security.Privileges;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -186,6 +186,13 @@ public class TaskServiceImpl implements ServerTaskService, MessageSeedProvider, 
     @Override
     public Optional<ComTask> findComTask(long id) {
         return dataModel.mapper(ComTask.class).getUnique("id", id);
+    }
+
+    @Override
+    public List<ComTask> findComTasksByName(String name) {
+        return DefaultFinder.of(ComTask.class, Where.where(ComTaskImpl.Fields.NAME.fieldName()).isEqualTo(name), dataModel)
+                .defaultSortColumn(ComTaskImpl.Fields.NAME.fieldName())
+                .find();
     }
 
     @Override

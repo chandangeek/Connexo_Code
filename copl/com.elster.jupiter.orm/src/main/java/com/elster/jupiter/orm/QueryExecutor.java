@@ -54,4 +54,5 @@ public interface QueryExecutor<T> extends BasicQuery<T> {
     Instant getEffectiveDate();
 
     void setEffectiveDate(Instant date);
+
 }

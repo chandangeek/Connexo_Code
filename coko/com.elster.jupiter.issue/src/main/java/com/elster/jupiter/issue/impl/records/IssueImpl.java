@@ -8,6 +8,7 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.CreationRule;
+import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
 import com.elster.jupiter.issue.share.entity.IssueComment;
@@ -15,6 +16,7 @@ import com.elster.jupiter.issue.share.entity.IssueForAssign;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.issue.share.entity.IssueType;
+import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.entity.UnsupportedStatusChangeException;
 import com.elster.jupiter.issue.share.service.IssueAssignmentService;
 import com.elster.jupiter.issue.share.service.IssueService;
@@ -60,10 +62,10 @@ public class IssueImpl extends EntityImpl implements Issue {
 
     private final IssueService issueService;
     private final IssueAssignmentService issueAssignmentService;
-    private final Clock clock;
+    final Clock clock;
     private Instant createDateTime;
     private Instant snoozeDateTime;
-    private final Thesaurus thesaurus;
+    final Thesaurus thesaurus;
 
     private static final String DEFAULT_ISSUE_PREFIX = "ISU";
 
@@ -324,17 +326,37 @@ public class IssueImpl extends EntityImpl implements Issue {
     public void setType(IssueType type) {
         this.type.set(type);
     }
-    /*
-    public void setMember(T member) {
-        this.member.set(member);
+
+    public static Issue wrapOpenOrHistorical(Issue issue) {
+        if (issue instanceof OpenIssue || issue instanceof HistoricalIssue) {
+            return issue;
+        } else if (issue instanceof IssueImpl) {
+            IssueImpl issueImpl = (IssueImpl) issue;
+            IssueImpl wrappedIssue = issue.getStatus().isHistorical() ?
+                    new HistoricalIssueImpl(issueImpl.getDataModel(), issueImpl.getIssueService(), issueImpl.clock, issueImpl.thesaurus) :
+                    new OpenIssueImpl(issueImpl.getDataModel(), issueImpl.getIssueService(), issueImpl.clock, issueImpl.thesaurus);
+            wrappedIssue.copy(issue);
+            return wrappedIssue;
+        } else {
+            throw new UnsupportedOperationException();
+        }
     }
 
-
-    public T getMember() {
-      getDevice() != null ? return getDevice() : return getUsagePoint();
-
+    void copy(Issue issue) {
+        this.setId(issue.getId());
+        if (issue.getDueDate() != null) {
+            this.setDueDate(issue.getDueDate());
+        }
+        this.setReason(issue.getReason());
+        this.setStatus(issue.getStatus());
+        this.setDevice(issue.getDevice());
+        this.setUsagePoint(issue.getUsagePoint().orElse(null));
+        this.setRule(issue.getRule().orElse(null));
+        this.setCreateDateTime(issue.getCreateDateTime());
+        this.setPriority(issue.getPriority());
+        this.assignTo(issue.getAssignee());
+        this.setType(issue.getType());
     }
-    */
 
     protected IssueService getIssueService() {
         return issueService;
