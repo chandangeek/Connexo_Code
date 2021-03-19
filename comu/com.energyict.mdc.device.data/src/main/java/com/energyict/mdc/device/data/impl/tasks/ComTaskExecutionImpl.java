@@ -93,6 +93,7 @@ import java.util.logging.Logger;
 @ConsumableConnectionFunctionMustBeSupportedByTheDeviceProtocol(groups = {Save.Create.class, Save.Update.class})
 public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> implements ServerComTaskExecution {
 
+    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
 
     public enum ComTaskExecType {
         SHARED_SCHEDULE_COM_TASK_EXECUTION_DISCRIMINATOR,
@@ -101,7 +102,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     private Clock clock;
-    private static final Logger LOGGER = Logger.getLogger(ComTaskExecutionImpl.class.getName());
 
     private CommunicationTaskService communicationTaskService;
     private ConnectionTaskService connectionTaskService;
@@ -947,7 +947,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 ComTaskExecutionFields.EXECUTIONSTART.fieldName(),
                 ComTaskExecutionFields.ONHOLD.fieldName(),
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
-
         if (informConnectionTask) {
             this.getConnectionTask().ifPresent(ct -> {
                 if (!calledByConnectionTask) {

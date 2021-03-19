@@ -35,13 +35,17 @@ Ext.define('Wss.view.webservice.GridActionMenu', {
                 isOngoing = menu.record.get('statusId') === "ONGOING",
                 endpoint = menu.record.getEndpoint(),
                 cancelMenuItem = menu.down('#endpoint-occurrence-cancel'),
-                retryMenuItem = menu.down('#endpoint-occurrence-retry');
+                retryMenuItem = menu.down('#endpoint-occurrence-retry'),
+                viewPayloadMenuItem = menu.down('#endpoint-occurrence-view-payload');
 
             if (cancelMenuItem) {
                 cancelMenuItem.setVisible(isOngoing);
             }
             if (retryMenuItem) {
                 retryMenuItem.setVisible(!isOngoing && !Ext.isEmpty(endpoint) && endpoint.get('direction').id === "OUTBOUND" && me.record.get('hasPayload'));
+            }
+            if (viewPayloadMenuItem) {
+                viewPayloadMenuItem.setVisible(me.record.get('hasPayload'));
             }
         }
     }

@@ -94,9 +94,8 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
 
     private List<EndPointProperty> properties = new ArrayList<>();
 
-    private static final String INBOUND_WEBSERVICE_DISCRIMINATOR = "0";
-
-    private static final String OUTBOUND_WEBSERVICE_DISCRIMINATOR = "1";
+    static final String INBOUND_WEBSERVICE_DISCRIMINATOR = "0";
+    static final String OUTBOUND_WEBSERVICE_DISCRIMINATOR = "1";
 
     static final Map<String, Class<? extends EndPointConfiguration>> IMPLEMENTERS =
             ImmutableMap.of(

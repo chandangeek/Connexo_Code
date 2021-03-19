@@ -39,6 +39,8 @@ public interface Finder<T> {
 
     Finder<T> sorted(Order order);
 
+    Finder<T> withHint(Hint hint);
+
     List<T> find();
 
     default Finder<T> from(QueryParameters queryParameters) {

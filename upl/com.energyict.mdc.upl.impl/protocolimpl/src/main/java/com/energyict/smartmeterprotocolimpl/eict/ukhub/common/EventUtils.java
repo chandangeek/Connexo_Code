@@ -3,6 +3,7 @@ package com.energyict.smartmeterprotocolimpl.eict.ukhub.common;
 import com.energyict.protocol.MeterEvent;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Provides functionality to handle meterEvents
@@ -16,21 +17,9 @@ public class EventUtils {
      * @param meterEvents the list of MeterEvents to clean up
      */
     public static void removeDuplicateEvents(List<MeterEvent> meterEvents) {
-        List<MeterEvent> duplicateEvent = new ArrayList<MeterEvent>();
-
-        for (MeterEvent meterEvent : meterEvents) {
-            if (!duplicateEvent.contains(meterEvent)) {
-                for (MeterEvent mEvent : meterEvents) {
-                    if (!mEvent.equals(meterEvent)) {
-                        if (mEvent.getEiCode() == meterEvent.getEiCode() && mEvent.getMessage().equalsIgnoreCase(meterEvent.getMessage())
-                                && mEvent.getProtocolCode() == meterEvent.getProtocolCode() && mEvent.getTime().equals(meterEvent.getTime())) {
-                            duplicateEvent.add(mEvent);
-                        }
-                    }
-                }
-            }
-        }
-        meterEvents.removeAll(duplicateEvent);
+        List<MeterEvent> collect = meterEvents.stream().distinct().collect(Collectors.toList());
+        meterEvents.clear();
+        meterEvents.addAll(collect);
     }
 
     /**

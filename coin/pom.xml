@@ -16,7 +16,9 @@
     <packaging>pom</packaging>
     <name>[MDM] mdm.parent</name>
 
-
+	<properties>
+        <json.version>20090211</json.version>
+	</properties>	
     <dependencyManagement>
         <dependencies>
             <dependency>

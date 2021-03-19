@@ -52,12 +52,14 @@ public interface ChannelsContainer extends ReadingContainer, Effectivity, HasId 
 
     Optional<BigDecimal> getMultiplier(MultiplierType type);
 
+    Optional<BigDecimal> getDefaultMultiplier();
+
     /**
      * Finds aggregated {@link Channel Channels} dependent on the provided scope channel data and returns them
      * mapped with {@link Range Ranges} of time where data from the provided channels is actually used to calculate aggregated data.
      *
      * @param scope The scope of channel data defined by {@link Channel}/{@link Range} of time.
-     * The behavior is not guaranteed if these channels do not belong to this channels container.
+     *              The behavior is not guaranteed if these channels do not belong to this channels container.
      * @return Dependent {@link Channel Channels} mapped to {@link Range Ranges} of time
      * where data from the provided channels is actually used to calculate aggregated data.
      */

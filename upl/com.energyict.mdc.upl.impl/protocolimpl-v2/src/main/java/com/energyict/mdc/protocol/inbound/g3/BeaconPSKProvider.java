@@ -67,7 +67,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     private void clearPreviousCollectedDeviceCacheObjects() {
         List<CollectedData> collectedDeviceCacheToRemove = new ArrayList<>();
         for (CollectedData collectedData : getCollectedDataList()) {
-            if(collectedData instanceof CollectedDeviceCache){
+            if (collectedData instanceof CollectedDeviceCache) {
                 collectedDeviceCacheToRemove.add(collectedData);
             }
         }
@@ -106,7 +106,7 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
     protected Structure createMacAndKeyPair(OctetString macAddressOctetString, OctetString wrappedPSKKey, DeviceIdentifier slaveDeviceIdentifier, InboundDiscoveryContext context) {
         final Structure macAndKeyPair = super.createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier, context);
 
-        //Only add the protcool java class name if it is indicated by the property.
+        // Only add the protocol java class name if it is indicated by the property.
         if (provideProtocolJavaClasName) {
             macAndKeyPair.addDataType(OctetString.fromString(context.getInboundDAO().getDeviceProtocolClassName(slaveDeviceIdentifier)));
         }
@@ -121,4 +121,5 @@ public class BeaconPSKProvider extends G3GatewayPSKProvider {
             return dlmsSession.getCosemObjectFactory().getG3NetworkManagement(Beacon3100Messaging.G3_NETWORK_MANAGEMENT_NEW_OBISCODE);
         }
     }
+
 }

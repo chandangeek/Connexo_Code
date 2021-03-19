@@ -376,6 +376,9 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public Finder<ServiceCall> getServiceCallFinder() {
         return DefaultFinder.of(ServiceCall.class, dataModel)
+                .withHint(new Hint(Hint.HintType.LEADING, TableSpecs.SCS_SERVICE_CALL_TYPE.name()))
+                .withHint(new Hint(Hint.HintType.USE_NL, TableSpecs.SCS_SERVICE_CALL.name()))
+                .withHint(new Hint(Hint.HintType.INDEX, TableSpecs.SCS_SERVICE_CALL.name()))
                 .sorted("sign(nvl(" + ServiceCallImpl.Fields.parent.fieldName() + ",0))", true)
                 .sorted(ServiceCallImpl.Fields.modTime.fieldName(), false);
     }

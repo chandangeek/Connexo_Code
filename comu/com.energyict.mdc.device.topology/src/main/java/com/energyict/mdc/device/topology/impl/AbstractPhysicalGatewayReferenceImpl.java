@@ -19,13 +19,15 @@ import javax.validation.constraints.NotNull;
 import java.time.Instant;
 import java.util.Map;
 
+@OnlyOneGatewayReferenceAtAnyTime(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.GATEWAY_REFERENCE_CONFLICT + "}")
 public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGatewayReference {
 
     public enum Field implements ImplField {
         CREATION_TIME("interval.start"),
         ORIGIN("origin"),
         INTERVAL("interval"),
-        GATEWAY("gateway")
+        GATEWAY("gateway"),
+        ID("id")
         ;
 
         private final String javaFieldName;
@@ -41,7 +43,7 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
     }
 
     public static final Map<String, Class<? extends PhysicalGatewayReference>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends PhysicalGatewayReference>>of(
+            ImmutableMap.of(
                     "" + PhysicalGatewayReferenceDiscriminator.DEFAULT.ordinal(), PhysicalGatewayReferenceImpl.class,
                     "" + PhysicalGatewayReferenceDiscriminator.DATA_LOGGER_REFERENCE.ordinal(), DataLoggerReferenceImpl.class,
                     "" + PhysicalGatewayReferenceDiscriminator.MULTI_ELEMENT_REFERENCE.ordinal(), MultiElementDeviceReferenceImpl.class);
@@ -98,4 +100,8 @@ public abstract class AbstractPhysicalGatewayReferenceImpl implements PhysicalGa
         return this.origin.orNull();
     }
 
+    @Override
+    public long getId() {
+        return id;
+    }
 }

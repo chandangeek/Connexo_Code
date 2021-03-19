@@ -25,7 +25,7 @@ import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;

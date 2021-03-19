@@ -34,7 +34,6 @@ public interface Upgrader {
         try {
             statement.execute(sql);
         } catch (SQLException e) {
-            System.out.println("["+e.getLocalizedMessage()+"]");
             String name = this.getClass().getName();
             String message = "Exception during upgrade by " + name + System.lineSeparator() +
                     "Failed statement: " + sql;
@@ -54,12 +53,9 @@ public interface Upgrader {
     }
 
     default <T> T executeQuery(Statement statement, String sql, SqlExceptionThrowingFunction<ResultSet, T> resultMapper) {
-        System.out.print("[SQL] "+sql);
         try (ResultSet resultSet = statement.executeQuery(sql)) {
-            System.out.println(" [OK]");
             return resultMapper.apply(resultSet);
         } catch (SQLException e) {
-            System.out.println("["+e.getLocalizedMessage()+"]");
             String name = this.getClass().getName();
             String message = "Exception during upgrade by " + name + System.lineSeparator() +
                     "Failed statement: " + sql;

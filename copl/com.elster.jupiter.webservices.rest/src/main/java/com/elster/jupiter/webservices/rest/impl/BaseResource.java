@@ -21,6 +21,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallRelatedAttribute;
 import com.elster.jupiter.users.User;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 
 import javax.ws.rs.WebApplicationException;
@@ -28,7 +29,6 @@ import javax.ws.rs.core.Response;
 import java.security.Principal;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -76,28 +76,23 @@ public abstract class BaseResource {
     }
 
     protected Set<String> prepareApplicationNames(String applicationName) {
-        Set<String> applicationNames = new HashSet<>();
         switch (applicationName) {
             case "SYS":
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
-                break;
+                // all will be shown
+                return Collections.emptySet();
             case "MDC":
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
-                break;
+                return ImmutableSet.of(
+                        ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName(),
+                        ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
+                        ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
             case "INS":
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName());
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
-                applicationNames.add(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
-                break;
+                return ImmutableSet.of(
+                        ApplicationSpecific.WebServiceApplicationName.INSIGHT.getName(),
+                        ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName(),
+                        ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
             default:
                 throw exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.INCORRECT_APPLICATION_NAME).get();
         }
-        return applicationNames;
     }
 
     protected List<EndPointLog> getLogForOccurrence(WebServiceCallOccurrence epOcc, JsonQueryParameters queryParameters) {
@@ -186,28 +181,23 @@ public abstract class BaseResource {
             }
 
             if (objectIdStr != null) {
-                String txtToFind = null;
-                final String translationTxt;
+                final String txtToFind, translationTxt;
 
                 if (objectIdStr.contains("(") && objectIdStr.contains(")")) {
                     txtToFind = objectIdStr.substring(0, objectIdStr.lastIndexOf("(") - 1);
                     translationTxt = objectIdStr.substring(objectIdStr.lastIndexOf("(") + 1, objectIdStr.length() - 1);
                 } else {
-                    translationTxt = null;
-                }
-
-                if (translationTxt == null) {
                     /* No related attribute is specified. So just return empty list */
                     return Collections.emptyList();
                 }
 
-                List<WebServiceCallRelatedAttribute> wscRattrList = webServiceCallOccurrenceService.getRelatedAttributesByValue(txtToFind.trim());
-
-                Optional<WebServiceCallRelatedAttribute> wecRattribute = wscRattrList.stream().
-                        filter(attr -> webServiceCallOccurrenceService.translateAttributeType(attr.getKey()).equals(translationTxt)).findFirst();
-
-                if (wecRattribute.isPresent()) {
-                    finderBuilder.withRelatedAttribute(wecRattribute.get());
+                Optional<WebServiceCallRelatedAttribute> relatedAttribute = webServiceCallOccurrenceService.getRelatedAttributesByValue(txtToFind.trim())
+                        .stream()
+                        // CONM-1727 TODO: find by key, not translation! need to have both on FE
+                        .filter(attr -> webServiceCallOccurrenceService.translateAttributeType(attr.getKey()).equals(translationTxt))
+                        .findFirst();
+                if (relatedAttribute.isPresent()) {
+                    finderBuilder.withRelatedAttribute(relatedAttribute.get());
                 } else {
                     return Collections.emptyList();
                 }

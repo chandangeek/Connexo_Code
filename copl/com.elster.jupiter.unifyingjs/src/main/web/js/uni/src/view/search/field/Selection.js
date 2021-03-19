@@ -142,7 +142,7 @@ Ext.define('Uni.view.search.field.Selection', {
                 }]
             });
         if(me.text === "Device type"){
-            devicePrivilege =  !(Uni.Auth.hasPrivilege('privilege.view.device') && Uni.Auth.hasPrivilege('privilege.administrate.deviceData'));
+            devicePrivilege =  !(Uni.Auth.hasPrivilege('privilege.view.device') && Uni.Auth.hasPrivilege('privilege.administrate.deviceData')) && (Uni.Auth.hasPrivilege('privilege.view.device') && Uni.Auth.hasPrivilege('privilege.administrate.deviceData'));
         }
         me.items = {
             xtype: 'grid',

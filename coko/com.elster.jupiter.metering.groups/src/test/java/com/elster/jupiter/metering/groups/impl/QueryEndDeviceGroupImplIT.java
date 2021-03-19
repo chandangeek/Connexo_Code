@@ -114,7 +114,7 @@ public class QueryEndDeviceGroupImplIT {
 
     @BeforeClass
     public static void setUp() {
-        when(bundleContext.registerService(any(Class.class), anyObject(), any(Dictionary.class))).thenReturn(serviceRegistration);
+        when(bundleContext.registerService(any(Class.class), any(Class.class), any(Dictionary.class))).thenReturn(serviceRegistration);
         try {
             injector = Guice.createInjector(
                     new MockModule(),

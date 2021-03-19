@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 
 public class StepTariffInfo {
     public BigDecimal tariffCode;
+    public String additionalTaxesType;
+    public String graceRecalculationType;
+    public BigDecimal graceRecalculationValue;
 
     public BigDecimal chargeStep1;
     public BigDecimal priceStep1;

@@ -2,6 +2,8 @@ package com.energyict.mdc.device.topology;
 
 import com.elster.jupiter.metering.Channel;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.util.List;
 
 /**
@@ -10,6 +12,7 @@ import java.util.List;
  * Date: 5/04/2017
  * Time: 9:46
  */
+@ProviderType
 public interface ChannelProvider  extends PhysicalGatewayReference{
 
     boolean addDataLoggerChannelUsage(Channel slaveChannel, Channel dataLoggerChannel);

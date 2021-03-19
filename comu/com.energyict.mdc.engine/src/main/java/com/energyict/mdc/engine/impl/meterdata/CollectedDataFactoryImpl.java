@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Reference;
 import java.security.cert.X509Certificate;
 import java.time.Clock;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -209,6 +210,11 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedDeviceInfo createDeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object propertyValue, String propertyName) {
         return new DeviceConnectionProperty(deviceIdentifier, propertyValue, propertyName);
+    }
+
+    @Override
+    public CollectedDeviceInfo createDeviceConnectionProperties(DeviceIdentifier deviceIdentifier, Map<String, Object> connectionPropertyNameAndValue) {
+        return new DeviceConnectionProperty(deviceIdentifier, connectionPropertyNameAndValue);
     }
 
     @Override

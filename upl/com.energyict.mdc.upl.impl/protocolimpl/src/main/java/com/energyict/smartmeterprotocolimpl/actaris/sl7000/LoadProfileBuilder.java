@@ -11,14 +11,11 @@ import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ParseUtils;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.*;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.MeterEvent;
@@ -28,13 +25,9 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 
 /**
@@ -50,6 +43,7 @@ public class LoadProfileBuilder {
     private static final int EV_DST = 0x08;
     private static final int EV_ALL_CLOCK_SETTINGS = 0x30;
     private static final int EV_POWER_FAILURE = 0x40;
+    private static final int EV_CLOCK_SETTINGS = 0x20;
 
     private static SimpleDateFormat DATE_FORMATTER = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
 
@@ -248,8 +242,6 @@ public class LoadProfileBuilder {
     }
 
     protected void buildProfileData(DataContainer dataContainer, ProfileData profileData, LoadProfileReader lpr, LoadProfileConfiguration lpc) throws IOException {
-        Calendar calendar;
-        int i;
         boolean currentAdd = true;
         boolean previousAdd = true;
         IntervalData previousIntervalData = null, currentIntervalData;
@@ -258,28 +250,37 @@ public class LoadProfileBuilder {
             throw new IOException("No entries in object list.");
         }
 
-        calendar = ProtocolUtils.initCalendar(false, meterProtocol.getTimeZone());
+        Calendar calendar = ProtocolUtils.initCalendar(false, meterProtocol.getTimeZone());
 
-        for (i = 0; i < dataContainer.getRoot().element.length; i++) { // for all retrieved intervals
-            if (dataContainer.getRoot().getStructure(i).isStructure(0)) {
-                calendar = parseProfileStartDateTime(dataContainer.getRoot().getStructure(i), calendar, lpc); // new date and/or time?
+        for (int i = 0; i < dataContainer.getRoot().element.length; i++) { // for all retrieved intervals
+
+            DataStructure currentStructure = dataContainer.getRoot().getStructure(i);
+
+            if (currentStructure.isStructure(0)) {
+                calendar = parseProfileStartDateTime(currentStructure, calendar, lpc); // new date and/or time?
             }
+
+            int intervalStatus = 0;
 
             // Start of interval
-            if (dataContainer.getRoot().getStructure(i).isStructure(0)) {
-                currentAdd = parseStart(dataContainer.getRoot().getStructure(i), calendar, profileData, lpc);
+            if (currentStructure.isStructure(0)) {
+                currentAdd = parseStart(currentStructure, calendar, profileData, lpc);
+                intervalStatus = getEiServerStatus(currentStructure.getStructure(0).getInteger(1));
             }
             // End of interval
-            if (dataContainer.getRoot().getStructure(i).isStructure(1)) {
-                currentAdd = parseEnd(dataContainer.getRoot().getStructure(i), calendar, profileData, lpc);
+            if (currentStructure.isStructure(1)) {
+                currentAdd = parseEnd(currentStructure, calendar, profileData, lpc);
+                intervalStatus = getEiServerStatus(currentStructure.getStructure(1).getInteger(1));
             }
             // time1
-            if (dataContainer.getRoot().getStructure(i).isStructure(2)) {
-                currentAdd = parseTime1(dataContainer.getRoot().getStructure(i), calendar, profileData, lpc);
+            if (currentStructure.isStructure(2)) {
+                currentAdd = parseTime1(currentStructure, calendar, profileData, lpc);
+                intervalStatus = getEiServerStatus(currentStructure.getStructure(2).getInteger(1));
             }
             // Time2
-            if (dataContainer.getRoot().getStructure(i).isStructure(3)) {
-                currentAdd = parseTime2(dataContainer.getRoot().getStructure(i), calendar, profileData, lpc);
+            if (currentStructure.isStructure(3)) {
+                currentAdd = parseTime2(currentStructure, calendar, profileData, lpc);
+                intervalStatus = getEiServerStatus(currentStructure.getStructure(3).getInteger(1));
             }
 
             // Adjust calendar for interval with profile interval period
@@ -287,11 +288,12 @@ public class LoadProfileBuilder {
                 calendar.add(Calendar.MINUTE, (lpc.getProfileInterval() / 60));
             }
 
-            currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar, lpr);
+            currentIntervalData = getIntervalData(currentStructure, calendar, lpr);
 
             if (currentAdd & !previousAdd) {
                 currentIntervalData = addIntervalData(currentIntervalData, previousIntervalData);
             }
+            currentIntervalData.setEiStatus(intervalStatus);
 
             // Add interval data...
             if (currentAdd) {
@@ -397,6 +399,7 @@ public class LoadProfileBuilder {
 
     private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         Calendar endIntervalCal = setCalendar(calendar, dataStructure.getStructure(1), 1, lpc);
+        final int endOfIntervalDate = dataStructure.getStructure(1).getInteger(1);
 
         if ((dataStructure.getStructure(1).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
             profileData.addEvent(new MeterEvent(new Date(((Calendar) endIntervalCal.clone()).getTime().getTime()),
@@ -424,15 +427,16 @@ public class LoadProfileBuilder {
 
     private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         calendar = setCalendar(calendar, dataStructure.getStructure(2), 1, lpc);
+        final int time1 = dataStructure.getStructure(2).getInteger(1);
 
-        if ((dataStructure.getStructure(2).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        if ((time1 & EV_CLOCK_SETTINGS) != 0) { // time set before
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.SETCLOCK_BEFORE,
                     dataStructure.getStructure(2).getInteger(1)));
         }
 
-        if ((dataStructure.getStructure(2).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        if ((time1 & EV_POWER_FAILURE) != 0) {// power down
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.POWERDOWN,
                     EV_POWER_FAILURE));
         }
@@ -441,41 +445,41 @@ public class LoadProfileBuilder {
 
     private boolean parseTime2(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         calendar = setCalendar(calendar, dataStructure.getStructure(3), 1, lpc);
+        final int time2 = dataStructure.getStructure(3).getInteger(1);
 
-        if ((dataStructure.getStructure(3).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        if ((time2 & EV_CLOCK_SETTINGS) != 0) { // time set before
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.SETCLOCK_AFTER,
                     dataStructure.getStructure(3).getInteger(1)));
         }
 
-        if ((dataStructure.getStructure(3).getInteger(1) & EV_POWER_FAILURE) != 0) {// power down
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        if ((time2 & EV_POWER_FAILURE) != 0) {// power down
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.POWERUP,
                     EV_POWER_FAILURE));
         }
         return true;
     }
-
     private IntervalData addIntervalData(IntervalData currentIntervalData, IntervalData previousIntervalData) {
         int currentCount = currentIntervalData.getValueCount();
         IntervalData intervalData = new IntervalData(currentIntervalData.getEndTime());
-        int current, i;
-        for (i = 0; i < currentCount; i++) {
+        int current;
+        for (int i = 0; i < currentCount; i++) {
             current = (currentIntervalData.get(i)).intValue() + (previousIntervalData.get(i)).intValue();
-            intervalData.addValue(new Integer(current));
+            intervalData.addValue(current);
         }
         return intervalData;
     }
 
     private IntervalData getIntervalData(DataStructure dataStructure, Calendar calendar, LoadProfileReader lpr) throws IOException {
         // Add interval data...
-        IntervalData intervalData = new IntervalData(new Date(((Calendar) calendar.clone()).getTime().getTime()));
+        IntervalData intervalData = new IntervalData(((Calendar) calendar.clone()).getTime());
         List<CapturedObject> captureObjects = meterProtocol.getDlmsSession().getCosemObjectFactory().getLoadProfile().getProfileGeneric().getCaptureObjects();
         for (int i = 0; i < captureObjects.size(); i++) {
             if ((captureObjects.get(i).getClassId() == DLMSClassId.REGISTER.getClassId() ||
                     captureObjects.get(i).getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId() ||
                     captureObjects.get(i).getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId()) && isChannelInLpr(lpr, captureObjects.get(i).getObisCode())) {
-                intervalData.addValue(new Integer(dataStructure.getInteger(i)));
+                intervalData.addValue(dataStructure.getInteger(i));
             }
         }
         return intervalData;
@@ -514,5 +518,26 @@ public class LoadProfileBuilder {
             }
         }
         return null;
+    }
+
+    protected int getEiServerStatus(int protocolStatus) {
+        int status = IntervalStateBits.OK;
+        BigInteger protocolStatusBig = BigInteger.valueOf(protocolStatus);
+
+        if (protocolStatusBig.testBit(6)) { // Power failure
+            status = status | IntervalStateBits.POWERDOWN;
+            status = status | IntervalStateBits.POWERUP;
+        }
+        if (protocolStatusBig.testBit(5)) { // Clock Settings
+            status = status | IntervalStateBits.SHORTLONG;
+        }
+        if (protocolStatusBig.testBit(3)) { // DST
+            status = status | IntervalStateBits.OTHER;
+        }
+        if (protocolStatusBig.testBit(2)) {
+            status = status | IntervalStateBits.WATCHDOGRESET;
+        }
+
+        return status;
     }
 }

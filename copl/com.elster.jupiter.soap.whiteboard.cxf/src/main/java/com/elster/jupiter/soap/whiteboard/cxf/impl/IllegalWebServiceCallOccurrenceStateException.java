@@ -8,8 +8,8 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.exception.MessageSeed;
 
-public class WebServiceCallOccurrenceException extends LocalizedException {
-    public WebServiceCallOccurrenceException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
+public class IllegalWebServiceCallOccurrenceStateException extends LocalizedException {
+    public IllegalWebServiceCallOccurrenceStateException(Thesaurus thesaurus, MessageSeed messageSeed, Object... args) {
         super(thesaurus, messageSeed, args);
     }
 }

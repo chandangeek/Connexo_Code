@@ -89,20 +89,19 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
         ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
         WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
+
         String allctedataAlias = "allctedata";
         this.append(", " + allctedataAlias + " as (");
         String sqlStartClause = sqlBuilder.getText();
         this.append(sqlStartClause.replace("from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName , " , hp.COMTASKEXECUTION, dev.DEVICETYPE, dev.NAME, CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName));
         this.appendDeviceAndHighPrioAndBusyTaskJoinClauses();
-        this.appendLocationIdCondition(locationId);
-        this.appendWhereOrAnd();
-        this.append(" exists ( ");
+        this.append(" where exists ( ");
         DeviceStageSqlBuilder.forExcludeStages(getRestrictedDeviceStages()).appendRestrictedStagesSelectClause(this.getActualBuilder().asBuilder(),this.getClock().instant());
         this.append(" ) ");
         this.append(" ) ");
 
         this.append(sqlStartClause.replace( TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName,   allctedataAlias + " " + communicationTaskAliasName + " "));
-
+        this.appendLocationIdCondition(locationId);
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
         if (statusIterator.hasNext()) {
             this.getActualBuilder().appendWhereOrAnd();

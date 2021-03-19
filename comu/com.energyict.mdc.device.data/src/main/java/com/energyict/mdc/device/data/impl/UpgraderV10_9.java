@@ -18,6 +18,7 @@ import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -48,19 +49,30 @@ public class UpgraderV10_9 implements Upgrader {
     private final DeviceService deviceService;
     private final DataModel dataModel;
     private final MessageService messageService;
+    private final EventService eventService;
+    private final InstallerV10_2Impl installerV10_2;
 
     private long id;
 
     @Inject
-    UpgraderV10_9(DataModel dataModel, DeviceService deviceService, MessageService messageService) {
+    UpgraderV10_9(DataModel dataModel,
+                  DeviceService deviceService,
+                  MessageService messageService,
+                  EventService eventService,
+                  InstallerV10_2Impl installerV10_2) {
         this.deviceService = deviceService;
         this.dataModel = dataModel;
         this.messageService = messageService;
+        this.eventService = eventService;
+        this.installerV10_2 = installerV10_2;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
+        EventType.CREDIT_AMOUNT_CREATED.createIfNotExists(eventService);
+        EventType.CREDIT_AMOUNT_UPDATED.createIfNotExists(eventService);
+        installerV10_2.createServiceCallTypeIfNotPresent(ServiceCallCommands.ServiceCallTypeMapping.updateCreditAmount);
         createUnsubscriberForMessageQueue();
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
@@ -221,5 +233,4 @@ public class UpgraderV10_9 implements Upgrader {
             }
         }
     }
-
 }

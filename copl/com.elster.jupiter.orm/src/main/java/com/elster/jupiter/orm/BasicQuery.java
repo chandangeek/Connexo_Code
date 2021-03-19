@@ -4,11 +4,10 @@
 
 package com.elster.jupiter.orm;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
-
-import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;

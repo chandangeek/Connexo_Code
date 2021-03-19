@@ -134,12 +134,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.logging.Level;
@@ -1113,6 +1108,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier) {
             return this.getCollectedDataFactory().createCollectedMessage(messageIdentifier);
+        }
+
+        @Override
+        public CollectedDeviceInfo createDeviceConnectionProperties(DeviceIdentifier deviceIdentifier, Map<String, Object> connectionPropertyNameAndValue) {
+            return this.getCollectedDataFactory().createDeviceConnectionProperties(deviceIdentifier, connectionPropertyNameAndValue);
         }
 
         @Override

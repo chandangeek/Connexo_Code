@@ -74,6 +74,12 @@ public class UsagePointDataQualityKpiFinderImpl implements DataQualityKpiService
     }
 
     @Override
+    public Finder<UsagePointDataQualityKpi> withHint(Hint hint) {
+        // not supported
+        return this;
+    }
+
+    @Override
     public List<UsagePointDataQualityKpi> find() {
         DefaultFinder<UsagePointDataQualityKpi> finder = DefaultFinder.of(UsagePointDataQualityKpi.class, buildCondition(), dataModel, UsagePointGroup.class, MetrologyPurpose.class);
         if (this.start != null && this.pageSize != null) {

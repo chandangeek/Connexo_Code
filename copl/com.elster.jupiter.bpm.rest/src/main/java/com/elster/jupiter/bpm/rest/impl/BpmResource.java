@@ -960,6 +960,7 @@ public class BpmResource {
         String jsonContent;
         JSONArray arr = null;
         try {
+            //todo somehow get rid of pagination, not only here, search for it
             jsonContent = bpmService.getBpmServer().doGet("/services/rest/server/queries/processes/definitions?page=0&pageSize=1000", auth);
             //if (!"".equals(jsonContent)) {
             if (jsonContent != null && !"".equals(jsonContent)) {

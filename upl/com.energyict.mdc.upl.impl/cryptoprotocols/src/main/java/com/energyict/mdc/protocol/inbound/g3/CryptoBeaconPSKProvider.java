@@ -24,7 +24,6 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Co
  */
 public class CryptoBeaconPSKProvider extends BeaconPSKProvider {
 
-
     public CryptoBeaconPSKProvider(DeviceIdentifier deviceIdentifier, boolean provideProtocolJavaClasName) {
         super(deviceIdentifier, provideProtocolJavaClasName);
     }

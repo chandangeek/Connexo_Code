@@ -66,6 +66,12 @@ public class DeviceDataQualityKpiFinderImpl implements DataQualityKpiService.Dev
     }
 
     @Override
+    public Finder<DeviceDataQualityKpi> withHint(Hint hint) {
+        // not supported
+        return this;
+    }
+
+    @Override
     public List<DeviceDataQualityKpi> find() {
         DefaultFinder<DeviceDataQualityKpi> finder = DefaultFinder.of(DeviceDataQualityKpi.class, buildCondition(), dataModel, EndDeviceGroup.class);
         if (this.start != null && this.pageSize != null) {

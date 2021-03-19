@@ -109,6 +109,12 @@ public class UsagePointFinder implements Finder<UsagePoint> {
     }
 
     @Override
+    public Finder<UsagePoint> withHint(Hint hint) {
+        finder.withHint(hint);
+        return this;
+    }
+
+    @Override
     public List<UsagePoint> find() {
         QueryExecutor<UsagePoint> query = meteringService.getDataModel().query(
                 UsagePoint.class, EffectiveMetrologyConfigurationOnUsagePoint.class, Location.class, LocationMember.class);

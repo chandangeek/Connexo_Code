@@ -40,8 +40,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Copyrights EnergyICT
@@ -54,9 +52,10 @@ public class G3GatewayPSKProvider {
     private final DeviceIdentifier deviceIdentifier;
     private ComChannel tcpComChannel;
 
-    private Set<String> joiningMacAddresses = ConcurrentHashMap.newKeySet();
     protected DeviceProtocol gatewayProtocol = null;
     private List<CollectedData> collectedData = new ArrayList<>();
+
+    private boolean inUse = false;
 
     public G3GatewayPSKProvider(DeviceIdentifier deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
@@ -66,51 +65,29 @@ public class G3GatewayPSKProvider {
         return deviceIdentifier;
     }
 
-    /**
-     * Add a mac address to the list of joining mac addresses.
-     * This is done when receiving an inbound 'join attempt' notification from the beacon for a certain AM540 node.
-     */
-    public void addJoiningMacAddress(String macAddress) {
-        joiningMacAddresses.add(macAddress);
-    }
+    public synchronized void providePSK(DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
 
-    /**
-     * This method is not synchronized as per COMMUNICATION-3610
-     */
-    public void providePSK(String macAddress, DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
-
-        if (!joiningMacAddresses.contains(macAddress)) {
-            //Another thread already provided the PSK for this MAC address, cool! Let's move on.
-            return;
-        }
+        this.inUse = true;
 
         try {
             DeviceProtocol gatewayProtocol = getGatewayProtocol(securityPropertySet, context);
             providePSK(gatewayProtocol, context);
-            joiningMacAddresses.remove(macAddress);
         } catch (CommunicationException e) {
-            communicationError("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", context);
+            communicationError("Unexpected CommunicationException occurred while trying to provide PSKs to the Beacon. Closing the TCP connection. " + e.getMessage(), context);
             throw e;
         } catch (PropertyValidationException e) {
-            communicationError("Unexpected property validation exception occurred while trying to provide PSKs to the Beacon. Closing the TCP connection.", context);
+            communicationError("Unexpected property validation exception occurred while trying to provide PSKs to the Beacon. Closing the TCP connection. " + e.getMessage(), context);
             throw CommunicationException.protocolConnectFailed(e);
         } finally {
-            if (joiningMacAddresses.isEmpty()) {
-                context.getLogger().info(() -> "Successfully provided PSKs for all joining nodes, releasing the association and closing the TCP connection.");
-            } else {
-                context.getLogger().info(() -> "Unable to provide PSKs for following joining nodes: " + String.join(", ", joiningMacAddresses) + " the association will be released.");
-            }
             closeConnection();
+            this.inUse = false;
         }
 
     }
 
-    /**
-     * Synchronized method to prevent race conditions and NullPointerExceptions on tcpComChannel and gatewayProtocol
-     */
-    private synchronized void closeConnection() {
+    private void closeConnection() {
         try {
-            //Our job is done here (for now), release the association and close the TCP connection
+            // Our job is done here (for now), release the association and close the TCP connection
             if (tcpComChannel != null && gatewayProtocol != null) {
                 this.gatewayProtocol.logOff();
                 this.gatewayProtocol.terminate();
@@ -126,9 +103,17 @@ public class G3GatewayPSKProvider {
         }
     }
 
+    /**
+     * Always call this method if overridden
+     */
     protected void clearInstancesAndStoreCache() {
         this.gatewayProtocol = null;
         this.tcpComChannel = null;
+        this.inUse = false;
+    }
+
+    public boolean isInUse() {
+        return inUse;
     }
 
     /**
@@ -282,23 +267,18 @@ public class G3GatewayPSKProvider {
                                 context.getLogger().info(() -> "Providing PSK key for joining module '" + macAddress + "'");
                             } else {
                                 context.getLogger().warning(() -> "Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
-                                joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                             }
                         } else {
                             context.getLogger().warning(() -> "Device with MAC address " + macAddress + " does not have a PSK property in Connexo, skipping.");
-                            joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                         }
                     } else {
                         //TODO: notify issue management framework.
                         context.getLogger().warning(() -> "No unique device with MAC address " + macAddress + " exists in Connexo, cannot provide PSK key. Skipping.");
-                        joiningMacAddresses.remove(macAddress); //Cannot provide the PSK, remove it from the queue
                     }
                 }
             }
 
             g3NetworkManagement.provideKeyPairs(macKeyPairs);
-
-            this.joiningMacAddresses.removeAll(finishedNodes); //PSKs were provided for these nodes.
 
         } catch (ProtocolException e) {
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
@@ -347,13 +327,12 @@ public class G3GatewayPSKProvider {
         if (o == null || getClass() != o.getClass()) return false;
         G3GatewayPSKProvider that = (G3GatewayPSKProvider) o;
         return deviceIdentifier.equals(that.deviceIdentifier) &&
-                joiningMacAddresses.equals(that.joiningMacAddresses) &&
                 collectedData.equals(that.collectedData);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(deviceIdentifier, joiningMacAddresses, collectedData);
+        return Objects.hash(deviceIdentifier, collectedData);
     }
 
 }

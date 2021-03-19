@@ -46,6 +46,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
+import java.util.logging.Logger;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -76,6 +77,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<PartialScheduledConnectionTask> implements ScheduledConnectionTask, PersistenceAware {
 
     private SchedulingService schedulingService;
+    private static final Logger LOGGER = Logger.getLogger(ScheduledConnectionTaskImpl.class.getName());
     private ComWindow comWindow;
     private Reference<NextExecutionSpecs> nextExecutionSpecs = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.OUTBOUND_CONNECTION_TASK_STRATEGY_REQUIRED + "}")
@@ -245,6 +247,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void notifyComTaskExecutionsThatConnectionMethodHasChanged(PostingMode postingMode) {
+        LOGGER.info("Call ScheduledConnectionTaskImpl#notifyComTaskExecutionsThatConnectionMethodHasChanged ");
         EarliestNextExecutionTimeStampAndPriority earliestNextExecutionTimestampAndPriority = this.getEarliestNextExecutionTimeStampAndPriority();
         if (ConnectionStrategy.AS_SOON_AS_POSSIBLE.equals(this.getConnectionStrategy())) {
             if (earliestNextExecutionTimestampAndPriority != null) {

@@ -103,6 +103,15 @@ Ext.define('Wss.view.webservice.HistoryGrid', {
                 dataIndex: 'action',
                 xtype: 'uni-actioncolumn',
                 flex: 7,
+                isDisabled: function(menu, item) {
+                    var payloadStore = menu.getStore('Wss.store.PayloadSaveStrategy');
+                    if(payloadStore){
+                        hasPayloadRecord = payloadStore.getAt(item);
+                        var hasPayload = hasPayloadRecord.get('hasPayload');
+                        return !hasPayload;
+                    }
+                    return true;
+                },
                 menu: {
                     itemId: 'webservices-historygrid-action-menu-id',
                     xtype: 'webservices-historygrid-action-menu',

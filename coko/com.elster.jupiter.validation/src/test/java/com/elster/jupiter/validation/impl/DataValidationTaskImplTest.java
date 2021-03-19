@@ -37,8 +37,7 @@ import java.util.Optional;
 import java.util.logging.Level;
 
 import static org.fest.reflect.core.Reflection.field;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyList;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.doNothing;

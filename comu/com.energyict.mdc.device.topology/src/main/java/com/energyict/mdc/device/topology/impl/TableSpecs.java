@@ -51,7 +51,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.column("DISCRIMINATOR").type("char(1)").notNull().map(Column.TYPEFIELDNAME).since(version(10, 2)).installValue("0").add();
             table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(idColumn).since(version(10, 2)).add();
-            table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).upTo(version(10, 1)).add();
+            table.primaryKey("PK_DTL_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).upTo(version(10, 2)).add();
             table.unique("DTL_U_PHYSICALGATEWAYREF").on(originId, intervalColumns.get(0)).since(version(10, 2)).add();
             table.foreignKey("FK_DTL_PHYSGATEWAYREF_ORIGIN").
                     on(originId).

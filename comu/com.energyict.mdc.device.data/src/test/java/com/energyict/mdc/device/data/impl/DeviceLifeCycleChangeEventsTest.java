@@ -11,6 +11,7 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTimeSlice;
 import com.elster.jupiter.fsm.StateTimeline;
 import com.elster.jupiter.issue.share.service.IssueService;
+import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.AmrSystem;
 import com.elster.jupiter.metering.KnownAmrSystem;
 import com.elster.jupiter.metering.LifecycleDates;
@@ -26,6 +27,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserPreferencesService;
+import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.validation.ValidationService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -143,9 +145,12 @@ public class DeviceLifeCycleChangeEventsTest {
     private LockService lockService;
     @Mock
     private SecurityManagementService securityManagementService;
-
     @Mock
     private ConnectionTaskService connectionTaskService;
+    @Mock
+    private MessageService messageService;
+    @Mock
+    private JsonService jsonService;
 
     @Mock
     private MeteringZoneService meteringZoneService;
@@ -185,6 +190,7 @@ public class DeviceLifeCycleChangeEventsTest {
         when(meter.getCurrentMeterActivation()).thenReturn(Optional.empty());
         when(meter.getLifecycleDates()).thenReturn(lifecycleDates);
         when(meter.getConfiguration(any(Instant.class))).thenReturn(Optional.empty());
+        when(messageService.getDestinationSpec(anyString())).thenReturn(Optional.empty());
     }
 
     @Test
@@ -339,7 +345,7 @@ public class DeviceLifeCycleChangeEventsTest {
     }
 
     private DeviceImpl getTestInstance() {
-        DeviceImpl device =  new DeviceImpl(
+        DeviceImpl device = new DeviceImpl(
                 this.dataModel,
                 this.eventService,
                 this.issueService,
@@ -359,7 +365,11 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.deviceConfigurationService,
                 deviceService,
                 lockService,
-                securityManagementService, connectionTaskService, meteringZoneService)
+                securityManagementService,
+                connectionTaskService,
+                meteringZoneService,
+                messageService,
+                jsonService)
                 .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;

@@ -107,6 +107,7 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
                 this.validateCachedFrameCounter(),
                 this.frameCounterRecoveryRetries(),
                 this.frameCounterRecoveryStep(),
+                this.frameCounterLimit(),
                 this.deviceSystemTitlePropertySpec(),
                 this.useGeneralBlockTransferPropertySpec(),
                 this.generalBlockTransferWindowSizePropertySpec(),
@@ -147,6 +148,11 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     }
     private PropertySpec frameCounterRecoveryStep() {
         return this.bigDecimalSpec(HS3300ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, false, PropertyTranslationKeys.V2_DLMS_FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
+    }
+
+    private PropertySpec frameCounterLimit() {
+        return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.FRAME_COUNTER_LIMIT, false, PropertyTranslationKeys.V2_NTA_FRAME_COUNTER_LIMIT, getPropertySpecService()::positiveBigDecimalSpec)
+                .setDefaultValue(new BigDecimal(0)).finish();
     }
 
     private PropertySpec validateCachedFrameCounter() {

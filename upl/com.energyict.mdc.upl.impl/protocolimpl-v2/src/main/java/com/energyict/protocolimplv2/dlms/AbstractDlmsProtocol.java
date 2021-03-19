@@ -29,7 +29,7 @@ import com.energyict.protocol.exceptions.DataEncryptionException;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
-import com.energyict.protocolimplv2.nta.dsmr23.composedobjects.ComposedMeterInfo;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedMeterInfo;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.topology.MeterTopology;
@@ -53,7 +53,7 @@ import java.util.logging.Logger;
  */
 public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumberSupport {
 
-    protected DlmsProperties dlmsProperties;
+    protected DlmsSessionProperties dlmsProperties;
     protected AbstractMeterTopology meterTopology;
     protected OfflineDevice offlineDevice;
     protected HasDynamicProperties dlmsConfigurationSupport;
