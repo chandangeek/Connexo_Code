@@ -248,11 +248,6 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
-    public CollectedCreditAmount createCreditAmountCollectedData(DeviceIdentifier deviceIdentifier) {
-        return new DeviceCreditAmount(deviceIdentifier);
-    }
-
-    @Override
     public CollectedCalendar createCalendarCollectedData(DeviceIdentifier deviceIdentifier) {
         return new DeviceCalendar(deviceIdentifier);
     }

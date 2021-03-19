@@ -528,4 +528,12 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     public CollectedBreakerStatus getBreakerStatus() {
         return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
+
+    /**
+     * Return empty credit amount by default, subclasses can override.
+     */
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        return this.collectedDataFactory.createCreditAmountCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
 }

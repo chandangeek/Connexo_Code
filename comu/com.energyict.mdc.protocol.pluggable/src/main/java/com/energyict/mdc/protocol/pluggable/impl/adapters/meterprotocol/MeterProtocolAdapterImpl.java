@@ -48,19 +48,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.InvalidPropertyException;
 import com.energyict.mdc.upl.properties.MissingPropertyException;
@@ -82,6 +70,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -672,6 +661,26 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         return breakerStatusCollectedData;
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        CollectedCreditAmount creditAmountCollectedData = this.collectedDataFactory.createCreditAmountCollectedData(this.offlineDevice.getDeviceIdentifier());
+        try {
+            Optional<BigDecimal> creditAmount = this.getMeterProtocol().getCreditAmount();
+            creditAmount.ifPresent(creditAmountCollectedData::setCreditAmount);
+            String creditType = this.getMeterProtocol().getCreditType();
+            creditAmountCollectedData.setCreditType(creditType);
+            if (!creditAmount.isPresent()) {
+                final Optional<BigDecimal> creditAmountUpl = this.getUplMeterProtocol().getCreditAmount();
+                creditAmountUpl.ifPresent(creditAmountCollectedData::setCreditAmount);
+                String creditTypeUpl = this.getMeterProtocol().getCreditType();
+                creditAmountCollectedData.setCreditType(creditTypeUpl);
+            }
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        return creditAmountCollectedData;
     }
 
     @Override

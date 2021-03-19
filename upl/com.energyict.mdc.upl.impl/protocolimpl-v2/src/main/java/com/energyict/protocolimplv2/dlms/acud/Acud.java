@@ -42,8 +42,10 @@ import com.energyict.protocolimplv2.dlms.acud.profiledata.AcudLoadProfileDataRea
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+import test.com.energyict.protocolimplv2.sdksample.SDKCreditTaskProtocolDialectProperties;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -264,6 +266,13 @@ public abstract class Acud extends AbstractDlmsProtocol {
             return firmwareVersionsCollectedData;
         }
         return super.getFirmwareVersions(serialNumber);
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        CollectedCreditAmount creditAmountCollectedData = super.getCreditAmount();
+        getRegisterFactory().readCreditAmount(creditAmountCollectedData);
+        return creditAmountCollectedData;
     }
 
     public TariffCalendarExtractor getTariffCalendarExtractor() {

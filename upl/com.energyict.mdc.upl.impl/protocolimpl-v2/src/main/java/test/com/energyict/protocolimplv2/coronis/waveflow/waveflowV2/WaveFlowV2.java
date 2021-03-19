@@ -3,10 +3,7 @@ package test.com.energyict.protocolimplv2.coronis.waveflow.waveflowV2;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
@@ -93,6 +90,11 @@ public class WaveFlowV2 extends WaveFlow {
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         return this.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(getOfflineDevice().getId()));
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        return this.getCollectedDataFactory().createCreditAmountCollectedData(new DeviceIdentifierById(getOfflineDevice().getId()));
     }
 
     @Override

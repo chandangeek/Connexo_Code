@@ -94,23 +94,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.crypto.HsmProtocolService;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -1238,6 +1222,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier deviceIdentifier) {
             return this.getCollectedDataFactory().createBreakerStatusCollectedData(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedCreditAmount createCreditAmountCollectedData(DeviceIdentifier deviceIdentifier) {
+            return this.getCollectedDataFactory().createCreditAmountCollectedData(deviceIdentifier);
         }
 
         @Override

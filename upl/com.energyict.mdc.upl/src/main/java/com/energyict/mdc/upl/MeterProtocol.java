@@ -10,6 +10,7 @@ import com.energyict.protocol.ProfileData;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -200,6 +201,27 @@ public interface MeterProtocol extends HasDynamicProperties, DeviceDescriptionSu
      * @throws IOException Thrown in case of an exception
      */
     default Optional<BreakerStatus> getBreakerStatus() throws IOException {
+        return Optional.empty();
+    }
+
+    /**
+     * Gets the current type of the credit amount<br/>
+    *
+     * @return the current type of the credit
+     * @throws IOException Thrown in case of an exception
+     */
+    default String getCreditType() throws IOException {
+        return "";
+    }
+
+    /**
+     * Gets the current status of the credit amount<br/>
+     * Note: if the {@link MeterProtocol} doesn't support credit functionality, then {@link Optional#empty()} should be returned.
+     *
+     * @return the current status of the credit amount
+     * @throws IOException Thrown in case of an exception
+     */
+    default Optional<BigDecimal> getCreditAmount() throws IOException {
         return Optional.empty();
     }
 

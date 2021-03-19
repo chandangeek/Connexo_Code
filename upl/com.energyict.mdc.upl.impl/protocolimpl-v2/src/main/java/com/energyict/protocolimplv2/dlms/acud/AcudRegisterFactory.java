@@ -13,6 +13,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -26,6 +27,7 @@ import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -324,6 +326,21 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                                     register.getObisCode()));
         }
         return collectedRegister;
+    }
+
+    protected void readCreditAmount(CollectedCreditAmount collectedCreditAmount)  {
+//        try {
+//            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(obisCode);
+//            if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
+//                CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(obisCode);
+//                int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
+//                String type = creditSetup.readCreditType().getTypeEnum().toString();
+//                collectedCreditAmount.setCreditAmount(new BigDecimal(amount));
+//                collectedCreditAmount.setCreditType(type);
+//            }
+//        } catch (IOException  e) {
+//            return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
+//        }
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister) {
