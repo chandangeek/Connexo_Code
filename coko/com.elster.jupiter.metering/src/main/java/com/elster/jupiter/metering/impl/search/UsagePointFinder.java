@@ -97,12 +97,6 @@ public class UsagePointFinder implements Finder<UsagePoint> {
     }
 
     @Override
-    public Finder<UsagePoint> withHint(Hint hint) {
-        finder.withHint(hint);
-        return this;
-    }
-
-    @Override
     public Finder<UsagePoint> sorted(Order order) {
         finder = finder.sorted(order);
         return this;

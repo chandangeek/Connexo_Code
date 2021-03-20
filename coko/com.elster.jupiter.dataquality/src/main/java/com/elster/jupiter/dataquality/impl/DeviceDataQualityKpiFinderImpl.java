@@ -54,12 +54,6 @@ public class DeviceDataQualityKpiFinderImpl implements DataQualityKpiService.Dev
     }
 
     @Override
-    public Finder<DeviceDataQualityKpi> withHint(Hint hint) {
-        // not supported
-        return this;
-    }
-
-    @Override
     public Finder<DeviceDataQualityKpi> sorted(Order order) {
         // not supported
         return this;

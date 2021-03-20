@@ -62,12 +62,6 @@ public class UsagePointDataQualityKpiFinderImpl implements DataQualityKpiService
     }
 
     @Override
-    public Finder<UsagePointDataQualityKpi> withHint(Hint hint) {
-        // not supported
-        return this;
-    }
-
-    @Override
     public Finder<UsagePointDataQualityKpi> sorted(Order order) {
         // not supported
         return this;

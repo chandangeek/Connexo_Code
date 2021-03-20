@@ -93,7 +93,6 @@ public final class DefaultFinder<T> implements Finder<T> {
 
     @Override
     public List<T> find() {
-        Hint[] hintsArray = hints.toArray(new Hint[0]);
         Range<Integer> limits = getActualPageLimits();
         Hint[] hintsArray = hints.toArray(new Hint[0]);
         return Range.all().equals(limits) ?

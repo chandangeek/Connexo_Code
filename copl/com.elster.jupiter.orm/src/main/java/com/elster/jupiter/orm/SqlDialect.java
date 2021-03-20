@@ -100,11 +100,6 @@ public enum SqlDialect {
         }
 
         @Override
-        public boolean allowHints() {
-            return true;
-        }
-
-        @Override
         public String leftPad(String field, int zerofillSize, String padCharacter) {
             return "lpad(to_char(" + field + ")," + zerofillSize + ",'" + padCharacter + "'";
         }
@@ -157,11 +152,6 @@ public enum SqlDialect {
         }
 
         @Override
-        public boolean allowHints() {
-            return true;
-        }
-
-        @Override
         public List<Long> getMultipleNextVals(Statement statement, String sequenceName, int number) {
             List<Long> nextVals = new ArrayList<>();
             try (ResultSet resultSet = statement.executeQuery("SELECT " + sequenceName + ".nextval FROM dual connect by level <= " + number)) {
@@ -203,8 +193,6 @@ public enum SqlDialect {
     public boolean allowsConstraintRename() {
         return true;
     }
-
-    public abstract boolean allowHints();
 
     public abstract String leftPad(String id, int zerofillSize, String s);
 

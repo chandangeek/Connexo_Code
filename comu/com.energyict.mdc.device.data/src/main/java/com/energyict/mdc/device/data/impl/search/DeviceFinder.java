@@ -58,7 +58,6 @@ public class DeviceFinder implements Finder<Device> {
 
     @Override
     public List<Device> find() {
-        Hint[] hintsArray = hints.toArray(new Hint[0]);
         SqlBuilder sqlBuilder = this.sqlBuilder.toSqlBuilder();
         sqlBuilder.append(" ORDER BY " + this.orders.stream()
                 .map(order -> order.getClause(order.getName()))
@@ -78,12 +77,6 @@ public class DeviceFinder implements Finder<Device> {
     @Override
     public Finder<Device> sorted(String s, boolean b) {
         orders.add(b ? Order.ascending(s) : Order.descending(s));
-        return this;
-    }
-
-    @Override
-    public Finder<Device> withHint(Hint hint) {
-        hints.add(hint);
         return this;
     }
 

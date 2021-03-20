@@ -35,8 +35,6 @@ public interface Finder<T> {
 
     Finder<T> sorted(String sortColumn, boolean ascending);
 
-    Finder<T> withHint(Hint hint);
-
     Finder<T> sorted(Order order);
 
     Finder<T> withHint(Hint hint);
