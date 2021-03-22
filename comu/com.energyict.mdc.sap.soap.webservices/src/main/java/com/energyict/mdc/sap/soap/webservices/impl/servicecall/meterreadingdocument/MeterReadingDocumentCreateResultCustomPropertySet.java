@@ -377,7 +377,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
             table.index("IX_" + TABLE_NAME + "_MRDID")
                     .on(meterReadingDocumentId)
                     .during(Range.closedOpen(Version.version(10, 7, 5), Version.version(10, 8)),
-                            Range.atLeast(Version.version(10, 9)))
+                            Range.atLeast(Version.version(10, 9, 1)))
                     .add();
         }
 

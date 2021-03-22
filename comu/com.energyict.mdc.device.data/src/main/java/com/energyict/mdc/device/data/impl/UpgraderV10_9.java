@@ -7,6 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
@@ -18,7 +19,6 @@ import com.energyict.mdc.common.protocol.ConnectionFunction;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.FirmwareManagementTask;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.ami.servicecall.ServiceCallCommands;
 
 import javax.inject.Inject;
 import java.io.IOException;
@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComTaskExecType.FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR;
 import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComTaskExecType.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR;
 
+@LiteralSql
 public class UpgraderV10_9 implements Upgrader {
     private static final Logger LOGGER = Logger.getLogger(UpgraderV10_9.class.getName());
     private static final int SIZE = 100;//100 for optimization
@@ -49,30 +50,21 @@ public class UpgraderV10_9 implements Upgrader {
     private final DeviceService deviceService;
     private final DataModel dataModel;
     private final MessageService messageService;
-    private final EventService eventService;
-    private final InstallerV10_2Impl installerV10_2;
 
     private long id;
 
     @Inject
     UpgraderV10_9(DataModel dataModel,
                   DeviceService deviceService,
-                  MessageService messageService,
-                  EventService eventService,
-                  InstallerV10_2Impl installerV10_2) {
+                  MessageService messageService) {
         this.deviceService = deviceService;
         this.dataModel = dataModel;
         this.messageService = messageService;
-        this.eventService = eventService;
-        this.installerV10_2 = installerV10_2;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
-        EventType.CREDIT_AMOUNT_CREATED.createIfNotExists(eventService);
-        EventType.CREDIT_AMOUNT_UPDATED.createIfNotExists(eventService);
-        installerV10_2.createServiceCallTypeIfNotPresent(ServiceCallCommands.ServiceCallTypeMapping.updateCreditAmount);
         createUnsubscriberForMessageQueue();
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {

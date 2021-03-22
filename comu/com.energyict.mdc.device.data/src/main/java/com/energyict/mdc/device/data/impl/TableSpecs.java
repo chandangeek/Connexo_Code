@@ -978,7 +978,7 @@ public enum TableSpecs {
         @Override
         void addTo(DataModel dataModel, Encrypter encrypter) {
             Table<CreditAmount> table = dataModel.addTable(name(), CreditAmount.class);
-            table.since(version(10, 9));
+            table.since(version(10, 9, 1));
             table.map(CreditAmountImpl.class);
             Column deviceColumn = table.column(ActivatedBreakerStatusImpl.Fields.DEVICE.name()).number().notNull().add();
             table.column(CreditAmountImpl.Fields.CREDIT_TYPE.name()).varChar(NAME_LENGTH).map(CreditAmountImpl.Fields.CREDIT_TYPE.fieldName()).notNull().add();
