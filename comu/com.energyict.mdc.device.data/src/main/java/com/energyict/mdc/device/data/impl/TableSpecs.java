@@ -88,7 +88,6 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -101,6 +100,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.SETNULL;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
