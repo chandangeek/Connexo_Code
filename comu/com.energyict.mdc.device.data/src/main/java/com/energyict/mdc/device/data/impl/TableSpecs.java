@@ -101,6 +101,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.SETNULL;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -562,11 +563,12 @@ public enum TableSpecs {
             Column lastSession = table.column("LASTSESSION").number().notAudited().add();
             table.column("LASTSESSIONSUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName()).notAudited().add();
             table.column("LASTSESSIONSTATUS").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.LAST_SESSION_STATUS.fieldName()).notAudited().add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS").
-                    on(lastSession).
-                    references(DDC_COMSESSION.name()).
-                    map(ConnectionTaskFields.LAST_SESSION.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS")
+                    .on(lastSession)
+                    .references(DDC_COMSESSION.name())
+                    .onDelete(SETNULL)
+                    .map(ConnectionTaskFields.LAST_SESSION.fieldName())
+                    .add();
         }
     },
     DDC_COMTASKEXECSESSION {
@@ -640,12 +642,12 @@ public enum TableSpecs {
                     .notAudited()
                     .add();
             table.column("LASTSESS_SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName()).notAudited().add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS").
-                    on(lastSession).
-                    references(DDC_COMTASKEXECSESSION.name()).
-                    onDelete(CASCADE).
-                    map(ComTaskExecutionFields.LAST_SESSION.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS")
+                    .on(lastSession)
+                    .references(DDC_COMTASKEXECSESSION.name())
+                    .onDelete(SETNULL)
+                    .map(ComTaskExecutionFields.LAST_SESSION.fieldName())
+                    .add();
         }
     },
     DDC_COMTASKEXECJOURNALENTRY {
