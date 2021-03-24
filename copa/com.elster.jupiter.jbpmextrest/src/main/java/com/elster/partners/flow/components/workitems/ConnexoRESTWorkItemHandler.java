@@ -4,8 +4,6 @@
 
 package com.elster.partners.flow.components.workitems;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -18,15 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.commons.services.cdi.Veto;
 
-import javax.ws.rs.core.MediaType;
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.Map;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @Veto
@@ -41,17 +35,6 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
     private static final String FLOW_CSRF_HEADER = "BFlowProcess";
     private static final String FLOW_PROCESS_KEY = "BPMconnexoflowProcess";
     private static final Logger logger = LoggerFactory.getLogger(ConnexoRESTWorkItemHandler.class);
-
-    private static int RETRY_MAX_ATTEMPTS = Integer.parseInt(System.getProperty("connexo.rest.retries", "3"));
-    private static int RETRY_DELAY = Integer.parseInt(System.getProperty("connexo.rest.delay.seconds", "60"));
-    static {
-        if (RETRY_MAX_ATTEMPTS < 0) {
-            RETRY_MAX_ATTEMPTS = 0;
-        }
-        if (RETRY_DELAY < 0) {
-            RETRY_DELAY = 0;
-        }
-    }
 
     @Override
     protected HttpResponse doRequestWithAuthorization(HttpClient httpclient, RequestBuilder requestBuilder, Map<String, Object> params, AuthenticationType type) {
@@ -78,49 +61,10 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
             if (isFormSubmitRequest(request)) {
                 request.addHeader(FLOW_CSRF_HEADER, Base64.getEncoder().encodeToString(FLOW_PROCESS_KEY.getBytes()));
             }
-            return executeHttpRequest(httpclient, request);
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException("Couldn't execute request on Connexo REST API.", e);
+            return httpclient.execute(request);
+        } catch (IOException e) {
+            throw new RuntimeException("Could not execute request on Connexo REST API!", e);
         }
-    }
-
-    private HttpResponse executeHttpRequest(HttpClient httpclient, HttpUriRequest request) throws IOException, InterruptedException {
-        IOException exception = null;
-        HttpResponse response = null;
-
-        for (int i = 0; i <= RETRY_MAX_ATTEMPTS; i++) {
-            if (i != 0) {
-                logger.warn("Couldn't execute request on Connexo REST API. Will retry in " + RETRY_DELAY + " seconds.");
-                TimeUnit.SECONDS.sleep(RETRY_DELAY);
-            }
-            try {
-                if (response instanceof Closeable) {
-                    // if we've already got one: it's not null and if it's closeable, close it before requesting again
-                    ((Closeable) response).close();
-                }
-                response = httpclient.execute(request);
-                if (response.getStatusLine().getStatusCode() < 400 || hasJsonPayload(response)) {
-                    return response;
-                }
-                exception = null;
-            } catch (IOException e) {
-                exception = e;
-            }
-        }
-        if (exception == null) {
-            return response;
-        } else {
-            throw exception;
-        }
-    }
-
-    private boolean hasJsonPayload(HttpResponse response) {
-        return Optional.ofNullable(response)
-                .map(HttpResponse::getEntity)
-                .map(HttpEntity::getContentType)
-                .map(Header::getValue)
-                .filter(contentType -> contentType.contains(MediaType.APPLICATION_JSON))
-                .isPresent();
     }
 
     @Override
