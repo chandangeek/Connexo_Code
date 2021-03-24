@@ -9,12 +9,12 @@
 	<parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>1.0.0-Kratos-SNAPSHOT</version>
+        <version>2.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
     <artifactId>prepayment</artifactId>
-    <version>1.0.0-Kratos-SNAPSHOT</version>
+    <version>2.0.0-Kratos-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[MDC] redknee</name>
     <description>
