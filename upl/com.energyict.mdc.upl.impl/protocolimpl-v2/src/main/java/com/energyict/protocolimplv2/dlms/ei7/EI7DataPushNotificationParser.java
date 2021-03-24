@@ -60,10 +60,9 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode DISCONNECT_CONTROL_OBISCODE = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode METROLOGICAL_EVENT_COUNTER_OBISCODE = ObisCode.fromString("0.0.96.15.1.255");
     private static final ObisCode EVENT_COUNTER_OBISCODE = ObisCode.fromString("0.0.96.15.2.255");
-    private static final ObisCode DAILY_DIAGNOSTIC_OBISCODE = ObisCode.fromString("7.1.96.5.1.255");
+    private static final ObisCode DAILY_DIAGNOSTIC_OBISCODE = ObisCode.fromString("7.0.96.5.1.255");
     private static final ObisCode CONVERTED_VOLUME_INDEX = ObisCode.fromString("7.0.13.2.0.255");
     private static final ObisCode CONVERTED_UNDER_ALARM_VOLUME_INDEX = ObisCode.fromString("7.0.12.2.0.255");
-    private static final ObisCode CURRENT_ACTIVE_TARIFF = ObisCode.fromString("0.0.96.14.0.255");
 
     private static final ObisCode[] REGISTERS_TO_READ = new ObisCode[]{
             PP4_NETWORK_STATUS_OBISCODE,
@@ -415,7 +414,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                 offset += 15;
             } else {
                 createCollectedIntervalData(offlineLoadProfile, collectedIntervalData, unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
-                        currentIndexOfConvertedVolumeUnderAlarm, null);
+                        currentIndexOfConvertedVolumeUnderAlarm, new Unsigned8(0));
                 offset += 14;
             }
         }
@@ -439,10 +438,9 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         List<IntervalValue> intervalValues = new ArrayList<>();
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolume.intValue(), 0, getEiServerStatus(0)));
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolumeUnderAlarm.intValue(), 0, getEiServerStatus(0)));
-        if (currentActiveTariff != null) {
-            intervalValues.add(new IntervalValue(currentActiveTariff.intValue(), 0, getEiServerStatus(0)));
-        }
-        collectedIntervalData.add(new IntervalData(dateTime.getTime(), getEiServerStatus(dailyDiagnostic.intValue()), dailyDiagnostic.intValue(), 0, intervalValues));
+
+        collectedIntervalData.add(new IntervalData(dateTime.getTime(), getEiServerStatus(dailyDiagnostic.intValue()),
+                dailyDiagnostic.intValue(), currentActiveTariff.intValue(), intervalValues));
     }
 
     private List<ChannelInfo> getDeviceChannelInfo(OfflineLoadProfile offlineLoadProfile) throws ProtocolException {
@@ -457,17 +455,12 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             }
             channelInfos.add(channel1);
 
-            final ChannelInfo channel2 = new ChannelInfo(ch++, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(),
+            final ChannelInfo channel2 = new ChannelInfo(ch, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(),
                     loadProfileUnitScalar == null ? Unit.getUndefined() : loadProfileUnitScalar, getDeviceId());
             if (isCumulative( channel2.getChannelObisCode() )) {
                 channel2.setCumulative();
             }
             channelInfos.add(channel2);
-
-            if (offlineLoadProfile.getObisCode().equals(HALF_HOUR_LOAD_PROFILE)) {
-                final ChannelInfo channel3 = new ChannelInfo(ch, CURRENT_ACTIVE_TARIFF.toString(), Unit.getUndefined(), getDeviceId());
-                channelInfos.add(channel3);
-            }
 
             return channelInfos;
         }
