@@ -8,7 +8,9 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.a2.A2;
+import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.ei7.messages.EI7Messaging;
+import com.energyict.protocolimplv2.dlms.ei7.profiles.EI7LoadProfileDataReader;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 public class EI7 extends A2 {
@@ -32,6 +34,16 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "2020-11-01";
+        return "2021-03-25";
     }
+
+    @Override
+    protected A2ProfileDataReader getProfileDataReader() {
+        if (profileDataReader == null) {
+            profileDataReader = new EI7LoadProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(),
+                    getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays(), EI7LoadProfileDataReader.getSupportedLoadProfiles());
+        }
+        return profileDataReader;
+    }
+
 }
