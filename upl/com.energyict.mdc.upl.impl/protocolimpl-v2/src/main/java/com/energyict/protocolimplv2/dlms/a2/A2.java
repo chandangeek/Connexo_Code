@@ -20,18 +20,31 @@ import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.obis.ObisCode;
@@ -53,7 +66,11 @@ import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetIm
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import java.util.logging.Level;
 
 /**
@@ -73,7 +90,7 @@ public class A2 extends AbstractDlmsProtocol {
     private final static ObisCode FRAME_COUNTER_MANAGEMENT_OFFLINE = ObisCode.fromString("0.1.43.1.1.255");
     public final static ObisCode COSEM_LOGICAL_DEVICE_NAME = ObisCode.fromString("0.0.42.0.0.255");
 
-    private A2ProfileDataReader profileDataReader = null;
+    protected A2ProfileDataReader profileDataReader = null;
     private A2RegisterFactory registerFactory = null;
     private A2LogBookFactory logBookFactory = null;
     private A2Messaging messaging = null;
@@ -95,8 +112,8 @@ public class A2 extends AbstractDlmsProtocol {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
 
-        getLogger().info("Start protocol for " + offlineDevice.getSerialNumber());
-        getLogger().info("-version: " + getVersion());
+        journal("Start protocol for " + offlineDevice.getSerialNumber());
+        journal("-version: " + getVersion());
         if (ComChannelType.SerialComChannel.equals(comChannel.getComChannelType()) || ComChannelType.OpticalComChannel.equals(comChannel.getComChannelType())) {
             getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
             getHHUSignOn((SerialPortComChannel) comChannel);
@@ -104,7 +121,7 @@ public class A2 extends AbstractDlmsProtocol {
         } else {
             setupSession(comChannel, FRAME_COUNTER_MANAGEMENT_ONLINE);
         }
-        getLogger().info("Protocol initialization phase ended, executing tasks ...");
+        journal("Protocol initialization phase ended, executing tasks ...");
     }
 
 
@@ -148,7 +165,7 @@ public class A2 extends AbstractDlmsProtocol {
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
         } finally {
-            getLogger().info("Disconnecting public client");
+            journal("Disconnecting public client");
             publicDlmsSession.disconnect();
         }
         getDlmsSessionProperties().setSerialNumber(logicalDeviceName);
@@ -161,9 +178,9 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     protected long getFrameCounter(DlmsSession publicDlmsSession, ObisCode frameCounterObiscode) throws IOException {
-        getLogger().info("Public client connected, reading frame counter " + frameCounterObiscode.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
+        journal("Public client connected, reading frame counter " + frameCounterObiscode.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
         long frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObiscode).getValueAttr().longValue();
-        getLogger().info("Frame counter received: " + frameCounter);
+        journal("Frame counter received: " + frameCounter);
         return frameCounter;
     }
 
@@ -180,7 +197,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     protected DlmsSession getPublicDlmsSession(ComChannel comChannel, DlmsProperties publicClientProperties) {
         DlmsSession publicDlmsSession = createDlmsSession(comChannel, publicClientProperties);
-        getLogger().info("Connecting to public client:" + PUBLIC_CLIENT);
+        journal("Connecting to public client:" + PUBLIC_CLIENT);
         connectWithRetries(publicDlmsSession);
         return publicDlmsSession;
     }
@@ -319,7 +336,7 @@ public class A2 extends AbstractDlmsProtocol {
         return getProfileDataReader().getLoadProfileData(loadProfileReaders);
     }
 
-    private A2ProfileDataReader getProfileDataReader() {
+    protected A2ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
             profileDataReader = new A2ProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(), getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays());
         }
