@@ -36,6 +36,10 @@ public class EI7Messaging extends A2Messaging {
     public List<DeviceMessageSpec> getSupportedMessages() {
         if (supportedMessages == null) {
             supportedMessages = super.getSupportedMessages();
+            // Not available for EI7
+            supportedMessages.remove(NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.remove(NetworkConnectivityMessage.CONFIGURE_AUTO_CONNECT_A2.get(getPropertySpecService(), getNlsService(), getConverter()));
+
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_PUSH_SCHEDULER.get(getPropertySpecService(), getNlsService(), getConverter()));
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_PUSH_SETUP.get(getPropertySpecService(), getNlsService(), getConverter()));
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()));

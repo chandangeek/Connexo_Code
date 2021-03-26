@@ -5,7 +5,13 @@ import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.AssociationLN;
+import com.energyict.dlms.cosem.AutoConnect;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ImageTransfer;
+import com.energyict.dlms.cosem.PPPSetup;
+import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -22,7 +28,13 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.A2;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.FirmwareImageType;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
@@ -32,7 +44,29 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.EndOfDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.StartOfDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TimeZoneOffsetInHoursAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeout;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDayMap;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDestionation1;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectGSMRegistrationTimeout;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectMode;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectRepetitions;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectRepetitionsDelay;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.clientMacAddress;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorValveEnablePassword;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.inactivityTimeoutAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newPasswordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.passwordAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.portNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.sessionTimeoutAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.simPincode;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.windowAttributeName;
 
 
 /**
@@ -258,7 +292,7 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         String destination = getDeviceMessageAttributeValue(pendingMessage, autoConnectDestionation1);
         String port = getDeviceMessageAttributeValue(pendingMessage, portNumberAttributeName);
         String gsmRegistrationTimeout = getDeviceMessageAttributeValue(pendingMessage, autoConnectGSMRegistrationTimeout);
-        String cosemSessinTimeout = getDeviceMessageAttributeValue(pendingMessage, autoConnectCosemSessionRegistrationTimeout);
+        String cosemSessionTimeout = getDeviceMessageAttributeValue(pendingMessage, autoConnectCosemSessionRegistrationTimeout);
 
         AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
         autoConnect.writeMode(NetworkConnectivityMessage.AutoConnectMode.modeForDescription(mode).getMode());
@@ -270,7 +304,7 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         writeIpAddressAndPort(destination, port, autoConnect);
         autoConnect.writeDayMap(Long.parseLong(dayMap));
         autoConnect.writeGSMRegistrationTimeout(Integer.parseInt(gsmRegistrationTimeout));
-        autoConnect.writeCosemSessionTimeout(Integer.parseInt(cosemSessinTimeout));
+        autoConnect.writeCosemSessionTimeout(Integer.parseInt(cosemSessionTimeout));
     }
 
     private void writeIpAddressAndPort(String destination, String port, AutoConnect autoConnect) throws IOException {
