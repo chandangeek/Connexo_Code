@@ -346,7 +346,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * @param clientId - DLMS Client ID used in association
      * @return - the correct obis code for this client
      */
-    private ObisCode getFrameCounterObisCode(final int clientId) {
+    protected ObisCode getFrameCounterObisCode(final int clientId) {
         final ClientConfiguration client = ClientConfiguration.getByID(clientId);
 
         if (client == null) {
@@ -390,8 +390,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         if (this.usesSessionKey()) {
             //No need to read out the global FC if we're going to use a new session key in this AA.
             return;
-        }
-*/
+        }*/
 
         if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
             byte[] authenticationKey = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();
@@ -909,7 +908,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-08-27$";
+        return "$Date: 2021-01-11$";
     }
 
     @Override
@@ -1024,7 +1023,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         /**
          * Client ID to be used.
          */
-        private final int clientId;
+        protected final int clientId;
 
         /**
          * OBIS code of the frame counter.

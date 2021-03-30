@@ -1,14 +1,24 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.mx382;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelType;
+import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AM130RegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
@@ -18,14 +28,45 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.events.Mx382LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.messages.Mx382Messaging;
 import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata.Mx382ProfileDataReader;
+import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created by cisac on 1/14/2016.
  */
 public class Mx382 extends AM130 {
 
+    private HHUSignOnV2 hhuSignOn;
+
     public Mx382(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, messageFileExtractor, keyAccessorTypeExtractor);
+    }
+    
+    @Override
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
+        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+
+        if (ComChannelType.SerialComChannel.is(comChannel) || ComChannelType.OpticalComChannel.is(comChannel)) {
+            hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
+        }
+
+        initDlmsSession(comChannel);
+    }
+
+    protected void initDlmsSession(ComChannel comChannel) {
+        readFrameCounter(comChannel, (int) getDlmsSessionProperties().getTimeout());
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, offlineDevice.getSerialNumber()));
+    }
+
+    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
+        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
+        hhuSignOn.setMode(HHUSignOn.MODE_BINARY_HDLC);
+        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
+        hhuSignOn.enableDataReadout(false);
+        return hhuSignOn;
     }
 
     @Override
@@ -35,7 +76,7 @@ public class Mx382 extends AM130 {
 
     @Override
     public String getVersion(){
-        return "$Date: 2016-02-09 13:07:48 +0200 (Tue, 09 Feb 2016)$";
+        return "$Date: 2021-01-14 13:30:00 +0100 (Wed, 17 Apr 2019)$";
     }
 
     @Override
@@ -75,6 +116,13 @@ public class Mx382 extends AM130 {
             idisMessaging = new Mx382Messaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor(), this.getMessageFileExtractor(), this.getKeyAccessorTypeExtractor());
         }
         return idisMessaging;
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        return Arrays.asList(
+                new SioOpticalConnectionType(), new RxTxOpticalConnectionType(), new OutboundTcpIpConnectionType()
+        );
     }
 
     @Override

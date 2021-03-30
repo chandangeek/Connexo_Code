@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -2042,4 +2043,22 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
         return meterProtocolEvent;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MeterEvent that = (MeterEvent) o;
+        return eiCode == that.eiCode &&
+                protocolCode == that.protocolCode &&
+                eventLogId == that.eventLogId &&
+                deviceEventId == that.deviceEventId &&
+                Objects.equals(time, that.time) &&
+                Objects.equals(message, that.message) &&
+                Objects.equals(additionalInfo, that.additionalInfo);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, eiCode, protocolCode, message, eventLogId, deviceEventId, additionalInfo);
+    }
 }

@@ -386,7 +386,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SAGEMCOM_T210_CATM(323, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.T210CatM", FamilyRule.DSMR_NTA),
     CRYPTO_T210_CATM(324, "com.energyict.protocolimplv2.nta.esmr50.sagemcom.CryptoT210CatM", FamilyRule.DSMR_NTA),
 
-    A2_THEMISUNO(325, "com.energyict.protocolimplv2.dlms.a2.A2", FamilyRule.EICT_THEMISUNO),
+    EI6_THEMISUNO(325, "com.energyict.protocolimplv2.dlms.a2.A2", FamilyRule.EICT_THEMISUNO),
     EI7_THEMISUNO(326, "com.energyict.protocolimplv2.dlms.ei7.EI7", FamilyRule.EICT_THEMISUNO),
 
     ACUD_GAS(327, "com.energyict.protocolimplv2.dlms.acud.AcudGas", FamilyRule.ACUD),
@@ -398,6 +398,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_AS1253(332, "com.energyict.protocolimplv2.dlms.as253.AS1253"),
 
     WEBCATCH_DEVICE_PROTOCOL(333, "com.energyict.protocolimplv2.eict.webcatch.WebCatch", FamilyRule.EICT_RTU_EMS),
+    ELSTER_AS3000(334, "com.energyict.protocolimplv2.dlms.as3000.AS3000"),
+    SL7000(335, "com.energyict.protocolimplv2.dlms.actaris.sl7000.ActarisSl7000"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),

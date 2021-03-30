@@ -60,6 +60,7 @@ import com.energyict.mdc.common.tasks.history.ComSessionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionJournalEntry;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.DeviceFields;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskProperty;
 import com.energyict.mdc.device.data.impl.configchange.DeviceConfigChangeInAction;
@@ -88,7 +89,6 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import java.util.List;
-import java.util.Optional;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
@@ -101,6 +101,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
+import static com.elster.jupiter.orm.DeleteRule.SETNULL;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Table.SHORT_DESCRIPTION_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
@@ -562,11 +563,12 @@ public enum TableSpecs {
             Column lastSession = table.column("LASTSESSION").number().notAudited().add();
             table.column("LASTSESSIONSUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ConnectionTaskFields.LAST_SESSION_SUCCESS_INDICATOR.fieldName()).notAudited().add();
             table.column("LASTSESSIONSTATUS").number().conversion(NUMBER2BOOLEAN).map(ConnectionTaskFields.LAST_SESSION_STATUS.fieldName()).notAudited().add();
-            table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS").
-                    on(lastSession).
-                    references(DDC_COMSESSION.name()).
-                    map(ConnectionTaskFields.LAST_SESSION.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS")
+                    .on(lastSession)
+                    .references(DDC_COMSESSION.name())
+                    .onDelete(SETNULL)
+                    .map(ConnectionTaskFields.LAST_SESSION.fieldName())
+                    .add();
         }
     },
     DDC_COMTASKEXECSESSION {
@@ -640,12 +642,12 @@ public enum TableSpecs {
                     .notAudited()
                     .add();
             table.column("LASTSESS_SUCCESSINDICATOR").number().conversion(NUMBER2ENUM).map(ComTaskExecutionFields.LAST_SESSION_SUCCESSINDICATOR.fieldName()).notAudited().add();
-            table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS").
-                    on(lastSession).
-                    references(DDC_COMTASKEXECSESSION.name()).
-                    onDelete(CASCADE).
-                    map(ComTaskExecutionFields.LAST_SESSION.fieldName()).
-                    add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS")
+                    .on(lastSession)
+                    .references(DDC_COMTASKEXECSESSION.name())
+                    .onDelete(SETNULL)
+                    .map(ComTaskExecutionFields.LAST_SESSION.fieldName())
+                    .add();
         }
     },
     DDC_COMTASKEXECJOURNALENTRY {
@@ -966,6 +968,29 @@ public enum TableSpecs {
             table.addAuditColumns();
             table.primaryKey("PK_DDC_BREAKER_STATUS").on(idColumn).add();
             table.foreignKey("FK_DDC_BREAKER_STATUS_DEVICE")
+                    .on(deviceColumn)
+                    .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
+                    .references(DDC_DEVICE.name())
+                    .onDelete(DeleteRule.CASCADE)
+                    .add();
+        }
+    },
+
+    DDC_CREDIT_AMOUNT {
+        @Override
+        void addTo(DataModel dataModel, Encrypter encrypter) {
+            Table<CreditAmount> table = dataModel.addTable(name(), CreditAmount.class);
+            table.since(version(10, 9, 1));
+            table.map(CreditAmountImpl.class);
+            Column deviceColumn = table.column(ActivatedBreakerStatusImpl.Fields.DEVICE.name()).number().notNull().add();
+            table.column(CreditAmountImpl.Fields.CREDIT_TYPE.name()).varChar(NAME_LENGTH).map(CreditAmountImpl.Fields.CREDIT_TYPE.fieldName()).notNull().add();
+            table.column(CreditAmountImpl.Fields.CREDIT_AMOUNT.name()).number().map(CreditAmountImpl.Fields.CREDIT_AMOUNT.fieldName()).notNull().add();
+            Column firstCheckedColumn = table.column(CreditAmountImpl.Fields.FIRST_CHECKED.name())
+                    .number().map(CreditAmountImpl.Fields.FIRST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            table.column(CreditAmountImpl.Fields.LAST_CHECKED.name())
+                    .number().map(CreditAmountImpl.Fields.LAST_CHECKED.fieldName()).conversion(ColumnConversion.NUMBER2INSTANT).notNull().add();
+            table.primaryKey("PK_DDC_CREDIT_AMOUNT").on(deviceColumn, firstCheckedColumn).add();
+            table.foreignKey("FK_DDC_CREDIT_AMOUNT_DEVICE")
                     .on(deviceColumn)
                     .map(ActivatedBreakerStatusImpl.Fields.DEVICE.fieldName())
                     .references(DDC_DEVICE.name())

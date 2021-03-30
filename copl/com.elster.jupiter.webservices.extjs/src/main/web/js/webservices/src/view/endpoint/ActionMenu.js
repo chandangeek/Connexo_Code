@@ -26,7 +26,7 @@ Ext.define('Wss.view.endpoint.ActionMenu', {
                 itemId: 'endpoint-occurrence-view-payload',
                 text: Uni.I18n.translate('general.viewPayload', 'WSS', 'View payload'),
                 action: 'view-payload',
-                disabled: !me.record.get('payload') || me.record.get('payload') === ""
+                disabled: !me.record.get('hasPayload')
             }
         ].filter(Boolean);
 

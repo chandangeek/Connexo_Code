@@ -22,6 +22,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 
 import aQute.bnd.annotation.ProviderType;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -198,6 +199,12 @@ public interface DeviceService {
     Optional<ActivatedBreakerStatus> getActiveBreakerStatus(Device device);
 
     ActivatedBreakerStatus newActivatedBreakerStatusFrom(Device device, BreakerStatus collectedBreakerStatus, Interval interval);
+
+    Optional<CreditAmount> getCreditAmount(Device device);
+
+    Optional<CreditAmount> getCreditAmount(Device device, Instant instant);
+
+    CreditAmount creditAmountFrom(Device device, String collectedCreditType, BigDecimal collectedCreditAmount);
 
     List<Device> findActiveValidatedDevices(List<Device> domainObjects);
 

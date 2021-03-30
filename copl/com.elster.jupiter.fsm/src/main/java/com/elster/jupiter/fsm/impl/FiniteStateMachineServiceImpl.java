@@ -160,6 +160,7 @@ public class FiniteStateMachineServiceImpl implements ServerFiniteStateMachineSe
                 version(10, 2), UpgraderV10_2.class,
                 version(10, 3), V10_3SimpleUpgrader.class,
                 version(10, 4), UpgraderV10_4.class,
+                version(10, 4, 18), UpgraderV10_4_18.class,
                 version(10, 6), UpgraderV10_6.class
         ));
         registrationHandler.ready();

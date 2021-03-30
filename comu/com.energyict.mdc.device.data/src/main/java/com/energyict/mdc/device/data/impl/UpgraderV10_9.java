@@ -7,6 +7,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
+import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComTaskExecType.FIRMWARE_COM_TASK_EXECUTION_DISCRIMINATOR;
 import static com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl.ComTaskExecType.MANUALLY_SCHEDULED_COM_TASK_EXECUTION_DISCRIMINATOR;
 
+@LiteralSql
 public class UpgraderV10_9 implements Upgrader {
     private static final Logger LOGGER = Logger.getLogger(UpgraderV10_9.class.getName());
     private static final int SIZE = 100;//100 for optimization
@@ -52,7 +54,9 @@ public class UpgraderV10_9 implements Upgrader {
     private long id;
 
     @Inject
-    UpgraderV10_9(DataModel dataModel, DeviceService deviceService, MessageService messageService) {
+    UpgraderV10_9(DataModel dataModel,
+                  DeviceService deviceService,
+                  MessageService messageService) {
         this.deviceService = deviceService;
         this.dataModel = dataModel;
         this.messageService = messageService;
@@ -221,5 +225,4 @@ public class UpgraderV10_9 implements Upgrader {
             }
         }
     }
-
 }

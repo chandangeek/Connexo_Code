@@ -89,6 +89,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
     private volatile UpgradeService upgradeService;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile SoapProviderSupportFactory soapProviderSupportFactory;
+    private volatile OrmService ormService;
 
     private volatile List<ServiceRegistration> registrations = new ArrayList<>();
 
@@ -155,6 +156,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
 
     @Reference
     public void setOrmService(OrmService ormService) {
+        this.ormService = ormService;
         this.dataModel = ormService.newDataModel(WebServicesService.COMPONENT_NAME, "Web services");
         for (TableSpecs tableSpecs : TableSpecs.values()) {
             tableSpecs.addTo(this.dataModel);
@@ -238,6 +240,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 bind(String.class).annotatedWith(Names.named("LogDirectory")).toInstance(logDirectory);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
                 bind(Clock.class).toInstance(clock);
+                bind(OrmService.class).toInstance(ormService);
                 bind(NlsService.class).toInstance(nlsService);
 
                 bind(WebServicesService.class).toInstance(webServicesService);
@@ -282,11 +285,13 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                         .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
                         .put(UpgraderV10_7.VERSION, UpgraderV10_7.class)
                         .put(UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class)
-                        .put(Version.version(10, 7, 4), UpgraderV10_7_4.class)
+                        .put(UpgraderV10_7_4.VERSION, UpgraderV10_7_4.class)
+                        .put(UpgraderV10_7_5.VERSION, UpgraderV10_7_5.class)
                         .put(UpgraderV10_8.VERSION, UpgraderV10_8.class)
                         .put(Version.version(10, 8, 7), UpgraderV10_8_7.class)
                         .put(Version.version(10, 8, 7, 1), UpgraderV10_8_7_1.class)
                         .put(UpgraderV10_9.VERSION, UpgraderV10_9.class)
+                        .put(UpgraderV10_9_1.VERSION, UpgraderV10_9_1.class)
                         .build());
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();

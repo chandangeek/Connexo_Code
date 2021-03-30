@@ -4,7 +4,9 @@ package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -16,6 +18,7 @@ import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocolimpl.base.ActivityCalendarController;
 import com.energyict.protocolimpl.dlms.common.DLMSActivityCalendarController;
@@ -31,6 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioNumeratorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioNumeratorAttributeName;
+
 /**
  * Copyrights EnergyICT
  * User: sva
@@ -39,13 +45,19 @@ import java.util.logging.Level;
  */
 public class ZMDMessages extends ProtocolMessages {
 
+    private static final ObisCode VTNumerator   = ObisCode.fromString("1.1.0.4.3.255");
+    private static final ObisCode CTNumerator   = ObisCode.fromString("1.1.0.4.2.255");
+
     public static String ENABLE_DST = "EnableDST";
     public static String START_OF_DST = "StartOfDST";
     public static String END_OF_DST = "EndOfDST";
-    private static final String SET_DISPLAY_MESSAGE = "Write a message to the LCD of the meter";
+    private static final String SET_DISPLAY_MESSAGE = "SET_DISPLAY_MESSAGE";
     private static final String SET_DISPLAY_MESSAGE_TAG = "SET_DISPLAY_MESSAGE";
     private static final String BILLINGRESET = RtuMessageConstant.BILLINGRESET;
     private static final String BILLINGRESET_DISPLAY = "Billing reset";
+    private static final String WRITE_VOLTAGE_AND_CURRENT_RATIOS = "Write voltage and current ratios";
+    private static final String WRITE_VOLTAGE_NUMERATOR_DISPLAY = "Write voltage numerator";
+    private static final String WRITE_CURRENT_NUMERATOR_DISPLAY = "Write current numerator";
 
     private final ZMD protocol;
     private final DeviceMessageFileFinder messageFileFinder;
@@ -106,15 +118,25 @@ public class ZMDMessages extends ProtocolMessages {
                 setDSTTime(messageEntry, false);
                 infoLog("EndOfDST message successful");
                 return MessageResult.createSuccess(messageEntry);
-            }else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
+            } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
                 return writeActivityCalendar(messageEntry);
             } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_SPECIAL_DAYS)) {
                 return writeSpecialDays(messageEntry);
-            }else if (messageEntry.getContent().contains(SET_DISPLAY_MESSAGE)) {
+            } else if (messageEntry.getContent().contains(SET_DISPLAY_MESSAGE)) {
                 doWriteMessageToDisplay(getContentBetweenTags(messageEntry.getContent()));
                 return MessageResult.createSuccess(messageEntry);
-            }else if (messageEntry.getContent().contains(RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
+            } else if (messageEntry.getContent().contains(RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
                 return write12LinesInActivityCalendar(messageEntry);
+            } else if (messageEntry.getContent().contains(VoltageRatioNumeratorAttributeName)) {
+                infoLog("Sending " + WRITE_VOLTAGE_NUMERATOR_DISPLAY + " message.");
+                writeVoltageNumerator(getContentBetweenTags(messageEntry.getContent()));
+                infoLog(WRITE_VOLTAGE_NUMERATOR_DISPLAY + " message successful");
+                return MessageResult.createSuccess(messageEntry);
+            } else if (messageEntry.getContent().contains(CurrentRatioNumeratorAttributeName)) {
+                infoLog("Sending " + WRITE_CURRENT_NUMERATOR_DISPLAY + " message.");
+                writeCurrentNumerator(getContentBetweenTags(messageEntry.getContent()));
+                infoLog(WRITE_CURRENT_NUMERATOR_DISPLAY + " message successful");
+                return MessageResult.createSuccess(messageEntry);
             } else {
                 infoLog("Unknown message received.");
                 return MessageResult.createUnknown(messageEntry);
@@ -179,8 +201,20 @@ public class ZMDMessages extends ProtocolMessages {
         }
     }
 
-    public List<MessageCategorySpec> getMessageCategories() {
-        List<MessageCategorySpec> categories = new ArrayList<>();
+    private void writeVoltageNumerator(String voltageNumerator) throws IOException {
+        final Integer voltageNumeratorValue = Integer.valueOf( voltageNumerator );
+        Data data = protocol.getCosemObjectFactory().getData(VTNumerator);
+        data.setValueAttr(new Unsigned16( voltageNumeratorValue ));
+    }
+
+    private void writeCurrentNumerator(String currentNumerator) throws IOException {
+        final Integer currentNumeratorValue = Integer.valueOf( currentNumerator );
+        Data data = protocol.getCosemObjectFactory().getData(CTNumerator);
+        data.setValueAttr(new Unsigned16( currentNumeratorValue ));
+    }
+
+    public List getMessageCategories() {
+        List<MessageCategorySpec> categories = new ArrayList<MessageCategorySpec>();
         MessageCategorySpec catDaylightSaving = new MessageCategorySpec("Daylight saving");
         START_OF_DST = "StartOfDST";
         catDaylightSaving.addMessageSpec(addMsgWithValues("Program Start of Daylight Saving Time", START_OF_DST, false, false, "Month", "Day of month", "Day of week", "Hour"));
@@ -197,6 +231,14 @@ public class ZMDMessages extends ProtocolMessages {
         MessageSpec  msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
         catBilling.addMessageSpec(msgSpec);
         categories.add(catBilling);
+
+        MessageCategorySpec voltageAndCurrentRatios = new MessageCategorySpec(WRITE_VOLTAGE_AND_CURRENT_RATIOS);
+        MessageSpec writeVoltageNumerator = addBasicMsg(WRITE_VOLTAGE_NUMERATOR_DISPLAY, VoltageRatioNumeratorAttributeName, false);
+        MessageSpec writeCurrentNumerator = addBasicMsg(WRITE_CURRENT_NUMERATOR_DISPLAY, CurrentRatioNumeratorAttributeName, false);
+        voltageAndCurrentRatios.addMessageSpec( writeVoltageNumerator );
+        voltageAndCurrentRatios.addMessageSpec( writeCurrentNumerator );
+        categories.add(voltageAndCurrentRatios);
+
         return categories;
     }
 

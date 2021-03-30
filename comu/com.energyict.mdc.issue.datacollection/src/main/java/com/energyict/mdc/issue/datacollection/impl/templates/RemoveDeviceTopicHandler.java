@@ -21,6 +21,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -28,10 +30,12 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class RemoveDeviceTopicHandler implements TopicHandler {
     private volatile IssueService issueService;
     private volatile IssueDataCollectionService issueDataCollectionService;
+    private final Logger LOGGER = Logger.getLogger(RemoveDeviceTopicHandler.class.getName());
 
 
     public RemoveDeviceTopicHandler() {
         // for OSGI purpose
+        LOGGER.log(Level.FINE, "Starting " + getClass().getSimpleName() + "...");
     }
 
     @Inject
@@ -42,7 +46,8 @@ public class RemoveDeviceTopicHandler implements TopicHandler {
 
     @Override
     public void handle(LocalEvent localEvent) {
-        Device device = (Device)localEvent.getSource();
+        Device device = (Device) localEvent.getSource();
+        LOGGER.log(Level.FINE, "Removing data collection issues related to device '" + device.getName() + "'...");
         issueService.findStatus(IssueStatus.WONT_FIX).ifPresent(status -> wontFixOpenIssuesWithDevice(device, status));
         getHistoricalIssuesWithDevice(device).forEach(Issue::delete);
     }

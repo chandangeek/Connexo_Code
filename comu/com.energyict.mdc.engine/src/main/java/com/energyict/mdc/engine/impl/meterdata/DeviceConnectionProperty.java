@@ -14,6 +14,9 @@ import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
+import java.util.Collections;
+import java.util.Map;
+
 /**
  * Provides an implementation for the {@link CollectedDeviceInfo} interface
  * for address properties of an ip based {@link ConnectionType}.
@@ -24,15 +27,19 @@ import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 public class DeviceConnectionProperty extends CollectedDeviceData implements CollectedDeviceInfo {
 
     private DeviceIdentifier deviceIdentifier;
-    private Object propertyValue;
     private ConnectionTask connectionTask;
-    private String connectionTaskPropertyName;
+    private Map<String, Object> connectionPropertyNameAndValue;
 
     public DeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Object propertyValue, String connectionTaskPropertyName) {
         super();
         this.deviceIdentifier = deviceIdentifier;
-        this.propertyValue = propertyValue;
-        this.connectionTaskPropertyName = connectionTaskPropertyName;
+        this.connectionPropertyNameAndValue = Collections.singletonMap(connectionTaskPropertyName, propertyValue);
+    }
+
+    public DeviceConnectionProperty(DeviceIdentifier deviceIdentifier, Map<String, Object> connectionPropertyNameAndValue) {
+        super();
+        this.deviceIdentifier = deviceIdentifier;
+        this.connectionPropertyNameAndValue = connectionPropertyNameAndValue;
     }
 
     @Override
@@ -54,16 +61,12 @@ public class DeviceConnectionProperty extends CollectedDeviceData implements Col
         }
     }
 
-    public Object getPropertyValue() {
-        return propertyValue;
-    }
-
     public ConnectionTask getConnectionTask () {
         return connectionTask;
     }
 
-    public String getConnectionTaskPropertyName () {
-        return connectionTaskPropertyName;
+    public Map<String, Object> getConnectionPropertyNameAndValue() {
+        return connectionPropertyNameAndValue;
     }
 
     @Override

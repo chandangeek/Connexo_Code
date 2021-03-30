@@ -52,6 +52,11 @@ public enum SqlDialect {
         }
 
         @Override
+        public boolean allowHints() {
+            return false;
+        }
+
+        @Override
         public List<Long> getMultipleNextVals(Statement statement, String sequenceName, int number) {
             List<Long> nextVals = new ArrayList<>();
             for (int i = 0; i < number; i++) {
@@ -97,6 +102,11 @@ public enum SqlDialect {
         @Override
         public String leftPad(String field, int zerofillSize, String padCharacter) {
             return "lpad(to_char(" + field + ")," + zerofillSize + ",'" + padCharacter + "'";
+        }
+
+        @Override
+        public boolean allowHints() {
+            return true;
         }
 
         @Override
@@ -154,6 +164,10 @@ public enum SqlDialect {
             return nextVals;
         }
 
+        @Override
+        public boolean allowHints() {
+            return true;
+        }
     };
 
     abstract public String rowId();
@@ -181,6 +195,8 @@ public enum SqlDialect {
     }
 
     public abstract String leftPad(String id, int zerofillSize, String s);
+
+    public abstract boolean allowHints();
 
     public abstract List<Long> getMultipleNextVals(Statement statement, String sequenceName, int number);
 }

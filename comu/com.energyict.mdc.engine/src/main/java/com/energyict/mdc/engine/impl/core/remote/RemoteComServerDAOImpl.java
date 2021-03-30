@@ -637,6 +637,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry) {
+        executionFailed(comTaskExecution);
+    }
+
+    @Override
     public void executionFailed(List<? extends ComTaskExecution> comTaskExecutions) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION_COLLECTION, this.collectIds(comTaskExecutions));
@@ -782,6 +787,10 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName) {
+    }
+
+    @Override
+    public void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue) {
     }
 
     @Override

@@ -61,7 +61,7 @@ public class IssueActionExecutor implements Runnable {
             try {
                 realAction.get().initAndValidate(action.getProperties()).execute(issue);
             } catch (RuntimeException e) {
-                MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, realAction.get().getDisplayName(), issue.getTitle());
+                MessageSeeds.ISSUE_ACTION_FAIL.log(LOG, thesaurus, e, realAction.get().getDisplayName(), issue.getTitle(), e.getLocalizedMessage());
             }
         }
     }

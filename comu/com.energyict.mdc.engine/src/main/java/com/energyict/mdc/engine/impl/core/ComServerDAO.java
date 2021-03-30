@@ -451,6 +451,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      */
     void executionFailed(ComTaskExecution comTaskExecution);
 
+    void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry);
+
     /**
      * Notifies that execution of the specified ComTaskExecution failed.
      *
@@ -603,6 +605,16 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param connectionTaskPropertyName The name of the ConnectionTask's property that holds the ip address
      */
     void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName);
+
+    /**
+     * Updates the connection task property of the Device device
+     * that is configured in the specified ConnectionTask
+     * only when the value has actually changed.
+     *
+     * @param connectionTask             The ConnectionTask
+     * @param connectionPropertyNameAndValue The map of ConnectionTask's properties that holds the ip address
+     */
+    void updateConnectionTaskProperties(ConnectionTask connectionTask, Map<String, Object> connectionPropertyNameAndValue);
 
     /**
      * Updates a protocol property of the Device

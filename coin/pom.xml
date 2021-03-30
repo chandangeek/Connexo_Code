@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>1.0.0-Kratos-SNAPSHOT</version>
+        <version>2.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <groupId>com.elster.jupiter</groupId>
@@ -16,7 +16,9 @@
     <packaging>pom</packaging>
     <name>[MDM] mdm.parent</name>
 
-
+	<properties>
+        <json.version>20090211</json.version>
+	</properties>	
     <dependencyManagement>
         <dependencies>
             <dependency>

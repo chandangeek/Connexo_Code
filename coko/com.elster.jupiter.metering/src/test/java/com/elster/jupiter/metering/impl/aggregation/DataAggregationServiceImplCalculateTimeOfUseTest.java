@@ -55,6 +55,7 @@ import com.elster.jupiter.util.units.Dimension;
 
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -245,6 +246,8 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumptionTimeSeries.getRawValuesSql(any(Range.class), anyVararg())).thenReturn(consumptionTimeSeriesRawSql);
         when(consumptionTimeSeries.isRegular()).thenReturn(true);
         when(consumptionChannel.getTimeSeries()).thenReturn(consumptionTimeSeries);
+        when(consumptionChannel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getDefaultMultiplier()).thenReturn(Optional.of(BigDecimal.ONE));
 
         // Setup Calendar usage
         Calendar calendar = mock(Calendar.class);
@@ -368,7 +371,8 @@ public class DataAggregationServiceImplCalculateTimeOfUseTest {
         when(consumptionTimeSeries.getRawValuesSql(any(Range.class), anyVararg())).thenReturn(consumptionTimeSeriesRawSql);
         when(consumptionTimeSeries.isRegular()).thenReturn(true);
         when(consumptionChannel.getTimeSeries()).thenReturn(consumptionTimeSeries);
-
+        when(consumptionChannel.getChannelsContainer()).thenReturn(channelsContainer);
+        when(channelsContainer.getDefaultMultiplier()).thenReturn(Optional.of(BigDecimal.ONE));
         // Setup Calendar usage
         Calendar calendar = mock(Calendar.class);
         ServerCalendarUsage calendarUsage = mock(ServerCalendarUsage.class);

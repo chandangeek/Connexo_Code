@@ -37,6 +37,7 @@ import com.energyict.mdc.pluggable.rest.MdcPropertyUtils;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.annotation.security.RolesAllowed;
@@ -79,7 +80,17 @@ public class DeviceFirmwareMessagesResource {
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
     @Inject
-    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, FirmwareService firmwareService, FirmwareMessageInfoFactory firmwareMessageInfoFactory, TaskService taskService, Clock clock, MdcPropertyUtils mdcPropertyUtils, Thesaurus thesaurus, ConcurrentModificationExceptionFactory conflictFactory, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
+    public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper,
+                                          ExceptionFactory exceptionFactory,
+                                          FirmwareService firmwareService,
+                                          FirmwareMessageInfoFactory firmwareMessageInfoFactory,
+                                          TaskService taskService,
+                                          Clock clock,
+                                          MdcPropertyUtils mdcPropertyUtils,
+                                          Thesaurus thesaurus,
+                                          ConcurrentModificationExceptionFactory conflictFactory,
+                                          DeviceService deviceService,
+                                          DeviceMessageSpecificationService deviceMessageSpecificationService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
@@ -278,7 +289,7 @@ public class DeviceFirmwareMessagesResource {
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));
         FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        if (!firmwareManagementDeviceUtils.isPendingMessage(upgradeMessage)) {
+        if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.firmwareUploadTaskIsBusy()) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
         }
         upgradeMessage.revoke();
@@ -363,8 +374,9 @@ public class DeviceFirmwareMessagesResource {
     private boolean isDeviceFirmwareUpgradeAllowed(FirmwareManagementDeviceUtils helper) {
         Optional<ComTaskExecution> firmwareUpgradeExecution = helper.getFirmwareComTaskExecution();
         return helper.getPendingFirmwareMessages().stream()
-                .filter(message -> !firmwareUpgradeExecution.isPresent() || firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null || !message.getReleaseDate()
-                        .isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
+                .filter(message -> !firmwareUpgradeExecution.isPresent()
+                        || firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null
+                        || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
                 .count() == 0 && !helper.firmwareUploadTaskIsBusy();
     }
 

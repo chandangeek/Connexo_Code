@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Kratos-SNAPSHOT</version>
+        <version>2.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.data.push</artifactId>
@@ -18,10 +18,6 @@
     <description>
         Contains implementation of data pushing message handlers
     </description>
-
-    <properties>
-        <baseline>(,${project.version})</baseline>
-    </properties>
 
     <dependencies>
         <dependency>

@@ -3,9 +3,6 @@
  *
  * Created on 16 oktober 2007, 11:35
  *
- * To change this template, choose Tools | Options and locate the template under
- * the Source Creation and Management node. Right-click the template and choose
- * Open. You can then make changes to the template in the Source Editor.
  */
 
 package com.energyict.dlms.axrdencoding;
@@ -25,8 +22,8 @@ import java.math.BigDecimal;
 @XmlRootElement
 public class Unsigned16 extends AbstractDataType {
 
-    private static final int SIZE = 3;
-	private int value;
+    public static final int SIZE = 3;
+    private int value;
 
     /** Creates a new instance of Enum */
     public Unsigned16(byte[] berEncodedData, int offset) throws IOException {

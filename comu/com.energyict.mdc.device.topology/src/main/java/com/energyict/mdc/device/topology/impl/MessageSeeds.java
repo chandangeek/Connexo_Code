@@ -24,12 +24,14 @@ public enum MessageSeeds implements MessageSeed {
     FREQUENCY_MUST_BE_VALID(4, Keys.FREQUENCY_MUST_BE_VALID, "Frequency must be valid"),
     FIELD_REQUIRED(5, Keys.FIELD_REQUIRED, "This field is required"),
     TARGET_MUST_BE_VALID(6, Keys.TARGET_MUST_BE_VALID, "Target must be between 0 and 100"),
+
     DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY(100, Keys.DEVICE_IS_STILL_LINKED_AS_PHYSICAL_GATEWAY, "You can not remove device {0} because it is still used as a physical gateway for {1}"),
     DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY(101, Keys.DEVICE_IS_STILL_LINKED_AS_COMMUNICATION_GATEWAY, "You can not remove device {0} because it is still used as a communication gateway for {1}"),
     DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF(102, Keys.DEVICE_CANNOT_BE_PHYSICAL_GATEWAY_FOR_ITSELF, "A device cannot be its own gateway"),
     @SuppressWarnings("unused")
     COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE(103, Keys.COM_TASK_EXECUTION_IS_EXECUTING_AND_CANNOT_OBSOLETE, "You can not make comtaskexecution {0} for device {1} obsolete because it is currently executing on comport {2}"),
     INVALID_IPV6_ADDRESS(104, Keys.INVALID_IPV6_ADDRESS, "Invalid IPv6 address"),
+    GATEWAY_REFERENCE_CONFLICT(105, Keys.GATEWAY_REFERENCE_CONFLICT, "Can''t save the link to gateway. This meter already has a gateway reference, active on a conflicting time range."),
 
     DATA_LOGGER_LINK_EXCEPTION_NO_FREE_DATALOGGER_CHANNEL(1001, DataLoggerLinkException.NO_FREE_DATA_LOGGER_CHANNEL, "All channels of the data Logger {0} are used"),
     DATA_LOGGER_LINK_EXCEPTION_NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X(1002, DataLoggerLinkException.NO_DATA_LOGGER_CHANNEL_FOR_READING_TYPE_X, "No channel with reading type {0} found for Data logger {1}"),
@@ -42,7 +44,6 @@ public enum MessageSeeds implements MessageSeed {
     DATA_LOGGER_UNIQUE_KEY_VIOLATION(1009, Keys.DATA_LOGGER_UNIQUE_KEY_VIOLATION, "You have already linked this slave ''{0}'' to this datalogger ''{1}'' at this timestamp ''{2}''. Please select another linking date"),
     DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED(1010, Keys.DATA_LOGGER_SLAVE_WAS_ALREADY_LINKED, "The slave ''{0}'' was already linked to a datalogger ''{1}'' at the given timestamp ''{2}''"),
     VETO_DEVICEGROUP_DELETION(1011, Keys.DEVICE_GROUP_STILL_IN_USE, "Device group {0} is still in use by a register device KPI.", Level.SEVERE),
-
 
     ;
 
@@ -119,6 +120,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String FIELD_REQUIRED = "registered.devices.kpi.field.required";
         public static final String TARGET_MUST_BE_VALID = "registered.devices.kpi.valid.target";
         public static final String DEVICE_GROUP_STILL_IN_USE = "DeviceGroupStillInUse";
+        public static final String GATEWAY_REFERENCE_CONFLICT = "GatewayReferenceConflict";
     }
 
 }

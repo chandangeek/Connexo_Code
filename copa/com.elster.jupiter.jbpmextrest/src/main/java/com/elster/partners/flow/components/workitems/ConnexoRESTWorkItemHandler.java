@@ -8,7 +8,12 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.drools.core.process.instance.impl.WorkItemImpl;
 import org.jbpm.process.workitem.rest.RESTWorkItemHandler;
+import org.kie.api.runtime.process.WorkItem;
+import org.kie.api.runtime.process.WorkItemManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.uberfire.commons.services.cdi.Veto;
 
 import java.io.IOException;
@@ -27,8 +32,10 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
     private static final String POST = "POST";
     private static final String PUT = "PUT";
     private static final String DELETE = "DELETE";
-    private static final String FLOW_CSRF_HEADER= "BFlowProcess";
+    private static final String FLOW_CSRF_HEADER = "BFlowProcess";
     private static final String FLOW_PROCESS_KEY = "BPMconnexoflowProcess";
+    private static final Logger logger = LoggerFactory.getLogger(ConnexoRESTWorkItemHandler.class);
+
     @Override
     protected HttpResponse doRequestWithAuthorization(HttpClient httpclient, RequestBuilder requestBuilder, Map<String, Object> params, AuthenticationType type) {
         loadConfiguration();
@@ -51,13 +58,34 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
             }
         }
         try {
-            if(isFormSubmitRequest(request)) {
+            if (isFormSubmitRequest(request)) {
                 request.addHeader(FLOW_CSRF_HEADER, Base64.getEncoder().encodeToString(FLOW_PROCESS_KEY.getBytes()));
             }
             return httpclient.execute(request);
         } catch (IOException e) {
             throw new RuntimeException("Could not execute request on Connexo REST API!", e);
         }
+    }
+
+    @Override
+    public void executeWorkItem(WorkItem workItem, WorkItemManager manager) {
+        logger.debug(workItemToString((WorkItemImpl) workItem));
+        super.executeWorkItem(workItem, manager);
+    }
+
+    private String workItemToString(WorkItemImpl workItem) {
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("WorkItem ").append(workItem.getName());
+        stringBuilder.append(", Id= ").append(workItem.getId());
+        stringBuilder.append(", DeploymentId= ").append(workItem.getDeploymentId());
+        stringBuilder.append(", NodeId= ").append(workItem.getNodeId());
+        stringBuilder.append(", NodeInstanceId= ").append(workItem.getNodeInstanceId());
+        stringBuilder.append(", ProcessInstanceId= ").append(workItem.getProcessInstanceId());
+        stringBuilder.append(", Parameters= ").append(workItem.getParameters().toString());
+        stringBuilder.append(", Results= ").append(workItem.getResults());
+        stringBuilder.append(", State= ").append(workItem.getState());
+        stringBuilder.append(", hashCode= ").append(workItem.hashCode());
+        return stringBuilder.toString();
     }
 
     private void loadConfiguration() {
@@ -82,7 +110,7 @@ public class ConnexoRESTWorkItemHandler extends RESTWorkItemHandler {
         }
     }
 
-    private boolean isFormSubmitRequest(HttpUriRequest request){
+    private boolean isFormSubmitRequest(HttpUriRequest request) {
         return Stream.of(POST, PUT, DELETE).anyMatch(request.getMethod()::equalsIgnoreCase);
     }
 }

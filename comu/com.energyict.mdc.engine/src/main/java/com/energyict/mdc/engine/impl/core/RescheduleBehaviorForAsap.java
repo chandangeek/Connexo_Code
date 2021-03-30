@@ -38,10 +38,14 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
                     case NOT_EXECUTED: // intentional fallthrough
                     case FAILED: {
                         if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
-                            if(comTaskExecutionComCommand.getCommands().size() == 0)  //there were no commands to execute
+                            if (comTaskExecutionComCommand.getCommands().size() == 0)  //there were no commands to execute
+                            {
                                 getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
-                            else
+                            } else {
                                 notExecutedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
+                            }
+                        } else if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.ConfigurationWarning)) {
+                            getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution(), true);
                         } else {
                             getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution());
                             nextConnectionExecutionDate = comTaskExecutionComCommand.getComTaskExecution().getNextExecutionTimestamp();
@@ -71,9 +75,11 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
 
     protected void rescheduleForConnectionError(CommandRoot commandRoot) {
         if (commandRoot.hasConnectionNotExecuted() && commandRoot.getCommands().size() == 0) //there were no commands to execute
+        {
             rescheduleSuccessfulConnectionTask();
-        else
+        } else {
             retryConnectionTask();
+        }
         for (GroupedDeviceCommand groupedDeviceCommand : commandRoot) {
             Instant connectionTaskRetryNextExecution = null;
             for (ComTaskExecutionComCommandImpl comTaskExecutionComCommand : groupedDeviceCommand) {
@@ -83,7 +89,7 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
                         break;
                     case NOT_EXECUTED: // intentional fallthrough
                     case FAILED: {
-                        if(commandRoot.hasConnectionNotExecuted() && commandRoot.getCommands().size() == 0) { //there were no commands to execute
+                        if (commandRoot.hasConnectionNotExecuted() && commandRoot.getCommands().size() == 0) { //there were no commands to execute
                             getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         } else {
                             connectionTaskRetryNextExecution = calculateNextRetryExecutionTimestamp((OutboundConnectionTask) getConnectionTask());
@@ -98,7 +104,7 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
 
     @Override
     protected Instant calculateNextRescheduleExecutionTimestamp() {
-        OutboundConnectionTask connectionTask = (OutboundConnectionTask)getConnectionTask();
+        OutboundConnectionTask connectionTask = (OutboundConnectionTask) getConnectionTask();
         Instant nextExecution = clock.instant();
         TimeDuration baseRetryDelay = getRescheduleRetryDelay(connectionTask);
         nextExecution = nextExecution.plusSeconds(baseRetryDelay.getSeconds());

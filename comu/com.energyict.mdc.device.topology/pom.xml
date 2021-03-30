@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>1.0.0-Kratos-SNAPSHOT</version>
+        <version>2.0.0-Kratos-SNAPSHOT</version>
 
     </parent>
 
@@ -256,10 +256,6 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.io</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.assertj</groupId>
-            <artifactId>assertj-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.json</groupId>

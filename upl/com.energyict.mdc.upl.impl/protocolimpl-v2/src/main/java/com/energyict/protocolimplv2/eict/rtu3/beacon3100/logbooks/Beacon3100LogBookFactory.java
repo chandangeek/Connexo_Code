@@ -1,6 +1,9 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks;
 
+import com.energyict.cim.EndDeviceEventTypeMapping;
+import com.energyict.cim.EndDeviceType;
 import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.aso.SecurityContext;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.NotInObjectListException;
@@ -19,7 +22,11 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -91,23 +98,67 @@ public class Beacon3100LogBookFactory implements DeviceLogBookSupport {
     }
 
     private List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws IOException {
-        List<MeterEvent> meterEvents;
+        List<MeterProtocolEvent> meterEvents;
         if (logBookObisCode.equals(MAIN_LOGBOOK)) {
-            meterEvents = new Beacon3100StandardEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100StandardEventLog(dataContainer, protocol.getTimeZone()).getMeterProtocolEvents();
+            meterEvents.addAll(
+                    getFrameCounterEvents().stream().peek(item -> item.getEventType().setType(EndDeviceType.COLLECTOR))
+                            .collect(Collectors.toList())
+            );
         } else if (logBookObisCode.equals(SECURITY_LOGBOOK)) {
-            meterEvents = new Beacon3100SecurityEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100SecurityEventLog(dataContainer, protocol.getTimeZone()).getMeterProtocolEvents();
         } else if (logBookObisCode.equals(COVER_LOGBOOK)) {
-            meterEvents = new Beacon3100CoverEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100CoverEventLog(dataContainer, protocol.getTimeZone()).getMeterProtocolEvents();
         } else if (logBookObisCode.equals(COMMUNICATION_LOGBOOK)) {
-            meterEvents = new Beacon3100CommunicationEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100CommunicationEventLog(dataContainer, protocol.getTimeZone()).getMeterProtocolEvents();
         } else if (logBookObisCode.equals(VOLTAGE_LOGBOOK)) {
-            meterEvents = new Beacon3100VoltageEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new Beacon3100VoltageEventLog(dataContainer, protocol.getTimeZone()).getMeterProtocolEvents();
         } else if (logBookObisCode.equals(PROTOCOL_LOGBOOK)) {
-            meterEvents = new Beacon3100ProtocolEventLog(dataContainer, protocol.getTimeZone(), collectedDataFactory).getMeterEvents();
+            meterEvents = new Beacon3100ProtocolEventLog(dataContainer, protocol.getTimeZone(), collectedDataFactory).getMeterProtocolEvents();
         } else {
             return new ArrayList<>();
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+        return meterEvents;
+    }
+
+    protected List<MeterProtocolEvent> getFrameCounterEvents() {
+        final SecurityContext securityContext = protocol.getDlmsSession().getAso().getSecurityContext();
+        List<MeterProtocolEvent> result = new ArrayList<>();
+
+        final Optional<MeterProtocolEvent> frameCounterEvent = generateFrameCounterLimitEvent(securityContext.getFrameCounter(),
+                "Frame Counter", 900, MeterEvent.SEND_FRAME_COUNTER_ABOVE_THRESHOLD);
+        frameCounterEvent.ifPresent(result::add);
+
+        if (securityContext.getResponseFrameCounter() != 0) {
+            final Optional<MeterProtocolEvent> responseFrameCounterEvent = generateFrameCounterLimitEvent(securityContext.getResponseFrameCounter(),
+                    "Response Frame Counter", 901, MeterEvent.RECEIVE_FRAME_COUNTER_ABOVE_THRESHOLD);
+            responseFrameCounterEvent.ifPresent(result::add);
+        } else {
+            protocol.journal("Response frame counter not initialized.");
+        }
+
+        return result;
+    }
+
+    private Optional<MeterProtocolEvent> generateFrameCounterLimitEvent(long frameCounter, String name, int eventId, int eiCode) {
+        try {
+            long frameCounterLimit = protocol.getDlmsSessionProperties().getFrameCounterLimit();
+
+            if (frameCounterLimit == 0) {
+                protocol.journal("Frame counter threshold not configured. FYI the current " + name + " is " + frameCounter);
+            } else if (frameCounter > frameCounterLimit) {
+                protocol.journal(name + ": " + frameCounter + " is above the threshold (" + frameCounterLimit + ") - will create an event");
+                MeterProtocolEvent frameCounterEvent = new MeterProtocolEvent(
+                        new Date(), eiCode, eventId, EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(eiCode),
+                        name + " above threshold: " + frameCounter, 0, 0);
+                return Optional.of(frameCounterEvent);
+            } else {
+                protocol.journal(name + " below configured threshold: " + frameCounter + " < " + frameCounterLimit);
+            }
+        } catch (Exception e) {
+            protocol.journal(Level.WARNING, "Error getting  " + name + e.getMessage(), e);
+        }
+        return Optional.empty();
     }
 
     private boolean isSupported(LogBookReader logBookReader) {

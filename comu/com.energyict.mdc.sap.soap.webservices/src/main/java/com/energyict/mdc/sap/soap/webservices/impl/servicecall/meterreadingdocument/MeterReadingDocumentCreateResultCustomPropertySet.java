@@ -19,6 +19,7 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.common.collect.Range;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
@@ -258,7 +259,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName())
                     .notNull()
                     .add();
-            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.databaseName())
+            Column meterReadingDocumentId = table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.METER_READING_DOCUMENT_ID.javaName())
                     .notNull()
@@ -372,6 +373,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.REQUESTED_SCHEDULED_READING_DATE.javaName())
                     .since(Version.version(10, 7, 2))
+                    .add();
+            table.index("IX_" + TABLE_NAME + "_MRDID")
+                    .on(meterReadingDocumentId)
+                    .during(Range.closedOpen(Version.version(10, 7, 5), Version.version(10, 8)),
+                            Range.atLeast(Version.version(10, 9, 1)))
                     .add();
         }
 

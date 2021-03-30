@@ -34,6 +34,8 @@ public enum ProtocolExceptionMessageSeeds implements MessageSeed {
     DATA_ENCRYPTION_EXCEPTION_WITH_CAUSE("dataEncryptionExceptionWithCause", "Failure to decrypt encrypted data received from device: {0}"),
     INBOUND_TIMEOUT("inboundTimeout", "A timeout occurred while trying to receive an inbound frame: {0}"),
     INBOUND_UNEXPECTED_FRAME("unexpectedInboundFrame", "Received an unexpected inbound frame ({0}): {1}"),
+    FRAME_COUNTER_CACHE_NOT_SUPPORTED("notSupportedFrameCounterCache", "Device configured to support frame counter cache but no frame cache implementation found"),
+    FRAME_COUNTER_NOT_AVAILABLE("deviceFrameCounterNotAvailable", "Could not read device frame counter"),
     INDEX_OUT_OF_BOUND_DATA_PARSE_EXCEPTION("dataParseException.indexOutOfBounds", "Referenced a non-existing index: {0}"),
     PROTOCOL_IO_PARSE_ERROR("dataParseException.protocolIOError", "Protocol parse error: {0}"),
     CONNECTION_SETUP_ERROR("conectionSetupError", "Connection setup failed: {0}"),

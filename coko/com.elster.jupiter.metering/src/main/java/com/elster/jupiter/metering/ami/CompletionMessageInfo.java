@@ -14,7 +14,8 @@ public class CompletionMessageInfo {
         INCORRECT_DEVICE_BREAKER_STATUS,
         SERVICE_CALL_HAS_BEEN_CANCELLED,
         ONE_OR_MORE_DEVICE_COMMANDS_HAVE_BEEN_REVOKED,
-        UNEXPECTED_EXCEPTION
+        UNEXPECTED_EXCEPTION,
+        INCORRECT_CREDIT_AMOUNT
     }
 
     private String correlationId;

@@ -87,21 +87,34 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
     }
 
     public ClauseAwareSqlBuilder build(SqlBuilder sqlBuilder, String communicationTaskAliasName) {
-        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilderForRestrictedStages();
+        ClauseAwareSqlBuilder actualBuilder = this.newActualBuilder();
         WithClauses.BUSY_CONNECTION_TASK.appendTo(actualBuilder, BUSY_ALIAS_NAME);
-        actualBuilder.append(sqlBuilder);
-        this.appendDeviceStateJoinClauses(communicationTaskAliasName);
-        this.appendLocationIdCondition(locationId);
+
+        String allctedataAlias = "allctedata";
+        this.append(", " + allctedataAlias + " as (");
         String sqlStartClause = sqlBuilder.getText();
+        this.append(sqlStartClause.replace("from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName , " , hp.COMTASKEXECUTION, dev.DEVICETYPE, dev.NAME, CASE WHEN bt.connectiontask IS NULL THEN 0 ELSE 1 END as busytask_exists from  " + TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName));
+        this.appendDeviceAndHighPrioAndBusyTaskJoinClauses();
+        this.append(" where exists ( ");
+        DeviceStageSqlBuilder.forExcludeStages(getRestrictedDeviceStages()).appendRestrictedStagesSelectClause(this.getActualBuilder().asBuilder(),this.getClock().instant());
+        this.append(" ) ");
+        this.append(" ) ");
+
+        this.append(sqlStartClause.replace( TableSpecs.DDC_COMTASKEXEC.name() + " " + communicationTaskAliasName,   allctedataAlias + " " + communicationTaskAliasName + " "));
+        this.appendLocationIdCondition(locationId);
         Iterator<ServerComTaskStatus> statusIterator = this.taskStatuses.iterator();
-        while (statusIterator.hasNext()) {
-            this.appendWhereClause(statusIterator.next());
-            if (statusIterator.hasNext()) {
-                this.unionAll();
-                this.append(sqlStartClause);
-                this.appendDeviceStateJoinClauses(communicationTaskAliasName);
+        if (statusIterator.hasNext()) {
+            this.getActualBuilder().appendWhereOrAnd();
+            this.append(" ( ");
+            while (statusIterator.hasNext()) {
+                this.appendWhereClause(statusIterator.next());
+                if (statusIterator.hasNext()) {
+                    this.appendWhereOrOr();
+                }
             }
+            this.append(" ) ");
         }
+
         if (this.taskStatuses.isEmpty()) {
             this.appendNonStatusWhereClauses();
         }
@@ -113,8 +126,6 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
                     connectionMethods.stream().collect(FancyJoiner.joining(",", ""))
                     + ") )");
         }
-        this.appendWhereOrAnd();
-        this.append("obsolete_date is null");
         return this.getActualBuilder();
     }
 

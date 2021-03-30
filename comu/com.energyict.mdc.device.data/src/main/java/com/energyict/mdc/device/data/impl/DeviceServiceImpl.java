@@ -59,6 +59,7 @@ import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceFields;
@@ -84,6 +85,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -604,6 +606,24 @@ class DeviceServiceImpl implements ServerDeviceService {
     @Override
     public ActivatedBreakerStatus newActivatedBreakerStatusFrom(Device device, BreakerStatus collectedBreakerStatus, Interval interval) {
         return ActivatedBreakerStatusImpl.from(deviceDataModelService.dataModel(), device, collectedBreakerStatus, interval);
+    }
+
+    @Override
+    public Optional<CreditAmount> getCreditAmount(Device device) {
+        return getCreditAmount(device, clock.instant());
+    }
+
+    @Override
+    public Optional<CreditAmount> getCreditAmount(Device device, Instant instant) {
+        return deviceDataModelService.dataModel().stream(CreditAmount.class)
+                .filter(where(CreditAmountImpl.Fields.DEVICE.fieldName()).isEqualTo(device))
+                .filter(where(CreditAmountImpl.Fields.FIRST_CHECKED.fieldName()).isLessThanOrEqual(instant))
+                .max(CreditAmountImpl.Fields.FIRST_CHECKED.fieldName());
+    }
+
+    @Override
+    public CreditAmount creditAmountFrom(Device device, String collectedCreditType, BigDecimal collectedCreditAmount) {
+        return CreditAmountImpl.from(deviceDataModelService.dataModel(), device, collectedCreditType, collectedCreditAmount);
     }
 
     @Override

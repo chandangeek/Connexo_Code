@@ -4,11 +4,11 @@
 
 package com.elster.jupiter.fsm;
 
-import aQute.bnd.annotation.ProviderType;
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.Map;
 
-@ProviderType
+@ConsumerType
 public interface StateTransitionPropertiesProvider {
 
     boolean areProcessPropertiesAvailableForUP(Map<String, Object> processProperties, long id);

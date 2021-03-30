@@ -7,6 +7,8 @@ package com.energyict.mdc.device.topology;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.energyict.mdc.common.device.data.Device;
 
+import aQute.bnd.annotation.ProviderType;
+
 import java.time.Instant;
 
 /**
@@ -15,6 +17,7 @@ import java.time.Instant;
  *                 between multi-element submeter/ multi-element meter
  * Each link is valid for a given period (=Effectivity)
  */
+@ProviderType
 public interface PhysicalGatewayReference extends Effectivity {
 
     enum PhysicalGatewayReferenceDiscriminator {
@@ -63,4 +66,5 @@ public interface PhysicalGatewayReference extends Effectivity {
      */
     boolean isTerminated();
 
+    long getId();
 }

@@ -321,6 +321,7 @@ public class ValidationServiceImplTest {
         ValidationRuleSet validationRuleSet = mock(ValidationRuleSet.class);
         when(validationRuleSet.getQualityCodeSystem()).thenReturn(SYSTEM);
         when(channelsContainerValidation.getRuleSet()).thenReturn(validationRuleSet);
+        when(channelsContainerValidation.isActive()).thenReturn(true);
         when(channelValidation.getChannel()).thenReturn(channel);
 
         ReadingType readingType = channel.getMainReadingType();

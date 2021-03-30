@@ -12,6 +12,7 @@ import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.ChangeStepTariffCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.ChangeTaxRatesCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.GenerateCSRCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.GenerateKeyPairCommand;
@@ -20,8 +21,13 @@ import com.energyict.mdc.device.data.impl.ami.commands.KeyRenewalCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.LoadControlInitiateCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.LoadControlTerminateCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.SendSpecialDayCalendarCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.SwitchChargeModeCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.SwitchTaxAndStepTariffCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditAmountCommand;
 import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditDaysLimitCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.UpdateFriendlyDayPeriodCommand;
+import com.energyict.mdc.device.data.impl.ami.commands.UpdateFriendlyWeekdaysCommand;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import java.util.ArrayList;
@@ -78,6 +84,48 @@ public enum EndDeviceControlTypeMapping {
         @Override
         public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
             return Optional.of(new ChangeStepTariffCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    CHANGE_TAX_RATES("0.20.86.13", Collections.singletonList(DeviceMessageId.CHANGE_TAX_RATE)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new ChangeTaxRatesCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    SWITCH_TAX_AND_STEP_TARIFF("0.20.283.54", Collections.singletonList(DeviceMessageId.SWITCH_TAX_AND_STEP_TARIFF)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new SwitchTaxAndStepTariffCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    SWITCH_CHARGE_MODE("0.20.9.13", Collections.singletonList(DeviceMessageId.SWITCH_CHARGE_MODE)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new SwitchChargeModeCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    FRIENDLY_DAY_PERIOD_UPDATE("0.20.114.13", Collections.singletonList(DeviceMessageId.FRIENDLY_DAY_PERIOD_UPDATE)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new UpdateFriendlyDayPeriodCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    FRIENDLY_WEEKDAYS_UPDATE("0.20.35.13", Collections.singletonList(DeviceMessageId.FRIENDLY_WEEKDAYS_UPDATE)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new UpdateFriendlyWeekdaysCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
+        }
+    },
+
+    SPECIAL_DAY_CALENDAR_SEND("0.20.97.13", Collections.singletonList(DeviceMessageId.ACTIVITY_CALENDAR_SPECIAL_DAY_CALENDAR_SEND)) {
+        @Override
+        public Optional<EndDeviceCommand> getNewEndDeviceCommand(EndDevice endDevice, EndDeviceControlType endDeviceControlType, List<DeviceMessageId> possibleDeviceMessageIds, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, Thesaurus thesaurus) {
+            return Optional.of(new SendSpecialDayCalendarCommand(endDevice, endDeviceControlType, possibleDeviceMessageIds, deviceService, deviceMessageSpecificationService, thesaurus));
         }
     },
 

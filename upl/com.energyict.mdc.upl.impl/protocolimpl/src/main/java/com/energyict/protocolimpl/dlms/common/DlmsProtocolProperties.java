@@ -24,6 +24,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
 
     public static final String CONNECTION = "Connection";
     public static final String SECURITY_LEVEL = MeterProtocol.Property.SECURITYLEVEL.getName();
+    public static final String PUBLIC_CLIENT_MAC_ADDRESS = "PublicClientMacAddress";
     public static final String CLIENT_MAC_ADDRESS = "ClientMacAddress";
     public static final String SERVER_MAC_ADDRESS = "ServerMacAddress";
     public static final String ADDRESSING_MODE = "AddressingMode";

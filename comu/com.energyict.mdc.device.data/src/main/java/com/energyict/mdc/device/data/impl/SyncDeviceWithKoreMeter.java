@@ -4,11 +4,13 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.metering.MeteringService;
+
 import java.math.BigDecimal;
 
 public interface SyncDeviceWithKoreMeter {
 
-    String MULTIPLIER_TYPE = "Default";
+    String MULTIPLIER_TYPE = MeteringService.DEFAULT_MULTIPLIER_TYPE;
     BigDecimal MULTIPLIER_ONE = BigDecimal.ONE;
 
     /**

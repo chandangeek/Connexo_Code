@@ -44,4 +44,17 @@ public interface CommandFactory {
     EndDeviceCommand createUpdateCreditDaysLimitCommand(EndDevice endDevice, BigDecimal creditDaysLimitFirst, BigDecimal creditDaysLimitScnd) throws UnsupportedCommandException;
 
     EndDeviceCommand createChangeStepTariffCommand(EndDevice endDevice, StepTariffInfo stepTariffInfo) throws UnsupportedCommandException;
+
+    EndDeviceCommand createChangeTaxRatesCommand(EndDevice endDevice, ChangeTaxRatesInfo taxRatesInfo) throws UnsupportedCommandException;
+
+    EndDeviceCommand createSwitchTaxAndStepTariffCommand(EndDevice endDevice, String tariffType, Instant activationDate) throws UnsupportedCommandException;
+
+    EndDeviceCommand createSwitchChargeModeCommand(EndDevice endDevice, String chargeMode, Instant activationDate);
+
+    EndDeviceCommand createUpdateFriendlyDayPeriodCommand(EndDevice endDevice, FriendlyDayPeriodInfo friendlyDayPeriodInfo) throws UnsupportedCommandException;
+
+    EndDeviceCommand createUpdateFriendlyWeekdaysCommand(EndDevice endDevice, String friendlyWeekdays) throws UnsupportedCommandException;
+
+    EndDeviceCommand createSendSpecialDayCalendarCommand(EndDevice endDevice, String specialDaysCalendarName)throws UnsupportedCommandException;
+
 }

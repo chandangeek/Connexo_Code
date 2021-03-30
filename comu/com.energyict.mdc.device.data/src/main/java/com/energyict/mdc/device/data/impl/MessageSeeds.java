@@ -232,7 +232,8 @@ public enum MessageSeeds implements MessageSeed {
             "Running the communication task to execute the device messages with priority isn''t possible, since there are no priority connections allowed on its communication port pool."),
     RUN_STATUS_INFORMATION_COMTASK_WITH_PRIO_IMPOSSIBLE(2207,
             "runStatusInformationComTaskWithPrioImpossible",
-            "Running the communication task to read out status information with priority isn''t possible, since there are no priority connections allowed on its communication port pool.");
+            "Running the communication task to read out status information with priority isn''t possible, since there are no priority connections allowed on its communication port pool."),
+    COULD_NOT_FIND_ALLOWED_CALENDAR(2208, Keys.COULD_NOT_FIND_ALLOWED_CALENDAR, "Couldn''t find a calendar on the device type with the ''final'' status for identifier ''{0}''.");
 
 
     private final int number;
@@ -360,6 +361,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String CAN_NOT_FIND_FOR_LOADPROFILE_IDENTIFIER = "loadprofileIdentifier.not.found";
         public static final String CAN_NOT_FIND_FOR_LOGBOOK_IDENTIFIER = "logbookIdentifier.not.found";
         public static final String CAN_NOT_FIND_FOR_MESSAGE_IDENTIFIER = "messageIdentifier.not.found";
+        public static final String COULD_NOT_FIND_ALLOWED_CALENDAR = "allowedCalendar.not.found";
         public static final String CAN_NOT_REPLACE_EXISTING_KPI = "dataCollectionKpi.canNotReplaceExistingKpi";
         public static final String FIRMWARE_COMTASKEXEC_NEEDS_FIRMAWARE_COMTASKENABLEMENT = "firmware.comtaskexec.needs.firmware.comtaskenablement";
         public static final String DEVICE_GROUP_MUST_BE_UNIQUE = "kpi.deviceGroup.unique";

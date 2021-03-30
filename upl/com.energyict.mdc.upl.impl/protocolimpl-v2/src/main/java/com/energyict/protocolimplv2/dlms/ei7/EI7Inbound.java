@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.ei7;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -36,7 +35,7 @@ public class EI7Inbound extends A2Inbound {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-02-25 12:00:00 +0200 (Tue, 25 Feb 2020) $";
+        return "$Date: 2021-03-30$";
     }
 
     public boolean isPushingCompactFrames() {
@@ -57,9 +56,7 @@ public class EI7Inbound extends A2Inbound {
             collectedDatas.add(getParser().getCollectedRegisters());
         }
         if (getParser().getCollectedLoadProfiles().size() > 0) {
-            for (CollectedLoadProfile collectedLoadProfile : getParser().getCollectedLoadProfiles()) {
-                collectedDatas.add(collectedLoadProfile);
-            }
+            collectedDatas.addAll(getParser().getCollectedLoadProfiles());
         }
         return collectedDatas;
     }

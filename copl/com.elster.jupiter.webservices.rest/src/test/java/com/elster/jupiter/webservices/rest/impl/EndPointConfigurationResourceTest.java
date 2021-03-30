@@ -129,7 +129,7 @@ public class EndPointConfigurationResourceTest extends WebServicesApplicationTes
     @Test
     public void testGetAllEndpoints() throws Exception {
         Finder<EndPointConfiguration> finder = mockFinder(Arrays.asList(inboundEndPointConfiguration, outboundEndPointConfiguration));
-        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(finder);
+        when(endPointConfigurationService.findEndPointConfigurations(Collections.emptySet())).thenReturn(finder);
         Response response = target("/endpointconfigurations").request().header("X-CONNEXO-APPLICATION-NAME", "SYS").get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.OK.getStatusCode());
         JsonModel jsonModel = JsonModel.model((InputStream) response.getEntity());

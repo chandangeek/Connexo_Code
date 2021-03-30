@@ -1,5 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.actaris.sl7000;
 
+import com.energyict.dlms.DLMSCache;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
@@ -41,6 +42,7 @@ import com.energyict.smartmeterprotocolimpl.actaris.sl7000.composedobjects.Compo
 import com.energyict.smartmeterprotocolimpl.actaris.sl7000.messaging.Messages;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -113,6 +115,38 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         initAfterConnect();
     }
 
+    /**
+     * Method to check whether the cache needs to be read out or not, if so the read will be forced
+     */
+    protected void checkCacheObjects() throws IOException {
+        boolean readCache = getProperties().isReadCache();
+        if (readCache) {
+            getLogger().info("ReReadCache property is true, reading cache!");
+            requestConfiguration();
+            getCache().saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+        } else {
+            super.checkCacheObjects();
+        }
+    }
+
+    @Override
+    public DLMSCache getCache() {
+        DLMSCache deviceCache = (DLMSCache) super.getCache();
+        if (deviceCache == null) {
+            deviceCache = new DLMSCache();
+            setCache(deviceCache);
+        }
+        return deviceCache;
+    }
+
+    @Override
+    public void setCache(Serializable deviceProtocolCache) {
+        if ((deviceProtocolCache != null) && (deviceProtocolCache instanceof DLMSCache)) {
+            DLMSCache dlmsCache = (DLMSCache) deviceProtocolCache;
+            super.setCache(dlmsCache);
+        }
+    }
+
     @Override
     protected void initAfterConnect() throws ConnectionException {
     }
@@ -128,10 +162,27 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
         }
     }
 
+    private boolean isClockSetAllowed(Date currentMeterTime, Date newMeterTime, int intervalInSeconds) {
+        if (Math.abs(currentMeterTime.getTime()-newMeterTime.getTime()) > 300000) {
+            // Assume this is a Force Clock since the time difference > 300 seconds
+            return true;
+        }
+        long intervalInMilliseconds = intervalInSeconds*1000L;
+        long meterTimeStartOfInterval = (currentMeterTime.getTime()/intervalInMilliseconds)*intervalInMilliseconds;
+        long clockTimeStartOfInterval = (newMeterTime.getTime()/intervalInMilliseconds)*intervalInMilliseconds;
+        return meterTimeStartOfInterval==clockTimeStartOfInterval;
+    }
+
     @Override
     public void setTime(Date newMeterTime) throws IOException {
         try {
-            doSetTime(newMeterTime);
+            Date meterTime = getTime();
+            if (isClockSetAllowed(meterTime, newMeterTime, 900)) {
+                doSetTime(newMeterTime);
+            }
+            else {
+                getLogger().log(Level.INFO, "Clock set Rejected, crossing interval boundary");
+            }
         } catch (IOException e) {
             getLogger().log(Level.FINEST, e.getMessage());
             throw new IOException("Could not set the Clock object." + e);
@@ -214,7 +265,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-12 16:20:57 +0300 (Thu, 12 May 2016)$";
+        return "$Date: 2018-09-07 14:24:00 +0300 (Fri, 07 Sep 2018)$";
     }
 
     public ComposedMeterInfo getMeterInfo() {
