@@ -174,6 +174,11 @@ public class UPLDeviceProtocolAdapter implements DeviceProtocol, UPLProtocolAdap
     }
 
     @Override
+    public List<CollectedCreditAmount> getCreditAmounts() {
+        return actual.getCreditAmounts();
+    }
+
+    @Override
     public DeviceProtocolCache getDeviceCache() {
         return actual.getDeviceCache();
     }

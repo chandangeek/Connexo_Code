@@ -5,9 +5,7 @@
 package com.energyict.mdc.common.protocol;
 
 import com.energyict.mdc.common.pluggable.Pluggable;
-
 import aQute.bnd.annotation.ConsumerType;
-import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 
 /**
  * Defines an Interface between the Data Collection System and a Device. The interface can both be

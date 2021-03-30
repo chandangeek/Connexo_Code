@@ -24,6 +24,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.common.DisconnectControlState;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
+import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
@@ -48,7 +49,6 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public static final Integer NEW_ACCOUNT = 1;
     public static final Integer ACTIVE_ACCOUNT = 2;
     public static final Integer CLOSED_ACCOUNT = 3;
-
 
     private final Acud protocol;
     private final CollectedDataFactory collectedDataFactory;
@@ -328,19 +328,25 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
         return collectedRegister;
     }
 
-    protected void readCreditAmount(CollectedCreditAmount collectedCreditAmount)  {
-//        try {
-//            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(obisCode);
-//            if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
-//                CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(obisCode);
-//                int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
-//                String type = creditSetup.readCreditType().getTypeEnum().toString();
-//                collectedCreditAmount.setCreditAmount(new BigDecimal(amount));
-//                collectedCreditAmount.setCreditType(type);
-//            }
-//        } catch (IOException  e) {
-//            return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
-//        }
+    protected void readCreditAmount( CollectedCreditAmount collectedCreditAmount, CreditDeviceMessage.CreditType credit_t ) {
+        ObisCode crdt_stp_oc = AcudCreditUtils.getCreditTypeObiscode(credit_t);
+
+        try {
+            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(crdt_stp_oc);
+            if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
+                CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(crdt_stp_oc);
+                int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
+                String type = credit_t.getDescription();
+                collectedCreditAmount.setCreditAmount(new BigDecimal(amount));
+                collectedCreditAmount.setCreditType(type);
+            }
+        }
+        catch (IOException e)
+        {
+            collectedCreditAmount.setFailureInformation(ResultType.InCompatible,
+                    issueFactory.createWarning(crdt_stp_oc,
+                            crdt_stp_oc.toString() + ": Not Supported", crdt_stp_oc));
+        }
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister) {

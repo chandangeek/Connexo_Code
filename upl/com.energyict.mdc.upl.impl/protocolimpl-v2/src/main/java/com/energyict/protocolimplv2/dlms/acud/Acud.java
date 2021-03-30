@@ -42,14 +42,10 @@ import com.energyict.protocolimplv2.dlms.acud.profiledata.AcudLoadProfileDataRea
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import test.com.energyict.protocolimplv2.sdksample.SDKCreditTaskProtocolDialectProperties;
+import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public abstract class Acud extends AbstractDlmsProtocol {
 
@@ -268,11 +264,18 @@ public abstract class Acud extends AbstractDlmsProtocol {
         return super.getFirmwareVersions(serialNumber);
     }
 
-    @Override
-    public CollectedCreditAmount getCreditAmount() {
+    private CollectedCreditAmount getCreditAmount( CreditDeviceMessage.CreditType credit_t) {
         CollectedCreditAmount creditAmountCollectedData = super.getCreditAmount();
-        getRegisterFactory().readCreditAmount(creditAmountCollectedData);
+        getRegisterFactory().readCreditAmount(creditAmountCollectedData, credit_t);
         return creditAmountCollectedData;
+    }
+
+    @Override
+    public List<CollectedCreditAmount> getCreditAmounts() {
+        List<CollectedCreditAmount> cda = new ArrayList<>();
+        cda.add(getCreditAmount(CreditDeviceMessage.CreditType.Emergency_credit));
+        cda.add(getCreditAmount(CreditDeviceMessage.CreditType.Import_credit));
+        return cda;
     }
 
     public TariffCalendarExtractor getTariffCalendarExtractor() {

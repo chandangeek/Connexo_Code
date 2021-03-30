@@ -4,6 +4,9 @@ import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Defines functionality related to Breaker status information
  */
@@ -19,4 +22,9 @@ public interface DeviceCreditAmountSupport {
         return null;
     }
 
+    default List<CollectedCreditAmount> getCreditAmounts() {
+        List<CollectedCreditAmount> cda = new ArrayList<>();
+        cda.add(getCreditAmount());
+        return cda;
+    }
 }
