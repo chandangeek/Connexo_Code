@@ -328,15 +328,15 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
         return collectedRegister;
     }
 
-    protected void readCreditAmount( CollectedCreditAmount collectedCreditAmount, CreditDeviceMessage.CreditType credit_t ) {
-        ObisCode crdt_stp_oc = AcudCreditUtils.getCreditTypeObiscode(credit_t);
+    protected void readCreditAmount( CollectedCreditAmount collectedCreditAmount, CreditDeviceMessage.CreditType creditType ) {
+        ObisCode crdt_stp_oc = AcudCreditUtils.getCreditTypeObiscode(creditType);
 
         try {
             UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(crdt_stp_oc);
             if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
                 CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(crdt_stp_oc);
                 int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
-                String type = credit_t.getDescription();
+                String type = creditType.getDescription();
                 collectedCreditAmount.setCreditAmount(new BigDecimal(amount));
                 collectedCreditAmount.setCreditType(type);
             }

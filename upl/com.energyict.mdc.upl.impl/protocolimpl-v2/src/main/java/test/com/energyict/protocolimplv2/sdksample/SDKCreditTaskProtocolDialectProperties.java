@@ -12,11 +12,6 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Copyrights EnergyICT
- * Date: 28/05/13
- * Time: 9:59
- */
 public class SDKCreditTaskProtocolDialectProperties extends AbstractDeviceProtocolDialect {
 
     public static final String creditType = "creditType";

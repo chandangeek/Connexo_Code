@@ -24,7 +24,18 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
@@ -45,7 +56,11 @@ import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public abstract class Acud extends AbstractDlmsProtocol {
 
@@ -264,9 +279,9 @@ public abstract class Acud extends AbstractDlmsProtocol {
         return super.getFirmwareVersions(serialNumber);
     }
 
-    private CollectedCreditAmount getCreditAmount( CreditDeviceMessage.CreditType credit_t) {
+    private CollectedCreditAmount getCreditAmount( CreditDeviceMessage.CreditType creditType) {
         CollectedCreditAmount creditAmountCollectedData = super.getCreditAmount();
-        getRegisterFactory().readCreditAmount(creditAmountCollectedData, credit_t);
+        getRegisterFactory().readCreditAmount(creditAmountCollectedData, creditType);
         return creditAmountCollectedData;
     }
 

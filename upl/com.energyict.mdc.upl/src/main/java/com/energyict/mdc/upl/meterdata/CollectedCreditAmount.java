@@ -9,8 +9,8 @@ import java.util.Optional;
 /**
  * A CollectedCreditAmount identifies the credit amount on a device and its type
  *
- * @author sva
- * @since 6/04/2016 - 17:22
+ * @author dborisov dmitriy.borisov@orioninc.com
+ * @since 31/04/2021 - 12:00
  */
 public interface CollectedCreditAmount extends CollectedData {
 

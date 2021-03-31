@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.impl.core.online;
@@ -11,7 +11,6 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.google.common.collect.Range;
 
-import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Optional;

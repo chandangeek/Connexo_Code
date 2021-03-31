@@ -10,14 +10,14 @@ public class AcudCreditUtils {
     private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
 
     // return ObisCode of associated credit type;
-    static public ObisCode getCreditTypeObiscode(CreditDeviceMessage.CreditType credit_t) {
-        switch (credit_t) {
+    static public ObisCode getCreditTypeObiscode(CreditDeviceMessage.CreditType creditType) {
+        switch (creditType) {
             case Import_credit:
                 return IMPORT_CREDIT;
             case Emergency_credit:
                 return EMERGENCY_CREDIT;
             default:
-                throw new RuntimeException("Can't eval credit type by description: " + credit_t.getDescription());
+                throw new RuntimeException("Can't eval credit type by description: " + creditType.getDescription());
         }
     }
 };
