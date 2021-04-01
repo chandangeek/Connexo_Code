@@ -120,6 +120,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -1920,6 +1921,15 @@ public class ComServerDAOImpl implements ComServerDAO {
         optionalDevice.ifPresent(device -> {
             BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceService(), serviceProvider.clock());
             breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device);
+        });
+    }
+
+    @Override
+    public void updateCreditAmount(CollectedCreditAmount collectedCreditAmount) {
+        Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedCreditAmount.getDeviceIdentifier());
+        optionalDevice.ifPresent(device -> {
+            CreditAmountStorage creditAmountStorage = new CreditAmountStorage(getDeviceService(), serviceProvider.clock());
+            creditAmountStorage.updateCreditAmount(collectedCreditAmount, device);
         });
     }
 

@@ -51,6 +51,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -82,6 +83,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -672,6 +674,26 @@ public class MeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl implemen
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         return breakerStatusCollectedData;
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        CollectedCreditAmount creditAmountCollectedData = this.collectedDataFactory.createCreditAmountCollectedData(this.offlineDevice.getDeviceIdentifier());
+        try {
+            Optional<BigDecimal> creditAmount = this.getMeterProtocol().getCreditAmount();
+            creditAmount.ifPresent(creditAmountCollectedData::setCreditAmount);
+            String creditType = this.getMeterProtocol().getCreditType();
+            creditAmountCollectedData.setCreditType(creditType);
+            if (!creditAmount.isPresent()) {
+                final Optional<BigDecimal> creditAmountUpl = this.getUplMeterProtocol().getCreditAmount();
+                creditAmountUpl.ifPresent(creditAmountCollectedData::setCreditAmount);
+                String creditTypeUpl = this.getMeterProtocol().getCreditType();
+                creditAmountCollectedData.setCreditType(creditTypeUpl);
+            }
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        return creditAmountCollectedData;
     }
 
     @Override

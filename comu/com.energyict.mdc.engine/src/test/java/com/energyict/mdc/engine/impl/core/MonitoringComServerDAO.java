@@ -40,12 +40,13 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
-import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -458,6 +459,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
     }
 
+    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
+
+    }
+
     @Override
     public void updateDeviceCSR(DeviceIdentifier deviceIdentifier, String certificateType, String csr) {
 
@@ -738,6 +743,9 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+        }
+
+        public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
         }
 
         @Override

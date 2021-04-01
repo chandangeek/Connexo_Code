@@ -42,13 +42,12 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
-import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
-import com.energyict.mdc.upl.meterdata.LoadProfile;
-import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -765,6 +764,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
 
     void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
+
+    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount);
 
     void updateDeviceCSR(DeviceIdentifier deviceIdentifier, String certificateType, String csr);
 

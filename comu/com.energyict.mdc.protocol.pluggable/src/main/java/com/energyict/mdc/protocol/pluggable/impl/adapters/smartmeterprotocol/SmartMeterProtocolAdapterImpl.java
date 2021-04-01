@@ -48,6 +48,7 @@ import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -74,6 +75,7 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -618,6 +620,20 @@ public class SmartMeterProtocolAdapterImpl extends DeviceProtocolAdapterImpl imp
             throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
         }
         return breakerStatusCollectedData;
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        CollectedCreditAmount creditAmountCollectedData = this.collectedDataFactory.createCreditAmountCollectedData(this.offlineDevice.getDeviceIdentifier());
+        try {
+            Optional<BigDecimal> creditAmount = this.getSmartMeterProtocol().getCreditAmount();
+            creditAmount.ifPresent(creditAmountCollectedData::setCreditAmount);
+            String creditType = this.getSmartMeterProtocol().getCreditType();
+            creditAmountCollectedData.setCreditType(creditType);
+        } catch (IOException e) {
+            throw new LegacyProtocolException(MessageSeeds.LEGACY_IO, e);
+        }
+        return creditAmountCollectedData;
     }
 
     @Override

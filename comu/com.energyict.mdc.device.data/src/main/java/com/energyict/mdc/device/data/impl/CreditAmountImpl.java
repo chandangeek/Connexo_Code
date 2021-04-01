@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
@@ -41,6 +42,7 @@ public class CreditAmountImpl implements CreditAmount {
     }
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
+    @Pattern(regexp = "Import Credit|Emergency Credit", message = "Value has to be one of Import Credit or Emergency Credit")
     private String creditType;
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_REQUIRED + "}")
     private BigDecimal creditAmount;

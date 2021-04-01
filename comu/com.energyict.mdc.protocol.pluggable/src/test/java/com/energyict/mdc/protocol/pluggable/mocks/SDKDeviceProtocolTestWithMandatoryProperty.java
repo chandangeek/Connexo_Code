@@ -24,6 +24,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -373,6 +374,11 @@ public class SDKDeviceProtocolTestWithMandatoryProperty implements DeviceProtoco
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         return collectedDataFactory.createBreakerStatusCollectedData(offlineDevice.getDeviceIdentifier());
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        return collectedDataFactory.createCreditAmountCollectedData(offlineDevice.getDeviceIdentifier());
     }
 
     @Override

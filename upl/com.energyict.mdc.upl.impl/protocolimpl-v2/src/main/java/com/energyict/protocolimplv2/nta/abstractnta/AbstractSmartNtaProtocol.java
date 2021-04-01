@@ -82,6 +82,13 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
     private boolean hasBreaker = true;
 
     /**
+     * Indicating if the meter has a credit.
+     * This implies whether or not we can control the credit and read the control logbook.
+     * This will be set to false in the cryptoserver protocols, because these meters don't have a credit anymore.
+     */
+    private boolean hasCredit = true;
+
+    /**
      * The used {@link ComposedMeterInfo}
      */
     private ComposedMeterInfo meterInfo;
@@ -361,6 +368,17 @@ public abstract class AbstractSmartNtaProtocol extends AbstractDlmsProtocol {
      */
     public void setHasBreaker(boolean hasBreaker) {
         this.hasBreaker = hasBreaker;
+    }
+
+    public boolean hasCredit() {
+        return hasCredit;
+    }
+
+    /**
+     * Setter is only called from the cryptoserver protocols to remove the breaker functionality
+     */
+    public void setHasCredit(boolean hasCredit) {
+        this.hasCredit = hasCredit;
     }
 
 

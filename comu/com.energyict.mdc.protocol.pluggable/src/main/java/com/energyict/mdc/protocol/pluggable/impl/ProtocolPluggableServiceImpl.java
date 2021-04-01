@@ -98,8 +98,8 @@ import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -107,6 +107,7 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
@@ -1238,6 +1239,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier deviceIdentifier) {
             return this.getCollectedDataFactory().createBreakerStatusCollectedData(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedCreditAmount createCreditAmountCollectedData(DeviceIdentifier deviceIdentifier) {
+            return this.getCollectedDataFactory().createCreditAmountCollectedData(deviceIdentifier);
         }
 
         @Override
