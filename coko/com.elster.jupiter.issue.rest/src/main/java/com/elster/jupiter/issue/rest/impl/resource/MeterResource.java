@@ -42,11 +42,14 @@ public class MeterResource extends BaseResource {
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
         MeterFilter filter = new MeterFilter();
         filter.setName(dbSearchText);
+        String lowerCaseSearchText = searchText == null ? "" : searchText.toLowerCase();
         List<Meter> listMeters = getMeteringService().findMeters(filter)
+                .paged(params.getStart(), params.getLimit())
+                .sorted("CHAR_LENGTH(name)", true)
+                .sorted("(CASE WHEN LOWER(name) LIKE '%" + lowerCaseSearchText + "%' THEN INSTR(LOWER(name), '" + lowerCaseSearchText + "' )" +
+                        " ELSE 9999 END)", true) // 9999 - means some bigger than max character position in record
+                .sorted("name", true)
                 .stream()
-                .sorted(Comparator.comparingInt((Meter meter) -> meter.getName().length())
-                        .thenComparingInt(meter -> meter.getName().toLowerCase().indexOf(searchText == null ? "" : searchText.toLowerCase()))
-                        .thenComparing(HasName::getName))
                 .collect(Collectors.toList());
         return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
     }
