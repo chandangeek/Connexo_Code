@@ -329,23 +329,21 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     }
 
     protected void readCreditAmount( CollectedCreditAmount collectedCreditAmount, CreditDeviceMessage.CreditType creditType ) {
-        ObisCode crdt_stp_oc = AcudCreditUtils.getCreditTypeObiscode(creditType);
+        ObisCode creditTypeObiscode = AcudCreditUtils.getCreditTypeObiscode(creditType);
 
         try {
-            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(crdt_stp_oc);
+            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(creditTypeObiscode);
             if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
-                CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(crdt_stp_oc);
+                CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(creditTypeObiscode);
                 int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
                 String type = creditType.getDescription();
                 collectedCreditAmount.setCreditAmount(new BigDecimal(amount));
                 collectedCreditAmount.setCreditType(type);
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             collectedCreditAmount.setFailureInformation(ResultType.InCompatible,
-                    issueFactory.createWarning(crdt_stp_oc,
-                            crdt_stp_oc.toString() + ": Not Supported", crdt_stp_oc));
+                    issueFactory.createWarning(creditTypeObiscode,
+                            creditTypeObiscode.toString() + ": Not Supported", creditTypeObiscode));
         }
     }
 

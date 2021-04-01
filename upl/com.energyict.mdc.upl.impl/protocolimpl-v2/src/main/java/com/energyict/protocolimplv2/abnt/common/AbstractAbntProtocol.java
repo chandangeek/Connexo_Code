@@ -1,8 +1,6 @@
 package com.energyict.protocolimplv2.abnt.common;
 
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.upl.DeviceProtocol;
-import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 
 import java.util.TimeZone;
 

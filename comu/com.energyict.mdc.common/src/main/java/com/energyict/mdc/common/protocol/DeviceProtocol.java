@@ -5,6 +5,7 @@
 package com.energyict.mdc.common.protocol;
 
 import com.energyict.mdc.common.pluggable.Pluggable;
+
 import aQute.bnd.annotation.ConsumerType;
 
 /**
@@ -14,4 +15,5 @@ import aQute.bnd.annotation.ConsumerType;
 @ConsumerType
 public interface DeviceProtocol extends Pluggable, DeviceProtocolDialectSupport,
         DeviceSecuritySupport, ConnectionTypeSupport, com.energyict.mdc.upl.DeviceProtocol {
+
 }
