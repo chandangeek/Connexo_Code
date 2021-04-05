@@ -69,6 +69,7 @@ import static org.mockito.Mockito.when;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-10 (13:43)
  */
+@Ignore("CXO-12821")
 @RunWith(MockitoJUnitRunner.class)
 public class RunningComServerChangesTest {
 
@@ -159,7 +160,6 @@ public class RunningComServerChangesTest {
         verify(scheduledComPort, times(1)).start();
     }
 
-    @Ignore
     @Test(timeout = 20000)
     public void testAddOutboundComPortThatShouldBeIgnored() throws InterruptedException, SQLException {
         MockComServerDAO comServerDAO = new MockComServerDAO();
