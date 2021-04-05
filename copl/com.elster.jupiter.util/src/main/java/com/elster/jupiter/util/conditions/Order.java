@@ -7,8 +7,12 @@ package com.elster.jupiter.util.conditions;
 import com.elster.jupiter.util.MessageSeeds;
 import com.elster.jupiter.util.exception.NoFieldSpecifiedException;
 import com.elster.jupiter.util.exception.SqlInjectionException;
+import com.elster.jupiter.util.sql.SqlFragment;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 public final class Order {
@@ -17,12 +21,11 @@ public final class Order {
     private static final String COMMAND = "Order";
 
     public static final Order[] NOORDER = new Order[0];
-
+    private String rawSql;
     private String name;
     private final boolean ascending;
     private String function;
     private NullStrategy nullStrategy = NullStrategy.NONE;
-
 
     private Order(String name, boolean ascending) {
         String trimmedColumnName = name.trim();
@@ -55,6 +58,11 @@ public final class Order {
         return this;
     }
 
+    public Order applySqlString(String sql){
+        this.rawSql = sql;
+        return this;
+    }
+
     public Order toUpperCase() {
         return apply("upper");
     }
@@ -68,10 +76,13 @@ public final class Order {
     }
 
     private String getBaseClause(String resolvedField) {
-        if (function == null) {
-            return resolvedField + " " + ordering();
-        } else {
+        if (rawSql != null) {
+            return rawSql.replaceAll(name, resolvedField) + " " + ordering();
+        }
+        else if (function != null) {
             return function + "(" + resolvedField + ")" + " " + ordering();
+        } else {
+            return resolvedField + " " + ordering();
         }
     }
 
