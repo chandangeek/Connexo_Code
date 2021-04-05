@@ -77,7 +77,7 @@ public final class Order {
 
     private String getBaseClause(String resolvedField) {
         if (rawSql != null) {
-            return rawSql.replaceAll(name, resolvedField) + " " + ordering();
+            return rawSql.replace(name, resolvedField) + " " + ordering();
         }
         else if (function != null) {
             return function + "(" + resolvedField + ")" + " " + ordering();
@@ -161,10 +161,13 @@ public final class Order {
         if (ascending != order.ascending) {
             return false;
         }
-        if (name != null ? !name.equals(order.name) : order.name != null) {
+        if (!Objects.equals(name, order.name)) {
             return false;
         }
-        if (function != null ? !function.equals(order.function) : order.function != null) {
+        if (!Objects.equals(function, order.function)) {
+            return false;
+        }
+        if (!Objects.equals(rawSql, order.rawSql)) {
             return false;
         }
         return nullStrategy == order.nullStrategy;
@@ -175,6 +178,7 @@ public final class Order {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (ascending ? 1 : 0);
         result = 31 * result + (function != null ? function.hashCode() : 0);
+        result = 31 * result + (rawSql != null ? rawSql.hashCode() : 0);
         result = 31 * result + (nullStrategy != null ? nullStrategy.hashCode() : 0);
         return result;
     }
