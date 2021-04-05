@@ -49,8 +49,12 @@ public class EI7Messaging extends A2Messaging {
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.executionTime))
+        final String propertyName = propertySpec.getName();
+        if (propertyName.equals(DeviceMessageConstants.executionTime) ||
+            propertyName.equals(DeviceMessageConstants.communicationWindowStartTime) ||
+            propertyName.equals(DeviceMessageConstants.communicationWindowStopTime)) {
             return String.valueOf(((Date) messageAttribute).getTime());
+        }
         return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
     }
 }
