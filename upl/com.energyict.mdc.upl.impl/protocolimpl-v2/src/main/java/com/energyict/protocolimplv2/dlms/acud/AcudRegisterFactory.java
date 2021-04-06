@@ -60,6 +60,10 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
         this.protocol = protocol;
     }
 
+    protected Acud getMeterProtocol() {
+        return protocol;
+    }
+
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> result = new ArrayList<>();

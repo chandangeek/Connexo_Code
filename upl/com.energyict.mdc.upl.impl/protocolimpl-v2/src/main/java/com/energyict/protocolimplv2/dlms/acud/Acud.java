@@ -5,6 +5,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
@@ -24,8 +25,6 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -34,7 +33,6 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -74,6 +72,8 @@ public abstract class Acud extends AbstractDlmsProtocol {
     private AcudRegisterFactory registerFactory;
     private AcudLogBookFactory logBookFactory;
     private AcudLoadProfileDataReader loadProfileDataReader;
+    protected StoredValuesImpl storedValues = null;
+    protected AcudLoadProfileDataReader acudLoadProfileDataReader = null;
 
     private final Converter converter;
     private final NlsService nlsService;
@@ -88,6 +88,13 @@ public abstract class Acud extends AbstractDlmsProtocol {
         this.converter = converter;
         this.calendarExtractor = calendarExtractor;
         this.messageFileExtractor = messageFileExtractor;
+    }
+
+    public AcudLoadProfileDataReader getAcudProfileDataReader() {
+        if (acudLoadProfileDataReader == null) {
+            acudLoadProfileDataReader = new AcudLoadProfileDataReader(this, this.getCollectedDataFactory(), getIssueFactory(), this.getOfflineDevice());
+        }
+        return acudLoadProfileDataReader;
     }
 
     @Override
@@ -291,6 +298,13 @@ public abstract class Acud extends AbstractDlmsProtocol {
         cda.add(getCreditAmount(CreditDeviceMessage.CreditType.Emergency_credit));
         cda.add(getCreditAmount(CreditDeviceMessage.CreditType.Import_credit));
         return cda;
+    }
+
+    public StoredValues getStoredValues() {
+        if (storedValues == null) {
+            storedValues = new StoredValuesImpl(this);
+        }
+        return storedValues;
     }
 
     public TariffCalendarExtractor getTariffCalendarExtractor() {
