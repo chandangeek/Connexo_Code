@@ -3,22 +3,16 @@ package com.energyict.mdc.device.data.impl.pki;
 import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Component(name = "MdcCertificateUsagesFinder", service = CertificateUsagesFinder.class, immediate = true)
 public class MdcCertificateUsagesFinder implements CertificateUsagesFinder {
-    private DeviceService deviceService;
+    private final DeviceService deviceService;
 
-    @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceService = deviceDataModelService.deviceService();
+    public MdcCertificateUsagesFinder(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Override
