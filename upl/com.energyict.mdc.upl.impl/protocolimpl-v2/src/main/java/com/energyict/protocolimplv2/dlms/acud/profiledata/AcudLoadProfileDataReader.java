@@ -2,7 +2,11 @@ package com.energyict.protocolimplv2.dlms.acud.profiledata;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.dlms.*;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.ComposedCosemObject;
@@ -31,7 +35,11 @@ import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DLMSProfileIntervals;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class AcudLoadProfileDataReader {
 
@@ -122,43 +130,29 @@ public class AcudLoadProfileDataReader {
 
         //Also read out the profile interval in this bulk request
         DLMSAttribute profileIntervalAttribute = null;
-        if (correctedLoadProfileObisCode != null) {
-            profileIntervalAttribute = new DLMSAttribute(correctedLoadProfileObisCode, 4, DLMSClassId.PROFILE_GENERIC);
-            attributes.put(correctedLoadProfileObisCode, profileIntervalAttribute);
-        }
+
+        profileIntervalAttribute = new DLMSAttribute(correctedLoadProfileObisCode, 4, DLMSClassId.PROFILE_GENERIC);
+        attributes.put(correctedLoadProfileObisCode, profileIntervalAttribute);
 
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(attributes.values()));
 
-        if (correctedLoadProfileObisCode != null) {
-            try {
-                AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
-                getIntervalMap().put(correctedLoadProfileObisCode, attribute.intValue());
-            } catch (IOException e) {
-                throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
-            }
+        try {
+            AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
+            getIntervalMap().put(correctedLoadProfileObisCode, attribute.intValue());
+        } catch (IOException e) {
+               throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
         }
 
         for (ObisCode channelObisCode : channelObisCodes) {
             DLMSAttribute dlmsAttribute = attributes.get(channelObisCode);
-            if (dlmsAttribute != null) {
-                try {
-                    result.put(channelObisCode, new ScalerUnit(composedCosemObject.getAttribute(dlmsAttribute)).getEisUnit());
-                } catch (IOException e) {
-                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
-                    } //Else: throw ConnectionCommunicationException
-                } catch (IllegalArgumentException e) {
-                    throw new CommunicationException(ProtocolExceptionMessageSeeds.UNEXPECTED_RESPONSE);
-                }
-            } else {
-                String message = "The OBIS code " + channelObisCode + " found in the meter load profile capture objects list, is NOT supported by the meter itself." +
-                        " If ReadCache property is not active, try again with this property enabled. Otherwise, please reprogram the meter with a valid set of capture objects.";
-
-                if (protocol.getDlmsSessionProperties().validateLoadProfileChannels()) {
-                    throw new ProtocolException(message);
-                } else {
-                    protocol.getLogger().warning(message);
-                }
+            try {
+                result.put(channelObisCode, new ScalerUnit(composedCosemObject.getAttribute(dlmsAttribute)).getEisUnit());
+            } catch (IOException e) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
+                    throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
+                } //Else: throw ConnectionCommunicationException
+            } catch (IllegalArgumentException e) {
+                throw new CommunicationException(ProtocolExceptionMessageSeeds.UNEXPECTED_RESPONSE);
             }
         }
         return result;

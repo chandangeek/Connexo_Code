@@ -30,23 +30,6 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
     public static final String LIMIT_SEPARATOR = ";";
     public static final String VALUE_SEPARATOR = ",";
 
-    /**
-     * Filter out the following registers:
-     * - MBus devices (by serial number) that are not installed on the e-meter
-     */
-    protected List<CollectedRegister> filterOutAllInvalidRegistersFromList(List<OfflineRegister> offlineRegisters) {
-        List<CollectedRegister> invalidRegisters = new ArrayList<>();
-        Iterator<OfflineRegister> it = offlineRegisters.iterator();
-        while (it.hasNext()) {
-            OfflineRegister register = it.next();
-            if (getMeterProtocol().getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
-                invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
-                it.remove();
-            }
-        }
-        return invalidRegisters;
-    }
-
     @SuppressWarnings("unchecked")
     private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
         CollectedRegister collectedRegister = getMeterProtocol().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
@@ -69,9 +52,7 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> offlineRegisters) {
         List<CollectedRegister> result = new ArrayList<>();
-
-        result.addAll(readBillingRegisters(offlineRegisters));                  // Cause these cannot be read out in bulk
-        result.addAll(filterOutAllInvalidRegistersFromList(offlineRegisters));  // For each invalid one, an 'Incompatible' collectedRegister will be added
+        result.addAll(readBillingRegisters(offlineRegisters)); // Cause these cannot be read out in bulk
 
         return result;
     }
