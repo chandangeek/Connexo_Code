@@ -22,7 +22,7 @@ import java.util.List;
 
 public abstract class AcudLogBookFactory implements DeviceLogBookSupport {
 
-    protected Acud protocol;
+    private Acud protocol;
     private final IssueFactory issueFactory;
     private final CollectedDataFactory collectedDataFactory;
 
