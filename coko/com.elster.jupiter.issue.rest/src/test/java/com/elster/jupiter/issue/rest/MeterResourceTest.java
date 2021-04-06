@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import com.elster.jupiter.util.conditions.Order;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -47,6 +48,7 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
         when(meteringService.findMeters(any(MeterFilter.class))).thenReturn(finder);
         when(finder.paged(0, 10)).thenReturn(finder);
         when(finder.sorted(anyString(), eq(true))).thenReturn(finder);
+        when(finder.sorted(any(Order.class))).thenReturn(finder);
         when(finder.stream()).thenReturn(meters.stream());
 
         Map<String, Object> map = target("/meters")
@@ -74,6 +76,7 @@ public class MeterResourceTest extends IssueRestApplicationJerseyTest {
         when(meteringService.findMeters(any(MeterFilter.class))).thenReturn(finder);
         when(finder.paged(0, 10)).thenReturn(finder);
         when(finder.sorted(anyString(), eq(true))).thenReturn(finder);
+        when(finder.sorted(any(Order.class))).thenReturn(finder);
         when(finder.stream()).thenReturn(meters.stream());
 
         // Business method
