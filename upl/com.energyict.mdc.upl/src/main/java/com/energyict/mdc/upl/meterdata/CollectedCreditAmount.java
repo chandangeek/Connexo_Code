@@ -3,6 +3,8 @@ package com.energyict.mdc.upl.meterdata;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -12,6 +14,7 @@ import java.util.Optional;
  * @author dborisov dmitriy.borisov@orioninc.com
  * @since 31/04/2021 - 12:00
  */
+@ConsumerType
 public interface CollectedCreditAmount extends CollectedData {
 
     /**

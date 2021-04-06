@@ -1,8 +1,9 @@
 package com.energyict.mdc.upl.tasks.support;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.upl.DeviceProtocol;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+
+import aQute.bnd.annotation.ConsumerType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * Defines functionality related to Breaker status information
  */
-@ProviderType
+@ConsumerType
 public interface DeviceCreditAmountSupport {
 
     /**

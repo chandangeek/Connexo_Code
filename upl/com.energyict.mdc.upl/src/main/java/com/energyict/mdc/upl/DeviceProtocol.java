@@ -1,6 +1,5 @@
 package com.energyict.mdc.upl;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.journal.ProtocolLoggingSupport;
 import com.energyict.mdc.upl.offline.OfflineDevice;
@@ -15,6 +14,8 @@ import com.energyict.mdc.upl.tasks.support.DeviceProtocolConnectionFunctionSuppo
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceStatusInformationSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceTopologySupport;
+
+import aQute.bnd.annotation.ConsumerType;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import javax.xml.bind.annotation.XmlAccessType;
@@ -34,7 +35,7 @@ import java.util.List;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2016-11-14 (10:04)
  */
-@ProviderType
+@ConsumerType
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.CLASS,
         include = JsonTypeInfo.As.PROPERTY,
