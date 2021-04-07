@@ -584,14 +584,14 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, LTEModemFirmwareUgradeDownloadFileAttributeName, LTEModemFirmwareUgradeDownloadFileAttributeNameDefaultTranslation),
+                    this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.bigDecimalSpec(service, LTEModemFirmwareUgradeDownloadTimeoutAttributeName, LTEModemFirmwareUgradeDownloadTimeoutAttributeNameDefaultTranslation)
             );
         }
 
         @Override
         public Optional<ProtocolSupportedFirmwareOptions> getProtocolSupportedFirmwareOption() {
-            return Optional.empty();
+            return Optional.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_LATER);
         }
 
     },
