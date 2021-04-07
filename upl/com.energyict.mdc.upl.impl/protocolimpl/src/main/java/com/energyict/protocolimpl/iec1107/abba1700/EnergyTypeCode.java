@@ -94,7 +94,7 @@ public class EnergyTypeCode {
         throw new NoSuchRegisterException("EnergyTypeCode, getUnitFromSource, invalid register source code, "+regSource);
     }
 
-    static public List<EnergyTypeCode> getEnergyTypeCodes() throws NoSuchRegisterException {
+    static public List<EnergyTypeCode> getEnergyTypeCodes() {
         return list;
     }
 
