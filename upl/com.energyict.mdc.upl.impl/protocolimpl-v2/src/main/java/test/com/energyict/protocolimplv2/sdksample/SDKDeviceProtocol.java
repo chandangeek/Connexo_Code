@@ -424,7 +424,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 new SDKFirmwareTaskProtocolDialectProperties(propertySpecService, nlsService),
                 new SDKCalendarTaskProtocolDialectProperties(propertySpecService, nlsService),
                 new SDKBreakerTaskProtocolDialectProperties(propertySpecService, nlsService),
-                new SDKDeviceAlarmProtocolDialectProperties(propertySpecService, nlsService)
+                new SDKDeviceAlarmProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKCreditTaskProtocolDialectProperties(propertySpecService, nlsService)
         );
     }
 
