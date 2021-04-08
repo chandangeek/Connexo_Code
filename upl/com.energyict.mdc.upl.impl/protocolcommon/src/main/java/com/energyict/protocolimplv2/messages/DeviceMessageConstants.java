@@ -20,7 +20,6 @@ public final class DeviceMessageConstants {
     public static final String relayNumberAttributeName = "ContactorDeviceMessage.relaynumber";
     public static final String relayNumberAttributeDefaultTranslation = "Relay number";
     public static final String relayActionAttributeName = "ContactorDeviceMessage.relayAction";
-    public static final String relayActionAttributeDefaultTranslation = "ContactorDeviceMessage.Relay action";
     public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
     public static final String relayOperatingModeAttributeDefaultTranslation = "Relay operating mode";
     public static final String contactorValveEnablePassword = "ContactorDeviceMessage.valveEnablePassword";
@@ -38,8 +37,6 @@ public final class DeviceMessageConstants {
     public static final String broadcastInitialTimeBetweenBlocksAttributeDefaultTranslation = "Initial time between blocks";
     public static final String broadcastNumberOfBlocksInCycleAttributeName = "FirmwareDeviceMessage.broadcast.numberofblocksincycle";
     public static final String broadcastNumberOfBlocksInCycleAttributeDefaultTranslation = "Number of block transfers per cycle";
-    public static final String broadcastEncryptionKeyAttributeName = "FirmwareDeviceMessage.broadcast.encryptionkey";
-    public static final String broadcastEncryptionKeyAttributeDefaultTranslation = "Broadcast Encryption Key";
     public static final String broadcastAuthenticationKeyAttributeName = "FirmwareDeviceMessage.broadcast.authenticationkey";
     public static final String broadcastAuthenticationKeyAttributeDefaultTranslation = "Broadcast Authentication Key";
 
@@ -135,44 +132,37 @@ public final class DeviceMessageConstants {
     public static final String SecurityLevelMulticastDefaultTranslation = "Multicast security level";
     public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
     public static final String SecurityPolicyMulticastV0DefaultTranslation = "Multicast security policy";
-    public static final String firmwareUpdateKDLAttribufirmwareUpdateImageTypeAttributeNameteName= "FirmwareDeviceMessage.KDL";
 
 
     /**
      * Indicates to the device whether or not it can read the image block size.
      */
     public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE = "FirmwareDeviceMessage.BlockSizeReadable";
-    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_READABLE_DEFAULT_TRANSLATION = "Can read block size";
 
     /**
      * Indicates to the device whether or not it can write the image block size.
      */
     public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE = "FirmwareDeviceMessage.BlockSizeWritable";
-    public static final String MCAST_FW_UPGRADE_BLOCK_SIZE_WRITABLE_DEFAULT_TRANSLATION = "Can write block size";
 
     /**
      * If the device cannot read the block size, spell it out.
      */
     public static final String MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE = "FirmwareDeviceMessage.RequestedBlockSize";
-    public static final String MCAST_FW_UPGRADE_REQUESTED_BLOCK_SIZE_DEFAULT_TRANSLATION = "Requested block size";
 
     /**
      * max-apdu-size for a pre-established association.
      */
     public static final String MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE = "FirmwareDeviceMessage.MaxRecPDUSize";
-    public static final String MCAST_FW_UPGRADE_MAX_REC_PDU_SIZE_DEFAULT_TRANSLATION = "Maximum APDU size";
 
     /**
      * The logical name of the frame counter to be used in unicast mode.
      */
     public static final String MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME = "FirmwareDeviceMessage.UnicastFrameCounterObiscode";
-    public static final String MCAST_FW_UPGRADE_UNICAST_FRAMECOUNTER_LOGICAL_NAME_DEFAULT_TRANSLATION = "Unicast frame counter obiscode";
 
     /**
      * Indicates whether or not to skip the transfer status check.
      */
     public static final String MCAST_FW_UPGRADE_SKIP_TRANSFER_STATUS_CHECK = "FirmwareDeviceMessage.SkipTransferStatusCheck";
-    public static final String MCAST_FW_UPGRADE_SKIP_TRANSFER_STATUS_CHECK_DEFAULT_TRANSLATION = "Skip transfer status check";
 
     /**
      * Attribute containing the image size.
@@ -237,28 +227,21 @@ public final class DeviceMessageConstants {
     public static final String authenticationLevelAttributeName = "SecurityMessage.dlmsauthentication.authenticationlevel";
     public static final String authenticationLevelAttributeDefaultTranslation = "Authentication level";
     public static final String newEncryptionKeyAttributeName = "SecurityMessage.new.encryptionkey";
-    public static final String newWrappedPSKAttributeName = "SecurityMessage.new.wrapped.PSK";
     public static final String newEncryptionKeyAttributeDefaultTranslation = "New encryption key";
     public static final String newPSKAttributeName = "SecurityMessage.new.PSK";
     public static final String newPSKDefaultTranslation = "New wrapped PSK";
     public static final String newPSKKEKAttributeName = "SecurityMessage.new.PSK_KEK";
     public static final String newPSKKEKDefaultTranslation = "New PSK KEK";
-    public static final String newWrappedEncryptionKeyAttributeName = "SecurityMessage.new.wrapped.encryptionkey";
-    public static final String newWrappedEncryptionKeyDefaultTranslation = "New wrapped encryption key";
     public static final String newAuthenticationKeyAttributeName = "SecurityMessage.new.authenticationkey";
     public static final String newAuthenticationKeyAttributeDefaultTranslation = "New authentication key";
-    public static final String newWrappedAuthenticationKeyAttributeName = "SecurityMessage.new.wrapped.authenticationkey";
-    public static final String newWrappedAuthenticationKeyDefaultTranslation = "New wrapped authentication key";
     public static final String newMasterKeyAttributeName = "SecurityMessage.new.masterkey";
     public static final String newMasterKeyAttributeDefaultTranslation = "New master key";
-    public static final String newWrappedMasterKeyAttributeName = "SecurityMessage.new.wrapped.masterkey";
     public static final String newWrappedMasterKeyDefaultTranslation = "New wrapped master key";
     public static final String clientMacAddress = "ClientMacAddress";
     public static final String client = "SecurityMessage.client";
     public static final String clientDefaultTranslation = "Client";
     public static final String clientMacAddressDefaultTranslation = "ClientMacAddress";
     public static final String masterKey = "SecurityMessage.masterkey";
-    public static final String masterKeyDefaultTranslation = "Master key";
     public static final String pskAttributeName = "SecurityMessage.psk";
     public static final String pskAttributeDefaultTranslation = "PSK";
     public static final String clientCertificateAttributeName = "SecurityMessage.new.clientcertificate";
@@ -365,7 +348,6 @@ public final class DeviceMessageConstants {
 
     public static final String deviceConfigurationIDAttributeName = "DeviceActionMessage.deviceConfigurationID";
     public static final String deviceConfigurationIDAttributeDefaultTranslation = "Device configuration ID";
-    public static final String cleanUpUnusedDevicesAndDataAttributeName = "DeviceActionMessage.cleanUpUnusedDevicesAndDataAttributeName";
     public static final String cleanUpUnusedDeviceTypesAttributeName = "DeviceActionMessage.cleanupUnusedDeviceTypes";
     public static final String cleanUpUnusedDeviceTypesAttributeDefaultTranslation = "Clean up unused master data";
     public static final String broadcastDevicesGroupAttributeName = "FirmwareDeviceMessage.broadcastDevicesGroup";
@@ -489,7 +471,6 @@ public final class DeviceMessageConstants {
     public static final String tariffAttributeName = "LoadBalanceDeviceMessage.parameters.tariff";
     public static final String tariffAttributeDefaultTranslation = "Tariff";
     public static final String readingTypeAttributeName = "LoadBalanceDeviceMessage.parameters.readingType";
-    public static final String readingTypeAttributeDefaultTranslation = "Reading type";
     public static final String controlThreshold1dAttributeName = "LoadBalanceDeviceMessage.controlthreshold1";
     public static final String controlThreshold1dAttributeDefaultTranslation = "Control threshold 1";
     public static final String controlThreshold2dAttributeName = "LoadBalanceDeviceMessage.controlthreshold2";
@@ -547,12 +528,6 @@ public final class DeviceMessageConstants {
     public static final String positiveThresholdInAmpereAttributeDefaultTranslation = "Positive threshold in ampere(Import)";
     public static final String negativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.negativethresholdinampere";
     public static final String negativeThresholdInAmpereAttributeDefaultTranslation = "Negative threshold in ampere(Export)";
-    public static final String phase1PositiveThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.phase1PositiveThresholdInAmpereAttributeName";
-    public static final String phase1NegativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.phase1NegativeThresholdInAmpereAttributeName";
-    public static final String phase2PositiveThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.phase2PositiveThresholdInAmpereAttributeName";
-    public static final String phase2NegativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.phase2NegativeThresholdInAmpereAttributeName";
-    public static final String phase3PositiveThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.phase3PositiveThresholdInAmpereAttributeName";
-    public static final String phase3NegativeThresholdInAmpereAttributeName = "LoadBalanceDeviceMessage.phase3NegativeThresholdInAmpereAttributeName";
     public static final String capturePeriodAttributeName = "LoadProfileConfigurationMessage.captureperiod";
     public static final String capturePeriodAttributeDefaultTranslation = "Capture period";
     public static final String captureObjectListAttributeName = "LoadProfileConfigurationMessage.captureobjectlist";
@@ -581,17 +556,11 @@ public final class DeviceMessageConstants {
     public static final String powerQualityThresholdAttributeName = "ConfigurationChangeDeviceMessage.powerqualitythreshold";
     public static final String powerQualityThresholdAttributeDefaultTranslation = "Power quality threshold";
     public static final String WriteExchangeStatus = "WriteWavecardParameters.writeexchangestatus";
-    public static final String WriteExchangeStDefaultTranslation = "Exchange status";
     public static final String WriteExchangeStatusDefaultTranslation = "Exchange status";
-    public static final String WriteExchangeStatusDefaultTranslaDefaultTranslation = "Exchange status";
     public static final String WriteRadioAcknowledge = "WriteWavecardParameters.writeradioacknowledge";
-    public static final String WriteRadioAcknowlDefaultTranslation = "WriteWavecardParameters.writeradioacknowledge";
     public static final String WriteRadioAcknowledgeDefaultTranslation = "Radio acknowledge";
-    public static final String WriteRadioAcknowledgeDefaultTranslaDefaultTranslation = "Radio acknowledge";
     public static final String WriteRadioUserTimeout = "WriteWavecardParameters.writeradiousertimeout";
-    public static final String WriteRadioUserTimDefaultTranslation = "WriteWavecardParameters.writeradiousertimeout";
     public static final String WriteRadioUserTimeoutDefaultTranslation = "Radio user timeout";
-    public static final String WriteRadioUserTimeoutDefaultTranslaDefaultTranslation = "Radio user timeout";
 
     public static final String SetDescriptionAttributeName = "ConfigurationChangeDeviceMessage.setdescription";
     public static final String SetDescriptionAttributeDefaultTranslation = "Description";
@@ -855,7 +824,6 @@ public final class DeviceMessageConstants {
     public static final String SetPPPIdleTimeoutAttributeName = "PPPConfigurationDeviceMessage.setpppidletimeout";
     public static final String SetPPPIdleTimeoutAttributeDefaultTranslation = "PPP idle timeout";
     public static final String SetPPPIdleTime = "PPPConfigurationDeviceMessage.setPPPIdleTime";
-    public static final String SetPPPIdleDefaultTranslation = "PPP idle time";
     public static final String PPPDaemonResetThreshold = "PPPConfigurationDeviceMessage.pppDaemonResetThreshold";
     public static final String PPPDaemonResetThresholdDefaultTranslation = "PPP daemon reset threshold";
     public static final String SetPPPRetryIntervalAttributeName = "PPPConfigurationDeviceMessage.setpppretryinterval";
@@ -1064,7 +1032,6 @@ public final class DeviceMessageConstants {
     public static final String SetPowerQualityMeasurePeriodDefaultTranslation = "Set power quality measure period";
     public static final String VoltageRatioDenominatorAttributeName = "PowerConfigurationDeviceMessage.voltageratiodenominator";
     public static final String VoltageRatioNumeratorAttributeName = "PowerConfigurationDeviceMessage.voltagerationumerator";
-    public static final String CurrentRatioDenominatorAttributeName = "PowerConfigurationDeviceMessage.currentratiodenominator";
     public static final String CurrentRatioNumeratorAttributeName = "PowerConfigurationDeviceMessage.currentrationumerator";
     public static final String ThresholdForDemandCloseToContractPowerAttributeName = "PowerConfigurationDeviceMessage.thresholdDemandCloseToContractPower";
     public static final String PassiveDemandControlThresholdObisAttributeName = "PowerConfigurationDeviceMessage.passiveDemandControlThresholdObis";
@@ -1124,9 +1091,7 @@ public final class DeviceMessageConstants {
     public static final String defaultKeyAttributeName = "MBusSetupDeviceMessage.defaultkey";
     public static final String defaultKeyAttributeDefaultTranslation = "Default key";
     public static final String FUAKeyAttributeName = "MBusSetupDeviceMessage.fuakey";
-    public static final String FUAKeyAttributeDefaultTranslation = "Firmware upgrade authentication key";
     public static final String P2KeyAttributeName = "MBusSetupDeviceMessage.p2key";
-    public static final String P2KeyAttributeDefaultTranslation = "P2 key";
     public static final String dib = "MBusSetupDeviceMessage.dib";
     public static final String dibDefaultTranslation = "DIB";
     public static final String vib = "MBusSetupDeviceMessage.vib";
@@ -1180,9 +1145,7 @@ public final class DeviceMessageConstants {
     public static final String FTIONModemReset = "DeviceActionMessage.ftionmodemreset";
     public static final String FTIONModemResetDefaultTranslation = "FTION modem reset";
     public static final String AdminOld = "DeviceActionMessage.adminold";
-    public static final String AdminOldDefaultTranslation = "Admin old";
     public static final String AdminNew = "DeviceActionMessage.adminnew";
-    public static final String AdminNewDefaultTranslation = "Admin new";
     public static final String AdminPassword = "Admin.password";
     public static final String AdminPasswordDefaultTranslation = "Admin password";
 
@@ -1192,7 +1155,6 @@ public final class DeviceMessageConstants {
     public static final String OffsetAttributeDefaultTranslation = "Offset";
     public static final String RawDataAttributeName = "GeneralDeviceMessage.rawdata";
     public static final String RawDataAttributeDefaultTranslation = "Raw data";
-    public static final String NameOfSpecialDaysTable = "GeneralDeviceMessage.nameOfSpecialDaysTable";
     public static final String NameOfDSTFile = "GeneralDeviceMessage.nameOfDSTFile";
     public static final String NameOfDisplayTable = "GeneralDeviceMessage.nameOfDisplayTable";
 
@@ -1283,7 +1245,6 @@ public final class DeviceMessageConstants {
     public static final String ZigBeeConfigurationForceRemovalAttributeName = "ZigBeeConfigurationDeviceMessage.forceremoval";
     public static final String ZigBeeConfigurationForceRemovalAttributeDefaultTranslation = "Force removal";
     public static final String ZigBeeConfigurationZigBeeLinkKeyAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeelinkkey";
-    public static final String ZigBeeConfigurationZigBeeLinkKeyDefaultTranslation = "ZigBee link key";
     public static final String ZigBeeConfigurationActivationDateAttributeName = "ZigBeeConfigurationDeviceMessage.activationdate";
     public static final String ZigBeeConfigurationActivationDateAttributeDefaultTranslation = "Activation date";
     public static final String ZigBeeConfigurationZigBeeAddressAttributeName = "ZigBeeConfigurationDeviceMessage.zigbeeieeeaddress";
@@ -1312,7 +1273,6 @@ public final class DeviceMessageConstants {
     public static final String currency = "currency";
     public static final String currencyDefaultTranslation = "Currency";
 
-    public static final String alarmStatusFlagAttributeName = "AlarmConfigurationMessage.alarmStatusFlagAttributeName";
     public static final String alarmStatusFlagDefaultTranslation = "Alarm status flags to reset";
     public static final String alarmRegisterAttributeName = "AlarmConfigurationMessage.alarmRegister";
     public static final String alarmRegisterAttributeDefaultTranslation = "Alarm register";
@@ -1462,7 +1422,6 @@ public final class DeviceMessageConstants {
     public static final String KeepAliveTimeout = "PLCConfigurationDeviceMessage.keepAliveTimeout";
     public static final String KeepAliveTimeoutDefaultTranslation = "Keep alive timeout";
     public static final String icVersion0 = "PLCConfigurationDeviceMessage.icVersion0";
-    public static final String icVersion0DefaultTranslation = "Is IC Version 0";
 
     public static final String groupName = "PLCConfigurationDeviceMessage.groupName";
     public static final String groupNameDefaultTranslation = "Group name";
@@ -1681,7 +1640,6 @@ public final class DeviceMessageConstants {
     public static final String limitationActionDelayDefaultTranslate = "Limitation action delay (steps of 5s, 0 to 1275)";
     public static final String limitationMeasurementQuantity = "DeviceActionMessage.limitationMeasurementQuantity";
     public static final String limitationMeasurementQuantityDefaultTranslate = "Limitation measurement quantity";
-    ;
 
     // Hide constructor for class with only public constants
     private DeviceMessageConstants() {
@@ -1739,10 +1697,6 @@ public final class DeviceMessageConstants {
     public static final String gMeterWired= "MBusSetupDeviceMessage.wired";
     public static final String gMeterWireless= "MBusSetupDeviceMessage.wireless";
     public static final String gMeterChannals= "MBusSetupDeviceMessage.channals";
-    public static final String gMeterChannal_1= "MBusSetupDeviceMessage.channal1";
-    public static final String gMeterChannal_2= "MBusSetupDeviceMessage.channal2";
-    public static final String gMeterChannal_3= "MBusSetupDeviceMessage.channal3";
-    public static final String gMeterChannal_4= "MBusSetupDeviceMessage.channal4";
     public static final String gMeterSearchResult= "MBusSetupDeviceMessage.searchResult";
     public static final String scriptNumber = "ContactorDeviceMessage.scriptNumber";
     public static final String scriptNumberDefaultTranslation = "Script number";
@@ -1753,19 +1707,14 @@ public final class DeviceMessageConstants {
     public static final String adHocEndOfBillingActivationDatedAttributeDefaultTranslation = "Ad hoc end of billing date";
     //configuration urls
 
-    public static final String bundleSetNameAttributeName = "ConfigurationChangeDeviceMessage.bundleSetName";
     public static final String configurationSetURLAttributeName = "ConfigurationChangeDeviceMessage.configurationSetURL";
-    public static final String bundleSetURLAttributeName = "ConfigurationChangeDeviceMessage.bundleSetURL";
     //DC actions
     public static final String relativeURLOfFileToDownload = "DataConcentratorActionMessage.relativeURLOfFileToDownload";
     public static final String imageFileIdentifier = "DataConcentratorActionMessage.imageFileIdentifier";
     public static final String firmwareUpgradePeriod = "DataConcentratorActionMessage.firmwareUpgradePeriod";
-    public static final String firmwareUpgradeBlockSize = "DataConcentratorActionMessage.firmwareUpgradeBlockSize";
     public static final String firmwareUpgradeMode = "DataConcentratorActionMessage.firmwareUpgradeMode";
     public static final String dcActionTargetType = "DataConcentratorActionMessage.dcActionTargetType";
     public static final String dcActionTargetValue = "DataConcentratorActionMessage.dcActionTargetValue";
-    public static final String newWrappedGUEKToDC = "DataConcentratorActionMessage.newWrappedGUEKToDC";
-    public static final String newWrappedGUEKToMeter = "DataConcentratorActionMessage.newWrappedGUEKToMeter";
     public static final String dlmsAssociation = "DataConcentratorActionMessage.dlmsAssociation";
     public static final String verifyTaskSynchronization = "DataConcentratorActionMessage.verifyTaskSynchronization";
 
@@ -1776,7 +1725,6 @@ public final class DeviceMessageConstants {
     public static final String methodId = "DeviceActionMessage.MethodId";
     public static final String classId = "DeviceActionMessage.ClassID";
     public static final String classIdDefaultTranslation = "Class ID";
-    public static final String axdrValue = "DeviceActionMessage.axdrValue";
     public static final String crlID = "SecurityMessage.crlID";
 
     public static final String CTRatioMultiplier = "DeviceActionMessage.CTRatioMultiplier";
@@ -1810,23 +1758,9 @@ public final class DeviceMessageConstants {
     /**
      * STG - Related constants
      */
-    public static final String tfStart = "STG.tfStart";
     public static final String tfEnd = "STG.tfEnd";
     public static final String idMeter = "STG.idMeter";
-    public static final String idMeters = "STG.idMeters";
     public static final String allMeters = "STG.allMeters";
-    public static final String DC_TASKS_XMLFILE = "STGReportsMessages.DC_TASKS_XMLFILE";
-    public static final String METER_DLMSREQUEST_XMLFILE = "STGReportsMessages.METER_DLMSREQUEST_XMLFILE";
-
-    public static final String STG_XML_USER_FILE_REFERENCE = "STGReportsMessages.STG_XML_USER_FILE_REFERENCE";
-
-    public static final String STG_DC_FIRMWARE_ACTIVATION_DATE = "STGReportsMessages.STG_DC_FIRMWARE_ACTIVATION_DATE";
-    public static final String STG_DC_FIRMWARE_FILE_NAME = "STGReportsMessages.STG_DC_FIRMWARE_FILE_NAME";
-
-    public static final String STG_METER_FIRMWARE_ACTIVATION_DATE = "STGReportsMessages.STG_METER_FIRMWARE_ACTIVATION_DATE";
-    public static final String STG_METER_FIRMWARE_FILE_NAME = "STGReportsMessages.STG_METER_FIRMWARE_FILE_NAME";
-    public static final String STG_METER_FIRMWARE_ACT_PROTOCOL = "STGReportsMessages.STG_METER_FIRMWARE_ACT_PROTOCOL";
-    public static final String STG_METER_FIRMWARE_UPDATE_METHOD = "STGReportsMessages.STG_METER_FIRMWARE_UPDATE_METHOD";
     public static final String cleanUpExistingEntry = "NetworkConnectivityMessage.cleanUpExistingEntry";
     public static final String cleanUpExistingEntryDefaultTranslation = "Remove existing entry if needed";
     public static final String routingEntryType = "NetworkConnectivityMessage.routingEntryType";
@@ -1843,18 +1777,6 @@ public final class DeviceMessageConstants {
     public static final String compressionContextAllowedDefaultTranslation = "Header compression is allowed";
 
     public static final String POWER_MOD_ACTIVATION_DATE = "STGReportsMessages.POWER_MOD_ACTIVATION_DATE";
-    public static final String TARIFF_RATE1 = "STGReportsMessages.TARIFF_RATE1";
-    public static final String IGNORE_TARIFF_RATE1 = "STGReportsMessages.IGNORE_TARIFF_RATE1";
-    public static final String TARIFF_RATE2 = "STGReportsMessages.TARIFF_RATE2";
-    public static final String IGNORE_TARIFF_RATE2 = "STGReportsMessages.IGNORE_TARIFF_RATE2";
-    public static final String TARIFF_RATE3 = "STGReportsMessages.TARIFF_RATE3";
-    public static final String IGNORE_TARIFF_RATE3 = "STGReportsMessages.IGNORE_TARIFF_RATE3";
-    public static final String TARIFF_RATE4 = "STGReportsMessages.TARIFF_RATE4";
-    public static final String IGNORE_TARIFF_RATE4 = "STGReportsMessages.IGNORE_TARIFF_RATE4";
-    public static final String TARIFF_RATE5 = "STGReportsMessages.TARIFF_RATE5";
-    public static final String IGNORE_TARIFF_RATE5 = "STGReportsMessages.IGNORE_TARIFF_RATE5";
-    public static final String TARIFF_RATE6 = "STGReportsMessages.TARIFF_RATE6";
-    public static final String IGNORE_TARIFF_RATE6 = "STGReportsMessages.IGNORE_TARIFF_RATE6";
 
     // SNMP Setup IC
     public static final String snmpSystemContact = "NetworkConnectivityMessage.snmpSystemContact";
@@ -1895,84 +1817,21 @@ public final class DeviceMessageConstants {
     public static final String dlmsWanAllowedFailedAttemptsDefaultTranslation = "DLMS WAN allowed failed attempts";
     public static final String dlmsWanInitialLockoutTime = "NetworkConnectivityMessage.dlmsWanInitialLockoutTime";
     public static final String dlmsWanInitialLockoutTimeDefaultTranslation = "DLMS WAN initial lockout time";
-    public static final String ADDITIONAL_ARGUMENTS = "STGReportsMessages.ADDITIONAL_ARGUMENTS";
-    public static final String B03_ORDER_TYPE = "STGReportsMessages.B03_ORDER_TYPE";
-    public static final String B11_ORDER_TYPE = "STGReportsMessages.B11_ORDER_TYPE";
     public static final String EXECUTION_DATE = "STGReportsMessages.EXECUTION_DATE";
     public static final String MAXIMUM_EXECUTION_DATE = "STGReportsMessages.MAXIMUM_EXECUTION_DATE";
-    public static final String ORDER_REQUEST_PRIORITY = "STGReportsMessages.OrderRequest.Priority";
     public static final String REQUESTED_SOURCE = "STGReportsMessages.REQUESTED_SOURCE";
-    public static final String DC_PWD_ADMIN = "STGReportsMessages.DC_PWD_ADMIN";
-    public static final String DC_PWD_READ = "STGReportsMessages.DC_PWD_READ";
-    public static final String DC_IP_ADDRESS = "STGReportsMessages.DC_IP_ADDRESS";
-    public static final String DC_IP_MASK = "STGReportsMessages.DC_IP_MASK";
-    public static final String DC_IP_GATEWAY = "STGReportsMessages.DC_IP_GATEWAY";
-    public static final String DC_DHCP_ENABLED = "STGReportsMessages.DC_DHCP_ENABLED";
-    public static final String LOC_IP_ADDRESS = "STGReportsMessages.LOC_IP_ADDRESS";
-    public static final String LOC_IP_MASK = "STGReportsMessages.LOC_IP_MASK";
-    public static final String WS_PORT = "STGReportsMessages.WS_PORT";
-    public static final String WS_INACTIVITY_TIMEOUT = "STGReportsMessages.WS_INACTIVITY_TIMEOUT";
-    public static final String WS_SIMULTANEOUS_CONN = "STGReportsMessages.WS_SIMULTANEOUS_CONN";
-    public static final String STG_WS_IP_ADDRESS = "STGReportsMessages.STG_WS_IP_ADDRESS";
-    public static final String STG_WS_PASSWORD = "STGReportsMessages.STG_WS_PASSWORD";
-    public static final String NTP_IP_ADDRESS = "STGReportsMessages.NPT_IP_ADDRESS";
-    public static final String NTP_MAX_DEVIATION = "STGReportsMessages.NTP_MAX_DEVIATION";
-    public static final String AUTH_SERVER_IP_ADDRESS = "STGReportsMessages.AUTH_SERVER_IP_ADDRESS";
-    public static final String AUTH_RETRIES_NUMBER = "STGReportsMessages.AUTH_RETRIES_NUMBER";
-    public static final String AUTH_RETRY_INTERVAL = "STGReportsMessages.AUTH_RETRY_INTERVAL";
-    public static final String LDAP_CAT1 = "STGReportsMessages.LDAP_CAT1";
-    public static final String LDAP_CAT2 = "STGReportsMessages.LDAP_CAT2";
-    public static final String LDAP_CAT3 = "STGReportsMessages.LDAP_CAT3";
-    public static final String LDAP_CAT4 = "STGReportsMessages.LDAP_CAT4";
-    public static final String LDAP_CAT5 = "STGReportsMessages.LDAP_CAT5";
-    public static final String LDAP_CAT6 = "STGReportsMessages.LDAP_CAT6";
-    public static final String LDAP_CAT7 = "STGReportsMessages.LDAP_CAT7";
-    public static final String LDAP_CAT8 = "STGReportsMessages.LDAP_CAT8";
-    public static final String FTP_IP_ADDRESS = "STGReportsMessages.FTP_IP_ADDRESS";
-    public static final String FTP_REPORTS_USERNAME = "STGReportsMessages.FTP_REPORTS_USERNAME";
-    public static final String FTP_REPORTS_PASSWORD = "STGReportsMessages.FTP_REPORTS_PASSWORD";
-    public static final String FTP_FIRMWARE_UPGRADE_IP_ADDRESS = "STGReportsMessages.FTP_FIRMWARE_UPGRADE_IP_ADDRESS";
-    public static final String FTP_FIRMWARE_UPGRADE_USERNAME = "STGReportsMessages.FTP_FIRMWARE_UPGRADE_USERNAME";
-    public static final String FTP_FIRMWARE_UPGRADE_PASSWORD = "STGReportsMessages.FTP_FIRMWARE_UPGRADE_PASSWORD";
-    public static final String FTP_METER_FIRMWARE_UPGRADE_IP_ADDRESS = "STGReportsMessages.FTP_METER_FIRMWARE_UPGRADE_IP_ADDRESS";
-    public static final String FTP_METER_FIRMWARE_UPGRADE_USERNAME = "STGReportsMessages.FTP_METER_FIRMWARE_UPGRADE_USERNAME";
-    public static final String FTP_METER_FIRMWARE_UPGRADE_PASSWORD = "STGReportsMessages.FTP_METER_FIRMWARE_UPGRADE_PASSWORD";
-    public static final String FTP_ACCESS_RETRIES_NUMBER = "STGReportsMessages.FTP_ACCESS_RETRIES_NUMBER";
-    public static final String FTP_RETRY_INTERVAL = "STGReportsMessages.FTP_RETRY_INTERVAL";
-    public static final String FTP_CYCLES_IP_ADDRESS = "STGReportsMessages.FTP_CYCLES_IP_ADDRESS";
-    public static final String FTP_CYCLES_USERNAME = "STGReportsMessages.FTP_CYCLES_USERNAME";
-    public static final String FTP_CYCLES_PASSWORD = "STGReportsMessages.FTP_CYCLES_PASSWORD";
-    public static final String FTP_CYCLES_DESTINATION_DIRECTORY = "STGReportsMessages.FTP_CYCLES_DESTINATION_DIRECTORY";
-    public static final String REPORT_PRIORITY = "STGReportsMessages.REPORT_PRIORITY";
     public static final String MIN_TIME_DEVIATION_METER_SYNCHRONIZATION = "STGReportsMessages.MIN_TIME_DEVIATION_METER_SYNCHRONIZATION";
     public static final String MAX_TIME_DEVIATION_METER_SYNCHRONIZATION = "STGReportsMessages.MAX_TIME_DEVIATION_METER_SYNCHRONIZATION";
-    public static final String MAX_METER_NUMBER_IN_REPORTS = "STGReportsMessages.MAX_METER_NUMBER_IN_REPORTS";
-    public static final String MAX_TIME_WITHOUT_SENDING_REPORTS = "STGReportsMessages.MAX_TIME_WITHOUT_SENDING_REPORTS";
-    public static final String TIME_BETWEEN_TF_PF = "STGReportsMessages.TIME_BETWEEN_TF_PF";
-    public static final String METER_COMM_RETRIES = "STGReportsMessages.METER_COMM_RETRIES";
-    public static final String TIME_BETWEEN_METER_COMM_RETRIES = "STGReportsMessages.TIME_BETWEEN_METER_COMM_RETRIES";
-    public static final String METER_REG_DATA = "STGReportsMessages.METER_REG_DATA";
-    public static final String S26_CONTENT = "STGReportsMessages.S26_CONTENT";
-    public static final String MIN_TIME_BETWEEN_ORDER_AND_READING = "STGReportsMessages.MIN_TIME_BETWEEN_ORDER_AND_READING";
-    public static final String SYNC_METER_TIME_EVERY_ACCESS = "STGReportsMessages.SYNC_METER_TIME_EVERY_ACCESS";
-    public static final String TIMEOUT_METER_FW_UPGRADE = "STGReportsMessages.TIMEOUT_METER_FW_UPGRADE";
-    public static final String MAX_ORDERS_VALIDATION_TIME = "STGReportsMessages.MAX_ORDERS_VALIDATION_TIME";
     public static final String TIME_DELAY_TASKS_RESTART = "STGReportsMessages.TIME_DELAY_TASKS_RESTART";
     public static final String REPORT_COMPRESSION = "STGReportsMessages.REPORT_COMPRESSION";
     public static final String RESET_MESSAGE = "STGReportsMessages.RESET_MESSAGE";
-    public static final String BATTERY_PERCENTAGE = "STGRepotsMessages.BATTERY_PERCENTAGE";
-    public static final String MAC_PORT_PLC = "STGReportsMessages.MAC_PORT_PLC";
-    public static final String PLC_TIMEOUT_READING_MANAGEMENT = "STGReportsMessages.PLC_TIMEOUT_READING_MANAGEMENT";
-    public static final String PLC_TIMEOUT_FW_UPDATE = "STGReportsMessages.PLC_TIMEOUT_FW_UPDATE";
 
     // B04
     public static final String ACTIVITY_CALENDAR_CONTRACT_MODIFICATIONS = "STGReportsMessages.OrderRequest.ACTIVITY_CALENDAR_CONTRACT_MODIFICATIONS";
     public static final String CALENDAR_TYPE = "STGReportsMessages.OrderRequest.CALENDAR_TYPE";
     public static final String CALENDAR_NAME = "STGReportsMessages.OrderRequest.CALENDAR_NAME";
-    public static final String CONTRACT_ACTIVATION_DATE = "STGReportsMessages.OrderRequest.CONTRACT_ACTIVATION_DATE";
 
     // B32
-    public static final String AUTHORIZATION_KEY = "STGReportsMessages.OrderRequest.AUTHORIZATION_KEY";
     public static final String ENCRYPTION_KEY = "STGReportsMessages.OrderRequest.ENCRYPTION_KEY";
     // Remote Shell IC
     public static final String remoteShellMaxLoginAttempts = "NetworkConnectivityMessage.remoteShellMaxLoginAttempts";
@@ -2008,107 +1867,22 @@ public final class DeviceMessageConstants {
     public static final String vpnIPCompressionEnabledDefaultTranslation = "Set IP compression enabled";
     public static final String simPincode = "NetworkConnectivityMessage.SimPincode";
     public static final String simPincodeDefaultTranslation = "Change the sim PIN code";
-    public static final String IGNORE_DC_PWD_ADMIN = "STGReportsMessages.IGNORE_DC_PWD_ADMIN";
-    public static final String IGNORE_DC_PWD_READ = "STGReportsMessages.IGNORE_DC_PWD_READ";
-    public static final String IGNORE_DC_IP_ADDRESS = "STGReportsMessages.IGNORE_DC_IP_ADDRESS";
-    public static final String IGNORE_DC_IP_MASK = "STGReportsMessages.IGNORE_DC_IP_MASK";
-    public static final String IGNORE_DC_IP_GATEWAY = "STGReportsMessages.IGNORE_DC_IP_GATEWAY";
-    public static final String IGNORE_DC_DHCP_ENABLED = "STGReportsMessages.IGNORE_DC_DHCP_ENABLED";
-    public static final String IGNORE_LOC_IP_ADDRESS = "STGReportsMessages.IGNORE_LOC_IP_ADDRESS";
-    public static final String IGNORE_LOC_IP_MASK = "STGReportsMessages.IGNORE_LOC_IP_MASK";
-    public static final String IGNORE_WS_PORT = "STGReportsMessages.IGNORE_WS_PORT";
-    public static final String IGNORE_WS_INACTIVITY_TIMEOUT = "STGReportsMessages.IGNORE_WS_INACTIVITY_TIMEOUT";
-    public static final String IGNORE_WS_SIMULTANEOUS_CONN = "STGReportsMessages.IGNORE_WS_SIMULTANEOUS_CONN";
-    public static final String IGNORE_STG_WS_IP_ADDRESS = "STGReportsMessages.IGNORE_STG_WS_IP_ADDRESS";
-    public static final String IGNORE_STG_WS_PASSWORD = "STGReportsMessages.IGNORE_STG_WS_PASSWORD";
-    public static final String IGNORE_NTP_IP_ADDRESS = "STGReportsMessages.IGNORE_NPT_IP_ADDRESS";
-    public static final String IGNORE_NTP_MAX_DEVIATION = "STGReportsMessages.IGNORE_NTP_MAX_DEVIATION";
     public static final String IGNORE_AUTH_SERVER_IP_ADDRESS = "STGReportsMessages.IGNORE_AUTH_SERVER_IP_ADDRESS";
-    public static final String IGNORE_AUTH_RETRIES_NUMBER = "STGReportsMessages.IGNORE_AUTH_RETRIES_NUMBER";
-    public static final String IGNORE_AUTH_RETRY_INTERVAL = "STGReportsMessages.IGNORE_AUTH_RETRY_INTERVAL";
-    public static final String IGNORE_LDAP_CAT1 = "STGReportsMessages.IGNORE_LDAP_CAT1";
-    public static final String IGNORE_LDAP_CAT2 = "STGReportsMessages.IGNORE_LDAP_CAT2";
-    public static final String IGNORE_LDAP_CAT3 = "STGReportsMessages.IGNORE_LDAP_CAT3";
-    public static final String IGNORE_LDAP_CAT4 = "STGReportsMessages.IGNORE_LDAP_CAT4";
-    public static final String IGNORE_LDAP_CAT5 = "STGReportsMessages.IGNORE_LDAP_CAT5";
-    public static final String IGNORE_LDAP_CAT6 = "STGReportsMessages.IGNORE_LDAP_CAT6";
-    public static final String IGNORE_LDAP_CAT7 = "STGReportsMessages.IGNORE_LDAP_CAT7";
-    public static final String IGNORE_LDAP_CAT8 = "STGReportsMessages.IGNORE_LDAP_CAT8";
-    public static final String IGNORE_FTP_IP_ADDRESS = "STGReportsMessages.IGNORE_FTP_IP_ADDRESS";
-    public static final String IGNORE_FTP_REPORTS_USERNAME = "STGReportsMessages.IGNORE_FTP_REPORTS_USERNAME";
-    public static final String IGNORE_FTP_REPORTS_PASSWORD = "STGReportsMessages.IGNORE_FTP_REPORTS_PASSWORD";
-    public static final String IGNORE_FTP_FIRMWARE_UPGRADE_IP_ADDRESS = "STGReportsMessages.IGNORE_FTP_FIRMWARE_UPGRADE_IP_ADDRESS";
-    public static final String IGNORE_FTP_FIRMWARE_UPGRADE_USERNAME = "STGReportsMessages.IGNORE_FTP_FIRMWARE_UPGRADE_USERNAME";
-    public static final String IGNORE_FTP_FIRMWARE_UPGRADE_PASSWORD = "STGReportsMessages.IGNORE_FTP_FIRMWARE_UPGRADE_PASSWORD";
-    public static final String IGNORE_FTP_METER_FIRMWARE_UPGRADE_IP_ADDRESS = "STGReportsMessages.IGNORE_FTP_METER_FIRMWARE_UPGRADE_IP_ADDRESS";
-    public static final String IGNORE_FTP_METER_FIRMWARE_UPGRADE_USERNAME = "STGReportsMessages.IGNORE_FTP_METER_FIRMWARE_UPGRADE_USERNAME";
-    public static final String IGNORE_FTP_METER_FIRMWARE_UPGRADE_PASSWORD = "STGReportsMessages.IGNORE_FTP_METER_FIRMWARE_UPGRADE_PASSWORD";
-    public static final String IGNORE_FTP_ACCESS_RETRIES_NUMBER = "STGReportsMessages.IGNORE_FTP_ACCESS_RETRIES_NUMBER";
-    public static final String IGNORE_FTP_RETRY_INTERVAL = "STGReportsMessages.IGNORE_FTP_RETRY_INTERVAL";
-    public static final String IGNORE_FTP_CYCLES_IP_ADDRESS = "STGReportsMessages.IGNORE_FTP_CYCLES_IP_ADDRESS";
-    public static final String IGNORE_FTP_CYCLES_USERNAME = "STGReportsMessages.IGNORE_FTP_CYCLES_USERNAME";
-    public static final String IGNORE_FTP_CYCLES_PASSWORD = "STGReportsMessages.IGNORE_FTP_CYCLES_PASSWORD";
-    public static final String IGNORE_FTP_CYCLES_DESTINATION_DIRECTORY = "STGReportsMessages.IGNORE_FTP_CYCLES_DESTINATION_DIRECTORY";
-    public static final String IGNORE_REPORT_PRIORITY = "STGReportsMessages.IGNORE_REPORT_PRIORITY";
-    public static final String IGNORE_MIN_TIME_DEVIATION_METER_SYNCHRONIZATION = "STGReportsMessages.IGNORE_MIN_TIME_DEVIATION_METER_SYNCHRONIZATION";
-    public static final String IGNORE_MAX_TIME_DEVIATION_METER_SYNCHRONIZATION = "STGReportsMessages.IGNORE_MAX_TIME_DEVIATION_METER_SYNCHRONIZATION";
-    public static final String IGNORE_MAX_METER_NUMBER_IN_REPORTS = "STGReportsMessages.IGNORE_MAX_METER_NUMBER_IN_REPORTS";
-    public static final String IGNORE_MAX_TIME_WITHOUT_SENDING_REPORTS = "STGReportsMessages.IGNORE_MAX_TIME_WITHOUT_SENDING_REPORTS";
-    public static final String IGNORE_TIME_BETWEEN_TF_PF = "STGReportsMessages.IGNORE_TIME_BETWEEN_TF_PF";
-    public static final String IGNORE_METER_COMM_RETRIES = "STGReportsMessages.IGNORE_METER_COMM_RETRIES";
-    public static final String IGNORE_TIME_BETWEEN_METER_COMM_RETRIES = "STGReportsMessages.IGNORE_TIME_BETWEEN_METER_COMM_RETRIES";
-    public static final String IGNORE_METER_REG_DATA = "STGReportsMessages.IGNORE_METER_REG_DATA";
-    public static final String IGNORE_S26_CONTENT = "STGReportsMessages.IGNORE_S26_CONTENT";
     public static final String IGNORE_MIN_TIME_BETWEEN_ORDER_AND_READING = "STGReportsMessages.IGNORE_MIN_TIME_BETWEEN_ORDER_AND_READING";
-    public static final String IGNORE_SYNC_METER_TIME_EVERY_ACCESS = "STGReportsMessages.IGNORE_SYNC_METER_TIME_EVERY_ACCESS";
-    public static final String IGNORE_TIMEOUT_METER_FW_UPGRADE = "STGReportsMessages.IGNORE_TIMEOUT_METER_FW_UPGRADE";
-    public static final String IGNORE_MAX_ORDERS_VALIDATION_TIME = "STGReportsMessages.IGNORE_MAX_ORDERS_VALIDATION_TIME";
     public static final String IGNORE_TIME_DELAY_TASKS_RESTART = "STGReportsMessages.IGNORE_TIME_DELAY_TASKS_RESTART";
     public static final String IGNORE_REPORT_COMPRESSION = "STGReportsMessages.IGNORE_REPORT_COMPRESSION";
     public static final String IGNORE_RESET_MESSAGE = "STGReportsMessages.IGNORE_RESET_MESSAGE";
     public static final String IGNORE_BATTERY_PERCENTAGE = "STGReportsMessages.BATTERY_PERCENTAGE";
-    public static final String IGNORE_MAC_PORT_PLC = "STGReportsMessages.IGNORE_MAC_PORT_PLC";
-    public static final String IGNORE_PLC_TIMEOUT_READING_MANAGEMENT = "STGReportsMessages.IGNORE_PLC_TIMEOUT_READING_MANAGEMENT";
-    public static final String IGNORE_PLC_TIMEOUT_FW_UPDATE = "STGReportsMessages.IGNORE_PLC_TIMEOUT_FW_UPDATE";
     // B09
-    public static final String ID_COMMUNICATION_MULTICAST = "STGReportsMessages.ID_COMMUNICATION_MULTICAST";
-    public static final String PRIMARY_VOLTAGE = "STGReportsMessages.PRIMARY_VOLTAGE";
-    public static final String SECONDARY_VOLTAGE = "STGReportsMessages.SECONDARY_VOLTAGE";
     public static final String PRIMARY_CURRENT = "STGReportsMessages.PRIMARY_CURRENT";
     public static final String SECONDARY_CURRENT = "STGReportsMessages.SECONDARY_CURRENT";
-    public static final String READING_CLIENT_KEY = "STGReportsMessages.READING_CLIENT_KEY";
-    public static final String MANAGEMENT_CLIENT_KEY = "STGReportsMessages.MANAGEMENT_CLIENT_KEY";
-    public static final String FIRMWARE_CLIENT_KEY = "STGReportsMessages.FIRMWARE_CLIENT_KEY";
-    public static final String TIME_THRESHOLD_VOLTAGE_SAGS = "STGReportsMessages.TIME_THRESHOLD_VOLTAGE_SAGS";
-    public static final String TIME_THRESHOLD_VOLTAGE_SWELLS = "STGReportsMessages.TIME_THRESHOLD_VOLTAGE_SWELLS";
     public static final String LOAD_PROFILE_PERIOD = "STGReportsMessages.LOAD_PROFILE_PERIOD";
-    public static final String DEMAND_CLOSE_TO_CONTRACTED_POWER = "STGReportsMessages.DEMAND_CLOSE_TO_CONTRACTED_POWER";
-    public static final String REFERENCE_VOLTAGE = "STGReportsMessages.REFERENCE_VOLTAGE";
     public static final String TIME_THRESHOLD_LONG_POWER_FAILURE = "STGReportsMessages.TIME_THRESHOLD_LONG_POWER_FAILURE";
-    public static final String VOLTAGE_SAG_THRESHOLD = "STGReportsMessages.VOLTAGE_SAG_THRESHOLD";
     public static final String VOLTAGE_SWELL_THRESHOLD = "STGReportsMessages.VOLTAGE_SWELL_THRESHOLD";
-    public static final String VOLTAGE_LONG_POWER_FAILURE_THRESHOLD = "STGReportsMessages.VOLTAGE_LONG_POWER_FAILURE_THRESHOLD";
-    public static final String ENABLE_AUTOMATIC_MONTHLY_BILLING = "STGReportsMessages.ENABLE_AUTOMATIC_MONTHLY_BILLING";
-    public static final String TIME_SCROLL_DISPLAY = "STGReportsMessages.TIME_SCROLL_DISPLAY";
-    public static final String IGNORE_ID_COMMUNICATION_MULTICAST = "STGReportsMessages.IGNORE_ID_COMMUNICATION_MULTICAST";
-    public static final String IGNORE_PRIMARY_VOLTAGE = "STGReportsMessages.IGNORE_PRIMARY_VOLTAGE";
-    public static final String IGNORE_SECONDARY_VOLTAGE = "STGReportsMessages.IGNORE_SECONDARY_VOLTAGE";
     public static final String IGNORE_PRIMARY_CURRENT = "STGReportsMessages.IGNORE_PRIMARY_CURRENT";
     public static final String IGNORE_SECONDARY_CURRENT = "STGReportsMessages.IGNORE_SECONDARY_CURRENT";
-    public static final String IGNORE_READING_CLIENT_KEY = "STGReportsMessages.IGNORE_READING_CLIENT_KEY";
-    public static final String IGNORE_MANAGEMENT_CLIENT_KEY = "STGReportsMessages.IGNORE_MANAGEMENT_CLIENT_KEY";
-    public static final String IGNORE_FIRMWARE_CLIENT_KEY = "STGReportsMessages.IGNORE_FIRMWARE_CLIENT_KEY";
-    public static final String IGNORE_TIME_THRESHOLD_VOLTAGE_SAGS = "STGReportsMessages.IGNORE_TIME_THRESHOLD_VOLTAGE_SAGS";
-    public static final String IGNORE_TIME_THRESHOLD_VOLTAGE_SWELLS = "STGReportsMessages.IGNORE_TIME_THRESHOLD_VOLTAGE_SWELLS";
     public static final String IGNORE_LOAD_PROFILE_PERIOD = "STGReportsMessages.IGNORE_LOAD_PROFILE_PERIOD";
-    public static final String IGNORE_DEMAND_CLOSE_TO_CONTRACTED_POWER = "STGReportsMessages.IGNORE_DEMAND_CLOSE_TO_CONTRACTED_POWER";
-    public static final String IGNORE_REFERENCE_VOLTAGE = "STGReportsMessages.IGNORE_REFERENCE_VOLTAGE";
-    public static final String IGNORE_TIME_THRESHOLD_LONG_POWER_FAILURE = "STGReportsMessages.IGNORE_TIME_THRESHOLD_LONG_POWER_FAILURE";
-    public static final String IGNORE_VOLTAGE_SAG_THRESHOLD = "STGReportsMessages.IGNORE_VOLTAGE_SAG_THRESHOLD";
-    public static final String IGNORE_VOLTAGE_SWELL_THRESHOLD = "STGReportsMessages.IGNORE_VOLTAGE_SWELL_THRESHOLD";
-    public static final String IGNORE_VOLTAGE_LONG_POWER_FAILURE_THRESHOLD = "STGReportsMessages.IGNORE_VOLTAGE_LONG_POWER_FAILURE_THRESHOLD";
     public static final String IGNORE_ENABLE_AUTOMATIC_MONTHLY_BILLING = "STGReportsMessages.IGNORE_ENABLE_AUTOMATIC_MONTHLY_BILLING";
-    public static final String IGNORE_TIME_SCROLL_DISPLAY = "STGReportsMessages.IGNORE_TIME_SCROLL_DISPLAY";
 
     //Debug log IC
     public static final String remoteSyslogTransportServiceType = "DeviceActionMessage.remoteSyslogTransportServiceType";
@@ -2119,66 +1893,12 @@ public final class DeviceMessageConstants {
     public static final String remoteSyslogPortDefaultTranslation = "Port";
     public static final String remoteSyslogIpVersion = "DeviceActionMessage.remoteSyslogIpVersion";
     public static final String remoteSyslogIpVersionDefaultTranslation = "IP version";
-    // B9B
-    public static final String SPON_EVENT_MASK_10 = "STGReportsMessages.SPON_EVENT_MASK_10";
-    public static final String SPON_EVENT_MASK_11 = "STGReportsMessages.SPON_EVENT_MASK_11";
-    public static final String SPON_EVENT_MASK_12 = "STGReportsMessages.SPON_EVENT_MASK_12";
-    public static final String SPON_EVENT_MASK_13 = "STGReportsMessages.SPON_EVENT_MASK_13";
-    public static final String SPON_EVENT_MASK_14 = "STGReportsMessages.SPON_EVENT_MASK_14";
-    public static final String SPON_EVENT_MASK_20 = "STGReportsMessages.SPON_EVENT_MASK_20";
-    public static final String SPON_EVENT_MASK_31 = "STGReportsMessages.SPON_EVENT_MASK_31";
-    public static final String SPON_EVENT_MASK_32 = "STGReportsMessages.SPON_EVENT_MASK_32";
-    public static final String SPON_EVENT_MASK_40 = "STGReportsMessages.SPON_EVENT_MASK_40";
-    public static final String SPON_EVENT_MASK_50 = "STGReportsMessages.SPON_EVENT_MASK_50";
-    public static final String SPON_EVENT_MASK_60 = "STGReportsMessages.SPON_EVENT_MASK_60";
-    public static final String SPON_EVENT_MASK_71 = "STGReportsMessages.SPON_EVENT_MASK_71";
-    public static final String SPON_EVENT_MASK_72 = "STGReportsMessages.SPON_EVENT_MASK_72";
-    public static final String EVENT_LOG_MASK_10 = "STGReportsMessages.EVENT_LOG_MASK_10";
-    public static final String EVENT_LOG_MASK_11 = "STGReportsMessages.EVENT_LOG_MASK_11";
-    public static final String EVENT_LOG_MASK_12 = "STGReportsMessages.EVENT_LOG_MASK_12";
-    public static final String EVENT_LOG_MASK_13 = "STGReportsMessages.EVENT_LOG_MASK_13";
-    public static final String EVENT_LOG_MASK_14 = "STGReportsMessages.EVENT_LOG_MASK_14";
-    public static final String EVENT_LOG_MASK_20 = "STGReportsMessages.EVENT_LOG_MASK_20";
-    public static final String EVENT_LOG_MASK_31 = "STGReportsMessages.EVENT_LOG_MASK_31";
-    public static final String EVENT_LOG_MASK_32 = "STGReportsMessages.EVENT_LOG_MASK_32";
-    public static final String EVENT_LOG_MASK_40 = "STGReportsMessages.EVENT_LOG_MASK_40";
-    public static final String EVENT_LOG_MASK_50 = "STGReportsMessages.EVENT_LOG_MASK_50";
-    public static final String EVENT_LOG_MASK_60 = "STGReportsMessages.EVENT_LOG_MASK_60";
-    public static final String EVENT_LOG_MASK_71 = "STGReportsMessages.EVENT_LOG_MASK_71";
-    public static final String EVENT_LOG_MASK_72 = "STGReportsMessages.EVENT_LOG_MASK_72";
 
     // Renew GMK single action schedule IC
     public static final String RENEW_GMK_EXECUTION_TIME = "DeviceActionMessage.RENEW_GMK_EXECUTION_TIME";
     public static final String RENEW_GMK_EXECUTION_TIMEDefaultTranslation = "Execution time";
     
-    public static final String IGNORE_SPON_EVENT_MASK_10 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_10";
-    public static final String IGNORE_SPON_EVENT_MASK_11 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_11";
-    public static final String IGNORE_SPON_EVENT_MASK_12 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_12";
-    public static final String IGNORE_SPON_EVENT_MASK_13 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_13";
-    public static final String IGNORE_SPON_EVENT_MASK_14 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_14";
-    public static final String IGNORE_SPON_EVENT_MASK_20 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_20";
-    public static final String IGNORE_SPON_EVENT_MASK_31 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_31";
-    public static final String IGNORE_SPON_EVENT_MASK_32 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_32";
-    public static final String IGNORE_SPON_EVENT_MASK_40 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_40";
-    public static final String IGNORE_SPON_EVENT_MASK_50 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_50";
-    public static final String IGNORE_SPON_EVENT_MASK_60 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_60";
-    public static final String IGNORE_SPON_EVENT_MASK_71 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_71";
-    public static final String IGNORE_SPON_EVENT_MASK_72 = "STGReportsMessages.IGNORE_SPON_EVENT_MASK_72";
-    public static final String IGNORE_EVENT_LOG_MASK_10 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_10";
-    public static final String IGNORE_EVENT_LOG_MASK_11 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_11";
-    public static final String IGNORE_EVENT_LOG_MASK_12 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_12";
-    public static final String IGNORE_EVENT_LOG_MASK_13 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_13";
-    public static final String IGNORE_EVENT_LOG_MASK_14 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_14";
-    public static final String IGNORE_EVENT_LOG_MASK_20 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_20";
-    public static final String IGNORE_EVENT_LOG_MASK_31 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_31";
-    public static final String IGNORE_EVENT_LOG_MASK_32 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_32";
-    public static final String IGNORE_EVENT_LOG_MASK_40 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_40";
-    public static final String IGNORE_EVENT_LOG_MASK_50 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_50";
-    public static final String IGNORE_EVENT_LOG_MASK_60 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_60";
-    public static final String IGNORE_EVENT_LOG_MASK_71 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_71";
-    public static final String IGNORE_EVENT_LOG_MASK_72 = "STGReportsMessages.IGNORE_EVENT_LOG_MASK_72";
     public static final String REQUEST_CONTENT = "DataConcentratorActionMessage.REQUEST_CONTENT";
-    public static final String UPDATE_SCHEDULE_BEFORE_SENDING = "DataConcentratorActionMessage.UPDATE_SCHEDULE_BEFORE_SENDING";
 
     // Specific G3/PLC Network Management Objects
     public static final String MAC_TONE_MASK = "DeviceActionMessage.MAC_TONE_MASK";
