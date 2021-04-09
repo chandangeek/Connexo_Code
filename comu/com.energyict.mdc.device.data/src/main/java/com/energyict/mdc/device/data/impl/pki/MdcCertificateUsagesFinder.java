@@ -3,8 +3,6 @@ package com.energyict.mdc.device.data.impl.pki;
 import com.elster.jupiter.pki.CertificateUsagesFinder;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -17,8 +15,8 @@ public class MdcCertificateUsagesFinder implements CertificateUsagesFinder {
     private DeviceService deviceService;
 
     @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
-        this.deviceService = deviceDataModelService.deviceService();
+    public void setDeviceDataModelService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Override
