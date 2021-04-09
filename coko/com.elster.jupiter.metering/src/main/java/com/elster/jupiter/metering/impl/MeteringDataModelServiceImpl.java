@@ -353,12 +353,13 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
 
     private void registerSearchLocationService(BundleContext bundleContext) {
         if (bundleContext != null) {
+            Dictionary<String, Object> properties = new Hashtable<>();
+            properties.put("name", SearchService.COMPONENT_NAME);
             this.serviceRegistrations.add(
                     bundleContext.registerService(
-                            new String[]{
-                                    SearchLocationService.class.getName()},
+                            SearchLocationService.class,
                             this.searchLocationService,
-                            noServiceProperties()));
+                            properties));
         }
     }
 

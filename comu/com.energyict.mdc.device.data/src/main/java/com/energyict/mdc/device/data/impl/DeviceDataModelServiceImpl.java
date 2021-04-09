@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -67,9 +68,7 @@ import com.energyict.mdc.device.data.impl.audit.AuditTranslationKeys;
 import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
-import com.energyict.mdc.device.data.impl.pki.MdcCertificateUsagesFinder;
 import com.energyict.mdc.device.data.impl.pki.SecurityAccessorDAOImpl;
-import com.energyict.mdc.device.data.impl.pki.tasks.certrenewal.CertificateRenewalHandlerFactory;
 import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
@@ -95,7 +94,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -193,7 +191,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private BundleContext bundleContext;
     private ConfigPropertiesService configPropertiesService;
     private DeviceSearchDomain deviceSearchDomain;
-    private MdcCertificateUsagesFinder mdcCertificateUsagesFinder;
     private SecurityAccessorDAO securityAccessorDAO;
 
     // For OSGi purposes only
@@ -713,7 +710,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(ConfigPropertiesService.class).toInstance(configPropertiesService);
                 bind(DeviceSearchDomain.class).toInstance(deviceSearchDomain);
-                bind(MdcCertificateUsagesFinder.class).toInstance(mdcCertificateUsagesFinder);
                 bind(SecurityAccessorDAO.class).toInstance(securityAccessorDAO);
             }
         };
@@ -768,7 +764,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
         crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
         deviceSearchDomain = new DeviceSearchDomain(this, clock, protocolPluggableService);
-        mdcCertificateUsagesFinder = new MdcCertificateUsagesFinder(deviceService);
         securityAccessorDAO = new SecurityAccessorDAOImpl(dataModel);
     }
 
@@ -791,11 +786,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     }
 
     private void registerDeviceSearchDomainService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(DeviceSearchDomain.class, this.deviceSearchDomain, null));
+        this.serviceRegistrations.add(bundleContext.registerService(SearchDomain.class, this.deviceSearchDomain, null));
     }
 
     private void registerPKIService(BundleContext bundleContext) {
-        this.serviceRegistrations.add(bundleContext.registerService(MdcCertificateUsagesFinder.class, this.mdcCertificateUsagesFinder, null));
         this.serviceRegistrations.add(bundleContext.registerService(SecurityAccessorDAO.class, this.securityAccessorDAO, null));
     }
 
