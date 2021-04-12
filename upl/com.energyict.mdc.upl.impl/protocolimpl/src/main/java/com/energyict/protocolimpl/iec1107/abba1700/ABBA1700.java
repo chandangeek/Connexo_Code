@@ -349,7 +349,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     }
 
     private void getRegistersInfo() throws IOException {
-        StringBuilder builder = new StringBuilder();
+        StringBuffer builder = new StringBuffer();
         String code;
         logger.info("************************* Extended Logging *************************");
 
@@ -365,17 +365,19 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
             }
 
             builder.append("Cumulative registers (total & tariff):\n");
-            List list = EnergyTypeCode.getEnergyTypeCodes();
-            Iterator it = list.iterator();
-            while (it.hasNext()) {
-                EnergyTypeCode etc = (EnergyTypeCode) it.next();
+            for (EnergyTypeCode etc : EnergyTypeCode.getEnergyTypeCodes()) {
+                try {
                 code = "1.1." + etc.getObisC() + ".8.0." + (billingPoint == -1 ? 255 : billingPoint);
-                builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
+                    builder.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + "\n");
                 for (int i = 0; i < ts.getRegSource().length; i++) {
                     if (ts.getRegSource()[i] == etc.getRegSource()) {
                         code = "1.1." + etc.getObisC() + ".8." + (i + 1) + "." + (billingPoint == -1 ? 255 : billingPoint);
-                        builder.append(code).append(", ").append(ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code))).append("\n");
+                            builder.append(code + ", " + ObisCodeMapper.getRegisterInfo(ObisCode.fromString(code)) + "\n");
                     }
+                }
+            }
+                catch (NoSuchRegisterException ignored) {
+                    // absorb
                 }
             }
 
@@ -417,7 +419,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
 
 
                     }
-                } catch (NoSuchRegisterException e) {
+                } catch (NoSuchRegisterException ignored) {
                     //builder.append("KV_DEBUG> Unknown Code...");
                     // absorb...
                 }
@@ -533,8 +535,7 @@ public class ABBA1700 extends PluggableMeterProtocol implements ProtocolLink, HH
     public void enableHHUSignOn(SerialCommunicationChannel serialCommunicationChannel, boolean datareadout) throws ConnectionException {
         this.commChannel = serialCommunicationChannel;
 
-        HHUSignOn hhuSignOn =
-                new IEC1107HHUConnection(serialCommunicationChannel, iTimeout, iProtocolRetries, 300, iEchoCancelling);
+        HHUSignOn hhuSignOn = new IEC1107HHUConnection(serialCommunicationChannel, iTimeout, iProtocolRetries, 300, iEchoCancelling);
         hhuSignOn.setMode(HHUSignOn.MODE_PROGRAMMING);
         hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_NORMAL);
         hhuSignOn.enableDataReadout(datareadout);
