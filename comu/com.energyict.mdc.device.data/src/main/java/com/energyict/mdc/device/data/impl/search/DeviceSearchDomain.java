@@ -48,39 +48,15 @@ import java.util.stream.Collectors;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-05-26 (15:32)
  */
-@Component(name = "com.energyict.mdc.device.search", service = SearchDomain.class, immediate = true)
 public class DeviceSearchDomain implements SearchDomain {
 
-    private volatile DeviceDataModelService deviceDataModelService;
-    private volatile ProtocolPluggableService protocolPluggableService;
-    private volatile Clock clock;
+    private final DeviceDataModelService deviceDataModelService;
+    private final ProtocolPluggableService protocolPluggableService;
+    private final Clock clock;
 
-    // For OSGi purposes
-    public DeviceSearchDomain() {
-        super();
-    }
-
-    // For testing purposes
-    @Inject
     public DeviceSearchDomain(DeviceDataModelService deviceDataModelService, Clock clock, ProtocolPluggableService protocolPluggableService) {
-        this();
-        this.setDeviceDataModelService(deviceDataModelService);
-        this.setClock(clock);
-        this.setProtocolPluggableService(protocolPluggableService);
-    }
-
-    @Reference
-    public void setDeviceDataModelService(DeviceDataModelService deviceDataModelService) {
         this.deviceDataModelService = deviceDataModelService;
-    }
-
-    @Reference
-    public void setClock(Clock clock) {
         this.clock = clock;
-    }
-
-    @Reference
-    public void setProtocolPluggableService(ProtocolPluggableService protocolPluggableService) {
         this.protocolPluggableService = protocolPluggableService;
     }
 
