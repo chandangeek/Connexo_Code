@@ -1755,12 +1755,7 @@ public final class DeviceMessageConstants {
 
     public static final String keyAccessorTypeAttributeName = "keyAccessorType";
     public static final String keyAccessorTypeAttributeNameDefaultTranslation = "Key accessor type";
-    /**
-     * STG - Related constants
-     */
-    public static final String tfEnd = "STG.tfEnd";
-    public static final String idMeter = "STG.idMeter";
-    public static final String allMeters = "STG.allMeters";
+
     public static final String cleanUpExistingEntry = "NetworkConnectivityMessage.cleanUpExistingEntry";
     public static final String cleanUpExistingEntryDefaultTranslation = "Remove existing entry if needed";
     public static final String routingEntryType = "NetworkConnectivityMessage.routingEntryType";
@@ -1775,8 +1770,6 @@ public final class DeviceMessageConstants {
     public static final String compressionContextMulticastDefaultTranslation = "Compression context multicast";
     public static final String compressionContextAllowed = "NetworkConnectivityMessage.compressionContextAllowed";
     public static final String compressionContextAllowedDefaultTranslation = "Header compression is allowed";
-
-    public static final String POWER_MOD_ACTIVATION_DATE = "STGReportsMessages.POWER_MOD_ACTIVATION_DATE";
 
     // SNMP Setup IC
     public static final String snmpSystemContact = "NetworkConnectivityMessage.snmpSystemContact";
@@ -1817,22 +1810,7 @@ public final class DeviceMessageConstants {
     public static final String dlmsWanAllowedFailedAttemptsDefaultTranslation = "DLMS WAN allowed failed attempts";
     public static final String dlmsWanInitialLockoutTime = "NetworkConnectivityMessage.dlmsWanInitialLockoutTime";
     public static final String dlmsWanInitialLockoutTimeDefaultTranslation = "DLMS WAN initial lockout time";
-    public static final String EXECUTION_DATE = "STGReportsMessages.EXECUTION_DATE";
-    public static final String MAXIMUM_EXECUTION_DATE = "STGReportsMessages.MAXIMUM_EXECUTION_DATE";
-    public static final String REQUESTED_SOURCE = "STGReportsMessages.REQUESTED_SOURCE";
-    public static final String MIN_TIME_DEVIATION_METER_SYNCHRONIZATION = "STGReportsMessages.MIN_TIME_DEVIATION_METER_SYNCHRONIZATION";
-    public static final String MAX_TIME_DEVIATION_METER_SYNCHRONIZATION = "STGReportsMessages.MAX_TIME_DEVIATION_METER_SYNCHRONIZATION";
-    public static final String TIME_DELAY_TASKS_RESTART = "STGReportsMessages.TIME_DELAY_TASKS_RESTART";
-    public static final String REPORT_COMPRESSION = "STGReportsMessages.REPORT_COMPRESSION";
-    public static final String RESET_MESSAGE = "STGReportsMessages.RESET_MESSAGE";
 
-    // B04
-    public static final String ACTIVITY_CALENDAR_CONTRACT_MODIFICATIONS = "STGReportsMessages.OrderRequest.ACTIVITY_CALENDAR_CONTRACT_MODIFICATIONS";
-    public static final String CALENDAR_TYPE = "STGReportsMessages.OrderRequest.CALENDAR_TYPE";
-    public static final String CALENDAR_NAME = "STGReportsMessages.OrderRequest.CALENDAR_NAME";
-
-    // B32
-    public static final String ENCRYPTION_KEY = "STGReportsMessages.OrderRequest.ENCRYPTION_KEY";
     // Remote Shell IC
     public static final String remoteShellMaxLoginAttempts = "NetworkConnectivityMessage.remoteShellMaxLoginAttempts";
     public static final String remoteShellMaxLoginAttemptsDefaultTranslation = "Remote shell max login attempts";
@@ -1867,22 +1845,7 @@ public final class DeviceMessageConstants {
     public static final String vpnIPCompressionEnabledDefaultTranslation = "Set IP compression enabled";
     public static final String simPincode = "NetworkConnectivityMessage.SimPincode";
     public static final String simPincodeDefaultTranslation = "Change the sim PIN code";
-    public static final String IGNORE_AUTH_SERVER_IP_ADDRESS = "STGReportsMessages.IGNORE_AUTH_SERVER_IP_ADDRESS";
-    public static final String IGNORE_MIN_TIME_BETWEEN_ORDER_AND_READING = "STGReportsMessages.IGNORE_MIN_TIME_BETWEEN_ORDER_AND_READING";
-    public static final String IGNORE_TIME_DELAY_TASKS_RESTART = "STGReportsMessages.IGNORE_TIME_DELAY_TASKS_RESTART";
-    public static final String IGNORE_REPORT_COMPRESSION = "STGReportsMessages.IGNORE_REPORT_COMPRESSION";
-    public static final String IGNORE_RESET_MESSAGE = "STGReportsMessages.IGNORE_RESET_MESSAGE";
-    public static final String IGNORE_BATTERY_PERCENTAGE = "STGReportsMessages.BATTERY_PERCENTAGE";
-    // B09
-    public static final String PRIMARY_CURRENT = "STGReportsMessages.PRIMARY_CURRENT";
-    public static final String SECONDARY_CURRENT = "STGReportsMessages.SECONDARY_CURRENT";
-    public static final String LOAD_PROFILE_PERIOD = "STGReportsMessages.LOAD_PROFILE_PERIOD";
-    public static final String TIME_THRESHOLD_LONG_POWER_FAILURE = "STGReportsMessages.TIME_THRESHOLD_LONG_POWER_FAILURE";
-    public static final String VOLTAGE_SWELL_THRESHOLD = "STGReportsMessages.VOLTAGE_SWELL_THRESHOLD";
-    public static final String IGNORE_PRIMARY_CURRENT = "STGReportsMessages.IGNORE_PRIMARY_CURRENT";
-    public static final String IGNORE_SECONDARY_CURRENT = "STGReportsMessages.IGNORE_SECONDARY_CURRENT";
-    public static final String IGNORE_LOAD_PROFILE_PERIOD = "STGReportsMessages.IGNORE_LOAD_PROFILE_PERIOD";
-    public static final String IGNORE_ENABLE_AUTOMATIC_MONTHLY_BILLING = "STGReportsMessages.IGNORE_ENABLE_AUTOMATIC_MONTHLY_BILLING";
+                            // B09
 
     //Debug log IC
     public static final String remoteSyslogTransportServiceType = "DeviceActionMessage.remoteSyslogTransportServiceType";
@@ -1897,7 +1860,7 @@ public final class DeviceMessageConstants {
     // Renew GMK single action schedule IC
     public static final String RENEW_GMK_EXECUTION_TIME = "DeviceActionMessage.RENEW_GMK_EXECUTION_TIME";
     public static final String RENEW_GMK_EXECUTION_TIMEDefaultTranslation = "Execution time";
-    
+
     public static final String REQUEST_CONTENT = "DataConcentratorActionMessage.REQUEST_CONTENT";
 
     // Specific G3/PLC Network Management Objects
