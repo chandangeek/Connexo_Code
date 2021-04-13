@@ -30,12 +30,12 @@ public class EI7Inbound extends A2Inbound {
         if (isPushingCompactFrames()) {
             getParser().readAndParseInboundFrame();
         }
-        return super.doDiscovery();
+        return DiscoverResultType.DATA;
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-03-30$";
+        return "$Date: 2021-04-13$";
     }
 
     public boolean isPushingCompactFrames() {
