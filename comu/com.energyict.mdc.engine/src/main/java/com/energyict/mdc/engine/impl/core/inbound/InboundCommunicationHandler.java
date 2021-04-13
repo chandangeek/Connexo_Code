@@ -71,7 +71,6 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-
 import com.energyict.protocol.exceptions.CommunicationException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -139,7 +138,7 @@ public class InboundCommunicationHandler {
         this.initializeMonitoring();
         com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType discoverResultType;
         try {
-            discoverResultType = this.doDiscovery(inboundDeviceProtocol);
+            discoverResultType = this.doDiscoveryWithErrorHandling(inboundDeviceProtocol);
             this.publishDiscoveryResult(discoverResultType, inboundDeviceProtocol);
             findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, discoverResultType);
         } catch (Exception e) {
@@ -148,14 +147,14 @@ public class InboundCommunicationHandler {
             //In case we have already prepared some collected data and we have device cache among them then try to store it
             if (!inboundDeviceProtocol.getCollectedData().isEmpty()) {
                 try {
-                if (inboundDeviceProtocol.isPushingCompactFrames())
-                    findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, InboundDeviceProtocol.DiscoverResultType.DATA);
-                else
-                    for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
-                        if (collectedData instanceof CollectedDeviceCache) { //if we have collected device cache then we should store it in order to keep track of the correct Frame counter
-                            findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, InboundDeviceProtocol.DiscoverResultType.DATA);
+                    if (inboundDeviceProtocol.isPushingCompactFrames())
+                        findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, InboundDeviceProtocol.DiscoverResultType.DATA);
+                    else
+                        for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
+                            if (collectedData instanceof CollectedDeviceCache) { //if we have collected device cache then we should store it in order to keep track of the correct Frame counter
+                                findDeviceAndHandleCollectedData(inboundDeviceProtocol, context, InboundDeviceProtocol.DiscoverResultType.DATA);
+                            }
                         }
-                    }
                 } catch (Exception e1) {
                     this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
                 }
@@ -163,8 +162,19 @@ public class InboundCommunicationHandler {
                 this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
             }
         }
+        finally {
+            provideFailureForNoResponse(inboundDeviceProtocol);
+            this.closeContext();
+        }
+    }
 
-        this.closeContext();
+    private void provideFailureForNoResponse(InboundDeviceProtocol inboundDeviceProtocol) {
+        try {
+            if (responseType == null)
+                provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.FAILURE);
+        } catch (Throwable e) {
+            logger.deviceNotConfiguredForInboundCommunication(inboundDeviceProtocol.getDeviceIdentifier(), getComPort());
+        }
     }
 
     private void findDeviceAndHandleCollectedData(InboundDeviceProtocol inboundDeviceProtocol, InboundDiscoveryContextImpl context, InboundDeviceProtocol.DiscoverResultType discoverResultType) {
@@ -300,12 +310,17 @@ public class InboundCommunicationHandler {
             this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SERVER_BUSY);
         } else {
             DeviceCommandExecutionToken singleToken = tokens.get(0);
-            if (com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.IDENTIFIER.equals(discoverResultType)) {
-                this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
-                this.handOverToDeviceProtocol(singleToken);
-            } else {
-                //Note that the provideResponse method is called in the storing service. Depending on the result of the storing, either success or failure is returned.
-                this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice, inboundDeviceProtocol.hasSupportForRequestsOnInbound());    //TODO port COMMUNICATION-1587
+            try {
+                if (com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType.IDENTIFIER.equals(discoverResultType)) {
+                    this.provideResponse(inboundDeviceProtocol, com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType.SUCCESS);
+                    this.handOverToDeviceProtocol(singleToken);
+                } else {
+                    //Note that the provideResponse method is called in the storing service. Depending on the result of the storing, either success or failure is returned.
+                    this.processCollectedData(inboundDeviceProtocol, singleToken, offlineDevice, inboundDeviceProtocol.hasSupportForRequestsOnInbound());    //TODO port COMMUNICATION-1587
+                }
+            } catch (Throwable e) {
+                deviceCommandExecutor.free(singleToken);
+                throw e;
             }
         }
     }
@@ -329,6 +344,16 @@ public class InboundCommunicationHandler {
 
     public InboundDiscoveryContextImpl getContext() {
         return context;
+    }
+
+    private InboundDeviceProtocol.DiscoverResultType doDiscoveryWithErrorHandling(InboundDeviceProtocol inboundDeviceProtocol) {
+        InboundDeviceProtocol.DiscoverResultType discoverResultType = null;
+        try {
+            discoverResultType = doDiscovery(inboundDeviceProtocol);
+        } catch (Throwable e) {
+            handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
+        }
+        return discoverResultType;
     }
 
     private com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResultType doDiscovery(com.energyict.mdc.upl.InboundDeviceProtocol inboundDeviceProtocol) {
@@ -649,7 +674,7 @@ public class InboundCommunicationHandler {
         }
 
         @Override
-        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+        public DeviceMessageSpecificationService deviceMessageSpecificationService() {
             return serviceProvider.deviceMessageSpecificationService();
         }
 
