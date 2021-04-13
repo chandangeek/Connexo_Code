@@ -161,8 +161,7 @@ public class InboundCommunicationHandler {
             } else {
                 this.handleRuntimeExceptionDuringDiscovery(inboundDeviceProtocol, e);
             }
-        }
-        finally {
+        } finally {
             provideFailureForNoResponse(inboundDeviceProtocol);
             this.closeContext();
         }
@@ -170,8 +169,9 @@ public class InboundCommunicationHandler {
 
     private void provideFailureForNoResponse(InboundDeviceProtocol inboundDeviceProtocol) {
         try {
-            if (responseType == null)
+            if (responseType == null) {
                 provideResponse(inboundDeviceProtocol, InboundDeviceProtocol.DiscoverResponseType.FAILURE);
+            }
         } catch (Throwable e) {
             logger.deviceNotConfiguredForInboundCommunication(inboundDeviceProtocol.getDeviceIdentifier(), getComPort());
         }
@@ -618,7 +618,7 @@ public class InboundCommunicationHandler {
                     .filter(task -> task.getExecutingComPort() == null)
                     .findAny()
                     .map(InboundConnectionTask.class::cast)
-                    .orElseGet(() ->(InboundConnectionTask) deviceComTaskExecutions.get(0).getConnectionTask().get());
+                    .orElseGet(() -> (InboundConnectionTask) deviceComTaskExecutions.get(0).getConnectionTask().get());
             return true;
         }
     }
