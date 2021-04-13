@@ -24,7 +24,7 @@ import javax.xml.bind.annotation.XmlElement;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements UDPBasedInboundComPort, OutboundComPort, InboundComPort  {
+public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements UDPBasedInboundComPort, OutboundComPort  {
 
     @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
     @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
