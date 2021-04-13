@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataMapperImpl;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -43,9 +44,9 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
         }
     }
 
-    public List<T> select(Condition condition, Order[] ordering, boolean eager, String[] exceptions, int from, int to) {
+    public List<T> select(Condition condition, Hint[] hints, Order[] ordering, boolean eager, String[] exceptions, int from, int to) {
         try {
-            return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).select(restriction.and(condition), ordering, eager, exceptions);
+            return new JoinExecutor<>(root.copy(), getEffectiveDate(), from, to).select(restriction.and(condition), ordering, eager, exceptions, hints);
         } catch (SQLException ex) {
             throw new UnderlyingSQLFailedException(ex);
         }
@@ -155,7 +156,17 @@ public class QueryExecutorImpl<T> implements QueryExecutor<T> {
     }
 
     @Override
+    public List<T> select(Condition condition, Hint[] hints, Order... orders) {
+        return select(condition, hints, orders, true, new String[0], 0, 0);
+    }
+
+    @Override
     public List<T> select(Condition condition, Order[] orders, boolean eager, String[] exceptions) {
         return select(condition, orders, eager, exceptions, 0, 0);
+    }
+
+    @Override
+    public List<T> select(Condition condition, Order[] orders, boolean eager, String[] exceptions, int from, int to) {
+        return select(condition, new Hint[0], orders, eager, exceptions, from, to);
     }
 }

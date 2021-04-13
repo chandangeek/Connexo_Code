@@ -9,6 +9,7 @@ import com.elster.jupiter.rest.util.FieldResource;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
@@ -51,6 +52,18 @@ public class WebServicesFieldResource extends FieldResource {
         return asJsonArrayObjectWithTranslation("logLevels", "id", Arrays.asList(LogLevel.values()), Stream.of(LogLevel
                 .values())
                 .map(LogLevel::getTranslationKey)
+                .collect(toList()));
+    }
+
+    @GET
+    @Transactional
+    @Path("/payloadstrategies")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed(Privileges.Constants.VIEW_WEB_SERVICES)
+    public Object getPayloadSaveStrategyValues() {
+        return asJsonArrayObjectWithTranslation("payloadStrategies", "id", Arrays.asList(PayloadSaveStrategy.values()), Stream.of(PayloadSaveStrategy
+                .values())
+                .map(PayloadSaveStrategy::getKey)
                 .collect(toList()));
     }
 

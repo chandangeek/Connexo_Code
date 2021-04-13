@@ -8,6 +8,7 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.rest.util.IdWithLocalizedValueInfo;
 import com.elster.jupiter.rest.util.LongIdWithNameInfo;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 
 import java.util.List;
 
@@ -29,4 +30,5 @@ public class EndPointConfigurationInfo {
     public String previewUrl;
     public LongIdWithNameInfo group;
     public List<PropertyInfo> properties;
+    public IdWithLocalizedValueInfo<PayloadSaveStrategy> payloadStrategy;
 }

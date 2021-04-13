@@ -75,6 +75,7 @@ import com.elster.jupiter.parties.PartyService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.pubsub.Publisher;
 import com.elster.jupiter.search.SearchService;
+import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.UpgradeService;
@@ -158,6 +159,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
     private SyntheticLoadProfileService syntheticLoadProfileService;
+    private SearchLocationService searchLocationService;
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
@@ -249,6 +251,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.syntheticLoadProfileService = new SyntheticLoadProfileServiceImpl(this.idsService, this.dataModel);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
+        this.searchLocationService = new SearchLocationServiceImpl(dataModel);
     }
 
     private void registerDataModel(BundleContext bundleContext) {
@@ -278,6 +281,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(ServerMetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(CalculatedReadingRecordFactory.class).to(CalculatedReadingRecordFactoryImpl.class);
                 bind(UsagePointRequirementsSearchDomain.class).toInstance(usagePointRequirementsSearchDomain);
+                bind(SearchLocationService.class).toInstance(searchLocationService);
                 bind(SearchService.class).toInstance(searchService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
                 bind(LicenseService.class).toInstance(licenseService);
@@ -328,6 +332,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         registerDataAggregationService(bundleContext);
         registerMetrologyConfigurationService(bundleContext); // Search domain must already be registered
         registerSyntheticLoadProfileService(bundleContext);
+        registerSearchLocationService(bundleContext);
     }
 
     private Dictionary<String, Object> noServiceProperties() {
@@ -343,6 +348,18 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                     ServerMeteringService.class.getName()},
                             this.meteringService,
                             noServiceProperties()));
+        }
+    }
+
+    private void registerSearchLocationService(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            Dictionary<String, Object> properties = new Hashtable<>();
+            properties.put("name", SearchService.COMPONENT_NAME);
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            SearchLocationService.class,
+                            this.searchLocationService,
+                            properties));
         }
     }
 

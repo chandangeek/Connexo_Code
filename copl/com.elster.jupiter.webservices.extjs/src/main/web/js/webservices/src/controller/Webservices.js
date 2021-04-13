@@ -26,14 +26,16 @@ Ext.define('Wss.controller.Webservices', {
         'Wss.store.AuthenticationMethods',
         'Wss.store.Logs',
         'Wss.store.Roles',
-        'Wss.store.RelatedAttributeStore'
+        'Wss.store.RelatedAttributeStore',
+        'Wss.store.PayloadSaveStrategy'
     ],
     models: [
         'Wss.model.Endpoint',
         'Wss.model.Webservice',
         'Wss.model.endpoint.Occurrence',
         'Wss.model.Log',
-        'Wss.model.RelatedAttributeModel'
+        'Wss.model.RelatedAttributeModel',
+        'Wss.model.PayloadSaveStrategy'
     ],
 
     refs: [
@@ -128,28 +130,28 @@ Ext.define('Wss.controller.Webservices', {
         logStore.getProxy().setUrl(occurenceId);
 
         me.getModel('Wss.model.endpoint.Occurrence').load(occurenceId, {
-              success: function (occurrence) {
-                   var view = Ext.widget('webservice-history-occurence', {
-                       router: me.getController('Uni.controller.history.Router'),
-                       endpoint: endpoint,
-                       occurrence: occurrence,
-                       time : occurrence.data.startTime
-                   });
+            success: function (occurrence) {
+                var view = Ext.widget('webservice-history-occurence', {
+                    router: me.getController('Uni.controller.history.Router'),
+                    endpoint: endpoint,
+                    occurrence: occurrence,
+                    time: occurrence.data.startTime
+                });
 
-                   var endpointName = occurrence.getEndpoint() && occurrence.getEndpoint().get('name');
+                var endpointName = occurrence.getEndpoint() && occurrence.getEndpoint().get('name');
 
-                   me.getApplication().fireEvent('changecontentevent', view);
-                   me.getApplication().fireEvent('occurenceload', endpointName);
-                   me.getApplication().fireEvent('endpointlogdate', occurrence.data.startTime);
+                me.getApplication().fireEvent('changecontentevent', view);
+                me.getApplication().fireEvent('occurenceload', endpointName);
+                me.getApplication().fireEvent('endpointlogdate', occurrence.data.startTime);
 
-              }
+            }
         });
     },
 
     showWebserviceEndPoint: function (endpointId, occurrence) {
         var me = this;
 
-        if ((Uni.Auth.hasPrivilege('privilege.administrate.webservices')) || (Uni.Auth.hasPrivilege('privilege.view.webservices')) || (Uni.Auth.hasPrivilege('privilege.retry.webservices'))){
+        if ((Uni.Auth.hasPrivilege('privilege.administrate.webservices')) || (Uni.Auth.hasPrivilege('privilege.view.webservices')) || (Uni.Auth.hasPrivilege('privilege.retry.webservices'))) {
             me.getModel('Wss.model.Endpoint').load(endpointId, {
                 success: function (endpoint) {
                     me.showWebserviceHistoryOccurrence(occurrence, endpoint);
@@ -157,7 +159,7 @@ Ext.define('Wss.controller.Webservices', {
 
                 }
             });
-        }else{
+        } else {
             me.showWebserviceHistoryOccurrence(occurenceId);
         }
     },
@@ -187,11 +189,12 @@ Ext.define('Wss.controller.Webservices', {
             logLevelsStore = me.getStore('Wss.store.LogLevels'),
             rolesStore = me.getStore('Wss.store.Roles'),
             webservicesStore = me.getStore('Wss.store.Webservices'),
+            payloadSaveStrategyStore = me.getStore('Wss.store.PayloadSaveStrategy'),
             dependenciesCounter = 4,
             onDependenciesLoaded = function () {
                 dependenciesCounter--;
-                if(!dependenciesCounter){
-                    rolesStore.insert(0,{
+                if (!dependenciesCounter) {
+                    rolesStore.insert(0, {
                         id: 'all',
                         name: Uni.I18n.translate('endPointAdd.all', 'WSS', 'All')
                     });
@@ -202,15 +205,19 @@ Ext.define('Wss.controller.Webservices', {
                         returnLink: previousPath ? '#' + previousPath : me.getController('Uni.controller.history.Router').getRoute('administration/webserviceendpoints').buildUrl(),
                         authenticationMethodStore: authenticationMethodStore,
                         rolesStore: rolesStore,
-                        logLevelsStore: logLevelsStore
+                        logLevelsStore: logLevelsStore,
+                        payloadStrategyStore: payloadSaveStrategyStore
                     });
                     me.getApplication().fireEvent('changecontentevent', view);
                 }
-        };
+            };
         authenticationMethodStore.load({
             callback: onDependenciesLoaded
         });
         logLevelsStore.load({
+            callback: onDependenciesLoaded
+        });
+        payloadSaveStrategyStore.load({
             callback: onDependenciesLoaded
         });
         rolesStore.load({
@@ -248,25 +255,29 @@ Ext.define('Wss.controller.Webservices', {
             formErrorsPanel.hide();
         }
         record.set(form.getForm().getFieldValues());
-        if(form.down('#logLevelCombo')) {
+        if (form.down('#logLevelCombo')) {
             var logLevel = form.down('#logLevelCombo').findRecordByValue(record.get('logLevel'));
         }
-        logLevel?record.setLogLevel(logLevel):record.set('logLevel',null);
-        if(form.down('#authenticationCombo')) {
+        logLevel ? record.setLogLevel(logLevel) : record.set('logLevel', null);
+        if (form.down('#storePayloadCombo')) {
+            var payloadStrategy = form.down('#storePayloadCombo').findRecordByValue(record.get('payloadStrategy'));
+        }
+        payloadStrategy ? record.setPayloadStrategy(payloadStrategy) : record.set('payloadStrategy', null);
+        if (form.down('#authenticationCombo')) {
             var authenticationMethod = form.down('#authenticationCombo').findRecordByValue(record.get('authenticationMethod'));
         }
-        authenticationMethod?record.setAuthenticationMethod(authenticationMethod):record.set('authenticationMethod',null);
-        if(authenticationMethod.data.id === 'NONE'){
-            record.set('username',null);
-            record.set('password',null);
+        authenticationMethod ? record.setAuthenticationMethod(authenticationMethod) : record.set('authenticationMethod', null);
+        if (authenticationMethod.data.id === 'NONE') {
+            record.set('username', null);
+            record.set('password', null);
         }
-        if(authenticationMethod.data.id === 'OAUTH2_FRAMEWORK'){
+        if (authenticationMethod.data.id === 'OAUTH2_FRAMEWORK') {
             record.set('clientId', form.down('#clientIdField').getValue());
             record.set('clientSecret', form.down('#clientSecretField').getValue());
         }
-        if(form.down('#userRoleField')) {
+        if (form.down('#userRoleField')) {
             var userGroup = form.down('#userRoleField').findRecordByValue(record.get('group'));
-            if(userGroup && userGroup.get('id')==='all'){
+            if (userGroup && userGroup.get('id') === 'all') {
                 record.setGroup(null);
                 record.set('group', null);
             } else {
@@ -400,7 +411,7 @@ Ext.define('Wss.controller.Webservices', {
         }
     },
 
-    retry: function(occurrence) {
+    retry: function (occurrence) {
         var me = this;
         var router = me.getController('Uni.controller.history.Router');
         var adminView = Uni.util.Application.getAppNamespace() === 'SystemApp';
@@ -450,7 +461,7 @@ Ext.define('Wss.controller.Webservices', {
                 msg: Uni.I18n.translate('webservices.remove.msg', 'WSS', 'This web service endpoint will be removed and no longer be available.'),
                 fn: function (state) {
                     if (state === 'confirm') {
-                        if(record.get('group')===''){
+                        if (record.get('group') === '') {
                             record.setGroup(null);
                             record.set('group', null);
                         }
@@ -472,7 +483,7 @@ Ext.define('Wss.controller.Webservices', {
         var actionToPerform = toState ? "activate" : "deactivate";
 
         record.beginEdit();
-        if(record.get('group')===''){
+        if (record.get('group') === '') {
             record.setGroup(null);
             record.set('group', null);
         }
@@ -480,26 +491,26 @@ Ext.define('Wss.controller.Webservices', {
         record.endEdit();
 
         Ext.Ajax.request({
-                    method: 'PUT',
-                    url: '/api/ws/endpointconfigurations/'+record.getId()+'/'+actionToPerform,
+            method: 'PUT',
+            url: '/api/ws/endpointconfigurations/' + record.getId() + '/' + actionToPerform,
 
-                    jsonData: {
-                        version: record.get('version')
-                    },
+            jsonData: {
+                version: record.get('version')
+            },
 
-                    success: function () {
-                    record.set('active', toState);
-                    tmpVersion = record.get('version');
-                    tmpVersion++;
-                    record.set('version',tmpVersion);
-                    me.getApplication().fireEvent('acknowledge', record.get('active') ?
-                        Uni.I18n.translate('webservices.endpoint.activated', 'WSS', 'Web service endpoint activated') :
-                        Uni.I18n.translate('webservices.endpoint.deactivated', 'WSS', 'Web service endpoint deactivated')
-                    );
-                    if(me.getLandingPageForm()) {
-                        me.getLandingPageForm().loadRecord(record);
-                    }
+            success: function () {
+                record.set('active', toState);
+                tmpVersion = record.get('version');
+                tmpVersion++;
+                record.set('version', tmpVersion);
+                me.getApplication().fireEvent('acknowledge', record.get('active') ?
+                    Uni.I18n.translate('webservices.endpoint.activated', 'WSS', 'Web service endpoint activated') :
+                    Uni.I18n.translate('webservices.endpoint.deactivated', 'WSS', 'Web service endpoint deactivated')
+                );
+                if (me.getLandingPageForm()) {
+                    me.getLandingPageForm().loadRecord(record);
                 }
+            }
         });
     },
 

@@ -46,7 +46,7 @@ public class DlmsProtocolProperties {
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
     public static final String FIX_MBUS_HEX_SHORT_ID = "FixMbusHexShortId";
-    public static final String DEVICE_ID = "DevideId";
+    public static final String DEVICE_ID = "DeviceId";
     public static final String USE_GBT = "Use-GBT";
     public static final String GBT_WINDOW_SIZE = "GBT-windowSize";
     public static final String DEVICE_SYSTEM_TITLE = "DeviceSystemTitle";

@@ -26,6 +26,8 @@ public interface TaskService {
 
     public Optional<ComTask> findComTask(long id);
 
+    List<ComTask> findComTasksByName(String name);
+
     /**
      * @return a list of all ComTasks created and maintained by the System
      * @since 1.1

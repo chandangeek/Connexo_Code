@@ -111,7 +111,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * via the specified {@link InboundComPort}.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
-     * @param inboundComPort   The InboundComPort
+     * @param inboundComPort The InboundComPort
      * @return The DeviceProtocolSecurityPropertySet or null if the Device is not ready for inbound communication
      */
     DeviceProtocolSecurityPropertySet getDeviceProtocolSecurityPropertySet(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
@@ -134,7 +134,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * via the specified {@link InboundComPort}.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
-     * @param inboundComPort   The InboundComPort
+     * @param inboundComPort The InboundComPort
      * @return The TypedProperties or <code>null</code> if the Device is not ready for inbound communication
      */
     com.energyict.mdc.upl.properties.TypedProperties getDeviceConnectionTypeProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);
@@ -208,9 +208,9 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * to be executed by the specified ComServer.
      *
      * @param comServer The ComServer
-     * @param delta     The delta time between now and nextExecutionTime
-     * @param limit     The limit of entries to return. If limit =0 not limit will be applied
-     * @param skip      The nr of entries to be skipped. Useful just if limit > 0
+     * @param delta The delta time between now and nextExecutionTime
+     * @param limit The limit of entries to return. If limit =0 not limit will be applied
+     * @param skip The nr of entries to be skipped. Useful just if limit > 0
      * @return The List of ComTaskExecutions that are ready to be executed
      * @see ComServer
      */
@@ -225,7 +225,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * mapped per {@link ComPortPool} is also provided. This information can be used to determine
      * the maximum number of additional high priority tasks which can be picked up per {@link ComPortPool}.
      *
-     * @param comServer                             The ComServer
+     * @param comServer The ComServer
      * @param currentHighPriorityLoadPerComPortPool A map containing the number of the high priority tasks which are currently executed per ComPortPool
      * @return The List of {@link ComJob}s that represent all the ComTaskExecutions that are ready to be executed
      */
@@ -238,9 +238,9 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * mapped per {@link ComPortPool} is also provided. This information can be used to determine
      * the maximum number of additional high priority tasks which can be picked up per {@link ComPortPool}.
      *
-     * @param comServer                             The ComServer
+     * @param comServer The ComServer
      * @param currentHighPriorityLoadPerComPortPool A map containing the number of the high priority tasks which are currently executed per ComPortPool
-     * @param date                                  the date for when {@link HighPriorityComJob}s should be searched
+     * @param date the date for when {@link HighPriorityComJob}s should be searched
      * @return The List of {@link ComJob}s that represent all the ComTaskExecutions that are ready to be executed
      */
     List<HighPriorityComJob> findExecutableHighPriorityOutboundComTasks(OutboundCapableComServer comServer, Map<Long, Integer> currentHighPriorityLoadPerComPortPool, Instant date);
@@ -254,7 +254,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * or when none of the ComTaskExecutions are ready to execute, i.e. their state is not
      * TaskStatus#Pending, an empty list is returned.
      *
-     * @param device  The device
+     * @param device The device
      * @param comPort The InboundComPort
      * @return The List of ComTaskExecutions that are ready to be executed
      */
@@ -265,7 +265,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * that is uniquely identified by the specified {@link DeviceIdentifier}.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param propertyName     The name of the protocol property
+     * @param propertyName The name of the protocol property
      * @return The PropertyValueType
      */
     PropertyValueType getDeviceProtocolPropertyValueType(DeviceIdentifier deviceIdentifier, String propertyName);
@@ -283,7 +283,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * Finds the ComTaskEnablement that enables the execution of the specified ComTask against the given Device.
      *
      * @param deviceIdentifier The identifier of the device
-     * @param comTaskId        The ID of the ComTask
+     * @param comTaskId The ID of the ComTask
      */
     ComTaskEnablement findComTaskEnablementByDeviceAndComTask(DeviceIdentifier deviceIdentifier, long comTaskId);
 
@@ -315,7 +315,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * never execute again.
      *
      * @param connectionTask The OutboundConnectionTask
-     * @param comPort        The ComPort
+     * @param comPort The ComPort
      * @return <code>true</code> iff the lock succeeds
      */
     ScheduledConnectionTask attemptLock(ScheduledConnectionTask connectionTask, ComPort comPort);
@@ -341,7 +341,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * never execute again.
      *
      * @param comTaskExecution The ComTaskExecution
-     * @param comPort          The ComPort
+     * @param comPort The ComPort
      * @return <code>true</code> iff the lock succeeds
      */
     boolean attemptLock(ComTaskExecution comTaskExecution, ComPort comPort);
@@ -371,7 +371,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * was started by the specified ComPort.
      *
      * @param connectionTask The OutboundConnectionTask
-     * @param comPort        The ComPort that started the execution
+     * @param comPort The ComPort that started the execution
      */
     ConnectionTask<?, ?> executionStarted(ConnectionTask connectionTask, ComPort comPort);
 
@@ -402,8 +402,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * Notifies that execution of the specified ComTaskExecution has been started
      * on the specified ComPort.
      *
-     * @param comTaskExecution     The ComTaskExecution
-     * @param comPort              The ComPort that has started the execution of the ComTaskExecution
+     * @param comTaskExecution The ComTaskExecution
+     * @param comPort The ComPort that has started the execution of the ComTaskExecution
      * @param executeInTransaction A flag that indicates if a transaction is needed or not
      */
     void executionStarted(ComTaskExecution comTaskExecution, ComPort comPort, boolean executeInTransaction);
@@ -419,7 +419,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * Notifies that the execution of the specified ComTaskExecution was postponed and needs to be rescheduled
      *
      * @param comTaskExecution the ComTaskExecution
-     * @param rescheduleDate   The timestamp on which the task should be rescheduled for execution
+     * @param rescheduleDate The timestamp on which the task should be rescheduled for execution
      */
     void executionRescheduled(ComTaskExecution comTaskExecution, Instant rescheduleDate);
 
@@ -428,7 +428,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * communication window start date.
      * The number of tries is not incremented.
      *
-     * @param comTaskExecution   the ComTaskExecution
+     * @param comTaskExecution the ComTaskExecution
      * @param comWindowStartDate the communication window start date on which the task should be rescheduled (additional restrictions can be applicable)
      */
     void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate);
@@ -446,6 +446,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * @param comTaskExecution The ComTaskExecution
      */
     void executionFailed(ComTaskExecution comTaskExecution);
+
+    void executionFailed(ComTaskExecution comTaskExecution, boolean noRetry);
 
     /**
      * Notifies that execution of the specified ComTaskExecution failed.
@@ -505,7 +507,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * with the specified identifier.
      *
      * @param deviceIdentifier
-     * @param cache            The DeviceProtocolCache
+     * @param cache The DeviceProtocolCache
      */
     void createOrUpdateDeviceCache(DeviceIdentifier deviceIdentifier, DeviceProtocolCacheXmlWrapper cache);
 
@@ -513,7 +515,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * Stores the given list of Reading readings on the Meter.
      *
      * @param deviceIdentifier the identifier of the Device
-     * @param meterReading     the readings to store
+     * @param meterReading the readings to store
      */
     void storeMeterReadings(DeviceIdentifier deviceIdentifier, MeterReading meterReading);
 
@@ -522,30 +524,18 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * which is specified by the given {@link LoadProfileIdentifier}
      *
      * @param loadProfileIdentifier The LoadProfileIdentifier which uniquely identifies the LoadProfile
-     * @param collectedLoadProfile  The collectedLoadProfile, containing the collected ProfileData
+     * @param collectedLoadProfile The collectedLoadProfile, containing the collected ProfileData
      * @param currentDate
      */
 
     void storeLoadProfile(LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile, Instant currentDate);
 
     /**
-     * Stores the collected {@link ProfileData} in the {@link LoadProfile}
-     * which is specified by the given {@link LoadProfileIdentifier}
-     *
-     * @param offlineLoadProfile The OfflineLoadProfile
-     * @param collectedLoadProfile  The collectedLoadProfile, containing the collected ProfileData
-     * @param currentDate
-     */
-    default void storeLoadProfile(Optional<OfflineLoadProfile> offlineLoadProfile, CollectedLoadProfile collectedLoadProfile, Instant currentDate){
-        storeLoadProfile(collectedLoadProfile.getLoadProfileIdentifier(), collectedLoadProfile, currentDate);
-    }
-
-    /**
      * Stores the {@link CollectedLogBook} in the specified {@link  LogBook}
      * which is uniquely identified by the given {@link LogBookIdentifier}
      *
      * @param logBookIdentifier The LogBookIdentifier which uniquely identifies the LogBook
-     * @param collectedLogBook  The CollectedLogBook, containing the list of collected MeterProtocolEvents
+     * @param collectedLogBook The CollectedLogBook, containing the list of collected MeterProtocolEvents
      * @param currentDate
      */
     void storeLogBookData(LogBookIdentifier logBookIdentifier, CollectedLogBook collectedLogBook, Instant currentDate);
@@ -572,7 +562,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * Finds the OfflineDevice that is uniquely identified
      * by the specified {@link DeviceIdentifier}.
      *
-     * @param identifier           The DeviceIdentifier
+     * @param identifier The DeviceIdentifier
      * @param offlineDeviceContext the offlineContext identifying what needs to be offline
      * @return The offline version of the Device that is identified by the DeviceIdentifier
      */
@@ -606,8 +596,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * that is configured in the specified ConnectionTask
      * only when the value has actually changed.
      *
-     * @param propertyValue              The new property value
-     * @param connectionTask             The ConnectionTask
+     * @param propertyValue The new property value
+     * @param connectionTask The ConnectionTask
      * @param connectionTaskPropertyName The name of the ConnectionTask's property that holds the ip address
      */
     void updateConnectionTaskProperty(Object propertyValue, ConnectionTask connectionTask, String connectionTaskPropertyName);
@@ -617,8 +607,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * that is uniquely identified by the specified identifier with the given value.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param propertyName     The name of the generic communication property
-     * @param propertyValue    The new property value
+     * @param propertyName The name of the generic communication property
+     * @param propertyValue The new property value
      */
     void updateDeviceProtocolProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue);
 
@@ -659,7 +649,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * Updates the gateway device of the Device device
      * that is uniquely identified by the specified identifier.
      *
-     * @param deviceIdentifier        The DeviceIdentifier
+     * @param deviceIdentifier The DeviceIdentifier
      * @param gatewayDeviceIdentifier The device identifier of the new gateway device or null (to be used in case no gateway is present)
      */
     void updateGateway(DeviceIdentifier deviceIdentifier, DeviceIdentifier gatewayDeviceIdentifier);
@@ -671,19 +661,19 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * in the same parent folder.
      *
      * @param deviceIdentifier The DeviceIdentifier
-     * @param timeStampFormat  The preferred DateFormat that should be used for the
-     *                         current date and time when that should be necessary
-     *                         to create a unique name for the UserFile name.
-     * @param fileName         The name of the UserFile
-     * @param fileExtension    The extension for the UserFile
-     * @param contents         The contents of the UserFile   @see UserFile#getExtension()
+     * @param timeStampFormat The preferred DateFormat that should be used for the
+     * current date and time when that should be necessary
+     * to create a unique name for the UserFile name.
+     * @param fileName The name of the UserFile
+     * @param fileExtension The extension for the UserFile
+     * @param contents The contents of the UserFile   @see UserFile#getExtension()
      */
     void storeConfigurationFile(DeviceIdentifier deviceIdentifier, DateTimeFormatter timeStampFormat, String fileName, String fileExtension, byte[] contents);
 
     /**
      * Signals the occurrence of an event.
      *
-     * @param topic  The name of the event topic where the event will be published
+     * @param topic The name of the event topic where the event will be published
      * @param source The source that produced the event and that also holds the event data that will be published
      */
     void signalEvent(String topic, Object source);
@@ -693,10 +683,10 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * of the DeviceMessage DeviceMessage
      * which is identified by the given MessageIdentifier.
      *
-     * @param messageIdentifier      the messageIdentifier
+     * @param messageIdentifier the messageIdentifier
      * @param newDeviceMessageStatus the status to update the message to
-     * @param sentDate               the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
-     * @param protocolInformation    the protocolInformation to add to the DeviceMessage
+     * @param sentDate the date&time the message was sent to the device - if this message was not yet sent to the device, this could be null
+     * @param protocolInformation the protocolInformation to add to the DeviceMessage
      */
     void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation);
 
@@ -772,7 +762,7 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      * via the specified {@link InboundComPort}.
      *
      * @param deviceIdentifier The object that uniquely identifies the Device
-     * @param inboundComPort   The InboundComPort
+     * @param inboundComPort The InboundComPort
      * @return the onHold property vale
      */
     Boolean getInboundComTaskOnHold(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort);

@@ -5,6 +5,7 @@
 package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.PayloadSaveStrategy;
 import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
@@ -41,14 +42,15 @@ public class EndPointAccessRequestInterceptor extends AbstractPhaseInterceptor<M
         if (message != null) {
             if (endPointConfiguration.isInbound()) {
                 String payload = MessageUtils.getIncomingPayload(message);
-                if(payload != null) {
+                if (payload != null) {
                     long id = webServicesService.startOccurrence(endPointConfiguration,
                             MessageUtils.getRequestName(payload),
                             getApplicationName(endPointConfiguration),
-                            payload).getId();
+                            PayloadSaveStrategy.NEVER != endPointConfiguration.getPayloadSaveStrategy() ? payload : null)
+                            .getId();
                     MessageUtils.setOccurrenceId(message, id);
                 }
-            } else {
+            } else if (PayloadSaveStrategy.NEVER != endPointConfiguration.getPayloadSaveStrategy()) {
                 long id = MessageUtils.getOccurrenceId(message);
                 MessageUtils.executeOnOutgoingPayloadAvailable(message, payload -> {
                     WebServiceCallOccurrence occurrence = webServicesService.getOngoingOccurrence(id);

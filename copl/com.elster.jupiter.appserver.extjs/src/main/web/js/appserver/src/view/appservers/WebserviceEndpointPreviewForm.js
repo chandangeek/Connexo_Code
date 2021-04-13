@@ -48,6 +48,15 @@ Ext.define('Apr.view.appservers.WebserviceEndpointPreviewForm', {
             },
             {
                 xtype: 'displayfield',
+                fieldLabel: Uni.I18n.translate('webservices.payloadStrategy', 'APR', 'Store request payload'),
+                name: 'payloadStrategy',
+                renderer: function (value) {
+                    return value.localizedValue;
+                }
+
+            },
+            {
+                xtype: 'displayfield',
                 fieldLabel: Uni.I18n.translate('webservices.traceRequests', 'APR', 'Trace requests'),
                 name: 'tracing',
                 renderer: me.renderYesOrNo

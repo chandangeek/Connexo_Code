@@ -1001,6 +1001,7 @@ public class PreStoreLoadProfileTest extends AbstractCollectedDataIntegrationTes
         when(collectedLoadProfile.getChannelInfo()).thenReturn(mockedChannelInfos);
         List<IntervalData> mockedCollectedIntervalData = createMockedIntervalData();
         when(collectedLoadProfile.getCollectedIntervalData()).thenReturn(mockedCollectedIntervalData);
+        when(collectedLoadProfile.getCollectedIntervalDataRange()).thenReturn(Range.closedOpen(Instant.ofEpochMilli(intervalEndTime1.getTime()), Instant.ofEpochMilli(futureIntervalEndTime2.getTime())));
         return collectedLoadProfile;
     }
 

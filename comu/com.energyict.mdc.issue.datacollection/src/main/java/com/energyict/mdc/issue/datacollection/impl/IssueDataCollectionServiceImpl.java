@@ -302,6 +302,11 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         this.clock = clock;
     }
 
+    @Reference
+    public final void setDataCollectionActionsFactory(DataCollectionActionsFactory dataCollectionActionsFactory) {
+        // to make sure we can also work with actions when this service is up
+    }
+
     @Override
     public Optional<? extends IssueDataCollection> findIssue(long id) {
         Optional<OpenIssueDataCollection> issue = findOpenIssue(id);

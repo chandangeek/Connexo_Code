@@ -338,15 +338,15 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     }
 
     private void isValidDeviceMessageId() {
-        if (!isMessageSupportedByProtocol()){
-            throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED) ;
+        if (!isMessageSupportedByProtocol()) {
+            throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_ID_NOT_SUPPORTED);
         }
-        if (!isMessageAllowedByConfig()){
-            throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG) ;
+        if (!isMessageAllowedByConfig()) {
+            throw new DeviceMessageNotAllowedException(getThesaurus(), MessageSeeds.DEVICE_MESSAGE_NOT_ALLOWED_BY_CONFIG);
         }
     }
 
-    private boolean isMessageSupportedByProtocol(){
+    private boolean isMessageSupportedByProtocol() {
         return getDevice()
                 .getDeviceType()
                 .getDeviceProtocolPluggableClass()
@@ -360,7 +360,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                 .count() == 1;
     }
 
-    private boolean isMessageAllowedByConfig(){
+    private boolean isMessageAllowedByConfig() {
         return getDevice()
                 .getDeviceConfiguration()
                 .getDeviceMessageEnablements()
@@ -382,7 +382,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         private ReleaseDateUpdater(DeviceMessageStatus status, Instant initialReleaseDate) {
             this.status = status;
             this.initialReleaseDate = initialReleaseDate;
-            if(initialReleaseDate != null) {
+            if (initialReleaseDate != null) {
                 DeviceMessageImpl.this.oldReleaseDate = initialReleaseDate.toEpochMilli();
             }
         }
@@ -432,7 +432,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                             .anyMatch(cte -> cte.isExecuting() && cte.getConnectionTask().isPresent() && executingConnectionTasks.contains(cte.getConnectionTask().get().getId()));
         }
     }
-
 
 
     /**

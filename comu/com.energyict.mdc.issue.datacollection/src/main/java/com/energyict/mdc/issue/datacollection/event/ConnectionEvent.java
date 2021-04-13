@@ -40,6 +40,7 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
     private Optional<Long> connectionTaskId;
     private Optional<Long> comSessionId;
     private final ConnectionTaskService connectionTaskService;
+    private ComSession comSession;
 
     public ConnectionEvent(IssueDataCollectionService issueDataCollectionService,
                            MeteringService meteringService,
@@ -84,8 +85,11 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
         return connectionTaskId.map(cti -> getConnectionTaskService().findConnectionTask(cti)).orElse(Optional.empty());
     }
 
-    protected Optional<ComSession> getComSession() {
-        return comSessionId.map(csi -> getConnectionTaskService().findComSession(csi)).orElse(Optional.empty());
+    public Optional<ComSession> getComSession() {
+        if (comSession == null) {
+            comSession = comSessionId.flatMap(csi -> getConnectionTaskService().findComSession(csi)).orElse(null);
+        }
+        return Optional.ofNullable(comSession);
     }
 
     @Override
@@ -121,6 +125,6 @@ public abstract class ConnectionEvent extends DataCollectionEvent implements Clo
         return this.getClass() + "{" +
                 "connectionTaskId=" + connectionTaskId +
                 ", comSessionId=" + comSessionId +
-                ", deviceId="  + super.getDevice().getmRID() + "}";
+                ", deviceId=" + super.getDevice().getmRID() + "}";
     }
 }

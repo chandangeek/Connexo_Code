@@ -41,5 +41,4 @@ public enum WithClauses {
     public ClauseAwareSqlBuilder sqlBuilder(String alias) {
         return ClauseAwareSqlBuilder.with(this.withClause, alias);
     }
-
 }

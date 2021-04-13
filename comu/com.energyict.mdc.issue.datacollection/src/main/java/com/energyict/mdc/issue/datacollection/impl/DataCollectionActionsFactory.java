@@ -41,7 +41,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
-@Component(name = "com.energyict.mdc.issue.datacollection.actions.factory", service = IssueActionFactory.class, immediate = true)
+@Component(name = "com.energyict.mdc.issue.datacollection.actions.factory",
+        service = {IssueActionFactory.class, DataCollectionActionsFactory.class},
+        immediate = true)
 public class DataCollectionActionsFactory implements IssueActionFactory {
     private static final Logger LOG = Logger.getLogger(DataCollectionActionsFactory.class.getName());
     public static final String ID = DataCollectionActionsFactory.class.getName();

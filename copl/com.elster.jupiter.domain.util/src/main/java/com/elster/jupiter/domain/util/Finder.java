@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.domain.util;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
 import com.elster.jupiter.util.sql.SqlFragment;
-
-import aQute.bnd.annotation.ConsumerType;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -25,14 +25,16 @@ public interface Finder<T> {
      * set when using the from(QueryParameters) method. One additional element will be
      * returned to indicate the next page exists.
      *
-     * @param start First line to return.
+     * @param start    First line to return.
      * @param pageSize The number of lines in page (i.e. number of lines to return minus one:
-     * one additional is returned to know if the next page exists).
+     *                 one additional is returned to know if the next page exists).
      * @return A Finder that will return the requested page when asked.
      */
     Finder<T> paged(int start, int pageSize);
 
     Finder<T> sorted(String sortColumn, boolean ascending);
+
+    Finder<T> withHint(Hint hint);
 
     Finder<T> sorted(Order order);
 
@@ -73,11 +75,14 @@ public interface Finder<T> {
      * or unpaged altogether, an exception is thrown. This method can only be called once, typically in domain layer, to
      * prevent front end from lauching huge queries that could potentially damage the system. Once set, it can not be reset
      * (by rest layer), this is by design.
-     * @param thesaurus Requered to throw the translatable exception
+     *
+     * @param thesaurus   Requered to throw the translatable exception
      * @param maxPageSize The maximum allowed page size.
      * @return A finder with the additional restriction of maximum page size
      */
-    default Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) { return this; }
+    default Finder<T> maxPageSize(Thesaurus thesaurus, int maxPageSize) {
+        return this;
+    }
 
     default int count() {
         throw new UnsupportedOperationException("The method is not implemented on this Finder");

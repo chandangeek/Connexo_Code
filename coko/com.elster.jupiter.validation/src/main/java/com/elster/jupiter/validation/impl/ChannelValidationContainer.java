@@ -57,7 +57,11 @@ public class ChannelValidationContainer {
     }
 
     static Optional<Instant> getLastChecked(Collection<? extends ChannelValidation> validations) {
-        if (validations.stream().filter(ChannelValidation::hasActiveRules).map(ChannelValidation::getLastChecked).anyMatch(e -> e == null)) {
+        if (validations.stream()
+                .filter(channelValidation -> channelValidation.getChannelsContainerValidation().isActive())
+                .filter(ChannelValidation::hasActiveRules)
+                .map(ChannelValidation::getLastChecked)
+                .anyMatch(e -> e == null)) {
             return Optional.empty();
         }
         Map<Channel, List<ChannelValidation>> channelValidations = validations.stream().collect(Collectors.groupingBy(ChannelValidation::getChannel, Collectors.toList()));
@@ -66,10 +70,12 @@ public class ChannelValidationContainer {
 
     static Optional<Instant> getLastCheckedForChannel(List<ChannelValidation> channelValidations) {
         return Optional.ofNullable(channelValidations.stream()
+                .filter(channelValidation -> channelValidation.getChannelsContainerValidation().isActive())
                 .filter(ChannelValidation::hasActiveRules)
                 .filter(channelValidation -> !channelValidation.isLastValidationComplete())
                 .map(ChannelValidation::getLastChecked)
                 .min(Comparator.naturalOrder()).orElseGet(() -> channelValidations.stream()
+                        .filter(channelValidation -> channelValidation.getChannelsContainerValidation().isActive())
                         .filter(ChannelValidation::hasActiveRules)
                         .map(ChannelValidation::getLastChecked)
                         .max(Comparator.naturalOrder())

@@ -66,6 +66,8 @@ public class EndPointConfigurationInfoFactory {
         info.logLevel = new IdWithLocalizedValueInfo<>(endPointConfiguration.getLogLevel()
                 .name(), endPointConfiguration.getLogLevel()
                 .getDisplayName(thesaurus));
+        info.payloadStrategy = new IdWithLocalizedValueInfo<>(endPointConfiguration.getPayloadSaveStrategy(),
+                endPointConfiguration.getPayloadSaveStrategy().getDisplayName(thesaurus));
         info.httpCompression = endPointConfiguration.isHttpCompression();
         info.tracing = endPointConfiguration.isTracing();
         info.traceFile = endPointConfiguration.getTraceFile();
@@ -109,6 +111,7 @@ public class EndPointConfigurationInfoFactory {
         if (info.logLevel != null && info.logLevel.id != null) {
             builder.logLevel(LogLevel.valueOf(info.logLevel.id));
         }
+        builder.setPayloadSaveStrategy(info.payloadStrategy.id);
         if (Boolean.TRUE.equals(info.httpCompression)) {
             builder.httpCompression();
         }
@@ -126,7 +129,7 @@ public class EndPointConfigurationInfoFactory {
                 builder.group(group);
             }
         }
-        if (EndPointAuthentication.OAUTH2_FRAMEWORK.equals(info.authenticationMethod.id)){
+        if (EndPointAuthentication.OAUTH2_FRAMEWORK.equals(info.authenticationMethod.id)) {
             builder.clientId(info.clientId);
             builder.clientSecret(info.clientSecret);
         }
@@ -147,6 +150,7 @@ public class EndPointConfigurationInfoFactory {
         if (info.logLevel != null && info.logLevel.id != null) {
             builder.logLevel(LogLevel.valueOf(info.logLevel.id));
         }
+        builder.setPayloadSaveStrategy(info.payloadStrategy.id);
         if (Boolean.TRUE.equals(info.httpCompression)) {
             builder.httpCompression();
         }
@@ -173,7 +177,7 @@ public class EndPointConfigurationInfoFactory {
 
     public EndPointConfiguration updateEndPointConfiguration(OutboundEndPointConfiguration endPointConfiguration, EndPointConfigurationInfo info) {
         this.applyCommonChanges(endPointConfiguration, info);
-        if(endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.NONE)) {
+        if (endPointConfiguration.getAuthenticationMethod().equals(EndPointAuthentication.NONE)) {
             endPointConfiguration.setPassword(null);
             endPointConfiguration.setUsername(null);
         } else {
@@ -193,9 +197,9 @@ public class EndPointConfigurationInfoFactory {
                         .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_GROUP));
                 endPointConfiguration.setGroup(group);
             }
-        } else if(EndPointAuthentication.OAUTH2_FRAMEWORK.equals(info.authenticationMethod.id)){
-           endPointConfiguration.setClientId(info.clientId);
-           endPointConfiguration.setClientSecret(info.clientSecret);
+        } else if (EndPointAuthentication.OAUTH2_FRAMEWORK.equals(info.authenticationMethod.id)) {
+            endPointConfiguration.setClientId(info.clientId);
+            endPointConfiguration.setClientSecret(info.clientSecret);
         }
         return endPointConfiguration;
     }
@@ -208,6 +212,7 @@ public class EndPointConfigurationInfoFactory {
         endPointConfiguration.setSchemaValidation(info.schemaValidation);
         endPointConfiguration.setHttpCompression(info.httpCompression);
         endPointConfiguration.setLogLevel(LogLevel.valueOf(info.logLevel.id));
+        endPointConfiguration.setPayloadSaveStrategy(info.payloadStrategy.id);
         endPointConfiguration.setTracing(info.tracing);
         endPointConfiguration.setTraceFile(info.traceFile);
         if (info.properties != null) {

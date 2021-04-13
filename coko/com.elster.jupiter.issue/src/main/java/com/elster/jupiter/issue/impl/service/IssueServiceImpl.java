@@ -28,6 +28,7 @@ import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
 import com.elster.jupiter.issue.impl.module.TranslationKeys;
 import com.elster.jupiter.issue.impl.records.IssueAssigneeImpl;
+import com.elster.jupiter.issue.impl.records.IssueImpl;
 import com.elster.jupiter.issue.impl.records.IssueReasonImpl;
 import com.elster.jupiter.issue.impl.records.IssueStatusImpl;
 import com.elster.jupiter.issue.impl.records.IssueTypeImpl;
@@ -796,6 +797,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public List<IssueGroup> getIssuesGroupList(IssueGroupFilter filter) {
         return IssuesGroupOperation.from(filter, this.dataModel, thesaurus).execute();
+    }
+
+    @Override
+    public Issue wrapOpenOrHistorical(Issue issue) {
+        return IssueImpl.wrapOpenOrHistorical(issue);
     }
 
     private SqlBuilder getOpenIssueCountGenericQueryBuilder(SqlBuilder whereClause) {

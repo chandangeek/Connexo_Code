@@ -18,7 +18,6 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.tasks.TopologyAction;
 
 import javax.inject.Inject;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -85,7 +84,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         this.commandCategoryProvider = commandCategoryProvider;
         return this;
     }
-    
+
     public ComTaskBuilder withComTaskUserActions(List<ComTaskUserAction> comTaskUserActions) {
         this.comTaskUserActions = comTaskUserActions;
         return this;
@@ -93,7 +92,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
 
     @Override
     public Optional<ComTask> find() {
-        return taskService.findAllComTasks().stream().filter(ct -> ct.getName().equals(getName())).findFirst();
+        return taskService.findComTasksByName(getName()).stream().findFirst();
     }
 
     @Override
@@ -120,7 +119,7 @@ public class ComTaskBuilder extends NamedBuilder<ComTask, ComTaskBuilder> {
         if (statusInformationTask) {
             comTask.createStatusInformationTask();
         }
-        if(basicCheckTask) {
+        if (basicCheckTask) {
             comTask.createBasicCheckTask().verifySerialNumber(true).verifyClockDifference(true).maximumClockDifference(TimeDuration.seconds(60)).add();
         }
         if (commandCategoryProvider != null) {

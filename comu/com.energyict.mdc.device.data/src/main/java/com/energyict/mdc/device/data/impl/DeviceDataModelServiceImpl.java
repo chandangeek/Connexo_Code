@@ -32,6 +32,7 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -57,6 +58,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.SecurityAccessorDAO;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
@@ -66,6 +68,8 @@ import com.energyict.mdc.device.data.impl.audit.AuditTranslationKeys;
 import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.pki.SecurityAccessorDAOImpl;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
@@ -90,7 +94,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -187,6 +190,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private BundleContext bundleContext;
     private ConfigPropertiesService configPropertiesService;
+    private DeviceSearchDomain deviceSearchDomain;
+    private SecurityAccessorDAO securityAccessorDAO;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -704,6 +709,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(ConfigPropertiesService.class).toInstance(configPropertiesService);
+                bind(DeviceSearchDomain.class).toInstance(deviceSearchDomain);
+                bind(SecurityAccessorDAO.class).toInstance(securityAccessorDAO);
             }
         };
     }
@@ -756,6 +763,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         batchService = new BatchServiceImpl(this);
         deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
         crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
+        deviceSearchDomain = new DeviceSearchDomain(this, clock, protocolPluggableService);
+        securityAccessorDAO = new SecurityAccessorDAOImpl(dataModel);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -772,6 +781,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         registerBatchService(bundleContext);
         registerDeviceMessageService(bundleContext);
         registerCrlRequestTaskPropertiesService(bundleContext);
+        registerDeviceSearchDomainService(bundleContext);
+        registerPKIService(bundleContext);
+    }
+
+    private void registerDeviceSearchDomainService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(SearchDomain.class, this.deviceSearchDomain, null));
+    }
+
+    private void registerPKIService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(SecurityAccessorDAO.class, this.securityAccessorDAO, null));
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {

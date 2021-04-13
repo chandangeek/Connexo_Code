@@ -135,4 +135,6 @@ public interface IssueService {
     List<IssueGroup> getIssuesGroupList(IssueGroupFilter builder);
 
     void addCreationRuleTemplate(CreationRuleTemplate ruleTemplate);
+
+    Issue wrapOpenOrHistorical(Issue issue);
 }
