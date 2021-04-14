@@ -54,6 +54,7 @@ public class DeviceSearchDomain implements SearchDomain {
     private final ProtocolPluggableService protocolPluggableService;
     private final Clock clock;
 
+    @Inject
     public DeviceSearchDomain(DeviceDataModelService deviceDataModelService, Clock clock, ProtocolPluggableService protocolPluggableService) {
         this.deviceDataModelService = deviceDataModelService;
         this.clock = clock;
