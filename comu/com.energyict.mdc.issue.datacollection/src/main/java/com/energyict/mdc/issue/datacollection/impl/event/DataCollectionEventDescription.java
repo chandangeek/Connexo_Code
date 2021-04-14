@@ -36,7 +36,7 @@ public enum DataCollectionEventDescription implements EventDescription {
             TranslationKeys.EVENT_TITLE_CONNECTION_LOST) {
         public boolean validateEvent(Map<?, ?> map) {
             if (super.validateEvent(map)) {
-                return !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS);
+                return !isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS) || !isEmptyString(map, ModuleConstants.FAILED_TASK_IDS);
             }
             return false;
         }
@@ -44,9 +44,8 @@ public enum DataCollectionEventDescription implements EventDescription {
         public boolean validateEvent(DataCollectionEvent dataCollectionEvent) {
             return ((ConnectionEvent) dataCollectionEvent).getComSession()
                     .map(ComSession::getSuccessIndicator)
-                    .filter(successIndicator -> !successIndicator.equals(ComSession.SuccessIndicator.Success))
+                    .filter(successIndicator -> successIndicator.equals(ComSession.SuccessIndicator.Broken))
                     .isPresent();
-
         }
     },
 
