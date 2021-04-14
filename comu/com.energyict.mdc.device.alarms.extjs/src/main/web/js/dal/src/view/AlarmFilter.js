@@ -46,7 +46,7 @@ Ext.define('Dal.view.AlarmFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter,
                 listeners: {
                     expand: {
@@ -137,7 +137,7 @@ Ext.define('Dal.view.AlarmFilter', {
                 loadStore: !me.isOverviewFilter,
                 queryCaching: false,
                 minChars: 0,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter
             },
             {

@@ -105,7 +105,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: !me.isOverviewFilter,
                 queryCaching: false,
                 minChars: 0,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter
             },
             {
@@ -134,7 +134,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter,
                 listeners: {
                     expand: {
@@ -170,7 +170,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter,
                 listeners: {
                     expand: {
@@ -206,7 +206,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 loadStore: false,
                 queryCaching: false,
                 minChars: 0,
-                forceSelection: false,
+                forceSelection: true,
                 matchFieldWidth: false,
                 getParamValue: me.comboGetParamValue,
                 width: 377,

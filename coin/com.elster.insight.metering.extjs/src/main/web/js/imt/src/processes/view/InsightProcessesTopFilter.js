@@ -70,7 +70,7 @@ Ext.define('Imt.processes.view.InsightProcessesTopFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter,
                 listeners: {
                     expand: {
