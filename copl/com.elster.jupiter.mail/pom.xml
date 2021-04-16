@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>3.0.0-Kratos-SNAPSHOT</version>
+        <version>4.0.0-Kratos-SNAPSHOT</version>
     </parent>
     <artifactId>mail</artifactId>
     <packaging>bundle</packaging>
