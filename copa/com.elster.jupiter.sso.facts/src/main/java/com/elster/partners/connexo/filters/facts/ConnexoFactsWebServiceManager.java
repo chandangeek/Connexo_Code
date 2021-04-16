@@ -53,7 +53,6 @@ public class ConnexoFactsWebServiceManager {
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
-        person.setEmailAddress("kjhjkhjkhdf");
 
         rsr.setLoginId(this.adminUser);
         rsr.setPassword(this.adminPwd);
