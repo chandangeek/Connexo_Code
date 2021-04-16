@@ -9,7 +9,7 @@
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>4.0.0-Kratos-SNAPSHOT</version>
+    <version>3.0.0-Kratos-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
