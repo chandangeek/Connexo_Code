@@ -152,7 +152,7 @@ public class ConnexoFactsWebServiceManager {
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
-        person.setEmailAddress("testing@123");
+
         if (privileges.contains("privilege.administrate.reports")) {
             person.setRoleCode("YFADMIN");
         } else {
