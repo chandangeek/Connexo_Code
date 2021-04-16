@@ -1,14 +1,14 @@
 {
-  "compatVersion" : "10.9.2",
+  "compatVersion" : "10.9.3",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.users.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.2"
+    "com.elster.jupiter.unifyingjs@10.9.3"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.2"
+  "version" : "10.9.3"
 }

@@ -1,17 +1,17 @@
 {
-  "compatVersion" : "10.9.2",
+  "compatVersion" : "10.9.3",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.energyict.mdc.issue.datacollection.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.2",
-    "com.elster.jupiter.issue.extjs@10.9.2",
-    "com.energyict.comserver.comserver.core.extjs@10.9.2",
-    "com.elster.jupiter.bpm.extjs@10.9.2"
+    "com.elster.jupiter.unifyingjs@10.9.3",
+    "com.elster.jupiter.issue.extjs@10.9.3",
+    "com.energyict.comserver.comserver.core.extjs@10.9.3",
+    "com.elster.jupiter.bpm.extjs@10.9.3"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.2"
+  "version" : "10.9.3"
 }
