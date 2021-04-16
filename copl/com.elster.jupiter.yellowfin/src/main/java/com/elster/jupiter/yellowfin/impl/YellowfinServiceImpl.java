@@ -257,7 +257,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
         person.setUserId(username);
         person.setPassword("test");
-        person.setFirstName("Testing");
+        person.setFirstName("Connexo");
         person.setLastName(username);
         person.setRoleCode("YFREPORTCONSUMER");
         if(email != null){
