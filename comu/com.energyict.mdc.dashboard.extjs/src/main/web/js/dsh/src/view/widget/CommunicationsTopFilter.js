@@ -49,7 +49,7 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 queryCaching: false,
                 minChars: 0,
                 loadStore: false,
-                forceSelection: false,
+                forceSelection: true,
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification

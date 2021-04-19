@@ -14,7 +14,6 @@
 
     <groupId>com.energyict</groupId>
     <artifactId>prepayment</artifactId>
-    <version>4.0.0-Kratos-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[MDC] redknee</name>
     <description>

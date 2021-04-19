@@ -105,7 +105,7 @@ Ext.define('Imt.issue.view.IssueFilter', {
                 loadStore: !me.isOverviewFilter,
                 queryCaching: false,
                 minChars: 0,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter
             },
             {
@@ -134,7 +134,7 @@ Ext.define('Imt.issue.view.IssueFilter', {
                 loadStore: false,
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
-                forceSelection: false,
+                forceSelection: true,
                 hidden: me.isOverviewFilter,
                 listeners: {
                     expand: {

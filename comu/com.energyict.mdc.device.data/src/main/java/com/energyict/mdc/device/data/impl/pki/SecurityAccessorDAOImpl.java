@@ -41,5 +41,4 @@ public class SecurityAccessorDAOImpl implements SecurityAccessorDAO {
         }
         return Optional.of(list.get(0));
     }
-
 }

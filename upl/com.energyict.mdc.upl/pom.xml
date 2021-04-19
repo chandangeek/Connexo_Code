@@ -12,7 +12,6 @@
     </parent>
 
     <artifactId>mdc.upl</artifactId>
-    <version>4.0.0-Kratos-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] com.energyict.mdc.upl</name>
     <description>
