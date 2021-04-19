@@ -196,7 +196,7 @@ pipeline {
                       aggregatingResults: true,
                       enabledForFailure: true,
                       qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
-                      [threshold: 80, type: 'TOTAL_HIGH', unstable: true],
+                      [threshold: 97, type: 'TOTAL_HIGH', unstable: true],
                       [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]
                       ],
                       tools: [junitParser(pattern: '**/TEST-*.xml'),
