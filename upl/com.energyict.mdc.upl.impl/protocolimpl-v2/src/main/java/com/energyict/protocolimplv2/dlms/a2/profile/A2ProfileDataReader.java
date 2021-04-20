@@ -9,6 +9,7 @@ import com.energyict.dlms.DataStructure;
 import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.CapturedObject;
 import com.energyict.dlms.cosem.Clock;
 import com.energyict.dlms.cosem.ComposedCosemObject;
@@ -48,13 +49,17 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 
 public class A2ProfileDataReader {
 
-    private static final ObisCode HOURLY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.2.255");
-    private static final ObisCode DAILY_LOAD_PROFILE_OBISCODE = ObisCode.fromString("7.0.99.99.3.255");
-    public static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
+    private static final ObisCode HOURLY_LOAD_PROFILE  = ObisCode.fromString("7.0.99.99.2.255");
+    private static final ObisCode DAILY_LOAD_PROFILE   = ObisCode.fromString("7.0.99.99.3.255");
+    private static final ObisCode MONTHLY_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.4.255");
+
+    private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW      = ObisCode.fromString("7.0.43.45.0.255");
+    private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW_TIME = ObisCode.fromString("7.0.43.45.5.255");
+
+    private static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
 
     private final A2 protocol;
     private final List<ObisCode> supportedLoadProfiles;
@@ -74,11 +79,12 @@ public class A2ProfileDataReader {
         this.offlineDevice = offlineDevice;
         this.limitMaxNrOfDays = limitMaxNrOfDays;
         supportedLoadProfiles = new ArrayList<>();
-        supportedLoadProfiles.add(HOURLY_LOAD_PROFILE_OBISCODE);
-        supportedLoadProfiles.add(DAILY_LOAD_PROFILE_OBISCODE);
+        supportedLoadProfiles.add(HOURLY_LOAD_PROFILE);
+        supportedLoadProfiles.add(DAILY_LOAD_PROFILE);
+        supportedLoadProfiles.add(MONTHLY_LOAD_PROFILE);
     }
 
-    // use this constructor to create a Reader which will read only one loadProfile
+    // use this constructor to create a Reader which will read only specified supported load profiles
     public A2ProfileDataReader(A2 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, OfflineDevice offlineDevice, long limitMaxNrOfDays, List<ObisCode> supportedLoadProfiles) {
         this.protocol = protocol;
         this.collectedDataFactory = collectedDataFactory;
@@ -98,8 +104,8 @@ public class A2ProfileDataReader {
                 try {
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(lpr.getProfileObisCode());
                     channelInfos = getChannelInfo(profileGeneric.getCaptureObjects(), lpr.getMeterSerialNumber(), lpr.getProfileObisCode());
-                    getChannelInfosMap().put(lpr, channelInfos);    //Remember these, they are re-used in method #getLoadProfileData();
-                } catch (IOException e) {   //Object not found in IOL, should never happen
+                    getChannelInfosMap().put(lpr, channelInfos); // Remember these, they are re-used in method #getLoadProfileData();
+                } catch (IOException e) {   // Object not found in IOL, should never happen
                     throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
                 }
                 lpc.setChannelInfos(channelInfos);
@@ -127,16 +133,18 @@ public class A2ProfileDataReader {
                     Calendar toCalendar = getToCalendar(loadProfileReader);
                     ProfileGeneric profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(correctedLoadProfileObisCode, protocol.useDsmr4SelectiveAccessFormat());
                     DataContainer buffer;
-                    if (DAILY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode())) {
+                    if (DAILY_LOAD_PROFILE.equals(loadProfileReader.getProfileObisCode())) {
                         fromCalendar.add(Calendar.DAY_OF_YEAR, DAILY_LOAD_PROFILE_ONEMORE_INTERVAL);
                     }
-                    if (HOURLY_LOAD_PROFILE_OBISCODE.equals(loadProfileReader.getProfileObisCode()) && firmwareVersion.getMajor()==1 && firmwareVersion.getMinor()==4) {
+
+                    protocol.journal("From Calendar " + fromCalendar.getTime());
+                    protocol.journal("To Calendar " + toCalendar.getTime());
+
+                    if (HOURLY_LOAD_PROFILE.equals(loadProfileReader.getProfileObisCode()) && firmwareVersion.getMajor()==1 && firmwareVersion.getMinor()==4) {
                         Calendar actualCalendar = Calendar.getInstance(protocol.getTimeZone());
                         SelectiveEntryFilter filter = new SelectiveEntryFilter(fromCalendar, toCalendar, actualCalendar);
-                        protocol.getLogger().log(Level.INFO, "From Calendar " + fromCalendar.getTime());
-                        protocol.getLogger().log(Level.INFO, "To Calendar " + toCalendar.getTime());
-                        protocol.getLogger().log(Level.INFO, "Actual Calendar " + actualCalendar.getTime());
-                        protocol.getLogger().log(Level.INFO, "From Index : " + filter.getFromIndex() + ", To Index " + filter.getToIndex());
+                        protocol.journal("Actual Calendar " + actualCalendar.getTime());
+                        protocol.journal("From Index : " + filter.getFromIndex() + ", To Index " + filter.getToIndex());
                         buffer = profileGeneric.getBuffer(filter.getFromIndex(), filter.getToIndex(), 1, 0);
                     }
                     else {
@@ -145,7 +153,7 @@ public class A2ProfileDataReader {
 
                     List<IntervalData> intervalData = readIntervalDataFromBuffer(correctedLoadProfileObisCode, buffer);
 
-                    protocol.journal("Parsed intervals: " + intervalData.size());
+                    protocol.journal("[" + correctedLoadProfileObisCode + "] " + "Parsed intervals: " + intervalData.size());
 
                     collectedLoadProfile.setCollectedIntervalData(intervalData, channelInfos);
                     collectedLoadProfile.setDoStoreOlderValues(true);
@@ -154,7 +162,7 @@ public class A2ProfileDataReader {
                     // It could also happen when the load profile is not configured properly.
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                         String message = String.join(" ","Load profile was probably already read today, try modifying the 'last reading' date in the load profile properties.", e.getMessage());
-                        Issue problem = issueFactory.createWarning(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, message);
+                        Issue problem = issueFactory.createWarning(loadProfileReader, message, correctedLoadProfileObisCode);
                         collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
                     }
                 } catch (IOException e) {
@@ -200,8 +208,21 @@ public class A2ProfileDataReader {
 
             for (int bufferIndex = offset; bufferIndex < bufferSize; bufferIndex++) {
                 if (structure.isBigDecimal(bufferIndex)) {
-                    IntervalValue value = new IntervalValue(structure.getBigDecimalValue(bufferIndex), status, getEiServerStatus(status));
-                    values.add(value);
+                    if (!isMonthlyExtraStatus(correctedLoadProfileObisCode, bufferIndex)) {
+                        IntervalValue value = new IntervalValue(structure.getBigDecimalValue(bufferIndex), status, getEiServerStatus(status));
+                        values.add(value);
+                    }
+                } else if (structure.isOctetString(bufferIndex)) {
+                    if (MONTHLY_LOAD_PROFILE.equals(correctedLoadProfileObisCode)) {
+                        final byte[] dateOctetString = structure.getOctetString(bufferIndex).getArray();
+                        final com.energyict.dlms.axrdencoding.OctetString axdrOctetString =
+                                new com.energyict.dlms.axrdencoding.OctetString(dateOctetString);
+                        final DateTimeOctetString dateTimeOctetString = axdrOctetString.getDateTime(protocol.getTimeZone());
+                        if (dateTimeOctetString != null) {
+                            IntervalValue value = new IntervalValue(dateTimeOctetString.getValue().getTimeInMillis(), status, getEiServerStatus(status));
+                            values.add(value);
+                        }
+                    }
                 }
             }
 
@@ -213,6 +234,11 @@ public class A2ProfileDataReader {
             intervalData.add(new IntervalData(timeStamp, 0, 0, tariffCode, values));
         }
         return intervalData;
+    }
+
+    // skip these temporary
+    private boolean isMonthlyExtraStatus(ObisCode loadProfile, int bufferIndex) {
+        return MONTHLY_LOAD_PROFILE.equals(loadProfile) && (bufferIndex == 2 || bufferIndex == 3 || bufferIndex == 11 || bufferIndex == 12);
     }
 
     private Date truncateSeconds(long unixTime) {
@@ -330,6 +356,14 @@ public class A2ProfileDataReader {
             ChannelInfo channelInfo = new ChannelInfo(counter, newOBIS, unit == null ? Unit.get(BaseUnit.UNITLESS) : unit, serialNumber);
             channelInfos.add(channelInfo);
             counter++;
+            if (MONTHLY_LOAD_PROFILE.equals(loadProfileObisCode) && MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW.equals(obisCode)) {
+                // artificially add the timestamp channel
+                final ChannelInfo timestampChannel = new ChannelInfo(
+                        counter, MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW_TIME.toString(), Unit.get("ms"), serialNumber
+                );
+                channelInfos.add(timestampChannel);
+                counter++;
+            }
         }
         return channelInfos;
     }
@@ -407,6 +441,9 @@ public class A2ProfileDataReader {
             return true;
         }
         if (isClock(obisCode) || isCaptureTime(capturedObject) || (isStartOfBillingPeriod(capturedObject) && !isProfileStatus(obisCode))) {
+            return false;
+        }
+        if (DLMSClassId.MANUFACTURER_SPECIFIC_8192.getClassId() == classId) {
             return false;
         }
         throw new ProtocolException("Unexpected captured_object in load profile '" + loadProfileObisCode + "': " + capturedObject.toString());
