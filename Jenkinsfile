@@ -419,7 +419,7 @@ def runCoverity(maxIssues) {
 
 def getCoverityStream() {
  if (isRelease()) {
-   return env.BRANCH_NAME.replaceAll("/", "-")
+   return "MULTISENSE-RELEASE"
  }
  return "MULTISENSE-MASTER"
 }
