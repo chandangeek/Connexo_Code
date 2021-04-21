@@ -51,8 +51,12 @@ public class AcudElectricRegisterFactory extends AcudRegisterFactory {
     }
 
     public List<CollectedRegister> readRegisters(List<OfflineRegister> offlineRegisters) {
-        List<CollectedRegister> result = super.readRegisters(offlineRegisters);
+        List<CollectedRegister> result = new ArrayList<>();
         result.addAll(readBillingRegisters(offlineRegisters)); // Cause these cannot be read out in bulk
+
+        List<CollectedRegister> notBillingRegisters = super.readRegisters(offlineRegisters);
+        notBillingRegisters.removeIf(collectedRegister -> collectedRegister.getResultType() == ResultType.InCompatible);
+        result.addAll(notBillingRegisters);
 
         return result;
     }

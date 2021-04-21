@@ -129,19 +129,7 @@ public class AcudLoadProfileDataReader {
         }
 
         //Also read out the profile interval in this bulk request
-        DLMSAttribute profileIntervalAttribute = null;
-
-        profileIntervalAttribute = new DLMSAttribute(correctedLoadProfileObisCode, 4, DLMSClassId.PROFILE_GENERIC);
-        attributes.put(correctedLoadProfileObisCode, profileIntervalAttribute);
-
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(attributes.values()));
-
-        try {
-            AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
-            getIntervalMap().put(correctedLoadProfileObisCode, attribute.intValue());
-        } catch (IOException e) {
-               throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
-        }
 
         for (ObisCode channelObisCode : channelObisCodes) {
             DLMSAttribute dlmsAttribute = attributes.get(channelObisCode);
