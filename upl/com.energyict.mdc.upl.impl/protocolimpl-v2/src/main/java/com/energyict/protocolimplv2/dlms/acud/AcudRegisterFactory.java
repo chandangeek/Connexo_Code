@@ -68,8 +68,10 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister offlineRegister : registers) {
-            CollectedRegister collectedRegister = readRegister(offlineRegister);
-            result.add(collectedRegister);
+            if (offlineRegister.getObisCode().getF() == 255) {
+                CollectedRegister collectedRegister = readRegister(offlineRegister);
+                result.add(collectedRegister);
+            }
         }
         return result;
     }

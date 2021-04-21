@@ -103,11 +103,9 @@ public class AcudLoadProfileDataReader {
 
 
     /**
-     * @param correctedLoadProfileObisCode the load profile obiscode. If it is not null, this implementation will additionally read out
-     *                                     its interval (attribute 4) and cache it in the intervalMap
      * @param channelObisCodes             the obiscodes of the channels that we should read out the units for
      */
-    public Map<ObisCode, Unit> readUnits(ObisCode correctedLoadProfileObisCode, List<ObisCode> channelObisCodes) throws ProtocolException {
+    public Map<ObisCode, Unit> readUnits(List<ObisCode> channelObisCodes) throws ProtocolException {
         Map<ObisCode, Unit> result = new HashMap<>();
 
         Map<ObisCode, DLMSAttribute> attributes = new HashMap<>();

@@ -136,7 +136,7 @@ public class StoredValuesImpl implements StoredValues {
     }
 
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
-        Map<ObisCode, Unit> unitMap = acud.getAcudProfileDataReader().readUnits( null, Arrays.asList(baseObisCode));
+        Map<ObisCode, Unit> unitMap = acud.getAcudProfileDataReader().readUnits(Arrays.asList(baseObisCode));
         return unitMap.get(baseObisCode);
     }
 
