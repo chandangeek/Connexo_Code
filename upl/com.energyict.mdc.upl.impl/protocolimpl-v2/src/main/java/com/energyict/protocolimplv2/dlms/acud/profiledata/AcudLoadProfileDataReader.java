@@ -103,11 +103,9 @@ public class AcudLoadProfileDataReader {
 
 
     /**
-     * @param correctedLoadProfileObisCode the load profile obiscode. If it is not null, this implementation will additionally read out
-     *                                     its interval (attribute 4) and cache it in the intervalMap
      * @param channelObisCodes             the obiscodes of the channels that we should read out the units for
      */
-    public Map<ObisCode, Unit> readUnits(ObisCode correctedLoadProfileObisCode, List<ObisCode> channelObisCodes) throws ProtocolException {
+    public Map<ObisCode, Unit> readUnits(List<ObisCode> channelObisCodes) throws ProtocolException {
         Map<ObisCode, Unit> result = new HashMap<>();
 
         Map<ObisCode, DLMSAttribute> attributes = new HashMap<>();
@@ -129,19 +127,7 @@ public class AcudLoadProfileDataReader {
         }
 
         //Also read out the profile interval in this bulk request
-        DLMSAttribute profileIntervalAttribute = null;
-
-        profileIntervalAttribute = new DLMSAttribute(correctedLoadProfileObisCode, 4, DLMSClassId.PROFILE_GENERIC);
-        attributes.put(correctedLoadProfileObisCode, profileIntervalAttribute);
-
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(attributes.values()));
-
-        try {
-            AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
-            getIntervalMap().put(correctedLoadProfileObisCode, attribute.intValue());
-        } catch (IOException e) {
-               throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
-        }
 
         for (ObisCode channelObisCode : channelObisCodes) {
             DLMSAttribute dlmsAttribute = attributes.get(channelObisCode);
