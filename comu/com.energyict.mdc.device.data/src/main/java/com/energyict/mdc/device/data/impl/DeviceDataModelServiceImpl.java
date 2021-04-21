@@ -39,6 +39,8 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.upgrade.V10_4_21SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_8_11SimpleUpgrader;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -94,6 +96,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -738,6 +741,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 5), UpgraderV10_4_5.class)
                         .put(version(10, 4, 7), UpgraderV10_4_7.class)
                         .put(version(10, 4, 9), UpgraderV10_4_9.class)
+                        .put(version(10, 4, 21), V10_4_21SimpleUpgrader.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 6, 1), UpgraderV10_6_1.class)
                         .put(version(10, 7), UpgraderV10_7.class)
@@ -745,6 +749,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
                         .put(version(10, 8), UpgraderV10_8.class)
                         .put(version(10, 8, 1), UpgraderV10_8_1.class)
+                        .put(version(10, 8, 11), V10_8_11SimpleUpgrader.class)
                         .build());
         this.registerRealServices(bundleContext);
     }
