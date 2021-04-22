@@ -374,11 +374,11 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, offset + 10, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             if (offlineLoadProfile.getObisCode().equals(HALF_HOUR_LOAD_PROFILE)) {
                 Unsigned8 currentActiveTariff = new Unsigned8(getByteArray(compactFrame, offset + 14, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
-                createCollectedIntervalData(offlineLoadProfile, collectedIntervalData, unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
+                createCollectedIntervalData(collectedIntervalData, unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
                         currentIndexOfConvertedVolumeUnderAlarm, currentActiveTariff);
                 offset += 15;
             } else {
-                createCollectedIntervalData(offlineLoadProfile, collectedIntervalData, unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
+                createCollectedIntervalData(collectedIntervalData, unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
                         currentIndexOfConvertedVolumeUnderAlarm, new Unsigned8(0));
                 offset += 14;
             }
@@ -386,7 +386,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         return collectedIntervalData;
     }
 
-    private void createCollectedIntervalData(OfflineLoadProfile offlineLoadProfile, List<IntervalData> collectedIntervalData,
+    private void createCollectedIntervalData(List<IntervalData> collectedIntervalData,
                                              Unsigned32 unixTime, Unsigned16 dailyDiagnostic,
                                              Unsigned32 currentIndexOfConvertedVolume,
                                              Unsigned32 currentIndexOfConvertedVolumeUnderAlarm,
@@ -396,10 +396,6 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         // set seconds and milliseconds to 0 just in case
         dateTime.set(Calendar.SECOND, 0);
         dateTime.set(Calendar.MILLISECOND, 0);
-        if (offlineLoadProfile.getObisCode().equals(DAILY_LOAD_PROFILE)) {
-            // Fix: Connexo only accepts daily intervals at 00:00
-            dateTime.set(Calendar.HOUR_OF_DAY, 0);
-        }
         List<IntervalValue> intervalValues = new ArrayList<>();
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolume.intValue(), 0, getEiServerStatus(0)));
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolumeUnderAlarm.intValue(), 0, getEiServerStatus(0)));
