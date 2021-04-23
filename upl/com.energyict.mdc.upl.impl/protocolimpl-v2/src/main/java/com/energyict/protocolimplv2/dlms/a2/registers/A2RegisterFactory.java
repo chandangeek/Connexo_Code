@@ -3,10 +3,23 @@ package com.energyict.protocolimplv2.dlms.a2.registers;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.CosemDate;
+import com.energyict.dlms.axrdencoding.CosemTime;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
-import com.energyict.dlms.cosem.*;
-import com.energyict.dlms.cosem.attributes.GPRSStandardStatusAttributes;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.GPRSStandardStatus;
+import com.energyict.dlms.cosem.GSMDiagnosticsIC;
+import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
@@ -21,7 +34,6 @@ import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.a2.A2;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
@@ -29,7 +41,11 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 
 public class A2RegisterFactory implements DeviceRegisterSupport {
 
@@ -301,7 +317,8 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, issueFactory.createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+            final String description = register.getObisCode() + " is not supported.";
+            collectedRegister.setFailureInformation(ResultType.NotSupported, issueFactory.createWarning(register.getObisCode(), description, register.getObisCode()));
         }
         return collectedRegister;
     }
