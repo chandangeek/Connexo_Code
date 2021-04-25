@@ -28,7 +28,6 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     @Inject
     public SearchLocationServiceImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        ensureLocationTemplateInitialized();
     }
 
     private Map<String, String> templateMap() {
@@ -49,7 +48,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 .build();
     }
 
-    private void ensureLocationTemplateInitialized() {
+    void ensureLocationTemplateInitialized() {
         String locationTemplate = getAddressTemplate();
         if (locationTemplate != null) {
 
