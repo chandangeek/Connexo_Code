@@ -29,7 +29,14 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.events.ComPortCommunicationLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
@@ -52,7 +59,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedData;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.text.MessageFormat;
@@ -194,6 +200,9 @@ public final class ExecutionContext implements JournalEntryFactory {
         } catch (ConnectionException e) {
             comPortRelatedComChannel = null;
             connectionFailed(e, connectionTask);
+        } catch (Throwable e) {
+            this.comPortRelatedComChannel = null;
+            this.connectionFailed(new ConnectionException(EngineService.COMPONENTNAME, MessageSeeds.SOMETHING_UNEXPECTED_HAPPENED, e), this.connectionTask);
         } finally {
             if (isConnected()) {
                 connecting.stop();
