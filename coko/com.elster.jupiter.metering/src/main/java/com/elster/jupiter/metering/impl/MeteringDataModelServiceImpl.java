@@ -358,6 +358,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     }
 
     private void registerSearchLocationService(BundleContext bundleContext) {
+        ((SearchLocationServiceImpl)searchLocationService).ensureLocationTemplateInitialized();
         if (bundleContext != null) {
             Dictionary<String, Object> properties = new Hashtable<>();
             properties.put("name", SearchService.COMPONENT_NAME);
