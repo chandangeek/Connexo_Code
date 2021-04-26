@@ -464,7 +464,9 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
     }
 
     private boolean alreadyUpgraded(TableConstraintImpl constraint) {
-        TableConstraintImpl fromConstraint = constraint.getTable().getConstraint(constraint.getName());
+        TableConstraintImpl<?> fromConstraint = table.getDataModel() // data model from which we upgrade
+                .getTable(constraint.getTableName())
+                .getConstraint(constraint.getName());
         return fromConstraint != null && fromConstraint.matches(constraint);
     }
 
