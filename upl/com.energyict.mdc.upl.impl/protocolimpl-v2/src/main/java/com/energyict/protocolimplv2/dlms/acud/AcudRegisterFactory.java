@@ -366,9 +366,9 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
         try {
             UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(contractorStatusTypeOC);
             if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
-                Disconnector disConnectr = protocol.getDlmsSession().getCosemObjectFactory().getDisconnector(contractorStatusTypeOC);
+                Disconnector disconnector = protocol.getDlmsSession().getCosemObjectFactory().getDisconnector(contractorStatusTypeOC);
 
-                TypeEnum currentState = disConnectr.readControlState();
+                TypeEnum currentState = disconnector.readControlState();
                 if (currentState == null) {
                     throw new IOException("Failed to parse the contactor status");
                 } else {
