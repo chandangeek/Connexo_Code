@@ -7,12 +7,15 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
@@ -49,6 +52,10 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public static final Integer NEW_ACCOUNT = 1;
     public static final Integer ACTIVE_ACCOUNT = 2;
     public static final Integer CLOSED_ACCOUNT = 3;
+
+    private static final int DISCONNECT = 0;
+    private static final int CONNECT = 1;
+    private static final int ARM = 2;
 
     private final Acud protocol;
     private final CollectedDataFactory collectedDataFactory;
@@ -350,6 +357,40 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             collectedCreditAmount.setFailureInformation(ResultType.InCompatible,
                     issueFactory.createWarning(creditTypeObiscode,
                             creditTypeObiscode.toString() + ": Not Supported", creditTypeObiscode));
+        }
+    }
+
+    public void readBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+        ObisCode contractorStatusTypeOC = ObisCode.fromString("0.0.96.3.10.255");
+
+        try {
+            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(contractorStatusTypeOC);
+            if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
+                Disconnector disconnector = protocol.getDlmsSession().getCosemObjectFactory().getDisconnector(contractorStatusTypeOC);
+
+                TypeEnum currentState = disconnector.readControlState();
+                if (currentState == null) {
+                    throw new IOException("Failed to parse the contactor status");
+                } else {
+                    switch (currentState.getValue()) {
+                        case ARM:
+                            collectedBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
+                            return;
+                        case CONNECT:
+                            collectedBreakerStatus.setBreakerStatus(BreakerStatus.CONNECTED);
+                            return;
+                        case DISCONNECT:
+                            collectedBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
+                            return;
+                        default:
+                            throw new IOException("Failed to parse the contactor status: received invalid state '" + currentState.getValue() + "'");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            collectedBreakerStatus.setFailureInformation(ResultType.InCompatible,
+                    issueFactory.createWarning(contractorStatusTypeOC,
+                            contractorStatusTypeOC.toString() + ": Not Supported", contractorStatusTypeOC));
         }
     }
 
