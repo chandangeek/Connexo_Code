@@ -105,6 +105,7 @@ pipeline {
               options: [openTasksPublisher()],
               mavenLocalRepo: MAVEN_REPO) {
             catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
+              sh 'sencha package repo init -name "Elster Jupiter Project" -email "Jupiter-Core@elster.com"'
               runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
             }
             //  These stashes are really too large. Need to find another way to do this...
