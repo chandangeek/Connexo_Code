@@ -8,14 +8,11 @@ import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationConsumer;
 import com.energyict.dlms.protocolimplv2.connection.RetryRequestPreparation.RetryRequestV2PreparationHandler;
-import com.energyict.mdc.channel.ip.datagrams.AbstractUdpSession;
-import com.energyict.mdc.channel.ip.datagrams.MessageSeeds;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.DataParseException;
-import com.energyict.protocol.exceptions.ConnectionSetupException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 

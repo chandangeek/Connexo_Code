@@ -1067,7 +1067,9 @@ public final class DeviceMessageConstants {
     public static final String LongPowerFailureThresholdAttributeDefaultTranslation = "Long power failure threshold";
     public static final String SetPowerQualityMeasurePeriodAttributeName = "PowerConfigurationDeviceMessage.measureperiod";
     public static final String SetPowerQualityMeasurePeriodDefaultTranslation = "Set power quality measure period";
+    public static final String VoltageRatioDenominatorAttributeName = "PowerConfigurationDeviceMessage.voltageratiodenominator";
     public static final String VoltageRatioNumeratorAttributeName = "PowerConfigurationDeviceMessage.voltagerationumerator";
+    public static final String CurrentRatioDenominatorAttributeName = "PowerConfigurationDeviceMessage.currentratiodenominator";
     public static final String CurrentRatioNumeratorAttributeName = "PowerConfigurationDeviceMessage.currentrationumerator";
     public static final String VoltageRatioDefaultTranslation = "Write voltage and current ratios";
     public static final String ThresholdForDemandCloseToContractPowerAttributeName = "PowerConfigurationDeviceMessage.thresholdDemandCloseToContractPower";

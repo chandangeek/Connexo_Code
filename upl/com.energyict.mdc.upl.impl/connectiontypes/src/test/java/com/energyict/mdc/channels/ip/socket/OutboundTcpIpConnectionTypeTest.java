@@ -6,7 +6,6 @@ package com.energyict.mdc.channels.ip.socket;
 
 import com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 
