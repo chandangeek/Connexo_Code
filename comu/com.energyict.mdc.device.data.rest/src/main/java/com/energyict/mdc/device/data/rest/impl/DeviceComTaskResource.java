@@ -261,7 +261,7 @@ public class DeviceComTaskResource {
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                    comTaskExecution.addNewComTaskExecutionTrigger(releaseDate == null ? clock.instant() : Instant.ofEpochMilli(releaseDate));
+                    comTaskExecution.addNewComTaskExecutionTrigger(releaseDate == null ? clock.instant() : Instant.ofEpochMilli(releaseDate+1000));
                     comTaskExecution.updateNextExecutionTimestamp();
                 }
             }
