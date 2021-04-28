@@ -420,7 +420,7 @@ def runCoverity(maxIssues) {
 
 def getCoverityStream() {
  if (isRelease()) {
-   return "MULTISENSE-RELEASE"
+   return "MULTISENSE-RELEASE-MASTER"
  }
  return "MULTISENSE-MASTER"
 }
