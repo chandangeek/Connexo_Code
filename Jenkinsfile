@@ -411,16 +411,20 @@ def runCoverity(maxIssues) {
   if (results != 0) {
     unstable("There was a problem with the coverity script " + results)
   }
-  PROJECT = "MULTISENSE"
+  PROJECT = getCoverityProject()
   results = coverityIssueCheck coverityInstanceUrl: 'https://coverity.swtools.honeywell.com:8443', projectName: "$PROJECT", returnIssueCount: true, viewName: "Outstanding Issues"
   if (results > maxIssues) {
     unstable("Found $results Coverity issues, maximum is $maxIssues")
   }
 }
 
-def getCoverityStream() {
+def getCoverityProject() {
  if (isRelease()) {
-   return "MULTISENSE-RELEASE-MASTER"
+   return "MULTISENSE-RELEASE"
  }
- return "MULTISENSE-MASTER"
+ return "MULTISENSE"
+}
+
+def getCoverityStream() {
+ return getCoverityProject() + "-MASTER"
 }
