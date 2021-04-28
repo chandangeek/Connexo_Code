@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.protocol.inbound.g3.DummyComChannel;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -56,6 +57,7 @@ public class ObjectFactoryTest {
     private TariffCalendarExtractor calendarExtractor;
 
     private static final String LOAD_PROFILE_DATA = "<MPush><MD><M>0505514284386660</M><LPA>V3MPgA8nAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAABAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAACAAACrwAAAM8AAAAAwAAC</LPA></MD></MPush>";
+    private static final String LOAD_PROFILE_DATA2 = "<MPush><MD><M>0505514284386913</M><T>610e</T><LPA>WecwrA8rAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAACAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAADAAnd7AABfSMAAAAAwAAB</LPA></MD></MPush>";
     private static final String SERIAL_NUMBER = "0505514284386660";
 
     @Test
@@ -65,13 +67,15 @@ public class ObjectFactoryTest {
         doReturn(true).when(ace4000).isDst();
         OfflineDevice offlineDevice = mock(OfflineDevice.class);
         when(offlineDevice.getSerialNumber()).thenReturn(SERIAL_NUMBER);
+        when(offlineDevice.getId()).thenReturn(1L);
         when(offlineDevice.getAllProperties()).thenReturn(TypedProperties.empty());
         ace4000.init(offlineDevice, new DummyComChannel());
         ObjectFactory objectFactory = new ObjectFactory(ace4000, collectedDataFactory);
 
         objectFactory.parseXML(LOAD_PROFILE_DATA);
+        objectFactory.parseXML(LOAD_PROFILE_DATA2);
 
-        ProfileData profileData = objectFactory.getLoadProfile().getProfileData();
+        ProfileData profileData = objectFactory.getLoadProfile().getProfileDataMap().get(new DeviceIdentifierBySerialNumber(SERIAL_NUMBER));
 
         assertEquals(profileData.getIntervalDatas().size(), 39);
         assertEquals(profileData.getMeterEvents().size(), 0);

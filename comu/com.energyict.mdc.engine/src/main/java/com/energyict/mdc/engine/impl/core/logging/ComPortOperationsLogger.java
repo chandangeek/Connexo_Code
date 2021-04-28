@@ -59,7 +59,36 @@ public interface ComPortOperationsLogger {
     public void workFound (String comPortThreadName, int numberOfJobs);
 
     /**
-     * Logs that the specified {@link ComPort} attempted to schedule
+     * Logs that the specified {@link ComPort} tasks to be executed.
+     *
+     * @param jobinfo The name of the job to execute the tasks
+     * @param numberOfTasks number of tasks to be executed
+     * @param taskListInfo The list of the tasks
+     */
+    @Configuration(format = "{0} populated with {1} communication tasks: {2}", logLevel = LogLevel.DEBUG)
+    public void tasksPopulated (String jobinfo, int numberOfTasks, String taskListInfo);
+
+    /**
+     * Logs that the specified {@link ComPort} did not schedule
+     * any of the executable work that was found earlier.
+     *
+     * @param comPortThreadName The name of the ComPort thread that did not schedule the work
+     */
+    @Configuration(format = "{0} did not schedule any of the work found", logLevel = LogLevel.DEBUG)
+    public void noWorkScheduled (String comPortThreadName);
+
+    /**
+     * Logs that the specified {@link ComPort} found executable work.
+     *
+     * @param comPortThreadName The name of the ComPort thread that found work
+     * @param numberOfJobs The amount of work that was scheduled
+     * @param availableJobs The total amount of work that was available to schedule
+     */
+    @Configuration(format = "{0} scheduled {1} job(s) of the {2} that were found earlier", logLevel = LogLevel.DEBUG)
+    public void workScheduled (String comPortThreadName, int numberOfJobs, int availableJobs);
+
+    /**
+     * Logs that the specified {@link com.energyict.mdc.ports.ComPortType } attempted to schedule
      * the execution of the {@link ComTaskExecution} but it was already scheduled.
      *
      * @param comPortThreadName The name of the ComPort thread that attempted to start the execution

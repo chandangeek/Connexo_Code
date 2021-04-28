@@ -9,14 +9,11 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
-import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
-import com.energyict.protocolimplv2.messages.DeviceActionMessage;
-import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
+import com.energyict.protocolimplv2.messages.*;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEndOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
+import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.NumberMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.special.TimeOfUseMessageEntry;
 import com.google.common.collect.ImmutableMap;
@@ -25,14 +22,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfMonth;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfWeek;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.hour;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioNumeratorAttributeName;
 
 /**
  * Represents a MessageConverter for the smart ZMD protocol.
@@ -87,7 +78,9 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ActivityCalendarDeviceMessage.SELECTION_OF_12_LINES_IN_TOU_TABLE), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarAttributeName))
 
                 .put(messageSpec(DisplayDeviceMessage.SET_DISPLAY_MESSAGE), new SetDisplayMessageEntry(DeviceMessageConstants.DisplayMessageAttributeName))
-
+                // Voltage/Current parameters
+                .put(messageSpec(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters), new NumberMessageEntry(VoltageRatioNumeratorAttributeName))
+                .put(messageSpec(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters), new NumberMessageEntry(CurrentRatioNumeratorAttributeName))
                 // reset messages
                 .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
                 .build();

@@ -25,6 +25,7 @@ class A1440ObisCodeMapper {
     public static final String BILLINGCOUNTER = "Billing counter";
     public static final String ERROR_REGISTER = "Error register";
     public static final String ALARM_REGISTER = "Alarm register";
+    public static final String BATTERY_USE_TIME_REGISTER = "Battery use time register";
 
     public static final String IEC1107_ID = "Device IEC1107_ID";
     public static final String IEC1107_ADDRESS_OP = "Device IEC1107_ADDRESS_OP (optical)";
@@ -46,7 +47,7 @@ class A1440ObisCodeMapper {
     private void initObisUnconnected() {
 
         this.obisMap.put("1.1.0.1.0.255", BILLINGCOUNTER);
-        this.obisMap.put("1.1.0.1.2.255", DATETIME );
+        this.obisMap.put("1.1.0.1.2.255", DATETIME);
 
         this.obisMap.put("1.1.0.2.0.255", FIRMWAREID);
         this.obisMap.put("1.1.0.2.1.255", PARAMETER_IDENTIFICATION);
@@ -85,6 +86,7 @@ class A1440ObisCodeMapper {
 
         this.obisMap.put("0.0.97.97.0.255", ERROR_REGISTER);
         this.obisMap.put("0.0.97.97.1.255", ALARM_REGISTER);
+        this.obisMap.put("1.1.96.56.0.255",BATTERY_USE_TIME_REGISTER);
     }
 
     public void initObis() throws IOException {

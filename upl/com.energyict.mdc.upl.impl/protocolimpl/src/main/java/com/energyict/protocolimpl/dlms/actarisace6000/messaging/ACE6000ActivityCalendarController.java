@@ -63,16 +63,9 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
     private static final int indexDtYearLow = 1;
     private static final int indexDtMonth = 2;
     private static final int indexDtDayOfMonth = 3;
-    private static final int indexDtDayOfWeek = 4;
-    private static final int indexDtHour = 5;
-    private static final int indexDtMinutes = 6;
-    private static final int indexDtSeconds = 7;
-    private static final int indexDtHundredsOfSeconds = 8;
-    private static final int indexDtDeviationHigh = 9;
-    private static final int indexDtDeviationLow = 10;
-    private static final int indexDtClockStatus = 11;
+
     private static final byte[] initialDateTimeArray = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-            0, 0, 0, 0, (byte) 0x80, 0, 0};
+            0, 0, 0, 0, (byte) 0x80, 0, (byte) 0xFF};
 
     // Indexes of the Time OctetString
     private static final int indexTHour = 0;
@@ -135,6 +128,8 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
      * The current {@link Log}
      */
     private final Log logger = LogFactory.getLog(getClass());
+
+    private List<String> tariffIds = new ArrayList<String>();
 
     /**
      * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
@@ -316,6 +311,11 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
         } else {
             logger.trace("No passiveCalendar activation date was given.");
         }
+        // Write special days on another Obis code
+        if (sortedSpecialDayNodes.size() > 0) {
+            traceLog("Sending out the new passive calendar special days.");
+            getSpecialDayTable().writeSpecialDays(getSpecialDayArray());
+        }
     }
 
     /**
@@ -380,7 +380,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
     }
 
     /**
-     * Create the Season{@link Array}. The season Array to write to the meter should contain :<br>
+     * Create the Season{@link com.energyict.dlms.axrdencoding.Array}. The season Array to write to the meter should contain :<br>
      * <code>
      * seasonProfile::=structure{<br>
      * - season_profilename :   OctetString<br>
@@ -393,7 +393,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
      * To prevent large blocks you can send them one by one ...
      *
      * @param seasonProfileList a list containing all the seasons
-     * @throws IOException
+     * @throws java.io.IOException
      */
     private void createSeasonProfiles(NodeList seasonProfileList) throws IOException {
         Node seasonProfile;
@@ -418,9 +418,13 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
                         } else if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dMonth)) {
                             logger.debug("SeasonStartMonth : " + startTimeElement.getTextContent());
                             startTime[indexDtMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
+                            if (startTime[indexDtMonth] == -1)
+                                startTime[indexDtMonth] = 1;
                         } else if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dDay)) {
                             logger.debug("SeasonStartDay : " + startTimeElement.getTextContent());
                             startTime[indexDtDayOfMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
+                            if (startTime[indexDtDayOfMonth] == -1)
+                                startTime[indexDtDayOfMonth] = 1;
                         }
                     }
                     sp.setSeasonStart(OctetString.fromByteArray(startTime));
@@ -431,10 +435,30 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
             }
             seasonArray.addDataType(sp);
         }
+        addPaddingSeasonProfiles(seasonProfileList.getLength());
     }
 
     /**
-     * Create the Week{@link Array}. The week Array to write to the meter should contain :<br>
+     * The Season_profile_passive entry is an array of fixed size 12
+     * The entries not used must be filled up with a dummy season entries
+     * @param usedSeasons
+     */
+    private void addPaddingSeasonProfiles(int usedSeasons) {
+        int index = usedSeasons;
+        for (int i = usedSeasons; i < 12; i++) {
+            Structure sds = new Structure();
+            byte[] indexBytes = {(byte) index++};
+            OctetString indexOctet = OctetString.fromByteArray(indexBytes);
+            sds.addDataType(indexOctet);
+            byte[] dummyUTC = {(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0xFF,(byte) 0x80,(byte) 0x00,(byte) 0xFF};
+            sds.addDataType(new OctetString(dummyUTC));
+            sds.addDataType(indexOctet);
+            seasonArray.addDataType(sds);
+        }
+    }
+
+    /**
+     * Create the Week{@link com.energyict.dlms.axrdencoding.Array}. The week Array to write to the meter should contain :<br>
      * <code>
      * week_profiles::=structure {
      * - week_profile_name  :   OctetString<br>
@@ -451,7 +475,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
      * To prevent large blocks you can send them one by one ...
      *
      * @param weekProfileList a list containing all the weekProfiles
-     * @throws IOException
+     * @throws java.io.IOException
      */
     private void createWeekProfiles(NodeList weekProfileList) throws IOException {
         Node weekProfile;
@@ -488,10 +512,31 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
             }
             weekArray.addDataType(wp);
         }
+        addPaddingWeekProfiles(weekProfileList.getLength());
     }
 
     /**
-     * Create the Day{@link Array}. The day Array to write to the meter should contain :<br>
+     * The Week_profile_passive entry is an array of fixed size 12
+     * The entries not used must be filled up with a dummy week entries
+     * @param usedWeeks
+     */
+    private void addPaddingWeekProfiles(int usedWeeks) {
+        int index = usedWeeks;
+        for (int i = usedWeeks; i < 12; i++) {
+            Structure sds = new Structure();
+            byte[] indexBytes = {(byte) index++};
+            OctetString indexOctet = OctetString.fromByteArray(indexBytes);
+            sds.addDataType(indexOctet);
+            for (int y = 0; y < 7; y++) {
+                Unsigned8 dummyDayProfileName = new Unsigned8(0xFF);
+                sds.addDataType(dummyDayProfileName);
+            }
+            weekArray.addDataType(sds);
+        }
+    }
+
+    /**
+     * Create the Day{@link com.energyict.dlms.axrdencoding.Array}. The day Array to write to the meter should contain :<br>
      * <code>
      * <p/>
      * day_profile::=structure{
@@ -507,7 +552,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
      * </code>
      *
      * @param dayProfileList a list containing all the dayProfiles
-     * @throws IOException
+     * @throws java.io.IOException
      */
     private void createDayProfiles(NodeList dayProfileList) throws IOException {
         Node dayProfile;
@@ -547,9 +592,13 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
 
                             } else if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffId)) {
                                 logger.debug("DayScheduleScriptSelector : " + schedule.getTextContent());
-                                int value = Integer.parseInt(schedule.getTextContent());
+                                Integer value = Integer.valueOf(schedule.getTextContent());
                                 if (value != 0) {
+                                    value -= 1; // Tariff IDs should be transmitted 0-based.
                                     dpa.setScriptSelector(new Unsigned16(value));
+                                    if (!tariffIds.contains(Integer.toString(value))) {
+                                        tariffIds.add(Integer.toString(value));
+                                    }
                                 } else {
                                     throw new IOException("ActivityCalendar parser -> Invalid " + CodeTableXml.dayTariffId + " encountered. O is not allowed as " + CodeTableXml.dayTariffId + ". Please correct this first.");
                                 }
@@ -565,6 +614,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
         }
 
     }
+
 
     /**
      * Construct a temporary Map for the specialDayEntries;
@@ -610,10 +660,10 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
 
     /**
      * @param specialDayList
-     * @throws IOException
+     * @throws java.io.IOException
      */
     private void createSpecialDays(NodeList specialDayList) throws IOException {
-        this.specialDayArray = new Array(sortedSpecialDayNodes.size());
+        this.specialDayArray = new Array(100);
         int index = -1;
         Node specialDayProfile;
         for (int i = 0; i < specialDayList.getLength(); i++) {
@@ -625,9 +675,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
                     Node specialDayEntry = specialDayNode.getChildNodes().item(z);
 
                     if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDate)) {
-                        index = sortedSpecialDayNodes.indexOf(specialDayEntry);
-                        logger.debug("SpecialDayEntryIndex : " + index);
-                        sds.addDataType(new Unsigned16(index));
+                        sds.addDataType(new Unsigned16(0)); // Index is not used (always set to zero)
                         byte[] sdDate = initialSpecialDayDateArray.clone();
                         for (int k = 0; k < specialDayEntry.getChildNodes().getLength(); k++) {
                             Node sdTimeElement = specialDayEntry.getChildNodes().item(k);
@@ -647,8 +695,27 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
                         sds.addDataType(new Unsigned8(this.tempShiftedDayIdMap.get(specialDayEntry.getTextContent())));
                     }
                 }
-                specialDayArray.setDataType(index, sds);
+                specialDayArray.setDataType(j, sds);
             }
+        }
+        addPaddingSpecialDays(sortedSpecialDayNodes.size());
+    }
+
+    /**
+     * The SpecialDaysParameters entry is an array of fixed size 100
+     * The entries not used must be filled up with a dummy special day entry
+     * @param usedDays
+     */
+    private void addPaddingSpecialDays(int usedDays) {
+        int index = usedDays;
+        for (int i = usedDays; i < 100; i++) {
+            Structure sds = new Structure();
+            sds.addDataType(new Unsigned16(0xFF)); // 255 when not defined
+            byte[] dummyDate = {0x13, 0x5C, 0x01, 0x01, (byte) 0xFF};
+            sds.addDataType(new OctetString(dummyDate));
+            sds.addDataType(new Unsigned8(0xFF));
+
+            specialDayArray.setDataType(index++, sds);
         }
     }
 
@@ -857,5 +924,14 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
      */
     private Logger getLogger() {
         return getACE6000().getLogger();
+    }
+
+    /**
+     * Log the given message to the logger with the INFO level
+     *
+     * @param messageToLog
+     */
+    private void traceLog(String messageToLog) {
+        this.protocol.getLogger().fine(messageToLog);
     }
 }

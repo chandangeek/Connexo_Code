@@ -35,12 +35,7 @@ import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.LoadProfileConfiguration;
-import com.energyict.protocol.LoadProfileReader;
-import com.energyict.protocol.MessageProtocol;
-import com.energyict.protocol.MessageResult;
-import com.energyict.protocol.MeterEvent;
-import com.energyict.protocol.ProfileData;
+import com.energyict.protocol.*;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterValue;
@@ -383,7 +378,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
      * @param s The string.
      * @return
      */
-    private final byte[] convert(final String s) {
+    private byte[] convert(final String s) {
         if ((s.length() % 2) != 0) {
             throw new IllegalArgumentException("String length is not a modulo 2 hex representation!");
         } else {

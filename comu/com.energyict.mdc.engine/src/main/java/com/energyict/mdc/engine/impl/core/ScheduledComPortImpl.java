@@ -18,6 +18,7 @@ import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.events.ComPortOperationsLogHandler;
+import com.energyict.mdc.engine.impl.core.inbound.ComPortDiscoveryLogger;
 import com.energyict.mdc.engine.impl.core.logging.ComPortOperationsLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
@@ -31,11 +32,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -58,6 +55,9 @@ import java.util.logging.Logger;
  * @since 2012-04-03 (10:07)
  */
 public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable {
+
+    protected ComPortOperationsLogger normalOperationsLogger;
+    protected ComPortOperationsLogger eventOperationsLogger;
 
     public static final Logger LOGGER = Logger.getLogger(ScheduledComPortImpl.class.getName());
     private static final int SEND_TO_SLEEP_THRESHOLD = 100;
@@ -388,6 +388,9 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     ScheduledComTaskExecutionGroup newComTaskGroup(ComJob groupComJob, List<ComTaskExecution> executions) {
         ScheduledComTaskExecutionGroup group = newComTaskGroup((ScheduledConnectionTask) groupComJob.getConnectionTask());
         executions.forEach(group::add);
+        for (LoggerType loggerType : getLoggerTypes(LoggerTypeOrder.BEFORE)) {
+            getOperationsLogger(loggerType).tasksPopulated(group.getThreadName(), groupComJob.getComTaskExecutions().size(), getTaskListInfo(groupComJob));
+        }
         return group;
     }
 
@@ -398,6 +401,66 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
             group.add(priorityComTaskExecutionLink);
         }
         return group;
+    }
+
+    protected List<LoggerType> getLoggerTypes(LoggerTypeOrder order) {
+        List<LoggerType> loggerTypes = new ArrayList<LoggerType>();
+        switch (order) {
+            case BEFORE: // natural order; by ordinal
+                for (LoggerType each : LoggerType.values()) {
+                    loggerTypes.add(each);
+                }
+                break;
+            case AFTER: // reversed order
+                for (LoggerType each : LoggerType.values()) {
+                    loggerTypes.add(0, each);
+                }
+                break;
+        }
+        return loggerTypes;
+    }
+
+    private String getTaskListInfo(ComJob groupComJob) {
+        StringBuffer taskList = new StringBuffer();
+        for (int i = 0; i < Math.min(25,groupComJob.getComTaskExecutions().size()) ; i++ ) {
+            ComTaskExecution comTaskExecution = groupComJob.getComTaskExecutions().get(i);
+            taskList.append(comTaskExecution.getComTask().getName() + " (id = " + comTaskExecution.getId() + "), ");
+        }
+        if (25 < groupComJob.getComTaskExecutions().size()) {
+            taskList.append("...");
+        }
+        return taskList.toString();
+    }
+
+    /* AspectJ - (Abstract)ComPortLogging */
+    protected ComPortOperationsLogger getOperationsLogger(LoggerType loggerType) {
+        switch (loggerType) {
+            case LOGGING:
+            default:
+                if (this.normalOperationsLogger == null) {
+                    normalOperationsLogger = newOperationsLogger(getServerLogLevel());
+                }
+                return normalOperationsLogger;
+
+            case PUBLISHING:
+                if (this.eventOperationsLogger == null) {
+                    eventOperationsLogger = newOperationsLogger(getComPort());
+                }
+                return eventOperationsLogger;
+        }
+    }
+
+    protected ComPortOperationsLogger newOperationsLogger(LogLevel logLevel) {
+        return LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, logLevel);
+    }
+
+    protected LogLevel getServerLogLevel() {
+        return LogLevelMapper.forComServerLogLevel().toLogLevel(getComPort().getComServer().getServerLogLevel());
+    }
+
+    protected ComPortOperationsLogger newOperationsLogger(ComPort comPort) {
+        return null;
+        // return LoggerFactory.getLoggerFor(ComPortOperationsLogger.class, LoggerFactory.getLoggerFor(ComPortDiscoveryLogger.class, this.getAnonymousLogger()));
     }
 
     private HighPriorityComTaskExecutionGroup newHighPriorityComTaskGroup(ScheduledConnectionTask connectionTask) {
@@ -417,6 +480,10 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         ManagementBeanFactory managementBeanFactory();
 
     }
+
+    protected enum LoggerTypeOrder {BEFORE, AFTER}
+
+    protected enum LoggerType {LOGGING, PUBLISHING}
 
     interface JobScheduler {
         int scheduleAll(List<ComJob> jobs);
@@ -533,6 +600,21 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
         @Override
         public void workFound(String comPortThreadName, int numberOfJobs) {
             this.loggers.forEach(each -> each.workFound(comPortThreadName, numberOfJobs));
+        }
+
+        @Override
+        public void tasksPopulated(String jobinfo, int numberOfTasks, String taskListInfo) {
+            // TODO
+        }
+
+        @Override
+        public void noWorkScheduled(String comPortThreadName) {
+            // TODO
+        }
+
+        @Override
+        public void workScheduled(String comPortThreadName, int numberOfJobs, int availableJobs) {
+            // TODO
         }
 
         @Override

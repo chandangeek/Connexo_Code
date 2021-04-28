@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@SuppressWarnings("Duplicates")
 public class EDPStoredValues implements StoredValues {
 
     public static final ObisCode DAILY_BILLING_PROFILE = ObisCode.fromString("0.0.98.2.0.255");   //E-field is filled with the tariff (1 or 2) later on

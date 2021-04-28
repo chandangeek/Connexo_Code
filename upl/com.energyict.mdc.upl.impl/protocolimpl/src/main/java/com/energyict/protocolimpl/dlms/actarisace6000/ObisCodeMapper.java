@@ -11,9 +11,9 @@ import com.energyict.cbo.Unit;
 import com.energyict.dlms.cosem.CosemObject;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.RegisterInfo;
-import com.energyict.protocol.RegisterValue;
+import com.energyict.protocol.*;
 import com.energyict.protocolimpl.generic.ParseUtils;
 
 import java.io.IOException;
@@ -120,7 +120,7 @@ public class ObisCodeMapper {
             );
 
             return registerValue;
-        } catch (NoSuchRegisterException e) {
+        } catch (NoSuchRegisterException | NotInObjectListException e) {
             // Absorb the exception and continue.
             // This indicates the register should be mapped to a registerProfile.
         }

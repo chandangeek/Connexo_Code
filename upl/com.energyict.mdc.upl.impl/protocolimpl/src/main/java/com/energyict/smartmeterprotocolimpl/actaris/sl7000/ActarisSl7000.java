@@ -118,6 +118,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     /**
      * Method to check whether the cache needs to be read out or not, if so the read will be forced
      */
+    @Override
     protected void checkCacheObjects() throws IOException {
         boolean readCache = getProperties().isReadCache();
         if (readCache) {
@@ -367,7 +368,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
     public String getSerialNumber() {
         return getMeterSerialNumber();
     }
-
+    
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         return getProperties().getUPLPropertySpecs();

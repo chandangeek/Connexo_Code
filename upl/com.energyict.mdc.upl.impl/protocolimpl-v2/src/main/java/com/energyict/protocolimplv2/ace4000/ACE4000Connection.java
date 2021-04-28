@@ -1,9 +1,12 @@
 package com.energyict.protocolimplv2.ace4000;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.InboundFrameException;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,11 +24,21 @@ public class ACE4000Connection {
     private ComChannel comChannel;
     private ACE4000 ace4000;
     private boolean inbound;
+    private DeviceIdentifier currentDeviceIdentifier;
+    private int protocolHash = -1;
 
     public ACE4000Connection(ComChannel comChannel, ACE4000 ace4000, boolean inbound) {
         this.comChannel = comChannel;
         this.ace4000 = ace4000;
         this.inbound = inbound;
+    }
+
+    public void setProtocolHash(int hashCode) {
+        this.protocolHash = hashCode;
+    }
+
+    public int getComChannelHash() {
+        return this.comChannel.hashCode();
     }
 
     /**
@@ -41,7 +54,6 @@ public class ACE4000Connection {
      * If mustKeepListening is false, return the result immediately, don't wait for possible next frames
      */
     public List<String> readFrames(boolean mustKeepListening) {
-
         // keep reading until you get no data for [timeout] period
         int timeout = ace4000.getProperties().getTimeout();
         long timeoutMoment = getCurrentSystemTime() + timeout;
@@ -49,14 +61,16 @@ public class ACE4000Connection {
         comChannel.startReading();
 
         while (true) {
-            if (comChannel.available() > 0) {
-                while (comChannel.available() > 0) {
+            int available = comChannel.available();
+            if (available > 0) {
+                while (available > 0) {
                     delay(10);  //Wait for full frame
-                    byte[] buffer = new byte[comChannel.available()];
+                    byte[] buffer = new byte[available];
                     comChannel.read(buffer);
                     for (byte b : buffer) {
                         msg.append((char) (b & 0xFF));
                     }
+                    available = comChannel.available();
                 }
                 if (!mustKeepListening) {    //Return single frame, don't wait for timeout
                     return splitConcatenatedFrames(msg.toString());
@@ -70,7 +84,7 @@ public class ACE4000Connection {
             if (getCurrentSystemTime() - timeoutMoment > 0) {
                 if (msg.toString().isEmpty()) {
                     if (inbound) {
-                        throw InboundFrameException.timeoutException(String.format("Timeout: didn't receive an inbound frame after %d ms.", timeout));
+                        return new ArrayList<>();
                     } else {
                         IOException cause = new IOException(String.format("Timeout: didn't receive an outbound frame after %d ms.", timeout));
                         throw ConnectionCommunicationException.numberOfRetriesReached(cause, ace4000.getProperties().getRetries() + 1);
@@ -93,6 +107,23 @@ public class ACE4000Connection {
         return receivedFrames;
     }
 
+    private String readFromFile(){
+        try (BufferedReader br = new BufferedReader(new FileReader("C:\\Work\\xml.txt"))) {
+
+            String sCurrentLine;
+            String data = "";
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                data += sCurrentLine;
+            }
+            return data;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
     private void delay(int millis) {
         try {
             Thread.sleep(millis);
@@ -104,5 +135,13 @@ public class ACE4000Connection {
 
     public long getCurrentSystemTime() {
         return System.currentTimeMillis();
+    }
+
+    public DeviceIdentifier getCurrentDeviceIdentifier() {
+        return currentDeviceIdentifier;
+    }
+
+    public void setCurrentDeviceIdentifier(DeviceIdentifier currentDeviceIdentifier) {
+        this.currentDeviceIdentifier = currentDeviceIdentifier;
     }
 }

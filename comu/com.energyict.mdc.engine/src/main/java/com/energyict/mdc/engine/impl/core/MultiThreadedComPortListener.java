@@ -7,12 +7,14 @@ package com.energyict.mdc.engine.impl.core;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.users.User;
+import com.energyict.mdc.channels.VoidComChannel;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.engine.impl.EngineServiceImpl;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.concurrent.ResizeableSemaphore;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactory;
 import com.energyict.mdc.engine.impl.core.factories.InboundComPortExecutorFactoryImpl;
+import com.energyict.mdc.protocol.ComChannel;
 
 import java.util.Locale;
 import java.util.Optional;
@@ -28,7 +30,6 @@ import java.util.concurrent.TimeUnit;
  * @since 2012-04-03 (11:27)
  */
 public class MultiThreadedComPortListener extends ComChannelBasedComPortListenerImpl {
-
     private static final TimeDuration RESOURCE_FREE_TIMEOUT = new TimeDuration(5, TimeDuration.TimeUnit.SECONDS);
     private final ThreadPrincipalService threadPrincipalService;
 
@@ -93,13 +94,14 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
 
     @Override
     protected void doRun() {
-        if (prepareExecution()) {
-            ComPortRelatedComChannel comChannel = listen();
-            this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor()), comChannel));
-        } else {
-            waitForFreeResources();
+        ComChannel comChannel = listen();
+        if (!(comChannel instanceof VoidComChannel)) {
+            if (prepareExecution()) {
+                this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor()), (ComPortRelatedComChannel) comChannel));
+            } else {
+                waitForFreeResources();
+            }
         }
-
     }
 
     /**

@@ -93,22 +93,6 @@ public enum ModbusConfigurationDeviceMessage implements DeviceMessageSpecSupplie
         return ModbusConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {
-        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
-                    .addValues(exhaustiveValues)
-                    .markExhaustive()
-                    .finish();
-    }
-
-    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .hexStringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
 
     protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
         return Collections.singletonList(this.stringSpec(service, this.propertyName, propertyNameDefaultTranslation));

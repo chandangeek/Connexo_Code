@@ -210,7 +210,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         //TODO: make this parsing generic. That would be usefull if the push objects will change over time and not remain fixed
         if (pushObjectListObisCode.equals(PUSH_ON_INSTALLATION_OBJECT_LIST_OBIS)) {
             //the structure will contain 7 elements in case of a Push on Installation Data Notification
-            parsePushOnInstallatioEvent(structure);
+            parsePushOnInstallationEvent(structure);
         } else if (pushObjectListObisCode.equals(PUSH_ON_CONNECTIVITY_OBJECT_LIST_OBIS)) {
             parsePushOnConnectivityEvent(structure);
         } else if (pushObjectListObisCode.equals(PUSH_ON_INTERVAL_1_OBJECT_LIST_OBIS)) {
@@ -296,7 +296,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         return null;
     }
 
-    private void parsePushOnInstallatioEvent(Structure structure) {
+    private void parsePushOnInstallationEvent(Structure structure) {
         if (structure.nrOfDataTypes() == 7) {
             parseEquipementType(structure.getNextDataType());
         }

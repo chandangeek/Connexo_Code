@@ -47,6 +47,8 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final String ISKRA_WRAPPER = "IskraWrapper";
     public static final String DEVICE_BUFFER_SIZE = "DeviceBufferSize";
     public static final String INCREMENT_FRAMECOUNTER_FOR_RETRIES = "IncrementFrameCounterForRetries";
+    public static final String READCACHE_PROPERTY = "ReadCache";
+
     /** Property name of the property that indicates whether or not to bump the FC when invoking reply_to_hls. The f(StoC) uses FC, the action request carrying it FC + 1. */
     public static final String INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS = "IncrementFrameCounterForReplyToHLS";
 
@@ -75,6 +77,7 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     public static final int DEFAULT_ISKRA_WRAPPER = 1;
     public static final int DEFAULT_DEVICE_BUFFER_SIZE = -1;
     public static final boolean DEFAULT_INCREMENT_FRAMECOUNTER_FOR_RETRIES = true;
+    public static final boolean READCACHE_PROPERTY_DEFAULT_VALUE = false;
     /** The default for the {@value #INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS} is false. */
     private static final boolean DEFAULT_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS = false;
 
@@ -314,8 +317,13 @@ public abstract class DlmsProtocolProperties extends AbstractProtocolProperties 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public final boolean incrementFrameCounterForReplyToHLS() {
-        return this.getBooleanProperty(INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, DEFAULT_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS);
+	@Override
+	public final boolean incrementFrameCounterForReplyToHLS() {
+		return this.getBooleanProperty(INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, DEFAULT_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS);
+	}
+
+    @ProtocolProperty
+    public boolean isReadCache() {
+        return this.getBooleanProperty(READCACHE_PROPERTY, READCACHE_PROPERTY_DEFAULT_VALUE);
     }
 }

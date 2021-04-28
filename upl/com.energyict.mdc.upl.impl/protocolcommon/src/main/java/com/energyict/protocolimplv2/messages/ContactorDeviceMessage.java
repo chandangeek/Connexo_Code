@@ -214,18 +214,6 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... possibleValues) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .bigDecimalSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .addValues(possibleValues)
-                .markExhaustive()
-                .markRequired()
-                .finish();
-    }
-
     private String getNameResourceKey() {
         return ContactorDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

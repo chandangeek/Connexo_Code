@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.ace4000.objects;
 
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -10,6 +11,7 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.InboundFrameException;
@@ -89,6 +91,7 @@ public class ObjectFactory {
     private boolean clockWasSet = false;
 
     private String currentSlaveSerialNumber = "";
+    private DeviceIdentifier currentDeviceIdentifier;
     private List<String> allSlaveSerialNumbers;
     private Map<Tracker, RequestState> requestStates = new HashMap<>();
     private Map<Tracker, String> reasonDescriptions = new HashMap<>();
@@ -809,6 +812,7 @@ public class ObjectFactory {
                     if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.SERIALNUMBER)) {
                         currentSerialNumber = mdElement.getTextContent();
                         getAce4000().setSerialNumber(currentSerialNumber);
+                        setCurrentDeviceIdentifier(new DeviceIdentifierBySerialNumber(currentSerialNumber));
                     } else if (mdElement.getNodeName().equalsIgnoreCase(XMLTags.TRACKER)) {
                         setTrackingID(Integer.parseInt(mdElement.getTextContent(), 16));    // add the radix because we receive hex
                         if (inbound) {
@@ -972,9 +976,16 @@ public class ObjectFactory {
 
     public List<CollectedLoadProfile> createCollectedLoadProfiles(ObisCode obisCode) {
         List<CollectedLoadProfile> collectedLoadProfiles = new ArrayList<>();
-        CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, getAce4000().getDeviceIdentifier()));
-        collectedLoadProfile.setCollectedIntervalData(getLoadProfile().getProfileData().getIntervalDatas(), getLoadProfile().getProfileData().getChannelInfos());
-        collectedLoadProfiles.add(collectedLoadProfile);
+        for (DeviceIdentifier deviceIdentifier : getLoadProfile().getProfileDataMap().keySet()) {
+            CollectedLoadProfile collectedLoadProfile = this.collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierByObisCodeAndDevice(obisCode, deviceIdentifier));
+            collectedLoadProfile.setCollectedIntervalData(getLoadProfile().getProfileDataMap().get(deviceIdentifier).getIntervalDatas(), getLoadProfile().getProfileDataMap().get(deviceIdentifier).getChannelInfos());
+            collectedLoadProfile.setDoStoreOlderValues(true);
+            collectedLoadProfiles.add(collectedLoadProfile);
+            for(IntervalData data : collectedLoadProfile.getCollectedIntervalData()){
+                System.out.println(data);
+            }
+        }
+
         return collectedLoadProfiles;
     }
 
@@ -1092,5 +1103,14 @@ public class ObjectFactory {
         CollectedFirmwareVersion result = this.collectedDataFactory.createFirmwareVersionsCollectedData(getAce4000().getDeviceIdentifier());
         result.setFailureInformation(ResultType.DataIncomplete, issue);
         return result;
+    }
+
+
+    public DeviceIdentifier getCurrentDeviceIdentifier() {
+        return currentDeviceIdentifier;
+    }
+
+    public void setCurrentDeviceIdentifier(DeviceIdentifier currentDeviceIdentifier) {
+        this.currentDeviceIdentifier = currentDeviceIdentifier;
     }
 }

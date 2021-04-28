@@ -216,16 +216,6 @@ public enum PeakShaverConfigurationDeviceMessage implements DeviceMessageSpecSup
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .bigDecimalSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     private String getNameResourceKey() {
         return PeakShaverConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }

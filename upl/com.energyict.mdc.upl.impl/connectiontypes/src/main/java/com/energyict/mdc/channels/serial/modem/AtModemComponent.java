@@ -39,7 +39,8 @@ public class AtModemComponent implements ModemComponent, Serializable {
     public static final String HANG_UP_SEQUENCE = "ATH";
     public static final String RESTORE_PROFILE_SEQUENCE = "ATZ";
     public static final String DIAL_SEQUENCE = "ATD";
-    public static final String OK_ANSWER = "OK";
+    public static final String OK_ANSWER = "OK";                // If DCE response format is set to verbose response text
+    private static final String OK_ANSWER_NUMERIC_FORM = "0";   // If DCE response format is set to numeric text
     public static final String CONNECT = "CONNECT";
     public static final String BUSY = "BUSY";
     public static final String ERROR = "ERROR";
@@ -83,15 +84,28 @@ public class AtModemComponent implements ModemComponent, Serializable {
         initializeAfterConnect(comChannel);
     }
 
+    /**
+     * Initialize the modem so it is ready for dialing/receival of a call.
+     * During this initialization, several steps are performed:<br></br>
+     * <p>
+     * <ul>
+     * <li>If present, the current connection of the modem is hung up</li>
+     * <li>The default profile of the modem is restored.</li>
+     * <li>All initialization strings are send out to the modem</li>
+     * </ul>
+     *
+     * @param name
+     * @param comChannel
+     */
     @Override
     public void initializeModem(String name, SerialPortComChannel comChannel) {
         this.comPortName = name;
 
-        if (!hangUpComChannel(comChannel)) {
+        if (!hangUpComChannel(comChannel, true)) {
             throw ModemException.couldNotHangup(this.comPortName);
         }
 
-        if (!reStoreProfile(comChannel)) {
+        if (!reStoreProfile(comChannel, true)) {
             throw ModemException.couldNotRestoreProfile(this.comPortName, lastCommandSend, lastResponseReceived);
         }
 
@@ -170,8 +184,20 @@ public class AtModemComponent implements ModemComponent, Serializable {
      * @return true if the command succeeded, false otherwise
      */
     public boolean reStoreProfile(ComChannel comChannel) {
+        return reStoreProfile(comChannel, false);
+    }
+
+    /**
+     * Restore the default profile of the modem.
+     * (by calling ATZ)
+     *
+     * @param comChannel the comChannel to send the commands to
+     * @param allowNumericAnswer if enabled, alternative numeric response code '0' is also considered as an OK answer
+     * @return true if the command succeeded, false otherwise
+     */
+    public boolean reStoreProfile(ComChannel comChannel, boolean allowNumericAnswer) {
         write(comChannel, AtModemComponent.RESTORE_PROFILE_SEQUENCE);
-        return readAndVerifyWithRetries(comChannel, AtModemComponent.OK_ANSWER);
+        return readAndVerifyWithRetries(comChannel, AtModemComponent.OK_ANSWER, allowNumericAnswer ? AtModemComponent.OK_ANSWER_NUMERIC_FORM : null);
     }
 
     /**
@@ -191,10 +217,21 @@ public class AtModemComponent implements ModemComponent, Serializable {
      * @return true if the command succeeded, false otherwise
      */
     public boolean hangUpComChannel(ComChannel comChannel) {
+        return hangUpComChannel(comChannel, false);
+    }
+
+    /**
+     * Hangs the current connection of the modem up
+     *
+     * @param comChannel the comChannel to send the commands to
+     * @param allowNumericAnswer if enabled, alternative numeric response code '0' is also considered as an OK answer
+     * @return true if the command succeeded, false otherwise
+     */
+    public boolean hangUpComChannel(ComChannel comChannel, boolean allowNumericAnswer) {
         sendDisconnectModem(comChannel);
         comChannel.startWriting();
         write(comChannel, AtModemComponent.HANG_UP_SEQUENCE);
-        return readAndVerifyWithRetries(comChannel, AtModemComponent.OK_ANSWER);
+        return readAndVerifyWithRetries(comChannel, AtModemComponent.OK_ANSWER, allowNumericAnswer ? AtModemComponent.OK_ANSWER_NUMERIC_FORM : null);
     }
 
     /**
@@ -257,7 +294,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     /**
      * Toggle the DTR signal line, to ensure the current session is terminated
      *
-     * @param comChannel          the serialComChannel
+     * @param comChannel the serialComChannel
      * @param delayInMilliSeconds the delay to wait after each DTR signal switch
      */
     protected void toggleDTR(SerialPortComChannel comChannel, long delayInMilliSeconds) {
@@ -268,7 +305,12 @@ public class AtModemComponent implements ModemComponent, Serializable {
         delay(delayInMilliSeconds);
     }
 
-
+    /**
+     * Write the given data to the comChannel
+     *
+     * @param comChannel the comChannel to write to
+     * @param dataToWrite the data to write
+     */
     public void write(ComChannel comChannel, String dataToWrite, boolean confirm) {
         delayBeforeSend();
         comChannel.startWriting();
@@ -284,15 +326,28 @@ public class AtModemComponent implements ModemComponent, Serializable {
      * Read bytes from the comChannel and verifies against the given expected value.
      * If the value doesn't match, then we retry until the maximum number of tries is reached.
      *
-     * @param comChannel     the comChannel to read
+     * @param comChannel the comChannel to read
      * @param expectedAnswer the expected response
      * @return true if the answer matches the expected answer, false otherwise
      */
     private boolean readAndVerifyWithRetries(ComChannel comChannel, String expectedAnswer) {
+        return readAndVerifyWithRetries(comChannel, expectedAnswer, null);
+    }
+
+    /**
+     * Read bytes from the comChannel and verifies against the given expected value.
+     * If the value doesn't match, then we retry until the maximum number of tries is reached.
+     *
+     * @param comChannel the comChannel to read
+     * @param expectedAnswer the expected response
+     * @param alternativeExpectedAnswer contains the alternative response, which should also be considered as a valid response; if left null, then there is no alternative response defined
+     * @return true if the answer matches the expected answer, false otherwise
+     */
+    private boolean readAndVerifyWithRetries(ComChannel comChannel, String expectedAnswer, String alternativeExpectedAnswer) {
         int currentTry = 0;
         while (currentTry++ < atModemProperties.getCommandTry().intValue()) {
             try {
-                if (readAndVerify(comChannel, expectedAnswer, ((Duration) atModemProperties.getCommandTimeOut()).toMillis())) {
+                if (readAndVerify(comChannel, expectedAnswer, alternativeExpectedAnswer, ((Duration) atModemProperties.getCommandTimeOut()).toMillis())) {
                     return true;
                 }
             } catch (ModemException e) {
@@ -308,13 +363,27 @@ public class AtModemComponent implements ModemComponent, Serializable {
      * Reads bytes from the comChannel and verifies against the given expected value.
      * No retries are performed, just once.
      *
-     * @param comChannel      the ComChannel to read
-     * @param expectedAnswer  the expected response
+     * @param comChannel the ComChannel to read
+     * @param expectedAnswer the expected response
      * @param timeOutInMillis the timeOut in milliseconds to wait before throwing a TimeOutException
      * @return true if the answer matches the expected answer, false otherwise
      */
     @Override
     public boolean readAndVerify(ComChannel comChannel, String expectedAnswer, long timeOutInMillis) {
+        return readAndVerify(comChannel, expectedAnswer, null, timeOutInMillis);
+    }
+
+    /**
+     * Reads bytes from the comChannel and verifies against the given expected value.
+     * No retries are performed, just once.
+     *
+     * @param comChannel the ComChannel to read
+     * @param expectedAnswer the expected response
+     * @param alternativeExpectedAnswer contains the alternative response, which should also be considered as a valid response; if left null, then there is no alternative response defined
+     * @param timeOutInMillis the timeOut in milliseconds to wait before throwing a TimeOutException
+     * @return true if the answer matches the expected answer, false otherwise
+     */
+    public boolean readAndVerify(ComChannel comChannel, String expectedAnswer, String alternativeExpectedAnswer, long timeOutInMillis) {
         comChannel.startReading();
         StringBuilder responseBuilder = new StringBuilder();
         long max = System.currentTimeMillis() + timeOutInMillis;
@@ -334,7 +403,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
                     }
                 }
 
-            } while (!validateResponse(responseBuilder.toString(), expectedAnswer));
+            } while (!validateResponse(responseBuilder.toString(), expectedAnswer, alternativeExpectedAnswer));
         } finally {
             this.lastResponseReceived = responseBuilder.toString();
         }
@@ -351,17 +420,18 @@ public class AtModemComponent implements ModemComponent, Serializable {
      * </ul>
      * An exception is throw if the response contains any of the error messages.
      *
-     * @param response       the response from the modem
+     * @param response the response from the modem
      * @param expectedAnswer the answer we expect from the modem
+     * @param alternativeExpectedAnswer contains the alternative response, which should also be considered as a valid response; if left null, then there is no alternative response defined
      * @return true if the response matches the expected, false otherwise
      */
-    private boolean validateResponse(String response, String expectedAnswer) {
+    private boolean validateResponse(String response, String expectedAnswer, String alternativeExpectedAnswer) {
         for (ExceptionAnswers exceptionAnswer : ExceptionAnswers.values()) {
             if (response.contains(exceptionAnswer.getError())) {
                 throw ModemException.dialingError(this.comPortName, exceptionAnswer.getDialErrorType(), this.lastCommandSend);
             }
         }
-        return response.contains(expectedAnswer);
+        return response.contains(expectedAnswer) || (alternativeExpectedAnswer != null && response.contains(alternativeExpectedAnswer));
     }
 
     /**
@@ -375,7 +445,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     /**
      * Flushes all data on the comChannel and waits for a period of silence.
      *
-     * @param comChannel            the comChannel to flush
+     * @param comChannel the comChannel to flush
      * @param milliSecondsOfSilence the number of milliseconds of silence to search for
      */
     public void flush(ComChannel comChannel, long milliSecondsOfSilence) {

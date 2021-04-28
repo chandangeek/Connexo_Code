@@ -5,9 +5,9 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -18,27 +18,70 @@ import java.util.List;
  */
 public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier {
 
-    IEC1107LimitPowerQuality(26001, "Limit power quality", DeviceMessageConstants.powerQualityThresholdAttributeName, DeviceMessageConstants.powerQualityThresholdAttributeDefaultTranslation),
-    SetReferenceVoltage(26002, "Set reference voltage", DeviceMessageConstants.ReferenceVoltageAttributeName, DeviceMessageConstants.ReferenceVoltageAttributeDefaultTranslation),
-    SetVoltageSagTimeThreshold(26003, "Set voltage sag time threshold", DeviceMessageConstants.VoltageSagTimeThresholdAttributeName, DeviceMessageConstants.VoltageSagTimeThresholdAttributeDefaultTranslation),
-    SetVoltageSwellTimeThreshold(26004, "Set voltage swell time threshold", DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName, DeviceMessageConstants.VoltageSwellTimeThresholdAttributeDefaultTranslation),
-    SetVoltageSagThreshold(26005, "Set voltage sag threshold", DeviceMessageConstants.VoltageSagThresholdAttributeName, DeviceMessageConstants.VoltageSagThresholdAttributeDefaultTranslation),
-    SetVoltageSwellThreshold(26006, "Set voltage swell threshold", DeviceMessageConstants.VoltageSwellThresholdAttributeName, DeviceMessageConstants.VoltageSwellThresholdAttributeDefaultTranslation),
-    SetLongPowerFailureTimeThreshold(26007, "Set long power failure time threshold", DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName, DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeDefaultTranslation),
-    SetLongPowerFailureThreshold(26008, "Set long power failure threshold", DeviceMessageConstants.LongPowerFailureThresholdAttributeName, DeviceMessageConstants.LongPowerFailureThresholdAttributeDefaultTranslation),
-    SetPowerQualityMeasurePeriod(26009, "Set power quality measure period", DeviceMessageConstants.SetPowerQualityMeasurePeriodAttributeName, DeviceMessageConstants.SetPowerQualityMeasurePeriodDefaultTranslation);
+    IEC1107LimitPowerQuality(26001, "Limit power quality") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.powerQualityThresholdAttributeName, DeviceMessageConstants.powerQualityThresholdAttributeDefaultTranslation));
+        }
+        },
+    SetReferenceVoltage(26002, "Set reference voltage") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.ReferenceVoltageAttributeName, DeviceMessageConstants.ReferenceVoltageAttributeDefaultTranslation));
+        }
+        },
+    SetVoltageSagTimeThreshold(26003, "Set voltage sag time threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.VoltageSagTimeThresholdAttributeName, DeviceMessageConstants.VoltageSagTimeThresholdAttributeDefaultTranslation));
+        }},
+    SetVoltageSwellTimeThreshold(26004, "Set voltage swell time threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.VoltageSwellTimeThresholdAttributeName, DeviceMessageConstants.VoltageSwellTimeThresholdAttributeDefaultTranslation));
+        }},
+    SetVoltageSagThreshold(26005, "Set voltage sag threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.VoltageSagThresholdAttributeName, DeviceMessageConstants.VoltageSagThresholdAttributeDefaultTranslation));
+        }},
+    SetVoltageSwellThreshold(26006, "Set voltage swell threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.VoltageSwellThresholdAttributeName, DeviceMessageConstants.VoltageSwellThresholdAttributeDefaultTranslation));
+        }},
+    SetLongPowerFailureTimeThreshold(26007, "Set long power failure time threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeName, DeviceMessageConstants.LongPowerFailureTimeThresholdAttributeDefaultTranslation));
+        }},
+    SetLongPowerFailureThreshold(26008, "Set long power failure threshold") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.LongPowerFailureThresholdAttributeName, DeviceMessageConstants.LongPowerFailureThresholdAttributeDefaultTranslation));
+        }},
+    SetPowerQualityMeasurePeriod(26009, "Set power quality measure period") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.SetPowerQualityMeasurePeriodAttributeName, DeviceMessageConstants.SetPowerQualityMeasurePeriodDefaultTranslation));
+        }},
+    SetVoltageAndCurrentParameters(26010, "Write voltage and current ratios") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioDenominatorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioNumeratorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioDenominatorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioNumeratorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation));
+        }};
 
 
     private final long id;
     private final String defaultNameTranslation;
-    private final String propertyName;
-    private final String propertyDefaultTranslation;
 
-    PowerConfigurationDeviceMessage(long id, String defaultNameTranslation, String propertyName, String propertyDefaultTranslation) {
+    PowerConfigurationDeviceMessage(long id, String defaultNameTranslation) {
         this.id = id;
         this.defaultNameTranslation = defaultNameTranslation;
-        this.propertyName = propertyName;
-        this.propertyDefaultTranslation = propertyDefaultTranslation;
     }
 
     @Override
@@ -50,19 +93,7 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         return PowerConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    private List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-        return Collections.singletonList(this.bigDecimalSpec(service, this.propertyName, this.propertyDefaultTranslation));
-    }
-
-    private PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .bigDecimalSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
@@ -72,5 +103,4 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
     }
-
 }

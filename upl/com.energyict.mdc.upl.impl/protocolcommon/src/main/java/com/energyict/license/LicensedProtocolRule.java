@@ -401,6 +401,10 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_AS3000(334, "com.energyict.protocolimplv2.dlms.as3000.AS3000"),
     SL7000(335, "com.energyict.protocolimplv2.dlms.actaris.sl7000.ActarisSl7000"),
 
+    // REMI_V2(336, "com.energyict.protocolimplv2.nta.dsmr40.xemex.REMIDatalogger", FamilyRule.XEMEX),
+    // 337 reserved for STG, please use next number - 294 for new protocols
+    // STG_DC(337, "com.energyict.protocolimplv2.stg.outbound.STGDataConcentrator"),
+    // REMI_V2_MBUS_DEVICE(338, "com.energyict.protocolimplv2.nta.dsmr40.xemex.MBusDevice", FamilyRule.XEMEX),
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

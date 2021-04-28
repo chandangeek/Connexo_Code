@@ -67,16 +67,6 @@ public enum UplinkConfigurationDeviceMessage implements DeviceMessageSpecSupplie
 
     protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
 
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .bigDecimalSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     private String getNameResourceKey() {
         return UplinkConfigurationDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
