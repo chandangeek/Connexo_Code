@@ -390,7 +390,7 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 if (preferredComTask) {
                     me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(function () {
                         if (triggerScheduled) {
-                            me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id, null, json.releaseDate);
+                            me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id, null, payload.releaseDate);
                         } else {
                             me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id);
                         }
