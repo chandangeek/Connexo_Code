@@ -371,12 +371,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
             } else if (!Mdc.dynamicprivileges.DeviceState.supportsSpecialDays() && Mdc.dynamicprivileges.DeviceState.supportsNormalSend()) {
                 json.calendarUpdateOption = form.down('#full-calendar').inputValue
             }
-
-            me.sendCalendar(form.deviceId, json);
+            me.sendCalendar(form.deviceId, json, form.down('#on-release-date').checked);
         }
     },
 
-    sendCalendar: function (deviceId, payload) {
+    sendCalendar: function (deviceId, payload, triggerScheduled) {
         var me = this,
             url = '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/timeofuse/send';
         me.getSendCalendarContainer().setLoading(true);
@@ -390,7 +389,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 var preferredComTask = Ext.decode(responce.responseText).preferredComTask;
                 if (preferredComTask) {
                     me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(function () {
-                        me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id);
+                        if (triggerScheduled) {
+                            me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id, null, json.releaseDate);
+                        } else {
+                            me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id);
+                        }
                     });
                 }
             },

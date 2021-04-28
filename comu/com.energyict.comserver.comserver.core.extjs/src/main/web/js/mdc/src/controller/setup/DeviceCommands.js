@@ -205,12 +205,12 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         });
     },
 
-    triggerCommand: function (deviceId, comTaskId, device) {
+    triggerCommand: function (deviceId, comTaskId, device, releaseDate) {
         var me = this;
         if (!device) {
             Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
                 success: function (device) {
-                    me.triggerCommand(deviceId, comTaskId, device);
+                    me.triggerCommand(deviceId, comTaskId, device, releaseDate);
                 }
             });
         } else {
@@ -225,19 +225,33 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                 }
             };
             var info = Ext.encode(infoData);
-            Ext.Ajax.request({
-                url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/runnow',
-                jsonData: info,
-                method: 'PUT',
-                success: function () {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
-                    if (Ext.isDefined(me.getDeviceCommandsGrid())) {
-                        me.getDeviceCommandsGrid().getStore().load();
-                    } else if (Ext.isDefined(me.getCommandsGrid())) {
-                        me.getCommandsGrid().getStore().load();
-                    }
+
+            var callback = function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceCommand.overview.triggerSuccess', 'MDC', 'Command triggered'));
+                if (Ext.isDefined(me.getDeviceCommandsGrid())) {
+                    me.getDeviceCommandsGrid().getStore().load();
+                } else if (Ext.isDefined(me.getCommandsGrid())) {
+                    me.getCommandsGrid().getStore().load();
                 }
-            })
+            }
+            if (releaseDate) {
+               Ext.Ajax.request({
+                    url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/schedule',
+                    jsonData: info,
+                    method: 'PUT',
+                    params: {
+                        'releaseDate': releaseDate
+                    },
+                    success: callback
+               });
+            } else {
+               Ext.Ajax.request({
+                    url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/runnow',
+                    jsonData: info,
+                    method: 'PUT',
+                    success: callback
+               });
+            }
         }
     },
 
