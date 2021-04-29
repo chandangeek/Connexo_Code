@@ -100,7 +100,7 @@ pipeline {
       steps {
         catchError(buildResult: 'SUCCESS', message: 'WARNING: Could not initialize sencha package repo', stageResult: 'SUCCESS') {
           sh 'echo \$PATH or $SENCHA_4'
-          sh "$SENCHA_4 package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
+          sh "${SENCHA_4}/sencha package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
         }
         lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
           withMaven(maven: 'Maven 3.6.3',
