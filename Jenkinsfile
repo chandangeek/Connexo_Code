@@ -4,7 +4,7 @@
 //
 def MAVEN_REPO = "/home2/src/maven/repository"
 def MIRROR_CLONE = "/home2/src/maven/mirror"
-def MAXIMUM_COVERITY_ISSUES = 397
+def MAXIMUM_COVERITY_ISSUES = 402
 
 pipeline {
   agent {
@@ -97,6 +97,10 @@ pipeline {
         DIRECTORIES = "$DIRECTORIES"
       }
       steps {
+        catchError(buildResult: 'SUCCESS', message: 'WARNING: Could not initialize sencha package repo', stageResult: 'SUCCESS') {
+          sh 'echo \$PATH'
+          sh "sencha package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
+        }
         lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
           withMaven(maven: 'Maven 3.6.3',
               mavenSettingsConfig: 'ehc-mirror',
@@ -105,8 +109,6 @@ pipeline {
               options: [openTasksPublisher()],
               mavenLocalRepo: MAVEN_REPO) {
             catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
-              sh 'echo \$PATH'
-              sh "sencha package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
               runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
             }
             //  These stashes are really too large. Need to find another way to do this...
