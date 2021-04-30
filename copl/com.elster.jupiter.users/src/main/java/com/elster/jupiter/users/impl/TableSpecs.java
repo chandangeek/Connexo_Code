@@ -22,6 +22,7 @@ import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
 import com.elster.jupiter.users.privileges.PrivilegeImpl;
 import com.elster.jupiter.users.privileges.PrivilegeInGroup;
+
 import com.google.common.collect.ImmutableMap;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -29,7 +30,6 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
-import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.elster.jupiter.orm.Version.version;
 
@@ -184,7 +184,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
             table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 8));
-            table.column("EMAIL").varChar().map("email").add().since(version(10, 9));
+            table.column("EMAIL").varChar().map("email").add().since(version(10, 9, 3));
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("HA1").varChar().map("ha1").add();
             table.column("SALT").number().conversion(NUMBER2INT).map("salt").add();
