@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.yellowfin;
 
-import com.elster.jupiter.yellowfin.impl.YellowfinReportInfoImpl;
-import com.hof.mi.web.service.ReportRow;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface YellowfinService {
     String COMPONENTNAME = "YFN";
 
