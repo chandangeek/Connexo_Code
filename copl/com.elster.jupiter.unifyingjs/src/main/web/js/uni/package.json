@@ -1,14 +1,14 @@
 {
-  "compatVersion" : "10.9.1",
+  "compatVersion" : "10.9.3",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.unifyingjs",
   "requires" : [
-    "com.elster.jupiter.loaderjs@10.9.1"
+    "com.elster.jupiter.loaderjs@10.9.3"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.1"
+  "version" : "10.9.3"
 }

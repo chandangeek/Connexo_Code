@@ -5,13 +5,9 @@
 package com.elster.jupiter.metering.impl;
 
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.search.SearchService;
 import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.util.sql.SqlBuilder;
-
 import com.google.common.collect.ImmutableMap;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.sql.Connection;
@@ -23,24 +19,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.search.location", service = {SearchLocationService.class}, property = "name=" + SearchService.COMPONENT_NAME)
-@SuppressWarnings("unused")
 public class SearchLocationServiceImpl implements SearchLocationService {
 
     private final Map<String, String> templateMap = templateMap();
-    private volatile DataModel dataModel;
+    private final DataModel dataModel;
     private String[] templateMembers;
 
-    // For OSGi purposes
-    public SearchLocationServiceImpl() {
-        super();
-    }
-
-    // For testing purposes
     @Inject
-    public SearchLocationServiceImpl(MeteringDataModelService meteringDataModelService) {
-        this();
-        this.setMeteringDataModelService(meteringDataModelService);
+    public SearchLocationServiceImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
     }
 
     private Map<String, String> templateMap() {
@@ -61,13 +48,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 .build();
     }
 
-    @Reference
-    public void setMeteringDataModelService(MeteringDataModelService meteringDataModelService) {
-        this.dataModel = meteringDataModelService.getDataModel();
-        this.ensureLocationTemplateInitialized();
-    }
-
-    private void ensureLocationTemplateInitialized() {
+    void ensureLocationTemplateInitialized() {
         String locationTemplate = getAddressTemplate();
         if (locationTemplate != null) {
 
@@ -202,7 +183,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
 
         try (Connection connection = dataModel.getConnection(false);
              PreparedStatement statement = locationBuilder.prepare(connection)) {
-             try (ResultSet resultSet = statement.executeQuery()) {
+            try (ResultSet resultSet = statement.executeQuery()) {
 
                 while (resultSet.next()) {
                     template = resultSet.getString("LOCATIONTEMPLATE");

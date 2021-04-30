@@ -11,8 +11,8 @@ import java.math.BigDecimal;
 @XmlRootElement
 public class Unsigned32 extends AbstractDataType {
 
-    private static final int SIZE = 5;
-	private long value;
+    public static final int SIZE = 5;
+    private long value;
 
     /** Creates a new instance of Enum */
     public Unsigned32(byte[] berEncodedData, int offset) throws IOException {

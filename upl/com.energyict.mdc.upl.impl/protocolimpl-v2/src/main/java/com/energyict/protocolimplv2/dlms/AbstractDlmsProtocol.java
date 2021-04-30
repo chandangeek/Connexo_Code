@@ -15,7 +15,13 @@ import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.*;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
@@ -527,5 +533,13 @@ public abstract class AbstractDlmsProtocol implements DeviceProtocol, SerialNumb
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         return this.collectedDataFactory.createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    /**
+     * Return empty credit amount by default, subclasses can override.
+     */
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        return this.collectedDataFactory.createCreditAmountCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
     }
 }

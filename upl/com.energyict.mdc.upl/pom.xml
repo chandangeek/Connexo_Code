@@ -8,11 +8,10 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>upl</artifactId>
-        <version>2.0.0-Kratos-SNAPSHOT</version>
+        <version>4.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.upl</artifactId>
-    <version>2.0.0-Kratos-SNAPSHOT</version>
     <packaging>bundle</packaging>
     <name>[MDC] com.energyict.mdc.upl</name>
     <description>

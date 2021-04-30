@@ -6,19 +6,18 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SymmetricKeyWrapper;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
 import com.energyict.mdc.device.data.SecurityAccessorDAO;
-import com.energyict.mdc.device.data.impl.DeviceDataModelService;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
-
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "com.energyict.mdc.device.data.impl.pki.SecurityAccessorDAOImpl", service = {SecurityAccessorDAO.class}, immediate = true)
 public class SecurityAccessorDAOImpl implements SecurityAccessorDAO {
 
-    private volatile DataModel dataModel;
+    private final DataModel dataModel;
+
+    public SecurityAccessorDAOImpl(DataModel dataModel) {
+        this.dataModel = dataModel;
+    }
 
     @Override
     public Optional<SecurityAccessor> findBy(SymmetricKeyWrapper key) {
@@ -42,10 +41,4 @@ public class SecurityAccessorDAOImpl implements SecurityAccessorDAO {
         }
         return Optional.of(list.get(0));
     }
-
-    @Reference
-    public void setDataModel(DeviceDataModelService deviceDataModelService) {
-        this.dataModel = deviceDataModelService.dataModel();
-    }
-
 }

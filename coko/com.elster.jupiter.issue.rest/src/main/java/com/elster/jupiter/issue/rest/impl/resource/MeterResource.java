@@ -10,7 +10,7 @@ import com.elster.jupiter.issue.rest.response.device.MeterShortInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeterFilter;
-import com.elster.jupiter.util.HasName;
+import com.elster.jupiter.util.conditions.Order;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.BeanParam;
@@ -21,7 +21,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,11 +41,16 @@ public class MeterResource extends BaseResource {
         String dbSearchText = (searchText != null && !searchText.isEmpty()) ? "*" + searchText + "*" : "*";
         MeterFilter filter = new MeterFilter();
         filter.setName(dbSearchText);
+        String lowerCaseSearchText = searchText == null ? "" : searchText.toLowerCase();
         List<Meter> listMeters = getMeteringService().findMeters(filter)
+                .paged(params.getStart(), params.getLimit())
+                .sorted(Order.ascending("name").apply("LENGTH"))
+                .sorted(Order.ascending("name")
+                        .applySqlString("(CASE WHEN LOWER(name) LIKE '%" + lowerCaseSearchText +
+                                "%' THEN INSTR(LOWER(name), '" + lowerCaseSearchText +
+                                "' ) ELSE 9999 END)"))  // 9999 - means some bigger than max character position in record
+                .sorted("name", true)
                 .stream()
-                .sorted(Comparator.comparingInt((Meter meter) -> meter.getName().length())
-                        .thenComparingInt(meter -> meter.getName().toLowerCase().indexOf(searchText == null ? "" : searchText.toLowerCase()))
-                        .thenComparing(HasName::getName))
                 .collect(Collectors.toList());
         return entity(listMeters, MeterShortInfo.class, params.getStart(), params.getLimit()).build();
     }

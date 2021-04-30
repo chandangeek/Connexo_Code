@@ -1,6 +1,11 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.dlms.cosem.NbiotPushSetup;
@@ -19,7 +24,6 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.google.common.base.Strings;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Calendar;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.threshold;
@@ -31,10 +35,16 @@ public class EI7MessageExecutor extends A2MessageExecutor {
     private static final ObisCode PUSH_SCHEDULER_3 = ObisCode.fromString("0.3.15.0.4.255");
     private static final ObisCode PUSH_SCHEDULER_4 = ObisCode.fromString("0.4.15.0.4.255");
 
+    // NB-IoT Push Setup objects
     private static final ObisCode PUSH_SETUP_1 = ObisCode.fromString("0.1.25.9.0.255");
     private static final ObisCode PUSH_SETUP_2 = ObisCode.fromString("0.2.25.9.0.255");
     private static final ObisCode PUSH_SETUP_3 = ObisCode.fromString("0.3.25.9.0.255");
     private static final ObisCode PUSH_SETUP_4 = ObisCode.fromString("0.4.25.9.0.255");
+    // GSM GPRS Push Setup objects
+    private static final ObisCode PUSH_SETUP_11 = ObisCode.fromString("0.11.25.9.0.255");
+    private static final ObisCode PUSH_SETUP_12 = ObisCode.fromString("0.12.25.9.0.255");
+    private static final ObisCode PUSH_SETUP_13 = ObisCode.fromString("0.13.25.9.0.255");
+    private static final ObisCode PUSH_SETUP_14 = ObisCode.fromString("0.14.25.9.0.255");
 
     private static final ObisCode ORPHAN_STATE = ObisCode.fromString("0.0.94.39.10.255");
 
@@ -42,7 +52,7 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         super(protocol, collectedDataFactory, issueFactory);
     }
 
-    protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+    protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
         try {
             if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PUSH_SCHEDULER)) {
                 writePushScheduler(pendingMessage);
@@ -53,15 +63,15 @@ public class EI7MessageExecutor extends A2MessageExecutor {
             } else {
                 super.executeMessage(pendingMessage, collectedMessage);
             }
-        } catch (ParseException e) {
-                collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-                collectedMessage.setDeviceProtocolInformation(e.getMessage());
-                collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
-            }
+        } catch (IOException e) {
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
+            collectedMessage.setDeviceProtocolInformation(e.getMessage());
+            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+        }
         return collectedMessage;
     }
 
-    private void writePushScheduler(OfflineDeviceMessage pendingMessage) throws IOException, ParseException {
+    private void writePushScheduler(OfflineDeviceMessage pendingMessage) throws IOException {
         ObisCode pushObisCode = null;
         int schedulerNumber = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.schedulerNumber));
         switch(schedulerNumber){
@@ -76,14 +86,19 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         executionTimeCal.setTimeInMillis(Long.valueOf(executionTime));
         nbiotPushScheduler.writeExecutionTime(new Calendar[]{executionTimeCal});
     }
+
     private void writePushSetup(OfflineDeviceMessage pendingMessage) throws IOException {
         ObisCode pushObisCode = null;
         int pushNumber = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.pushNumber));
-        switch(pushNumber){
-            case 1: pushObisCode = PUSH_SETUP_1; break;
-            case 2: pushObisCode = PUSH_SETUP_2; break;
-            case 3: pushObisCode = PUSH_SETUP_3; break;
-            case 4: pushObisCode = PUSH_SETUP_4; break;
+        switch (pushNumber) {
+            case 1:  pushObisCode = PUSH_SETUP_1; break;
+            case 2:  pushObisCode = PUSH_SETUP_2; break;
+            case 3:  pushObisCode = PUSH_SETUP_3; break;
+            case 4:  pushObisCode = PUSH_SETUP_4; break;
+            case 11: pushObisCode = PUSH_SETUP_11; break;
+            case 12: pushObisCode = PUSH_SETUP_12; break;
+            case 13: pushObisCode = PUSH_SETUP_13; break;
+            case 14: pushObisCode = PUSH_SETUP_14; break;
         }
         String pushObjectList = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.pushObjectList);
         String transportTypeString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.transportTypeAttributeName);
@@ -107,6 +122,13 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         nbiotPushSetup.writePushObjectList(new Array(objectDefinitionStructure));
 
         int transportType = NetworkConnectivityMessage.TransportType.valueOf(transportTypeString).getId();
+
+        // for GPRS transport type seems to be either 1 (UDP) or 0 (TCP)
+        // for NB-IoT it is 255 (UDP) or 254 (TCP) - handled by default in the TransportType enum
+        if (pushNumber > 4) {
+            transportType = transportType == 255 ? 1 : 0;
+        }
+
         int messageType = NetworkConnectivityMessage.MessageType.valueOf(messageTypeString).getId();
         nbiotPushSetup.writeSendDestinationAndMethod(transportType, destinationAddress, messageType);
 
@@ -120,7 +142,7 @@ public class EI7MessageExecutor extends A2MessageExecutor {
             Calendar stopTime = Calendar.getInstance(getProtocol().getTimeZone());
             stopTime.setTimeInMillis(Long.valueOf(communicationWindowStopTime));
             windowArray.addDataType(new AXDRDateTime(stopTime));
-            nbiotPushSetup.writeCommunicationWindow(new Array(windowArray));
+            nbiotPushSetup.writeCommunicationWindow(windowArray);
         }
         nbiotPushSetup.writeRandomizationStartInterval(new Unsigned16(Integer.parseInt(randomizationStartInterval)));
         nbiotPushSetup.writeNumberOfRetries(new Unsigned8(Integer.parseInt(numberOfRetries)));

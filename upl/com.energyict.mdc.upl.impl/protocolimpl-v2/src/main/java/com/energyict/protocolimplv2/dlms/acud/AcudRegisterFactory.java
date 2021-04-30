@@ -13,6 +13,7 @@ import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -23,9 +24,11 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.common.DisconnectControlState;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
+import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -47,7 +50,6 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public static final Integer ACTIVE_ACCOUNT = 2;
     public static final Integer CLOSED_ACCOUNT = 3;
 
-
     private final Acud protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
@@ -58,12 +60,18 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
         this.protocol = protocol;
     }
 
+    protected Acud getMeterProtocol() {
+        return protocol;
+    }
+
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister offlineRegister : registers) {
-            CollectedRegister collectedRegister = readRegister(offlineRegister);
-            result.add(collectedRegister);
+            if (offlineRegister.getObisCode().getF() == 255) {
+                CollectedRegister collectedRegister = readRegister(offlineRegister);
+                result.add(collectedRegister);
+            }
         }
         return result;
     }
@@ -324,6 +332,25 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
                                     register.getObisCode()));
         }
         return collectedRegister;
+    }
+
+    protected void readCreditAmount( CollectedCreditAmount collectedCreditAmount, CreditDeviceMessage.CreditType creditType ) {
+        ObisCode creditTypeObiscode = AcudCreditUtils.getCreditTypeObiscode(creditType);
+
+        try {
+            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(creditTypeObiscode);
+            if (uo.getClassID() == DLMSClassId.CREDIT_SETUP.getClassId()) {
+                CreditSetup creditSetup = protocol.getDlmsSession().getCosemObjectFactory().getCreditSetup(creditTypeObiscode);
+                int amount = creditSetup.readCurrentCreditAmount().getInteger32().intValue();
+                String type = creditType.getDescription();
+                collectedCreditAmount.setCreditAmount(new BigDecimal(amount));
+                collectedCreditAmount.setCreditType(type);
+            }
+        } catch (IOException e) {
+            collectedCreditAmount.setFailureInformation(ResultType.InCompatible,
+                    issueFactory.createWarning(creditTypeObiscode,
+                            creditTypeObiscode.toString() + ": Not Supported", creditTypeObiscode));
+        }
     }
 
     private RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRegister) {

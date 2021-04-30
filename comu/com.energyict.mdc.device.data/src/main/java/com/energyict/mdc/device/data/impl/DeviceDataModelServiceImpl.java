@@ -33,12 +33,16 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.search.SearchDomain;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
+import com.elster.jupiter.upgrade.V10_4_21SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_8_11SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_9_3SimpleUpgrader;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -58,6 +62,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
 import com.energyict.mdc.device.data.RegisterService;
+import com.energyict.mdc.device.data.SecurityAccessorDAO;
 import com.energyict.mdc.device.data.crlrequest.CrlRequestTaskPropertiesService;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsCustomPropertySet;
@@ -68,6 +73,8 @@ import com.energyict.mdc.device.data.impl.cps.CustomPropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.crlrequest.CrlRequestTaskPropertiesServiceImpl;
 import com.energyict.mdc.device.data.impl.events.ComTaskExecutionCreatorEventHandler;
 import com.energyict.mdc.device.data.impl.kpi.DataCollectionKpiServiceImpl;
+import com.energyict.mdc.device.data.impl.pki.SecurityAccessorDAOImpl;
+import com.energyict.mdc.device.data.impl.search.DeviceSearchDomain;
 import com.energyict.mdc.device.data.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.device.data.impl.tasks.CommunicationTaskServiceImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskServiceImpl;
@@ -190,6 +197,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private BundleContext bundleContext;
     private ConfigPropertiesService configPropertiesService;
     private ComTaskExecutionCreatorEventHandler comTaskExecutionCreatorEventHandler;
+    private DeviceSearchDomain deviceSearchDomain;
+    private SecurityAccessorDAO securityAccessorDAO;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -707,6 +716,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 bind(CalendarService.class).toInstance(calendarService);
                 bind(MeteringTranslationService.class).toInstance(meteringTranslationService);
                 bind(ConfigPropertiesService.class).toInstance(configPropertiesService);
+                bind(DeviceSearchDomain.class).toInstance(deviceSearchDomain);
+                bind(SecurityAccessorDAO.class).toInstance(securityAccessorDAO);
             }
         };
     }
@@ -735,6 +746,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 7), UpgraderV10_4_7.class)
                         .put(version(10, 4, 9), UpgraderV10_4_9.class)
                         .put(version(10, 4, 10), UpgraderV10_4_10.class)
+                        .put(version(10, 4, 21), V10_4_21SimpleUpgrader.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 6, 1), UpgraderV10_6_1.class)
                         .put(version(10, 7), UpgraderV10_7.class)
@@ -742,8 +754,10 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
                         .put(version(10, 8), UpgraderV10_8.class)
                         .put(version(10, 8, 1), UpgraderV10_8_1.class)
+                        .put(version(10, 8, 11), V10_8_11SimpleUpgrader.class)
                         .put(version(10, 9), UpgraderV10_9.class)
                         .put(version(10, 9, 1), UpgraderV10_9_1.class)
+                        .put(version(10, 9, 3), V10_9_3SimpleUpgrader.class)
                         .build());
         this.registerRealServices(bundleContext);
     }
@@ -763,6 +777,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         deviceMessageService = new DeviceMessageServiceImpl(this, threadPrincipalService, meteringGroupsService, clock);
         crlRequestTaskPropertiesService = new CrlRequestTaskPropertiesServiceImpl(this);
         comTaskExecutionCreatorEventHandler = new ComTaskExecutionCreatorEventHandler(deviceService);
+        deviceSearchDomain = new DeviceSearchDomain(this, clock, protocolPluggableService);
+        securityAccessorDAO = new SecurityAccessorDAOImpl(dataModel);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -780,6 +796,16 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         registerBatchService(bundleContext);
         registerDeviceMessageService(bundleContext);
         registerCrlRequestTaskPropertiesService(bundleContext);
+        registerDeviceSearchDomainService(bundleContext);
+        registerPKIService(bundleContext);
+    }
+
+    private void registerDeviceSearchDomainService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(SearchDomain.class, this.deviceSearchDomain, null));
+    }
+
+    private void registerPKIService(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(SecurityAccessorDAO.class, this.securityAccessorDAO, null));
     }
 
     private void registerConnectionTaskService(BundleContext bundleContext) {

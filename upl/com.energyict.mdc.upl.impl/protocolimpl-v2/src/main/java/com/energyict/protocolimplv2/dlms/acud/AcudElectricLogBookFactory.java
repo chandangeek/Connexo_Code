@@ -76,8 +76,6 @@ public class AcudElectricLogBookFactory extends AcudLogBookFactory {
             meterEvents = new PasswordEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(SECURITY_EVENT_LOG)) {
             meterEvents = new SecurityEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
-        } else if (logBookObisCode.equals(SYNCHRO_EVENT_LOG)) {
-            meterEvents = new SynchroEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(DISCONNECTOR_EVENT_LOG)) {
             meterEvents = new DisconnectorEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(TAMPER1_EVENT_LOG)) {

@@ -70,6 +70,6 @@ public class AcudGateway extends Acud {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-03-31 13:26:25 +0200 (Tue, 31 Mar 2020) $";
+        return "$Date: 2021-04-01 $";
     }
 }

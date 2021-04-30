@@ -40,9 +40,7 @@ public class UniqueUsagePointLifeCycleNameValidator implements ConstraintValidat
     }
 
     private boolean nameIsTheSameAsOneOfDefaultTranslations(UsagePointLifeCycle newUsagePointLifeCycle) {
-        Optional<UsagePointLifeCycle> usagePointLifeCycle = this.service.getUsagePointLifeCycles().stream()
-                .filter(lifeCycle -> lifeCycle.getName().equals(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY))
-                .findFirst();
+        Optional<UsagePointLifeCycle> usagePointLifeCycle = this.service.findUsagePointLifeCycleByName(UsagePointLifeCycleConfigurationService.LIFE_CYCLE_KEY);
         return usagePointLifeCycle.isPresent() && !usagePointLifeCycle.get().isObsolete() &&
                 usagePointLifeCycle.get().getId() != newUsagePointLifeCycle.getId()
                 && this.service.getAllTranslationsForKey(TranslationKeys.LIFE_CYCLE_NAME.getKey())

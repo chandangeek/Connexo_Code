@@ -692,7 +692,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.bigDecimalSpec(service, DeviceMessageConstants.pushNumber, DeviceMessageConstants.pushNumberDefaultTranslation, getPossibleValues(1, 4)),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.pushNumber, DeviceMessageConstants.pushNumberDefaultTranslation, getPushSetupNumbers()),
                     this.stringSpec(service, DeviceMessageConstants.pushObjectList, DeviceMessageConstants.pushObjectListDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.transportTypeAttributeName, DeviceMessageConstants.transportTypeAttributeDefaultTranslation, NetworkConnectivityMessage.TransportType.getTypes()),
                     this.stringSpec(service, DeviceMessageConstants.destinationAddressAttributeName, DeviceMessageConstants.destinationAddressAttributeDefaultTranslation),
@@ -714,9 +714,14 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         }
     };
 
+    private static BigDecimal[] getPushSetupNumbers() {
+        int[] pushSetupNumbers = new int[] { 1, 2, 3, 4, 11, 12, 13, 14};
+        return Arrays.stream(pushSetupNumbers).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
+    }
+
     public enum TransportType {
-        TCP(0),
-        UDP(1);
+        TCP(254),
+        UDP(255);
 
         private final int id;
 

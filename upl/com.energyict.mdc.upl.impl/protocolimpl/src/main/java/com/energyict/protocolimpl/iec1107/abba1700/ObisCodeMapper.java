@@ -18,6 +18,7 @@ import com.energyict.protocolimpl.iec1107.abba1700.counters.ProgrammingCounter;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -119,7 +120,7 @@ public class ObisCodeMapper {
             if (read) {
                 BigDecimal ctPrimary = (BigDecimal) abba1700RegisterFactory.getRegister(CurrentTransformerRatioPrimary);
                 BigDecimal ctSecondary = (BigDecimal) abba1700RegisterFactory.getRegister(CurrentTransformerRatioSecondary);
-                BigDecimal ctRatio = ctPrimary.divide(ctSecondary);
+                BigDecimal ctRatio = ctPrimary.divide(ctSecondary, MathContext.DECIMAL128);
                 registerValue = new RegisterValue(obisCode, new Quantity(ctRatio, Unit.get(255)), null, null, null, new Date(), -1, "Primary : " + ctPrimary + " - Secondary: " + ctSecondary);
                 return registerValue;
             } else {
@@ -129,7 +130,7 @@ public class ObisCodeMapper {
             if (read) {
                 BigDecimal vtPrimary = (BigDecimal) abba1700RegisterFactory.getRegister(VoltageTransformerRatioPrimary);
                 BigDecimal vtSecondary = (BigDecimal) abba1700RegisterFactory.getRegister(VoltageTransformerRatioSecondary);
-                BigDecimal vtRatio = vtPrimary.divide(vtSecondary);
+                BigDecimal vtRatio = vtPrimary.divide(vtSecondary, MathContext.DECIMAL128);
                 registerValue = new RegisterValue(obisCode, new Quantity(vtRatio, Unit.get(255)), null, null, null, new Date(), -1, "Primary : " + vtPrimary + " - Secondary: " + vtSecondary);
                 return registerValue;
             } else {

@@ -22,7 +22,6 @@ public class AcudWaterLogBookFactory extends AcudLogBookFactory {
     protected static ObisCode TAMPER1_EVENT_LOG = ObisCode.fromString("8.0.99.98.12.255");
     protected static ObisCode VALVE_CONTROL_EVENT_LOG = ObisCode.fromString("8.0.99.98.15.255");
     protected static ObisCode PASSWORD_CHANGES_EVENT_LOG = ObisCode.fromString("8.0.99.98.16.255");
-    protected static ObisCode VALVE_CONTROL_STATE_EVENT_LOG = ObisCode.fromString("8.0.99.98.12.255");
     protected static ObisCode SECURITY_ASSOCIATION_EVENT_LOG = ObisCode.fromString("8.0.99.98.19.255");
     protected static ObisCode DISPLAY_ROLL_OVER_EVENT_LOG = ObisCode.fromString("8.0.99.98.20.255");
 
@@ -35,7 +34,6 @@ public class AcudWaterLogBookFactory extends AcudLogBookFactory {
             TAMPER1_EVENT_LOG,
             VALVE_CONTROL_EVENT_LOG,
             PASSWORD_CHANGES_EVENT_LOG,
-            VALVE_CONTROL_STATE_EVENT_LOG,
             SECURITY_ASSOCIATION_EVENT_LOG,
             DISPLAY_ROLL_OVER_EVENT_LOG,
     };

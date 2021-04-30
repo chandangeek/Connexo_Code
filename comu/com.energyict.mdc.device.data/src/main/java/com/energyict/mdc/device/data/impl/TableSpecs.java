@@ -566,8 +566,15 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS")
                     .on(lastSession)
                     .references(DDC_COMSESSION.name())
+                    .map(ConnectionTaskFields.LAST_SESSION.fieldName())
+                    .upTo(Version.version(10, 9, 3))
+                    .add();
+            table.foreignKey("FK_DDC_CONNECTIONTASK_LASTCS")
+                    .on(lastSession)
+                    .references(DDC_COMSESSION.name())
                     .onDelete(SETNULL)
                     .map(ConnectionTaskFields.LAST_SESSION.fieldName())
+                    .since(Version.version(10, 9, 3))
                     .add();
         }
     },
@@ -645,8 +652,16 @@ public enum TableSpecs {
             table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS")
                     .on(lastSession)
                     .references(DDC_COMTASKEXECSESSION.name())
+                    .onDelete(CASCADE)
+                    .map(ComTaskExecutionFields.LAST_SESSION.fieldName())
+                    .upTo(Version.version(10, 9, 3))
+                    .add();
+            table.foreignKey("FK_DDC_COMTASKEXEC_LASTSESS")
+                    .on(lastSession)
+                    .references(DDC_COMTASKEXECSESSION.name())
                     .onDelete(SETNULL)
                     .map(ComTaskExecutionFields.LAST_SESSION.fieldName())
+                    .since(Version.version(10, 9, 3))
                     .add();
         }
     },

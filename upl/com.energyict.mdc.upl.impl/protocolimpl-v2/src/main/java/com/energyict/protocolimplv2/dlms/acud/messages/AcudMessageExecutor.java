@@ -34,6 +34,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.acud.AcudCreditUtils;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -67,8 +68,6 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     private static final ObisCode CHARGE_TOU_IMPORT = ObisCode.fromString("0.0.19.20.0.255");
     private static final ObisCode CHARGE_CONSUMPTION_TAX = ObisCode.fromString("0.0.94.20.58.255");
     private static final ObisCode CHARGE_MONTHLY_TAX = ObisCode.fromString("0.0.19.20.2.255");
-    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
-    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
     public static final ObisCode PASSIVE_STEP_TARIFF_OBIS = ObisCode.fromString("0.0.94.20.75.255");
     public static final ObisCode PASSIVE_TAX_RATES_OBIS = ObisCode.fromString("0.0.94.20.77.255");
     public static final ObisCode STEP_TARIFF_SCHEDULER_OBIS = ObisCode.fromString("0.0.15.0.9.255");
@@ -176,13 +175,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
     private ObisCode getCreditTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {
         String description = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditType);
-        int creditNo = CreditDeviceMessage.CreditType.entryForDescription(description).getId();
-        switch (creditNo) {
-            case 1:
-                return EMERGENCY_CREDIT;
-            default:
-                return IMPORT_CREDIT;
-        }
+        return AcudCreditUtils.getCreditTypeObiscode(CreditDeviceMessage.CreditType.entryForDescription(description));
     }
 
     private ObisCode getChargeTypeObiscode(OfflineDeviceMessage pendingMessage) throws ProtocolException {

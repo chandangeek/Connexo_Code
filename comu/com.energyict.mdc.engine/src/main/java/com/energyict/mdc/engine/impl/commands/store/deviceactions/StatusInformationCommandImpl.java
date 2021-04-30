@@ -19,8 +19,10 @@ import com.energyict.mdc.engine.impl.core.ExecutionContext;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -72,6 +74,13 @@ public class StatusInformationCommandImpl extends SimpleComCommand implements St
         CollectedBreakerStatus breakerStatus = deviceProtocol.getBreakerStatus();
         breakerStatus.setDataCollectionConfiguration(comTaskExecution);
         addCollectedDataItem(breakerStatus);
+
+        List<CollectedCreditAmount> creditAmounts = deviceProtocol.getCreditAmounts();
+        for (CollectedCreditAmount cca : creditAmounts) {
+            if( cca != null )
+                cca.setDataCollectionConfiguration(comTaskExecution);
+        }
+        addListOfCollectedDataItems(creditAmounts);
 
         if (getOfflineDevice().touCalendarManagementAllowed() && getOfflineDevice().getSerialNumber().equals(deviceSerialNumber)) {
             CollectedCalendar calendar = deviceProtocol.getCollectedCalendar();

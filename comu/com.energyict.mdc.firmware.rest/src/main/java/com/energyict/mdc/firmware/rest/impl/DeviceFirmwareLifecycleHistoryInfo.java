@@ -91,7 +91,7 @@ public class DeviceFirmwareLifecycleHistoryInfo {
         this.setTriggerdBy(deviceMessage.getUser());
         this.setFirmwareVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
         this.setImageIdentifier(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getImageIdentifier).orElse(null));
-        this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(null));
+        this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(deviceMessage.getReleaseDate()));
         this.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
     }
 }

@@ -34,6 +34,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -70,6 +71,7 @@ import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.security.DlmsSecuritySupport;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.TemporalAmount;
@@ -422,7 +424,8 @@ public class SDKDeviceProtocol implements DeviceProtocol {
                 new SDKFirmwareTaskProtocolDialectProperties(propertySpecService, nlsService),
                 new SDKCalendarTaskProtocolDialectProperties(propertySpecService, nlsService),
                 new SDKBreakerTaskProtocolDialectProperties(propertySpecService, nlsService),
-                new SDKDeviceAlarmProtocolDialectProperties(propertySpecService, nlsService)
+                new SDKDeviceAlarmProtocolDialectProperties(propertySpecService, nlsService),
+                new SDKCreditTaskProtocolDialectProperties(propertySpecService, nlsService)
         );
     }
 
@@ -546,6 +549,16 @@ public class SDKDeviceProtocol implements DeviceProtocol {
         String breakerStatus = (String) this.typedProperties.getProperty(SDKBreakerTaskProtocolDialectProperties.breakerStatus, BreakerStatus.CONNECTED.name());
         breakerStatusCollectedData.setBreakerStatus(BreakerStatus.valueOf(breakerStatus.toUpperCase()));
         return breakerStatusCollectedData;
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        CollectedCreditAmount creditAmountCollectedData = collectedDataFactory.createCreditAmountCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+        BigDecimal creditAmount = (BigDecimal) this.typedProperties.getProperty(SDKCreditTaskProtocolDialectProperties.creditAmount, new BigDecimal(0));
+        creditAmountCollectedData.setCreditAmount(creditAmount);
+        String creditType = (String) this.typedProperties.getProperty(SDKCreditTaskProtocolDialectProperties.creditType, "");
+        creditAmountCollectedData.setCreditType(creditType);
+        return creditAmountCollectedData;
     }
 
     @Override

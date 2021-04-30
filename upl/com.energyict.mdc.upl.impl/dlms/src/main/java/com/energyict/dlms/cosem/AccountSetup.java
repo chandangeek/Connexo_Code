@@ -3,7 +3,6 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.*;
 import com.energyict.dlms.cosem.attributes.AccountSetupAttributes;
-import com.energyict.dlms.cosem.methods.CreditSetupMethods;
 
 import java.io.IOException;
 

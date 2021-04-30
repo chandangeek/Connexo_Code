@@ -94,5 +94,7 @@ public interface CollectedDataFactory {
 
     CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier deviceIdentifier);
 
+    CollectedCreditAmount createCreditAmountCollectedData(DeviceIdentifier deviceIdentifier);
+
     CollectedCalendar createCalendarCollectedData(DeviceIdentifier deviceIdentifier);
 }

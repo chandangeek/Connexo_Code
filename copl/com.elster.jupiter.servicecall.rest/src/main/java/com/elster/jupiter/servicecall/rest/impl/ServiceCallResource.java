@@ -101,9 +101,7 @@ public class ServiceCallResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
     public ServiceCallInfo postServiceCall(ServiceCallInfo info) {
-        ServiceCallType serviceCallType = serviceCallService.getServiceCallTypes().stream()
-                .filter(type -> type.getId() == info.typeId)
-                .findFirst()
+        ServiceCallType serviceCallType = serviceCallService.findServiceCallType(info.typeId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_SERVICE_CALL_TYPE));
 
         ServiceCallBuilder builder = serviceCallType.newServiceCall()

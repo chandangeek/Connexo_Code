@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -254,6 +255,11 @@ public abstract class AbstractDlmsSlaveProtocol implements DeviceProtocol {
     @Override
     public CollectedBreakerStatus getBreakerStatus() {
         throw CodingException.unsupportedMethod(this.getClass(), "getBreakerStatus");
+    }
+
+    @Override
+    public CollectedCreditAmount getCreditAmount() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getCreditAmount");
     }
 
     @Override
