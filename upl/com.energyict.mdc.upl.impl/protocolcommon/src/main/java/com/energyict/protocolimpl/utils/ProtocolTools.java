@@ -1628,7 +1628,7 @@ public final class ProtocolTools {
     }
 
     public static String bytesToBase64(byte[] plainTextKey) {
-        return String.valueOf(Base64.getEncoder().encode(plainTextKey));
+        return new String(Base64.getEncoder().encode(plainTextKey));
     }
 
     public static byte[] base64ToBytes(String plainTextKey) throws DataParseException {

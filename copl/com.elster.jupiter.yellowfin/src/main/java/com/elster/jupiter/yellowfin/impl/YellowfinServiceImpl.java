@@ -44,7 +44,6 @@ import org.osgi.service.component.annotations.Reference;
 import javax.xml.rpc.ServiceException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -184,8 +183,6 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                     e.printStackTrace();
                 }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -197,7 +194,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         AdministrationServiceResponse rs;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
-        AdministrationServiceSoapBindingStub rssbs = null;
+        AdministrationServiceSoapBindingStub rssbs;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
         } catch (ServiceException e) {
@@ -211,7 +208,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
-        rsr.setOrgId(new Integer(1));
+        rsr.setOrgId(1);
         rsr.setFunction("GETUSER");
         rsr.setPerson(person);
 
@@ -237,11 +234,10 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
     }
 
     @Override
-    public Optional<String> createUser(String username) {
-
+    public Optional<String> createUser(String username, String email) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
-        AdministrationServiceSoapBindingStub rssbs = null;
+        AdministrationServiceSoapBindingStub rssbs;
         try {
             rssbs = (AdministrationServiceSoapBindingStub) ts.getAdministrationService();
         } catch (ServiceException e) {
@@ -256,11 +252,15 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         person.setFirstName("Connexo");
         person.setLastName(username);
         person.setRoleCode("YFREPORTCONSUMER");
-        person.setEmailAddress(username + "@elster.com");
+        if (email != null) {
+            person.setEmailAddress(email);
+        } else {
+            person.setEmailAddress("Not Available");
+        }
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
-        rsr.setOrgId(new Integer(1));
+        rsr.setOrgId(1);
         rsr.setFunction("ADDUSER");
         rsr.setPerson(person);
 
@@ -282,12 +282,21 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                 return Optional.of(EXCEPTION_PREFIX + e.getLocalizedMessage());
             }
         }
-
         return Optional.empty();
     }
 
     @Override
+    public Optional<String> createUser(String username) {
+        return createUser(username, null);
+    }
+
+    @Override
     public Optional<String> login(String username) {
+        return login(username, null);
+    }
+
+    @Override
+    public Optional<String> login(String username, String email) {
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
         AdministrationServiceService ts = new AdministrationServiceServiceLocator(yellowfinHost, yellowfinPort, yellowfinRoot + "/services/AdministrationService", useSecureConnection);
         AdministrationServiceSoapBindingStub rssbs = null;
@@ -299,10 +308,13 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
-        rsr.setOrgId(new Integer(1));
+        rsr.setOrgId(1);
         rsr.setFunction("LOGINUSERNOPASSWORD");
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
+        if (null != email) {
+            ap.setEmailAddress(email);
+        }
         rsr.setPerson(ap);
 
         if (rssbs != null) {
@@ -316,15 +328,12 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                         return Optional.of("LICENSE_BREACH");
                     }
                 }
-
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
         }
-
         return Optional.empty();
     }
-
 
     @Override
     public Optional<Boolean> logout(String username) {
@@ -339,7 +348,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
-        rsr.setOrgId(new Integer(1));
+        rsr.setOrgId(1);
         rsr.setFunction("LOGOUTUSER");
         AdministrationPerson ap = new AdministrationPerson();
         ap.setUserId(username);
@@ -357,7 +366,6 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                 e.printStackTrace();
             }
         }
-
         return Optional.empty();
     }
 
@@ -374,9 +382,8 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         rsr.setLoginId(yellowfinWebServiceUser);
         rsr.setPassword(yellowfinWebServicePassword);
         //rsr.setPassword(null);
-        rsr.setOrgId(new Integer(1));
+        rsr.setOrgId(1);
         rsr.setFunction("RELOADLICENCE");
-
 
         if (rssbs != null) {
             try {
@@ -391,13 +398,11 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                 e.printStackTrace();
             }
         }
-
         return null;
     }
 
     @Override
     public Optional<List<YellowfinReportInfo>> getUserReports(String username, String category, String subCategory, String reportUUId) {
-
         List<YellowfinReportInfo> userReports = new ArrayList<>();
         try {
             AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -406,7 +411,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
 
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
-            rsr.setOrgId(new Integer(1));
+            rsr.setOrgId(1);
             rsr.setFunction("GETALLUSERREPORTS");
 
             AdministrationPerson ap = new AdministrationPerson();
@@ -418,8 +423,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                     if (rs != null) {
                         if ("SUCCESS".equals(rs.getStatusCode())) {
                             AdministrationReport[] reports = rs.getReports();
-                            for (int i = 0; i < reports.length; i++) {
-                                AdministrationReport report = reports[i];
+                            for (AdministrationReport report : reports) {
                                 YellowfinReportInfoImpl userReport = new YellowfinReportInfoImpl();
                                 if ((category == null || category.equalsIgnoreCase(report.getReportCategory())) &&
                                         (subCategory == null || subCategory.equalsIgnoreCase(report.getReportSubCategory())) &&
@@ -447,8 +451,6 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             e.printStackTrace();
             return Optional.empty();
         }
-
-
         return Optional.of(userReports);
     }
 
@@ -463,7 +465,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
-            rsr.setOrgId(new Integer(1));
+            rsr.setOrgId(1);
             rsr.setReportRequest("SCHEMA");
             rsr.setReportId(reportId);
             try {
@@ -471,21 +473,21 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                 if (reportServiceResponse != null) {
                     if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
                         ReportSchema[] rs = reportServiceResponse.getColumns();
-                        for (int i = 0; i < rs.length; i++) {
-                            if (rs[i].getFilterId() != null) {
+                        for (ReportSchema r : rs) {
+                            if (r.getFilterId() != null) {
                                 YellowfinFilterInfoImpl userFilter = new YellowfinFilterInfoImpl();
-                                userFilter.setId(rs[i].getFilterId());
-                                userFilter.setFilterDataValue1(rs[i].getDefaultValue1());
-                                userFilter.setFilterDataValue2(rs[i].getDefaultValue2());
-                                userFilter.setFilterDisplayType(rs[i].getFilterDisplayType());
-                                userFilter.setFilterName(rs[i].getColumnName());
-                                userFilter.setFilterType(rs[i].getFilterType());
-                                userFilter.setFilterOmittable(rs[i].getFilterOmittable());
-                                userFilter.setFilterDisplayName(rs[i].getDisplayName());
-                                userFilter.setFilterPrompt(rs[i].getPrompt());
-                                userFilter.setFilterAllowPrompt(rs[i].getAllowPrompt());
-                                userFilter.setFilterMaxValue(rs[i].getMaximumValue());
-                                userFilter.setFilterMinValue(rs[i].getMinimumValue());
+                                userFilter.setId(r.getFilterId());
+                                userFilter.setFilterDataValue1(r.getDefaultValue1());
+                                userFilter.setFilterDataValue2(r.getDefaultValue2());
+                                userFilter.setFilterDisplayType(r.getFilterDisplayType());
+                                userFilter.setFilterName(r.getColumnName());
+                                userFilter.setFilterType(r.getFilterType());
+                                userFilter.setFilterOmittable(r.getFilterOmittable());
+                                userFilter.setFilterDisplayName(r.getDisplayName());
+                                userFilter.setFilterPrompt(r.getPrompt());
+                                userFilter.setFilterAllowPrompt(r.getAllowPrompt());
+                                userFilter.setFilterMaxValue(r.getMaximumValue());
+                                userFilter.setFilterMinValue(r.getMinimumValue());
                                 userFilters.add(userFilter);
                             }
                         }
@@ -500,7 +502,6 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             return Optional.empty();
         }
         return Optional.of(userFilters);
-
     }
 
     public ReportRow[] getFilterList(String filterId, int reportId) {
@@ -512,7 +513,7 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
-            rsr.setOrgId(new Integer(1));
+            rsr.setOrgId(1);
             rsr.setReportRequest("FILTEROPTIONS");
             rsr.setObjectName(filterId);
             rsr.setReportId(reportId);
@@ -523,7 +524,6 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                         reportRows = reportServiceResponse.getResults();
                     }
                 }
-
             } catch (RemoteException e) {
                 e.printStackTrace();
             }
@@ -533,7 +533,6 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
         return reportRows;
     }
 
-
     public Optional<List<YellowfinFilterListItemInfo>> getFilterListItems(String filterId, int reportId) {
         List<YellowfinFilterListItemInfo> listItems = new ArrayList<>();
         try {
@@ -541,11 +540,10 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
             ReportServiceSoapBindingStub rssbs;
             ReportServiceRequest rsr = new ReportServiceRequest();
 
-
             rssbs = (ReportServiceSoapBindingStub) ts.getReportService();
             rsr.setLoginId(yellowfinWebServiceUser);
             rsr.setPassword(yellowfinWebServicePassword);
-            rsr.setOrgId(new Integer(1));
+            rsr.setOrgId(1);
             rsr.setReportRequest("FILTEROPTIONS");
             rsr.setObjectName(filterId);
             rsr.setReportId(reportId);
@@ -554,8 +552,8 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                 if (reportServiceResponse != null) {
                     if ("SUCCESS".equals(reportServiceResponse.getStatusCode())) {
                         ReportRow[] reportRows = reportServiceResponse.getResults();
-                        for (int i = 0; i < reportRows.length; i++) {
-                            String[] dataValues = reportRows[i].getDataValue();
+                        for (ReportRow reportRow : reportRows) {
+                            String[] dataValues = reportRow.getDataValue();
                             YellowfinFilterListItemInfo listItem = new YellowfinFilterListItemInfoImpl();
                             if (dataValues[0].contains("__##SEARCH_RESULTS##__")) {
                                 continue;
@@ -566,7 +564,6 @@ public class YellowfinServiceImpl implements YellowfinService, MessageSeedProvid
                         }
                     }
                 }
-
             } catch (RemoteException e) {
                 e.printStackTrace();
                 return Optional.empty();

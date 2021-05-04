@@ -146,7 +146,7 @@ public class ConnexoAuthenticationSSOFilterTest {
         tokenInstance.set(null, tokenManager);
 
         String token = "test";
-        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", Arrays.asList("Role1", "Role2"), token, Arrays.asList());
+        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", Arrays.asList("Role1", "Role2"), token, Arrays.asList(), "test@honeywell.com");
         when(restManager.getConnexoAuthorizationToken(authorization)).thenReturn(token);
         when(tokenManager.verifyToken(token, true)).thenReturn(principal);
 

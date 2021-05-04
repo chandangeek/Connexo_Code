@@ -47,6 +47,7 @@ public class UserInfoFactoryImpl implements com.elster.jupiter.users.rest.UserIn
         UserInfo userInfo = new UserInfo();
         userInfo.id = user.getId();
         userInfo.authenticationName = user.getName();
+        userInfo.email = user.getEmail();
         userInfo.description = user.getDescription();
         userInfo.active = user.getStatus();
         userInfo.version = user.getVersion();

@@ -104,6 +104,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
                 .getContextPath(), request.getProtocol());
 
         String userName = principal.getName();
+        String email = principal.getEmail();
         List<String> privileges = principal.getPrivileges();
         if (principal.getPrivileges().contains("privilege.view.reports") &&
                 !(principal.getPrivileges().contains("privilege.design.reports") || principal.getPrivileges().contains("privilege.administrate.reports"))) {
@@ -112,7 +113,7 @@ public class ConnexoFactsSSOFilter extends ConnexoAbstractSSOFilter {
         }
         Optional<String> result = manager.getUser(userName, privileges);
         if (!result.isPresent() || !result.get().equals("SUCCESS")) {
-            result = manager.createUser(userName, privileges);
+            result = manager.createUser(userName, privileges, email);
         }
 
         if (result.isPresent() && result.get().equals("SUCCESS")) {

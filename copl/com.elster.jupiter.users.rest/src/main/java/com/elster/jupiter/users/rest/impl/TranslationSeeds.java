@@ -11,6 +11,7 @@ public enum TranslationSeeds implements TranslationKey {
     DESCRIPTION("description", "Description"),
     DOMAIN("domain", "Domain"),
     STATUS("active", "Status"),
+    EMAIL("email", "Email"),
     LANGUAGE("language", "Language"),
     CREATETIME("createdOn", "Created on"),
     MODTIME("modifiedOn", "Modified on"),

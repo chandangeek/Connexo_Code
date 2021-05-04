@@ -27,7 +27,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.FoundUserIsNotActiveException;
 import com.elster.jupiter.users.GrantPrivilege;
@@ -168,6 +167,9 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     @Activate
     public void activate(BundleContext context) {
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
         if (context != null) {
             setTrustStore(context);
         }
@@ -199,6 +201,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
                             .put(version(10, 4, 9), V10_4_9SimpleUpgrader.class)
                             .put(version(10, 8), UpgraderV10_8.class)
                             .put(version(10, 9), UpgraderV10_9.class)
+                            .put(version(10, 9, 3), UpgraderV10_9_3.class)
                             .build()
             );
         }
@@ -669,9 +672,6 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(COMPONENTNAME, "User Management");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
     }
 
     @Reference
