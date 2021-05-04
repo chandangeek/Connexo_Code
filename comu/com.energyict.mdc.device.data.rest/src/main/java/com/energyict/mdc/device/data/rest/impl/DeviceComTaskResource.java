@@ -34,7 +34,15 @@ import com.energyict.mdc.tasks.TaskService;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.HttpMethod;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -249,7 +257,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
-    public Response schedule(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, @QueryParam("releaseDate") Long releaseDate, ComTaskConnectionMethodInfo info, @Context SecurityContext securityContext) {
+    public Response schedule(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, @QueryParam("date") Long date, ComTaskConnectionMethodInfo info, @Context SecurityContext securityContext) {
         if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
@@ -261,7 +269,7 @@ public class DeviceComTaskResource {
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 for (ComTaskExecution comTaskExecution : comTaskExecutions) {
-                    comTaskExecution.addNewComTaskExecutionTrigger(releaseDate == null ? clock.instant() : Instant.ofEpochMilli(releaseDate+1000));
+                    comTaskExecution.addNewComTaskExecutionTrigger(date == null ? clock.instant() : Instant.ofEpochMilli(date));
                     comTaskExecution.updateNextExecutionTimestamp();
                 }
             }

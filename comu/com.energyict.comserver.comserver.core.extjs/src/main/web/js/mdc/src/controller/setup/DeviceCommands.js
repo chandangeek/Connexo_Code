@@ -240,7 +240,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                     jsonData: info,
                     method: 'PUT',
                     params: {
-                        'releaseDate': releaseDate
+                        'date': releaseDate+1000
                     },
                     success: callback
                });
