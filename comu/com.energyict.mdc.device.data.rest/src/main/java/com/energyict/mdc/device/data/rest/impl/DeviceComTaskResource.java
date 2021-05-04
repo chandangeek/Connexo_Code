@@ -42,11 +42,14 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
@@ -74,6 +77,7 @@ public class DeviceComTaskResource {
     private final ComSessionInfoFactory comSessionInfoFactory;
     private final JournalEntryInfoFactory journalEntryInfoFactory;
     private final ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck;
+    private final Clock clock;
 
 
     @Inject
@@ -81,7 +85,7 @@ public class DeviceComTaskResource {
                                  TaskService taskService, CommunicationTaskService communicationTaskService, EngineConfigurationService engineConfigurationService,
                                  TopologyService topologyService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory,
                                  ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory,
-                                 ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck) {
+                                 ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck, Clock clock) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
@@ -93,6 +97,7 @@ public class DeviceComTaskResource {
         this.comSessionInfoFactory = comSessionInfoFactory;
         this.journalEntryInfoFactory = journalEntryInfoFactory;
         this.comTaskExecutionPrivilegeCheck = comTaskExecutionPrivilegeCheck;
+        this.clock = clock;
     }
 
     @GET
@@ -216,7 +221,7 @@ public class DeviceComTaskResource {
         }
         return Response.ok().build();
     }
-    
+
     @PUT
     @Transactional
     @Path("/{comTaskId}/runnow")
@@ -243,6 +248,33 @@ public class DeviceComTaskResource {
                 comTaskEnablements.forEach(runComTaskFromEnablementNow(device));
             }
         }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Transactional
+    @Path("/{comTaskId}/schedule")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
+    public Response schedule(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, @QueryParam("date") Long date, ComTaskConnectionMethodInfo info, @Context SecurityContext securityContext) {
+        if (info == null || info.device == null) {
+            throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
+        }
+        info.device.name = name;
+        checkForNoActionsAllowedOnSystemComTask(comTaskId);
+        Device device = resourceHelper.lockDeviceOrThrowException(info.device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        User user = (User) securityContext.getUserPrincipal();
+        if (!comTaskExecutions.isEmpty()) {
+            if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
+                for (ComTaskExecution comTaskExecution : comTaskExecutions) {
+                    comTaskExecution.addNewComTaskExecutionTrigger(date == null ? clock.instant() : Instant.ofEpochMilli(date));
+                    comTaskExecution.updateNextExecutionTimestamp();
+                }
+            }
+        }
+
         return Response.ok().build();
     }
 
