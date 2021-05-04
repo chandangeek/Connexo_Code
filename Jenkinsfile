@@ -197,18 +197,15 @@ pipeline {
                 unstash "java_reports"
                 unstash "bug_reports"
                 unstash "java_classes"
-                recordIssues(
-                      aggregatingResults: true,
-                      enabledForFailure: true,
-                      qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
-                      [threshold: 97, type: 'TOTAL_HIGH', unstable: true],
-                      [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]
-                      ],
-                      tools: [junitParser(pattern: '**/TEST-*.xml'),
-                      pmdParser(),
-                      checkStyle(),
-                      spotBugs(useRankAsPriority: true)]
-                )
+                recordIssues aggregatingResults: true,
+                             enabledForFailure: true,
+                             qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
+                                            [threshold: 97, type: 'TOTAL_HIGH', unstable: true],
+                                            [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
+                             tools: [junitParser(pattern: '**/Test-*.xml'),
+                                     pmdParser(),
+                                     checkStyle(),
+                                     spotBugs(useRankAsPriority: true)]
                 junit allowEmptyResults: true, healthScaleFactor: 100.0, testResults: '**/TEST-*.xml'
                 jacoco buildOverBuild: false,
                        changeBuildStatus: true,
