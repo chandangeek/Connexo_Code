@@ -239,8 +239,9 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
                     url: '/api/ddr/devices/' + encodeURIComponent(deviceId) + '/comtasks/' + comTaskId + '/schedule',
                     jsonData: info,
                     method: 'PUT',
+                    //needs to be after message release date to execute command too; com task execution time is then truncated to seconds
                     params: {
-                        'date': releaseDate+1000
+                        'date': releaseDate + 1000
                     },
                     success: callback
                });
