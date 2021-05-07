@@ -13,7 +13,6 @@ import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
-
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -85,4 +84,8 @@ public class SyntheticLoadProfileFileImporterMessageHandler implements MessageHa
         this.ormService = ormService;
     }
 
+    @Override
+    public boolean allowsMessageValidation() {
+        return fileImportService.isLocalImportAllowedOnly();
+    }
 }

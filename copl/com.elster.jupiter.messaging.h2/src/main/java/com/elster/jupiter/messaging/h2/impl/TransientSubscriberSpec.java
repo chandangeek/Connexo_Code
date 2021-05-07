@@ -13,6 +13,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.function.Predicate;
 
 public class TransientSubscriberSpec implements SubscriberSpec {
 
@@ -32,6 +33,20 @@ public class TransientSubscriberSpec implements SubscriberSpec {
     @Override
     public DestinationSpec getDestination() {
         return destinationSpec;
+    }
+
+    @Override
+    public Message receive(Predicate<Message> validationFunction) {
+        try {
+            setToCancel(Thread.currentThread());
+            Message message = messages.peek();
+            return validationFunction.test(message) ? messages.take() : null;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return null;
+        } finally {
+            setToCancel(null);
+        }
     }
 
     @Override

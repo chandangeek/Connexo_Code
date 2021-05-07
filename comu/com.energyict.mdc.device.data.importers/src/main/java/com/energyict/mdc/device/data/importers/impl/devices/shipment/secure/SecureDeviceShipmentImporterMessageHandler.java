@@ -138,4 +138,9 @@ public class SecureDeviceShipmentImporterMessageHandler implements MessageHandle
     public List<TranslationKey> getKeys() {
         return Collections.singletonList(SECURE_SHIPMENT_IMPORT_SUBSCRIBER);
     }
+
+    @Override
+    public boolean allowsMessageValidation() {
+        return fileImportService.isLocalImportAllowedOnly();
+    }
 }

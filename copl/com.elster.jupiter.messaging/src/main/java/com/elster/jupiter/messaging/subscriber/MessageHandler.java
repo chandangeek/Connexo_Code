@@ -22,6 +22,10 @@ public interface MessageHandler {
      */
     void process(Message message);
 
+    default boolean validate(Message message) {
+        return true;
+    }
+
     /**
      * This method is called after the transaction that dequeued the Message and handled (through the process(Message) method)
      * has been successfully processed.
