@@ -152,7 +152,8 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.dateTimeSpec(service, firmwareUpdateActivationDateAttributeName, firmwareUpdateActivationDateAttributeDefaultTranslation),
-                    this.stringSpecWithDefaultAndOtherValues(service, firmwareUpdateImageTypeAttributeName,firmwareUpdateImageTypeAttributeNameDefaultTranslation,
+                    this.stringSpecWithDefaultAndOtherValues(service, firmwareUpdateImageTypeAttributeName, firmwareUpdateImageTypeAttributeNameDefaultTranslation,
+                            "",
                             FirmwareImageType.ApplicationImage.getDescription(),
                             FirmwareImageType.BootloaderImage.getDescription(),
                             FirmwareImageType.MetrologyImage.getDescription(),
