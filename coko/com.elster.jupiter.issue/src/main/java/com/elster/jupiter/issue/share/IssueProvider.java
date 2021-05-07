@@ -22,6 +22,6 @@ public interface IssueProvider {
 
     Optional<? extends Issue> findIssue(long id);
 
-    Set<String> getIssueTypesIdentifiers();
+    Set<String> getIssueTypeIdentifiers();
 
 }

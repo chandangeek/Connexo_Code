@@ -399,7 +399,7 @@ public abstract class BaseTest {
         }
 
         @Override
-        public Set<String> getIssueTypesIdentifiers(){
+        public Set<String> getIssueTypeIdentifiers() {
             return new HashSet<>();
         }
     }

@@ -505,7 +505,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
 
     @Override
     public List<IssueProvider> getIssueProviders(String issueTypeIdentifier) {
-        return issueProviders.stream().filter(issueProvider -> issueProvider.getIssueTypesIdentifiers().contains(issueTypeIdentifier)).collect(Collectors.toList());
+        return issueProviders.stream().filter(issueProvider -> issueProvider.getIssueTypeIdentifiers().contains(issueTypeIdentifier)).collect(Collectors.toList());
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

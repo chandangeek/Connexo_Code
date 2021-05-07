@@ -71,7 +71,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
@@ -102,7 +102,6 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     private volatile EstimationService estimationService;
 
     private volatile DataModel dataModel;
-    private volatile Set<String> issueTypesIdentifiers = new HashSet<>();
 
     private final List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
 
@@ -170,7 +169,6 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                         Version.version(10, 8), UpgraderV10_8.class,
                         Version.version(10, 8, 1), UpgraderV10_8_1.class
                 ));
-        issueTypesIdentifiers.add(IssueDataValidationService.ISSUE_TYPE_NAME);
     }
 
     @Deactivate
@@ -402,7 +400,8 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         return thesaurus;
     }
 
-    public Set<String> getIssueTypesIdentifiers() {
-        return issueTypesIdentifiers;
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(IssueDataValidationService.ISSUE_TYPE_NAME);
     }
 }
