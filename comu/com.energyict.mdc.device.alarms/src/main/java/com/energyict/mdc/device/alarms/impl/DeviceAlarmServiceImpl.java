@@ -95,9 +95,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -134,6 +136,7 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     private volatile MeteringTranslationService meteringTranslationService;
     private volatile NlsService nlsService;
     private volatile List<ServiceRegistration> registrations = new ArrayList<>();
+    private volatile Set<String> issueTypesIdentifiers = new HashSet<>();
 
     // For OSGi framework
     public DeviceAlarmServiceImpl() {
@@ -227,12 +230,15 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 version(10, 8, 7), UpgraderV10_8_7.class,
                 version(10, 9, 19), UpgraderV10_9_19.class
         ));
+
+        issueTypesIdentifiers.add(DeviceAlarmService.DEVICE_ALARM);
     }
 
     @Deactivate
     public void deactivate() {
         registrations.forEach(ServiceRegistration::unregister);
         registrations.clear();
+        issueTypesIdentifiers.clear();
     }
 
     @Reference
@@ -586,5 +592,9 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
         } catch (NumberFormatException e) {
             return 0;
         }
+    }
+
+    public Set<String> getIssueTypesIdentifiers() {
+        return issueTypesIdentifiers;
     }
 }

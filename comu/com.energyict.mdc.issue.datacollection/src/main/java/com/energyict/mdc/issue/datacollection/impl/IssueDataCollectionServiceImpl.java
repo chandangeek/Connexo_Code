@@ -96,9 +96,11 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -129,6 +131,7 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     private volatile CommunicationTaskService communicationTaskService;
     private volatile ConnectionTaskService connectionTaskService;
     private volatile List<ServiceRegistration> registrations = new ArrayList<>();
+    private volatile Set<String> issueTypesIdentifiers = new HashSet<>();
 
     // For OSGi framework
     public IssueDataCollectionServiceImpl() {
@@ -230,12 +233,15 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                         .put(version(10, 8, 1), UpgraderV10_8_1.class)
                         .put(version(10, 9), UpgraderV10_9.class)
                         .build());
+
+        issueTypesIdentifiers.add(IssueDataCollectionService.DATA_COLLECTION_ISSUE);
     }
 
     @Deactivate
     public void deactivate() {
         registrations.forEach(ServiceRegistration::unregister);
         registrations.clear();
+        issueTypesIdentifiers.clear();
     }
 
     @Reference
@@ -524,6 +530,11 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataCollection ? Optional.of(issue) : findHistoricalIssue(issue.getId());
+    }
+
+    @Override
+    public Set<String> getIssueTypesIdentifiers() {
+        return issueTypesIdentifiers;
     }
 
     public Thesaurus thesaurus() {

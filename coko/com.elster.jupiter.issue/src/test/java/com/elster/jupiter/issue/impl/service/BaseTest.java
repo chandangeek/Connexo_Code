@@ -99,8 +99,10 @@ import org.osgi.service.http.HttpService;
 import javax.inject.Inject;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -394,6 +396,11 @@ public abstract class BaseTest {
         public Optional<? extends Issue> findIssue(long id) {
             Issue spyIssue = mock(Issue.class);
             return Optional.of(spyIssue);
+        }
+
+        @Override
+        public Set<String> getIssueTypesIdentifiers(){
+            return new HashSet<>();
         }
     }
 }
