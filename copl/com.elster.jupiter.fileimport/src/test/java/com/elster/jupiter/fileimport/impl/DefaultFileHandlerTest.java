@@ -24,6 +24,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -63,6 +64,7 @@ public class DefaultFileHandlerTest {
         when(importSchedule.getDestination()).thenReturn(destination);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(destination.message(SERIALIZED)).thenReturn(messageBuilder);
+        when(fileImportService.getAppServerName()).thenReturn(Optional.of("appServerName"));
 
         when(transactionService.execute(any())).thenAnswer(invocationOnMock ->
                 ((VoidTransaction) invocationOnMock.getArguments()[0]).get());
