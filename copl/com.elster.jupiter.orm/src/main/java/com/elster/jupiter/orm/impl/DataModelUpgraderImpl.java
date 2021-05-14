@@ -117,6 +117,11 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
             try {
                 context.getStatement().execute(each);
             } catch (SQLException sqe) {
+                String name = this.getClass().getName();
+                String message = "Exception during upgrade by " + name + System.lineSeparator() +
+                        "Failed statement: " + each;
+                Logger.getLogger(name).severe(message);
+                System.err.println(message);
                 throw new UnderlyingSQLFailedException(sqe);
             }
         }
@@ -381,7 +386,7 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
     private List<Difference> upgradeTable(TableImpl<?> toTable, TableImpl<?> fromTable, Version version, Context context) {
         List<Difference> upgradeDdl = state.ddlGenerator(fromTable, version).upgradeDdl(toTable, context.getStatement());
         if (toTable.getColumns(version).stream().anyMatch(ColumnImpl::isMAC)) {
-            upgradeDdl.add(new MacDifference(toTable));
+            upgradeDdl.add(new MacDifference<>(toTable));
         }
         toTable.getRealColumns()
                 .filter(Column::isAutoIncrement)
@@ -399,21 +404,22 @@ class DataModelUpgraderImpl implements DataModelUpgrader, DataModelDifferencesLi
         return upgradeDdl;
     }
 
-    private class MacDifference implements DifferenceCommand {
-        private final TableImpl table;
+    private class MacDifference<T> implements DifferenceCommand {
+        private final TableImpl<T> table;
 
-        public MacDifference(TableImpl table) {
+        public MacDifference(TableImpl<T> table) {
             this.table = table;
         }
 
         @Override
         public String description() {
-            return "MAC recalculation for table "+table.getDataMapper().getAlias()+":"+table.getName();
+            return "MAC recalculation for table " + table.getDataMapper().getAlias() + ": " + table.getName();
         }
 
         @Override
         public void execute() {
-            table.getDataMapper().update(table.getDataMapper().findWithoutMacCheck());
+            DataMapperImpl<T> dataMapper = table.getDataMapper();
+            dataMapper.update(dataMapper.findWithoutMacCheck());
         }
     }
 }

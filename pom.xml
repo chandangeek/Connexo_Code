@@ -394,7 +394,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>bundle</id>
+                        <id>default-bundle</id>
                         <goals>
                             <goal>bundle</goal>
                         </goals>
@@ -441,10 +441,12 @@
 
     <profiles>
         <profile>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <id>enforce-version</id>
+            <activation>
+                <property>
+                    <name>!baseline.skip</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
