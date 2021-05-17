@@ -24,12 +24,10 @@ public class CollectedCreditAmountDeviceCommand extends DeviceCommandImpl<Collec
     public static final String DESCRIPTION_TITLE = "Collected credit amount";
 
     private final CollectedCreditAmount collectedCreditAmount;
-    private final ComTaskExecution comTaskExecution;
 
     public CollectedCreditAmountDeviceCommand(ServiceProvider serviceProvider, CollectedCreditAmount collectedCreditAmount, ComTaskExecution comTaskExecution) {
         super(comTaskExecution, serviceProvider);
         this.collectedCreditAmount = collectedCreditAmount;
-        this.comTaskExecution = comTaskExecution;
     }
 
     @Override

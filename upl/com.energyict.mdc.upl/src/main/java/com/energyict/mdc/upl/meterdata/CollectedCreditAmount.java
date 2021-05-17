@@ -26,9 +26,9 @@ public interface CollectedCreditAmount extends CollectedData {
      * @return the current type of the credit.
      * An empty string can be returned in case the device doesn't support credit functionality
      */
-    public String getCreditType();
+    String getCreditType();
 
-    public void setCreditType(String creditType);
+    void setCreditType(String creditType);
 
     /**
      * @return the current status of the device breaker. An empty optional can be returned in case the device doesn't support credit functionality

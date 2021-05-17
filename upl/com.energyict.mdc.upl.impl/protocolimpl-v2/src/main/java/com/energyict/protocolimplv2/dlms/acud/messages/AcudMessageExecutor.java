@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.Integer16;
@@ -26,11 +28,16 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.Register;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -48,11 +55,14 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import static com.energyict.cbo.BaseUnit.COUNT;
+import static com.energyict.cbo.BaseUnit.UNITLESS;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysDayIdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysFormatDatesAttributeName;
 
@@ -75,6 +85,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
     public static final ObisCode FRIENDLY_DAY_PERIOD_OBIS = ObisCode.fromString("0.0.94.20.72.255");
     public static final ObisCode FRIENDLY_WEEKDAYS_OBIS = ObisCode.fromString("0.0.94.20.73.255");
+    public static final ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
 
     private static final int COMMODITY_OBIS_CLASS_ID = 3;
     private static final ObisCode COMMODITY_OBIS_CODE = ObisCode.fromString("7.0.3.1.0.255");
@@ -129,7 +140,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_TIME_CREDIT_THRESHOLD)) {
             updateTimeCreditThreshold(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_AMOUNT)) {
-            updateCreditAmount(pendingMessage);
+            collectedMessage = updateCreditAmount(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CREDIT_DAYS_LIMIT)) {
             updateCreditDaysLimit(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.ACTIVATE_PASSIVE_UNIT_CHARGE)) {
@@ -152,7 +163,6 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             changeStepTariffConfig(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.CHANGE_TAX_RATES)) {
             changeTaxRates(pendingMessage);
-
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.FRIENDLY_DAY_PERIOD_UPDATE)) {
             friendlyPeriodUpdate(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ChargeDeviceMessage.FRIENDLY_WEEKDAYS_UPDATE)) {
@@ -162,9 +172,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SPECIAL_DAY_CSV_STRING)) {
             writeSpecialDaysCsv(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
-            getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
+            collectedMessage = remoteDisconnect(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
-            getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteReconnect();
+            collectedMessage = remoteReconnect(pendingMessage);
         } else {   //Unsupported message
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
@@ -218,11 +228,30 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         getCosemObjectFactory().writeObject(TIME_CREDIT_THRESHOLD, DLMSClassId.DATA.getClassId(), DataAttributes.VALUE.getAttributeNumber(), thresholdStructure.getBEREncodedByteArray());
     }
 
-    private void updateCreditAmount(OfflineDeviceMessage pendingMessage) throws IOException {
+    private CollectedMessage updateCreditAmount(OfflineDeviceMessage pendingMessage) throws IOException {
         ObisCode chargeObisCode = getCreditTypeObiscode(pendingMessage);
-        CreditSetup chargeSetup = getCosemObjectFactory().getCreditSetup(chargeObisCode);
+        CreditSetup creditSetup = getCosemObjectFactory().getCreditSetup(chargeObisCode);
         Integer creditAmount = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditAmount));
-        chargeSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Integer32(creditAmount));
+        creditSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Integer32(creditAmount));
+
+        int creditType = creditSetup.readCreditType().intValue();
+        CollectedCreditAmount cca = getProtocol().getCreditAmounts().stream()
+                .filter(creditAmount1 -> creditType == CreditDeviceMessage.CreditType.entryForDescription(creditAmount1.getCreditType()).getId() )
+                .findAny()
+                .orElse(null);
+
+        if( cca != null ) {
+            Register register = new Register(-1, AcudCreditUtils.getCreditTypeObiscode(CreditDeviceMessage.CreditType.valueOf(cca.getCreditType())), pendingMessage.getDeviceSerialNumber());
+            List<CollectedRegister> collectedRegisters = new ArrayList<>();
+            final RegisterValue registerValue = new RegisterValue(register, new Quantity(cca.getCreditAmount().get(), Unit.get(COUNT, 0)));
+            collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
+
+            CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
+            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+
+            return collectedMessage;
+        }
+        return null;
     }
 
     private void updateCreditDaysLimit(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -501,6 +530,29 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         }
 
         specialDaysTable.writeSpecialDays(specialDaysArray);
+    }
+
+    private CollectedMessage remoteDisconnect(OfflineDeviceMessage pendingMessage) throws IOException {
+        getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
+        return getRemoteBreakerStatus(pendingMessage);
+    }
+
+    private CollectedMessage remoteReconnect(OfflineDeviceMessage pendingMessage) throws IOException {
+        getProtocol().getDlmsSession().getCosemObjectFactory().getDisconnector().remoteReconnect();
+        return getRemoteBreakerStatus(pendingMessage);
+    }
+
+    private CollectedMessage getRemoteBreakerStatus(OfflineDeviceMessage pendingMessage) throws IOException {
+        CollectedBreakerStatus colBreakStatus = getProtocol().getBreakerStatus();
+        Register register = new Register(-1, BREAKER_STATUS, pendingMessage.getDeviceSerialNumber());
+        List<CollectedRegister> collectedRegisters = new ArrayList<>();
+        final RegisterValue registerValue = new RegisterValue(register, new Quantity(colBreakStatus.getBreakerStatus().get().ordinal(), Unit.get(UNITLESS, 0)));
+        collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
+
+        CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
+        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
+
+        return collectedMessage;
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
