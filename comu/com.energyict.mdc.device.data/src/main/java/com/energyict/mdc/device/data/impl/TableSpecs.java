@@ -90,7 +90,16 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
 
 import java.util.List;
 
-import static com.elster.jupiter.orm.ColumnConversion.*;
+import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.ColumnConversion.DATE2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2BOOLEAN;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INSTANT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2INT;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONG;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
+import static com.elster.jupiter.orm.ColumnConversion.NUMBERINUTCSECONDS2INSTANT;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.SETNULL;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
@@ -701,8 +710,7 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             Column comsession = table.column("COMSESSION").number().notNull().add();
             table.column("LOGLEVEL").number().conversion(NUMBER2ENUM).map("logLevel").add();
-            table.column("MESSAGE").type("VARCHAR").conversion(NOCONVERSION).notNull().map("message").add();
-            Column timestamp = table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
+            table.column("MESSAGE").type("CLOB").conversion(CLOB2STRING).notNull().map("message").add();            Column timestamp = table.column("TIMESTAMP").number().conversion(NUMBER2INSTANT).notNull().map("timestamp").add();
             table.column("MOD_DATE").type("DATE").conversion(DATE2INSTANT).map("modDate").add();
             table.column("STACKTRACE").type("CLOB").conversion(CLOB2STRING).map("stackTrace").add();
             table.foreignKey("FK_DDC_COMSESSIONJENTR_SESSION").
