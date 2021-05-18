@@ -4,6 +4,8 @@
 
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
+
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -18,16 +20,20 @@ class FolderScanningJob implements Runnable {
 
     private final FolderScanner scanner;
     private final FileHandler handler;
+    private final FileImportService fileImportService;
 
-    public FolderScanningJob(FolderScanner scanner, FileHandler handler) {
+    public FolderScanningJob(FolderScanner scanner, FileHandler handler, FileImportService fileImportService) {
         this.handler = handler;
         this.scanner = scanner;
+        this.fileImportService = fileImportService;
     }
 
     @Override
     public void run() {
         try {
-            scanner.getFiles().forEach(file -> handler.handle(file));
+            if (fileImportService.getAppServerName().isPresent()) {
+                scanner.getFiles().forEach(handler::handle);
+            }
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }

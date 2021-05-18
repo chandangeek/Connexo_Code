@@ -27,12 +27,18 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
     private AtomicBoolean continueRunning = new AtomicBoolean(true); // safety flag for finishing the thread
+    private final boolean validatedByMessageHandler;
 
     MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler, TransactionService transactionService, Thesaurus thesaurus) {
+        this(subscriberSpec, handler, transactionService, thesaurus, false);
+    }
+
+    MessageHandlerTask(SubscriberSpec subscriberSpec, MessageHandler handler, TransactionService transactionService, Thesaurus thesaurus, boolean validatedByMessageHandler) {
         this.subscriberSpec = subscriberSpec;
         this.handler = handler;
         this.transactionService = transactionService;
         this.thesaurus = thesaurus;
+        this.validatedByMessageHandler = validatedByMessageHandler;
     }
 
     @Override
@@ -72,7 +78,7 @@ public class MessageHandlerTask implements ProvidesCancellableFuture {
     private class ProcessTransaction implements Transaction<Message> {
         @Override
         public Message perform() {
-            Message message = subscriberSpec.receive();
+            Message message = validatedByMessageHandler ? subscriberSpec.receive(handler::validate) : subscriberSpec.receive();
             if (message == null) { // receive() got cancelled, by a shut down request
                 //don't interrupt the current thread as the queue will no longer be processed
                 //Thread.currentThread().interrupt();

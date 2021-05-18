@@ -84,6 +84,7 @@ public class ImportScheduleJobTest {
         when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.of(importSchedule));
         when(fileImportService.getBasePath()).thenReturn(basePath);
         when(basePath.resolve(importDir)).thenReturn(importDir);
+        when(fileImportService.getAppServerName()).thenReturn(Optional.of("appServerName"));
 //        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
 //        when(serviceLocator.getPredicates()).thenReturn(predicates);
 //        when(serviceLocator.getJsonService()).thenReturn(jsonService);

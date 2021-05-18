@@ -140,4 +140,8 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
         return Collections.singletonList(SECURE_HSM_SHIPMENT_IMPORT_SUBSCRIBER);
     }
 
+    @Override
+    public boolean allowsMessageValidation() {
+        return fileImportService.isLocalImportAllowedOnly();
+    }
 }

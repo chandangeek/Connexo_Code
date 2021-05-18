@@ -88,4 +88,8 @@ public class UsagePointFileImporterMessageHandler implements MessageHandlerFacto
         this.ormService = ormService;
     }
 
+    @Override
+    public boolean allowsMessageValidation() {
+        return fileImportService.isLocalImportAllowedOnly();
+    }
 }

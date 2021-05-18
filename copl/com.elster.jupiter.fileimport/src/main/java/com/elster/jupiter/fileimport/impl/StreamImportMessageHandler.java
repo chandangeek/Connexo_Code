@@ -48,6 +48,12 @@ class StreamImportMessageHandler implements MessageHandler {
     }
 
     @Override
+    public boolean validate(Message message) {
+        FileImportMessage fileImportMessage = getFileImportMessage(message);
+        return fileImportService.getAppServerName().filter(name -> name.equals(fileImportMessage.appServerName)).isPresent();
+    }
+
+    @Override
     public void process(Message message) {
         ServerFileImportOccurrence fileImportOccurrence = getFileImportOccurrence(message);
         if (fileImportOccurrence != null) {
