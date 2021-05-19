@@ -4,8 +4,7 @@
 //
 def MAVEN_REPO = "/home2/src/maven/repository"
 def MIRROR_CLONE = "/home2/src/maven/mirror"
-def MAXIMUM_COVERITY_ISSUES = 402
-SENCHA_4 = "/home2/tools/y/Sencha/Cmd/4.0.5.87"
+def MAXIMUM_COVERITY_ISSUES = 397
 
 pipeline {
   agent {
@@ -18,17 +17,19 @@ pipeline {
       name: 'releaseVersion'
     )
     booleanParam(
-      defaultValue: true,
+      defaultValue: false,
       description: 'Run unit tests',
       name: 'runTests'
     )
     booleanParam(
-      defaultValue: isRelease(),
+      //Krishna defaultValue: isRelease(),
+      defaultValue: false,
       description: 'Deploy the artifacts',
       name: 'doDeploy'
     )
     booleanParam(
-      defaultValue: shouldRunAnalysis(),
+      //Krishna defaultValue: shouldRunAnalysis(),
+      defaultValue: false,
       description: 'Run Coverity and Black Duck',
       name: 'runAnalysis'
     )
@@ -81,22 +82,11 @@ pipeline {
       }
       steps {
         withMaven(maven: 'Maven 3.6.3',
-            mavenSettingsConfig: 'ehc-mirror',
+            mavenSettingsConfig: 'developer-settings',
             publisherStrategy: 'EXPLICIT',
             options: [],
             mavenLocalRepo: MAVEN_REPO) {
           runMaven("clean versions:set -DnewVersion=$env.NEW_VERSION")
-        }
-      }
-    }
-    stage('Sencha') {
-      when {
-        not { expression { fileExists("${SENCHA_4}/../repo") } }
-      }
-      steps {
-        catchError(buildResult: 'SUCCESS', message: 'WARNING: Could not initialize sencha package repo', stageResult: 'SUCCESS') {
-          sh "echo \$PATH or $SENCHA_4"
-          sh "${SENCHA_4}/sencha package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
         }
       }
     }
@@ -105,13 +95,14 @@ pipeline {
         COMMAND = mavenCommand()
         EXTRA_PARAMS = getMavenExtras()
         SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
-        PROFILES = '-Psencha-build,coverage'
+        //Krishna PROFILES = '-Psencha-build,coverage'
+        PROFILES = '-Psencha-build,enforce-version'
         DIRECTORIES = "$DIRECTORIES"
       }
       steps {
         lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
           withMaven(maven: 'Maven 3.6.3',
-              mavenSettingsConfig: 'ehc-mirror',
+              mavenSettingsConfig: 'developer-settings',
               mavenOpts: '-Xmx5g',
               publisherStrategy: 'EXPLICIT',
               options: [openTasksPublisher()],
@@ -179,7 +170,7 @@ pipeline {
                           reference: MIRROR_CLONE, shallow: true]],
                           userRemoteConfigs: scm.userRemoteConfigs])
                 withMaven(maven: 'Maven 3.6.3',
-                          mavenSettingsConfig: 'ehc-mirror',
+                          mavenSettingsConfig: 'developer-settings',
                           mavenOpts: '-Xmx5g',
                           publisherStrategy: 'EXPLICIT',
                           options: [],
@@ -204,15 +195,18 @@ pipeline {
                 unstash "java_reports"
                 unstash "bug_reports"
                 unstash "java_classes"
-                recordIssues aggregatingResults: true,
-                             enabledForFailure: true,
-                             qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
-                                            [threshold: 97, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
-                             tools: [junitParser(pattern: '**/Test-*.xml'),
-                                     pmdParser(),
-                                     checkStyle(),
-                                     spotBugs(useRankAsPriority: true)]
+                recordIssues(
+                      aggregatingResults: true,
+                      enabledForFailure: true,
+                      qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
+                      [threshold: 80, type: 'TOTAL_HIGH', unstable: true],
+                      [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]
+                      ],
+                      tools: [junitParser(pattern: '**/TEST-*.xml'),
+                      pmdParser(),
+                      checkStyle(),
+                      spotBugs(useRankAsPriority: true)]
+                )
                 junit allowEmptyResults: true, healthScaleFactor: 100.0, testResults: '**/TEST-*.xml'
                 jacoco buildOverBuild: false,
                        changeBuildStatus: true,
@@ -238,7 +232,7 @@ pipeline {
             stage("Jenkins") {
               steps {
                 archiveArtifacts allowEmptyArchive: true,
-                                 artifacts: '**/connexo-extra-jars*.zip,**/connexo-insight*.zip,**/connexo-kore*.zip,**/multisense*.zip',
+                                 artifacts: '**/connexo-extra-jars*.zip,**/connexo-insight*.zip,**/connexo-kore*.zip,**/multisense*.zip,**/offline*.zip',
                                  fingerprint: false,
                                  followSymlinks: false
               }
@@ -273,7 +267,12 @@ pipeline {
                       "pattern": "**/multisense*.zip",
                       "target": "${FOLDER}/multisense-${ARTIFACT_VERSION}.zip",
                       "flat": true
-                  }]}'''
+                    },{
+                      "pattern": "**/offline*.zip",
+                      "target": "${FOLDER}/offline-${ARTIFACT_VERSION}.zip",
+                      "flat": true
+
+                   }]}'''
                 )
               }
             }
@@ -419,20 +418,17 @@ def runCoverity(maxIssues) {
   if (results != 0) {
     unstable("There was a problem with the coverity script " + results)
   }
-  PROJECT = getCoverityProject()
+  PROJECT = "MULTISENSE"
   results = coverityIssueCheck coverityInstanceUrl: 'https://coverity.swtools.honeywell.com:8443', projectName: "$PROJECT", returnIssueCount: true, viewName: "Outstanding Issues"
   if (results > maxIssues) {
     unstable("Found $results Coverity issues, maximum is $maxIssues")
   }
 }
 
-def getCoverityProject() {
+def getCoverityStream() {
  if (isRelease()) {
-   return "MULTISENSE-RELEASE"
+   return env.BRANCH_NAME
  }
- return "MULTISENSE"
+ return "MULTISENSE-MASTER"
 }
 
-def getCoverityStream() {
- return getCoverityProject() + "-MASTER"
-}
