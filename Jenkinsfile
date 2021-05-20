@@ -105,7 +105,7 @@ pipeline {
         COMMAND = mavenCommand()
         EXTRA_PARAMS = getMavenExtras()
         SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
-        PROFILES = '-Psencha-build,coverage'
+        PROFILES = '-Psencha-build,coverage,enforce-version'
         DIRECTORIES = "$DIRECTORIES"
       }
       steps {
@@ -238,7 +238,7 @@ pipeline {
             stage("Jenkins") {
               steps {
                 archiveArtifacts allowEmptyArchive: true,
-                                 artifacts: '**/connexo-extra-jars*.zip,**/connexo-insight*.zip,**/connexo-kore*.zip,**/multisense*.zip',
+                                 artifacts: '**/connexo-extra-jars*.zip,**/connexo-insight*.zip,**/connexo-kore*.zip,**/multisense*.zip,**/offline*.zip',
                                  fingerprint: false,
                                  followSymlinks: false
               }
@@ -272,6 +272,10 @@ pipeline {
                     },{
                       "pattern": "**/multisense*.zip",
                       "target": "${FOLDER}/multisense-${ARTIFACT_VERSION}.zip",
+                      "flat": true
+                    },{
+                      "pattern": "**/offline*.zip",
+                      "target": "${FOLDER}/offline-${ARTIFACT_VERSION}.zip",
                       "flat": true
                   }]}'''
                 )
