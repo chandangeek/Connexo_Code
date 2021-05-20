@@ -4,12 +4,12 @@
 
 package com.elster.jupiter.yellowfin;
 
-import com.elster.jupiter.yellowfin.impl.YellowfinReportInfoImpl;
-import com.hof.mi.web.service.ReportRow;
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
 
+@ProviderType
 public interface YellowfinService {
     String COMPONENTNAME = "YFN";
 
@@ -17,9 +17,12 @@ public interface YellowfinService {
 
     Optional<String> getUser(String username);
 
+    Optional<String> createUser(String userName, String email);
     Optional<String> createUser(String username);
 
     Optional<String> login(String username);
+    Optional<String> login(String username, String email);
+
     Optional<Boolean> logout(String username);
 
     boolean importContent(String filePath);

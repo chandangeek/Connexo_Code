@@ -40,6 +40,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -244,32 +245,38 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         byte[] hashBytes = ProtocolTools.getBytesFromHexString(hash, 2);
         byte[] kdlBytes = ProtocolTools.getBytesFromHexString(kdl, 2);
         byte[] dateBytes = new AXDRDateTime(Long.parseLong(activationEpochString), getProtocol().getTimeZone()).getCosemDate().toBytes();
-        byte[] initializationBytes = ProtocolTools.concatByteArrays(kdlBytes, hashBytes, dateBytes, typeBytes);
-        String imageIdentifier = new String(initializationBytes, StandardCharsets.ISO_8859_1);
+        byte[] imageIdentifier = ProtocolTools.concatByteArrays(kdlBytes, hashBytes, dateBytes, typeBytes);
 
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
-        imageTransfer.setCharSet(StandardCharsets.ISO_8859_1);
         imageTransfer.setCheckNumberOfBlocksInPreviousSession(false);
         imageTransfer.setTransferBlocks(true);
-        List<ImageTransfer.ImageToActivateInfo> imageToActivateInfos = null;
-        String imageIdentifierInDevice = "";
+        List<Structure> imageToActivateInfos;
+        byte[] imageIdentifierInDevice = null;
         try {
-            imageToActivateInfos = imageTransfer.readImageToActivateInfo();
-            imageIdentifierInDevice = imageToActivateInfos.get(0).getImageIdentifier();
+            imageToActivateInfos = imageTransfer.readImageToActivateInfoStructure();
+            Structure structure = imageToActivateInfos.get(0);
+
+            if (structure.nrOfDataTypes() == 3) {
+                imageIdentifierInDevice = structure.getDataType(1).getOctetString().getOctetStr();
+            } else {
+                throw new ProtocolException("Could not parse Structure [" + structure + "] to a valid ImageToActivateInfo, was expecting 3 elements, but structure contains [" + structure.nrOfDataTypes() + "] elements!");
+            }
         } catch (DataAccessResultException e) {
             // swallow, this happens when a device has never been upgraded
         }
         int lastTransferredBlockNumber = imageTransfer.readFirstNotTransferedBlockNumber().intValue();
-        if (lastTransferredBlockNumber > 0 && imageIdentifier.equalsIgnoreCase(imageIdentifierInDevice)) {
+        if (lastTransferredBlockNumber > 0 && Arrays.equals(imageIdentifier, imageIdentifierInDevice)) {
             imageTransfer.setStartIndex(lastTransferredBlockNumber - 1);
+        } else {
+            imageTransfer.setStartIndexOverride(true);
         }
         ImageTransfer.ImageBlockSupplier dataSupplier = new ImageTransfer.ByteArrayImageBlockSupplier(imageData);
-        imageTransfer.enableImageTransfer(dataSupplier, imageIdentifier);
+        imageTransfer.enableImageTransfer();
         imageTransfer.initializeAndTransferBlocks(dataSupplier, false, imageIdentifier);
         if (imageTransfer.getImageTransferStatus().getValue() == 1) {
             imageTransfer.checkAndSendMissingBlocks();
         }
-//        The device will start verification and activation wil be done on the date that is specified in the imageIdentifier.
+        // The device will start verification and activation wil be done on the date that is specified in the imageIdentifier.
     }
 
     private void changeSessionTimeout(OfflineDeviceMessage pendingMessage) throws IOException {

@@ -76,6 +76,11 @@ Ext.define('Usr.view.user.Edit', {
                                 width: 650
                             },
                             {
+                                name: 'email',
+                                fieldLabel: Uni.I18n.translate('user.email', 'USR', 'Email'),
+                                width: 650
+                            },
+                            {
                                 xtype: 'combobox',
                                 name: 'language',
                                 fieldLabel: Uni.I18n.translate('user.language', 'USR', 'Language'),

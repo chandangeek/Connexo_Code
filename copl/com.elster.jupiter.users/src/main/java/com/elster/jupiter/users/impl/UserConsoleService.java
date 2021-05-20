@@ -21,25 +21,24 @@ import java.util.Optional;
 /**
  * Created by albertv on 12/16/2014.
  */
-
 @Component(name = "com.elster.jupiter.users.console", service = {UserConsoleService.class},
         property = {"name=" + "USR" + ".console",
                 "osgi.command.scope=jupiter",
                 "osgi.command.function=addUser",
                 "osgi.command.function=addApacheUserDirectory",
                 "osgi.command.function=addActiveUserDirectory",
-                "osgi.command.function=renameGroupName" },
+                "osgi.command.function=renameGroupName"},
         immediate = true)
-
 public class UserConsoleService {
-
     private volatile UserService userService;
     private volatile TransactionService transactionService;
     private volatile ThreadPrincipalService threadPrincipalService;
 
-
     public void addUser(String name, String pass) {
+        addUser(name, pass, null);
+    }
 
+    public void addUser(String name, String pass, String email) {
         this.threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
             // Fix for CONM-1382: Not allowing duplicate user names. Enforcing case-sensitivity.
@@ -58,6 +57,7 @@ public class UserConsoleService {
                 }
                 User user = userDirectory.newUser(name, "", false, true);
                 user.setPassword(pass);
+                user.setEmail(email);
                 user.update();
                 context.commit();
             }
@@ -65,7 +65,7 @@ public class UserConsoleService {
     }
 
     public void addUser() {
-        System.out.println("Please add username and password!\n   Exemple: addUser \"username\" \"password\"");
+        System.out.println("Please add username, password and optionally email.\n   Example: addUser \"username\" \"password\" [\"email@connexo.com\"]");
     }
 
     public void addApacheUserDirectory(String domain, String dirUser, String password, String url, String baseUser, String baseGroup, String security, String backupUrl) {
@@ -108,23 +108,20 @@ public class UserConsoleService {
             activeDirectory.update();
             context.commit();
         }
-
     }
 
     public void addApacheUserDirectory() {
         System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl!\n  " +
-                " Exemple: addApacheUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"SSL\" \"backupURL\"");
-
+                " Example: addApacheUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"SSL\" \"backupURL\"");
     }
 
     public void addActiveUserDirectory() {
         System.out.println("Please add domain, dirUser, password, url, baseUser, baseGroup, security, backupUrl!\n  " +
-                " Exemple: addActiveUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"NONE\" \"backupURL\"");
+                " Example: addActiveUserDirectory \"MyDomain\" \"user\" \"password\" \"url\" \"baseUser\" \"baseGroup\" \"NONE\" \"backupURL\"");
     }
 
     private Principal getPrincipal() {
         return new Principal() {
-
             @Override
             public String getName() {
                 return "Jupiter Installer";
@@ -132,10 +129,8 @@ public class UserConsoleService {
         };
     }
 
-
     @SuppressWarnings("unused")
     public void renameGroupName(String groupName, String newName) {
-
         this.threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
 
@@ -148,14 +143,11 @@ public class UserConsoleService {
 
     @Reference
     public void setUserService(UserService userService) {
-
         this.userService = userService;
     }
 
-
     @Reference
     public void setTransactionService(TransactionService transactionService) {
-
         this.transactionService = transactionService;
     }
 
@@ -163,5 +155,4 @@ public class UserConsoleService {
     public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
         this.threadPrincipalService = threadPrincipalService;
     }
-
 }

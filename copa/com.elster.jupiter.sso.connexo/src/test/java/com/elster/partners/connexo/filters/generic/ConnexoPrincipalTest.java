@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNull;
 public class ConnexoPrincipalTest {
     @Test
     public void testUser(){
-        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", Arrays.asList("Role1", "Role2"), "token", Arrays.asList());
+        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", Arrays.asList("Role1", "Role2"), "token", Arrays.asList(), "test@honeywell.com");
 
         assertTrue(principal.isValid());
         assertEquals(principal.getName(), "TestUser");
@@ -32,7 +32,7 @@ public class ConnexoPrincipalTest {
 
     @Test
     public void testNullUser(){
-        ConnexoPrincipal principal = new ConnexoPrincipal(1, null, Arrays.asList("Role1", "Role2"), "token", Arrays.asList());
+        ConnexoPrincipal principal = new ConnexoPrincipal(1, null, Arrays.asList("Role1", "Role2"), "token", Arrays.asList(), "test@honeywell.com");
 
         assertFalse(principal.isValid());
         assertNull(principal.getName());
@@ -40,7 +40,7 @@ public class ConnexoPrincipalTest {
 
     @Test
     public void testNullRoles(){
-        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", null, "token", Arrays.asList());
+        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", null, "token", Arrays.asList(),"test@honeywell.com");
 
         assertFalse(principal.isValid());
         assertNull(principal.getRoles());
@@ -48,7 +48,7 @@ public class ConnexoPrincipalTest {
 
     @Test
     public void testEmptyRoles(){
-        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", Arrays.asList(), "token", Arrays.asList());
+        ConnexoPrincipal principal = new ConnexoPrincipal(1, "TestUser", Arrays.asList(), "token", Arrays.asList(),"test@honeywell.com");
 
         assertFalse(principal.isValid());
         assertEquals(principal.getRoles().size(), 0);

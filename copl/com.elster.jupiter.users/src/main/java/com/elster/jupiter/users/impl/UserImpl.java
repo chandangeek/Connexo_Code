@@ -59,6 +59,8 @@ public final class UserImpl implements User {
     @Size(max = 65, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_65 + "}")
     private String ha1;
     private int salt;
+    @Size(max = SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_SIZE_BETWEEN_1_AND_256 + "}")
+    private String email;
     @SuppressWarnings("unused") // Managed by ORM
     private long version;
     private boolean status;
@@ -165,6 +167,11 @@ public final class UserImpl implements User {
     }
 
     @Override
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    @Override
     public boolean join(Group group) {
         if (isMemberOf(group)) {
             return false;
@@ -222,6 +229,11 @@ public final class UserImpl implements User {
     @Override
     public long getUserDirectoryId() {
         return userDirectory.get().getId();
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
     }
 
     public void update() {

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.transaction.Transaction;
@@ -23,6 +24,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -48,6 +50,8 @@ public class DefaultFileHandlerTest {
     private MessageBuilder messageBuilder;
     @Mock
     private Clock clock;
+    @Mock
+    private FileImportService fileImportService;
 
     private FileSystem testFileSystem;
 
@@ -60,11 +64,12 @@ public class DefaultFileHandlerTest {
         when(importSchedule.getDestination()).thenReturn(destination);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(destination.message(SERIALIZED)).thenReturn(messageBuilder);
+        when(fileImportService.getAppServerName()).thenReturn(Optional.of("appServerName"));
 
         when(transactionService.execute(any())).thenAnswer(invocationOnMock ->
                 ((VoidTransaction) invocationOnMock.getArguments()[0]).get());
 
-        fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService, clock);
+        fileHandler = new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService);
     }
 
     @After

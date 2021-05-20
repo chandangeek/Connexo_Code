@@ -114,9 +114,12 @@ public class ConnexoSecurityTokenManager {
             try {
                 long userId = Long.valueOf(signedJWT.getJWTClaimsSet().getSubject());
                 String user = signedJWT.getJWTClaimsSet().getStringClaim("username");
-
+                String email = signedJWT.getJWTClaimsSet().getStringClaim("email");
                 List<String> groups = new ArrayList<>();
                 JSONArray roles = (JSONArray) signedJWT.getJWTClaimsSet().getClaim("roles");
+                if(null == email){
+                    email = "NA";
+                }
                 if (roles != null) {
                     for (int i = 0; i < roles.size(); i++) {
                         JSONObject role = (JSONObject) roles.get(i);
@@ -136,7 +139,7 @@ public class ConnexoSecurityTokenManager {
                     }
                 }
 
-                principal = new ConnexoPrincipal(userId, user, groups, token, privileges);
+                principal = new ConnexoPrincipal(userId, user, groups, token, privileges, email);
             } catch (ParseException e) {
                 e.printStackTrace();
             }

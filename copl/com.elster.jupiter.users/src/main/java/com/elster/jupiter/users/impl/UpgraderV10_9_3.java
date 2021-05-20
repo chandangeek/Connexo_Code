@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.elster.jupiter.users.impl;
@@ -11,16 +11,16 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_9 implements Upgrader {
+public class UpgraderV10_9_3 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject
-    public UpgraderV10_9(DataModel dataModel) {
+    public UpgraderV10_9_3(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 3));
     }
 }

@@ -28,13 +28,14 @@ public class UserInfo {
     public int unSuccessfulLoginCount;
     public boolean isUserLocked;
     public boolean isRoleModified;
+    public String email;
     public List<GroupInfo> groups = new ArrayList<>();
 
     public UserInfo() {
     }
 
     public boolean update(User user) {
-        return updateDescription(user) | updateLocale(user) | updateStatus(user) | updateRoleModified(user);
+        return updateEmail(user) | updateDescription(user) | updateLocale(user) | updateStatus(user) | updateRoleModified(user);
     }
 
     private boolean updateLocale(User user) {
@@ -44,6 +45,14 @@ public class UserInfo {
         }
         if (!language.languageTag.equals(user.getLanguage())) {
             user.setLocale(Locale.forLanguageTag(language.languageTag));
+            return true;
+        }
+        return false;
+    }
+
+    private boolean updateEmail(User user) {
+        if(email != null && !email.equals(user.getEmail())) {
+            user.setEmail(email);
             return true;
         }
         return false;

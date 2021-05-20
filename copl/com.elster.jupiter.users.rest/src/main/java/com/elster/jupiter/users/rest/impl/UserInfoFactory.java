@@ -51,6 +51,7 @@ public class UserInfoFactory implements InfoFactory<User> {
     public Object from(User user) {
         UserInfo userInfo = new UserInfo();
         userInfo.id = user.getId();
+        userInfo.email = user.getEmail();
         userInfo.authenticationName = user.getName();
         userInfo.description = user.getDescription();
         userInfo.active = user.getStatus();
@@ -76,6 +77,7 @@ public class UserInfoFactory implements InfoFactory<User> {
         infos.add(createDescription(TranslationSeeds.NAME, String.class));
         infos.add(createDescription(TranslationSeeds.DESCRIPTION, String.class));
         infos.add(createDescription(TranslationSeeds.STATUS, String.class));
+        infos.add(createDescription(TranslationSeeds.EMAIL, String.class));
         infos.add(createDescription(TranslationSeeds.DOMAIN, Group.class));
         infos.add(createDescription(TranslationSeeds.LANGUAGE, LocaleInfo.class));
         infos.add(createDescription(TranslationSeeds.CREATETIME, String.class));

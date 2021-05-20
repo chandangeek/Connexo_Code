@@ -85,7 +85,7 @@ public class ConnexoFactsWebServiceManager {
         return Optional.empty();
     }
 
-    Optional<String> createUser(String username, List<String> privileges) {
+    Optional<String> createUser(String username, List<String> privileges, String email) {
         System.out.println("YFN: Create user at " + this.protocol + "://" + this.host + ":" + this.port + this.contextPath + "/services/AdministrationService");
         AdministrationServiceResponse rs = null;
         AdministrationServiceRequest rsr = new AdministrationServiceRequest();
@@ -109,7 +109,7 @@ public class ConnexoFactsWebServiceManager {
         else {
             person.setRoleCode("YFCORPWRITER");
         }
-        person.setEmailAddress(username + "@elster.com");
+        person.setEmailAddress(email);
 
         rsr.setLoginId(this.adminUser);
         rsr.setPassword(this.adminPwd);
@@ -152,6 +152,7 @@ public class ConnexoFactsWebServiceManager {
         AdministrationPerson person = new AdministrationPerson();
 
         person.setUserId(username);
+
         if (privileges.contains("privilege.administrate.reports")) {
             person.setRoleCode("YFADMIN");
         } else {

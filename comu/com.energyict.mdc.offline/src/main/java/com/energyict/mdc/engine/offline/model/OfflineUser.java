@@ -61,7 +61,17 @@ public class OfflineUser implements User {
     }
 
     @Override
+    public String getEmail() {
+        return null;
+    }
+
+    @Override
     public void setDescription(String description) {
+
+    }
+
+    @Override
+    public void setEmail(String email) {
 
     }
 

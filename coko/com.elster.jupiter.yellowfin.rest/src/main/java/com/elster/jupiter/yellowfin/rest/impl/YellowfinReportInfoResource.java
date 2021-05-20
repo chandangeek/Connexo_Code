@@ -49,11 +49,12 @@ public class YellowfinReportInfoResource {
                                       @Context SecurityContext securityContext) {
 
         String userName = getName((User) securityContext.getUserPrincipal());
+        String email = ((User) securityContext.getUserPrincipal()).getEmail();
         String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
         if (found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(userName).
+            found = yellowfinService.createUser(userName, email).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 
@@ -79,11 +80,12 @@ public class YellowfinReportInfoResource {
                                       @Context SecurityContext securityContext) {
         FilterInfos filterInfos = new FilterInfos();
         String userName = getName((User) securityContext.getUserPrincipal());
+        String email = ((User) securityContext.getUserPrincipal()).getEmail();
         String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
         if (found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(userName).
+            found = yellowfinService.createUser(userName, email).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 
@@ -121,11 +123,13 @@ public class YellowfinReportInfoResource {
                                               @Context SecurityContext securityContext) {
         FilterListItemInfos filterInfos = new FilterListItemInfos();
         String userName = getName((User) securityContext.getUserPrincipal());
+        String email = ((User) securityContext.getUserPrincipal()).getEmail();
+
         String found = yellowfinService.getUser(userName).
                 orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
 
         if (found.equals("NOT_FOUND")) {
-            found = yellowfinService.createUser(userName).
+            found = yellowfinService.createUser(userName, email).
                     orElseThrow(() -> new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(thesaurus.getFormat(MessageSeeds.FACTS_NOT_AVAILABLE).format()).build()));
         }
 

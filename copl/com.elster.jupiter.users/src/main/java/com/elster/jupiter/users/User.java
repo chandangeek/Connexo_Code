@@ -33,7 +33,11 @@ public interface User extends Principal, HasName, HasExternalId {
 
     long getUserDirectoryId();
 
+    String getEmail();
+
     void setDescription(String description);
+
+    void setEmail(String email);
 
     void update();
 

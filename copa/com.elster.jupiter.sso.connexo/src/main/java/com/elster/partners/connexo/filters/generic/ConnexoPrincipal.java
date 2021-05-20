@@ -17,13 +17,17 @@ public class ConnexoPrincipal implements Principal {
     final private List<String> roles;
     final private String token;
     final private List<String> privileges;
+    final private String email;
 
-    public ConnexoPrincipal(long userId, String user, List<String> roles, String token, List<String> privileges) {
+
+
+    public ConnexoPrincipal(long userId, String user, List<String> roles, String token, List<String> privileges, String email) {
         this.userId = userId;
         this.user = user;
         this.roles = roles;
         this.token = token;
         this.privileges = privileges;
+        this.email = email;
     }
 
     @Override
@@ -42,6 +46,8 @@ public class ConnexoPrincipal implements Principal {
     public List<String> getPrivileges() {
         return privileges;
     }
+
+    public String getEmail(){ return email; }
 
     boolean isValid() {
         if(this.user == null || this.roles == null || this.roles.isEmpty()) {

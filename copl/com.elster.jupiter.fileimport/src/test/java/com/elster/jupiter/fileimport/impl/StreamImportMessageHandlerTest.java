@@ -92,7 +92,7 @@ public class StreamImportMessageHandlerTest {
         when(fileImportOccurrence.getId()).thenReturn(FILE_IMPORT_ID);
         when(fileImportOccurrence.getCurrentConnection()).thenReturn(connection);
         when(fileImportOccurrence.getLogger()).thenReturn(Logger.getAnonymousLogger());
-        fileImportMessage = new FileImportMessage(fileImportOccurrence);
+        fileImportMessage = new FileImportMessage(fileImportOccurrence, "AppServerName");
         when(message.getPayload()).thenReturn(PAYLOAD);
         when(jsonService.deserialize(aryEq(PAYLOAD), eq(FileImportMessage.class))).thenReturn(fileImportMessage);
         when(dataModel.mapper(FileImportOccurrence.class).getOptional(FILE_IMPORT_ID)).thenReturn(Optional.of(fileImportOccurrence));

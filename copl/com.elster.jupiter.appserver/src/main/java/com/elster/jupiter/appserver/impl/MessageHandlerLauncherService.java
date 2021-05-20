@@ -343,7 +343,7 @@ public class MessageHandlerLauncherService implements IAppService.CommandListene
     }
 
     private MessageHandlerTask newMessageHandlerTask(MessageHandlerFactory factory, SubscriberSpec subscriberSpec) {
-        return new MessageHandlerTask(subscriberSpec, factory.newMessageHandler(), transactionService, getThesaurus());
+        return new MessageHandlerTask(subscriberSpec, factory.newMessageHandler(), transactionService, getThesaurus(), factory.allowsMessageValidation());
     }
 
     private Optional<SubscriberExecutionSpec> findSubscriberExecutionSpec(SubscriberKey key) {

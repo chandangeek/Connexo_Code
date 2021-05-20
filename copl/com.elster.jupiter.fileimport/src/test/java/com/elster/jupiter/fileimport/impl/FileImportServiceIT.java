@@ -66,6 +66,7 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -330,10 +331,11 @@ public class FileImportServiceIT {
         }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccess(SUCCESS_MESSAGE));
-
+        when(fileImportService.getAppServerName()).thenReturn(Optional.of("AppServerName"));
         FolderScanningJob folderScanningJob = new FolderScanningJob(
                 new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
-                new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
+                new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
+                fileImportService);
 
         folderScanningJob.run();
 
@@ -359,10 +361,11 @@ public class FileImportServiceIT {
         }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markFailure(FAILURE_MESSAGE));
-
+        when(fileImportService.getAppServerName()).thenReturn(Optional.of("AppServerName"));
         FolderScanningJob folderScanningJob = new FolderScanningJob(
                 new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
-                new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
+                new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
+                fileImportService);
 
         folderScanningJob.run();
 
@@ -388,10 +391,11 @@ public class FileImportServiceIT {
         }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccessWithFailures(SUCCESS_WITH_FAILURE_MESSAGE));
-
+        when(fileImportService.getAppServerName()).thenReturn(Optional.of("AppServerName"));
         FolderScanningJob folderScanningJob = new FolderScanningJob(
                 new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
-                new DefaultFileHandler(importSchedule, jsonService, transactionService, clock));
+                new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
+                fileImportService);
 
         folderScanningJob.run();
 
