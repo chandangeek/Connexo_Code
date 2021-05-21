@@ -8,9 +8,7 @@ def MAXIMUM_COVERITY_ISSUES = 402
 SENCHA_4 = "/home2/tools/y/Sencha/Cmd/4.0.5.87"
 
 pipeline {
-  agent {
-    label 'linux && java'
-  }
+  agent none
   parameters {
     string(
       defaultValue: '',
@@ -46,83 +44,90 @@ pipeline {
     )
   }
   stages {
-    stage("Checkout") {
-      steps {
-        deleteDir()
-        checkout([$class: 'GitSCM',
-                  branches: scm.branches,
-                  extensions: [[$class: 'CloneOption',
-                  depth: 2,
-                  noTags: false,
-                  reference: MIRROR_CLONE, shallow: true]],
-                  userRemoteConfigs: scm.userRemoteConfigs])
-        script {
-          DIRECTORIES = getBuildDirectories()
-        }
+    stage("Build") {
+      agent {
+        label 'linux && java'
       }
-    }
-    stage("Get POM") {
-      environment {
-        POM_VERSION = getPomVersion()
-      }
-      steps {
-        echo "Detected pom version is '$POM_VERSION'"
-        script {
-          POM_VERSION = "$POM_VERSION"
-        }
-      }
-    }
-    stage("Set Version") {
-      when {
-        expression { return getBranchVersion().length() > 0 }
-      }
-      environment {
-        NEW_VERSION = getBranchVersion()
-      }
-      steps {
-        withMaven(maven: 'Maven 3.6.3',
-            mavenSettingsConfig: 'ehc-mirror',
-            publisherStrategy: 'EXPLICIT',
-            options: [],
-            mavenLocalRepo: MAVEN_REPO) {
-          runMaven("clean versions:set -DnewVersion=$env.NEW_VERSION")
-        }
-      }
-    }
-    stage('Sencha') {
-      when {
-        not { expression { fileExists("${SENCHA_4}/../repo") } }
-      }
-      steps {
-        catchError(buildResult: 'SUCCESS', message: 'WARNING: Could not initialize sencha package repo', stageResult: 'SUCCESS') {
-          sh "echo \$PATH or $SENCHA_4"
-          sh "${SENCHA_4}/sencha package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
-        }
-      }
-    }
-    stage('Build') {
-      environment {
-        COMMAND = mavenCommand()
-        EXTRA_PARAMS = getMavenExtras()
-        SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
-        PROFILES = '-Psencha-build,coverage,enforce-version'
-        DIRECTORIES = "$DIRECTORIES"
-      }
-      steps {
-        lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
-          withMaven(maven: 'Maven 3.6.3',
-              mavenSettingsConfig: 'ehc-mirror',
-              mavenOpts: '-Xmx5g',
-              publisherStrategy: 'EXPLICIT',
-              options: [openTasksPublisher()],
-              mavenLocalRepo: MAVEN_REPO) {
-            catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
-              runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
+      stages {
+        stage("Checkout") {
+          steps {
+            deleteDir()
+            checkout([$class: 'GitSCM',
+                      branches: scm.branches,
+                      extensions: [[$class: 'CloneOption',
+                      depth: 2,
+                      noTags: false,
+                      reference: MIRROR_CLONE, shallow: true]],
+                      userRemoteConfigs: scm.userRemoteConfigs])
+            script {
+              DIRECTORIES = getBuildDirectories()
             }
-            //  These stashes are really too large. Need to find another way to do this...
-            stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
-            stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
-            stash name:"zip_files", allowEmpty: true, includes: "**/*.zip"
+          }
+        }
+        stage("Get POM") {
+          environment {
+            POM_VERSION = getPomVersion()
+          }
+          steps {
+            echo "Detected pom version is '$POM_VERSION'"
+            script {
+              POM_VERSION = "$POM_VERSION"
+            }
+          }
+        }
+        stage("Set Version") {
+          when {
+            expression { return getBranchVersion().length() > 0 }
+          }
+          environment {
+            NEW_VERSION = getBranchVersion()
+          }
+          steps {
+            withMaven(maven: 'Maven 3.6.3',
+                mavenSettingsConfig: 'ehc-mirror',
+                publisherStrategy: 'EXPLICIT',
+                options: [],
+                mavenLocalRepo: MAVEN_REPO) {
+              runMaven("clean versions:set -DnewVersion=$env.NEW_VERSION")
+            }
+          }
+        }
+        stage('Sencha') {
+          when {
+            not { expression { fileExists("${SENCHA_4}/../repo") } }
+          }
+          steps {
+            catchError(buildResult: 'SUCCESS', message: 'WARNING: Could not initialize sencha package repo', stageResult: 'SUCCESS') {
+              sh "echo \$PATH or $SENCHA_4"
+              sh "${SENCHA_4}/sencha package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
+            }
+          }
+        }
+        stage('Compile') {
+          environment {
+            COMMAND = mavenCommand()
+            EXTRA_PARAMS = getMavenExtras()
+            SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
+            PROFILES = '-Psencha-build,coverage,enforce-version'
+            DIRECTORIES = "$DIRECTORIES"
+          }
+          steps {
+            lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
+              withMaven(maven: 'Maven 3.6.3',
+                  mavenSettingsConfig: 'ehc-mirror',
+                  mavenOpts: '-Xmx5g',
+                  publisherStrategy: 'EXPLICIT',
+                  options: [openTasksPublisher()],
+                  mavenLocalRepo: MAVEN_REPO) {
+                catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
+                  runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
+                }
+                //  These stashes are really too large. Need to find another way to do this...
+                stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
+                stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
+                stash name:"zip_files", allowEmpty: true, includes: "**/*.zip"
+              }
+            }
           }
         }
       }
@@ -159,6 +164,9 @@ pipeline {
           }
         }
         stage('Analysis') {
+          agent {
+            label 'linux && java'
+          }
           when {
             expression { params.runTests }
           }
@@ -234,6 +242,9 @@ pipeline {
           }
         }
         stage("Archive") {
+          agent {
+            label 'linux'
+          }
           stages {
             stage("Jenkins") {
               steps {
