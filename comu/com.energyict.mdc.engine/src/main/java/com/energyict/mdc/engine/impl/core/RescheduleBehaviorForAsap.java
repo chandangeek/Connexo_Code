@@ -44,7 +44,8 @@ class RescheduleBehaviorForAsap extends AbstractRescheduleBehavior implements Re
                             } else {
                                 notExecutedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
                             }
-                        } else if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.ConfigurationWarning)) {
+                        } else if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.ConfigurationWarning)
+                                || comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.ConfigurationError)) {
                             getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution(), true);
                         } else {
                             getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution());
