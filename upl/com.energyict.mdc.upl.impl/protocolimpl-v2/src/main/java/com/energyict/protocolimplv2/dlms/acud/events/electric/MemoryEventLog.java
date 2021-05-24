@@ -19,7 +19,7 @@ public class MemoryEventLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId, DataStructure evStructure) {
         switch (eventId) {
             case 1:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.ERROR_REGISTR_1_CHANGED, eventId, "Error register 1 changed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MEMORY_FAILURE, eventId, "Error register 1 changed"));
                 break;
             default:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));

@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.dlms.acud.events.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AcudGasLogBookFactory extends AcudLogBookFactory {
 
@@ -51,7 +52,7 @@ public class AcudGasLogBookFactory extends AcudLogBookFactory {
         } else if (logBookObisCode.equals(COMM_PORT_EVENT_LOG)) {
             meterEvents = new CommPortEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(POWER_LINE_CUT_EVENT_LOG)) {
-            meterEvents = new EOBResetEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new PowerLineCutEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(VALVE_CONTROL_EVENT_LOG)) {
             meterEvents = new OutputValveControlEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(SECURITY_ASSOCIATION_EVENT_LOG)) {
@@ -63,7 +64,10 @@ public class AcudGasLogBookFactory extends AcudLogBookFactory {
         } else {
             return new ArrayList<>();
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents).stream().map(item -> {
+            item.getEventType().setType(getProtocol().getTypeMeter());
+            return item;
+        }).collect(Collectors.toList());
     }
 
     protected List<ObisCode> getSupportedLogBooks() {

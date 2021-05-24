@@ -17,6 +17,13 @@ public class MaxDemandEventLog extends AbstractEvent {
 
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId, DataStructure evStructure) {
-        meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MAXIMUM_DEMAND_EVENT, eventId, "Maximum demand event"));
+        switch (eventId) {
+            case 1:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MAXIMUM_DEMAND_EVENT, eventId, "Error register 2 changed"));
+                break;
+            default:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
+                break;
+        }
     }
 }
