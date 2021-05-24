@@ -299,6 +299,7 @@ pipeline {
   }
   post {
     failure {
+      agent any
       step([$class: 'Mailer',
             notifyEveryUnstableBuild: false,
             recipients: emailextrecipients([culprits(), requestor()])]
