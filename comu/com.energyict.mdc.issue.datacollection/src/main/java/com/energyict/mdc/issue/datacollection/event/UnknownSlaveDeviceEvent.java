@@ -91,7 +91,7 @@ public class UnknownSlaveDeviceEvent extends DataCollectionEvent {
     }
 
     protected void wrapInternal(Map<?, ?> rawEvent, EventDescription eventDescription) {
-        this.slaveDeviceIdentification = (String) rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER); // Which should be the 'toString()' of the slave DeviceIdentifier
+        this.slaveDeviceIdentification = rawEvent.get(ModuleConstants.DEVICE_IDENTIFIER).toString(); // Which should be the 'toString()' of the slave DeviceIdentifier
     }
 
     @Override
