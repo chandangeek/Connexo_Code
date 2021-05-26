@@ -30,18 +30,12 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
             "com/energyict/mdc/connectiontask/COMPLETION",
             ConnectionLostResolvedEvent.class) {
         @Override
-        public boolean validateEvent(Map<?, ?> map) {
-            return true;
-        }
-
-        @Override
         public boolean validateEvent(DataCollectionEvent dataCollectionEvent) {
             return ((ConnectionEvent) dataCollectionEvent).getComSession()
                     .map(ComSession::getSuccessIndicator)
                     .filter(successIndicator -> !successIndicator.equals(ComSession.SuccessIndicator.Broken))
                     .isPresent();
         }
-
 
         @Override
         public String getUniqueKey() {
