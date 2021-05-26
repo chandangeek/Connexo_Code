@@ -764,12 +764,12 @@
                         <groupId>com.elster.plugin</groupId>
                         <artifactId>js-unifying-i18n-maven-plugin</artifactId>
                         <executions>
-                                <execution>
-                                    <id>check-translate-call</id>
-                                    <goals>
-                                        <goal>check</goal>
-                                    </goals>
-                                </execution>
+                            <execution>
+                                <id>check-translate-call</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>
