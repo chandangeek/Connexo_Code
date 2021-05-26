@@ -68,7 +68,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Device device = createDevice();
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         MessageHandler handler = getDataCollectionEventHandler(getMockIssueCreationService());
 
@@ -214,7 +214,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Device device = createDevice();
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownInboundDeviceEvent.class);
         getDataCollectionEventHandler(mock).process(message);
@@ -228,7 +228,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Device device = createDevice();
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownSlaveDeviceEvent.class);
