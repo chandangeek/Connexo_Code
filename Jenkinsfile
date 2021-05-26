@@ -431,4 +431,3 @@ def getCoverityStream() {
  }
  return "MULTISENSE-MASTER"
 }
-
