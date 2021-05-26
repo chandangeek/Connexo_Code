@@ -68,7 +68,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Device device = createDevice();
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         MessageHandler handler = getDataCollectionEventHandler(getMockIssueCreationService());
 
@@ -150,8 +150,8 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(DeviceCommunicationFailureEvent.class, ConnectionLostResolvedEvent.class, UnableToConnectResolvedEvent.class);
         getDataCollectionEventHandler(mock).process(message);
         assertThat(mock.isSuccessfull()).isTrue();
-        verify(state, times(3)).getStage();
-        verify(meter, times(3)).getState();
+        verify(state, times(2)).getStage();
+        verify(meter, times(2)).getState();
     }
 
     @Test
@@ -167,9 +167,9 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventCountServiceMock service = new CheckEventCountServiceMock();
         getDataCollectionEventHandler(service).process(message);
-        assertThat(service.getCounter()).isEqualTo(6);
-        verify(state, times(6)).getStage();
-        verify(meter, times(6)).getState();
+        assertThat(service.getCounter()).isEqualTo(5);
+        verify(state, times(5)).getStage();
+        verify(meter, times(5)).getState();
     }
 
     @Test
@@ -214,7 +214,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/inboundcommunication/UNKNOWNDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Device device = createDevice();
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownInboundDeviceEvent.class);
         getDataCollectionEventHandler(mock).process(message);
@@ -228,7 +228,7 @@ public class DataCollectionEventHandlerTest extends BaseTest {
         messageMap.put(EventConstants.EVENT_TOPIC, "com/energyict/mdc/outboundcommunication/UNKNOWNSLAVEDEVICE");
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Device device = createDevice();
-        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, Long.toString(device.getId()));
+        messageMap.put(ModuleConstants.DEVICE_IDENTIFIER, device.getId());
         messageMap.put(EventConstants.TIMESTAMP, Instant.now().toEpochMilli());
         Message message = getMockMessage(getJsonService().serialize(messageMap));
         CheckEventTypeServiceMock mock = new CheckEventTypeServiceMock(UnknownSlaveDeviceEvent.class);
