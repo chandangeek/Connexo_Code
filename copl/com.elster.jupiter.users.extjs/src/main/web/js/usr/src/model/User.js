@@ -10,6 +10,7 @@ Ext.define('Usr.model.User', {
         'description',
         'version',
         'domain',
+        'email',
         'active',
         {
             name: 'statusDisplay',

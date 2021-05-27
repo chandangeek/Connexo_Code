@@ -22,6 +22,7 @@ import com.elster.jupiter.users.WorkGroup;
 import com.elster.jupiter.users.privileges.PrivilegeCategoryImpl;
 import com.elster.jupiter.users.privileges.PrivilegeImpl;
 import com.elster.jupiter.users.privileges.PrivilegeInGroup;
+
 import com.google.common.collect.ImmutableMap;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
@@ -183,6 +184,7 @@ public enum TableSpecs {
             Column idColumn = table.addAutoIdColumn();
             Column authenticationNameColumn = table.column("AUTHNAME").varChar(NAME_LENGTH).notNull().map("authenticationName").add();
             table.column("EXTERNAL_ID").varChar().map("externalId").add().since(version(10, 8));
+            table.column("EMAIL").varChar().map("email").add().since(version(10, 9, 3));
             table.column("DESCRIPTION").varChar().map("description").add();
             table.column("HA1").varChar().map("ha1").add();
             table.column("SALT").number().conversion(NUMBER2INT).map("salt").add();

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 
 /**
@@ -133,6 +134,11 @@ public class OfflineSubscriberSpecImpl implements SubscriberSpec {
 
     @Override
     public Message receive() {
+        return null;
+    }
+
+    @Override
+    public Message receive(Predicate<Message> validationFunction) {
         return null;
     }
 

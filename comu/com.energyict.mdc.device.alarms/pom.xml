@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>4.0.0-Kratos-SNAPSHOT</version>
+        <version>4.1.0-Kratos-SNAPSHOT</version>
 
     </parent>
 
@@ -377,7 +377,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.2.201409121644</version>
+                <version>${jacoco.version}</version>
                 <configuration>
                     <outputDirectory>${project.reporting.outputDirectory}/jacoco-ut</outputDirectory>
                     <excludes>

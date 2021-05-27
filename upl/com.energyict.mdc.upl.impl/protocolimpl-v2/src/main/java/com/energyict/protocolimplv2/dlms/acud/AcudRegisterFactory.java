@@ -7,12 +7,15 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.cosem.*;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
@@ -46,9 +49,14 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     public final static ObisCode FRIENDLY_DAY_PERIOD = ObisCode.fromString("0.0.94.20.72.255");
     public final static ObisCode FRIENDLY_WEEKDAYS = ObisCode.fromString("0.0.94.20.73.255");
     public final static ObisCode ACTIVE_FIRMWARE = ObisCode.fromString("0.0.0.2.0.255");
+    public final static ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
     public static final Integer NEW_ACCOUNT = 1;
     public static final Integer ACTIVE_ACCOUNT = 2;
     public static final Integer CLOSED_ACCOUNT = 3;
+
+    private static final int DISCONNECT = 0;
+    private static final int CONNECT = 1;
+    private static final int ARM = 2;
 
     private final Acud protocol;
     private final CollectedDataFactory collectedDataFactory;
@@ -139,7 +147,7 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             } else if (uo.getClassID() == DLMSClassId.SPECIAL_DAYS_TABLE.getClassId()) {
                 SpecialDaysTable specialDaysTable = protocol.getDlmsSession().getCosemObjectFactory().getSpecialDaysTable(obisCode);
                 Array specialDays = specialDaysTable.readSpecialDays();
-                StringBuffer buff = new StringBuffer("");
+                StringBuffer buff = new StringBuffer();
                 for (int i = 0; i < specialDays.nrOfDataTypes(); i++) {
                     Structure special = specialDays.getDataType(i).getStructure();
                     appendSpecialDayString(buff, special);
@@ -160,11 +168,11 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
     }
 
     private void appendSpecialDayString(StringBuffer buff, Structure special) {
-        buff.append(String.valueOf(special.getDataType(0).getUnsigned16().getValue()));
+        buff.append(special.getDataType(0).getUnsigned16().getValue());
         buff.append(",");
         buff.append(AXDRDate.toDescription(special.getDataType(1).getOctetString()));
         buff.append(",");
-        buff.append(String.valueOf(special.getDataType(2).getUnsigned8().getValue()));
+        buff.append(special.getDataType(2).getUnsigned8().getValue());
         buff.append(";\n");
     }
 
@@ -350,6 +358,38 @@ public class AcudRegisterFactory implements DeviceRegisterSupport {
             collectedCreditAmount.setFailureInformation(ResultType.InCompatible,
                     issueFactory.createWarning(creditTypeObiscode,
                             creditTypeObiscode.toString() + ": Not Supported", creditTypeObiscode));
+        }
+    }
+
+    public void readBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+        try {
+            UniversalObject uo = protocol.getDlmsSession().getMeterConfig().findObject(BREAKER_STATUS);
+            if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
+                Disconnector disconnector = protocol.getDlmsSession().getCosemObjectFactory().getDisconnector(BREAKER_STATUS);
+
+                TypeEnum currentState = disconnector.readControlState();
+                if (currentState == null) {
+                    throw new IOException("Failed to parse the contactor status");
+                } else {
+                    switch (currentState.getValue()) {
+                        case ARM:
+                            collectedBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
+                            return;
+                        case CONNECT:
+                            collectedBreakerStatus.setBreakerStatus(BreakerStatus.CONNECTED);
+                            return;
+                        case DISCONNECT:
+                            collectedBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
+                            return;
+                        default:
+                            throw new IOException("Failed to parse the contactor status: received invalid state '" + currentState.getValue() + "'");
+                    }
+                }
+            }
+        } catch (IOException e) {
+            collectedBreakerStatus.setFailureInformation(ResultType.InCompatible,
+                    issueFactory.createWarning(BREAKER_STATUS,
+                            BREAKER_STATUS.toString() + ": Not Supported", BREAKER_STATUS));
         }
     }
 

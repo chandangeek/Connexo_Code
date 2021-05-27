@@ -32,6 +32,6 @@ public class AcudWater extends Acud {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-04-01 $";
+        return "$Date: 2021-05-24 $";
     }
 }

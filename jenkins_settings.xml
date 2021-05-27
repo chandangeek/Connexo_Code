@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings>
+    <servers>
+    </servers>
+    <!--
+      Settings file for configure Jenkins
+
+      Use this with the "Config File Management" plugin. There will be a section called "Managed files" and
+      you should add a new "Maven settings.xml" config with this file. The id should be "ehc-mirror" to match
+      the Jenkinsfile
+    -->
+    <mirrors>
+        <mirror>
+            <id>Nexus</id>
+            <name>Nexus Public Mirror</name>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
+            <mirrorOf>eict-releases,eict-snapshots,eict-third-party,eict-plugins,eict-plugins-snapshots</mirrorOf>
+        </mirror>
+        <mirror>
+            <id>Nexus_miredot</id>
+            <name>Nexus Miredot Mirror</name>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/miredot</url>
+            <mirrorOf>miredot,miredot-snapshots</mirrorOf>
+        </mirror>
+        <mirror>
+            <id>Nexus_jboss</id>
+            <name>Nexus JBoss Mirror</name>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/Uberfire</url>
+            <mirrorOf>JBoss GA</mirrorOf>
+        </mirror>
+    </mirrors>
+
+    <profiles>
+        <profile>
+            <id>local-felix-copy-path</id>
+            <properties>
+                <felix.load.folder>C:\felix\felix-framework-4.4.1\load</felix.load.folder>
+            </properties>
+        </profile>
+        <profile>
+            <id>sencha-cmd-properties</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sencha.cmd.dir>C:\Users\jenkins\bin\Sencha\Cmd\4.0.5.87</sencha.cmd.dir>
+            </properties>
+        </profile>
+        <profile>
+            <id>sencha-cmd-properties-linux</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <sencha.cmd.dir>/home2/tools/Sencha/Cmd/4.0.5.87/</sencha.cmd.dir>
+            </properties>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <!-- Set these profile for Linux servers -->
+        <activeProfile>sencha-cmd-properties-linux</activeProfile>
+
+        <!-- Set these profile for Windows servers -->
+        <!--
+        <activeProfile>sencha-cmd-properties</activeProfile>
+        <activeProfile>local-felix-copy-path</activeProfile>
+        -->
+    </activeProfiles>
+</settings>

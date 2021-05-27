@@ -38,6 +38,8 @@ public interface FileImportService {
      */
     MessageHandler createMessageHandler();
 
+    boolean isLocalImportAllowedOnly();
+
     /**
      * Submits the given importSchedule for executing according to its schedule.
      *
@@ -132,4 +134,6 @@ public interface FileImportService {
      * @return {@code true} if the specified object is used in any importer configuration, {@code false} otherwise.
      */
     boolean doImportersUse(Object object);
+
+    Optional<String> getAppServerName();
 }

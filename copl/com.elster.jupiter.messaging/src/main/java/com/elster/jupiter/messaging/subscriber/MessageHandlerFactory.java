@@ -23,4 +23,11 @@ public interface MessageHandlerFactory {
      * @return new MessageHandler
      */
     MessageHandler newMessageHandler();
+
+    /**
+     * Allow component dequeue message only by the same AppServer which create the message
+     */
+    default boolean allowsMessageValidation() {
+        return false;
+    }
 }

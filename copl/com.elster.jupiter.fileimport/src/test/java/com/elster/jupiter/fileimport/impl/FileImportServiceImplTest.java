@@ -40,6 +40,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -133,7 +134,7 @@ public class FileImportServiceImplTest {
         when(scheduleExpression.nextOccurrence(now)).thenReturn(Optional.of(next));
 
         try {
-            fileImportService.activate();
+            fileImportService.activate(mock(BundleContext.class));
 
             final CountDownLatch requestedDirectoryStream = new CountDownLatch(1);
             when(fileSystem.newDirectoryStream(IMPORT_DIRECTORY,"*.*")).thenAnswer(invocationOnMock -> {

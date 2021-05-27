@@ -25,6 +25,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -298,6 +299,17 @@ public abstract class Acud extends AbstractDlmsProtocol {
         cda.add(getCreditAmount(CreditDeviceMessage.CreditType.Emergency_credit));
         cda.add(getCreditAmount(CreditDeviceMessage.CreditType.Import_credit));
         return cda;
+    }
+
+
+    /**
+     * Return breaker status.
+     */
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        CollectedBreakerStatus collectedBreakerStatus = super.getBreakerStatus();
+        getRegisterFactory().readBreakerStatus(collectedBreakerStatus);
+        return collectedBreakerStatus;
     }
 
     public StoredValues getStoredValues() {

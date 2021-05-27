@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.transaction.VoidTransaction;
@@ -20,13 +21,15 @@ class DefaultFileHandler implements FileHandler {
     private final ServerImportSchedule importSchedule;
     private final JsonService jsonService;
     private final TransactionService transactionService;
+    private final FileImportService fileImportService;
     private final Clock clock;
 
-    public DefaultFileHandler(ServerImportSchedule importSchedule, JsonService jsonService, TransactionService transactionService, Clock clock) {
+    public DefaultFileHandler(ServerImportSchedule importSchedule, JsonService jsonService, TransactionService transactionService, Clock clock, FileImportService fileImportService) {
         this.importSchedule = importSchedule;
         this.jsonService = jsonService;
         this.transactionService = transactionService;
         this.clock = clock;
+        this.fileImportService = fileImportService;
     }
 
     @Override
@@ -45,7 +48,7 @@ class DefaultFileHandler implements FileHandler {
 
         DestinationSpec destination = importSchedule.getDestination();
 
-        String json = jsonService.serialize(new FileImportMessage(fileImportOccurrence));
+        String json = jsonService.serialize(new FileImportMessage(fileImportOccurrence, fileImportService.getAppServerName().orElse(null)));
         destination.message(json).send();
     }
 }

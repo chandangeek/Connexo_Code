@@ -468,7 +468,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         firmwareStatusType.setImageIdentifier(activatedFirmwareVersion.getFirmwareVersion().getImageIdentifier());
         if (deviceMessage != null) {
             firmwareStatusType.setUploadDate(deviceMessage.getReleaseDate());
-            versionUtils.getActivationDateFromMessage(deviceMessage).ifPresent(firmwareStatusType::setActivationDate);
+            firmwareStatusType.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(deviceMessage.getReleaseDate()));
         }
         switch (activatedFirmwareVersion.getFirmwareVersion().getFirmwareType()) {
             case METER:

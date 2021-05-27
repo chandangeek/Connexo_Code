@@ -15,13 +15,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 class FileImportMessage {
 
     public long fileImportId;
+    public String appServerName;
 
     @SuppressWarnings("unused")
 	private FileImportMessage() {
     }
 
-    public FileImportMessage(FileImportOccurrence fileImportOccurrence) {
+    public FileImportMessage(FileImportOccurrence fileImportOccurrence, String appServerName) {
         this.fileImportId = fileImportOccurrence.getId();
+        this.appServerName = appServerName;
     }
 
 }

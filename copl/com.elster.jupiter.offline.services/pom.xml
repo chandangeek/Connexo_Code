@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>4.0.0-Kratos-SNAPSHOT</version>
+        <version>4.1.0-Kratos-SNAPSHOT</version>
     </parent>
     <artifactId>offline.services</artifactId>
     <packaging>bundle</packaging>
@@ -72,4 +72,20 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <profiles>
+        <profile>
+            <id>copy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <configuration>
+                            <skip>${offline.copy.skip}</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

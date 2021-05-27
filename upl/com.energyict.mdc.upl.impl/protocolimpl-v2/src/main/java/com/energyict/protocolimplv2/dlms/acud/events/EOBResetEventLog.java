@@ -16,6 +16,12 @@ public class EOBResetEventLog extends AbstractEvent {
 
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId, DataStructure evStructure) {
-        meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.EOB_RESET, eventId, "EOB reset event"));
+        switch (eventId) {
+            case 1:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.EOB_RESET, eventId, "EOB reset event"));
+                break;
+            default:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));
+        }
     }
 }

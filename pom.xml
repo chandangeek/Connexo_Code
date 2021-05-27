@@ -9,7 +9,7 @@
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>4.0.0-Kratos-SNAPSHOT</version>
+    <version>4.1.0-Kratos-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -20,7 +20,6 @@
         <module>coin</module>
         <module>copa</module>
         <module>upl</module>
-        <module>subsystems</module>
     </modules>
 
     <organization>
@@ -42,11 +41,21 @@
         <target.version>1.8</target.version>
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <baseline>3.0.0-Kratos</baseline>
-        <commercial.version>10.9.3</commercial.version>
+        <baseline>4.0.0-Kratos</baseline>
+        <commercial.version>10.9.4</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
         <mockito.version>1.10.19</mockito.version>
+        <jacoco.version>0.8.6</jacoco.version>
+        <spotbugs.version>4.2.0</spotbugs.version>
+        <pmd.version>3.14.0</pmd.version>
+        <maven-checkstyle.version>3.1.2</maven-checkstyle.version>
+        <!--  Will switch back to 8.41 once networking is back -->
+        <!--
+        <checkstyle.version>8.41</checkstyle.version>
+        -->
+        <checkstyle.version>8.29</checkstyle.version>
+        <offline.copy.skip>false</offline.copy.skip>
     </properties>
 
     <!-- Repositories specification. -->
@@ -132,20 +141,33 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
+        <pluginRepository>
+            <id>checkstyle-config</id>
+            <name>Checkstyle Configuration</name>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
     </pluginRepositories>
 
     <!-- Distribution management. -->
     <distributionManagement>
+        <!--  TODO:  This should be replaced with Artifactory  -->
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
         </repository>
 
+        <!--  TODO:  This should be replaced with Artifactory  -->
         <snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
@@ -280,7 +302,7 @@
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
-                    <version>0.7.2.201409121644</version>
+                    <version>${jacoco.version}</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
@@ -295,7 +317,7 @@
                 <plugin>
                     <groupId>com.qmino</groupId>
                     <artifactId>miredot-plugin</artifactId>
-                    <version>2.0-SNAPSHOT</version>
+                    <version>2.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -362,6 +384,38 @@
                         <ignoreWrongArgumentInvocations>true</ignoreWrongArgumentInvocations>
                     </configuration>
                 </plugin>
+                <plugin>
+                    <groupId>com.github.spotbugs</groupId>
+                    <artifactId>spotbugs-maven-plugin</artifactId>
+                    <version>${spotbugs.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-pmd-plugin</artifactId>
+                    <version>${pmd.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-checkstyle-plugin</artifactId>
+                    <version>${maven-checkstyle.version}</version>
+                    <configuration>
+                      <configLocation>checkstyle.xml</configLocation>
+                    </configuration>
+                    <dependencies>
+                      <!-- Pull in the Honeywell CU checkstyle configuration -->
+                      <dependency>
+                        <groupId>com.honeywell</groupId>
+                        <artifactId>checkstyle-config</artifactId>
+                        <version>5</version>
+                      </dependency>
+                      <!-- Specify the version of checkstyle -->
+                      <dependency>
+                        <groupId>com.puppycrawl.tools</groupId>
+                        <artifactId>checkstyle</artifactId>
+                        <version>${checkstyle.version}</version>
+                      </dependency>
+                    </dependencies>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -394,7 +448,7 @@
                 </configuration>
                 <executions>
                     <execution>
-                        <id>bundle</id>
+                        <id>default-bundle</id>
                         <goals>
                             <goal>bundle</goal>
                         </goals>
@@ -438,13 +492,52 @@
             </plugin>
         </plugins>
     </build>
+    <reporting>
+      <plugins>
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <version>${spotbugs.version}</version>
+          <configuration>
+            <xmlOutput>true</xmlOutput>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>${pmd.version}</version>
+          <configuration>
+            <linkXref>true</linkXref>
+            <sourceEncoding>utf-8</sourceEncoding>
+            <format>xml</format>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>${maven-checkstyle.version}</version>
+          <configuration>
+            <configLocation>checkstyle.xml</configLocation>
+          </configuration>
+          <reportSets>
+            <reportSet>
+              <reports>
+                <report>checkstyle</report>
+              </reports>
+            </reportSet>
+          </reportSets>
+        </plugin>
+      </plugins>
+    </reporting>
 
     <profiles>
         <profile>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             <id>enforce-version</id>
+            <activation>
+                <property>
+                    <name>!baseline.skip</name>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -511,6 +604,7 @@
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco.version}</version>
                         <executions>
                             <execution>
                                 <id>default-prepare-agent</id>
@@ -866,6 +960,17 @@
                     </plugin>
                 </plugins>
             </build>
+        </profile>
+        <profile>
+            <id>assembly</id>
+            <activation>
+                <property>
+                    <name>!assembly.skip</name>
+                </property>
+            </activation>
+            <modules>
+                <module>subsystems</module>
+            </modules>
         </profile>
     </profiles>
 </project>
