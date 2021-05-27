@@ -108,7 +108,7 @@ pipeline {
             COMMAND = mavenCommand()
             EXTRA_PARAMS = getMavenExtras()
             SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
-            PROFILES = '-Psencha-build,coverage'
+            PROFILES = '-Psencha-build,coverage,!enforce-version'
             DIRECTORIES = "$DIRECTORIES"
           }
           steps {
