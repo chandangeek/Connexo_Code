@@ -388,13 +388,11 @@ Ext.define('Mdc.timeofuseondevice.controller.TimeOfUse', {
                 me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('timeofuse.commandScheduled', 'MDC', 'Command scheduled'));
                 var preferredComTask = Ext.decode(responce.responseText).preferredComTask;
                 if (preferredComTask) {
-                    me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(function () {
-                        if (triggerScheduled) {
-                            me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id, null, payload.releaseDate);
-                        } else {
-                            me.getController("Mdc.controller.setup.DeviceCommands").triggerCommand(deviceId, preferredComTask.id);
-                        }
-                    });
+                    if (triggerScheduled) {
+                        me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(deviceId, preferredComTask.id, null, payload.releaseDate);
+                    } else {
+                        me.getController("Mdc.controller.setup.DeviceCommands").showTriggerConfirmation(deviceId, preferredComTask.id);
+                    }
                 }
             },
             callback: function () {

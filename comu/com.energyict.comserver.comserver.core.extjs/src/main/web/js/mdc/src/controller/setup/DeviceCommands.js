@@ -185,7 +185,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
         }
     },
 
-    showTriggerConfirmation: function (deviceId, comTaskId, device) {
+    showTriggerConfirmation: function (deviceId, comTaskId, device, releaseDate) {
         var me = this;
         Ext.widget('confirmation-window', {
             confirmText: Uni.I18n.translate('deviceCommand.overview.trigger', 'MDC', 'Trigger'),
@@ -195,7 +195,7 @@ Ext.define("Mdc.controller.setup.DeviceCommands", {
             closable: false,
             fn: function (btnId) {
                 if (btnId == 'confirm') {
-                    me.triggerCommand(deviceId, comTaskId, device);
+                    me.triggerCommand(deviceId, comTaskId, device, releaseDate);
                 }
             },
             msg: Uni.I18n.translate('deviceCommand.overview.triggerMsg', 'MDC', 'Would you like to trigger a communication task to execute this command?'),
