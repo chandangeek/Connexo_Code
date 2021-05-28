@@ -65,7 +65,15 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
@@ -338,10 +346,6 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return (this.dataReadoutRequest == 1);
     }
 
-    private boolean getBooleanProperty(Properties properties, String propertyName) {
-        return properties.getProperty(propertyName, "0").trim().equals("1");
-    }
-
     @Override
     public String getRegister(String name) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -371,7 +375,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2020-10-04 12:00:00 +0300$";
+        return "$Date: 2020-10-07$";
     }
 
     @Override
@@ -684,7 +688,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 int f = invertBillingOrder
                         ? Math.abs(obis.getF())
                         : getBillingCount() - Math.abs(obis.getF());
-                fs = "*" + ProtocolUtils.buildStringDecimal(f, 2);
+                fs = "*" + ProtocolUtils.buildStringDecimal(f%100, 2);
 
                 // try to read the time stamp, and us it as the register toTime.
                 try {
@@ -984,8 +988,8 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         if (this.meterSerial == null) {
             this.meterSerial = (String) getA1440Registry().getRegister(
                     this.useEquipmentIdentifierAsSerial
-                    ? A1440Registry.IEC1107_ADDRESS_EL
-                    : A1440Registry.SERIAL
+                            ? A1440Registry.UTILITY_ID_1
+                            : A1440Registry.SERIAL
             );
         }
         if (useEquipmentIdentifierAsSerial) {

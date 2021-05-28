@@ -59,7 +59,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     CLIENT_TLS_PRIVATE_KEY("upl.property.tls.client.private.key", "Client TLS private key"),
     CLIENT_TLS_PRIVATE_KEY_DESCRIPTION("upl.property.tls.client.private.key.description", "Client TLS private key"),
     SERVER_TLS_CERTIFICATE("upl.property.tls.server.certificate", "Server TLS certificate"),
-    CLIENT_TLS_ALIAS("upl.property.tls.server.alias", "Client TLS alias" ),
+    CLIENT_TLS_ALIAS("upl.property.tls.server.alias", "Client TLS alias"),
     SERVER_TLS_CERTIFICATE_DESCRIPTION("upl.property.tls.server.certificate.description", "Server TLS certificate"),
     TLS_VERSION("upl.property.tls.version", "Version"),
     TLS_VERSION_DESCRIPTION("upl.property.tls.version.description", "Version"),

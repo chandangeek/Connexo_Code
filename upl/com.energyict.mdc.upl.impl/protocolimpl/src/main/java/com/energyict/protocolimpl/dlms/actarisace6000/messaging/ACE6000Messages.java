@@ -1,10 +1,29 @@
 package com.energyict.protocolimpl.dlms.actarisace6000.messaging;
 
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageAttribute;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageElement;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
@@ -22,12 +41,19 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.TimeZone;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioDenominatorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioNumeratorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioDenominatorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioNumeratorAttributeName;
 import static com.energyict.protocolimplv2.messages.convertor.ACE6000MessageConverter.VOLTAGE_AND_CURRENT_PARAMS;
 
 /**
@@ -192,7 +218,6 @@ public class ACE6000Messages extends ProtocolMessages  {
         MessageSpec msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
         catBilling.addMessageSpec(msgSpec);
         categories.add(catBilling);
-
         MessageCategorySpec categorySelection12LinesTOU = new MessageCategorySpec(SELECTION_OF_12_LINES_IN_TOU_TABLE_DISPLAY);
         MessageSpec msgSpecSelection12LinesTOU = addBasicMsg(SELECTION_OF_12_LINES_IN_TOU_TABLE_DISPLAY, SELECTION_OF_12_LINES_IN_TOU_TABLE, false);
         catBilling.addMessageSpec(msgSpecSelection12LinesTOU);
@@ -258,8 +283,6 @@ public class ACE6000Messages extends ProtocolMessages  {
     public String writeMessage(Message msg) {
         return msg.write(this);
     }
-
-
 
     @Override
     public String writeTag(MessageTag msgTag) {

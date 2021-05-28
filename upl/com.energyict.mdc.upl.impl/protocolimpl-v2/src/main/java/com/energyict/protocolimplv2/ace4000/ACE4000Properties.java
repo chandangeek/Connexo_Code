@@ -68,10 +68,10 @@ public class ACE4000Properties {
         return this.getIntegerProperty(TIMEOUT, DEFAULT_TIMEOUT);
     }
 
-    public boolean shouldKeepListening(){
-        if(properties.hasValueFor(MUST_KEEP_LISTENING)){
+    public boolean shouldKeepListening() {
+        if (properties.hasValueFor(MUST_KEEP_LISTENING)) {
             return properties.<Boolean>getTypedProperty(MUST_KEEP_LISTENING);
-        }else {
+        } else {
             return false;
         }
     }

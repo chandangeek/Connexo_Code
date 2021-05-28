@@ -63,7 +63,14 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
     private static final int indexDtYearLow = 1;
     private static final int indexDtMonth = 2;
     private static final int indexDtDayOfMonth = 3;
-
+    private static final int indexDtDayOfWeek = 4;
+    private static final int indexDtHour = 5;
+    private static final int indexDtMinutes = 6;
+    private static final int indexDtSeconds = 7;
+    private static final int indexDtHundredsOfSeconds = 8;
+    private static final int indexDtDeviationHigh = 9;
+    private static final int indexDtDeviationLow = 10;
+    private static final int indexDtClockStatus = 11;
     private static final byte[] initialDateTimeArray = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
             0, 0, 0, 0, (byte) 0x80, 0, (byte) 0xFF};
 
@@ -592,7 +599,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
 
                             } else if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffId)) {
                                 logger.debug("DayScheduleScriptSelector : " + schedule.getTextContent());
-                                Integer value = Integer.valueOf(schedule.getTextContent());
+                                int value = Integer.valueOf(schedule.getTextContent());
                                 if (value != 0) {
                                     value -= 1; // Tariff IDs should be transmitted 0-based.
                                     dpa.setScriptSelector(new Unsigned16(value));
@@ -614,7 +621,6 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
         }
 
     }
-
 
     /**
      * Construct a temporary Map for the specialDayEntries;

@@ -40,7 +40,7 @@ public class AtModemComponent implements ModemComponent, Serializable {
     public static final String RESTORE_PROFILE_SEQUENCE = "ATZ";
     public static final String DIAL_SEQUENCE = "ATD";
     public static final String OK_ANSWER = "OK";                // If DCE response format is set to verbose response text
-    private static final String OK_ANSWER_NUMERIC_FORM = "0";   // If DCE response format is set to numeric text
+    public static final String OK_ANSWER_NUMERIC_FORM = "0";    // If DCE response format is set to numeric text
     public static final String CONNECT = "CONNECT";
     public static final String BUSY = "BUSY";
     public static final String ERROR = "ERROR";

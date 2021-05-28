@@ -8,7 +8,11 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
+import com.energyict.protocolimplv2.messages.DisplayDeviceParametersMessage;
+import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleInnerTagsMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.iec1107.SetDisplayMessageEntry;
@@ -16,11 +20,51 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioDenominatorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioNumeratorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayAutorized_EOB;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayBacklight;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayDate_Format;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayEOB_Confirm;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayEndOfTextString;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayExistence_Of_EndOfText;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayIdentification_Code;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayInternal_Identifier;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayLeadingZero;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayMessageAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Altmode1;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Altmode2;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Normal_Mode;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayNumber_Of_Decimal;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayNumber_Of_Display_Historical_Data;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayNumber_Of_Displayable_Digit;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayScaler;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplaySeparators_Display;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplaySequence_Indicator;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayString_EOB_Confirm;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayTimeOut_For_Set_Mode;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayTime_Format;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayTimeout_For_AltMode;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.DisplayTimeout_Load_Profile;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Display_ButtonEmulation_By_Optical_Head;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Display_Off_TimeOut;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Display_On_TimeOut;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.Displaying_Of_LPMenus;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioDenominatorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioNumeratorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarCodeTableAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfMonth;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfWeek;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.hour;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month;
 
 /**
  * Message converter for the ACE6000 protocol
@@ -31,45 +75,6 @@ public class ACE6000MessageConverter extends AbstractMessageConverter {
     public static final String VOLTAGE_AND_CURRENT_PARAMS = "VoltageAndCurrentParams";
 
     private TariffCalendarExtractor tariffCalendarExtractor;
-    /**
-     * Represents a mapping between {@link com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier deviceMessageSpecs}
-     * and the corresponding {@link MessageEntryCreator}
-     */
-    private static Map<DeviceMessageSpecSupplier, MessageEntryCreator> registry = new HashMap<>();
-
-    static {
-        //Code table related
-        registry.put(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-        registry.put(ActivityCalendarDeviceMessage.SELECTION_OF_12_LINES_IN_TOU_TABLE, new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName));
-        //Display configuration
-        registry.put(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS,
-                new MultipleInnerTagsMessageEntry(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS.toString(),
-                        DeviceMessageConstants.DisplayLeadingZero, DeviceMessageConstants.DisplayBacklight,
-                        DeviceMessageConstants.DisplayEOB_Confirm, DeviceMessageConstants.DisplayString_EOB_Confirm,
-                        DeviceMessageConstants.DisplaySeparators_Display, DeviceMessageConstants.DisplayTime_Format,
-                        DeviceMessageConstants.DisplayDate_Format, DeviceMessageConstants.DisplayTimeOut_For_Set_Mode,
-                        DeviceMessageConstants.Display_On_TimeOut, DeviceMessageConstants.Display_Off_TimeOut,
-                        DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Normal_Mode, DeviceMessageConstants.DisplayExistence_Of_EndOfText,
-                        DeviceMessageConstants.DisplayEndOfTextString, DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Altmode1,
-                        DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Altmode2, DeviceMessageConstants.DisplayTimeout_For_AltMode,
-                        DeviceMessageConstants.DisplayAutorized_EOB, DeviceMessageConstants.DisplayTimeout_Load_Profile,
-                        DeviceMessageConstants.Displaying_Of_LPMenus,
-                        DeviceMessageConstants.Display_ButtonEmulation_By_Optical_Head));
-        registry.put(DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS,
-                new MultipleInnerTagsMessageEntry(DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS.toString(),
-                        DeviceMessageConstants.DisplayInternal_Identifier, DeviceMessageConstants.DisplaySequence_Indicator,
-                        DeviceMessageConstants.DisplayIdentification_Code, DeviceMessageConstants.DisplayScaler,
-                        DeviceMessageConstants.DisplayNumber_Of_Decimal, DeviceMessageConstants.DisplayNumber_Of_Display_Historical_Data,
-                        DeviceMessageConstants.DisplayNumber_Of_Displayable_Digit));
-        //EOB reset messages
-        registry.put(DeviceActionMessage.DEMAND_RESET, new SimpleTagMessageEntry(BILLING_RESET, false));
-        // Voltage and Current parameters
-        registry.put(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters,
-                new MultipleInnerTagsMessageEntry(VOLTAGE_AND_CURRENT_PARAMS,
-                        VoltageRatioDenominatorAttributeName, VoltageRatioNumeratorAttributeName,
-                        CurrentRatioDenominatorAttributeName, CurrentRatioNumeratorAttributeName)
-        );
-    }
 
     /**
      * Default constructor for at-runtime instantiation
@@ -94,19 +99,43 @@ public class ACE6000MessageConverter extends AbstractMessageConverter {
             return String.valueOf(((Date) messageAttribute).getTime()); //Millis since 1970
         } else if (propertySpec.getName().equals(activityCalendarCodeTableAttributeName)) {
             TariffCalendar calender = (TariffCalendar) messageAttribute;
-            return String.valueOf(tariffCalendarExtractor.id(calender)) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender, tariffCalendarExtractor); //The ID and the XML representation of the code table, separated by a |
+            return tariffCalendarExtractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender, tariffCalendarExtractor); //The ID and the XML representation of the code table, separated by a |
         }
         return EMPTY_FORMAT;
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
-        return ImmutableMap.of(
-                messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName),
-                messageSpec(ActivityCalendarDeviceMessage.SELECTION_OF_12_LINES_IN_TOU_TABLE), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName),
+        return ImmutableMap
+                .<DeviceMessageSpec, MessageEntryCreator>builder()
+                .put(messageSpec(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
+                .put(messageSpec(ActivityCalendarDeviceMessage.SELECTION_OF_12_LINES_IN_TOU_TABLE), new TimeOfUseMessageEntry(activityCalendarNameAttributeName, activityCalendarActivationDateAttributeName, activityCalendarCodeTableAttributeName))
                 //Display configuration
-                messageSpec(DisplayDeviceMessage.SET_DISPLAY_MESSAGE), new SetDisplayMessageEntry(DisplayMessageAttributeName),
+                .put(messageSpec(DisplayDeviceMessage.SET_DISPLAY_MESSAGE), new SetDisplayMessageEntry(DisplayMessageAttributeName))
                 //EOB reset messages
-                messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false)
-        );
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
+                .put(messageSpec(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS),
+                    new MultipleInnerTagsMessageEntry(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS.toString(),
+                        DisplayLeadingZero, DisplayBacklight,
+                        DisplayEOB_Confirm, DisplayString_EOB_Confirm,
+                        DisplaySeparators_Display, DisplayTime_Format,
+                        DisplayDate_Format, DisplayTimeOut_For_Set_Mode,
+                        Display_On_TimeOut, Display_Off_TimeOut,
+                        DisplayNb_DisplayedHisto_Sets_Normal_Mode, DisplayExistence_Of_EndOfText,
+                        DisplayEndOfTextString, DisplayNb_DisplayedHisto_Sets_Altmode1,
+                        DisplayNb_DisplayedHisto_Sets_Altmode2, DisplayTimeout_For_AltMode,
+                        DisplayAutorized_EOB, DisplayTimeout_Load_Profile,
+                        Displaying_Of_LPMenus, Display_ButtonEmulation_By_Optical_Head))
+                .put(messageSpec(DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS),
+                    new MultipleInnerTagsMessageEntry(DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS.toString(),
+                        DisplayInternal_Identifier, DisplaySequence_Indicator,
+                        DisplayIdentification_Code, DisplayScaler,
+                        DisplayNumber_Of_Decimal, DisplayNumber_Of_Display_Historical_Data,
+                        DisplayNumber_Of_Displayable_Digit))
+
+                .put(messageSpec(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters),
+                    new MultipleInnerTagsMessageEntry(VOLTAGE_AND_CURRENT_PARAMS,
+                        VoltageRatioDenominatorAttributeName, VoltageRatioNumeratorAttributeName,
+                        CurrentRatioDenominatorAttributeName, CurrentRatioNumeratorAttributeName))
+                .build();
     }
 }

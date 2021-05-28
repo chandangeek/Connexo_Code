@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.dlms.edp.registers;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
@@ -14,6 +12,7 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;

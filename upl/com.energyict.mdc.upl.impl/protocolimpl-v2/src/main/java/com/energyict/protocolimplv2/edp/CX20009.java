@@ -1,11 +1,15 @@
 package com.energyict.protocolimplv2.edp;
 
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
@@ -36,10 +40,6 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
-
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
@@ -51,7 +51,6 @@ import com.energyict.protocolimplv2.edp.messages.EDPMessageExecutor;
 import com.energyict.protocolimplv2.edp.messages.EDPMessaging;
 import com.energyict.protocolimplv2.edp.messages.EDPStoredValues;
 import com.energyict.protocolimplv2.edp.registers.RegisterReader;
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 
 import java.util.ArrayList;

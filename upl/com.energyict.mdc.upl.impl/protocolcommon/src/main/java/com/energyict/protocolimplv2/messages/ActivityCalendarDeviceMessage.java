@@ -6,11 +6,8 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-
-import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.enums.ActivityCalendarType;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 

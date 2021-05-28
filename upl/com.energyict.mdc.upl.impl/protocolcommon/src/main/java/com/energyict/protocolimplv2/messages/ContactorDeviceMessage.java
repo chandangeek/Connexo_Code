@@ -12,8 +12,17 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorValveEnablePassword;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeDefaultTranslation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.scriptNumber;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.scriptNumberDefaultTranslation;
 
 /**
  * Provides a summary of all <i>Contactor</i> related messages
@@ -226,5 +235,4 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
                 this.getPropertySpecs(propertySpecService),
                 propertySpecService, nlsService, converter);
     }
-
 }

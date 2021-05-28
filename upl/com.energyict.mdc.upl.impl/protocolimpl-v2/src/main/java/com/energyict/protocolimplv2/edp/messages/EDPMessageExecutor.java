@@ -1,14 +1,12 @@
 package com.energyict.protocolimplv2.edp.messages;
 
-import com.energyict.dlms.axrdencoding.*;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Float64;
+import com.energyict.dlms.axrdencoding.Integer16;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.util.AXDRDate;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.axrdencoding.util.AXDRTime;
@@ -19,6 +17,13 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
@@ -36,13 +41,24 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
-import java.util.TimeZone;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.beginDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.configUserFileAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.endDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.latitudeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.longitudeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.offOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.onOffsetsAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayOperatingModeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysAttributeName;
 
 /**
  * Copyrights EnergyICT

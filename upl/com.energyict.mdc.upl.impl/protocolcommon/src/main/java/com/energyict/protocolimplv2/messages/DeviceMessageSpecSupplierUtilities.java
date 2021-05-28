@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.properties.HexString;
-import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;

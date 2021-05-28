@@ -2,14 +2,18 @@ package com.energyict.protocolimplv2.messages.convertor;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
-import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
+import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.EnableOrDisableDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetEndOfDSTMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.SetStartOfDSTMessageEntry;
@@ -22,8 +26,16 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Map;
 
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.*;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioNumeratorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.VoltageRatioNumeratorAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfMonth;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.dayOfWeek;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.hour;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month;
 
 /**
  * Represents a MessageConverter for the smart ZMD protocol.

@@ -13,7 +13,8 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocol.*;
+import com.energyict.protocol.RegisterInfo;
+import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.generic.ParseUtils;
 
 import java.io.IOException;

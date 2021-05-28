@@ -2,7 +2,11 @@ package com.energyict.protocolimplv2.messages.convertor.messageentrycreators.gen
 
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
-import com.energyict.mdc.upl.messages.legacy.*;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageEntryCreator;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.messages.legacy.Messaging;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 
@@ -26,9 +30,6 @@ public class NumberMessageEntry implements MessageEntryCreator {
         MessageTag messageTag = new MessageTag(messageAttributeName);
         messageTag.add(new MessageValue(thresholdAttribute.getValue()));
         return MessageEntry.fromContent(messagingProtocol.writeTag(messageTag)).andMessage(offlineDeviceMessage).finish();
-
     }
-
-    //        MessageTag messageTag = new MessageTag(RtuMessageConstant.WAKEUP_ACTIVATE);
-    //        return MessageEntry.fromContent(messagingProtocol.writeTag(messageTag)).andMessage(offlineDeviceMessage).finish();
 }
+

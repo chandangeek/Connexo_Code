@@ -6,7 +6,12 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Float64;
 import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.*;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DemandRegister;
+import com.energyict.dlms.cosem.ExtendedRegister;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -162,27 +167,24 @@ public class RegisterReader implements DeviceRegisterSupport {
         return collectedRegister;
     }
 
-    private CollectedRegister createCollectedRegister(OfflineRegister offlineRegister, Quantity quantity, String
-            text, Date eventTime) {
+    private CollectedRegister createCollectedRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
         CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(quantity, text);
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;
     }
 
+    private CollectedRegister createMaxDemandRegister(OfflineRegister offlineRegister, Quantity quantity, String text, Date eventTime) {
+        CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+        deviceRegister.setCollectedData(quantity, text);
+        deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
+        return deviceRegister;
+    }
 
     private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
         CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
-        return deviceRegister;
-    }
-
-    private CollectedRegister createMaxDemandRegister(OfflineRegister offlineRegister, Quantity quantity, String
-            text, Date eventTime) {
-        CollectedRegister deviceRegister = this.collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
-        deviceRegister.setCollectedData(quantity, text);
-        deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         return deviceRegister;
     }
 

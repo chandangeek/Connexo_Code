@@ -21,7 +21,7 @@ import java.util.List;
  */
 public enum DisplayDeviceParametersMessage implements DeviceMessageSpecSupplier {
 
-    DISPLAY_GENERAL_PARAMETERS(19, "") {
+    DISPLAY_GENERAL_PARAMETERS(19, "General display device parameters") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -52,14 +52,14 @@ public enum DisplayDeviceParametersMessage implements DeviceMessageSpecSupplier 
         }
     },
 
-    DISPLAY_READOUT_TABLE_PARAMETERS(7, "") {
+    DISPLAY_READOUT_TABLE_PARAMETERS(7, "Display readout table parameters") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     bigDecimalSpec(service, DeviceMessageConstants.DisplayInternal_Identifier, DeviceMessageConstants.DisplayInternal_IdentifierTranslation, new BigDecimal(0)),
                     bigDecimalSpec(service, DeviceMessageConstants.DisplaySequence_Indicator, DeviceMessageConstants.DisplaySequence_IndicatorTranslation, new BigDecimal(0)),
                     stringSpec(service, DeviceMessageConstants.DisplayIdentification_Code, DeviceMessageConstants.DisplayIdentification_CodeTranslation, 5),
-                    bigDecimalSpec(service, DeviceMessageConstants.DisplayScaler, DeviceMessageConstants.DisplayScalerTranslation, new BigDecimal(0), true, new BigDecimal(0)),
+                    bigDecimalSpecWithPossibleValues(service, DeviceMessageConstants.DisplayScaler, DeviceMessageConstants.DisplayScalerTranslation, new BigDecimal(0), new BigDecimal(0)),
                     bigDecimalSpec(service, DeviceMessageConstants.DisplayNumber_Of_Decimal, DeviceMessageConstants.DisplayNumber_Of_DecimalTranslation, new BigDecimal(0)),
                     bigDecimalSpec(service, DeviceMessageConstants.DisplayNumber_Of_Display_Historical_Data, DeviceMessageConstants.DisplayNumber_Of_Display_Historical_DataTranslation, new BigDecimal(0)),
                     bigDecimalSpec(service, DeviceMessageConstants.DisplayNumber_Of_Displayable_Digit, DeviceMessageConstants.DisplayNumber_Of_Displayable_DigitTranslation, new BigDecimal(8))

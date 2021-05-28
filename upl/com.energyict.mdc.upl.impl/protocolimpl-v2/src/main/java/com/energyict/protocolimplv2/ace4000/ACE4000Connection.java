@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.ace4000;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocol.exception.InboundFrameException;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

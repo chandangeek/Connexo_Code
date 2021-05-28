@@ -2,7 +2,11 @@ package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.DeviceMessageFile;
+import com.energyict.mdc.upl.properties.HexString;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -111,7 +115,7 @@ public interface DeviceMessageSpecSupplier extends DeviceMessageSpecSupplierUtil
                 .finish();
     }
 
-    default PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defaultVal, boolean fake_param, BigDecimal... possibleValues) {
+    default PropertySpec bigDecimalSpecWithPossibleValues(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defaultVal, BigDecimal... possibleValues) {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .setDefaultValue(defaultVal)
                 .addValues(possibleValues)
