@@ -5,6 +5,10 @@ import com.energyict.mdc.channel.SynchroneousComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.upl.io.VirtualUdpSession;
 
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.util.logging.Logger;
+
 /**
  * A DatagramComChannel is a {@link com.energyict.mdc.protocol.ComChannel} that will be used
  * for UDP sessions.
@@ -16,6 +20,10 @@ import com.energyict.mdc.upl.io.VirtualUdpSession;
  * Time: 15:26
  */
 public class DatagramComChannel extends SynchroneousComChannel {
+    public static final Logger logger = Logger.getLogger(DatagramComChannel.class.getName());
+
+    private AbstractUdpSession udpSession;
+    private String remoteAddress;
 
     /**
      * Creates a new SynchroneousComChannel that uses the specified
@@ -30,5 +38,30 @@ public class DatagramComChannel extends SynchroneousComChannel {
     @Override
     public ComChannelType getComChannelType() {
         return ComChannelType.DatagramComChannel;
+    }
+
+    public DatagramComChannel(DatagramInputStream is, DatagramOutputStream os, AbstractUdpSession udpSession, String remoteAddress) {
+        super(is, os);
+        this.udpSession = udpSession;
+        this.remoteAddress = remoteAddress;
+    }
+
+    public void receive(DatagramPacket receivedPacket) throws IOException {
+        if (udpSession != null) {
+            int freeCapacity = udpSession.getBufferSize() - in.available();
+            if (freeCapacity < receivedPacket.getLength()) {
+                ((DatagramInputStream)in).write(receivedPacket.getData(), receivedPacket.getOffset(), freeCapacity);
+                logger.info("Could not write full UDP packet, only the first " + freeCapacity + " of " + receivedPacket.getLength() + " bytes are written to the stream!");
+            } else {
+                ((DatagramInputStream) in).write(receivedPacket.getData(), receivedPacket.getOffset(), receivedPacket.getLength());
+            }
+        }
+    }
+
+    public void doClose() {
+        super.doClose();
+        if (udpSession != null) {
+            udpSession.closeComChannel(remoteAddress);
+        }
     }
 }

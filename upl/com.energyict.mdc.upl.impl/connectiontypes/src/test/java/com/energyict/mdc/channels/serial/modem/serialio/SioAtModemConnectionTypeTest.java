@@ -117,7 +117,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel, true);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS)
@@ -128,7 +128,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
         SioAtModemConnectionType atModemConnectionType = createConnectionType(comChannel);
         atModemConnectionType.connect();
 
-        verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+        verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel, true);
     }
 
     @Test(timeout = TEST_TIMEOUT_MILLIS, expected = ConnectionException.class)
@@ -169,7 +169,7 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
                 fail("Should have gotten exception indicating that the modem hangup failed, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.getModemComponent(), times(numberOfTries)).readAndVerify(any(ComChannel.class), any(String.class), any(Long.class));
+            verify(atModemConnectionType.getModemComponent(), times(numberOfTries)).readAndVerify(any(ComChannel.class), any(String.class), any(String.class), any(Long.class));
             throw e;
         }
     }
@@ -242,8 +242,8 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
                 fail("Should have gotten exception indicating that the modem received a BUSY signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel, true);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel, true);
             verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
@@ -263,8 +263,8 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
                 fail("Should have gotten exception indicating that the modem received a ERROR signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel, true);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel, true);
             verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
@@ -284,8 +284,8 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
                 fail("Should have gotten exception indicating that the modem received a NO ANSWER signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel, true);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel, true);
             verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
@@ -306,8 +306,8 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
                 fail("Should have gotten exception indicating that the modem received a NO CARRIER signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel, true);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel, true);
             verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }
@@ -327,8 +327,8 @@ public class SioAtModemConnectionTypeTest extends AbstractModemTests {
                 fail("Should have gotten exception indicating that the modem received a NO DIALTONE signal, but was " + e.getMessage());
             }
             assertThat(((ModemException) e.getCause()).getMessageArguments()).contains(comPortName);
-            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel);
-            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel);
+            verify(atModemConnectionType.getModemComponent(), times(1)).hangUpComChannel(comChannel, true);
+            verify(atModemConnectionType.getModemComponent(), times(1)).reStoreProfile(comChannel, true);
             verify(atModemConnectionType.getModemComponent(), never()).sendInitStrings(comChannel);
             throw e;
         }

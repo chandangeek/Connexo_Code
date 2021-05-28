@@ -319,12 +319,12 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.getFirmwareIdentifierPropertySpec(service).get(),
-                    this.bigDecimalSpecWithDefaultValue(service, RequestedBlockSize, RequestedBlockSizeDefaultTranslation, BigDecimal.valueOf(330)),
-                    this.bigDecimalSpecWithDefaultValue(service, MulticastGroup, MulticastGroupDefaultTranslation, BigDecimal.ONE),
-                    this.bigDecimalSpecWithDefaultValue(service, UdpMeterPort, UdpMeterPortDefaultTranslation, BigDecimal.valueOf(61616)),
-                    this.bigDecimalSpecWithDefaultValue(service, LogicalDeviceLSap, LogicalDeviceLSapDefaultTranslation, BigDecimal.ONE),
-                    this.bigDecimalSpecWithDefaultValue(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(3)),
-                    this.bigDecimalSpecWithDefaultValue(service, MaxCycles, MaxCyclesDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpec(service, RequestedBlockSize, RequestedBlockSizeDefaultTranslation, BigDecimal.valueOf(330)),
+                    this.bigDecimalSpec(service, MulticastGroup, MulticastGroupDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpec(service, UdpMeterPort, UdpMeterPortDefaultTranslation, BigDecimal.valueOf(61616)),
+                    this.bigDecimalSpec(service, LogicalDeviceLSap, LogicalDeviceLSapDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpec(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(3)),
+                    this.bigDecimalSpec(service, MaxCycles, MaxCyclesDefaultTranslation, BigDecimal.ONE),
                     this.booleanSpec(service, PadLastBlock, PadLastBlockDefaultTranslation, Boolean.FALSE),
                     this.durationSpec(service, DelayBetweenBlockSentSlow, DelayBetweenBlockSentSlowDefaultTranslation, Duration.ofMillis(100)),
                     this.durationSpec(service, DelayAfterLastBlock, DelayAfterLastBlockDefaultTranslation, Duration.ofSeconds(5))
@@ -603,19 +603,19 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                     this.stringSpec(service, deviceIdsAttributeName, deviceIdsAttributeDefaultTranslation),
                     this.firmwareVersionSpec(service, firmwareUpdateFileAttributeName, firmwareUpdateUserFileAttributeDefaultTranslation),
                     this.getFirmwareIdentifierPropertySpec(service).get(),
-                    this.bigDecimalSpecWithDefaultValue(service, UnicastClientWPort, UnicastClientWPortDefaultTranslation, BigDecimal.ONE),
-                    this.bigDecimalSpecWithDefaultValue(service, BroadcastClientWPort, BroadcastClientWPortDefaultTranslation, BigDecimal.valueOf(64)),
-                    this.bigDecimalSpecWithDefaultValue(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(102)),
-                    this.bigDecimalSpecWithDefaultValue(service, LogicalDeviceLSap, LogicalDeviceLSapDefaultTranslation, BigDecimal.ONE),
-                    this.bigDecimalSpecWithDefaultValue(service, SecurityLevelUnicast, SecurityLevelUnicastDefaultTranslation, BigDecimal.valueOf(3)),
-                    this.bigDecimalSpecWithDefaultValue(service, SecurityLevelBroadcast, SecurityLevelBroadcastDefaultTranslation, BigDecimal.valueOf(3)),
-                    this.bigDecimalSpecWithDefaultValue(service, SecurityPolicyBroadcast, SecurityPolicyBroadcastDefaultTranslation, BigDecimal.ZERO),
+                    this.bigDecimalSpec(service, UnicastClientWPort, UnicastClientWPortDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpec(service, BroadcastClientWPort, BroadcastClientWPortDefaultTranslation, BigDecimal.valueOf(64)),
+                    this.bigDecimalSpec(service, MulticastClientWPort, MulticastClientWPortDefaultTranslation, BigDecimal.valueOf(102)),
+                    this.bigDecimalSpec(service, LogicalDeviceLSap, LogicalDeviceLSapDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpec(service, SecurityLevelUnicast, SecurityLevelUnicastDefaultTranslation, BigDecimal.valueOf(3)),
+                    this.bigDecimalSpec(service, SecurityLevelBroadcast, SecurityLevelBroadcastDefaultTranslation, BigDecimal.valueOf(3)),
+                    this.bigDecimalSpec(service, SecurityPolicyBroadcast, SecurityPolicyBroadcastDefaultTranslation, BigDecimal.ZERO),
                     this.durationSpec(service, DelayAfterLastBlock, DelayAfterLastBlockDefaultTranslation, Duration.ofSeconds(5)),
                     this.durationSpec(service, DelayPerBlock, DelayPerBlockDefaultTranslation, Duration.ofSeconds(4)),
                     this.durationSpec(service, DelayBetweenBlockSentFast, DelayBetweenBlockSentFastDefaultTranslation, Duration.ofMillis(250)),
                     this.durationSpec(service, DelayBetweenBlockSentSlow, DelayBetweenBlockSentSlowDefaultTranslation, Duration.ofMillis(500)),
-                    this.bigDecimalSpecWithDefaultValue(service, BlocksPerCycle, BlocksPerCycleDefaultTranslation, BigDecimal.valueOf(30)),
-                    this.bigDecimalSpecWithDefaultValue(service, MaxCycles, MaxCyclesDefaultTranslation, BigDecimal.ONE),
+                    this.bigDecimalSpec(service, BlocksPerCycle, BlocksPerCycleDefaultTranslation, BigDecimal.valueOf(30)),
+                    this.bigDecimalSpec(service, MaxCycles, MaxCyclesDefaultTranslation, BigDecimal.ONE),
                     this.bigDecimalSpec(service, RequestedBlockSize, RequestedBlockSizeDefaultTranslation, BigDecimal.valueOf(1024)),
                     this.booleanSpec(service, PadLastBlock, PadLastBlockDefaultTranslation, Boolean.FALSE),
                     this.booleanSpec(service, UseTransferredBlockStatus, UseTransferredBlockStatusDefaultTranslation, Boolean.TRUE)
@@ -678,14 +678,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... possibleValues) {
-        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
-                .addValues(possibleValues)
-                .markExhaustive()
-                .markRequired()
-                .finish();
-    }
-
     protected PropertySpec stringSpecWithDefaultAndOtherValues(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String defaultValue, String... possibleValues) {
         return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .setDefaultValue(defaultValue)
@@ -695,34 +687,6 @@ public enum FirmwareDeviceMessage implements DeviceMessageSpecSupplier {
                 .finish();
     }
 
-    private PropertySpecBuilder<BigDecimal> bigDecimalPropertySpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .bigDecimalSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired();
-    }
-
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return this.bigDecimalPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
-    }
-
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... possibleValues) {
-        return this.bigDecimalPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
-                .addValues(possibleValues)
-                .markExhaustive()
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec bigDecimalSpecWithDefaultValue(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defaultValue) {
-        return this.bigDecimalPropertySpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
-                .setDefaultValue(defaultValue)
-                .markExhaustive()
-                .markRequired()
-                .finish();
-    }
 
     protected PropertySpec durationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, Duration defaultValue) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);

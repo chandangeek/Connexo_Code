@@ -1,7 +1,5 @@
 package com.energyict.protocolimpl.dlms.edp.registers;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DataContainer;
@@ -14,6 +12,7 @@ import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.ProfileGeneric;
 import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
@@ -27,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@SuppressWarnings("Duplicates")
 public class EDPStoredValues implements StoredValues {
 
     public static final ObisCode DAILY_BILLING_PROFILE = ObisCode.fromString("0.0.98.2.0.255");   //E-field is filled with the tariff (1 or 2) later on

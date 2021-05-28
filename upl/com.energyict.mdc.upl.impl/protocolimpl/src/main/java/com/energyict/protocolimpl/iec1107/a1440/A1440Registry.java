@@ -49,6 +49,7 @@ public class A1440Registry extends AbstractVDEWRegistry {
     public static final String LOAD_CONTROL_THRESHOLD_REGISTER = "LoadControlThreshold";
     public static final String ERROR_REGISTER = "Error register";
     public static final String ALARM_REGISTER = "Alarm register";
+    public static final String BATTERY_USE_TIME_REGISTER = "Battery use time register";
 
     /**
      * Creates a new instance of A1440Registry
@@ -110,6 +111,7 @@ public class A1440Registry extends AbstractVDEWRegistry {
         this.registers.put(LOAD_CONTROL_THRESHOLD_REGISTER, new VDEWRegister("S0J", VDEWRegisterDataParse.VDEW_STRING, 0, 1, null, VDEWRegister.WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ1, FlagIEC1107Connection.WRITE1));
         this.registers.put(ERROR_REGISTER, new VDEWRegister("F.F", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ5));
         this.registers.put(ALARM_REGISTER, new VDEWRegister("F.F.1", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ5));
+        this.registers.put(BATTERY_USE_TIME_REGISTER, new VDEWRegister("C.56", VDEWRegisterDataParse.VDEW_STRING, 0, -1, null, VDEWRegister.NOT_WRITEABLE, VDEWRegister.NOT_CACHED, FlagIEC1107Connection.READ5));
     }
 
 }
