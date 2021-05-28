@@ -69,7 +69,7 @@ public class UpgraderV10_9 implements Upgrader {
         try (Connection connection = dataModel.getConnection(true);
              Statement statement = connection.createStatement()) {
             int from = 0;
-            id = executeQuery(statement, "SELECT NVL(MAX(ID),0) FROM " + TABLE, this::toLong);
+            id = executeQuery(statement, "SELECT NVL(MAX(ID),1) FROM " + TABLE, this::toLong);
             List<Device> devices;
             do {
                 devices = deviceService.findAllDevices(Condition.TRUE).paged(from, SIZE).find();

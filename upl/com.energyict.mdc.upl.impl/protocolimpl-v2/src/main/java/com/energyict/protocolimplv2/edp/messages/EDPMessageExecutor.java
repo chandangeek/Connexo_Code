@@ -1,14 +1,7 @@
 package com.energyict.protocolimplv2.edp.messages;
 
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.Float64;
 import com.energyict.dlms.axrdencoding.Integer16;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -24,6 +17,13 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.SpecialDaysTable;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
@@ -41,10 +41,8 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Scanner;
-import java.util.TimeZone;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
@@ -54,6 +52,8 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.confi
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contractAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.endDatesAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.latitudeAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.longitudeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.offOffsetsAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.onOffsetsAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeName;
@@ -101,6 +101,8 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
                     setMaximumThreshold(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.SET_RELAY_TIME_OFFSETS_TABLE)) {
                     setTimeOffsetsTable(pendingMessage);
+                } else if (pendingMessage.getSpecification().equals(PublicLightingDeviceMessage.WRITE_GPS_COORDINATES)) {
+                    writeGPSCoordinates(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
                     upgradeFirmware(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME_AND_CONTRACT)) {
@@ -350,6 +352,18 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
             array.addDataType(structure);
         }
         getCosemObjectFactory().getData(obisCode).setValueAttr(array);
+    }
+
+    private void writeGPSCoordinates(OfflineDeviceMessage pendingMessage) throws IOException {
+        final ObisCode obisCode = ObisCode.fromString("0.65.0.30.4.255");
+        final Double latitude = Double.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, latitudeAttributeName).getValue());
+        final Double longitude = Double.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, longitudeAttributeName).getValue());
+
+        Structure structure = new Structure();
+        structure.addDataType(new Float64(latitude));
+        structure.addDataType(new Float64(longitude));
+
+        getCosemObjectFactory().getData(obisCode).setValueAttr(structure);
     }
 
     private void setMaximumThreshold(OfflineDeviceMessage pendingMessage) throws IOException {

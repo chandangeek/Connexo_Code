@@ -72,6 +72,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -158,6 +159,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private boolean useEquipmentIdentifierAsSerial;
     private boolean readLogbookAndLoadProfilesCombined;
 
+    /**
+     * Creates a new instance of A1440, empty constructor
+     */
     public A1440(PropertySpecService propertySpecService, NlsService nlsService) {
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
@@ -204,12 +208,12 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     @Override
-    public Quantity getMeterReading(String name) throws IOException {
+    public Quantity getMeterReading(String name) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
     @Override
-    public Quantity getMeterReading(int channelId) throws IOException {
+    public Quantity getMeterReading(int channelId) throws UnsupportedException {
         throw new UnsupportedException();
     }
 
@@ -243,6 +247,11 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return new Date(meterDate.getTime() - this.iRoundtripCorrection);
     }
 
+    /**
+     * Returns the serial number
+     *
+     * @return String serial number
+     */
     @Override
     public String getSerialNumber() {
         try {
@@ -328,17 +337,13 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         this.halfDuplex = properties.getTypedProperty("HalfDuplex", 0);
         this.rs485RtuPlusServer = properties.getTypedProperty("RS485RtuPlusServer", 0);
         this.limitMaxNrOfDays = properties.getTypedProperty(PR_LIMIT_MAX_NR_OF_DAYS, 0);
-        this.invertBillingOrder = getBooleanProperty(properties, INVERT_BILLING_ORDER);
-        this.useEquipmentIdentifierAsSerial = getBooleanProperty(properties, USE_EQUIPMENT_IDENTIFIER_AS_SERIAL);
-        this.readLogbookAndLoadProfilesCombined = getBooleanProperty(properties, READ_LOGBOOK_AND_LP_COMBINED);
+        this.invertBillingOrder = properties.getTypedProperty(INVERT_BILLING_ORDER, false);
+        this.useEquipmentIdentifierAsSerial = properties.getTypedProperty( USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false);
+        this.readLogbookAndLoadProfilesCombined = properties.getTypedProperty( READ_LOGBOOK_AND_LP_COMBINED, false);
     }
 
     protected boolean isDataReadout() {
         return (this.dataReadoutRequest == 1);
-    }
-
-    private boolean getBooleanProperty(TypedProperties properties, String propertyName) {
-        return "1".equals(properties.getTypedProperty(propertyName, "0").trim());
     }
 
     @Override
@@ -355,6 +360,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         throw new UnsupportedException();
     }
 
+    /**
+     * this implementation throws UnsupportedException. Subclasses may override
+     */
     @Override
     public void initializeDevice() throws UnsupportedException {
         throw new UnsupportedException();
@@ -546,13 +554,19 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return this.protocolChannelMap;
     }
 
-    @Override
+    /**
+     * Translate the obis codes to edis codes, and read
+     * @param obis
+     * @return
+     * @throws IOException
+     */
+     @Override
     public RegisterValue readRegister(ObisCode obis) throws IOException {
         DataParser dp = new DataParser(getTimeZone());
         Date eventTime = null;
         Date toTime = null;
         String fs = "";
-        String toTimeString;
+        String toTimeString = "";
         byte[] data;
         byte[] timeStampData;
 
@@ -671,7 +685,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                     throw new NoSuchRegisterException("Billing count is only " + getBillingCount() + " so cannot read register with F = " + obis.getF());
                 }
 
-                int f = invertBillingOrder ? Math.abs(obis.getF()) : getBillingCount() - Math.abs(obis.getF());
+                int f = invertBillingOrder
+                        ? Math.abs(obis.getF())
+                        : getBillingCount() - Math.abs(obis.getF());
                 fs = "*" + ProtocolUtils.buildStringDecimal(f%100, 2);
 
                 // try to read the time stamp, and us it as the register toTime.
@@ -862,23 +878,23 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     }
 
     private void getRegistersInfo() throws IOException {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder result = new StringBuilder();
 
         for (String obis : this.a1440ObisCodeMapper.getObisMap().keySet()) {
             ObisCode oc = ObisCode.fromString(obis);
             if (DEBUG >= 5) {
                 try {
-                    builder.append(translateRegister(oc)).append("\n");
-                    builder.append(readRegister(oc)).append("\n");
+                    result.append(translateRegister(oc) + "\n");
+                    result.append(readRegister(oc) + "\n");
                 } catch (NoSuchRegisterException nsre) {
                     // ignore and continue
                 }
             } else {
-                builder.append(obis).append(" ").append(translateRegister(oc)).append("\n");
+                result.append(obis + " " + translateRegister(oc) + "\n");
             }
         }
 
-        getLogger().info(builder.toString());
+        getLogger().info(result.toString());
     }
 
     private void getMeterInfo() throws IOException {
@@ -918,11 +934,11 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         return getFlagIEC1107Connection().getHhuSignOn().getDataReadout();
     }
 
-    public A1440Registry getA1440Registry() {
+    protected A1440Registry getA1440Registry() {
         return this.a1440Registry;
     }
 
-    public A1440Profile getA1440Profile() {
+    private A1440Profile getA1440Profile() {
         return this.a1440Profile;
     }
 
@@ -1053,6 +1069,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
         }
         if (registerName.equals(A1440ObisCodeMapper.ALARM_REGISTER)) {
             return (String) getA1440Registry().getRegister(A1440Registry.ALARM_REGISTER);
+        }
+        if (registerName.equals(A1440ObisCodeMapper.BATTERY_USE_TIME_REGISTER)) {
+            return (String) getA1440Registry().getRegister(A1440Registry.BATTERY_USE_TIME_REGISTER);
         }
 
         if (registerName.equals(A1440ObisCodeMapper.FIRMWARE)) {

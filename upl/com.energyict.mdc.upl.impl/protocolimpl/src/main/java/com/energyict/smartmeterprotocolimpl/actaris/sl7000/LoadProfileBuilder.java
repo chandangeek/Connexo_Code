@@ -374,23 +374,25 @@ public class LoadProfileBuilder {
 
     private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData, LoadProfileConfiguration lpc) {
         calendar = setCalendar(calendar, dataStructure.getStructure(0), 1, lpc);
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        final int startOfIntervalDate = dataStructure.getStructure(0).getInteger(1);
+
+        if ((startOfIntervalDate & EV_CLOCK_SETTINGS) != 0) { // time set before
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.SETCLOCK_AFTER,
                     dataStructure.getStructure(0).getInteger(1)));
         }
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        if ((startOfIntervalDate & EV_POWER_FAILURE) != 0) { // power down
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.POWERUP,
                     EV_POWER_FAILURE));
         }
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_WATCHDOG_RESET) != 0) { // watchdog
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        if ((startOfIntervalDate & EV_WATCHDOG_RESET) != 0) { // watchdog
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.WATCHDOGRESET,
                     EV_WATCHDOG_RESET));
         }
-        if ((dataStructure.getStructure(0).getInteger(1) & EV_DST) != 0) { // watchdog
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) calendar.clone()).getTime().getTime()),
+        if ((startOfIntervalDate & EV_DST) != 0) { // watchdog
+            profileData.addEvent(new MeterEvent(((Calendar) calendar.clone()).getTime(),
                     MeterEvent.SETCLOCK_AFTER,
                     EV_DST));
         }
@@ -401,22 +403,22 @@ public class LoadProfileBuilder {
         Calendar endIntervalCal = setCalendar(calendar, dataStructure.getStructure(1), 1, lpc);
         final int endOfIntervalDate = dataStructure.getStructure(1).getInteger(1);
 
-        if ((dataStructure.getStructure(1).getInteger(1) & EV_ALL_CLOCK_SETTINGS) != 0) { // time set before
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) endIntervalCal.clone()).getTime().getTime()),
+        if ((endOfIntervalDate & EV_CLOCK_SETTINGS) != 0) { // time set before
+            profileData.addEvent(new MeterEvent(((Calendar) endIntervalCal.clone()).getTime(),
                     MeterEvent.SETCLOCK_BEFORE,
                     dataStructure.getStructure(1).getInteger(1)));
         }
 
-        if ((dataStructure.getStructure(1).getInteger(1) & EV_POWER_FAILURE) != 0) { // power down
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) endIntervalCal.clone()).getTime().getTime()),
+        if ((endOfIntervalDate & EV_POWER_FAILURE) != 0) { // power down
+            profileData.addEvent(new MeterEvent(((Calendar) endIntervalCal.clone()).getTime(),
                     MeterEvent.POWERDOWN,
                     EV_POWER_FAILURE));
             return true; // KV 16012004
         }
 
         /* No WD event added cause time is set to 00h00'00" */
-        if ((dataStructure.getStructure(1).getInteger(1) & EV_DST) != 0) { // power down
-            profileData.addEvent(new MeterEvent(new Date(((Calendar) endIntervalCal.clone()).getTime().getTime()),
+        if ((endOfIntervalDate & EV_DST) != 0) { // power down
+            profileData.addEvent(new MeterEvent(((Calendar) endIntervalCal.clone()).getTime(),
                     MeterEvent.SETCLOCK_BEFORE,
                     EV_DST));
             return true;

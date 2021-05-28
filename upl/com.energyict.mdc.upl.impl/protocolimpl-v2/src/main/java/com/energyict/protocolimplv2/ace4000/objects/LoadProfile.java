@@ -2,7 +2,12 @@ package com.energyict.protocolimplv2.ace4000.objects;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
-import com.energyict.protocol.*;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.IntervalValue;
+import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.base.Base64EncoderDecoder;
 import com.energyict.protocolimplv2.ace4000.xml.XMLTags;
 import org.w3c.dom.Document;
@@ -12,7 +17,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -20,6 +27,7 @@ import java.util.logging.Level;
 public class LoadProfile extends AbstractActarisObject {
 
     private int intervalInSeconds;
+    private Map<DeviceIdentifier, ProfileData> profileDataMap = new HashMap<>();
     private ProfileData profileData;
     private Date from = null;
     private Date toDate = null;
@@ -127,6 +135,7 @@ public class LoadProfile extends AbstractActarisObject {
         getProfileData().setChannelInfos(getSingleChannelInfo(scale));
         getProfileData().getIntervalDatas().addAll(intervalDatas);
         getProfileData().sort();
+        updateProfileDataMap();
     }
 
     private int getEiStatus(int alarmFlags) {
@@ -229,17 +238,18 @@ public class LoadProfile extends AbstractActarisObject {
 
             getProfileData().setChannelInfos(getExtendedChannelInfo(scale));
             getProfileData().getIntervalDatas().addAll(intervalDatas);
+            updateProfileDataMap();
         } else {
             getObjectFactory().log(Level.WARNING, "Unrecognized LP message length, cannot parse contents");
         }
     }
 
-    public int getIntervalInSeconds() {
-        return intervalInSeconds;
+    public Map<DeviceIdentifier, ProfileData> getProfileDataMap() {
+        return profileDataMap;
     }
 
-    private void setIntervalInSeconds(int intervalInSeconds) {
-        this.intervalInSeconds = intervalInSeconds;
+    public int getIntervalInSeconds() {
+        return intervalInSeconds;
     }
 
     public ProfileData getProfileData() {
@@ -247,6 +257,23 @@ public class LoadProfile extends AbstractActarisObject {
             profileData = new ProfileData();
         }
         return profileData;
+    }
+
+    private void setIntervalInSeconds(int intervalInSeconds) {
+        this.intervalInSeconds = intervalInSeconds;
+    }
+
+    private void updateProfileDataMap(){
+        DeviceIdentifier deviceIdentifier = getObjectFactory().getCurrentDeviceIdentifier();
+        if(profileDataMap.get(deviceIdentifier) != null){
+            if(profileDataMap.get(deviceIdentifier).getChannelInfos().size() == profileData.getChannelInfos().size()){
+                profileData.getIntervalDatas().addAll(profileDataMap.get(deviceIdentifier).getIntervalDatas());
+                profileDataMap.put(deviceIdentifier, profileData);
+            }
+        }else {
+            profileDataMap.put(deviceIdentifier, profileData);
+        }
+        profileData = new ProfileData();
     }
 
     private List<ChannelInfo> getSingleChannelInfo(int scale) {
