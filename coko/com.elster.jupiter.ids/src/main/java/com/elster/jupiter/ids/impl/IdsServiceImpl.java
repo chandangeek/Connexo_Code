@@ -22,6 +22,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.ResultWrapper;
 import com.elster.jupiter.util.exception.MessageSeed;
 
 import com.google.common.collect.ImmutableMap;
@@ -37,6 +38,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -117,9 +119,30 @@ public class IdsServiceImpl implements IdsService, MessageSeedProvider {
 
     @Override
     public void extendTo(Instant instant, Logger logger) {
+        this.extendTo(instant, logger, false);
+    }
+
+    @Override
+    public ResultWrapper<String> extendTo(Instant instant, Logger logger, boolean dryRun) {
+        ResultWrapper<String> result = new ResultWrapper();
         getVaults().stream()
                 .filter(Vault::isActive)
-                .forEach(vault -> vault.extendTo(instant, logger));
+                .forEach(vault -> {
+                    try {
+                        logger.log(Level.INFO, "Extending vault '" + vault.toString() + "', component '" + vault.getComponentName() + "' up to " + instant + "...");
+                        vault.extendTo(instant, dryRun, logger);
+                    } catch (Exception ex) {
+                        if (vault.isPartitioned()) {
+                            result.addFailedObject(vault.getTableName());
+                            if (vault.hasJournal()) {
+                                result.addFailedObject(vault.getJournalTableName());
+                            }
+                        }
+                        logger.log(Level.SEVERE, "Failed to extend vault '" + vault.toString() + "', up to " + instant + ". Exception: " + ex.getLocalizedMessage() + ".");
+                        ex.printStackTrace();
+                    }
+                });
+        return result;
     }
 
     @Override

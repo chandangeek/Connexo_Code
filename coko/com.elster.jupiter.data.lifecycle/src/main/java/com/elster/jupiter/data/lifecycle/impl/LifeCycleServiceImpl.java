@@ -27,6 +27,7 @@ import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.UserService;
 
+import com.elster.jupiter.util.ResultWrapper;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
@@ -117,7 +118,9 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
                 Installer.class,
                 ImmutableMap.of(
                         version(10, 2), UpgraderV10_2.class,
-                        version(10, 4, 7), UpgraderV10_4_7.class
+                        version(10, 4, 7), UpgraderV10_4_7.class,
+                        version(10, 7, 5), UpgraderV10_7_5.class,
+                        version(10, 9, 4), UpgraderV10_9_4.class
                 ));
     }
 
@@ -209,14 +212,26 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
                 .logger(logger)
                 .build();
         //meteringService.configurePurge(purgeConfiguration);
+        logger.info("Purging vaults...");
         idsService.purge(logger);
+        logger.info("Purging device events and reading qualities...");
         meteringService.purge(purgeConfiguration);
         instant = limit(getCategory(LifeCycleCategoryKind.WEBSERVICES).getRetention());
+        logger.info("Removing web service history up to " + instant + "...");
         ormService.dropAuto(LifeCycleClass.WEBSERVICES, instant, logger);
-        instant = clock.instant().plus(360, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
+    }
+
+    public ResultWrapper<String> createPartitions(Logger logger) {
+        return createPartitions(logger, false);
+    }
+
+    public ResultWrapper<String> createPartitions(Logger logger, boolean dryRun) {
+        Instant instant = clock.instant().plus(360, ChronoUnit.DAYS).truncatedTo(ChronoUnit.DAYS);
         logger.info("Adding partitions up to " + instant);
-        ormService.createPartitions(instant, logger);
-        idsService.extendTo(instant, logger);
+        ResultWrapper<String> createPartitionsResult = ormService.createPartitions(instant, logger, dryRun);
+        logger.info("Extending vaults up to " + instant);
+        ResultWrapper<String> extendToResult = idsService.extendTo(instant, logger, dryRun);
+        return createPartitionsResult.adopt(extendToResult);
     }
 
     @Override

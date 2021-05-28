@@ -7,10 +7,12 @@ package com.elster.jupiter.data.lifecycle;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.tasks.RecurrentTask;
 import com.elster.jupiter.tasks.TaskOccurrence;
+import com.elster.jupiter.util.ResultWrapper;
 
 @ProviderType
 public interface LifeCycleService {
@@ -25,5 +27,7 @@ public interface LifeCycleService {
 	
 	RecurrentTask getTask();
 	
-	TaskOccurrence runNow();	
+	TaskOccurrence runNow();
+
+	ResultWrapper<String> createPartitions(Logger logger, boolean dryRun);
 }

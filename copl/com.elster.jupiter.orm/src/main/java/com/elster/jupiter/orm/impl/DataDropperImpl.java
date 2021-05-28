@@ -97,7 +97,7 @@ public class DataDropperImpl implements DataDropper {
         while (totalNbOfRowsToDelete > 0) {
             long nbOfRowsToBeDeleted = Math.min(totalNbOfRowsToDelete, BATCH_SIZE);
             try (Connection connection = dataModel.getConnection(true)) {
-                try (PreparedStatement deleteSt = deleteRowsSql(tableName, columnName, upToMillis, nbOfRowsToBeDeleted).prepare(connection)) {
+                try (PreparedStatement deleteSt = prepareDeleteRowsSql(tableName, columnName, upToMillis, nbOfRowsToBeDeleted, connection)) {
                     int nbOfDeletedRows = deleteSt.executeUpdate();
                     logger.info("Deleted " + nbOfRowsToBeDeleted + " rows from table " + tableName + " containing entries with " + columnName +
                             " up to " + Instant.ofEpochMilli(upToMillis));
@@ -122,6 +122,12 @@ public class DataDropperImpl implements DataDropper {
                 return resultSet.next();
             }
         }
+    }
+
+    private PreparedStatement prepareDeleteRowsSql(String tableName, String columnName, long untilDate, long untilRowNum, Connection connection) throws SQLException {
+        SqlBuilder builder = deleteRowsSql(tableName, columnName, untilDate, untilRowNum);
+        logger.fine("Command for rows deletion '" + builder.toString() + "'.");
+        return builder.prepare(connection);
     }
 
     private SqlBuilder deleteRowsSql(String tableName, String columnName, long untilDate, long untilRowNum) {

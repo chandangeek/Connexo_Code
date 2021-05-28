@@ -7,6 +7,7 @@ package com.elster.jupiter.orm;
 import com.elster.jupiter.orm.associations.RefAny;
 
 import aQute.bnd.annotation.ProviderType;
+import com.elster.jupiter.util.ResultWrapper;
 
 import java.time.Instant;
 import java.util.List;
@@ -72,7 +73,7 @@ public interface OrmService {
 	/*
 	 * create partitions for all range partitioned tables up to the first argument
 	 */
-	void createPartitions(Instant upTo, Logger logger);
+    ResultWrapper<String> createPartitions(Instant upTo, Logger logger, boolean dryRun);
 
     DataModelUpgrader getDataModelUpgrader(Logger logger);
 

@@ -25,6 +25,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Registration;
+import com.elster.jupiter.util.ResultWrapper;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -58,6 +59,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class}, property = "name=" + OrmService.COMPONENTNAME)
@@ -514,8 +516,13 @@ public final class OrmServiceImpl implements OrmService {
     }
 
     @Override
-    public void createPartitions(Instant upTo, Logger logger) {
-        dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
+    public ResultWrapper<String> createPartitions(Instant upTo, Logger logger, boolean dryRun) {
+        ResultWrapper<String> result = new ResultWrapper();
+        dataModels.values().forEach(dataModel -> {
+            logger.log(Level.INFO, "Create partitions for data model '" + dataModel.getName() + "'.");
+            result.adopt(dataModel.createPartitions(upTo, logger, dryRun));
+        });
+        return result;
     }
 
     @Override
