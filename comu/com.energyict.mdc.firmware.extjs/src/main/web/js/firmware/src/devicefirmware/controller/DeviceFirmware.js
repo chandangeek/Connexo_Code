@@ -264,7 +264,7 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
             router = me.getController('Uni.controller.history.Router');
 
         form.setLoading();
-        record.retry(encodeURIComponent(router.arguments.deviceId), {
+        record.retry(Uni.util.Common.encodeURIComponent(router.arguments.deviceId), {
             isNotEdit: true,
             jsonData: _.pick(container.device.getData(), 'version'),
             success: function (response) {
