@@ -926,18 +926,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     public ConnectionTask<?, ?> executionCompleted(final ConnectionTask connectionTask) {
         ConnectionTask updatedConnectionTask = null;
         try {
-            if (connectionTask instanceof InboundConnectionTask) {
-                Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
-                if (lockedConnectionTask.isPresent()) {
-                    ConnectionTask task = lockedConnectionTask.get();
-                    task.executionCompleted();
-                    updatedConnectionTask = task;
-                } else {
-                    throw new IllegalStateException("Can't find inbound connection task");
-                }
+            Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
+            if (lockedConnectionTask.isPresent()) {
+                ConnectionTask task = lockedConnectionTask.get();
+                task.executionCompleted();
+                updatedConnectionTask = task;
             } else {
-                connectionTask.executionCompleted();
-                updatedConnectionTask = connectionTask;
+                throw new IllegalStateException("Can't find connection task");
             }
         } catch (OptimisticLockException e) {
             final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
