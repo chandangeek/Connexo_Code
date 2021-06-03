@@ -25,19 +25,4 @@
         <module>com.elster.insight.subsystem</module>
         <module>com.elster.jupiter.subsystem.offline</module>
     </modules>
-
-    <properties>
-        <assembly.skip>false</assembly.skip>
-    </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <configuration>
-                    <skipAssembly>${assembly.skip}</skipAssembly>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
