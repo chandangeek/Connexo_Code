@@ -415,6 +415,12 @@ public final class DeviceMessageConstants {
     public static final String inactivityTimeoutAttributeDefaultTranslation = "Inactivity timeout";
     public static final String sessionTimeoutAttributeName = "NetworkConnectivityMessage.session.timeout";
     public static final String sessionTimeoutAttributeDefaultTranslation = "Session timeout";
+    public static final String timeoutObject = "NetworkConnectivityMessage.timeoutObject";
+    public static final String timeoutObjectDefaultTranslation = "Timeout object";
+    public static final String sessionMaxDuration = "NetworkConnectivityMessage.sessionMaxDuration";
+    public static final String sessionMaxDurationDefaultTranslation = "Session max duration";
+    public static final String networkAttachTimeout = "NetworkConnectivityMessage.networkAttachTimeout";
+    public static final String networkAttachTimeoutDefaultTranslation = "Network attach timeout";
     public static final String p1InformationAttributeName = "DisplayDeviceMessage.consumer.p1";
     public static final String p1InformationAttributeDefaultTranslation = "P1 message";
     public static final String DisplayMessageAttributeName = "DisplayDeviceMessage.displaymessage";

@@ -5,10 +5,13 @@ import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.dlms.cosem.NbiotPushSetup;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -60,6 +63,8 @@ public class EI7MessageExecutor extends A2MessageExecutor {
                 writePushSetup(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD)) {
                 writeOrphanStateThreshold(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_NETWORK_TIMEOUT)) {
+                writeNetworkTimeout(pendingMessage);
             } else {
                 super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -69,6 +74,37 @@ public class EI7MessageExecutor extends A2MessageExecutor {
             collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
         }
         return collectedMessage;
+    }
+
+    private void writeNetworkTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
+        final ObisCode timeoutNbiotObisCode = ObisCode.fromString("0.1.94.39.52.255");
+        final ObisCode timeoutGprsObisCode = ObisCode.fromString("0.0.94.39.52.255");
+        final String timeoutObjectString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.timeoutObject);
+        final int sessionMaxDuration = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.sessionMaxDuration));
+        final int inactivityTimeout = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.inactivityTimeoutAttributeName));
+        final int networkAttachTimeout = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.networkAttachTimeout));
+
+        Structure valueStructure = new Structure();
+        valueStructure.addDataType(new Unsigned32(sessionMaxDuration));
+        valueStructure.addDataType(new Unsigned32(inactivityTimeout));
+        valueStructure.addDataType(new Unsigned32(networkAttachTimeout));
+
+        final NetworkConnectivityMessage.TimeoutType timeoutType = NetworkConnectivityMessage.TimeoutType.valueOf(timeoutObjectString);
+
+        ObisCode timeoutObisCode;
+        switch (timeoutType) {
+            case GPRS:
+                timeoutObisCode = timeoutGprsObisCode;
+                break;
+            case NBIOT:
+                timeoutObisCode = timeoutNbiotObisCode;
+                break;
+            default:
+                throw new ProtocolException("Unknown timeout type, expected either GPRS or NBIOT.");
+        }
+
+        final Data timeoutObject = getCosemObjectFactory().getData(timeoutObisCode);
+        timeoutObject.setValueAttr(valueStructure);
     }
 
     private void writePushScheduler(OfflineDeviceMessage pendingMessage) throws IOException {

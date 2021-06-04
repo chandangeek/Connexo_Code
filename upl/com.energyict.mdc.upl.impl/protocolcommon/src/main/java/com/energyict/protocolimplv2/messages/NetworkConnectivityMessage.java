@@ -711,11 +711,51 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.threshold, DeviceMessageConstants.thresholdDefaultTranslation, new BigDecimal(5))
             );
         }
+    },
+
+    CHANGE_NETWORK_TIMEOUT(4083, "Change network timeout") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.timeoutObject, DeviceMessageConstants.timeoutObjectDefaultTranslation, NetworkConnectivityMessage.TimeoutType.getTypes()),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.sessionMaxDuration, DeviceMessageConstants.sessionMaxDurationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.inactivityTimeoutAttributeName, DeviceMessageConstants.inactivityTimeoutAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.networkAttachTimeout, DeviceMessageConstants.networkAttachTimeoutDefaultTranslation)
+            );
+        }
     };
 
     private static BigDecimal[] getPushSetupNumbers() {
         int[] pushSetupNumbers = new int[] { 1, 2, 3, 4, 11, 12, 13, 14};
         return Arrays.stream(pushSetupNumbers).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
+    }
+
+    public enum TimeoutType {
+        GPRS(254),
+        NBIOT(255);
+
+        private final int id;
+
+        TimeoutType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            return Stream.of(values()).map(NetworkConnectivityMessage.TimeoutType::name).toArray(String[]::new);
+        }
+
+        public static String getStringValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .map(NetworkConnectivityMessage.TimeoutType::name)
+                    .orElse("Unknown transport type");
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 
     public enum TransportType {
