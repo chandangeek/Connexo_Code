@@ -197,7 +197,7 @@ public class LifeCycleServiceImpl implements LifeCycleService, TranslationKeyPro
         return getCategories().stream().filter(cat -> cat.getKind() == kind).findFirst().get();
     }
 
-    public void execute(Logger logger) {
+    public void purgeData(Logger logger) {
         Instant instant = limit(getCategory(LifeCycleCategoryKind.JOURNAL).getRetention());
         logger.info("Removing journals up to " + instant);
         ormService.dropJournal(instant, logger);
