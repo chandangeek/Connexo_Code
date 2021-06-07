@@ -39,6 +39,72 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- jBPM 6 dependencies -->
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-services-cdi</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>org.kie.remote</groupId>-->
+        <!--            <artifactId>kie-remote-services</artifactId>-->
+        <!--            <version>${version.org.kie}</version>-->
+        <!--        </dependency>-->
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-human-task-core</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-kie-services</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jbpm</groupId>
+            <artifactId>jbpm-human-task-jpa</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-api</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie</groupId>
+            <artifactId>kie-internal</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-api</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-services-common</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-services-drools</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kie.server</groupId>
+            <artifactId>kie-server-rest-common</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-core</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.drools</groupId>
+            <artifactId>drools-compiler</artifactId>
+            <version>${version.org.kie}</version>
+        </dependency>
         <!-- Platform subsystem components -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -148,77 +214,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
         </dependency>
-        <!-- jBPM 6 dependencies -->
-
-        <dependency>
-            <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-services-cdi</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <!--        <dependency>-->
-        <!--            <groupId>org.kie.remote</groupId>-->
-        <!--            <artifactId>kie-remote-services</artifactId>-->
-        <!--            <version>${version.org.kie}</version>-->
-        <!--        </dependency>-->
-        <dependency>
-            <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-human-task-core</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-kie-services</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-human-task-jpa</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-api</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kie</groupId>
-            <artifactId>kie-internal</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kie.server</groupId>
-            <artifactId>kie-server-api</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kie.server</groupId>
-            <artifactId>kie-server-services-common</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kie.server</groupId>
-            <artifactId>kie-server-services-drools</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.kie.server</groupId>
-            <artifactId>kie-server-rest-common</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-core</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.drools</groupId>
-            <artifactId>drools-compiler</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
-
-
         <dependency>
             <groupId>com.elster.partners</groupId>
             <artifactId>jbpm.extension</artifactId>
@@ -426,148 +421,159 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-	    <artifactId>yellowfin.installer</artifactId>
-	    <scope>provided</scope>
-	</dependency>
-
-        <dependency>
-            <groupId>com.elster.jupiter.subsystem</groupId>
-            <artifactId>third-party</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Tomcat for Yellowfin and JBPM -->
-        <dependency>
-            <groupId>org.apache.tomcat</groupId>
-            <artifactId>tomcat</artifactId>
-            <version>9.0.34</version>
-            <type>zip</type>
-            <classifier>connexo</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <!-- JbossEAP for RedHat PAM -->
-        <dependency>
-            <groupId>org.jboss.server</groupId>
-            <artifactId>jboss-eap</artifactId>
-            <version>7.3.0</version>
-            <type>zip</type>
-            <classifier>connexojboss</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.server</groupId>
-            <artifactId>jbcs-jsvc</artifactId>
-            <version>1.1.0</version>
-            <type>zip</type>
-            <classifier>apachejsvc</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <!-- WSo2 identity server-->
-        <dependency>
-            <groupId>org.wso2</groupId>
-            <artifactId>wso2is</artifactId>
-            <version>4.5.0</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Yet Another Java Service Wrapper-->
-        <dependency>
-            <groupId>org.rzo</groupId>
-            <artifactId>yajsw</artifactId>
-            <version>11.11</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Packaged YellowFin jar -->
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
-            <artifactId>facts</artifactId>
-            <version>10.9</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
-            <artifactId>EncryptPassword</artifactId>
-            <version>10.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
-            <artifactId>ojdbc8</artifactId>
-            <version>10.7.2</version>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Packaged jBPM stuff  -->
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
-            <artifactId>flow</artifactId>
-            <version>10.2</version>
-            <type>war</type>
-            <scope>provided</scope>
-        </dependency>
-        <!-- Packaged RedHat PAM stuff  -->
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
-            <artifactId>businesscentral</artifactId>
-            <version>7.8.0</version>
-            <type>zip</type>
-            <classifier>connexobusinesscentral</classifier>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
-            <artifactId>pamkieserver</artifactId>
-            <version>7.8.0</version>
-            <type>zip</type>
-            <classifier>connexokieserver</classifier>
-            <scope>provided</scope>
+            <artifactId>yellowfin.installer</artifactId>
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-cli</id>
-                        <goals>
-                            <goal>add-third-party</goal>
-                        </goals>
+    <profiles>
+        <profile>
+            <id>assembly</id>
+            <activation>
+                <property>
+                    <name>!assembly.skip</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.elster.jupiter.subsystem</groupId>
+                    <artifactId>third-party</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                </dependency>
+                <!-- Tomcat for Yellowfin and JBPM -->
+                <dependency>
+                    <groupId>org.apache.tomcat</groupId>
+                    <artifactId>tomcat</artifactId>
+                    <version>9.0.34</version>
+                    <type>zip</type>
+                    <classifier>connexo</classifier>
+                    <scope>provided</scope>
+                </dependency>
+                <!-- JbossEAP for RedHat PAM -->
+                <dependency>
+                    <groupId>org.jboss.server</groupId>
+                    <artifactId>jboss-eap</artifactId>
+                    <version>7.3.0</version>
+                    <type>zip</type>
+                    <classifier>connexojboss</classifier>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.jboss.server</groupId>
+                    <artifactId>jbcs-jsvc</artifactId>
+                    <version>1.1.0</version>
+                    <type>zip</type>
+                    <classifier>apachejsvc</classifier>
+                    <scope>provided</scope>
+                </dependency>
+                <!-- WSo2 identity server-->
+                <dependency>
+                    <groupId>org.wso2</groupId>
+                    <artifactId>wso2is</artifactId>
+                    <version>4.5.0</version>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                </dependency>
+                <!-- Yet Another Java Service Wrapper-->
+                <dependency>
+                    <groupId>org.rzo</groupId>
+                    <artifactId>yajsw</artifactId>
+                    <version>11.11</version>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                </dependency>
+                <!-- Packaged YellowFin jar -->
+                <dependency>
+                    <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
+                    <artifactId>facts</artifactId>
+                    <version>10.9</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
+                    <artifactId>EncryptPassword</artifactId>
+                    <version>10.0</version>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.elster.jupiter.thirdparty.apps.facts</groupId>
+                    <artifactId>ojdbc8</artifactId>
+                    <version>10.7.2</version>
+                    <scope>provided</scope>
+                </dependency>
+                <!-- Packaged jBPM stuff  -->
+                <dependency>
+                    <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
+                    <artifactId>flow</artifactId>
+                    <version>10.2</version>
+                    <type>war</type>
+                    <scope>provided</scope>
+                </dependency>
+                <!-- Packaged RedHat PAM stuff  -->
+                <dependency>
+                    <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+                    <artifactId>businesscentral</artifactId>
+                    <version>7.8.0</version>
+                    <type>zip</type>
+                    <classifier>connexobusinesscentral</classifier>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
+                    <artifactId>pamkieserver</artifactId>
+                    <version>7.8.0</version>
+                    <type>zip</type>
+                    <classifier>connexokieserver</classifier>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>default-cli</id>
+                                <goals>
+                                    <goal>add-third-party</goal>
+                                </goals>
+                                <configuration>
+                                    <includeTransitiveDependencies>true</includeTransitiveDependencies>
+                                    <acceptPomPackaging>true</acceptPomPackaging>
+                                    <thirdPartyFilename>connexo-platform-third-party.txt</thirdPartyFilename>
+                                    <excludedGroups>
+                                        com.enterprisedt|com.elster|com.yellowfin|com.oracle|com.oracle.jms
+                                    </excludedGroups>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>connexo-platform</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <includeTransitiveDependencies>true</includeTransitiveDependencies>
-                            <acceptPomPackaging>true</acceptPomPackaging>
-                            <thirdPartyFilename>connexo-platform-third-party.txt</thirdPartyFilename>
-                            <excludedGroups>com.enterprisedt|com.elster|com.yellowfin|com.oracle|com.oracle.jms
-                            </excludedGroups>
+                            <archiverConfig>
+                                <duplicateBehavior>skip</duplicateBehavior>
+                            </archiverConfig>
+                            <descriptors>
+                                <descriptor>assembly/assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>connexo-platform-v${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>connexo-platform</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <archiverConfig>
-                        <duplicateBehavior>skip</duplicateBehavior>
-                    </archiverConfig>
-                    <descriptors>
-                        <descriptor>assembly/assembly.xml</descriptor>
-                    </descriptors>
-                    <finalName>connexo-platform-v${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

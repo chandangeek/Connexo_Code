@@ -5,6 +5,8 @@
 package com.energyict.mdc.issue.datacollection.impl.event;
 
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.common.tasks.history.ComSession;
+import com.energyict.mdc.issue.datacollection.event.ConnectionEvent;
 import com.energyict.mdc.issue.datacollection.event.ConnectionLostResolvedEvent;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.event.DeviceCommunicationFailureResolvedEvent;
@@ -27,12 +29,12 @@ public enum DataCollectionResolveEventDescription implements EventDescription {
     CONNECTION_LOST_AUTO_RESOLVE(
             "com/energyict/mdc/connectiontask/COMPLETION",
             ConnectionLostResolvedEvent.class) {
-        public boolean validateEvent(Map<?, ?> map) {
-            if (super.validateEvent(map)) {
-                return isEmptyString(map, ModuleConstants.SKIPPED_TASK_IDS)
-                        && !isEmptyString(map, ModuleConstants.CONNECTION_TASK_ID);
-            }
-            return false;
+        @Override
+        public boolean validateEvent(DataCollectionEvent dataCollectionEvent) {
+            return ((ConnectionEvent) dataCollectionEvent).getComSession()
+                    .map(ComSession::getSuccessIndicator)
+                    .filter(successIndicator -> !successIndicator.equals(ComSession.SuccessIndicator.Broken))
+                    .isPresent();
         }
 
         @Override

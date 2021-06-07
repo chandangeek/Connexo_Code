@@ -20,6 +20,7 @@
         <module>coin</module>
         <module>copa</module>
         <module>upl</module>
+        <module>subsystems</module>
     </modules>
 
     <organization>
@@ -960,17 +961,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
-        <profile>
-            <id>assembly</id>
-            <activation>
-                <property>
-                    <name>!assembly.skip</name>
-                </property>
-            </activation>
-            <modules>
-                <module>subsystems</module>
-            </modules>
         </profile>
     </profiles>
 </project>
