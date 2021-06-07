@@ -40,13 +40,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- jBPM 6 dependencies -->
-
-        <dependency>
-            <groupId>org.jbpm</groupId>
-            <artifactId>jbpm-services-cdi</artifactId>
-            <version>${version.org.kie}</version>
-        </dependency>
         <dependency>
             <groupId>com.elster.jupiter.subsystem</groupId>
             <artifactId>platform</artifactId>
