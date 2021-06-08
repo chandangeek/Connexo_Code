@@ -401,6 +401,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ELSTER_AS3000(334, "com.energyict.protocolimplv2.dlms.as3000.AS3000"),
     SL7000(335, "com.energyict.protocolimplv2.dlms.actaris.sl7000.ActarisSl7000"),
 
+    EI6_NEW_SPEC_THEMISUNO(336, "com.energyict.protocolimplv2.dlms.ei6newspec.EI6NewSpec", FamilyRule.EICT_THEMISUNO),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
