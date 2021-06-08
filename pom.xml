@@ -142,7 +142,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-        <pluginRepository>
+ <!--       <pluginRepository>
             <id>checkstyle-config</id>
             <name>Checkstyle Configuration</name>
             <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
@@ -152,7 +152,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </pluginRepository>
+        </pluginRepository> -->
     </pluginRepositories>
 
     <!-- Distribution management. -->
@@ -161,14 +161,16 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
+            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url> -->
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
         </repository>
 
         <!--  TODO:  This should be replaced with Artifactory  -->
         <snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
+            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url> -->
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
