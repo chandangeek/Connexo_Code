@@ -5,32 +5,15 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
 import com.elster.jupiter.servicecall.DefaultState;
-import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
-import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
-import com.energyict.mdc.common.tasks.StatusInformationTask;
-import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
-import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
-import java.text.MessageFormat;
-import java.util.Objects;
-import java.util.Optional;
-
-import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
-import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReason;
 
 /**
  * Abstract implementation of {@link ServiceCallHandler} interface which handles the different steps for

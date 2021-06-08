@@ -4,11 +4,8 @@
 
 package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
-import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -23,7 +20,6 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
-import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
@@ -33,7 +29,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDoma
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.text.MessageFormat;
@@ -46,11 +41,10 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import static org.junit.Assert.assertEquals;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -69,8 +63,6 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     public TestRule expectedRule = new ExpectedExceptionRule();
 
     private static final long SERVICE_CALL_ID = 1;
-    private static final String DESTINATION_SPEC = "destination spec";
-    private static final String DESTIONATION_MSG = "destination msg";
 
     @Mock
     Thesaurus thesaurus;
@@ -88,8 +80,6 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     private ServiceCallType serviceCallType;
     @Mock
     private ServiceCallService serviceCallService;
-    @Mock
-    private DestinationSpec destinationSpec;
     @Mock
     Device device;
     @Mock
@@ -214,20 +204,13 @@ public class AbstractContactorOperationServiceCallHandlerTest {
         AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
                 engineConfigurationService, priorityComTaskService, deviceMessageService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
-        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
-        domainExtension.setNrOfUnconfirmedDeviceCommands(0);
+        domainExtension.setNrOfUnconfirmedDeviceCommands(1);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
 
         // Business method
         serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
 
         // Asserts
-        ArgumentCaptor<CommandServiceCallDomainExtension> domainExtensionArgumentCaptor = ArgumentCaptor.forClass(CommandServiceCallDomainExtension.class);
-        verify(serviceCall).update(domainExtensionArgumentCaptor.capture());
-        assertEquals(CommandOperationStatus.READ_STATUS_INFORMATION, domainExtensionArgumentCaptor.getValue().getCommandOperationStatus());
-
-        verify(comTaskExecution).addNewComTaskExecutionTrigger(any());
-        verify(comTaskExecution).updateNextExecutionTimestamp();
         verify(serviceCall).requestTransition(DefaultState.WAITING);
     }
 }
