@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.ei6newspec.profiles;
+package com.energyict.protocolimplv2.dlms.ei6v2021.profiles;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -10,7 +10,7 @@ import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public class EI6NewSpecLoadProfileDataReader extends A2ProfileDataReader {
+public class EI6v2021LoadProfileDataReader extends A2ProfileDataReader {
 
     private static final ObisCode HOURLY_LOAD_PROFILE     = ObisCode.fromString("7.0.99.99.2.255");
     private static final ObisCode DAILY_LOAD_PROFILE      = ObisCode.fromString("7.0.99.99.3.255");
@@ -24,8 +24,8 @@ public class EI6NewSpecLoadProfileDataReader extends A2ProfileDataReader {
         supportedLoadProfiles.add(MONTHLY_LOAD_PROFILE);
     }
 
-    public EI6NewSpecLoadProfileDataReader(A2 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
-                                           OfflineDevice offlineDevice, long limitMaxNrOfDays, List<ObisCode> supportedLoadProfiles) {
+    public EI6v2021LoadProfileDataReader(A2 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                                         OfflineDevice offlineDevice, long limitMaxNrOfDays, List<ObisCode> supportedLoadProfiles) {
         super(protocol, collectedDataFactory, issueFactory, offlineDevice, limitMaxNrOfDays, supportedLoadProfiles);
     }
 
