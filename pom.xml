@@ -9,7 +9,7 @@
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>4.1.0-Kratos-SNAPSHOT</version>
+    <version>5.0.0-Kratos-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -56,6 +56,7 @@
         <checkstyle.version>8.41</checkstyle.version>
         -->
         <checkstyle.version>8.29</checkstyle.version>
+        <offline.copy.skip>false</offline.copy.skip>
     </properties>
 
     <!-- Repositories specification. -->
@@ -141,7 +142,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-        <pluginRepository>
+ <!--       <pluginRepository>
             <id>checkstyle-config</id>
             <name>Checkstyle Configuration</name>
             <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
@@ -151,7 +152,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </pluginRepository>
+        </pluginRepository> -->
     </pluginRepositories>
 
     <!-- Distribution management. -->
@@ -160,14 +161,16 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
+            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url> -->
+            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
         </repository>
 
         <!--  TODO:  This should be replaced with Artifactory  -->
         <snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
+            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url> -->
+            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
@@ -764,12 +767,12 @@
                         <groupId>com.elster.plugin</groupId>
                         <artifactId>js-unifying-i18n-maven-plugin</artifactId>
                         <executions>
-                                <execution>
-                                    <id>check-translate-call</id>
-                                    <goals>
-                                        <goal>check</goal>
-                                    </goals>
-                                </execution>
+                            <execution>
+                                <id>check-translate-call</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
                         </executions>
                     </plugin>
                     <plugin>

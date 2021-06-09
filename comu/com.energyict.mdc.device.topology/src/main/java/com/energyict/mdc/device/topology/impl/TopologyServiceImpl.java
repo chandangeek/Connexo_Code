@@ -194,14 +194,16 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         createRealServices();
         this.dataModel.register(this.getModule());
         upgradeService.register(InstallIdentifier.identifier("MultiSense", TopologyService.COMPONENT_NAME), dataModel, Installer.class,
-        ImmutableMap.<Version, Class<? extends Upgrader>>builder()
-                .put(version(10, 2), V10_2SimpleUpgrader.class)
-                .put(version(10, 4),  UpgraderV10_4.class)
-                .put(version(10, 4,3), V10_4_3SimpleUpgrader.class)
-                .put(version(10, 4, 8), UpgraderV10_4_8.class)
-                .put(version(10, 7),  UpgraderV10_7.class)
-                .put(version(10,9), UpgraderV10_9.class)
-                .build());
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 2), V10_2SimpleUpgrader.class)
+                        .put(version(10, 4), UpgraderV10_4.class)
+                        .put(version(10, 4, 3), V10_4_3SimpleUpgrader.class)
+                        .put(version(10, 4, 8), UpgraderV10_4_8.class)
+                        .put(version(10, 4, 21), UpgraderV10_4_21.class)
+                        .put(version(10, 7), UpgraderV10_7.class)
+                        .put(version(10, 9), UpgraderV10_9.class)
+                        .put(version(10, 9, 4), UpgraderV10_9_4.class)
+                        .build());
         this.registerRealServices(bundleContext);
     }
 
@@ -353,7 +355,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
             return connectionTask;
         } else {
             /* No matching ConnectionTask found on the device,
-            * let's try the physical gateway if there is one. */
+             * let's try the physical gateway if there is one. */
             Optional<Device> physicalGateway = this.getPhysicalGateway(device);
             if (physicalGateway.isPresent()) {
                 return this.findConnectionTaskWithConnectionFunctionForTopology(physicalGateway.get(), connectionFunction);
@@ -488,7 +490,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public List<G3Neighbor> getSlaveDevices(Device gateway, long pageStart) {
-        LOGGER.info("Building the full Slave devices list for "+gateway.getSerialNumber());
+        LOGGER.info("Building the full Slave devices list for " + gateway.getSerialNumber());
 
         G3TopologyBuilder g3TopologyBuilder = new G3TopologyBuilder(this, gateway);
 
@@ -496,7 +498,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
         List<G3Neighbor> g3NeighborList = g3Topology.getReferences();
 
-        LOGGER.info("Returning a list of "+g3NeighborList.size()+" references");
+        LOGGER.info("Returning a list of " + g3NeighborList.size() + " references");
 
         return g3NeighborList;
     }
@@ -504,6 +506,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private static class DeviceRecentlyAddedComporator implements Comparator<Device> {
 
         private TopologyTimeline timeline;
+
         DeviceRecentlyAddedComporator(TopologyTimeline timeline) {
             this.timeline = timeline;
         }
@@ -784,12 +787,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     /**
      * Constructs a timeLine based on the given dataLoggerDataSource and the slave resources which were potentially present in the requested range
      *
-     * @param dataLoggerDataSource the Data source (channel or register) of the datalogger (or just a  plain device)
-     * @param range the range in where we need to construct the timeline
+     * @param dataLoggerDataSource    the Data source (channel or register) of the datalogger (or just a  plain device)
+     * @param range                   the range in where we need to construct the timeline
      * @param dataLoggerChannelUsages the list of usages that are valid for the given range
-     * @param timeLine the timeline object which we need to populate
-     * @param slaveItem the function that will look up the corresponding slave data source for a specific dataLoggerDataSource
-     * @param <T> the generic type of a Channel/Register
+     * @param timeLine                the timeline object which we need to populate
+     * @param slaveItem               the function that will look up the corresponding slave data source for a specific dataLoggerDataSource
+     * @param <T>                     the generic type of a Channel/Register
      */
     private <T> void constructTimeLine(T dataLoggerDataSource, Range<Instant> range, List<DataLoggerChannelUsage> dataLoggerChannelUsages, List<Pair<T, Range<Instant>>> timeLine, Function<DataLoggerChannelUsage, Optional<T>> slaveItem) {
         dataLoggerChannelUsages.stream().filter(dataLoggerChannelUsage1 -> !dataLoggerChannelUsage1.getRange().isEmpty()).forEach(dataLoggerChannelUsage -> {
@@ -1095,7 +1098,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public Stream<G3CommunicationPathSegment> getUniqueG3CommunicationPathSegments(Device gateway) {
         Condition condition = this.getDevicesInTopologyCondition(gateway);
-        Subquery  subQuery  = this.dataModel.query(PhysicalGatewayReferenceImpl.class).asSubquery(condition, PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
+        Subquery subQuery = this.dataModel.query(PhysicalGatewayReferenceImpl.class).asSubquery(condition, PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName());
         Condition targetIsASlave = ListOperator.IN.contains(subQuery, "target");
         return this.dataModel.query(G3CommunicationPathSegment.class)
                 .select(targetIsASlave.and(where("interval").isEffective()).and(where("nextHop").isNull())).stream();
@@ -1140,9 +1143,8 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public void clearOldCommunicationPathSegments(Device source, Instant now)
-    {
-        getAllG3CommunicationPathSegments(source).forEach(s -> terminateG3CommunicationPathSegment(s,now));
+    public void clearOldCommunicationPathSegments(Device source, Instant now) {
+        getAllG3CommunicationPathSegments(source).forEach(s -> terminateG3CommunicationPathSegment(s, now));
     }
 
     public void terminateG3CommunicationPathSegment(G3CommunicationPathSegment pathSegment, Instant now) {
@@ -1168,7 +1170,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private List<ServerTopologyTimeslice> findRecentPhysicallyReferencingDevicesFor(Device device, int maxRecentCount) {
         Condition condition = this.getDevicesInTopologyCondition(device);
-        try(QueryStream<PhysicalGatewayReferenceImpl> steams = this.dataModel.stream(PhysicalGatewayReferenceImpl.class)) {
+        try (QueryStream<PhysicalGatewayReferenceImpl> steams = this.dataModel.stream(PhysicalGatewayReferenceImpl.class)) {
             List<PhysicalGatewayReferenceImpl> gatewayReferences = steams.filter(condition).sorted(Order.descending("interval.start"))
                     .limit(maxRecentCount)
                     .select();
@@ -1418,6 +1420,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
     @Reference
     public void setEventService(EventService eventService) {
         this.eventService = eventService;

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>4.1.0-Kratos-SNAPSHOT</version>
+        <version>5.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform</artifactId>
@@ -991,20 +991,20 @@
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>audit</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>com.elster.jupiter</groupId>
-				<artifactId>audit.rest</artifactId>
-				<version>${project.version}</version>
-				<scope>provided</scope>
-			</dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>audit</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.elster.jupiter</groupId>
+                <artifactId>audit.rest</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
 
-			<!-- Module dependencies only for test -->
+            <!-- Module dependencies only for test -->
             <dependency>
                 <groupId>com.elster.jupiter</groupId>
                 <artifactId>devtools</artifactId>

@@ -79,6 +79,7 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.actarissl7000.Logbook;
 import com.energyict.protocolimpl.dlms.actarissl7000.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.actarissl7000.StoredValuesImpl;
+import com.energyict.protocolimpl.dlms.common.LoadProfileUtil;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -662,14 +663,14 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
 
     private Calendar parseProfileStartDate(DataStructure dataStructure, Calendar calendar) throws IOException {
         if (isNewDate(dataStructure.getStructure(0).getOctetString(0).getArray())) {
-            calendar = setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00);
+            calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00, getProfileInterval());
         }
         return calendar;
     }
 
     private Calendar parseProfileStartTime(DataStructure dataStructure, Calendar calendar) throws IOException {
         if (isNewTime(dataStructure.getStructure(0).getOctetString(0).getArray())) {
-            calendar = setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00);
+            calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00, getProfileInterval());
         }
         return calendar;
     }
@@ -688,7 +689,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x01);
+        calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }
@@ -716,7 +717,8 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        Calendar endIntervalCal = setCalendar(calendar, dataStructure.getStructure(1), (byte) 0x01);
+//        calendar = setCalendar(calendar,dataStructure.getStructure(1),(byte)0x01);
+        Calendar endIntervalCal = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(1), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }
@@ -745,7 +747,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar, dataStructure.getStructure(2), (byte) 0x01);
+        calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(2), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }
@@ -765,7 +767,7 @@ public class DLMSLNSL7000 extends PluggableMeterProtocol implements HHUEnabler, 
     }
 
     private boolean parseTime2(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar, dataStructure.getStructure(3), (byte) 0x01);
+        calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(3), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }

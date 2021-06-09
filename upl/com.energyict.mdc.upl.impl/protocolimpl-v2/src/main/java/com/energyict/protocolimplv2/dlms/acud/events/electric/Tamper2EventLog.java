@@ -19,7 +19,7 @@ public class Tamper2EventLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId, DataStructure evStructure) {
         switch (eventId) {
             case 1:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.ERROR_REGISTR_2_CHANGED, eventId, "Error register 2 changed"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_REVERSAL, eventId, "Error register 2 changed"));
                 break;
             default:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));

@@ -14,4 +14,5 @@ import java.time.Instant;
 @ProviderType
 public interface PartitionCreator {
 	Instant create(Instant upTo);
+	Instant create(Instant upTo, boolean dryRun);
 }

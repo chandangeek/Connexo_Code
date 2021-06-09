@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class SynchroneousComChannel extends AbstractComChannel {
 
     private AtomicBoolean reading;
-    private InputStream in;
+    protected InputStream in;
     private OutputStream out;
 
     /**

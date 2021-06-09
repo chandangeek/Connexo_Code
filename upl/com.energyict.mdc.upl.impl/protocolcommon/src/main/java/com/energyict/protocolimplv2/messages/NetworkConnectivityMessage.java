@@ -4,7 +4,6 @@ import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.obis.ObisCode;
@@ -712,11 +711,51 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.threshold, DeviceMessageConstants.thresholdDefaultTranslation, new BigDecimal(5))
             );
         }
+    },
+
+    CHANGE_NETWORK_TIMEOUT(4083, "Change network timeout") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.timeoutObject, DeviceMessageConstants.timeoutObjectDefaultTranslation, NetworkConnectivityMessage.TimeoutType.getTypes()),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.sessionMaxDuration, DeviceMessageConstants.sessionMaxDurationDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.inactivityTimeoutAttributeName, DeviceMessageConstants.inactivityTimeoutAttributeDefaultTranslation),
+                    this.bigDecimalSpec(service, DeviceMessageConstants.networkAttachTimeout, DeviceMessageConstants.networkAttachTimeoutDefaultTranslation)
+            );
+        }
     };
 
     private static BigDecimal[] getPushSetupNumbers() {
         int[] pushSetupNumbers = new int[] { 1, 2, 3, 4, 11, 12, 13, 14};
         return Arrays.stream(pushSetupNumbers).mapToObj(BigDecimal::valueOf).toArray(BigDecimal[]::new);
+    }
+
+    public enum TimeoutType {
+        GPRS(254),
+        NBIOT(255);
+
+        private final int id;
+
+        TimeoutType(int id) {
+            this.id = id;
+        }
+
+        public static String[] getTypes() {
+            return Stream.of(values()).map(NetworkConnectivityMessage.TimeoutType::name).toArray(String[]::new);
+        }
+
+        public static String getStringValue(int id) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getId() == id)
+                    .findFirst()
+                    .map(NetworkConnectivityMessage.TimeoutType::name)
+                    .orElse("Unknown transport type");
+        }
+
+        public int getId() {
+            return id;
+        }
     }
 
     public enum TransportType {
@@ -1051,55 +1090,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                 .range(lowerLimit, upperLimit + 1)
                 .mapToObj(BigDecimal::valueOf)
                 .toArray(BigDecimal[]::new);
-    }
-
-    protected PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... exhaustiveValues) {
-        return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
-                .addValues(exhaustiveValues)
-                .markExhaustive()
-                .finish();
-    }
-
-    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .hexStringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
-    protected PropertySpecBuilder<BigDecimal> bigDecimalSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .bigDecimalSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired();
-    }
-
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
-    }
-
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defaultValue) {
-        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).setDefaultValue(defaultValue).finish();
-    }
-
-    protected PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal... possibleValues) {
-        return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).addValues(possibleValues).markExhaustive().finish();
-    }
-
-    protected PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, boolean defaultValue) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .booleanSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .setDefaultValue(defaultValue)
-                .markRequired()
-                .finish();
     }
 
     protected PropertySpec timeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {

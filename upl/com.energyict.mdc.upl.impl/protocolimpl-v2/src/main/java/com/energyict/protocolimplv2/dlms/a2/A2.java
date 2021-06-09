@@ -440,12 +440,12 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EI6 ThemisUno DLMS Protocol";
+        return "EI6 pre-2021 ThemisUno DLMS Protocol";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-05-07$";
+        return "$Date: 2021-06-07$";
     }
 
     protected A2Messaging getProtocolMessaging() {

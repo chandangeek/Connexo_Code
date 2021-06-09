@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     public static final String TLS_VERSION_PROPERTY_NAME = "TLSVersion";
+    public static final String CLIENT_TLS_ALIAS = "ClientTLSAlias";
     public static final String CLIENT_TLS_PRIVATE_KEY = "ClientTLSPrivateKey";
     public static final String SERVER_TLS_CERTIFICATE = "ServerTLSCertificate";
     public static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
@@ -86,6 +87,14 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         return UPLPropertySpecFactory.specBuilder(SERVER_TLS_CERTIFICATE, true, PropertyTranslationKeys.SERVER_TLS_CERTIFICATE, () -> getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())).finish();
     }
 
+
+    /**
+     * The alias of the TLS private key.
+     */
+    private PropertySpec tlsAliasPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(CLIENT_TLS_ALIAS, true, PropertyTranslationKeys.CLIENT_TLS_ALIAS, () -> getPropertySpecService().referenceSpec(KeyAccessorType.class.getName())).finish();
+    }
+
     private CertificateWrapper getTlsServerCertificate() {
         return (CertificateWrapper) this.getProperty(SERVER_TLS_CERTIFICATE);
     }
@@ -97,6 +106,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         propertySpecs.add(preferredCipheringSuitesPropertySpec());
         propertySpecs.add(tlsClientPrivateKeyPropertySpec());
         propertySpecs.add(tlsServerCertificatePropertySpec());
+        propertySpecs.add(tlsAliasPropertySpec());
         return propertySpecs;
     }
 

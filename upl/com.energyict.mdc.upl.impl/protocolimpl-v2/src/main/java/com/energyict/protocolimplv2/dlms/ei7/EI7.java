@@ -29,12 +29,12 @@ public class EI7 extends A2 {
 
     @Override
     public String getProtocolDescription() {
-        return "EI7 ThemisUno DLMS Protocol";
+        return "EI7 2021 ThemisLog2 DLMS Protocol";
     }
 
     @Override
     public String getVersion() {
-        return "2021-05-07";
+        return "2021-06-07";
     }
 
     @Override

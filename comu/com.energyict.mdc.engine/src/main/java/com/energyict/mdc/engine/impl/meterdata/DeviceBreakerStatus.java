@@ -35,8 +35,8 @@ public class DeviceBreakerStatus extends CollectedDeviceData implements Collecte
     }
 
     @Override
-    public void setBreakerStatus(BreakerStatus brekaerStatus) {
-        this.breakerStatus = Optional.of(brekaerStatus);
+    public void setBreakerStatus(BreakerStatus breakerStatus) {
+        this.breakerStatus = Optional.of(breakerStatus);
     }
 
     @Override

@@ -1,21 +1,21 @@
 package com.energyict.protocolimplv2.ace4000;
 
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.LogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport;
-
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.ace4000.objects.ObjectFactory;
-import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +34,7 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
 
     private InboundDiscoveryContext context;
     private final CollectedDataFactory collectedDataFactory;
+    private List<CollectedData> collectedDatas = new ArrayList<CollectedData>();
 
     public ACE4000Inbound(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory) {
         super(propertySpecService);
@@ -66,12 +67,13 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
      */
     @Override
     public DiscoverResultType doDiscovery() {
-        List<String> messages = getAce4000Connection().readFrames(true);  //Keep reading frames until timeout occurs
+        List<String> messages = getAce4000Connection().readFrames(getProperties().shouldKeepListening());  //Keep reading frames until timeout occurs
         for (String message : messages) {
             getObjectFactory().parseXML(message);       //This parses the messages and adds the results to the collected data
         }
         // end of the inbound UDP listen loop. The outbound ACE4000 protocol does the rest of the requests
 
+        fillCollectedDatas();
         if (getCollectedData().isEmpty()) {
             return DiscoverResultType.IDENTIFIER;
         } else {
@@ -144,6 +146,22 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
         return serialNumber;
     }
 
+    private void fillCollectedDatas(){
+        collectedDatas.addAll(getCollectedRegisters());
+        if(isCollectedLPAvailable()){
+            collectedDatas.addAll(getObjectFactory().createCollectedLoadProfiles(DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE));
+        }
+
+        if (!getObjectFactory().getAllMeterEvents().isEmpty()) {
+            CollectedLogBook deviceLogBook = getObjectFactory().getDeviceLogBook(new LogBookIdentifierByObisCodeAndDevice(getDeviceIdentifier(), LogBook.GENERIC_LOGBOOK_TYPE_OBISCODE));
+            collectedDatas.add(deviceLogBook);
+        }
+    }
+
+    private boolean isCollectedLPAvailable(){
+        return getObjectFactory().getLoadProfile().getProfileDataMap() != null;
+    }
+
     // Making super's implementation public
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
@@ -154,5 +172,4 @@ public class ACE4000Inbound extends ACE4000 implements BinaryInboundDeviceProtoc
     public void setUPLProperties(TypedProperties properties) {
         this.addProperties(properties);
     }
-
 }

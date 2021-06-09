@@ -18,6 +18,9 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.generalblocktransfer.GeneralBlockTransferFrame;
+import com.energyict.mdc.identifiers.DeviceIdentifierLikeSerialNumber;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.ProtocolException;
@@ -53,9 +56,6 @@ import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DDisconn
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DMBusEventLog;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DMeterAlarmParser;
 import com.energyict.protocolimplv2.dlms.idis.sagemcom.T210D.events.T210DStandardEventLog;
-import com.energyict.mdc.identifiers.DeviceIdentifierLikeSerialNumber;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.identifiers.LogBookIdentifierByObisCodeAndDevice;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -210,7 +210,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         //TODO: make this parsing generic. That would be usefull if the push objects will change over time and not remain fixed
         if (pushObjectListObisCode.equals(PUSH_ON_INSTALLATION_OBJECT_LIST_OBIS)) {
             //the structure will contain 7 elements in case of a Push on Installation Data Notification
-            parsePushOnInstallatioEvent(structure);
+            parsePushOnInstallationEvent(structure);
         } else if (pushObjectListObisCode.equals(PUSH_ON_CONNECTIVITY_OBJECT_LIST_OBIS)) {
             parsePushOnConnectivityEvent(structure);
         } else if (pushObjectListObisCode.equals(PUSH_ON_INTERVAL_1_OBJECT_LIST_OBIS)) {
@@ -296,7 +296,7 @@ public class T210DEventPushNotificationParser extends DataPushNotificationParser
         return null;
     }
 
-    private void parsePushOnInstallatioEvent(Structure structure) {
+    private void parsePushOnInstallationEvent(Structure structure) {
         if (structure.nrOfDataTypes() == 7) {
             parseEquipementType(structure.getNextDataType());
         }
