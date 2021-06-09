@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ */
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall;
 
 import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
@@ -5,17 +8,12 @@ import com.energyict.mdc.common.device.data.Register;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.impl.ServiceCallImpl;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols.MasterEndDeviceControlsServiceCallHandler;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.NumericalReading;
-import com.energyict.mdc.device.data.impl.DeviceImpl;
-import com.energyict.mdc.device.data.impl.NumericalReadingImpl;
-import com.energyict.mdc.device.data.impl.NumericalRegisterImpl;
 import com.energyict.obis.ObisCode;
 import org.junit.Assert;
 import org.junit.Before;
@@ -29,7 +27,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -131,6 +128,4 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
         Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForCreditStatus(Optional.of(device));
         Assert.assertEquals(false, endDeviceEventDetail.isPresent());
     }
-
-
 }

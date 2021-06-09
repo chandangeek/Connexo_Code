@@ -4,7 +4,11 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols;
 
-import ch.iec.tc57._2011.enddeviceevents.*;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
+import ch.iec.tc57._2011.enddeviceevents.Asset;
+import ch.iec.tc57._2011.enddeviceevents.Name;
+import ch.iec.tc57._2011.enddeviceevents.NameType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
