@@ -82,7 +82,7 @@ pipeline {
       }
       steps {
         withMaven(maven: 'Maven 3.6.3',
-            mavenSettingsConfig: 'developer-settings',
+            mavenSettingsConfig: 'ehc-mirror',
             publisherStrategy: 'EXPLICIT',
             options: [],
             mavenLocalRepo: MAVEN_REPO) {
@@ -102,7 +102,7 @@ pipeline {
       steps {
         lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
           withMaven(maven: 'Maven 3.6.3',
-              mavenSettingsConfig: 'developer-settings',
+              mavenSettingsConfig: 'ehc-mirror',
               mavenOpts: '-Xmx5g',
               publisherStrategy: 'EXPLICIT',
               options: [openTasksPublisher()],
@@ -170,7 +170,7 @@ pipeline {
                           reference: MIRROR_CLONE, shallow: true]],
                           userRemoteConfigs: scm.userRemoteConfigs])
                 withMaven(maven: 'Maven 3.6.3',
-                          mavenSettingsConfig: 'developer-settings',
+                          mavenSettingsConfig: 'ehc-mirror',
                           mavenOpts: '-Xmx5g',
                           publisherStrategy: 'EXPLICIT',
                           options: [],
