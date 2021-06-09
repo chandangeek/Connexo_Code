@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.InboundDeviceProtocol;
 import com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol;
 import com.energyict.protocolimplv2.ace4000.ACE4000Inbound;
 import com.energyict.protocolimplv2.dlms.a2.A2Inbound;
+import com.energyict.protocolimplv2.dlms.ei6v2021.EI6v2021Inbound;
 import com.energyict.protocolimplv2.dlms.ei7.EI7Inbound;
 import com.energyict.protocolimplv2.eict.eiweb.EIWebBulk;
 import com.energyict.protocolimplv2.eict.webcatch.WebCatchInboundProtocol;
@@ -42,7 +43,8 @@ public enum InboundDeviceProtocolRule implements PluggableClassDefinition<Inboun
     DlmsSerialNumberDiscover(DlmsSerialNumberDiscover.class),
     CtrInboundDeviceProtocol(CtrInboundDeviceProtocol.class),
     NFCDataPushNotification(NFCDataPushNotification.class),
-    WebCatchInboundProtocol(WebCatchInboundProtocol.class);
+    WebCatchInboundProtocol(WebCatchInboundProtocol.class),
+    EI6v2021Inbound(EI6v2021Inbound.class);
 
     private final Class<? extends InboundDeviceProtocol> inboundDeviceProtocolClass;
 

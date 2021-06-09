@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.ei6newspec.messages;
+package com.energyict.protocolimplv2.dlms.ei6v2021.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -11,12 +11,12 @@ import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 import java.util.List;
 
-public class EI6NewSpecMessaging extends EI7Messaging {
+public class EI6v2021Messaging extends EI7Messaging {
 
     private List<DeviceMessageSpec> supportedMessages;
 
-    public EI6NewSpecMessaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService,
-                               Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+    public EI6v2021Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService,
+                             Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
         super(protocol, propertySpecService, nlsService, converter, messageFileExtractor);
     }
 
