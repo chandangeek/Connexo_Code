@@ -96,7 +96,7 @@ pipeline {
         EXTRA_PARAMS = getMavenExtras()
         SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
         //Krishna PROFILES = '-Psencha-build,coverage'
-        PROFILES = '-Psencha-build,enforce-version'
+        PROFILES = '-Psencha-build,!enforce-version'
         DIRECTORIES = "$DIRECTORIES"
       }
       steps {
