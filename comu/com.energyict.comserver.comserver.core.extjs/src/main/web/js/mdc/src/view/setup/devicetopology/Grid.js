@@ -130,10 +130,22 @@ Ext.define('Mdc.view.setup.devicetopology.Grid', {
             },
             {
                 xtype: 'pagingtoolbarbottom',
-                deferLoading: true,
                 store: me.store,
                 itemsPerPageMsg: Uni.I18n.translate('devices.pagingtoolbarbottom.itemsPerPage', 'MDC', 'Devices per page'),
-                dock: 'bottom'
+                dock: 'bottom',
+                deferLoading: true,
+                defaultPageSize: 1000,
+                pageSizeStore: Ext.create('Ext.data.Store', {
+                    fields: ['value'],
+                    data: [
+                        {value: '10'},
+                        {value: '20'},
+                        {value: '50'},
+                        {value: '100'},
+                        {value: '200'},
+                        {value: '1000'}
+                    ]
+                })
             }
         ];
 
