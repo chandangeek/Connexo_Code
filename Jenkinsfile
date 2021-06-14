@@ -134,35 +134,6 @@ pipeline {
     }
     stage('results') {
       parallel {
-        stage('Coverity') {
-          agent {
-            label 'coverity'
-          }
-          when {
-            expression { params.runAnalysis }
-          }
-          environment {
-            STREAM = getCoverityStream()
-            TARGET_DIR = "target"
-            COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
-            MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
-          }
-          steps {
-            checkout([$class: 'GitSCM',
-                      poll: false,
-                      changelog: false,
-                      branches: scm.branches,
-                      extensions: [[$class: 'CloneOption',
-                      depth: 2,
-                      noTags: false,
-                      reference: MIRROR_CLONE, shallow: true]],
-                      userRemoteConfigs: scm.userRemoteConfigs])
-            unstash "java_classes"
-            lock(resource: "Coverity-$env.STREAM", inversePrecedence: false) {
-              runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
-            }
-          }
-        }
         stage('Analysis') {
           agent {
             label 'linux && java'
@@ -293,6 +264,38 @@ pipeline {
               }
             }
           }
+        }
+      }
+    }
+    stage('Coverity') {
+      agent {
+        label 'coverity'
+      }
+      when {
+        expression { params.runAnalysis }
+      }
+      environment {
+        STREAM = getCoverityStream()
+        TARGET_DIR = "target"
+        COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
+        MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
+      }
+      steps {
+        milestone label: 'Setup Coverity', ordinal: 5
+        lock(resource: "Coverity-$env.STREAM", inversePrecedence: false) {
+          milestone label: 'Start Coverity', ordinal: 6
+          checkout([$class: 'GitSCM',
+                    poll: false,
+                    changelog: false,
+                    branches: scm.branches,
+                    extensions: [[$class: 'CloneOption',
+                    depth: 2,
+                    noTags: false,
+                    reference: MIRROR_CLONE, shallow: true]],
+                    userRemoteConfigs: scm.userRemoteConfigs])
+          unstash "java_classes"
+          runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
+          milestone label: 'Finish Coverity', ordinal: 7
         }
       }
     }
