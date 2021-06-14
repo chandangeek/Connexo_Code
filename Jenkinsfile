@@ -133,165 +133,171 @@ pipeline {
       }
     }
     stage('results') {
-      parallel {
-        stage('Coverity') {
-          agent {
-            label 'coverity'
-          }
-          when {
-            expression { params.runAnalysis }
-          }
-          environment {
-            STREAM = getCoverityStream()
-            TARGET_DIR = "target"
-            COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
-            MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
-          }
-          steps {
-            checkout([$class: 'GitSCM',
-                      poll: false,
-                      changelog: false,
-                      branches: scm.branches,
-                      extensions: [[$class: 'CloneOption',
-                      depth: 2,
-                      noTags: false,
-                      reference: MIRROR_CLONE, shallow: true]],
-                      userRemoteConfigs: scm.userRemoteConfigs])
-            unstash "java_classes"
-            milestone label: 'Coverity Start', ordinal: 5
-            lock(resource: "Coverity", inversePrecedence: true) {
-              runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
-              milestone label: 'Coverity Start', ordinal: 6
-            }
-          }
-        }
-        stage('Analysis') {
-          agent {
-            label 'linux && java'
-          }
-          when {
-            expression { params.runTests }
-          }
-          stages {
-            stage('Static') {
-              environment {
-                DIRECTORIES = "$DIRECTORIES"
-                EXTRA_PARAMS = getMavenExtras()
-              }
-              steps {
-                checkout([$class: 'GitSCM',
-                          branches: scm.branches,
-                          poll: false,
-                          changelog: false,
-                          extensions: [[$class: 'CloneOption',
-                          depth: 2,
-                          noTags: false,
-                          reference: MIRROR_CLONE, shallow: true]],
-                          userRemoteConfigs: scm.userRemoteConfigs])
-                withMaven(maven: 'Maven 3.6.3',
-                          mavenSettingsConfig: 'ehc-mirror',
-                          mavenOpts: '-Xmx5g',
-                          publisherStrategy: 'EXPLICIT',
-                          options: [],
-                          mavenLocalRepo: MAVEN_REPO) {
-                  catchError(buildResult: 'UNSTABLE',
-                             message: 'UNSTABLE: Maven static analysis failed',
-                             stageResult: 'UNSTABLE') {
-                    // Clean out specific directory that has issues
-                    runMaven("-pl coko/com.elster.jupiter.calendar clean")
-                    // Static code analysis
-                    runMaven("compile spotbugs:spotbugs pmd:pmd checkstyle:checkstyle -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
+      steps {
+        milestone label: 'Results', ordinal: 5
+        lock(resource: "Results_$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
+          milestone label: 'Results Executing', ordinal: 6
+          stage('results') {
+            parallel {
+              stage('Coverity') {
+                agent {
+                  label 'coverity'
+                }
+                when {
+                  expression { params.runAnalysis }
+                }
+                environment {
+                  STREAM = getCoverityStream()
+                  TARGET_DIR = "target"
+                  COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
+                  MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
+                }
+                steps {
+                  checkout([$class: 'GitSCM',
+                            poll: false,
+                            changelog: false,
+                            branches: scm.branches,
+                            extensions: [[$class: 'CloneOption',
+                            depth: 2,
+                            noTags: false,
+                            reference: MIRROR_CLONE, shallow: true]],
+                            userRemoteConfigs: scm.userRemoteConfigs])
+                  unstash "java_classes"
+                  lock(resource: "Coverity", inversePrecedence: true) {
+                    runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
                   }
-                  stash name:"bug_reports",
-                        allowEmpty: true,
-                        includes: "**/spotbugsXml.xml,**/pmd.xml,**/checkstyle-result.xml"
                 }
               }
-            }
-            stage('Reports') {
-              steps {
-                echo "Collecting Java JUnit and static analysis reports"
-                unstash "java_reports"
-                unstash "bug_reports"
-                unstash "java_classes"
-                recordIssues aggregatingResults: true,
-                             enabledForFailure: true,
-                             qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
-                                            [threshold: 97, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
-                             tools: [junitParser(pattern: '**/Test-*.xml'),
-                                     pmdParser(),
-                                     checkStyle(),
-                                     spotBugs(useRankAsPriority: true)]
-                junit allowEmptyResults: true, healthScaleFactor: 100.0, testResults: '**/TEST-*.xml'
-                jacoco buildOverBuild: false,
-                       changeBuildStatus: true,
-                       exclusionPattern: '**/*Test*.class',
-                       // Must exceed these values or the build will be unstable
-                       maximumBranchCoverage: '10',
-                       maximumClassCoverage: '42',
-                       maximumComplexityCoverage: '17',
-                       maximumLineCoverage: '26',
-                       maximumMethodCoverage: '28',
-                       // Must exceed these values or the build will fail
-                       minimumBranchCoverage: '14',
-                       minimumClassCoverage: '20',
-                       minimumComplexityCoverage: '20',
-                       minimumLineCoverage: '20',
-                       minimumMethodCoverage: '20'
+              stage('Analysis') {
+                agent {
+                  label 'linux && java'
+                }
+                when {
+                  expression { params.runTests }
+                }
+                stages {
+                  stage('Static') {
+                    environment {
+                      DIRECTORIES = "$DIRECTORIES"
+                      EXTRA_PARAMS = getMavenExtras()
+                    }
+                    steps {
+                      checkout([$class: 'GitSCM',
+                                branches: scm.branches,
+                                poll: false,
+                                changelog: false,
+                                extensions: [[$class: 'CloneOption',
+                                depth: 2,
+                                noTags: false,
+                                reference: MIRROR_CLONE, shallow: true]],
+                                userRemoteConfigs: scm.userRemoteConfigs])
+                      withMaven(maven: 'Maven 3.6.3',
+                                mavenSettingsConfig: 'ehc-mirror',
+                                mavenOpts: '-Xmx5g',
+                                publisherStrategy: 'EXPLICIT',
+                                options: [],
+                                mavenLocalRepo: MAVEN_REPO) {
+                        catchError(buildResult: 'UNSTABLE',
+                                   message: 'UNSTABLE: Maven static analysis failed',
+                                   stageResult: 'UNSTABLE') {
+                          // Clean out specific directory that has issues
+                          runMaven("-pl coko/com.elster.jupiter.calendar clean")
+                          // Static code analysis
+                          runMaven("compile spotbugs:spotbugs pmd:pmd checkstyle:checkstyle -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
+                        }
+                        stash name:"bug_reports",
+                              allowEmpty: true,
+                              includes: "**/spotbugsXml.xml,**/pmd.xml,**/checkstyle-result.xml"
+                      }
+                    }
+                  }
+                  stage('Reports') {
+                    steps {
+                      echo "Collecting Java JUnit and static analysis reports"
+                      unstash "java_reports"
+                      unstash "bug_reports"
+                      unstash "java_classes"
+                      recordIssues aggregatingResults: true,
+                                   enabledForFailure: true,
+                                   qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
+                                                  [threshold: 97, type: 'TOTAL_HIGH', unstable: true],
+                                                  [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
+                                   tools: [junitParser(pattern: '**/Test-*.xml'),
+                                           pmdParser(),
+                                           checkStyle(),
+                                           spotBugs(useRankAsPriority: true)]
+                      junit allowEmptyResults: true, healthScaleFactor: 100.0, testResults: '**/TEST-*.xml'
+                      jacoco buildOverBuild: false,
+                             changeBuildStatus: true,
+                             exclusionPattern: '**/*Test*.class',
+                             // Must exceed these values or the build will be unstable
+                             maximumBranchCoverage: '10',
+                             maximumClassCoverage: '42',
+                             maximumComplexityCoverage: '17',
+                             maximumLineCoverage: '26',
+                             maximumMethodCoverage: '28',
+                             // Must exceed these values or the build will fail
+                             minimumBranchCoverage: '14',
+                             minimumClassCoverage: '20',
+                             minimumComplexityCoverage: '20',
+                             minimumLineCoverage: '20',
+                             minimumMethodCoverage: '20'
+                    }
+                  }
+                }
               }
-            }
-          }
-        }
-        stage("Archive") {
-          agent {
-            label 'linux'
-          }
-          stages {
-            stage("Jenkins") {
-              steps {
-                archiveArtifacts allowEmptyArchive: true,
-                                 artifacts: '**/connexo-extra-jars*.zip,**/connexo-insight*.zip,**/connexo-kore*.zip,**/multisense*.zip,**/offline*.zip',
-                                 fingerprint: false,
-                                 followSymlinks: false
-              }
-            }
-            stage('Artifactory') {
-              when {
-                expression { params.doDeploy }
-              }
-              environment {
-                FOLDER = "connexo-maven-unstable-local/$env.BRANCH_NAME/$env.BUILD_NUMBER"
-                ARTIFACT_VERSION = getArtifactTag("$POM_VERSION")
-              }
-              steps {
-                echo "Sending artifacts version $ARTIFACT_VERSION to Artifactory to $FOLDER"
-                unstash "zip_files"
-                rtUpload (
-                  serverId: "Artifactory",
-                  spec: '''{
-                    "files": [{
-                      "pattern": "**/connexo-extra-jars*.zip",
-                      "target": "${FOLDER}/connexo-extra-jars-${ARTIFACT_VERSION}.zip",
-                      "flat": true
-                    },{
-                      "pattern": "**/connexo-insight*.zip",
-                      "target": "${FOLDER}/connexo-insight-${ARTIFACT_VERSION}.zip",
-                      "flat": true
-                    },{
-                      "pattern": "**/connexo-kore*.zip",
-                      "target": "${FOLDER}/connexo-kore-${ARTIFACT_VERSION}.zip",
-                      "flat": true
-                    },{
-                      "pattern": "**/multisense*.zip",
-                      "target": "${FOLDER}/multisense-${ARTIFACT_VERSION}.zip",
-                      "flat": true
-                    },{
-                      "pattern": "**/offline*.zip",
-                      "target": "${FOLDER}/offline-${ARTIFACT_VERSION}.zip",
-                      "flat": true
-                  }]}'''
-                )
+              stage("Archive") {
+                agent {
+                  label 'linux'
+                }
+                stages {
+                  stage("Jenkins") {
+                    steps {
+                      archiveArtifacts allowEmptyArchive: true,
+                                       artifacts: '**/connexo-extra-jars*.zip,**/connexo-insight*.zip,**/connexo-kore*.zip,**/multisense*.zip,**/offline*.zip',
+                                       fingerprint: false,
+                                       followSymlinks: false
+                    }
+                  }
+                  stage('Artifactory') {
+                    when {
+                      expression { params.doDeploy }
+                    }
+                    environment {
+                      FOLDER = "connexo-maven-unstable-local/$env.BRANCH_NAME/$env.BUILD_NUMBER"
+                      ARTIFACT_VERSION = getArtifactTag("$POM_VERSION")
+                    }
+                    steps {
+                      echo "Sending artifacts version $ARTIFACT_VERSION to Artifactory to $FOLDER"
+                      unstash "zip_files"
+                      rtUpload (
+                        serverId: "Artifactory",
+                        spec: '''{
+                          "files": [{
+                            "pattern": "**/connexo-extra-jars*.zip",
+                            "target": "${FOLDER}/connexo-extra-jars-${ARTIFACT_VERSION}.zip",
+                            "flat": true
+                          },{
+                            "pattern": "**/connexo-insight*.zip",
+                            "target": "${FOLDER}/connexo-insight-${ARTIFACT_VERSION}.zip",
+                            "flat": true
+                          },{
+                            "pattern": "**/connexo-kore*.zip",
+                            "target": "${FOLDER}/connexo-kore-${ARTIFACT_VERSION}.zip",
+                            "flat": true
+                          },{
+                            "pattern": "**/multisense*.zip",
+                            "target": "${FOLDER}/multisense-${ARTIFACT_VERSION}.zip",
+                            "flat": true
+                          },{
+                            "pattern": "**/offline*.zip",
+                            "target": "${FOLDER}/offline-${ARTIFACT_VERSION}.zip",
+                            "flat": true
+                        }]}'''
+                      )
+                    }
+                  }
+                }
               }
             }
           }
