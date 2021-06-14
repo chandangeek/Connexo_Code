@@ -282,7 +282,7 @@ pipeline {
       }
       steps {
         milestone label: 'Setup Coverity', ordinal: 5
-        lock(resource: "Coverity_$env.STREAM", inversePrecedence: true) {
+        lock(resource: "Coverity-$env.STREAM", inversePrecedence: true) {
           milestone label: 'Start Coverity', ordinal: 6
           checkout([$class: 'GitSCM',
                     poll: false,
