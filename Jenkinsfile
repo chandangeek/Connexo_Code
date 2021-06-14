@@ -158,8 +158,10 @@ pipeline {
                       reference: MIRROR_CLONE, shallow: true]],
                       userRemoteConfigs: scm.userRemoteConfigs])
             unstash "java_classes"
-            lock(resource: "Coverity", inversePrecedence: false) {
+            milestone label: 'Coverity_start'
+            lock(resource: "Coverity", inversePrecedence: true) {
               runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
+              milestone label: 'Coverity_end'
             }
           }
         }
