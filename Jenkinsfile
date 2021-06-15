@@ -111,7 +111,7 @@ pipeline {
             axes {
               axis {
                 name 'ARTIFACT'
-                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction'
+                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction', 'bootstrap.h2'
               }
             }
             stages {
