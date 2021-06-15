@@ -118,7 +118,7 @@ pipeline {
                        'http.whiteboard', 'time.rest', 'properties.rest', 'audit', 'soap.whiteboard.cxf', 'appserver',
                        'extjs', 'loaderjs', 'unifyingjs', 'appserver.extjs', 'audit.rest', 'offline.services', 'bpm.extjs',
                        'bpm.handler', 'bpm.rest', 'search', 'search.rest', 'cps', 'cps.rest', 'cps.extjs', 'dualcontrol',
-                       'fileimport.extjs', 'fileimport.rest', 'fsm', 'fsm.handler', 'fsm.rest', 'ftpclient', 'hsm', 'theme.skyline'
+                       'fileimport.extjs', 'fileimport.rest', 'fsm', 'fsm.handler', 'fsm.rest', 'ftpclient', 'hsm', 'theme.skyline',
                        'login.app', 'mail', 'nls.rest', 'osgi.goodies', 'pki', 'pki.rest', 'pki.extjs', 'public.rest.util',
                        'rest.whiteboard', 'servicecall', 'servicecall.examples', 'servicecall.extjs', 'servicecall.rest',
                        'servicecalltype.extjs', 'system', 'systemproperties', 'systemproperties.rest', 'tasks.rest',
