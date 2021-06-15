@@ -107,14 +107,23 @@ pipeline {
           environment {
             BASELINE = getBaseline()
           }
-          steps {
-            withMaven(maven: 'Maven 3.6.3',
-                mavenSettingsConfig: 'ehc-mirror',
-                publisherStrategy: 'EXPLICIT',
-                options: [],
-                mavenLocalRepo: MAVEN_REPO) {
-              runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=util -Dversion=$env.BASELINE -Dpackaging=bundle")
-              runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=security.thread -Dversion=$env.BASELINE -Dpackaging=bundle")
+          matrix {
+            axes {
+              axis {
+                name 'ARTIFACT'
+                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction'
+              }
+            }
+            stages {
+              stage("download") {
+                withMaven(maven: 'Maven 3.6.3',
+                    mavenSettingsConfig: 'ehc-mirror',
+                    publisherStrategy: 'EXPLICIT',
+                    options: [],
+                    mavenLocalRepo: MAVEN_REPO) {
+                  runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=${ARTIFACT} -Dversion=$env.BASELINE -Dpackaging=bundle")
+                }
+              }
             }
           }
         }
