@@ -447,11 +447,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         try {
             boolean needToExecuteComTaskWithPriority = withPriority && releaseDate.isBefore(clock.instant());
             checkComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
-            if (endDeviceCommand instanceof OpenRemoteSwitchCommand || endDeviceCommand instanceof CloseRemoteSwitchCommand
-                    || endDeviceCommand instanceof ArmRemoteSwitchCommand || endDeviceCommand instanceof UpdateCreditAmountCommand) {
-                // check Status Information com task exists and is manual system for 3 command types which trigger it in service call handlers
-                checkStatusInformationComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
-            }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages, needToExecuteComTaskWithPriority);
             scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages, needToExecuteComTaskWithPriority); // Intentionally reload the device here
@@ -494,7 +489,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     private void checkStatusInformationComTask(Device device, boolean withPriority) throws NoSuchElementException {
-        // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
+        // just to check negative case when there is no ManualSystemTask of type StatusInformationTask00000000000000000
         ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
                 .getComTaskEnablements().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
