@@ -116,12 +116,14 @@ pipeline {
             }
             stages {
               stage("download") {
-                withMaven(maven: 'Maven 3.6.3',
-                    mavenSettingsConfig: 'ehc-mirror',
-                    publisherStrategy: 'EXPLICIT',
-                    options: [],
-                    mavenLocalRepo: MAVEN_REPO) {
-                  runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=${ARTIFACT} -Dversion=$env.BASELINE -Dpackaging=bundle")
+                steps {
+                  withMaven(maven: 'Maven 3.6.3',
+                      mavenSettingsConfig: 'ehc-mirror',
+                      publisherStrategy: 'EXPLICIT',
+                      options: [],
+                      mavenLocalRepo: MAVEN_REPO) {
+                    runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=${ARTIFACT} -Dversion=$env.BASELINE -Dpackaging=bundle")
+                  }
                 }
               }
             }
