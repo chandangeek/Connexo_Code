@@ -111,10 +111,21 @@ pipeline {
             axes {
               axis {
                 name 'ARTIFACT'
-                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction', 'events',
-                       'bootstrap.h2', 'bootstrap.oracle', 'orm', 'orm.h2', 'upgrade', 'domain.util', 'messaging', 'messaging.h2',
+                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction', 'events', 'events.rest',
+                       'bootstrap.h2', 'bootstrap.oracle', 'messaging.oracle', 'orm', 'orm.h2', 'orm.oracle',
+                       'upgrade', 'domain.util', 'messaging', 'messaging.h2', 'metering', 'metering.groups',
                        'datavault', 'users', 'time', 'properties', 'systemadmin', 'fileimport', 'tasks', 'rest.util', 'bpm',
-                       'http.whiteboard', 'time.rest', 'properties.rest', 'audit', 'soap.whiteboard.cxf', 'appserver'
+                       'http.whiteboard', 'time.rest', 'properties.rest', 'audit', 'soap.whiteboard.cxf', 'appserver',
+                       'extjs', 'loaderjs', 'unifyingjs', 'appserver.extjs', 'audit.rest', 'offline.services', 'bpm.extjs',
+                       'bpm.handler', 'bpm.rest', 'search', 'search.rest', 'cps', 'cps.rest', 'cps.extjs', 'dualcontrol',
+                       'fileimport.extjs', 'fileimport.rest', 'fsm', 'fsm.handler', 'fsm.rest', 'ftpclient', 'hsm', 'theme.skyline'
+                       'login.app', 'mail', 'nls.rest', 'osgi.goodies', 'pki', 'pki.rest', 'pki.extjs', 'public.rest.util',
+                       'rest.whiteboard', 'servicecall', 'servicecall.examples', 'servicecall.extjs', 'servicecall.rest',
+                       'servicecalltype.extjs', 'system', 'systemproperties', 'systemproperties.rest', 'tasks.rest',
+                       'users.extjs', 'users.rest', 'webservice.inbound.rest.scim', 'webservices.extjs', 'webservices.rest',
+                       'yellowfin', 'yellowfin.app', 'cbo', 'ids', 'calendar', 'parties', 'usagepoint.lifecycle.config',
+                       'kpi', 'validation', 'export', 'appserver.rest', 'calendar.extjs', 'calendar.rest', 'usagepoint.lifecycle',
+                       'cim.webservices.outbound.soap', 'issue'
               }
             }
             stages {
