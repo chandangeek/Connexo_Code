@@ -4,18 +4,24 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
-import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 import com.energyict.protocolcommon.Password;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
-import com.energyict.protocolimplv2.messages.*;
+import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
+import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
+import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
 import java.util.ArrayList;
@@ -32,13 +38,17 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public A2Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+    public A2Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService,
+                       Converter converter, DeviceMessageFileExtractor messageFileExtractor,
+                       KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol);
         this.messageFileExtractor = messageFileExtractor;
         this.propertySpecService = propertySpecService;
         this.nlsService = nlsService;
         this.converter = converter;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     protected A2MessageExecutor getMessageExecutor() {
@@ -87,15 +97,19 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName))
+        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
-        if (propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName))
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.passwordAttributeName)) {
             return ((Password) messageAttribute).getValue();
-        if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName))
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
             return messageAttribute.toString();
-        if (propertySpec.getName().equals(DeviceMessageConstants.contactorActivationDateAttributeName))
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.contactorActivationDateAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
-        return messageAttribute.toString();
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
+            return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+        } else {
+            return messageAttribute.toString();
+        }
     }
 
     @Override

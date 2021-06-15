@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.ei7.messages;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
@@ -21,8 +22,10 @@ public class EI7Messaging extends A2Messaging {
     private EI7MessageExecutor messageExecutor;
     private List<DeviceMessageSpec> supportedMessages;
 
-    public EI7Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
-        super(protocol, propertySpecService, nlsService, converter, messageFileExtractor);
+    public EI7Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService,
+                        Converter converter, DeviceMessageFileExtractor messageFileExtractor,
+                        KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(protocol, propertySpecService, nlsService, converter, messageFileExtractor, keyAccessorTypeExtractor);
     }
 
     protected EI7MessageExecutor getMessageExecutor() {
