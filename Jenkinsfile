@@ -111,7 +111,10 @@ pipeline {
             axes {
               axis {
                 name 'ARTIFACT'
-                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction', 'bootstrap.h2'
+                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction', 'events',
+                       'bootstrap.h2', 'bootstrap.oracle', 'orm', 'orm.h2', 'upgrade', 'domain.util', 'messaging', 'messaging.h2',
+                       'datavault', 'users', 'time', 'properties', 'systemadmin', 'fileimport', 'tasks', 'rest.util', 'bpm',
+                       'http.whiteboard', 'time.rest', 'properties.rest', 'audit', 'soap.whiteboard.cxf', 'appserver'
               }
             }
             stages {
