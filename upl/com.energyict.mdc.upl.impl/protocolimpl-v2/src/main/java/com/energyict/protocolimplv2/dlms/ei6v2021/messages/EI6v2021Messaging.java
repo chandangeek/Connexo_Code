@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.dlms.ei6v2021.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -16,8 +17,9 @@ public class EI6v2021Messaging extends EI7Messaging {
     private List<DeviceMessageSpec> supportedMessages;
 
     public EI6v2021Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService,
-                             Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
-        super(protocol, propertySpecService, nlsService, converter, messageFileExtractor);
+                             Converter converter, DeviceMessageFileExtractor messageFileExtractor,
+                             KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+        super(protocol, propertySpecService, nlsService, converter, messageFileExtractor, keyAccessorTypeExtractor);
     }
 
     @Override
