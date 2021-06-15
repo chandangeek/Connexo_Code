@@ -103,48 +103,6 @@ pipeline {
             }
           }
         }
-//        stage("Get Baseline") {
-//          environment {
-//            BASELINE = getBaseline()
-//          }
-//          matrix {
-//            axes {
-//              axis {
-//                name 'ARTIFACT'
-//                values 'util', 'security.thread', 'pubsub', 'bootstrap', 'transaction', 'events', 'events.rest',
-//                       'bootstrap.h2', 'bootstrap.oracle', 'messaging.oracle', 'orm', 'orm.h2', 'orm.oracle',
-//                       'upgrade', 'domain.util', 'messaging', 'messaging.h2', 'metering', 'metering.groups',
-//                       'datavault', 'users', 'time', 'properties', 'systemadmin', 'fileimport', 'tasks', 'rest.util', 'bpm',
-//                       'http.whiteboard', 'time.rest', 'properties.rest', 'audit', 'soap.whiteboard.cxf', 'appserver',
-//                       'extjs', 'loaderjs', 'unifyingjs', 'appserver.extjs', 'audit.rest', 'offline.services', 'bpm.extjs',
-//                       'bpm.handler', 'bpm.rest', 'search', 'search.rest', 'cps', 'cps.rest', 'cps.extjs', 'dualcontrol',
-//                       'fileimport.extjs', 'fileimport.rest', 'fsm', 'fsm.handler', 'fsm.rest', 'ftpclient', 'hsm', 'theme.skyline',
-//                       'login.app', 'mail', 'nls.rest', 'osgi.goodies', 'pki', 'pki.rest', 'pki.extjs', 'public.rest.util',
-//                       'rest.whiteboard', 'servicecall', 'servicecall.examples', 'servicecall.extjs', 'servicecall.rest',
-//                       'servicecalltype.extjs', 'system', 'systemproperties', 'systemproperties.rest', 'tasks.rest',
-//                       'users.extjs', 'users.rest', 'webservice.inbound.rest.scim', 'webservices.extjs', 'webservices.rest',
-//                       'yellowfin', 'yellowfin.app', 'cbo', 'ids', 'calendar', 'parties', 'usagepoint.lifecycle.config',
-//                       'kpi', 'validation', 'export', 'appserver.rest', 'calendar.extjs', 'calendar.rest', 'usagepoint.lifecycle',
-//                       'cim.webservices.outbound.soap', 'issue'
-//              }
-//            }
-//            stages {
-//              stage("download") {
-//                steps {
-//                  withMaven(maven: 'Maven 3.6.3',
-//                      mavenSettingsConfig: 'ehc-mirror',
-//                      publisherStrategy: 'EXPLICIT',
-//                      options: [],
-//                      mavenLocalRepo: MAVEN_REPO) {
-//                    catchError(buildResult: 'SUCCESS', message: 'Could not download artifact') {
-//                      runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=${ARTIFACT} -Dversion=$env.BASELINE -Dpackaging=bundle")
-//                    }
-//                  }
-//                }
-//              }
-//            }
-//          }
-//        }
         stage('Compile') {
           environment {
             COMMAND = mavenCommand()
@@ -156,7 +114,7 @@ pipeline {
           steps {
             lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
               withMaven(maven: 'Maven 3.6.3',
-                  mavenSettingsConfig: 'developer-settings',
+                  mavenSettingsConfig: 'ehc-mirror',
                   mavenOpts: '-Xmx5g',
                   publisherStrategy: 'EXPLICIT',
                   options: [openTasksPublisher()],
@@ -410,17 +368,6 @@ def getPomVersion() {
   try {
     results = sh returnStdout: true,
                  script: "xmllint pom.xml --xpath \"/*[local-name()='project']/*[local-name()='version']/text()\""
-  } catch (Exception e) {
-    echo "Problem parsing pom.xml : " + e
-  }
-  return results.trim()
-}
-
-def getBaseline() {
-  results = ""
-  try {
-    results = sh returnStdout: true,
-                 script: "xmllint pom.xml --xpath \"/*[local-name()='project']/*[local-name()='properties']/*[local-name()='baseline']/text()\""
   } catch (Exception e) {
     echo "Problem parsing pom.xml : " + e
   }
