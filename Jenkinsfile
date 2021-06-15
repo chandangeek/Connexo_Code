@@ -103,6 +103,20 @@ pipeline {
             }
           }
         }
+        stage("Get Baseline") {
+          environment {
+            BASELINE = getBaseline()
+          }
+          steps {
+            withMaven(maven: 'Maven 3.6.3',
+                mavenSettingsConfig: 'ehc-mirror',
+                publisherStrategy: 'EXPLICIT',
+                options: [],
+                mavenLocalRepo: MAVEN_REPO) {
+              runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=util -Dversion=$env.BASELINE -Dpackaging=bundle")
+            }
+          }
+        }
         stage('Compile') {
           environment {
             COMMAND = mavenCommand()
@@ -368,6 +382,17 @@ def getPomVersion() {
   try {
     results = sh returnStdout: true,
                  script: "xmllint pom.xml --xpath \"/*[local-name()='project']/*[local-name()='version']/text()\""
+  } catch (Exception e) {
+    echo "Problem parsing pom.xml : " + e
+  }
+  return results.trim()
+}
+
+def getBaseline() {
+  results = ""
+  try {
+    results = sh returnStdout: true,
+                 script: "xmllint pom.xml --xpath \"/*[local-name()='project']/*[local-name()='properties']/*[local-name()='baseline']/text()\""
   } catch (Exception e) {
     echo "Problem parsing pom.xml : " + e
   }
