@@ -11,6 +11,7 @@ import com.energyict.protocolimplv2.dlms.acud.events.electric.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AcudElectricLogBookFactory extends AcudLogBookFactory {
 
@@ -87,7 +88,11 @@ public class AcudElectricLogBookFactory extends AcudLogBookFactory {
         } else {
             return new ArrayList<>();
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents).stream().map(item -> {
+            item.getEventType().setType(getProtocol().getTypeMeter());
+            return item;
+        }).collect(Collectors.toList());
     }
 
     protected List<ObisCode> getSupportedLogBooks() {

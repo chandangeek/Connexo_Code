@@ -40,7 +40,7 @@ public class CreditSetup extends AbstractCosemObject {
         return readDataType(CreditSetupAttributes.PRIORITY, Unsigned8.class);
     }
 
-    public AbstractDataType readWarningTreshold() throws IOException {
+    public AbstractDataType readWarningThreshold() throws IOException {
         return readDataType(CreditSetupAttributes.WARNING_THRESHOLD, Structure.class);
     }
 

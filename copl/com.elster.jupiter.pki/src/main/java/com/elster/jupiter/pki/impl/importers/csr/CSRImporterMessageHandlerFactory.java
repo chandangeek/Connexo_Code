@@ -45,4 +45,9 @@ public class CSRImporterMessageHandlerFactory implements MessageHandlerFactory {
     public MessageHandler newMessageHandler() {
         return fileImportService.createMessageHandler();
     }
+
+    @Override
+    public boolean allowsMessageValidation() {
+        return fileImportService.isLocalImportAllowedOnly();
+    }
 }

@@ -2,16 +2,24 @@ package com.energyict.dlms.cosem;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.axrdencoding.*;
+import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -88,6 +96,7 @@ public class ImageTransfer extends AbstractCosemObject {
     private boolean verifyImage = true;
     private boolean activateImage = false;
     private Charset charSet;
+    private boolean startIndexOverride = false;
 
     public ImageTransfer(ProtocolLink protocolLink) {
         super(protocolLink, new ObjectReference(LN));
@@ -230,6 +239,23 @@ public class ImageTransfer extends AbstractCosemObject {
         }
     }
 
+    private void initiateImageTransfer(byte[] imageIdentifier) throws IOException {
+        int imageSize = (size != null) ? size.intValue() : 0;
+        Structure imageInitiateStructure = new Structure();
+        imageInitiateStructure.addDataType(OctetString.fromByteArray(imageIdentifier));
+        imageInitiateStructure.addDataType(this.size);
+        if (!isResume()) {
+            getLogger().info("Image transfer initialization parameters:" +
+                    "\n - image identifier: " + ProtocolTools.getHexStringFromBytes(imageIdentifier) +
+                    "\n - block count: " + blockCount +
+                    "\n - image size: " + imageSize);
+            imageTransferInitiate(imageInitiateStructure);
+        } else {
+            getLogger().info("Skipping image transfer initialization because we're resuming ...");
+
+        }
+    }
+
     /**
      * Start the automatic upgrade procedure. You may choose to add additional zeros at in the last block to match the blockSize for each block.
      *
@@ -255,8 +281,8 @@ public class ImageTransfer extends AbstractCosemObject {
     public final void configurableUpgrade(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier, final boolean checkForMissingBlocks) throws IOException {
 
         if (isEnableImageTransfer()) {
-        enableImageTransfer(dataSupplier, imageIdentifier);
-        getLogger().finest("Image transfer enabled for imageIdentifier: " + imageIdentifier);
+            enableImageTransfer(dataSupplier, imageIdentifier);
+            getLogger().finest("Image transfer enabled for imageIdentifier: " + imageIdentifier);
         }
         getLogger().finest("Add additional zeros to match the last blocksize (additionalZeros): " + additionalZeros);
         getLogger().finest("checkForMissingBlocks: " + checkForMissingBlocks);
@@ -272,14 +298,14 @@ public class ImageTransfer extends AbstractCosemObject {
 
             // Step5: Verify image
             if (isVerifyImage()) {
-            updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, dataSupplier.getSize(), 0);
-            if (isUsePollingVerifyAndActivate()) {
-                getLogger().log(Level.INFO, "Verification of image using polling method ...");
-                verifyAndPollForSuccess();
-            } else {
-                verifyAndRetryImage();
-            }
-            getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
+                updateState(ImageTransferCallBack.ImageTransferState.VERIFY_IMAGE, imageIdentifier, blockCount, dataSupplier.getSize(), 0);
+                if (isUsePollingVerifyAndActivate()) {
+                    getLogger().log(Level.INFO, "Verification of image using polling method ...");
+                    verifyAndPollForSuccess();
+                } else {
+                    verifyAndRetryImage();
+                }
+                getLogger().log(Level.INFO, "Verification of the image was successful at : " + new Date(System.currentTimeMillis()));
             }
 
             // Step6: Check image before activation
@@ -287,7 +313,7 @@ public class ImageTransfer extends AbstractCosemObject {
 
             // Step7: Activate image
             // This step is done in the ProtocolCode!
-            if(isActivateImage()) {
+            if (isActivateImage()) {
                 try {
                     setUsePollingVerifyAndActivate(false);   //Don't use polling for the activation (the meter will immediately reboot)!
                     imageActivation();
@@ -328,6 +354,7 @@ public class ImageTransfer extends AbstractCosemObject {
      *
      * @throws 	IOException				If an IO error occurs whilst transferring blocks.
      */
+    @Deprecated
     public final void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final String imageIdentifier) throws IOException {
         this.dataSupplier = dataSupplier;
         this.size = new Unsigned32(dataSupplier.getSize());
@@ -340,6 +367,13 @@ public class ImageTransfer extends AbstractCosemObject {
         } else {
             getLogger().info("Resume not applicable, starting from zero.");
         }
+
+        // Override start index if necessary
+        if (startIndexOverride) {
+            getLogger().log(Level.INFO, "Overriding start block to 0.");
+            startIndex = 0;
+        }
+
         // Step1: Get the maximum image block size
         // and calculate the amount of blocks in one step
         final long blockSize = readImageBlockSize().getValue();
@@ -363,20 +397,90 @@ public class ImageTransfer extends AbstractCosemObject {
 
         // Step2: Initiate the image transfer
         if (isInitiateImageTransfer()) {
-        getLogger().info("Initiating image transfer");
-        initiateImageTransfer(imageIdentifier);
-        getLogger().info("ImageTransfer initiated");
+            getLogger().info("Initiating image transfer");
+            initiateImageTransfer(imageIdentifier);
+            getLogger().info("ImageTransfer initiated");
         }
 
-        //add delay
+        // add delay
         initializationBeforeSendingOfBlocks();
 
         // Step3: Transfer image blocks
         if (isTransferBlocks()) {
-        getLogger().info("Transferring blocks ... ");
-        transferImageBlocks(additionalZeros);
-        getLogger().log(Level.INFO, "All blocks are sent at : " + new Date(System.currentTimeMillis()));
+            getLogger().info("Transferring blocks ...");
+            transferImageBlocks(additionalZeros);
+            getLogger().info("All blocks are sent at: " + new Date(System.currentTimeMillis()));
+        }
     }
+
+    /**
+     * Initialize the {@link ImageTransfer} objects and transfer the blocks to the target device.
+     *
+     * I duplicated this method because the imageIdentifier SHOULD NOT BE A STRING it should be a byte[] !!!
+     * The image identifier is transmitted as an OctetString to the device.
+     * The encoding of String's in Java is highly dependent on the ENCODING of the String!
+     * You are sending HEX bytes to the device. You MUST NEVER USER Strings to encode bytes!
+     *
+     * @param dataSupplier      Provides the image data.
+     * @param additionalZeros   Indicates whether or not to pad the last block with zeroes up to block size.
+     * @param imageIdentifier   The image identifier.
+     * @throws IOException      If an IO error occurs whilst transferring blocks.
+     */
+    public final void initializeAndTransferBlocks(final ImageBlockSupplier dataSupplier, final boolean additionalZeros, final byte[] imageIdentifier) throws IOException {
+        this.dataSupplier = dataSupplier;
+        this.size = new Unsigned32(dataSupplier.getSize());
+        getLogger().info("Firmware Image size: " + this.size);
+        getLogger().info("Reading first not transferred block (so we can check resume)");
+        int lastTransferredBlockNumber = readFirstNotTransferedBlockNumber().intValue();
+        if (lastTransferredBlockNumber > 0) {
+            getLogger().info("Resuming session, starting from block " + (lastTransferredBlockNumber-1));
+            setStartIndex(lastTransferredBlockNumber - 1);
+        } else {
+            getLogger().info("Resume not applicable, starting from zero.");
+        }
+
+        // Override start index if necessary
+        if (startIndexOverride) {
+            getLogger().info("Overriding start block to 0.");
+            startIndex = 0;
+        }
+
+        // Step 1: Get the maximum image block size and calculate the amount of blocks in one step
+        final long blockSize = readImageBlockSize().getValue();
+        getLogger().info("ImageTransfer block size = [" + blockSize + "] bytes");
+
+        this.blockCount = (int) (this.size.getValue() / blockSize) + (((this.size.getValue() % blockSize) == 0) ? 0 : 1);
+        getLogger().info("ImageTransfer block count = [" + blockCount + "] blocks");
+
+        if (isResume()) {
+            getLogger().info("Resuming image transfer from "+startIndex);
+            readImageTransferStatus();
+            if (imageTransferStatus.getValue() < 1 || imageTransferStatus.getValue() > 3) {
+                getLogger().warning("Cannot resume the image transfer. The current transfer state (" + imageTransferStatus.getValue() + ") should be 'Image transfer initiated (1)', 'Image verification initiated (2)' or 'Image verification successful (3)'. Will start from block 0.");
+                startIndex = 0;
+            }
+            if (checkNumberOfBlocksInPreviousSession() && getNumberOfBlocksInPreviousSession() != blockCount) {
+                getLogger().warning("Cannot resume the image transfer. The number of blocks is different since the last image transfer session. Will start from block 0.");
+                startIndex = 0;
+            }
+        }
+
+        // Step 2: Initiate the image transfer
+        if (isInitiateImageTransfer()) {
+            getLogger().info("Initiating image transfer");
+            initiateImageTransfer(imageIdentifier);
+            getLogger().info("ImageTransfer initiated");
+        }
+
+        // Add delay
+        initializationBeforeSendingOfBlocks();
+
+        // Step 3: Transfer image blocks
+        if (isTransferBlocks()) {
+            getLogger().info("Transferring blocks ...");
+            transferImageBlocks(additionalZeros);
+            getLogger().info("All blocks are sent at: " + new Date(System.currentTimeMillis()));
+        }
     }
 
     /**
@@ -880,6 +984,20 @@ public class ImageTransfer extends AbstractCosemObject {
         return imagesToActivate;
     }
 
+    public final List<Structure> readImageToActivateInfoStructure() throws IOException {
+        final byte[] berEncodedData = getLNResponseData(ATTRB_IMAGE_TO_ACTIVATE_INFO);
+
+        final Array imagesToActivateArray = AXDRDecoder.decode(berEncodedData, Array.class);
+        final List<Structure> imagesToActivate = new ArrayList<>(imagesToActivateArray.nrOfDataTypes());
+
+        for (int i = 0; i < imagesToActivateArray.nrOfDataTypes(); i++) {
+            final Structure currentImage = imagesToActivateArray.getDataType(i, Structure.class);
+            imagesToActivate.add(currentImage);
+        }
+
+        return imagesToActivate;
+    }
+
     /**
      * <pre>
      * Initializes the Image transfer process.
@@ -1089,6 +1207,10 @@ public class ImageTransfer extends AbstractCosemObject {
 
     public void setActivateImage(boolean activateImage) {
         this.activateImage = activateImage;
+    }
+
+    public void setStartIndexOverride(boolean startIndexOverride) {
+        this.startIndexOverride = startIndexOverride;
     }
 
     /**

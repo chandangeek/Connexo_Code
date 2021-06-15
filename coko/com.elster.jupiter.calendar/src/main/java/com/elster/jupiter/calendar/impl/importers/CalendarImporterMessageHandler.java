@@ -45,4 +45,8 @@ public class CalendarImporterMessageHandler implements MessageHandlerFactory {
         return fileImportService.createMessageHandler();
     }
 
+    @Override
+    public boolean allowsMessageValidation() {
+        return fileImportService.isLocalImportAllowedOnly();
+    }
 }

@@ -23,6 +23,8 @@ public class ACE4000Properties {
 
     public static final String TIMEOUT = DeviceProtocol.Property.TIMEOUT.getName();
     public static final String RETRIES = DeviceProtocol.Property.RETRIES.getName();
+    public static final String MUST_KEEP_LISTENING = DeviceProtocol.Property.MUST_KEEP_LISTENING.getName();
+
     public static final BigDecimal DEFAULT_TIMEOUT = new BigDecimal("30000");
     public static final BigDecimal DEFAULT_RETRIES = new BigDecimal("3");
 
@@ -46,7 +48,8 @@ public class ACE4000Properties {
     List<PropertySpec> getPropertySpecs() {
         return Arrays.asList(
                 this.timeoutPropertySpec(),
-                this.retriesPropertySpec());
+                this.retriesPropertySpec(),
+                this.mustKeepListeningPropertySpec());
     }
 
     private PropertySpec timeoutPropertySpec() {
@@ -57,8 +60,20 @@ public class ACE4000Properties {
         return this.bigDecimalSpec(RETRIES, false, DEFAULT_RETRIES, PropertyTranslationKeys.V2_ACE4000_RETRIES);
     }
 
+    private PropertySpec mustKeepListeningPropertySpec() {
+        return this.BooleanSpec(MUST_KEEP_LISTENING, false, false, PropertyTranslationKeys.V2_ACE4000_RETRIES);
+    }
+
     public int getTimeout() {
         return this.getIntegerProperty(TIMEOUT, DEFAULT_TIMEOUT);
+    }
+
+    public boolean shouldKeepListening() {
+        if (properties.hasValueFor(MUST_KEEP_LISTENING)) {
+            return properties.<Boolean>getTypedProperty(MUST_KEEP_LISTENING);
+        } else {
+            return false;
+        }
     }
 
     public int getRetries() {
@@ -76,6 +91,12 @@ public class ACE4000Properties {
 
     private PropertySpec bigDecimalSpec(String name, boolean required, BigDecimal defaultValue, TranslationKey translationKey) {
         PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::bigDecimalSpec);
+        specBuilder.setDefaultValue(defaultValue);
+        return specBuilder.finish();
+    }
+
+    private PropertySpec BooleanSpec(String name, boolean required, Boolean defaultValue, TranslationKey translationKey) {
+        PropertySpecBuilder<Boolean> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, this.propertySpecService::booleanSpec);
         specBuilder.setDefaultValue(defaultValue);
         return specBuilder.finish();
     }

@@ -43,6 +43,7 @@ public class EI7Messaging extends A2Messaging {
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_PUSH_SCHEDULER.get(getPropertySpecService(), getNlsService(), getConverter()));
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_PUSH_SETUP.get(getPropertySpecService(), getNlsService(), getConverter()));
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.add(NetworkConnectivityMessage.CHANGE_NETWORK_TIMEOUT.get(getPropertySpecService(), getNlsService(), getConverter()));
         }
         return supportedMessages;
     }

@@ -10,6 +10,7 @@ import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.conditions.Condition;
 
 import aQute.bnd.annotation.ProviderType;
+import java.util.function.Predicate;
 
 /**
  * Models a Subscriber on a Destination.
@@ -30,6 +31,13 @@ public interface SubscriberSpec extends HasName {
      * @return the next message on the Destination
      */
     Message receive();
+
+    /**
+     * This method blocks indefinitely until the next valid message on the Destination is available.
+     * @param validationFunction is a function to validate message
+     * @return the next message on the Destination
+     */
+    Message receive(Predicate<Message> validationFunction);
 
     boolean isSystemManaged();
 

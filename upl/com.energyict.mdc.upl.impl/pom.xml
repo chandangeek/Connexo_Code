@@ -8,10 +8,9 @@
 	<parent>
 		<groupId>com.energyict</groupId>
 		<artifactId>upl</artifactId>
-        <version>4.0.0-Kratos-SNAPSHOT</version>
+        <version>5.0.0-Kratos-SNAPSHOT</version>
 	</parent>
 
-	<groupId>com.energyict</groupId>
     <artifactId>protocols</artifactId>
     <packaging>pom</packaging>
     <name>protocols</name>
@@ -184,6 +183,20 @@
 									<Specification-Version>${project.version}</Specification-Version>
 								</manifestEntries>
 							</archive>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
+			<id>copy</id>
+			<build>
+				<plugins>
+					<plugin>
+						<!-- do not copy since these are not bundles -->
+						<artifactId>maven-dependency-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
 						</configuration>
 					</plugin>
 				</plugins>

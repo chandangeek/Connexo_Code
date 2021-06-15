@@ -55,7 +55,8 @@ public interface DeviceProtocol
      */
     enum Property {
         RETRIES("Retries"),
-        TIMEOUT("Timeout");
+        TIMEOUT("Timeout"),
+        MUST_KEEP_LISTENING("MustKeepListening");
 
         private final String name;
 

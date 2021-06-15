@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.fileimport.impl;
 
+import com.elster.jupiter.fileimport.FileImportService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,6 +16,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Optional;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
@@ -31,12 +33,14 @@ public class FolderScanningJobTest {
     @Mock
     private FileHandler handler;
     @Mock
+    private FileImportService fileImportService;
+    @Mock
     private Path file1, file2;
 
     @Before
     public void setUp() {
-
-        folderScanningJob = new FolderScanningJob(scanner, handler);
+        when(fileImportService.getAppServerName()).thenReturn(Optional.of("AppServerName"));
+        folderScanningJob = new FolderScanningJob(scanner, handler, fileImportService);
     }
 
     @After

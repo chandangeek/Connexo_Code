@@ -11,6 +11,36 @@
 
 package com.energyict.protocolimpl.dlms.actarisace6000;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.SerialCommunicationChannel;
+import com.energyict.dlms.DLMSCOSEMGlobals;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.DLMSMeterConfig;
+import com.energyict.dlms.DLMSObis;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.HDLCConnection;
+import com.energyict.dlms.ProtocolLink;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.TCPIPConnection;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.Integer8;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.CosemObjectFactory;
+import com.energyict.dlms.cosem.GenericInvoke;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -35,41 +65,12 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.DeviceSecuritySupport;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
-
-import com.energyict.cbo.Quantity;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.SerialCommunicationChannel;
-import com.energyict.dlms.DLMSCOSEMGlobals;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.DLMSConnection;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.DLMSMeterConfig;
-import com.energyict.dlms.DLMSObis;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.HDLCConnection;
-import com.energyict.dlms.ProtocolLink;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.TCPIPConnection;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AxdrType;
-import com.energyict.dlms.axrdencoding.Integer8;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.GenericInvoke;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalStateBits;
+import com.energyict.protocol.MessageProtocol;
 import com.energyict.protocol.MessageResult;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.ProfileData;
@@ -80,6 +81,7 @@ import com.energyict.protocolimpl.base.PluggableMeterProtocol;
 import com.energyict.protocolimpl.dlms.CapturedObjects;
 import com.energyict.protocolimpl.dlms.actarisace6000.messaging.ACE6000Messages;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
+import com.energyict.protocolimpl.dlms.common.LoadProfileUtil;
 import com.energyict.protocolimpl.errorhandling.ProtocolIOExceptionHandler;
 import com.energyict.protocolimpl.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -102,14 +104,25 @@ import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.energyict.mdc.upl.MeterProtocol.Property.*;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ADDRESS;
+import static com.energyict.mdc.upl.MeterProtocol.Property.EXTENDED_LOGGING;
+import static com.energyict.mdc.upl.MeterProtocol.Property.NODEID;
+import static com.energyict.mdc.upl.MeterProtocol.Property.PASSWORD;
+import static com.energyict.mdc.upl.MeterProtocol.Property.RETRIES;
+import static com.energyict.mdc.upl.MeterProtocol.Property.ROUNDTRIPCORRECTION;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SECURITYLEVEL;
+import static com.energyict.mdc.upl.MeterProtocol.Property.SERIALNUMBER;
+import static com.energyict.mdc.upl.MeterProtocol.Property.TIMEOUT;
 
-public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySupport, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport {
+public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySupport, HHUEnabler, ProtocolLink, CacheMechanism, RegisterProtocol, SerialNumberSupport, MessageProtocol {
 
     private static final byte DEBUG = 0;  // KV 16012004 changed all DEBUG values
 
     private static final byte[] profileLN = {0, 0, 99, 1, 0, (byte) 255};
     private static final int iNROfIntervals = 50000;
+    public static final String ASYNC_EOB_SCRIPT_TABLE = "0.0.10.0.1.255";
+    public static final int CLASS_ID = 9;
+    public static final int METHOD_SCRIPT1_EOB_RESET = 1;
     private final ACE6000Messages messageProtocol;
     private ACE6000Properties properties = null;
 
@@ -684,14 +697,14 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
 
     private Calendar parseProfileStartDate(DataStructure dataStructure, Calendar calendar) throws IOException {
         if (isNewDate(dataStructure.getStructure(0).getOctetString(0).getArray())) {
-            calendar = setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00);
+            calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00, getProfileInterval());
         }
         return calendar;
     }
 
     private Calendar parseProfileStartTime(DataStructure dataStructure, Calendar calendar) throws IOException {
         if (isNewTime(dataStructure.getStructure(0).getOctetString(0).getArray())) {
-            calendar = setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00);
+            calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x00, getProfileInterval());
         }
         return calendar;
     }
@@ -710,7 +723,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     }
 
     private boolean parseStart(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x01);
+        calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(0), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }
@@ -738,7 +751,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     }
 
     private boolean parseEnd(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar, dataStructure.getStructure(1), (byte) 0x01);
+        calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(1), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }
@@ -769,7 +782,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     }
 
     private boolean parseTime1(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar, dataStructure.getStructure(2), (byte) 0x01);
+        calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(2), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }
@@ -789,7 +802,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     }
 
     private boolean parseTime2(DataStructure dataStructure, Calendar calendar, ProfileData profileData) throws IOException {
-        calendar = setCalendar(calendar, dataStructure.getStructure(3), (byte) 0x01);
+        calendar = LoadProfileUtil.setCalendar(calendar, dataStructure.getStructure(3), (byte) 0x01, getProfileInterval());
         if (DEBUG >= 1) {
             System.out.print("event: " + calendar.getTime());
         }
@@ -1121,13 +1134,13 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
                             //System.out.println("!!!!!!!!!! DEBUGGING CODE FORCED DLMS CACHE UPDATE !!!!!!!!!!");
                             //if (true) {
                             // ****************************************************************************
-                            logger.severe("DLMSZMD: Configuration changed, request object list.");
+                            logger.severe("ACE6000: Configuration changed, request object list.");
                             requestObjectList();           // request object list again from rtu
                             dlmsCache.saveObjectList(meterConfig.getInstantiatedObjectList());  // save object list in cache
                             dlmsCache.setConfProgChange(iConf);  // set new configuration program change
                         }
                     } else { // Cache not exist
-                        logger.info("DLMSZMD: Cache does not exist, request object list.");
+                        logger.info("ACE6000: Cache does not exist, request object list.");
                         requestObjectList();
                         try {
                             iConf = requestConfigurationProgramChanges();
@@ -1372,7 +1385,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2017-03-10 10:23:42 +0200 (Fr, 10 Mar 2017)$";
+        return "$Date: 2019-01-23 10:23:42 +0200 (Wed, 23 Jan 2019)$";
     }
 
     @Override
@@ -1648,5 +1661,13 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     public void resetDemand() throws IOException {
         GenericInvoke gi = new GenericInvoke(this, new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString("0.0.240.1.0.255").getLN(), (short) 10100, (short) 0)).getBaseName()), 6);
         gi.invoke(new Integer8(0).getBEREncodedByteArray());
+    }
+
+    public void billingReset() throws IOException {
+        ObjectReference objectReference = new ObjectReference(getMeterConfig().getObject(new DLMSObis(ObisCode.fromString(ASYNC_EOB_SCRIPT_TABLE).getLN(), (short) CLASS_ID, (short) 0)).getBaseName());
+        if(objectReference!= null){
+            GenericInvoke gi = new GenericInvoke(this, objectReference, METHOD_SCRIPT1_EOB_RESET);
+            gi.invoke(new Unsigned16(1).getBEREncodedByteArray());
+        }
     }
 } // public class DLMSProtocolLN extends MeterProtocol

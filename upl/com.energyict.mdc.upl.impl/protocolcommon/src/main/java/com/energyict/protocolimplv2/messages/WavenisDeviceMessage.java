@@ -74,16 +74,6 @@ public enum WavenisDeviceMessage implements DeviceMessageSpecSupplier {
         return this.id;
     }
 
-    protected PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .hexStringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
-                .finish();
-    }
-
     private String getNameResourceKey() {
         return WavenisDeviceMessage.class.getSimpleName() + "." + this.toString();
     }
