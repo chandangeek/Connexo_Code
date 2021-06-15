@@ -84,7 +84,7 @@ pipeline {
           }
           steps {
             withMaven(maven: 'Maven 3.6.3',
-                mavenSettingsConfig: 'ehc-mirror',
+                mavenSettingsConfig: 'developer-settings',
                 publisherStrategy: 'EXPLICIT',
                 options: [],
                 mavenLocalRepo: MAVEN_REPO) {
@@ -158,7 +158,7 @@ pipeline {
                           reference: MIRROR_CLONE, shallow: true]],
                           userRemoteConfigs: scm.userRemoteConfigs])
                 withMaven(maven: 'Maven 3.6.3',
-                          mavenSettingsConfig: 'ehc-mirror',
+                          mavenSettingsConfig: 'developer-settings',
                           mavenOpts: '-Xmx5g',
                           publisherStrategy: 'EXPLICIT',
                           options: [],
