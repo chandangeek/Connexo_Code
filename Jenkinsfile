@@ -114,6 +114,7 @@ pipeline {
                 options: [],
                 mavenLocalRepo: MAVEN_REPO) {
               runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=util -Dversion=$env.BASELINE -Dpackaging=bundle")
+              runMaven("dependency:get -DgroupId=com.elster.jupiter -DartifactId=security.thread -Dversion=$env.BASELINE -Dpackaging=bundle")
             }
           }
         }
