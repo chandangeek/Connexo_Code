@@ -98,6 +98,7 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
             case ONGOING:
                 if (oldState != DefaultState.PENDING) {
                     CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
+                    if (CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES.equals(domainExtension.getCommandOperationStatus())) {
                         if (domainExtension.getNrOfUnconfirmedDeviceCommands() == 0) {
                             serviceCall.log(LogLevel.INFO, "All device commands have been executed successfully.");
                             handleAllDeviceCommandsExecutedSuccessfully(serviceCall, domainExtension);
@@ -107,6 +108,9 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
                                 serviceCall.requestTransition(DefaultState.WAITING);
                             }
                         }
+                    } else if (domainExtension.getCommandOperationStatus().equals(CommandOperationStatus.READ_STATUS_INFORMATION)) {
+                        verifyDeviceStatus(serviceCall);
+                    }
                 }
                 // If oldState was Pending, then the device commands were not yet created, thus checking the nr of unconfirmed messages doesn't make sense
                 break;
@@ -125,6 +129,9 @@ public abstract class AbstractOperationServiceCallHandler implements ServiceCall
         }
     }
 
+    protected void verifyDeviceStatus(ServiceCall serviceCall) {
+        // No implementation needed here, subclasses can override this
+    }
 
     protected void handleAllDeviceCommandsExecutedSuccessfully(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
         serviceCall.requestTransition(DefaultState.SUCCESSFUL);

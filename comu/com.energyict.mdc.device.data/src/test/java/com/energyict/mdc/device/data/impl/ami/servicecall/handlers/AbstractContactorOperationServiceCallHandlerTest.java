@@ -4,8 +4,10 @@
 
 package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
+import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.nls.NlsMessageFormat;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -20,6 +22,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
@@ -36,15 +39,18 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -204,13 +210,77 @@ public class AbstractContactorOperationServiceCallHandlerTest {
         AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
                 engineConfigurationService, priorityComTaskService, deviceMessageService);
         CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
-        domainExtension.setNrOfUnconfirmedDeviceCommands(1);
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
+        domainExtension.setNrOfUnconfirmedDeviceCommands(0);
         when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
 
         // Business method
         serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
 
         // Asserts
+        ArgumentCaptor<CommandServiceCallDomainExtension> domainExtensionArgumentCaptor = ArgumentCaptor.forClass(CommandServiceCallDomainExtension.class);
+        verify(serviceCall).update(domainExtensionArgumentCaptor.capture());
+        assertEquals(CommandOperationStatus.READ_STATUS_INFORMATION, domainExtensionArgumentCaptor.getValue().getCommandOperationStatus());
         verify(serviceCall).requestTransition(DefaultState.WAITING);
+    }
+
+    @Test
+    public void testStateChangeFromWaitingToOngoingStatusInformationReadBreakerStatusNotFound() throws Exception {
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService, deviceMessageService);
+        CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
+        domainExtension.setNrOfUnconfirmedDeviceCommands(0);
+        when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
+        when(deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.empty());
+
+        // Business method
+        serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
+
+        // Asserts
+        verify(serviceCall).requestTransition(DefaultState.WAITING);
+        verify(serviceCall, never()).requestTransition(DefaultState.SUCCESSFUL);
+        verify(serviceCall, never()).requestTransition(DefaultState.FAILED);
+    }
+
+    @Test
+    public void testStateChangeFromWaitingToOngoingStatusInformationReadBreakerStatusMatches() throws Exception {
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService, deviceMessageService);
+        CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
+        domainExtension.setNrOfUnconfirmedDeviceCommands(0);
+        when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
+
+        ActivatedBreakerStatus breakerStatus = mock(ActivatedBreakerStatus.class);
+        when(breakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
+        when(deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(breakerStatus));
+
+        // Business method
+        serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
+
+        // Asserts
+        verify(serviceCall).requestTransition(DefaultState.SUCCESSFUL);
+    }
+
+    @Test
+    public void testStateChangeFromWaitingToOngoingStatusInformationReadBreakerStatusDoesNotMatches() throws Exception {
+        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
+                engineConfigurationService, priorityComTaskService, deviceMessageService);
+        CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
+        domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
+        domainExtension.setNrOfUnconfirmedDeviceCommands(0);
+        when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
+
+        ActivatedBreakerStatus breakerStatus = mock(ActivatedBreakerStatus.class);
+        when(breakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.CONNECTED);
+        when(deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(breakerStatus));
+
+        // Business method
+        serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
+
+        // Asserts
+        verify(serviceCall).requestTransition(DefaultState.FAILED);
+        verify(completionOptionsCallBack).sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
     }
 }

@@ -15,7 +15,6 @@ import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServicePro
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.obis.ObisCode;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.mockito.Mockito.when;
+import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MasterEndDeviceControlsServiceCallHandlerTest {
@@ -70,8 +70,8 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
     @Test
     public void testCreateEndDeviceDetails_EmptyDevice() {
         when(serviceCall.getTargetObject()).thenReturn(Optional.empty());
-        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForCreditStatus(Optional.empty());
-        Assert.assertEquals(false, endDeviceEventDetail.isPresent());
+        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForCreditStatus(serviceCall);
+        assertThat(endDeviceEventDetail.isPresent()).isFalse();
     }
 
     @Test
@@ -79,8 +79,8 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
         when(((Optional<Device>) serviceCall.getTargetObject())).thenReturn(Optional.of(device));
         ArrayList<Register> registers = new ArrayList<>();
         when(device.getRegisters()).thenReturn(registers);
-        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(Optional.of(device));
-        Assert.assertEquals(false, endDeviceEventDetail.isPresent());
+        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(serviceCall);
+        assertThat(endDeviceEventDetail.isPresent()).isFalse();
     }
 
     @Test
@@ -92,15 +92,16 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
         ArrayList<Register> registers = new ArrayList<>();
         registers.add(register);
         when(device.getRegisters()).thenReturn(registers);
-        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(Optional.of(device));
-        Assert.assertEquals("Opened", endDeviceEventDetail.get().getValue());
+        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(serviceCall);
+        assertThat(endDeviceEventDetail.get().getValue()).isEqualTo("Opened");
     }
 
     @Test
     public void testCreateEndDeviceDetails_WrongObisCode() {
+        when(((Optional<Device>) serviceCall.getTargetObject())).thenReturn(Optional.of(device));
         when(register.getRegisterTypeObisCode()).thenReturn(ObisCode.fromString("0.0.96.3.10.300"));
-        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(Optional.of(device));
-        Assert.assertEquals(false, endDeviceEventDetail.isPresent());
+        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(serviceCall);
+        assertThat(endDeviceEventDetail.isPresent()).isFalse();
     }
 
     @Test
@@ -112,8 +113,8 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
         ArrayList<Register> registers = new ArrayList<>();
         registers.add(register);
         when(device.getRegisters()).thenReturn(registers);
-        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(Optional.of(device));
-        Assert.assertEquals(false, endDeviceEventDetail.isPresent());
+        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForContactorStatus(serviceCall);
+        assertThat(endDeviceEventDetail.isPresent()).isFalse();
     }
 
     @Test
@@ -125,7 +126,7 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
         ArrayList<Register> registers = new ArrayList<>();
         registers.add(register);
         when(device.getRegisters()).thenReturn(registers);
-        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForCreditStatus(Optional.of(device));
-        Assert.assertEquals(false, endDeviceEventDetail.isPresent());
+        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForCreditStatus(serviceCall);
+        assertThat(endDeviceEventDetail.isPresent()).isFalse();
     }
 }

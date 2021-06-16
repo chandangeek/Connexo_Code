@@ -4,7 +4,11 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols;
 
-import ch.iec.tc57._2011.enddeviceevents.*;
+import ch.iec.tc57._2011.enddeviceevents.Asset;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
+import ch.iec.tc57._2011.enddeviceevents.Name;
+import ch.iec.tc57._2011.enddeviceevents.NameType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -32,6 +36,8 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.Objects;
 
 import static com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH;
 import static com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH;
@@ -41,9 +47,12 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
-    public static final ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
+    private static final ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
     private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
     private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
+    private static final String CONTACTOR_OPEN_COMMAND = "3.31.0.23";
+    private static final String CONTACTOR_CLOSE_COMMAND = "3.31.0.18";
+    private static final String UPDATE_CREDIT_COMMAND = "3.20.22.13";
 
     private final EndPointConfigurationService endPointConfigurationService;
     private final EndDeviceEventsServiceProvider endDeviceEventsServiceProvider;
@@ -119,12 +128,20 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                 String commandCode =  subExtension.getCommandCode();
                 EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
                 Optional<EndDeviceEventDetail> endDeviceEventDetailOptional = Optional.empty();
-                if (isContactorStatusChangeCode(commandCode) ) {
-                    endDeviceEventDetailOptional = createEndDeviceDetailsForContactorStatus(device);
-                } else if (isCreditAmountChangeCode(commandCode)) {
-                    endDeviceEventDetailOptional = createEndDeviceDetailsForCreditStatus(device);
+                switch (commandCode) {
+                    case CONTACTOR_OPEN_COMMAND:
+                    case CONTACTOR_CLOSE_COMMAND:
+                        endDeviceEventDetailOptional = createEndDeviceDetailsForContactorStatus(childSC);
+                        break;
+                    case UPDATE_CREDIT_COMMAND:
+                        endDeviceEventDetailOptional = createEndDeviceDetailsForCreditStatus(childSC);
+                        break;
+                    default:
+                        //nothing special to do
                 }
-                endDeviceEventDetailOptional.ifPresent(endDeviceEventDetail -> endDeviceEvent.getEndDeviceEventDetails().add(endDeviceEventDetail));
+
+                endDeviceEventDetailOptional.ifPresent(endDeviceEventDetail -> endDeviceEvent.getEndDeviceEventDetails()
+                        .add(endDeviceEventDetail));
 
                 if (childExtension.getError() != null) {
                     String name;
@@ -169,58 +186,62 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     }
 
     /**
-     *  Create {@link EndDeviceEventDetail} with information about credit amount
-     *  in case service call contains command to change credit amount
-     */
-    public Optional<EndDeviceEventDetail> createEndDeviceDetailsForCreditStatus(Optional<Device> device) {
-        if (!device.isPresent() || device.get().getRegisters().isEmpty()) {
-            return Optional.empty();
-        }
-
-        List<Register> listOfRegisters = device.get().getRegisters();
-        NumericalReading numericalReading;
-        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
-        for (Register register : listOfRegisters) {
-            if ((register.getRegisterTypeObisCode().equals(IMPORT_CREDIT) ||
-                    register.getRegisterTypeObisCode().equals(EMERGENCY_CREDIT)) && register.getLastReading().isPresent()) {
-                numericalReading = (NumericalReading) register.getLastReading().get();
-                endDeviceEventDetail.setName("Credit amount");
-                endDeviceEventDetail.setValue(numericalReading.getValue().toString());
-                return Optional.of(endDeviceEventDetail);
-            }
-        }
-        return Optional.empty();
-    }
-
-    /**
      *  Create {@link EndDeviceEventDetail} with information about breaker status
      *  in case service call contains command to change breaker status
      */
-    public Optional<EndDeviceEventDetail> createEndDeviceDetailsForContactorStatus(Optional<Device> device) {
-        if (!device.isPresent() || device.get().getRegisters().isEmpty()) {
+    public Optional<EndDeviceEventDetail> createEndDeviceDetailsForContactorStatus(ServiceCall serviceCall) {
+        if (!serviceCall.getTargetObject().isPresent()) {
             return Optional.empty();
         }
+        Device device = (Device) serviceCall.getTargetObject().get();
+        return Stream.of(device)
+                .filter(Objects::nonNull)
+                .map(Device::getRegisters)
+                .flatMap(List::stream)
+                .filter(register -> register.getRegisterTypeObisCode().equals(BREAKER_STATUS))
+                .findAny()
+                .map(Register::getLastReading)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(NumericalReading.class::cast)
+                .flatMap(this::wrapContactorStatusToEndDeviceEventDetail);
+    }
 
-        List<Register> listOfRegisters = device.get().getRegisters();
-         NumericalReading numericalReading;
-        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
-        for (Register register : listOfRegisters) {
-            if (register.getRegisterTypeObisCode().equals(BREAKER_STATUS) && register.getLastReading().isPresent()) {
-                numericalReading = (NumericalReading) register.getLastReading().get();
-                endDeviceEventDetail.setName("Contactor status");
-                endDeviceEventDetail.setValue(numericalReading.getValue().intValue() == 0 ? "Opened" : "Closed");
-                return Optional.of(endDeviceEventDetail);
-            }
+    /**
+     *  Create {@link EndDeviceEventDetail} with information about credit amount
+     *  in case service call contains command to change credit amount
+     */
+    public Optional<EndDeviceEventDetail> createEndDeviceDetailsForCreditStatus (ServiceCall serviceCall) {
+        if (!serviceCall.getTargetObject().isPresent()) {
+            return Optional.empty();
         }
-        return Optional.empty();
+        Device device = (Device) serviceCall.getTargetObject().get();
+        return Stream.of(device)
+                .filter(Objects::nonNull)
+                .map(Device::getRegisters)
+                .flatMap(List::stream)
+                .filter(register -> (register.getRegisterTypeObisCode().equals(IMPORT_CREDIT) ||
+                        register.getRegisterTypeObisCode().equals(EMERGENCY_CREDIT)))
+                .findAny()
+                .map(Register::getLastReading)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(NumericalReading.class::cast)
+                .flatMap(this::wrapCreditAmountToEndDeviceEventDetail);
     }
 
-    private boolean isCreditAmountChangeCode(String commandCode) {
-        return commandCode.equals("3.20.22.13");
+    private Optional<EndDeviceEventDetail> wrapContactorStatusToEndDeviceEventDetail(NumericalReading reading) {
+        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+        endDeviceEventDetail.setName("Contactor status");
+        endDeviceEventDetail.setValue(reading.getValue().intValue() == 0 ? "Opened" : "Closed");
+        return Optional.of(endDeviceEventDetail);
     }
 
-    private boolean isContactorStatusChangeCode(String commandCode) {
-        return commandCode.equals("3.31.0.18") || commandCode.equals("3.31.0.23");
+    private Optional<EndDeviceEventDetail> wrapCreditAmountToEndDeviceEventDetail(NumericalReading reading) {
+        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+        endDeviceEventDetail.setName("Credit amount");
+        endDeviceEventDetail.setValue(reading.getValue().toString());
+        return Optional.of(endDeviceEventDetail);
     }
 
     /**
