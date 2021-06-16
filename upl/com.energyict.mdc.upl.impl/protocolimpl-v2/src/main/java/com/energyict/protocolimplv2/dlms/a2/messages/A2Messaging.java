@@ -69,7 +69,7 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_KDL_AND_HASH_AND_ACTIVATION.get(this.propertySpecService, this.nlsService, this.converter));
             supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter));
             supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter));
-            supportedMessages.add(ContactorDeviceMessage.REMOTE_CONNECT_WITH_DATA_PROTECTION_AND_ACTIVATION.get(this.propertySpecService, this.nlsService, this.converter));
+            supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE_AND_CLOSE_INVOICING_PERIOD_WITH_ACTIVATION_DATE.get(this.propertySpecService, this.nlsService, this.converter));
             supportedMessages.add(ContactorDeviceMessage.CHANGE_VALVE_ENABLE_PASSWORD.get(this.propertySpecService, this.nlsService, this.converter));
 
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.propertySpecService, this.nlsService, this.converter));
