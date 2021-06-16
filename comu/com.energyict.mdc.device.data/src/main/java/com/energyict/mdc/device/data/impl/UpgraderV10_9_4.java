@@ -23,12 +23,6 @@ public class UpgraderV10_9_4 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 4));
-        try (Connection connection = dataModel.getConnection(true);
-             Statement statement = connection.createStatement()) {
-            execute(statement, "UPDATE \"DDC_DEVICEPROTOCOLPROPERTY\" SET \"PROPERTYSPEC\" = 'DeviceId' where \"PROPERTYSPEC\" = 'DevideId'");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+         execute(dataModel, "UPDATE DDC_DEVICEPROTOCOLPROPERTY SET PROPERTYSPEC = 'DeviceId' WHERE PROPERTYSPEC = 'DevideId'");
     }
 }
