@@ -36,8 +36,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
-import java.util.Objects;
 
 import static com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH;
 import static com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH;
@@ -190,21 +188,15 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
      *  in case service call contains command to change breaker status
      */
     public Optional<EndDeviceEventDetail> createEndDeviceDetailsForContactorStatus(ServiceCall serviceCall) {
-        if (!serviceCall.getTargetObject().isPresent()) {
-            return Optional.empty();
-        }
         Device device = (Device) serviceCall.getTargetObject().get();
-        return Stream.of(device)
-                .filter(Objects::nonNull)
-                .map(Device::getRegisters)
-                .flatMap(List::stream)
+        return device.getRegisters().stream()
                 .filter(register -> register.getRegisterTypeObisCode().equals(BREAKER_STATUS))
                 .findAny()
                 .map(Register::getLastReading)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(NumericalReading.class::cast)
-                .flatMap(this::wrapContactorStatusToEndDeviceEventDetail);
+                .map(this::wrapContactorStatusToEndDeviceEventDetail);
     }
 
     /**
@@ -212,14 +204,8 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
      *  in case service call contains command to change credit amount
      */
     public Optional<EndDeviceEventDetail> createEndDeviceDetailsForCreditStatus (ServiceCall serviceCall) {
-        if (!serviceCall.getTargetObject().isPresent()) {
-            return Optional.empty();
-        }
         Device device = (Device) serviceCall.getTargetObject().get();
-        return Stream.of(device)
-                .filter(Objects::nonNull)
-                .map(Device::getRegisters)
-                .flatMap(List::stream)
+        return device.getRegisters().stream()
                 .filter(register -> (register.getRegisterTypeObisCode().equals(IMPORT_CREDIT) ||
                         register.getRegisterTypeObisCode().equals(EMERGENCY_CREDIT)))
                 .findAny()
@@ -227,21 +213,21 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .map(NumericalReading.class::cast)
-                .flatMap(this::wrapCreditAmountToEndDeviceEventDetail);
+                .map(this::wrapCreditAmountToEndDeviceEventDetail);
     }
 
-    private Optional<EndDeviceEventDetail> wrapContactorStatusToEndDeviceEventDetail(NumericalReading reading) {
+    private EndDeviceEventDetail wrapContactorStatusToEndDeviceEventDetail(NumericalReading reading) {
         EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
         endDeviceEventDetail.setName("Contactor status");
         endDeviceEventDetail.setValue(reading.getValue().intValue() == 0 ? "Opened" : "Closed");
-        return Optional.of(endDeviceEventDetail);
+        return endDeviceEventDetail;
     }
 
-    private Optional<EndDeviceEventDetail> wrapCreditAmountToEndDeviceEventDetail(NumericalReading reading) {
+    private EndDeviceEventDetail wrapCreditAmountToEndDeviceEventDetail(NumericalReading reading) {
         EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
         endDeviceEventDetail.setName("Credit amount");
         endDeviceEventDetail.setValue(reading.getValue().toString());
-        return Optional.of(endDeviceEventDetail);
+        return endDeviceEventDetail;
     }
 
     /**

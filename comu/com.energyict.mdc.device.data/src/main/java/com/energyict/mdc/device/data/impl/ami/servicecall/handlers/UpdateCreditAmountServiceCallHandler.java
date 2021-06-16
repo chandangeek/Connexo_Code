@@ -46,8 +46,6 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "UpdateCreditAmountServiceCallHandler";
-    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
-    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
 
     private volatile DeviceService deviceService;
     private volatile CommunicationTaskService communicationTaskService;
@@ -125,7 +123,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     }
 
     private void switchToReadStatusInformation(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
-        serviceCall.log(LogLevel.INFO, "Verifying the breaker status via register");
+        serviceCall.log(LogLevel.INFO, "Verifying credit amount via register");
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         serviceCall.update(domainExtension);
     }

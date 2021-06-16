@@ -68,13 +68,6 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
     }
 
     @Test
-    public void testCreateEndDeviceDetails_EmptyDevice() {
-        when(serviceCall.getTargetObject()).thenReturn(Optional.empty());
-        Optional<EndDeviceEventDetail> endDeviceEventDetail = testable.createEndDeviceDetailsForCreditStatus(serviceCall);
-        assertThat(endDeviceEventDetail.isPresent()).isFalse();
-    }
-
-    @Test
     public void testCreateEndDeviceDetails_WithEmptyRegisters() {
         when(((Optional<Device>) serviceCall.getTargetObject())).thenReturn(Optional.of(device));
         ArrayList<Register> registers = new ArrayList<>();
