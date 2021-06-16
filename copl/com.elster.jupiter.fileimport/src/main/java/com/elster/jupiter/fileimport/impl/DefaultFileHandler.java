@@ -44,7 +44,7 @@ class DefaultFileHandler implements FileHandler {
         FileLock fileLock = null;
         try {
             FileChannel fileChannel = new RandomAccessFile(file.toFile(), "rw").getChannel();
-            fileLock = fileChannel.tryLock(0, Long.MAX_VALUE, true);
+            fileLock = fileChannel.tryLock();
             if (fileLock != null) {
                 transactionService.run(() -> doHandle(file));
             }
