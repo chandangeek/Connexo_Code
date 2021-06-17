@@ -66,11 +66,11 @@ public class A2LogBookFactory implements DeviceLogBookSupport {
                         collectedLogBook.setCollectedMeterEvents(parseEvents(buffer, logBookReader.getLogBookObisCode()));
                     } catch (NotInObjectListException e) {
                         collectedLogBook.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
-                     }catch (DataAccessResultException e){
+                    } catch (DataAccessResultException e) {
                         // this can happen when the load profile is read twice in the same time window (day for daily lp), than the data block is not accessible. It could also happen when the load profile is not configured properly.
                         if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                            String message = String.join(" ","Logbook was probably already read today, try modifying the 'last reading' date in the logbook properties.", e.getMessage());
-                            Issue problem = issueFactory.createWarning(logBookReader, "loadProfileXBlockingIssue", logBookReader.getLogBookObisCode().toString(), message);
+                            String message = "Logbook " + logBookReader.getLogBookObisCode() + " was probably already read today, try modifying the 'last reading' date in the logbook properties. " + e.getMessage();
+                            Issue problem = issueFactory.createWarning(logBookReader, message, logBookReader.getLogBookObisCode().toString());
                             collectedLogBook.setFailureInformation(ResultType.DataIncomplete, problem);
                         }
                     } catch (IOException e) {

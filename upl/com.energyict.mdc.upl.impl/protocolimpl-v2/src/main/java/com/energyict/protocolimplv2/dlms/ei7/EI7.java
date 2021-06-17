@@ -37,7 +37,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "2021-06-16";
+        return "2021-06-17";
     }
 
     @Override
