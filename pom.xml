@@ -86,7 +86,7 @@
         <repository>
             <id>eict-third-party</id>
             <name>EnergyICT public releases repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/group/public</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
