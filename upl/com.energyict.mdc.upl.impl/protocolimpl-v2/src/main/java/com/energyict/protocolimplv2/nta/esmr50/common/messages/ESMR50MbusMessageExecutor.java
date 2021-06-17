@@ -326,7 +326,7 @@ public class ESMR50MbusMessageExecutor extends Dsmr40MbusMessageExecutor {
         journal(Level.FINE, factory.toString());
 
         byte[] kcc = getKCC();
-        byte[] reversedKCC = kcc;
+        byte[] reversedKCC = kcc.clone();
         ProtocolTools.reverseByteArray(reversedKCC);
         journal(Level.FINE, "Updating image header with the new values:");
 
