@@ -163,15 +163,11 @@ pipeline {
                           publisherStrategy: 'EXPLICIT',
                           options: [],
                           mavenLocalRepo: MAVEN_REPO) {
-                  catchError(buildResult: 'SUCCESS',
-                             message: 'Could not clean the calendar',
-                             stageResult: 'SUCCESS') {
-                    // Clean out specific directory that has issues
-                    runMaven("-pl coko/com.elster.jupiter.calendar clean")
-                  }
                   catchError(buildResult: 'UNSTABLE',
                              message: 'UNSTABLE: Maven static analysis failed',
                              stageResult: 'UNSTABLE') {
+                    // Clean out specific directory that has issues
+                    runMaven("-pl coko/com.elster.jupiter.calendar clean")
                     // Static code analysis
                     runMaven("compile spotbugs:spotbugs pmd:pmd checkstyle:checkstyle -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
                   }
