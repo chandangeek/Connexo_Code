@@ -14,12 +14,11 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.device.data.CreditAmount;
-import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.*;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
+import com.energyict.mdc.device.data.impl.CreditAmountImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
@@ -46,6 +45,8 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "UpdateCreditAmountServiceCallHandler";
+    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
+    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
 
     private volatile DeviceService deviceService;
     private volatile CommunicationTaskService communicationTaskService;
@@ -131,15 +132,17 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     @Override
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
-        Optional<CreditAmount> creditAmount = deviceService.getCreditAmount(device);
+        Optional<BigDecimal> creditAmount = getCreditAmount(device);
+        Optional<ObisCode> creditType = getCreditType(device);
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
-            if (creditAmount.isPresent() && creditAmount.get().getCreditAmount().equals(desiredCreditAmount.getCreditAmount())
-                    && creditAmount.get().getCreditType().equals(desiredCreditAmount.getCreditType())) {
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", creditAmount.get().getCreditAmount(), creditAmount.get().getCreditType()));
+
+            if (creditAmount.isPresent() && creditAmount.get().intValue() == desiredCreditAmount.getCreditAmount().intValue()
+                    && creditType.get().getValue().equals(desiredCreditAmount.getCreditType())) {
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", creditAmount.get(), creditType));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount {0} of type {1} doesn''t match the expected amount: {2} of type {3}.",
-                        creditAmount.get().getCreditAmount(), creditAmount.get().getCreditType(),
+                        creditAmount.get(), creditType.get(),
                         desiredCreditAmount.getCreditAmount(), desiredCreditAmount.getCreditType())
                 );
                 getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
@@ -147,7 +150,30 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
             }
     }
 
+    private Optional<BigDecimal> getCreditAmount(Device device) {
+       return device.getRegisters().stream()
+                .filter(register -> (register.getRegisterTypeObisCode().equals(IMPORT_CREDIT) ||
+                        register.getRegisterTypeObisCode().equals(EMERGENCY_CREDIT)))
+                .findAny()
+                .map(Register::getLastReading)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(NumericalReading.class::cast)
+                .map(NumericalReading::getValue);
+
+    }
+
+    private Optional<ObisCode> getCreditType (Device device) {
+        return device.getRegisters().stream()
+                .filter(register -> (register.getRegisterTypeObisCode().equals(IMPORT_CREDIT) ||
+                        register.getRegisterTypeObisCode().equals(EMERGENCY_CREDIT)))
+                .findAny()
+                .map(Register::getDeviceObisCode);
+
+    }
+
     private CreditAmount getDesiredCreditAmount(Device device, ServiceCall serviceCall) {
+
         String creditType = null;
         BigDecimal creditAmount = null;
         CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
