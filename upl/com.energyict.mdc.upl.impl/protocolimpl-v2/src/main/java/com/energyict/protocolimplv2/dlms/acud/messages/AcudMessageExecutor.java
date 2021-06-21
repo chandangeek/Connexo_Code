@@ -233,10 +233,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         CreditSetup creditSetup = getCosemObjectFactory().getCreditSetup(chargeObisCode);
         Integer creditAmount = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditAmount));
         creditSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Integer32(creditAmount));
-
-        int creditType = creditSetup.readCreditType().intValue();
+        String creditTypeFromMessage = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditType);
         CollectedCreditAmount cca = getProtocol().getCreditAmounts().stream()
-                .filter(creditAmount1 -> creditType == CreditDeviceMessage.CreditType.entryForDescription(creditAmount1.getCreditType()).getId() )
+                .filter(creditAmount1 -> creditAmount1.getCreditType().equals(creditTypeFromMessage))
                 .findAny()
                 .orElse(null);
 

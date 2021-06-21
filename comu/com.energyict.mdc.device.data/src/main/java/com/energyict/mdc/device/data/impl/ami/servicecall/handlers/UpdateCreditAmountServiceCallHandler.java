@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import org.osgi.service.component.annotations.Component;
@@ -133,11 +134,11 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         Optional<BigDecimal> creditAmount = getCreditAmount(device);
-        Optional<ObisCode> creditType = getCreditType(device);
+        Optional<String> creditType = getCreditType(device);
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
 
             if (creditAmount.isPresent() && creditAmount.get().intValue() == desiredCreditAmount.getCreditAmount().intValue()
-                    && creditType.get().getValue().equals(desiredCreditAmount.getCreditType())) {
+                    && creditType.get().equals(desiredCreditAmount.getCreditType())) {
                 serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", creditAmount.get(), creditType));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
@@ -160,16 +161,15 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
                 .map(Optional::get)
                 .map(NumericalReading.class::cast)
                 .map(NumericalReading::getValue);
-
     }
 
-    private Optional<ObisCode> getCreditType (Device device) {
+    private Optional<String> getCreditType (Device device) {
         return device.getRegisters().stream()
                 .filter(register -> (register.getRegisterTypeObisCode().equals(IMPORT_CREDIT) ||
                         register.getRegisterTypeObisCode().equals(EMERGENCY_CREDIT)))
                 .findAny()
-                .map(Register::getDeviceObisCode);
-
+                .map(register ->
+                   register.getDeviceObisCode().getValue().equals(IMPORT_CREDIT.getValue()) ? "Import credit" : "Emergency Credit");
     }
 
     private CreditAmount getDesiredCreditAmount(Device device, ServiceCall serviceCall) {
