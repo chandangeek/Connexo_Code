@@ -136,20 +136,26 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         Optional<BigDecimal> creditAmount = getCreditAmount(device);
         Optional<String> creditType = getCreditType(device);
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
-
-            if (creditAmount.isPresent() && creditAmount.get().intValue() == desiredCreditAmount.getCreditAmount().intValue()
-                    && creditType.get().equals(desiredCreditAmount.getCreditType())) {
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", creditAmount.get(), creditType));
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            if (creditAmount.isPresent() && creditType.isPresent()) {
+                if (creditAmount.get().intValue() == desiredCreditAmount.getCreditAmount().intValue()
+                        && creditType.get().equals(desiredCreditAmount.getCreditType())) {
+                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", creditAmount.get(), creditType));
+                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                } else {
+                    serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount {0} of type {1} doesn''t match the expected amount: {2} of type {3}.",
+                            creditAmount.get(), creditType.get(),
+                            desiredCreditAmount.getCreditAmount(), desiredCreditAmount.getCreditType())
+                    );
+                    getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
+                    serviceCall.requestTransition(DefaultState.FAILED);
+                }
             } else {
-                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount {0} of type {1} doesn''t match the expected amount: {2} of type {3}.",
-                        creditAmount.get(), creditType.get(),
-                        desiredCreditAmount.getCreditAmount(), desiredCreditAmount.getCreditType())
-                );
+                serviceCall.log(LogLevel.SEVERE, "Device credit amount or credit type is absent");
                 getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
     }
+
 
     private Optional<BigDecimal> getCreditAmount(Device device) {
        return device.getRegisters().stream()
