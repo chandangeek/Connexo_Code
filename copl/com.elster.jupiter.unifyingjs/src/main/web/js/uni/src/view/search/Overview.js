@@ -249,11 +249,12 @@ Ext.define('Uni.view.search.Overview', {
         var domainsListeners = domainsStore.on({
             load: function () {
                 var visible = domainsStore.count() > 1;
-                var visibility = domainsStore.count() === 1;
                 me.down('#search-domain').setVisible(visible);
                 me.down('#search-domain-separator').setVisible(visible);
-                me.down('#load-button').setVisible(visibility);
-                me.down('#save-search-button').setVisible(visibility);
+                if(location.pathname === "/apps/insight/index.html") {
+                    me.down('#load-button').setVisible(false);
+                    me.down('#save-search-button').setVisible(false);
+                }
             },
             scope: me,
             destroyable: true

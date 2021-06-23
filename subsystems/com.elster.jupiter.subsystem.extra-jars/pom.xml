@@ -18,8 +18,8 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.elster.jupiter</groupId>
-                <artifactId>platform</artifactId>
+                <groupId>com.energyict</groupId>
+                <artifactId>mdc.parent</artifactId>
                 <version>${project.version}</version>
                 <scope>import</scope>
                 <type>pom</type>
@@ -32,15 +32,17 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall.examples</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>gogo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>osgi.goodies</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- COKO -->
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>gogo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -78,12 +80,7 @@
             <artifactId>webservices.outbound.rest.issue.actions</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- COKO -->
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>demo</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!-- COMU -->
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.cps.examples</artifactId>
@@ -114,7 +111,6 @@
             <artifactId>mdc.demo.customtask</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- COMU -->
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.webservices.demo</artifactId>
@@ -129,6 +125,12 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>mdm.test.api.rest</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- DEMO -->
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>demo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <!-- COPA -->
@@ -208,34 +210,53 @@
             <artifactId>dlms</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>dlms-elster</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>cryptoprotocols</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>extra-jars</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <archiverConfig>
-                        <duplicateBehavior>skip</duplicateBehavior>
-                    </archiverConfig>
-                    <descriptors>
-                        <descriptor>assembly/assembly.xml</descriptor>
-                    </descriptors>
-                    <finalName>connexo-extra-jars-v${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    <profiles>
+        <profile>
+            <id>assembly</id>
+            <activation>
+                <property>
+                    <name>!assembly.skip</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>extra-jars</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <archiverConfig>
+                                <duplicateBehavior>skip</duplicateBehavior>
+                            </archiverConfig>
+                            <descriptors>
+                                <descriptor>assembly/assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>connexo-extra-jars-v${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
