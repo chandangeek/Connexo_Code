@@ -30,8 +30,8 @@
     <inceptionYear>2013</inceptionYear>
 
     <scm>
-        <connection>scm:git:ssh://git@stash.eict.local:7999/con/connexo.git</connection>
-        <url>ssh://git@stash.eict.local:7999/con/connexo.git</url>
+        <connection>scm:git:ssh://git@bitbucket.honeywell.com:7999/cxo/connexo.git</connection>
+        <url>ssh://git@bitbucket.honeywell.com:7999/cxo/connexo.git</url>
     </scm>
 
     <properties>
@@ -61,32 +61,32 @@
 
     <!-- Repositories specification. -->
     <repositories>
-		<repository>
+        <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>http://source.eict.vpdc/nexus/content/repositories/releases/</url>
-			<releases>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
+            <releases>
                 <enabled>true</enabled>
             </releases>
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-		<repository>
-			<id>eict-snapshots</id>
+        <repository>
+            <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>http://source.eict.vpdc/nexus/content/repositories/snapshots/</url>
-			<releases>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
+            <releases>
                 <enabled>false</enabled>
             </releases>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
-		</repository>
+        </repository>
         <repository>
             <id>eict-third-party</id>
             <name>EnergyICT public releases repository</name>
-            <url>http://source.eict.vpdc/nexus/content/repositories/thirdparty/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -101,7 +101,7 @@
         <pluginRepository>
             <id>eict-plugins</id>
             <name>EnergyICT plugin repository</name>
-            <url>http://source.eict.vpdc/nexus/content/repositories/plugins/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -112,7 +112,7 @@
         <pluginRepository>
             <id>eict-plugins-snapshots</id>
             <name>EnergyICT plugin repository</name>
-            <url>http://source.eict.vpdc/nexus/content/repositories/plugins-snapshots</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
