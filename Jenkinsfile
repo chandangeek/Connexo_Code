@@ -5,11 +5,10 @@
 def MAVEN_REPO = "/home2/src/maven/repository"
 def MIRROR_CLONE = "/home2/src/maven/mirror"
 def MAXIMUM_COVERITY_ISSUES = 397
+SENCHA_4 = "/home2/tools/y/Sencha/Cmd/4.0.5.87"
 
 pipeline {
-  agent {
-    label 'linux && java'
-  }
+  agent none
   parameters {
     string(
       defaultValue: '',
@@ -17,19 +16,17 @@ pipeline {
       name: 'releaseVersion'
     )
     booleanParam(
-      defaultValue: false,
+      defaultValue: true,
       description: 'Run unit tests',
       name: 'runTests'
     )
     booleanParam(
-      //Krishna defaultValue: isRelease(),
-      defaultValue: false,
+      defaultValue: isRelease(),
       description: 'Deploy the artifacts',
       name: 'doDeploy'
     )
     booleanParam(
-      //Krishna defaultValue: shouldRunAnalysis(),
-      defaultValue: false,
+      defaultValue: shouldRunAnalysis(),
       description: 'Run Coverity and Black Duck',
       name: 'runAnalysis'
     )
@@ -47,109 +44,100 @@ pipeline {
     )
   }
   stages {
-    stage("Checkout") {
-      steps {
-        deleteDir()
-        checkout([$class: 'GitSCM',
-                  branches: scm.branches,
-                  extensions: [[$class: 'CloneOption',
-                  depth: 2,
-                  noTags: false,
-                  reference: MIRROR_CLONE, shallow: true]],
-                  userRemoteConfigs: scm.userRemoteConfigs])
-        script {
-          DIRECTORIES = getBuildDirectories()
-        }
+    stage("Build") {
+      agent {
+        label 'linux && java'
       }
-    }
-    stage("Get POM") {
-      environment {
-        POM_VERSION = getPomVersion()
-      }
-      steps {
-        echo "Detected pom version is '$POM_VERSION'"
-        script {
-          POM_VERSION = "$POM_VERSION"
-        }
-      }
-    }
-    stage("Set Version") {
-      when {
-        expression { return getBranchVersion().length() > 0 }
-      }
-      environment {
-        NEW_VERSION = getBranchVersion()
-      }
-      steps {
-        withMaven(maven: 'Maven 3.6.3',
-            mavenSettingsConfig: 'developer-settings',
-            publisherStrategy: 'EXPLICIT',
-            options: [],
-            mavenLocalRepo: MAVEN_REPO) {
-          runMaven("clean versions:set -DnewVersion=$env.NEW_VERSION")
-        }
-      }
-    }
-    stage('Build') {
-      environment {
-        COMMAND = mavenCommand()
-        EXTRA_PARAMS = getMavenExtras()
-        SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
-        //Krishna PROFILES = '-Psencha-build,coverage'
-        PROFILES = '-Psencha-build,enforce-version'
-        DIRECTORIES = "$DIRECTORIES"
-      }
-      steps {
-        lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
-          withMaven(maven: 'Maven 3.6.3',
-              mavenSettingsConfig: 'developer-settings',
-              mavenOpts: '-Xmx5g',
-              publisherStrategy: 'EXPLICIT',
-              options: [openTasksPublisher()],
-              mavenLocalRepo: MAVEN_REPO) {
-            catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
-              runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
-            }
-            //  These stashes are really too large. Need to find another way to do this...
-            stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
-            stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
-            stash name:"zip_files", allowEmpty: true, includes: "**/*.zip"
-          }
-        }
-      }
-    }
-    stage('results') {
-      parallel {
-        stage('Coverity') {
-          agent {
-            label 'coverity'
-          }
-          when {
-            expression { params.runAnalysis }
-          }
-          environment {
-            STREAM = getCoverityStream()
-            TARGET_DIR = "target"
-            COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
-            MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
-          }
+      stages {
+        stage("Checkout") {
           steps {
+            deleteDir()
             checkout([$class: 'GitSCM',
-                      poll: false,
-                      changelog: false,
                       branches: scm.branches,
                       extensions: [[$class: 'CloneOption',
                       depth: 2,
                       noTags: false,
                       reference: MIRROR_CLONE, shallow: true]],
                       userRemoteConfigs: scm.userRemoteConfigs])
-            unstash "java_classes"
-            lock(resource: "Coverity", inversePrecedence: false) {
-              runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
+            script {
+              DIRECTORIES = getBuildDirectories()
             }
           }
         }
+        stage("Get POM") {
+          environment {
+            POM_VERSION = getPomVersion()
+          }
+          steps {
+            echo "Detected pom version is '$POM_VERSION'"
+            script {
+              POM_VERSION = "$POM_VERSION"
+            }
+          }
+        }
+        stage("Set Version") {
+          when {
+            expression { return getBranchVersion().length() > 0 }
+          }
+          environment {
+            NEW_VERSION = getBranchVersion()
+          }
+          steps {
+            withMaven(maven: 'Maven 3.6.3',
+                mavenSettingsConfig: 'ehc-mirror',
+                publisherStrategy: 'EXPLICIT',
+                options: [],
+                mavenLocalRepo: MAVEN_REPO) {
+              runMaven("clean versions:set -DnewVersion=$env.NEW_VERSION")
+            }
+          }
+        }
+        stage('Sencha') {
+          when {
+            not { expression { fileExists("${SENCHA_4}/../repo") } }
+          }
+          steps {
+            catchError(buildResult: 'SUCCESS', message: 'WARNING: Could not initialize sencha package repo', stageResult: 'SUCCESS') {
+              sh "echo \$PATH or $SENCHA_4"
+              sh "${SENCHA_4}/sencha package repo init -name 'Elster Jupiter Project' -email 'Jupiter-Core@elster.com'"
+            }
+          }
+        }
+        stage('Compile') {
+          environment {
+            COMMAND = mavenCommand()
+            EXTRA_PARAMS = getMavenExtras()
+            SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
+            PROFILES = '-Psencha-build,coverage,enforce-version'
+            DIRECTORIES = "$DIRECTORIES"
+          }
+          steps {
+            lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
+              withMaven(maven: 'Maven 3.6.3',
+                  mavenSettingsConfig: 'ehc-mirror',
+                  mavenOpts: '-Xmx5g',
+                  publisherStrategy: 'EXPLICIT',
+                  options: [openTasksPublisher()],
+                  mavenLocalRepo: MAVEN_REPO) {
+                catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
+                  runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
+                }
+                //  These stashes are really too large. Need to find another way to do this...
+                stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
+                stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
+                stash name:"zip_files", allowEmpty: true, includes: "**/*.zip"
+              }
+            }
+          }
+        }
+      }
+    }
+    stage('results') {
+      parallel {
         stage('Analysis') {
+          agent {
+            label 'linux && java'
+          }
           when {
             expression { params.runTests }
           }
@@ -170,7 +158,7 @@ pipeline {
                           reference: MIRROR_CLONE, shallow: true]],
                           userRemoteConfigs: scm.userRemoteConfigs])
                 withMaven(maven: 'Maven 3.6.3',
-                          mavenSettingsConfig: 'developer-settings',
+                          mavenSettingsConfig: 'ehc-mirror',
                           mavenOpts: '-Xmx5g',
                           publisherStrategy: 'EXPLICIT',
                           options: [],
@@ -195,18 +183,15 @@ pipeline {
                 unstash "java_reports"
                 unstash "bug_reports"
                 unstash "java_classes"
-                recordIssues(
-                      aggregatingResults: true,
-                      enabledForFailure: true,
-                      qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
-                      [threshold: 80, type: 'TOTAL_HIGH', unstable: true],
-                      [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]
-                      ],
-                      tools: [junitParser(pattern: '**/TEST-*.xml'),
-                      pmdParser(),
-                      checkStyle(),
-                      spotBugs(useRankAsPriority: true)]
-                )
+                recordIssues aggregatingResults: true,
+                             enabledForFailure: true,
+                             qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
+                                            [threshold: 80, type: 'TOTAL_HIGH', unstable: true],
+                                            [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
+                             tools: [junitParser(pattern: '**/Test-*.xml'),
+                                     pmdParser(),
+                                     checkStyle(),
+                                     spotBugs(useRankAsPriority: true)]
                 junit allowEmptyResults: true, healthScaleFactor: 100.0, testResults: '**/TEST-*.xml'
                 jacoco buildOverBuild: false,
                        changeBuildStatus: true,
@@ -228,6 +213,9 @@ pipeline {
           }
         }
         stage("Archive") {
+          agent {
+            label 'linux'
+          }
           stages {
             stage("Jenkins") {
               steps {
@@ -271,8 +259,7 @@ pipeline {
                       "pattern": "**/offline*.zip",
                       "target": "${FOLDER}/offline-${ARTIFACT_VERSION}.zip",
                       "flat": true
-
-                   }]}'''
+                  }]}'''
                 )
               }
             }
@@ -280,9 +267,42 @@ pipeline {
         }
       }
     }
+    stage('Coverity') {
+      agent {
+        label 'coverity'
+      }
+      when {
+        expression { params.runAnalysis }
+      }
+      environment {
+        STREAM = getCoverityStream()
+        TARGET_DIR = "target"
+        COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
+        MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
+      }
+      steps {
+        milestone label: 'Setup Coverity', ordinal: 5
+        lock(resource: "Coverity-$env.STREAM", inversePrecedence: true) {
+          milestone label: 'Start Coverity', ordinal: 6
+          checkout([$class: 'GitSCM',
+                    poll: false,
+                    changelog: false,
+                    branches: scm.branches,
+                    extensions: [[$class: 'CloneOption',
+                    depth: 2,
+                    noTags: false,
+                    reference: MIRROR_CLONE, shallow: true]],
+                    userRemoteConfigs: scm.userRemoteConfigs])
+          unstash "java_classes"
+          runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
+          milestone label: 'Finish Coverity', ordinal: 7
+        }
+      }
+    }
   }
   post {
     failure {
+      agent any
       step([$class: 'Mailer',
             notifyEveryUnstableBuild: false,
             recipients: emailextrecipients([culprits(), requestor()])]
@@ -418,16 +438,20 @@ def runCoverity(maxIssues) {
   if (results != 0) {
     unstable("There was a problem with the coverity script " + results)
   }
-  PROJECT = "MULTISENSE"
+  PROJECT = getCoverityProject()
   results = coverityIssueCheck coverityInstanceUrl: 'https://coverity.swtools.honeywell.com:8443', projectName: "$PROJECT", returnIssueCount: true, viewName: "Outstanding Issues"
   if (results > maxIssues) {
     unstable("Found $results Coverity issues, maximum is $maxIssues")
   }
 }
 
-def getCoverityStream() {
+def getCoverityProject() {
  if (isRelease()) {
-   return env.BRANCH_NAME
+   return "MULTISENSE-RELEASE"
  }
- return "MULTISENSE-MASTER"
+ return "MULTISENSE"
+}
+
+def getCoverityStream() {
+ return getCoverityProject() + "-MASTER"
 }
