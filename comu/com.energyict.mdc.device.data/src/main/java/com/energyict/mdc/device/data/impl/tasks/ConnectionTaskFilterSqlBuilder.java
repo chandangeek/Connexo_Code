@@ -23,6 +23,7 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -42,6 +43,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     private List<Long> connectionTasksIds;
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
+    private static final Logger LOGGER = Logger.getLogger(ConnectionTaskFilterSqlBuilder.class.getName());
 
     ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
         super(filterSpecification, clock, deviceQueryExecutor);
@@ -132,6 +134,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
         build(dataMapper.builder(connectionTaskAliasName()));
         this.append(" order by lastcommunicationstart desc");
+        LOGGER.info("CONM-2227: sql request - " + this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize).getText());
         return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
     }
 
