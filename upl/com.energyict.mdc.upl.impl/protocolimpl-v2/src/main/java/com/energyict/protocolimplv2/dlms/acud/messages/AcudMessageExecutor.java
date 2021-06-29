@@ -234,7 +234,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         Integer creditAmount = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditAmount));
         creditSetup.invokeCreditMethod(CreditSetupMethods.UPDATE_AMOUNT, new Integer32(creditAmount));
 
-        int creditType = creditSetup.readCreditType().intValue();
+        int creditType = CreditDeviceMessage.CreditType.entryForDescription(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.creditType)).getId();
         CollectedCreditAmount cca = getProtocol().getCreditAmounts().stream()
                 .filter(creditAmount1 -> creditType == CreditDeviceMessage.CreditType.entryForDescription(creditAmount1.getCreditType()).getId() )
                 .findAny()
