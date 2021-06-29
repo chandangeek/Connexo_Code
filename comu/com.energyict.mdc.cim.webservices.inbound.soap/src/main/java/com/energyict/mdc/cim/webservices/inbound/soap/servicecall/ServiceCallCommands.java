@@ -594,7 +594,7 @@ public class ServiceCallCommands {
                 if (deviceMessagesComTaskExecution == null) {
                     syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory()
                             .errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null,
-                                    device.getName()));
+                                    device.getName(), device.getmRID()));
                     return;
                 }
                 Instant trigger = getTriggerDate(end, delay, deviceMessagesComTaskExecution, scheduleStrategy);

@@ -513,7 +513,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         }
         if (!noComTaskExecutionReadingTypeList.isEmpty()) {
             syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_COM_TASK_EXECUTION_FOR_READING_TYPES, null,
-                    device.getName(), noComTaskExecutionReadingTypeList.stream().map(rt -> rt.getFullAliasName()).collect(Collectors.joining(";"))));
+                    device.getName(), noComTaskExecutionReadingTypeList.stream().map(rt -> rt.getFullAliasName()).collect(Collectors.joining(";")), reading.getTimePeriod().getStart(), reading.getTimePeriod().getEnd()));
         }
         if (!noPriorityComTaskExecutionReadingTypeList.isEmpty()) {
             syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_PRIORITY_COM_TASK_EXECUTION_FOR_READING_TYPES, null,
