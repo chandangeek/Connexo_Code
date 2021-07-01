@@ -26,7 +26,7 @@ Ext.define('Imt.usagepointgroups.model.UsagePointGroup', {
     getNumberOfSearchResults: function (callback) {
         var me = this;
         Ext.Ajax.request({
-            method: 'GET',
+            method: 'POST',
             url: '/api/jsr/search/com.elster.jupiter.metering.UsagePoint/count',
             params: {
                 filter: me.get('filter')
