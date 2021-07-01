@@ -10,7 +10,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
-import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
@@ -80,17 +79,22 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         Optional<BreakerStatus> breakerStatus = getActiveBreakerStatus(device);
-            if (breakerStatus.isPresent() && breakerStatus.get().equals(getDesiredBreakerStatus())) {
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus));
-                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-            } else {
-                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn''t match expected status {1}",
-                        breakerStatus,
-                        getDesiredBreakerStatus())
-                );
-                getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
-                serviceCall.requestTransition(DefaultState.FAILED);
-            }
+        if (!breakerStatus.isPresent()) {
+            serviceCall.log(LogLevel.SEVERE, "Device doesn''t have register of type Contactor status");
+            getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
+            serviceCall.requestTransition(DefaultState.FAILED);
+            return;
+        }
+        if (breakerStatus.get().equals(getDesiredBreakerStatus())) {
+            serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus));
+            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+       } else {
+            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn''t match expected status {1}",
+            breakerStatus,
+            getDesiredBreakerStatus()));
+            getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
+            serviceCall.requestTransition(DefaultState.FAILED);
+       }
     }
 
     private Optional<BreakerStatus> getActiveBreakerStatus(Device device) {
@@ -102,7 +106,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
                 .map(Optional::get)
                 .map(NumericalReading.class::cast)
                 .map(val -> val.getValue().intValue() == 1 ? BreakerStatus.CONNECTED : BreakerStatus.DISCONNECTED);
-    } ;
+    }
 
     protected abstract BreakerStatus getDesiredBreakerStatus();
 }
