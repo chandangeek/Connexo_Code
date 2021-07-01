@@ -4,22 +4,16 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterreadings;
 
+import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.util.Pair;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 
-import ch.iec.tc57._2011.schema.message.ErrorType;
-
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class SyncReplyIssue {
@@ -62,8 +56,8 @@ public class SyncReplyIssue {
     private Map<Long, Set<ComTaskExecution>> deviceIrregularComTaskExecutionMap;
     private Map<Long, ComTaskExecution> deviceMessagesComTaskExecutionMap;
 
-    // additional errors to be sent synchroneously
-    private List<ErrorType> errorTypes;
+    // additional errors to be sent synchronously
+    private Map<Pair<String, String>, ErrorType> errorTypes;
 
     @Inject
     public SyncReplyIssue(ReplyTypeFactory replyTypeFactory) {
@@ -344,75 +338,102 @@ public class SyncReplyIssue {
     }
 
     public void addErrorType(ErrorType errorType) {
-        getErrorTypes().add(errorType);
+        getErrorTypes().put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
     }
 
     public void addErrorTypes(Set<ErrorType> errorTypes) {
-        getErrorTypes().addAll(errorTypes);
+        Map<Pair<String, String>, ErrorType> errorTypeMap = getErrorTypes();
+        errorTypes.forEach(errorType -> errorTypeMap.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType));
     }
 
-    public List<ErrorType> getErrorTypes() {
+    public Map<Pair<String, String>, ErrorType> getErrorTypes() {
         if (errorTypes == null) {
-            errorTypes = new ArrayList<>();
+            errorTypes = new LinkedHashMap<>();
         }
         return errorTypes;
     }
 
-    public List<ErrorType> getResultErrorTypes() {
+    public Map<Pair<String, String>, ErrorType> getResultErrorTypes() {
         // reading types issue
-        List<ErrorType> errorTypes = getErrorTypes();
+        Map<Pair<String, String>, ErrorType> errorTypes = getErrorTypes();
+        ErrorType errorType;
+        ErrorType finalErrorType;
         if (!notFoundRTMRIDs.isEmpty() && !notFoundRTNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_IN_THE_SYSTEM, null,
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_IN_THE_SYSTEM, null,
                     combineNotFoundElementMessage(notFoundRTMRIDs),
-                    combineNotFoundElementMessage(notFoundRTNames)));
+                    combineNotFoundElementMessage(notFoundRTNames));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         } else if (!notFoundRTMRIDs.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_MRID_NOT_FOUND, null,
-                    combineNotFoundElementMessage(notFoundRTMRIDs)));
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_MRID_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundRTMRIDs));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         } else if (!notFoundRTNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_NAME_NOT_FOUND, null,
-                    combineNotFoundElementMessage(notFoundRTNames)));
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_TYPES_WITH_NAME_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundRTNames));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         }
 
         // devices issue
         if (!notFoundMRIDs.isEmpty() && !notFoundNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_NOT_FOUND, null,
+            errorType = replyTypeFactory.errorType(MessageSeeds.END_DEVICES_NOT_FOUND, null,
                     combineNotFoundElementMessage(notFoundMRIDs),
-                    combineNotFoundElementMessage(notFoundNames)));
+                    combineNotFoundElementMessage(notFoundNames));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         } else if (!notFoundMRIDs.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_MRID_NOT_FOUND, null,
-                    combineNotFoundElementMessage(notFoundMRIDs)));
+            errorType = replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_MRID_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundMRIDs));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         } else if (!notFoundNames.isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_NAME_NOT_FOUND, null,
-                    combineNotFoundElementMessage(notFoundNames)));
+            errorType = replyTypeFactory.errorType(MessageSeeds.END_DEVICES_WITH_NAME_NOT_FOUND, null,
+                    combineNotFoundElementMessage(notFoundNames));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         }
 
-        getNotFoundReadingTypesOnDevices().forEach((deviceName, readingTypeNames) ->
-                errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_ON_DEVICE, null,
-                        deviceName, combineNotFoundElementMessage(readingTypeNames)))
-        );
-        getNotFoundLoadProfilesOnDevices().forEach((deviceName, loadProfileNames) ->
-                errorTypes.add(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILES_NOT_FOUND_ON_DEVICE, null,
-                        deviceName, combineNotFoundElementMessage(loadProfileNames)))
-        );
+        // each entry is deviceName and readingTypeName (key/value)
+        for (Map.Entry<String, Set<String>> entry : getNotFoundReadingTypesOnDevices().entrySet()) {
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_ON_DEVICE, null,
+                    entry.getKey(), combineNotFoundElementMessage(entry.getValue()));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
+        }
+
+        // each entry is deviceName and loadProfileNames (key/value)
+        for (Map.Entry<String, Set<String>> entry : getNotFoundReadingTypesOnDevices().entrySet()) {
+            errorType = replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILES_NOT_FOUND_ON_DEVICE, null,
+                    entry.getKey(), combineNotFoundElementMessage(entry.getValue()));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
+        }
+
+//        getNotFoundReadingTypesOnDevices().forEach((deviceName, readingTypeNames) ->
+//                errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_ON_DEVICE, null,
+//                        deviceName, combineNotFoundElementMessage(readingTypeNames)))
+//        );
+//        getNotFoundLoadProfilesOnDevices().forEach((deviceName, loadProfileNames) ->
+//                errorTypes.add(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILES_NOT_FOUND_ON_DEVICE, null,
+//                        deviceName, combineNotFoundElementMessage(loadProfileNames)))
+//        );
 
         if (!getNotUsedReadingsDueToTimeStamp().isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
-                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToTimeStamp())), TIME_PERIOD));
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
+                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToTimeStamp())), TIME_PERIOD);
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         }
 
         if (!getNotUsedReadingsDueToConnectionMethod().isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
-                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToConnectionMethod())), CONNECTION_METHOD));
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
+                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToConnectionMethod())), CONNECTION_METHOD);
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         }
 
         if (!getNotUsedReadingsDueToDataSources().isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
-                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToDataSources())), DATA_SOURCE));
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
+                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToDataSources())), DATA_SOURCE);
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         }
 
         if (!getNotUsedReadingsDueToComTaskExecutions().isEmpty()) {
-            errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE_DUE_TO_COM_TASKS, null,
-                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToComTaskExecutions()))));
+            errorType = replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE_DUE_TO_COM_TASKS, null,
+                    String.format(READING_ITEM, combineNotFoundElementIndexes(getNotUsedReadingsDueToComTaskExecutions())));
+            errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         }
         return errorTypes;
     }
