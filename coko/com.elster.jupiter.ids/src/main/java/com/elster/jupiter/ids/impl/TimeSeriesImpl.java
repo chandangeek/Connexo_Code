@@ -25,6 +25,7 @@ import javax.inject.Inject;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAmount;
 import java.time.temporal.TemporalUnit;
@@ -393,7 +394,13 @@ public final class TimeSeriesImpl implements TimeSeries {
             throw new UnsupportedOperationException("Unsupported operation on non-regular timeseries");
         }
         if (!isValid(instant)) {
-            throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid. Time zone used to convert it is " + timeZoneName);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy - HH:mm:ss.nnnnn");
+            ParsedOffset offset = getParsedOffset();
+            throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid. " +
+                    "Time zone used to convert it is " + timeZoneName +
+                    "\nConverted timestamp is \'" + ZonedDateTime.ofInstant(instant, getZoneId()).format(formatter) + "\'" +
+                    "\nOffset hours = " + offset.hours + ", offset minutes = " + offset.minutes + ", offset seconds = " + offset.seconds +
+                    "\nInterval is " + intervalLengthUnit);
         }
         if (intervalLengthUnit == MINUTE) {
             return instant.plusSeconds(numberOfEntries * intervalLength * 60);
