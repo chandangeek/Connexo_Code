@@ -394,7 +394,7 @@ public final class TimeSeriesImpl implements TimeSeries {
             throw new UnsupportedOperationException("Unsupported operation on non-regular timeseries");
         }
         if (!isValid(instant)) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy - HH:mm:ss.nnnnn");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.nnnnn");
             ParsedOffset offset = getParsedOffset();
             throw new IllegalArgumentException("Interval timestamp \'" + instant + "\' is not valid. " +
                     "Time zone used to convert it is " + timeZoneName +
