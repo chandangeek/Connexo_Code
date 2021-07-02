@@ -13,7 +13,12 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import javax.inject.Inject;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class SyncReplyIssue {
@@ -402,15 +407,6 @@ public class SyncReplyIssue {
                     entry.getKey(), combineNotFoundElementMessage(entry.getValue()));
             errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
         }
-
-//        getNotFoundReadingTypesOnDevices().forEach((deviceName, readingTypeNames) ->
-//                errorTypes.add(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_ON_DEVICE, null,
-//                        deviceName, combineNotFoundElementMessage(readingTypeNames)))
-//        );
-//        getNotFoundLoadProfilesOnDevices().forEach((deviceName, loadProfileNames) ->
-//                errorTypes.add(replyTypeFactory.errorType(MessageSeeds.LOAD_PROFILES_NOT_FOUND_ON_DEVICE, null,
-//                        deviceName, combineNotFoundElementMessage(loadProfileNames)))
-//        );
 
         if (!getNotUsedReadingsDueToTimeStamp().isEmpty()) {
             errorType = replyTypeFactory.errorType(MessageSeeds.READING_NOT_APPLICABLE, null,
