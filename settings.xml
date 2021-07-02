@@ -41,22 +41,9 @@
       <username>E841294</username>
       <password>U4sambar</password>
     </server>
-    <server>
-      <id>Nexus</id>
-      <username>E841294</username>
-      <password>U4sambar</password>
-    </server>
   </servers>
-    <mirrors>
-        <mirror>
-            <id>Nexus</id>
-            <name>EICT Nexus Public Mirror</name>
-            <url>http://10.25.123.133/nexus/content/groups/public/</url>
-            <mirrorOf>eict-releases,eict-snapshots,eict-third-party,eict-plugins,eict-plugins-snapshots</mirrorOf>
-        </mirror>
-    </mirrors>
 
- <!--   <profiles>
+ <profiles>
   <profile>
    <id>eict-nexus</id>
    <repositories>
@@ -163,17 +150,17 @@
 		<properties>
 		<sencha.cmd.dir>C:\Users\buildadmin\bin\Sencha\Cmd\4.0.5.87</sencha.cmd.dir>
 		</properties>
-	</profile> -->
-<!--	  <profile>
+	</profile>
+<!--<profile>
       <id>local-test</id>
         <properties>
            <sencha.cmd.dir>C:\Users\E841294\bin\Sencha\Cmd\4.0.5.87</sencha.cmd.dir>              
         </properties>
-  </profile> -->
-  <!--</profiles>-->
+  </profile>-->
+  </profiles>
   <activeProfiles>
-      <!--<activeProfile>local-felix-copy-path</activeProfile>
+      <!--<activeProfile>local-felix-copy-path</activeProfile> -->
       <activeProfile>eict-nexus</activeProfile>
-      <activeProfile>local-test</activeProfile> -->
+      <!--<activeProfile>local-test</activeProfile> -->
 </activeProfiles>
 </settings>
