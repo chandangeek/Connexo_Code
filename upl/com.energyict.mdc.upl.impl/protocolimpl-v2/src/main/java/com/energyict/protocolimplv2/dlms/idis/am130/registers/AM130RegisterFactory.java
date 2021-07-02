@@ -70,16 +70,18 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
         List<OfflineRegister> subSet;
         List<CollectedRegister> result = new ArrayList<>();
 
+        List<OfflineRegister> mutableOfflineRegisters = new ArrayList<>(offlineRegisters);
+
         if (this.isNotMirroredOnDC()) {
-            result.addAll(readBillingRegisters(offlineRegisters));      // Cause these cannot be read out in bulk
-            filterOutAllAllBillingRegistersFromList(offlineRegisters);  // Cause they are already read out (see previous line)
+            result.addAll(readBillingRegisters(mutableOfflineRegisters));      // Cause these cannot be read out in bulk
+            filterOutAllAllBillingRegistersFromList(mutableOfflineRegisters);  // Cause they are already read out (see previous line)
         }
 
-        result.addAll(filterOutAllInvalidRegistersFromList(offlineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
+        result.addAll(filterOutAllInvalidRegistersFromList(mutableOfflineRegisters)); // For each invalid one, an 'Incompatible' collectedRegister will be added
 
         int from = 0;
-        while (from < offlineRegisters.size()) {    //Read out in steps of x registers
-            subSet = offlineRegisters.subList(from, offlineRegisters.size());
+        while (from < mutableOfflineRegisters.size()) {    //Read out in steps of x registers
+            subSet = mutableOfflineRegisters.subList(from, mutableOfflineRegisters.size());
             List<CollectedRegister> collectedRegisters = readSubSetOfRegisters(subSet);
             from += collectedRegisters.size();
             result.addAll(collectedRegisters);
