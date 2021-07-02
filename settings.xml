@@ -40,7 +40,12 @@
       <id>thirdparty</id>
       <username>E841294</username>
       <password>U4sambar</password>
-    </server>	
+    </server>
+    <server>
+      <id>Nexus</id>
+      <username>E841294</username>
+      <password>U4sambar</password>
+    </server>
   </servers>
     <mirrors>
         <mirror>
