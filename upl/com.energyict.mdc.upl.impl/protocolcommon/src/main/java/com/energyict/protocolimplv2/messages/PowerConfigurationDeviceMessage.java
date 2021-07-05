@@ -74,7 +74,6 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
                     bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioDenominatorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation),
                     bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioNumeratorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation));
         }},
-
     SetVoltageRatioNumerator(26011, "Write voltage and current ratios") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
