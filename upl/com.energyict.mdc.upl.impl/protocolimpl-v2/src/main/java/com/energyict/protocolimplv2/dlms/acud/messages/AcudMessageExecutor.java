@@ -241,7 +241,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
                 .orElse(null);
 
         if( cca != null ) {
-            Register register = new Register(-1, AcudCreditUtils.getCreditTypeObiscode(CreditDeviceMessage.CreditType.valueOf(cca.getCreditType())), pendingMessage.getDeviceSerialNumber());
+            Register register = new Register(-1, AcudCreditUtils.getCreditTypeObiscode(CreditDeviceMessage.CreditType.entryForDescription(cca.getCreditType())), pendingMessage.getDeviceSerialNumber());
             List<CollectedRegister> collectedRegisters = new ArrayList<>();
             final RegisterValue registerValue = new RegisterValue(register, new Quantity(cca.getCreditAmount().get(), Unit.get(COUNT, 0)));
             collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
