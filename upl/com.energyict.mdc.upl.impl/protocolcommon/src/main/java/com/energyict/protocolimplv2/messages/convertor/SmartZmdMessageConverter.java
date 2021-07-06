@@ -91,8 +91,8 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
 
                 .put(messageSpec(DisplayDeviceMessage.SET_DISPLAY_MESSAGE), new SetDisplayMessageEntry(DeviceMessageConstants.DisplayMessageAttributeName))
                 // Voltage/Current parameters
-                .put(messageSpec(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters), new NumberMessageEntry(VoltageRatioNumeratorAttributeName))
-                .put(messageSpec(PowerConfigurationDeviceMessage.SetVoltageAndCurrentParameters), new NumberMessageEntry(CurrentRatioNumeratorAttributeName))
+                .put(messageSpec(PowerConfigurationDeviceMessage.SetVoltageRatioNumerator), new NumberMessageEntry(VoltageRatioNumeratorAttributeName))
+                .put(messageSpec(PowerConfigurationDeviceMessage.SetCurrentRatioNumerator), new NumberMessageEntry(CurrentRatioNumeratorAttributeName))
                 // reset messages
                 .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
                 .build();
