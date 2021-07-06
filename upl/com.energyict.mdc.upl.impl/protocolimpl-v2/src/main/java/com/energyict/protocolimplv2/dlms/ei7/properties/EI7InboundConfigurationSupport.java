@@ -8,23 +8,23 @@ import com.energyict.protocolimplv2.dlms.a2.properties.A2ConfigurationSupport;
 
 import java.util.List;
 
-public class EI7ConfigurationSupport extends A2ConfigurationSupport {
+public class EI7InboundConfigurationSupport extends A2ConfigurationSupport {
 
-    public static final String BACK_FILL_ON_INBOUND = "BackFillOnInbound";
+    public static final String PUSHING_COMPACT_FRAMES = "CompactFrames";
 
-    public EI7ConfigurationSupport(PropertySpecService propertySpecService) {
+    public EI7InboundConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
     }
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
-        propertySpecs.add(backFillOnInboundCommunication());
+        propertySpecs.add(pushingCompactFramesPropertySpec());
         return propertySpecs;
     }
 
-    protected PropertySpec backFillOnInboundCommunication() {
-        return UPLPropertySpecFactory.specBuilder(BACK_FILL_ON_INBOUND, false, PropertyTranslationKeys.V2_DLMS_BACK_FILL_ON_INBOUND, getPropertySpecService()::booleanSpec).finish();
+    protected PropertySpec pushingCompactFramesPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(PUSHING_COMPACT_FRAMES, false, PropertyTranslationKeys.V2_PUSHING_COMPACT_FRAMES, getPropertySpecService()::booleanSpec).finish();
     }
 
 }

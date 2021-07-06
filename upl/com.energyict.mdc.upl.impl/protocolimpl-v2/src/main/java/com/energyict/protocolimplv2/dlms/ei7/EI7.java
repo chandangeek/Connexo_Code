@@ -7,11 +7,13 @@ import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.a2.A2;
 import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.ei7.messages.EI7Messaging;
 import com.energyict.protocolimplv2.dlms.ei7.profiles.EI7LoadProfileDataReader;
+import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 public class EI7 extends A2 {
@@ -37,7 +39,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "2021-06-17";
+        return "2021-07-01";
     }
 
     @Override
@@ -47,6 +49,14 @@ public class EI7 extends A2 {
                     getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays(), EI7LoadProfileDataReader.getSupportedLoadProfiles());
         }
         return profileDataReader;
+    }
+
+    @Override
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new EI7ConfigurationSupport(this.getPropertySpecService());
+        }
+        return dlmsConfigurationSupport;
     }
 
 }
