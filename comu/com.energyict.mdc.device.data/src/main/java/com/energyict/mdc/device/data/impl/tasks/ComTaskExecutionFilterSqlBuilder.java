@@ -124,7 +124,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.appendWhereOrAnd();
             this.append("cte.connectiontask IN (" +
                     " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
-                    connectionMethods.stream().map(Object::toString).collect(Collectors.joining( "," ))
+                    connectionMethods.stream().map(Object::toString).collect(Collectors.joining(","))
                     + ") )");
         }
         return this.getActualBuilder();

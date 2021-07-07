@@ -134,7 +134,6 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     public SqlBuilder build(DataMapper<ConnectionTask> dataMapper, int pageStart, int pageSize) {
         build(dataMapper.builder(connectionTaskAliasName()));
         this.append(" order by lastcommunicationstart desc");
-        LOGGER.info("CONM-2227: sql request - " + this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize).getText());
         return this.getActualBuilder().asPageBuilder(pageStart, pageStart + pageSize);
     }
 
@@ -160,7 +159,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
             this.appendWhereOrAnd();
             this.append("ct.ID IN (" +
                     " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
-                    connectionTasksIds.stream().map(Object::toString).collect(Collectors.joining( "," ))
+                    connectionTasksIds.stream().map(Object::toString).collect(Collectors.joining(","))
                     + ") )");
         }
     }
