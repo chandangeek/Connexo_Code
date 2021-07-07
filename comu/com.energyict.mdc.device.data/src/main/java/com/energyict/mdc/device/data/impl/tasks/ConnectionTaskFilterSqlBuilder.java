@@ -160,7 +160,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
             this.appendWhereOrAnd();
             this.append("ct.ID IN (" +
                     " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
-                    connectionTasksIds.stream().collect(FancyJoiner.joining(",", ""))
+                    connectionTasksIds.stream().map(Object::toString).collect(Collectors.joining( "," ))
                     + ") )");
         }
     }

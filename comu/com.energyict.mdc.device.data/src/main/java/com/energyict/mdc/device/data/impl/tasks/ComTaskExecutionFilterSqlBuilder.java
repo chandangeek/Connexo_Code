@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Builds the SQL query that finds all {@link ComTaskExecution}s
@@ -123,7 +124,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             this.appendWhereOrAnd();
             this.append("cte.connectiontask IN (" +
                     " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
-                    connectionMethods.stream().collect(FancyJoiner.joining(",", ""))
+                    connectionMethods.stream().map(Object::toString).collect(Collectors.joining( "," ))
                     + ") )");
         }
         return this.getActualBuilder();
