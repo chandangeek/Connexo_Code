@@ -6,6 +6,7 @@ def MAVEN_REPO = "/home2/src/maven/repository"
 def MIRROR_CLONE = "/home2/src/maven/mirror"
 def MAXIMUM_COVERITY_ISSUES = 476
 SENCHA_4 = "/home2/tools/y/Sencha/Cmd/4.0.5.87"
+SENCHA_4 = "/home2/tools/y/Sencha/Cmd/4.0.5.87"
 
 pipeline {
   agent none
@@ -108,7 +109,7 @@ pipeline {
             COMMAND = mavenCommand()
             EXTRA_PARAMS = getMavenExtras()
             SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
-            PROFILES = '-Psencha-build,coverage,!enforce-version'
+            PROFILES = '-Psencha-build,coverage,enforce-version'
             DIRECTORIES = "$DIRECTORIES"
           }
           steps {
