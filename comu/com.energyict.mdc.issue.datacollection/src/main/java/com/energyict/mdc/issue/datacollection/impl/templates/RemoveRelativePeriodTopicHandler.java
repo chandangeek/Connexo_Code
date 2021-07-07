@@ -20,6 +20,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import java.util.List;
+import java.util.Objects;
 
 @Component(name = "com.energyict.mdc.issue.datacollection.RemoveRelativePeriodTopicHandler", service = TopicHandler.class, immediate = true)
 public class RemoveRelativePeriodTopicHandler implements TopicHandler {
@@ -41,6 +42,7 @@ public class RemoveRelativePeriodTopicHandler implements TopicHandler {
         List<CreationRule> issueCreationRules = IssueDataCollectionUtil.getIssueCreationRules(issueService);
         boolean deviceTypeInUse = issueCreationRules.stream()
                 .map(rule -> (BasicDataCollectionRuleTemplate.RelativePeriodWithCountInfo)rule.getProperties().get(BasicDataCollectionRuleTemplate.THRESHOLD))
+                .filter(Objects::nonNull)
                 .anyMatch(info -> info.getRelativePeriodId() == relativePeriod.getId());
 
         if(deviceTypeInUse) {
