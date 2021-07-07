@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ConnectionTask;
@@ -23,7 +22,6 @@ import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 /**
@@ -43,7 +41,6 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
     private List<Long> connectionTasksIds;
     public Interval lastSessionStart = null;
     public Interval lastSessionEnd = null;
-    private static final Logger LOGGER = Logger.getLogger(ConnectionTaskFilterSqlBuilder.class.getName());
 
     ConnectionTaskFilterSqlBuilder(ConnectionTaskFilterSpecification filterSpecification, Clock clock, QueryExecutor<Device> deviceQueryExecutor) {
         super(filterSpecification, clock, deviceQueryExecutor);
