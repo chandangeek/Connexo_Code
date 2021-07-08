@@ -99,7 +99,6 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -759,6 +758,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 9, 1), UpgraderV10_9_1.class)
                         .put(version(10, 9, 3), V10_9_3SimpleUpgrader.class)
                         .put(version(10, 9, 4), UpgraderV10_9_4.class)
+                        .put(version(10, 9, 6), UpgraderV10_9_6.class)
                         .build());
         this.registerRealServices(bundleContext);
     }

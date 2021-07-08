@@ -41,7 +41,7 @@ public class InstallerV10_8_1Impl implements FullInstaller {
 
     public void prepareDashboard(Logger logger){
         createDashBordTables();
-        createDashBordProcedures(logger);
+        createOrUpdateDashBordProcedures(logger);
         createDashBordJobs();
     }
 
@@ -130,7 +130,7 @@ public class InstallerV10_8_1Impl implements FullInstaller {
         return sqlBuilder.toString();
     }
 
-    private void createDashBordProcedures(Logger logger){
+    void createOrUpdateDashBordProcedures(Logger logger){
         try {
             execute(dataModel, getStoredProcedureScript("con_task_dashboard_procedure.sql"));
             execute(dataModel, getStoredProcedureScript("com_task_dashboard_procedure.sql"));
