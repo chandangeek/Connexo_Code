@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 public class UpgraderV10_9_6 implements Upgrader {
 
     private final InstallerV10_8_1Impl installerV10_8_1;
+    Logger logger = Logger.getLogger(UpgraderV10_9_6.class.getName());
 
     @Inject
     UpgraderV10_9_6(InstallerV10_8_1Impl installerV10_8_1) {
@@ -20,6 +21,6 @@ public class UpgraderV10_9_6 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        installerV10_8_1.createOrUpdateDashBordProcedures(Logger.getAnonymousLogger());
+        installerV10_8_1.createOrUpdateDashboardProcedures(logger);
     }
 }
