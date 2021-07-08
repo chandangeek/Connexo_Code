@@ -69,20 +69,20 @@ public enum PowerConfigurationDeviceMessage implements DeviceMessageSpecSupplier
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioDenominatorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation),
-                    bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioNumeratorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation),
-                    bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioDenominatorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation),
-                    bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioNumeratorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation));
+                    bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioDenominatorAttributeName, DeviceMessageConstants.VoltageAndCurrentRatioDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioNumeratorAttributeName, DeviceMessageConstants.VoltageAndCurrentRatioDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioDenominatorAttributeName, DeviceMessageConstants.VoltageAndCurrentRatioDefaultTranslation),
+                    bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioNumeratorAttributeName, DeviceMessageConstants.VoltageAndCurrentRatioDefaultTranslation));
         }},
     SetVoltageRatioNumerator(26011, "Write voltage and current ratios") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioNumeratorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation));
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.VoltageRatioNumeratorAttributeName, DeviceMessageConstants.VoltageAndCurrentRatioDefaultTranslation));
         }},
     SetCurrentRatioNumerator(26012, "Write voltage and current ratios") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioNumeratorAttributeName, DeviceMessageConstants.VoltageRatioDefaultTranslation));
+            return Collections.singletonList(bigDecimalSpec(service, DeviceMessageConstants.CurrentRatioNumeratorAttributeName, DeviceMessageConstants.VoltageAndCurrentRatioDefaultTranslation));
         }};
 
     private final long id;
