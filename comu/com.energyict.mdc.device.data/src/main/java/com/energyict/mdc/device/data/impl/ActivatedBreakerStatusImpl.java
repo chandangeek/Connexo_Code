@@ -98,7 +98,7 @@ public class ActivatedBreakerStatusImpl implements ActivatedBreakerStatus {
     @Override
     public void store() {
         if (getId() == 0) {
-            doPersist();
+            doStorePersist();
             return;
         }
         doStore();
@@ -115,6 +115,14 @@ public class ActivatedBreakerStatusImpl implements ActivatedBreakerStatus {
         });
         dataModel.persist(this);
         notifyCreated();
+    }
+
+    private void doStorePersist() {
+        Save.CREATE.validate(dataModel, this);
+        getActivatedBreakerStatus().ifPresent(activatedBreakerStatus -> {
+            ((ActivatedBreakerStatusImpl) activatedBreakerStatus).expiredAt(this.getInterval().getStart());
+        });
+        dataModel.persist(this);
     }
 
     private Optional<ActivatedBreakerStatus> getActivatedBreakerStatus() {

@@ -105,7 +105,6 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         }
     }
 
-
     private Optional<BreakerStatus> getActiveBreakerStatus(Device device) {
         return device.getRegisters().stream()
                 .filter(register -> register.getRegisterTypeObisCode().equals(BREAKER_STATUS))

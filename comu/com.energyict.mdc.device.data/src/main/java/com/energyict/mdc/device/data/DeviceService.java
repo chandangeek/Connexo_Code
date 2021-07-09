@@ -214,6 +214,9 @@ public interface DeviceService {
      */
     void deleteOutdatedComTaskExecutionTriggers();
 
+    /**
+     * Copy breaker status {@link BreakerStatus} to table ddc_breaker_status<br/>
+     */
     void transferActiveBreakerStatusToDb(Device device, BreakerStatus breakerStatus);
 
     /**
