@@ -19,6 +19,7 @@ import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -92,6 +93,19 @@ public class ActivatedBreakerStatusImpl implements ActivatedBreakerStatus {
             return;
         }
         doUpdate();
+    }
+
+    @Override
+    public void store() {
+        if (getId() == 0) {
+            doPersist();
+            return;
+        }
+        doStore();
+    }
+
+    private void doStore() {
+        Save.UPDATE.save(dataModel, this);
     }
 
     private void doPersist() {

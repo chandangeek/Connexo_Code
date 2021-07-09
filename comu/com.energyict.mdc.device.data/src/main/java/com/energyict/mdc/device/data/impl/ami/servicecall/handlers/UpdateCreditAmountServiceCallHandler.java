@@ -5,7 +5,8 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
 import com.elster.jupiter.messaging.MessageService;
-import com.elster.jupiter.metering.ReadingRecord;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -14,12 +15,13 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.data.Reading;
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
@@ -36,12 +38,12 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import java.util.Comparator;
-import java.util.Objects;
+import java.time.Instant;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.List;
+
+import java.util.stream.Stream;
 
 @Component(name = "com.energyict.servicecall.ami.creditamount.handler",
         service = ServiceCallHandler.class,
@@ -140,66 +142,49 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         Device device = (Device) serviceCall.getTargetObject().get();
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
         String desiredCreditTypeObisCode = desiredCreditAmount.getCreditType().equals("Import Credit") ? IMPORT_CREDIT.getValue() : EMERGENCY_CREDIT.getValue();
-        Optional<Register> register = getRegister(device, desiredCreditTypeObisCode);
+        Optional<ReadingType> readingType = getReadingType(device, desiredCreditTypeObisCode);
+        List<? extends BaseReadingRecord> readings = getComparableReadings(device, readingType);
 
-        if (!register.isPresent()) {
-            serviceCall.log(LogLevel.SEVERE,  MessageFormat.format("Device doesn''t have register of type {0}", desiredCreditAmount.getCreditType()));
+        if (readings.isEmpty()) {
+            serviceCall.log(LogLevel.SEVERE,  MessageFormat.format("Device doesn't have register of type {0}", desiredCreditAmount.getCreditType()));
             getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
             serviceCall.requestTransition(DefaultState.FAILED);
-        }
-
-        List<Reading> readingsList =(List<Reading>) register.get()
-                .getReadings(Interval.forever())
-                .stream()
-                .sorted(Comparator.comparing(Reading::getTimeStamp).reversed())
-                .collect(Collectors.toList());
-
-        Optional<Integer> currentValue = getCurrentCreditAmount(readingsList);
-        Optional<Integer> previousValue = getPreviousCreditAmount(readingsList);
-
-            if (previousValue.isPresent() && currentValue.isPresent()) {
-                if (previousValue.get() + desiredCreditAmount.getCreditAmount().intValue() == currentValue.get()) {
-                    serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", currentValue.get(), desiredCreditAmount.getCreditType()));
-                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                } else {
-                    serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount {0} doesn''t match the expected amount: {1} of type {2}.",
-                            currentValue.get(),
-                            previousValue.get() + desiredCreditAmount.getCreditAmount().intValue(), desiredCreditAmount.getCreditType())
-                    );
-                    getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
-                    serviceCall.requestTransition(DefaultState.FAILED);
-                }
+        } else if (readings.size() < 2) {
+            serviceCall.log(LogLevel.INFO, MessageFormat.format("Device doesn`t have previous value for credit amount of type {0}.", desiredCreditAmount.getCreditType()));
+            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+        } else {
+            BigDecimal currentValue = readings.get(0).getValue();
+            BigDecimal previousValue = readings.get(1).getValue();
+            System.out.println((previousValue.add(desiredCreditAmount.getCreditAmount())).intValue());
+            if (previousValue.add(desiredCreditAmount.getCreditAmount()).equals(currentValue)) {
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", currentValue, desiredCreditAmount.getCreditType()));
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount of credit type {0} is absent", desiredCreditAmount.getCreditType()));
+                serviceCall.log(LogLevel.SEVERE,
+                   MessageFormat.format("Device credit amount {0} doesn't match the expected amount: {1} of type {2}.",
+                        currentValue.intValue(),
+                        (previousValue.add(desiredCreditAmount.getCreditAmount())).intValue(), desiredCreditAmount.getCreditType())
+                   );
                 getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
                 serviceCall.requestTransition(DefaultState.FAILED);
-            }
+           }
+        }
     }
 
-    private Optional<Integer> getPreviousCreditAmount(List<Reading> readings) {
-        return readings.stream()
-                .skip(1)
-                .findFirst()
-                .map(Reading::getActualReading)
-                .map(ReadingRecord::getValue)
-                .map(BigDecimal::intValue);
+    private List getComparableReadings(Device device, Optional<ReadingType> readingType) {
+        if (!readingType.isPresent()) {
+            return Collections.EMPTY_LIST;
+        }
+        return device.getMeter().getReadingsBefore(Instant.now(), readingType.get(), 2);
     }
 
-    private Optional<Integer> getCurrentCreditAmount(List<Reading> readings) {
-        return readings.stream()
-                .findFirst()
-                .map(Reading::getActualReading)
-                .map(ReadingRecord::getValue)
-                .map(BigDecimal::intValue);
-    }
-
-    private Optional<Register> getRegister(Device device, String desiredCreditType) {
+    private Optional<ReadingType> getReadingType(Device device, String desiredCreditType) {
         return Stream.of(device)
-                .filter(Objects::nonNull)
                 .map(Device::getRegisters)
                 .flatMap(List::stream)
                 .filter(register -> register.getDeviceObisCode().getValue().equals(desiredCreditType))
-                .findFirst();
+                .findFirst()
+                .map(Register::getReadingType);
     }
 
     private CreditAmount getDesiredCreditAmount(Device device, ServiceCall serviceCall) {

@@ -8,8 +8,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
@@ -18,9 +20,13 @@ import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.Range;
 
 import java.text.MessageFormat;
+import java.time.Instant;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
@@ -79,23 +85,26 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         Optional<BreakerStatus> breakerStatus = getActiveBreakerStatus(device);
+
         if (!breakerStatus.isPresent()) {
-            serviceCall.log(LogLevel.SEVERE, "Device doesn''t have register of type Contactor status");
+            serviceCall.log(LogLevel.SEVERE, "Device doesn't have register of type Contactor status");
             getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
             serviceCall.requestTransition(DefaultState.FAILED);
-            return;
+        } else {
+            deviceService.transferActiveBreakerStatusToDb(device, breakerStatus.get());
+            if (breakerStatus.get().equals(getDesiredBreakerStatus())) {
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus));
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            } else {
+                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn't match expected status {1}",
+                        breakerStatus,
+                        getDesiredBreakerStatus()));
+                getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
+                serviceCall.requestTransition(DefaultState.FAILED);
+            }
         }
-        if (breakerStatus.get().equals(getDesiredBreakerStatus())) {
-            serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus));
-            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-       } else {
-            serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn''t match expected status {1}",
-            breakerStatus,
-            getDesiredBreakerStatus()));
-            getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
-            serviceCall.requestTransition(DefaultState.FAILED);
-       }
     }
+
 
     private Optional<BreakerStatus> getActiveBreakerStatus(Device device) {
         return device.getRegisters().stream()

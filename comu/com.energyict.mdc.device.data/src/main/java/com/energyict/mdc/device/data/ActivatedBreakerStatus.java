@@ -27,4 +27,6 @@ public interface ActivatedBreakerStatus extends Effectivity {
     void setLastChecked(Instant lastChecked);
 
     void save();
+
+    void store();
 }
