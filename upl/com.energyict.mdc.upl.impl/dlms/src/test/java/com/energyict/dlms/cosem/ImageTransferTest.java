@@ -5,9 +5,13 @@ import static org.fest.assertions.api.Assertions.failBecauseExceptionWasNotThrow
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 
+import com.energyict.dlms.DLMSConnection;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.ProtocolLink;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -15,6 +19,7 @@ import org.junit.rules.TemporaryFolder;
 import com.energyict.dlms.cosem.ImageTransfer.ByteArrayImageBlockSupplier;
 import com.energyict.dlms.cosem.ImageTransfer.ImageBlockSupplier;
 import com.energyict.dlms.cosem.ImageTransfer.RandomAccessFileImageBlockSupplier;
+import org.mockito.Mockito;
 
 /**
  * Tests for the {@link ImageTransfer} class.
@@ -106,4 +111,38 @@ public final class ImageTransferTest {
 		} catch (IllegalArgumentException e) {
 		}
 	}
+
+	@Test
+	public final void testInitializeFOTAEnexisBehaviour() throws IOException {
+		ProtocolLink protocolLink = Mockito.mock(ProtocolLink.class);
+		DLMSConnection dlmsConnection = Mockito.mock(DLMSConnection.class);
+		Mockito.when(protocolLink.getDLMSConnection()).thenReturn(dlmsConnection);
+		Mockito.when(dlmsConnection.getInvokeIdAndPriorityHandler()).thenReturn(new NonIncrementalInvokeIdAndPriorityHandler((byte) 0x421));
+		Mockito.when(dlmsConnection.sendRequest(Mockito.any())).thenReturn(new byte[] {0x00, 0x00, 0x00, 0x0D, 0x00, 0x00, 0x03, 0x01});
+		ImageTransfer transfer = new ImageTransfer(protocolLink);
+		transfer.initializeFOTA(true);
+		byte[] expected = new byte[] {(byte) 0xE6, (byte) 0xE6, (byte) 0x00, (byte) 0xC3, (byte) 0x01, (byte) 0x21, (byte) 0x00, (byte) 0x12, (byte) 0x00, (byte) 0x00, (byte) 0x2C, (byte) 0x00, (byte) 0x00, (byte) 0xFF, (byte) 0x01, (byte) 0x01,
+				(byte) 0x0F, (byte) 0x00 };
+		Mockito.verify(dlmsConnection).sendUnconfirmedRequest(expected);
+	}
+
+
+	@Test
+	public final void testInitializeFOTADefaultBehaviour() throws IOException {
+		ProtocolLink protocolLink = Mockito.mock(ProtocolLink.class);
+		DLMSConnection dlmsConnection = Mockito.mock(DLMSConnection.class);
+		Mockito.when(protocolLink.getDLMSConnection()).thenReturn(dlmsConnection);
+		Mockito.when(dlmsConnection.getInvokeIdAndPriorityHandler()).thenReturn(new NonIncrementalInvokeIdAndPriorityHandler((byte) 0x421));
+		Mockito.when(dlmsConnection.sendRequest(Mockito.any())).thenReturn(new byte[] {0x00, 0x00, 0x00, 0x0D, 0x00, 0x00, 0x03, 0x01});
+		ImageTransfer transfer = new ImageTransfer(protocolLink);
+		transfer.initializeFOTA(false);
+		byte[] expected = new byte[] {(byte) 0xE6, (byte) 0xE6, (byte) 0x00, (byte) 0xC3, (byte) 0x01, (byte) 0x21, (byte) 0x00, (byte) 0x12, (byte) 0x00, (byte) 0x00, (byte) 0x2C, (byte) 0x00, (byte) 0x00, (byte) 0xFF, (byte) 0x01, (byte) 0x01,
+				(byte) 0x02, (byte) 0x02,  // structure 2 objects
+				(byte) 0x09, (byte) 0x03, (byte) 0x01, (byte) 0x0F, (byte) 0x00, // octet string with length of 3 bytes
+				(byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x01 }; // double long unsigned fixed size of 4 bytes
+		Mockito.verify(dlmsConnection).sendUnconfirmedRequest(expected);
+	}
+
+
+
 }
