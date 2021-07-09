@@ -1077,7 +1077,9 @@ public final class DeviceMessageConstants {
     public static final String VoltageRatioNumeratorAttributeName = "PowerConfigurationDeviceMessage.voltagerationumerator";
     public static final String CurrentRatioDenominatorAttributeName = "PowerConfigurationDeviceMessage.currentratiodenominator";
     public static final String CurrentRatioNumeratorAttributeName = "PowerConfigurationDeviceMessage.currentrationumerator";
-    public static final String VoltageRatioDefaultTranslation = "Write voltage and current ratios";
+    public static final String VoltageAndCurrentRatioDefaultTranslation = "Write voltage and current ratios";
+    public static final String VoltageRatioDefaultTranslation = "Write voltage ratio";
+    public static final String CurrentRatioDefaultTranslation = "Write current ratio";
     public static final String ThresholdForDemandCloseToContractPowerAttributeName = "PowerConfigurationDeviceMessage.thresholdDemandCloseToContractPower";
     public static final String PassiveDemandControlThresholdObisAttributeName = "PowerConfigurationDeviceMessage.passiveDemandControlThresholdObis";
     public static final String PassiveDemandControlThresholdValueAttributeName = "PowerConfigurationDeviceMessage.passiveDemandControlThresholdValue";
