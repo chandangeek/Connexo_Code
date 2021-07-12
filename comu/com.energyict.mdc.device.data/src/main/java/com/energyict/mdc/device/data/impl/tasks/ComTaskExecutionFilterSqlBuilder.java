@@ -7,7 +7,6 @@ package com.energyict.mdc.device.data.impl.tasks;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
@@ -25,6 +24,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Builds the SQL query that finds all {@link ComTaskExecution}s
@@ -118,7 +118,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         }
         if (!this.connectionTasksIds.isEmpty()) {
             this.appendWhereOrAnd();
-            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().collect(FancyJoiner.joining(",", "")) + ")");
+            this.append("cte.connectiontask IN (" + connectionTasksIds.stream().map(Object::toString).collect(Collectors.joining(",")) + ")");
         }
         return this.getActualBuilder();
     }
