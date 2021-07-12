@@ -38,7 +38,7 @@ public class EI7LoadProfileDataReader extends A2ProfileDataReader {
 
     @Override
     protected boolean isProfileStatus(ObisCode obisCode) {
-        return EI7_LOAD_PROFILE_STATUS.equals(obisCode);
+        return EI7_LOAD_PROFILE_STATUS.equalsIgnoreBChannel(obisCode);
     }
 
 }
