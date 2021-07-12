@@ -38,7 +38,7 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.List;
@@ -61,6 +61,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     private volatile PriorityComTaskService priorityComTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile Clock clock;
 
     public UpdateCreditAmountServiceCallHandler() {
         super();
@@ -70,7 +71,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     public UpdateCreditAmountServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus,
                                                 CompletionOptionsCallBack completionOptionsCallBack, CommunicationTaskService communicationTaskService,
                                                 EngineConfigurationService engineConfigurationService, PriorityComTaskService priorityComTaskService,
-                                                DeviceMessageService deviceMessageService) {
+                                                DeviceMessageService deviceMessageService, Clock clock) {
         super.setMessageService(messageService);
         this.setDeviceService(deviceService);
         super.setThesaurus(thesaurus);
@@ -79,7 +80,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         this.setEngineConfigurationService(engineConfigurationService);
         this.setPriorityComTaskService(priorityComTaskService);
         this.setDeviceMessageService(deviceMessageService);
-
+        this.setClock(clock);
     }
 
     public static final String APPLICATION = "MDC";
@@ -102,6 +103,11 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     @Reference
     public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
         this.priorityComTaskService = priorityComTaskService;
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
     }
 
     @Reference
@@ -155,7 +161,6 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         } else {
             BigDecimal currentValue = readings.get(0).getValue();
             BigDecimal previousValue = readings.get(1).getValue();
-            System.out.println((previousValue.add(desiredCreditAmount.getCreditAmount())).intValue());
             if (previousValue.add(desiredCreditAmount.getCreditAmount()).equals(currentValue)) {
                 serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", currentValue, desiredCreditAmount.getCreditType()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
@@ -175,7 +180,8 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         if (!readingType.isPresent()) {
             return Collections.EMPTY_LIST;
         }
-        return device.getMeter().getReadingsBefore(Instant.now(), readingType.get(), 2);
+        System.out.println(clock.instant().getEpochSecond());
+        return device.getMeter().getReadingsBefore(clock.instant(), readingType.get(), 2);
     }
 
     private Optional<ReadingType> getReadingType(Device device, String desiredCreditType) {

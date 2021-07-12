@@ -47,6 +47,8 @@ import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
@@ -798,4 +800,6 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     User getComServerUser();
 
     List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort);
+
+    void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage);
 }

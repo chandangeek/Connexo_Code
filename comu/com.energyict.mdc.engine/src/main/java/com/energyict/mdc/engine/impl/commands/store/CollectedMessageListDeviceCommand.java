@@ -13,13 +13,16 @@ import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedMessageListEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageWithCollectedRegisterData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.tasks.CompletionCode;
+import com.energyict.obis.ObisCode;
 
 import java.util.List;
 import java.util.Optional;
@@ -117,6 +120,10 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
                     collectedMessage.getNewDeviceMessageStatus(),
                     collectedMessage.getSentDate(),
                     collectedMessage.getDeviceProtocolInformation());
+
+           Optional<CollectedRegister> collectedRegisterBreakerStatus = getCollectedRegisterBreakerStatus(collectedMessage);
+            collectedRegisterBreakerStatus.ifPresent(collectedRegister -> comServerDAO.storeBreakerStatus(collectedRegisterBreakerStatus.get(), collectedMessage));
+
             ((CollectedDeviceData) collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
         } catch (Throwable t) {
             addIssueToExecutionLogger(CompletionCode.UnexpectedError,
@@ -124,4 +131,9 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
         }
     }
 
+    private  Optional<CollectedRegister> getCollectedRegisterBreakerStatus(CollectedMessage collectedMessage) {
+        return ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getCollectedRegisters().stream()
+                .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(ObisCode.fromString("0.0.96.3.10.255")))
+                .findFirst();
+    }
 }

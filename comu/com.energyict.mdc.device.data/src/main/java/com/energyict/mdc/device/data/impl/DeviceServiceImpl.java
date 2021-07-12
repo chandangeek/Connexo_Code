@@ -82,7 +82,6 @@ import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.Introspector;
 
-import com.google.common.collect.Range;
 import org.osgi.service.event.EventConstants;
 
 import javax.inject.Inject;
@@ -690,12 +689,6 @@ class DeviceServiceImpl implements ServerDeviceService {
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
         }
-    }
-
-    @Override
-    public void transferActiveBreakerStatusToDb(Device device, BreakerStatus breakerStatus) {
-      ActivatedBreakerStatus activatedBreakerStatus =  newActivatedBreakerStatusFrom(device, breakerStatus, Interval.of(Range.atLeast(Instant.now())));
-      activatedBreakerStatus.store();
     }
 
     @Override

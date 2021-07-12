@@ -18,6 +18,8 @@ import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
@@ -777,5 +779,10 @@ public class MockComServerDAO implements ComServerDAO {
     @Override
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return Collections.emptyList();
+    }
+
+    @Override
+    public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
+        //no implementation is needed
     }
 }

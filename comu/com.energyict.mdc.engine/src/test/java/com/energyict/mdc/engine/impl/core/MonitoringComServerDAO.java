@@ -41,6 +41,8 @@ import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
@@ -640,6 +642,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return Collections.emptyList();
     }
 
+    @Override
+    public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
+        //no implementation is needed
+    }
+
     private class VerifyingComServerDAO implements ComServerDAO {
         private CounterVerifier verifier;
 
@@ -1148,6 +1155,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
             return Collections.emptyList();
+        }
+
+        @Override
+        public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
+            //no implementation is needed
         }
     }
 }

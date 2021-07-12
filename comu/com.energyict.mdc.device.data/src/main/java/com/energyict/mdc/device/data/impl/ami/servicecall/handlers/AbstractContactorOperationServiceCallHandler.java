@@ -8,25 +8,18 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.obis.ObisCode;
-import com.google.common.collect.Range;
 
 import java.text.MessageFormat;
-import java.time.Instant;
-import java.util.Arrays;
 import java.util.Optional;
 
 import static com.elster.jupiter.metering.ami.CompletionMessageInfo.CompletionMessageStatus;
@@ -84,15 +77,14 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
     @Override
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
-        Optional<BreakerStatus> breakerStatus = getActiveBreakerStatus(device);
+        Optional<ActivatedBreakerStatus> breakerStatus = deviceService.getActiveBreakerStatus(device);
 
         if (!breakerStatus.isPresent()) {
             serviceCall.log(LogLevel.SEVERE, "Device doesn't have register of type Contactor status");
             getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {
-            deviceService.transferActiveBreakerStatusToDb(device, breakerStatus.get());
-            if (breakerStatus.get().equals(getDesiredBreakerStatus())) {
+            if (breakerStatus.get().getBreakerStatus().equals(getDesiredBreakerStatus())) {
                 serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
@@ -103,17 +95,6 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
         }
-    }
-
-    private Optional<BreakerStatus> getActiveBreakerStatus(Device device) {
-        return device.getRegisters().stream()
-                .filter(register -> register.getRegisterTypeObisCode().equals(BREAKER_STATUS))
-                .findAny()
-                .map(Register::getLastReading)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .map(NumericalReading.class::cast)
-                .map(val -> val.getValue().intValue() == 1 ? BreakerStatus.CONNECTED : BreakerStatus.DISCONNECTED);
     }
 
     protected abstract BreakerStatus getDesiredBreakerStatus();

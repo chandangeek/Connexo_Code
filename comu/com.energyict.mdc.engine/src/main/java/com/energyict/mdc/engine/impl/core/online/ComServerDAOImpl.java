@@ -105,6 +105,8 @@ import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
+import com.energyict.mdc.engine.impl.meterdata.DeviceBreakerStatus;
+import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageWithCollectedRegisterData;
 import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -117,6 +119,7 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
@@ -124,6 +127,8 @@ import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
@@ -2093,6 +2098,19 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return serviceProvider.engineConfigurationService().findContainingActiveComPortPoolsForComPort(comPort);
+    }
+
+    @Override
+    public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
+        BigDecimal breakerStatus = collectedRegister.getCollectedQuantity().getAmount();
+        DeviceBreakerStatus deviceBreakerStatus = new DeviceBreakerStatus(((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getDeviceIdentifier());
+        if (breakerStatus.equals(BigDecimal.ONE)) {
+            deviceBreakerStatus.setBreakerStatus(BreakerStatus.CONNECTED);
+        } else {
+            deviceBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
+        }
+        updateBreakerStatus(deviceBreakerStatus);
+
     }
 
     private Register getStorageRegister(Register register, Instant readingDate) {

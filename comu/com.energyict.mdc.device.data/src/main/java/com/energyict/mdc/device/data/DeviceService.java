@@ -215,11 +215,6 @@ public interface DeviceService {
     void deleteOutdatedComTaskExecutionTriggers();
 
     /**
-     * Copy breaker status {@link BreakerStatus} to table ddc_breaker_status<br/>
-     */
-    void transferActiveBreakerStatusToDb(Device device, BreakerStatus breakerStatus);
-
-    /**
      * Returns true if the provided {@link CertificateWrapper} is still referenced by a KeyAccessor
      * @param certificate The to-be-checked for usage {@link CertificateWrapper}
      * @return true if in use, false otherwise

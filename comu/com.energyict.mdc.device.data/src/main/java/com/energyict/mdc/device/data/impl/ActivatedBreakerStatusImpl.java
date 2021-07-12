@@ -19,7 +19,6 @@ import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -95,19 +94,6 @@ public class ActivatedBreakerStatusImpl implements ActivatedBreakerStatus {
         doUpdate();
     }
 
-    @Override
-    public void store() {
-        if (getId() == 0) {
-            doStorePersist();
-            return;
-        }
-        doStore();
-    }
-
-    private void doStore() {
-        Save.UPDATE.save(dataModel, this);
-    }
-
     private void doPersist() {
         Save.CREATE.validate(dataModel, this);
         getActivatedBreakerStatus().ifPresent(activatedBreakerStatus -> {
@@ -115,14 +101,6 @@ public class ActivatedBreakerStatusImpl implements ActivatedBreakerStatus {
         });
         dataModel.persist(this);
         notifyCreated();
-    }
-
-    private void doStorePersist() {
-        Save.CREATE.validate(dataModel, this);
-        getActivatedBreakerStatus().ifPresent(activatedBreakerStatus -> {
-            ((ActivatedBreakerStatusImpl) activatedBreakerStatus).expiredAt(this.getInterval().getStart());
-        });
-        dataModel.persist(this);
     }
 
     private Optional<ActivatedBreakerStatus> getActivatedBreakerStatus() {

@@ -60,6 +60,8 @@ import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
@@ -260,6 +262,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         JSONObject response = post(QueryMethod.FindContainingComPortPoolsForComPort, queryParameters);
         Long[] comPortPoolIds = toArrayObject(response, new ObjectParser<Long[]>(), Long[].class);
         return CollectionConverter.convertGenericArrayToList(comPortPoolIds);
+    }
+
+    @Override
+    public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
+        //no implementation is needed
     }
 
     @Override
