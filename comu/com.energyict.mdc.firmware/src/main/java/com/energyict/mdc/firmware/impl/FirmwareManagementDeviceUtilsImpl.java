@@ -99,17 +99,15 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private void initFirmwareMessages() {
         Map<FirmwareType, List<DeviceMessage>> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
-        this.device.getMessages().stream().filter(candidate -> candidate.getSpecification() != null)
-                .filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
-                        && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
-                    if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
-
-                        gatherAllUploadMessages(uploadMessages, candidate);
-                    } else {
-                        activationMessages.put(candidate.getTrackingId(), candidate);
-                    }
-                });
-        for (List<DeviceMessage> messages : uploadMessages.values()) {
+        // only firmware upgrade, no revoked messages and only one message for each firmware type
+        this.device.getDeviceFirmwareMessages().stream().forEach(candidate -> {
+            if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
+                gatherAllUploadMessages(uploadMessages, candidate);
+            } else {
+                activationMessages.put(candidate.getTrackingId(), candidate);
+            }
+        });
+        for (List<DeviceMessage> messages : uploadMessages.values())
             this.firmwareMessages.addAll(messages);
         }
         this.firmwareMessages.addAll(this.firmwareMessages.stream()

@@ -166,6 +166,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
 import com.energyict.mdc.device.config.impl.DeviceConfigurationImpl;
 import com.energyict.mdc.device.config.impl.DeviceTypeImpl;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CannotChangeDeviceConfigStillUnresolvedConflicts;
 import com.energyict.mdc.device.data.exceptions.CannotDeleteComScheduleFromDevice;
@@ -305,6 +306,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private ThreadPrincipalService threadPrincipalService;
     private UserPreferencesService userPreferencesService;
     private DeviceConfigurationService deviceConfigurationService;
+    private DeviceMessageService deviceMessageService;
     private MessageService messageService;
     private JsonService jsonService;
 
@@ -400,6 +402,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             ThreadPrincipalService threadPrincipalService,
             UserPreferencesService userPreferencesService,
             DeviceConfigurationService deviceConfigurationService,
+            DeviceMessageService deviceMessageService,
             ServerDeviceService deviceService,
             LockService lockService,
             SecurityManagementService securityManagementService,
@@ -425,6 +428,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.threadPrincipalService = threadPrincipalService;
         this.userPreferencesService = userPreferencesService;
         this.deviceConfigurationService = deviceConfigurationService;
+        this.deviceMessageService = deviceMessageService;
         this.deviceService = deviceService;
         this.lockService = lockService;
         // Helper to get activation info... from 'Kore'
@@ -1868,6 +1872,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public List<DeviceMessage> getMessages() {
         return Collections.unmodifiableList(this.deviceMessages);
+    }
+
+    @Override
+    public List<DeviceMessage> getDeviceFirmwareMessages() {
+        return deviceMessageService.findDeviceFirmwareMessages(this);
     }
 
     @Override

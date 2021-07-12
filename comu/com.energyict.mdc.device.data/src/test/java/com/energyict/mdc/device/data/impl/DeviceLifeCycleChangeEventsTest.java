@@ -35,6 +35,7 @@ import com.energyict.mdc.common.device.data.DeviceLifeCycleChangeEvent;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
@@ -142,6 +143,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private UserPreferencesService userPreferencesService;
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
+    @Mock
+    private DeviceMessageService deviceMessageService;
     @Mock
     private LockService lockService;
     @Mock
@@ -366,6 +369,7 @@ public class DeviceLifeCycleChangeEventsTest {
                 this.threadPrincipalService,
                 this.userPreferencesService,
                 this.deviceConfigurationService,
+                this.deviceMessageService,
                 deviceService,
                 lockService,
                 securityManagementService,

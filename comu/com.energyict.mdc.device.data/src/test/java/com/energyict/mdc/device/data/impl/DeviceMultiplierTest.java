@@ -37,6 +37,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.exceptions.MultiplierConfigurationException;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
@@ -141,6 +142,8 @@ public class DeviceMultiplierTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
+    private DeviceMessageService deviceMessageService;
+    @Mock
     private DeviceLifeCycle deviceLifeCycle;
     @Mock
     private FiniteStateMachine finiteStateMachine;
@@ -242,7 +245,7 @@ public class DeviceMultiplierTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService, communicationTaskService);
+                deviceConfigurationService, deviceMessageService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService, communicationTaskService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();
