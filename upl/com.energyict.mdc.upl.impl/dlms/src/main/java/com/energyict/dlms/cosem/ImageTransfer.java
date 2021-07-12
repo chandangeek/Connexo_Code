@@ -3,6 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.BooleanObject;
