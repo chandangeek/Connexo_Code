@@ -16,7 +16,7 @@ import java.time.Instant;
  * @since 7/04/2016 - 11:06
  */
 public interface ActivatedBreakerStatus extends Effectivity {
-   ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
+   ObisCode BREAKER_STATUS_OBIS_CODE = ObisCode.fromString("0.0.96.3.10.255");
 
     long getId();
 

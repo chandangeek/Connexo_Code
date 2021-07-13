@@ -188,7 +188,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     public Optional<EndDeviceEventDetail> createEndDeviceDetailsForContactorStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         return device.getRegisters().stream()
-                .filter(register -> register.getRegisterTypeObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS))
+                .filter(register -> register.getRegisterTypeObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS_OBIS_CODE))
                 .findAny()
                 .map(Register::getLastReading)
                 .filter(Optional::isPresent)
@@ -204,8 +204,8 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     public Optional<EndDeviceEventDetail> createEndDeviceDetailsForCreditStatus (ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         return device.getRegisters().stream()
-                .filter(register -> (register.getRegisterTypeObisCode().equals(CreditAmount.IMPORT_CREDIT) ||
-                        register.getRegisterTypeObisCode().equals(CreditAmount.EMERGENCY_CREDIT)))
+                .filter(register -> (register.getRegisterTypeObisCode().equals(CreditAmount.IMPORT_CREDIT_OBIS_CODE) ||
+                        register.getRegisterTypeObisCode().equals(CreditAmount.EMERGENCY_CREDIT_OBIS_CODE)))
                 .findAny()
                 .map(Register::getLastReading)
                 .filter(Optional::isPresent)

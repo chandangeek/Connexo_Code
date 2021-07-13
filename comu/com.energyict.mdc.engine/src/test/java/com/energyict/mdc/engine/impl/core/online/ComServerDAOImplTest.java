@@ -583,6 +583,36 @@ public class ComServerDAOImplTest {
     }
 
     @Test
+    public void updateBreakerStatusWhenDifferentActivatedBreakerStatusAlreadyExistsTest() {
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
+        ActivatedBreakerStatus activatedBreakerStatus = mock(ActivatedBreakerStatus.class);
+        when(activatedBreakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
+        when(this.deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
+
+        CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
+        collectedBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
+
+        ArgumentCaptor<Device> deviceCaptor = ArgumentCaptor.forClass(Device.class);
+        ArgumentCaptor<BreakerStatus> breakerStatusCaptor = ArgumentCaptor.forClass(BreakerStatus.class);
+        ArgumentCaptor<Interval> intervalCaptor = ArgumentCaptor.forClass(Interval.class);
+        when(this.deviceService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
+
+        // Business methods
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus, false, true);
+
+        // asserts
+        verify(this.deviceService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
+
+        assertThat(deviceCaptor.getValue()).isEqualTo(device);
+        assertThat(breakerStatusCaptor.getValue()).isEqualTo(BreakerStatus.ARMED);
+        assertThat(intervalCaptor.getValue()).isNotNull();
+        Range<Instant> range = intervalCaptor.getValue().toClosedRange();
+        assertThat(range.hasUpperBound()).isFalse();
+        assertThat(range.hasLowerBound()).isTrue();
+        assertThat(range.lowerEndpoint().minusMillis(1)).isLessThan(Instant.now());
+    }
+
+    @Test
     public void updateCalendarsDelegatesToDevice() {
         CollectedCalendar collectedCalendar = mock(CollectedCalendar.class);
         when(collectedCalendar.isEmpty()).thenReturn(false);

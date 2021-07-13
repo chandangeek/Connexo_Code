@@ -43,24 +43,33 @@ class BreakerStatusStorage {
     }
 
     private ActivatedBreakerStatus createOrUpdateActiveVersion(Device device, BreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+       Instant now = now();
+        Optional<ActivatedBreakerStatus> activeBreakerStatus = getDeviceDataService().getActiveBreakerStatus(device);
        if (registerUpdateRequired) {
            Optional<String> mRid = device.getRegisters().stream()
-                   .filter(register -> register.getRegisterTypeObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS))
+                   .filter(register -> register.getRegisterTypeObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS_OBIS_CODE))
                    .map(Register::getReadingType)
                    .map(ReadingType::getMRID)
                    .findFirst();
            if (mRid.isPresent()) {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addReading(ReadingImpl.of(mRid.get(), BigDecimal.valueOf(collectedBreakerStatus.ordinal()), now()));
+                meterReading.addReading(ReadingImpl.of(mRid.get(), BigDecimal.valueOf(collectedBreakerStatus.ordinal()), now));
                 device.store(meterReading);
             }
        }
 
-       ActivatedBreakerStatus activatedBreakerStatus = createNewActiveBreakerStatus(device, collectedBreakerStatus);
-       activatedBreakerStatus.setLastChecked(now());
-       if (tableUpdateRequired) {
-         activatedBreakerStatus.save();
+       ActivatedBreakerStatus activatedBreakerStatus;
+       if (!checkIfBreakerStatusesAreEqual(collectedBreakerStatus, activeBreakerStatus)) {
+           activatedBreakerStatus = createNewActiveBreakerStatus(device, collectedBreakerStatus);
+       } else {
+           activatedBreakerStatus = activeBreakerStatus.get();
        }
+       activatedBreakerStatus.setLastChecked(now);
+
+       if (tableUpdateRequired) {
+           activatedBreakerStatus.save();
+       }
+
        return activatedBreakerStatus;
     }
 

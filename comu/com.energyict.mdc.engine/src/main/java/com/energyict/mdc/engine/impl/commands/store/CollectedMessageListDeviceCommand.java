@@ -145,12 +145,10 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
         DeviceIdentifier deviceIdentifier = ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getDeviceIdentifier();
         CollectedCreditAmount collectedCreditAmount = new DeviceCreditAmount(deviceIdentifier);
         BigDecimal creditAmount = collectedRegister.getCollectedQuantity().getAmount();
-        Optional<String> creditType = retrieveCreditType(collectedMessage, collectedRegister);
-        if (creditType.isPresent()) {
-            collectedCreditAmount.setCreditAmount(creditAmount);
-            collectedCreditAmount.setCreditType(creditType.get());
-            comServerDAO.updateCreditAmount(collectedCreditAmount, false, true);
-        }
+        String creditType = retrieveCreditType(collectedRegister);
+        collectedCreditAmount.setCreditAmount(creditAmount);
+        collectedCreditAmount.setCreditType(creditType);
+        comServerDAO.updateCreditAmount(collectedCreditAmount, false, true);
     }
 
     private void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage, ComServerDAO comServerDAO) {
@@ -166,26 +164,19 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
         comServerDAO.updateBreakerStatus(deviceBreakerStatus, false , true);
     }
 
-    private Optional<String> retrieveCreditType(CollectedMessage collectedMessage, CollectedRegister collectedRegister) {
-        Optional<ObisCode> creditTypeObisCode = ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getCollectedRegisters().stream()
-                .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(collectedRegister.getRegisterIdentifier().getRegisterObisCode()))
-                .map(register -> register.getRegisterIdentifier().getRegisterObisCode())
-
-                .findFirst();
-        if (!creditTypeObisCode.isPresent()) {
-            return Optional.empty();
-        }
-        if (creditTypeObisCode.equals(CreditAmount.IMPORT_CREDIT)) {
-            return Optional.of("Import Credit");
+    private String retrieveCreditType(CollectedRegister collectedRegister) {
+        ObisCode creditTypeObisCode = collectedRegister.getRegisterIdentifier().getRegisterObisCode();
+        if (creditTypeObisCode.equals(CreditAmount.IMPORT_CREDIT_OBIS_CODE)) {
+            return "Import Credit";
         } else {
-            return Optional.of("Emergency Credit");
+            return "Emergency Credit";
         }
     }
 
     private Optional<CollectedRegister> getCollectedRegisterBreakerStatus(CollectedMessage collectedMessage) {
         if (collectedMessage instanceof DeviceProtocolMessageWithCollectedRegisterData) {
             return ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getCollectedRegisters().stream()
-                    .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS))
+                    .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS_OBIS_CODE))
                     .findFirst();
         }
             return Optional.empty();
@@ -194,8 +185,8 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     private  Optional<CollectedRegister> getCollectedRegisterCreditAmount(CollectedMessage collectedMessage) {
         if (collectedMessage instanceof DeviceProtocolMessageWithCollectedRegisterData) {
             return ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getCollectedRegisters().stream()
-                    .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(CreditAmount.IMPORT_CREDIT) ||
-                            register.getRegisterIdentifier().getRegisterObisCode().equals(CreditAmount.EMERGENCY_CREDIT))
+                    .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(CreditAmount.IMPORT_CREDIT_OBIS_CODE) ||
+                            register.getRegisterIdentifier().getRegisterObisCode().equals(CreditAmount.EMERGENCY_CREDIT_OBIS_CODE))
                     .findFirst();
         }
         return Optional.empty();

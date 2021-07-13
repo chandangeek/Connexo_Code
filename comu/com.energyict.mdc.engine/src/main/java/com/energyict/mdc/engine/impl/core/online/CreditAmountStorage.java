@@ -42,8 +42,9 @@ class CreditAmountStorage {
     }
 
     private CreditAmount createOrUpdate(Device device, CollectedCreditAmount collectedCreditAmount, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+        Instant now = now();
         if (registerUpdateRequired) {
-            ObisCode creditTypeObisCode = collectedCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT : CreditAmount.EMERGENCY_CREDIT;
+            ObisCode creditTypeObisCode = collectedCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT_OBIS_CODE : CreditAmount.EMERGENCY_CREDIT_OBIS_CODE;
             Optional<String> mRid = device.getRegisters().stream()
                     .filter(reg -> reg.getRegisterTypeObisCode().equals(creditTypeObisCode))
                     .map(Register::getReadingType)
@@ -51,11 +52,12 @@ class CreditAmountStorage {
                     .findFirst();
             if (mRid.isPresent()) {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addReading(ReadingImpl.of(mRid.get(), collectedCreditAmount.getCreditAmount().get(), now()));
+                meterReading.addReading(ReadingImpl.of(mRid.get(), collectedCreditAmount.getCreditAmount().get(), now));
                 device.store(meterReading);
             }
         }
         CreditAmount creditAmount = createNewCreditAmount(device, collectedCreditAmount);
+        creditAmount.setLastChecked(now);
         if (tableUpdateRequired) {
             creditAmount.save();
         }

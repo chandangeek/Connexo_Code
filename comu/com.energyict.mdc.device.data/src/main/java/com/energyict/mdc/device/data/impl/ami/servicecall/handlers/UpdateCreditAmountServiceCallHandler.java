@@ -144,7 +144,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
-        String desiredCreditTypeObisCode = desiredCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT.getValue() : CreditAmount.EMERGENCY_CREDIT.getValue();
+        String desiredCreditTypeObisCode = desiredCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT_OBIS_CODE.getValue() : CreditAmount.EMERGENCY_CREDIT_OBIS_CODE.getValue();
 
         Optional<ReadingType> readingType = getReadingType(device, desiredCreditTypeObisCode);
         List<? extends BaseReadingRecord> readings;
