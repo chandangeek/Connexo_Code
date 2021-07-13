@@ -63,7 +63,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -581,7 +580,6 @@ public class ComServerDAOImplTest {
         assertThat(range.hasLowerBound()).isTrue();
         assertThat(range.lowerEndpoint().minusMillis(1)).isLessThan(Instant.now());
     }
-
     @Test
     public void updateBreakerStatusWhenDifferentActivatedBreakerStatusAlreadyExistsTest() {
         when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
@@ -610,6 +608,24 @@ public class ComServerDAOImplTest {
         assertThat(range.hasUpperBound()).isFalse();
         assertThat(range.hasLowerBound()).isTrue();
         assertThat(range.lowerEndpoint().minusMillis(1)).isLessThan(Instant.now());
+    }
+
+    @Test
+    public void updateLastCheckedForExistingBreakerStatusTest() {
+        when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
+        ActivatedBreakerStatus activatedBreakerStatus = mock(ActivatedBreakerStatus.class);
+        when(activatedBreakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
+        when(this.deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(activatedBreakerStatus));
+
+        CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
+        collectedBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
+
+        // business method
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus, false, true);
+
+        // asserts
+        verify(activatedBreakerStatus).setLastChecked(any(Instant.class));
+        verify(this.deviceService, never()).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
     }
 
     @Test
