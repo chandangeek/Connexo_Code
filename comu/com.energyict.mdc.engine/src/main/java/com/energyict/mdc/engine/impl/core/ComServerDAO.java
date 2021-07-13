@@ -47,8 +47,6 @@ import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
@@ -64,10 +62,12 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
+import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -801,5 +801,5 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort);
 
-    void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage);
+    Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode);
 }

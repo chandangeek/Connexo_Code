@@ -39,7 +39,6 @@ import org.osgi.service.component.annotations.Reference;
 import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Clock;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.List;
 
@@ -110,6 +109,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         this.clock = clock;
     }
 
+
     @Reference
     public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
         this.engineConfigurationService = engineConfigurationService;
@@ -148,40 +148,34 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         Device device = (Device) serviceCall.getTargetObject().get();
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
         String desiredCreditTypeObisCode = desiredCreditAmount.getCreditType().equals("Import Credit") ? IMPORT_CREDIT.getValue() : EMERGENCY_CREDIT.getValue();
-        Optional<ReadingType> readingType = getReadingType(device, desiredCreditTypeObisCode);
-        List<? extends BaseReadingRecord> readings = getComparableReadings(device, readingType);
 
-        if (readings.isEmpty()) {
-            serviceCall.log(LogLevel.SEVERE,  MessageFormat.format("Device doesn't have register of type {0}", desiredCreditAmount.getCreditType()));
+        Optional<ReadingType> readingType = getReadingType(device, desiredCreditTypeObisCode);
+        List<? extends BaseReadingRecord> readings;
+
+        if (!readingType.isPresent() || (readings = getComparableReadings(device, readingType.get())).isEmpty()) {
+            serviceCall.log(LogLevel.SEVERE, "Device doesn''t have a relevant register");
             getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
             serviceCall.requestTransition(DefaultState.FAILED);
-        } else if (readings.size() < 2) {
-            serviceCall.log(LogLevel.INFO, MessageFormat.format("Device doesn`t have previous value for credit amount of type {0}.", desiredCreditAmount.getCreditType()));
-            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             BigDecimal currentValue = readings.get(0).getValue();
-            BigDecimal previousValue = readings.get(1).getValue();
+            BigDecimal previousValue = readings.size() != 2 ? BigDecimal.ZERO : readings.get(1).getValue();
             if (previousValue.add(desiredCreditAmount.getCreditAmount()).equals(currentValue)) {
                 serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", currentValue, desiredCreditAmount.getCreditType()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 serviceCall.log(LogLevel.SEVERE,
-                   MessageFormat.format("Device credit amount {0} doesn't match the expected amount: {1} of type {2}.",
-                        currentValue.intValue(),
-                        (previousValue.add(desiredCreditAmount.getCreditAmount())).intValue(), desiredCreditAmount.getCreditType())
-                   );
+                        MessageFormat.format("Device credit amount {0} doesn''t match the expected amount: {1} of type {2}.",
+                                currentValue,
+                                (previousValue.add(desiredCreditAmount.getCreditAmount())), desiredCreditAmount.getCreditType())
+                );
                 getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
                 serviceCall.requestTransition(DefaultState.FAILED);
-           }
+            }
         }
     }
 
-    private List getComparableReadings(Device device, Optional<ReadingType> readingType) {
-        if (!readingType.isPresent()) {
-            return Collections.EMPTY_LIST;
-        }
-        System.out.println(clock.instant().getEpochSecond());
-        return device.getMeter().getReadingsBefore(clock.instant(), readingType.get(), 2);
+    private List<? extends BaseReadingRecord> getComparableReadings(Device device, ReadingType readingType) {
+        return device.getMeter().getReadingsBefore(clock.instant(), readingType, 2);
     }
 
     private Optional<ReadingType> getReadingType(Device device, String desiredCreditType) {

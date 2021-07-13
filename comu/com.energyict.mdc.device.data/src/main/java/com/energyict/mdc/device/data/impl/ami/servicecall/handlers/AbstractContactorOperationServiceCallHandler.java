@@ -80,7 +80,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         Optional<ActivatedBreakerStatus> breakerStatus = deviceService.getActiveBreakerStatus(device);
 
         if (!breakerStatus.isPresent()) {
-            serviceCall.log(LogLevel.SEVERE, "Device doesn't have register of type Contactor status");
+            serviceCall.log(LogLevel.SEVERE, "Device doesn''t have a relevant register");
             getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {
@@ -88,7 +88,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
                 serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device breaker status: {0}", breakerStatus));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn't match expected status {1}",
+                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device breaker status {0} doesn''t match expected status {1}",
                         breakerStatus,
                         getDesiredBreakerStatus()));
                 getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageStatus.FAILURE, FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);

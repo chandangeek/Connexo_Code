@@ -66,6 +66,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -105,8 +106,6 @@ import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.SingleThreadedComJobFactory;
 import com.energyict.mdc.engine.impl.core.remote.DeviceProtocolCacheXmlWrapper;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
-import com.energyict.mdc.engine.impl.meterdata.DeviceBreakerStatus;
-import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageWithCollectedRegisterData;
 import com.energyict.mdc.engine.security.Privileges;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -119,7 +118,6 @@ import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
@@ -127,8 +125,6 @@ import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
@@ -145,6 +141,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -2101,16 +2098,17 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
-        BigDecimal breakerStatus = collectedRegister.getCollectedQuantity().getAmount();
-        DeviceBreakerStatus deviceBreakerStatus = new DeviceBreakerStatus(((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getDeviceIdentifier());
-        if (breakerStatus.equals(BigDecimal.ONE)) {
-            deviceBreakerStatus.setBreakerStatus(BreakerStatus.CONNECTED);
-        } else {
-            deviceBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
-        }
-        updateBreakerStatus(deviceBreakerStatus);
-
+    public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode creditType) {
+        Device device = findDevice(deviceIdentifier);
+            List<Register> listOfRegisters = device.getRegisters();
+            NumericalReading numericalReading;
+            for (Register register : listOfRegisters) {
+                if (register.getRegisterTypeObisCode().equals(creditType) && register.getLastReading().isPresent()) {
+                    numericalReading = (NumericalReading) register.getLastReading().get();
+                    return Optional.of(numericalReading.getValue());
+                }
+            }
+        return Optional.empty();
     }
 
     private Register getStorageRegister(Register register, Instant readingDate) {

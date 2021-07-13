@@ -4,11 +4,16 @@
 
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
@@ -19,6 +24,8 @@ import java.util.Optional;
  * Provides functionality to create/update {@link CreditAmount creditAmountes}.
  */
 class CreditAmountStorage {
+    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
+    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
 
     private final DeviceService deviceDataService;
     private final Clock clock;
@@ -38,15 +45,29 @@ class CreditAmountStorage {
 
     private CreditAmount createOrUpdate(Device device, CollectedCreditAmount collectedCreditAmount) {
         Optional<CreditAmount> creditAmount = getDeviceDataService().getCreditAmount(device);
+        ObisCode creditTypeObisCode = collectedCreditAmount.getCreditType().equals("Import Credit") ? IMPORT_CREDIT : EMERGENCY_CREDIT;
+
+        Optional<String> mRid = device.getRegisters().stream()
+                .filter(reg -> reg.getRegisterTypeObisCode().equals(creditTypeObisCode))
+                .map(Register::getReadingType)
+                .map(ReadingType::getMRID)
+                .findFirst();
+
 
         CreditAmount newCreditAmount;
         if (!checkIfCreditAmountesAreEqual(collectedCreditAmount, creditAmount)) {
             newCreditAmount = createNewCreditAmount(device, collectedCreditAmount);
         } else {
             newCreditAmount = creditAmount.get();
+            if (mRid.isPresent()) {
+                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                meterReading.addReading(ReadingImpl.of(mRid.get(), newCreditAmount.getCreditAmount(), newCreditAmount.getLastChecked()));
+                device.store(meterReading);
+            }
         }
         newCreditAmount.setLastChecked(now());
         newCreditAmount.save();
+
         return newCreditAmount;
     }
 

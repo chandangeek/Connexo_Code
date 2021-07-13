@@ -71,8 +71,10 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -701,8 +703,8 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
-        //no implementation is needed
+    public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
+        return Optional.empty();
     }
 
     public BlockingQueue<ComJob> getJobQueue() {

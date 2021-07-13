@@ -61,8 +61,10 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -643,8 +645,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
-        //no implementation is needed
+    public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
+        return Optional.empty();
     }
 
     private class VerifyingComServerDAO implements ComServerDAO {
@@ -1158,8 +1160,8 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage) {
-            //no implementation is needed
+        public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
+            return Optional.empty();
         }
     }
 }

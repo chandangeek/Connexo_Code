@@ -12,18 +12,24 @@ import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.events.datastorage.CollectedMessageListEvent;
 import com.energyict.mdc.engine.impl.meterdata.CollectedDeviceData;
+import com.energyict.mdc.engine.impl.meterdata.DeviceBreakerStatus;
+import com.energyict.mdc.engine.impl.meterdata.DeviceCreditAmount;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageList;
 import com.energyict.mdc.engine.impl.meterdata.DeviceProtocolMessageWithCollectedRegisterData;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.CompletionCode;
 import com.energyict.obis.ObisCode;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -31,6 +37,10 @@ import java.util.stream.Collectors;
 public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<CollectedMessageListEvent> {
 
     public static final String DESCRIPTION_TITLE = "Collected message data";
+
+    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
+    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
+    private static final ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
 
     private final DeviceProtocolMessageList deviceProtocolMessageList;
     private final List<OfflineDeviceMessage> allDeviceMessages;
@@ -122,7 +132,12 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
                     collectedMessage.getDeviceProtocolInformation());
 
            Optional<CollectedRegister> collectedRegisterBreakerStatus = getCollectedRegisterBreakerStatus(collectedMessage);
-            collectedRegisterBreakerStatus.ifPresent(collectedRegister -> comServerDAO.storeBreakerStatus(collectedRegisterBreakerStatus.get(), collectedMessage));
+           Optional<CollectedRegister> collectedRegisterCreditAmount = getCollectedRegisterCreditAmount(collectedMessage);
+           if (collectedRegisterBreakerStatus.isPresent()) {
+             storeBreakerStatus(collectedRegisterBreakerStatus.get(), collectedMessage, comServerDAO);
+           } else if (collectedRegisterCreditAmount.isPresent()) {
+             storeCreditAmount(collectedRegisterCreditAmount.get(), collectedMessage, comServerDAO);
+           }
 
             ((CollectedDeviceData) collectedMessage).toDeviceCommand(this.meterDataStoreCommand, this.getServiceProvider()).execute(comServerDAO);
         } catch (Throwable t) {
@@ -131,9 +146,58 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
         }
     }
 
-    private  Optional<CollectedRegister> getCollectedRegisterBreakerStatus(CollectedMessage collectedMessage) {
+    private void storeCreditAmount(CollectedRegister collectedRegister, CollectedMessage collectedMessage, ComServerDAO comServerDAO) {
+        DeviceIdentifier deviceIdentifier = ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getDeviceIdentifier();
+        CollectedCreditAmount collectedCreditAmount = new DeviceCreditAmount(deviceIdentifier);
+        BigDecimal creditAmount = collectedRegister.getCollectedQuantity().getAmount();
+        Optional<ObisCode> creditTypeObisCode = defineCreditTypeObisCode(collectedMessage);
+        String creditType = defineCreditType(creditTypeObisCode.get());
+        collectedCreditAmount.setCreditAmount(creditAmount);
+        collectedCreditAmount.setCreditType(creditType);
+        comServerDAO.updateCreditAmount(collectedCreditAmount);
+    }
+
+    private void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage, ComServerDAO comServerDAO) {
+        BigDecimal breakerStatus = collectedRegister.getCollectedQuantity().getAmount();
+        DeviceBreakerStatus deviceBreakerStatus = new DeviceBreakerStatus(((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getDeviceIdentifier());
+        if (breakerStatus.equals(BigDecimal.ONE)) {
+            deviceBreakerStatus.setBreakerStatus(BreakerStatus.CONNECTED);
+        } else {
+            deviceBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
+        }
+        comServerDAO.updateBreakerStatus(deviceBreakerStatus);
+    }
+
+    private String defineCreditType(ObisCode creditTypeObisCode) {
+        if (creditTypeObisCode.equals(IMPORT_CREDIT)) {
+            return "Import Credit";
+        } else {
+            return "Emergency Credit";
+        }
+    }
+
+    private Optional<ObisCode> defineCreditTypeObisCode(CollectedMessage collectedMessage) {
         return ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getCollectedRegisters().stream()
-                .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(ObisCode.fromString("0.0.96.3.10.255")))
+                .map(register -> register.getRegisterIdentifier().getRegisterObisCode())
                 .findFirst();
+    }
+
+    private Optional<CollectedRegister> getCollectedRegisterBreakerStatus(CollectedMessage collectedMessage) {
+        if (collectedMessage instanceof DeviceProtocolMessageWithCollectedRegisterData) {
+            return ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getCollectedRegisters().stream()
+                    .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(BREAKER_STATUS))
+                    .findFirst();
+        }
+            return Optional.empty();
+    }
+
+    private  Optional<CollectedRegister> getCollectedRegisterCreditAmount(CollectedMessage collectedMessage) {
+        if (collectedMessage instanceof DeviceProtocolMessageWithCollectedRegisterData) {
+            return ((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getCollectedRegisters().stream()
+                    .filter(register -> register.getRegisterIdentifier().getRegisterObisCode().equals(IMPORT_CREDIT) ||
+                            register.getRegisterIdentifier().getRegisterObisCode().equals(EMERGENCY_CREDIT))
+                    .findFirst();
+        }
+        return Optional.empty();
     }
 }
