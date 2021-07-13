@@ -35,7 +35,7 @@ public class CollectedBreakerStatusDeviceCommand extends DeviceCommandImpl<Colle
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
-        comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+        comServerDAO.updateBreakerStatus(collectedBreakerStatus, true, true);
     }
 
     @Override

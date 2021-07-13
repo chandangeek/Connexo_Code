@@ -60,8 +60,6 @@ import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
@@ -77,7 +75,6 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.obis.ObisCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Range;
 import org.eclipse.jetty.websocket.api.Session;
@@ -89,7 +86,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -264,11 +260,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         JSONObject response = post(QueryMethod.FindContainingComPortPoolsForComPort, queryParameters);
         Long[] comPortPoolIds = toArrayObject(response, new ObjectParser<Long[]>(), Long[].class);
         return CollectionConverter.convertGenericArrayToList(comPortPoolIds);
-    }
-
-    @Override
-    public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
-        return Optional.empty();
     }
 
     @Override
@@ -530,12 +521,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 
     @Override
-    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
+    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 

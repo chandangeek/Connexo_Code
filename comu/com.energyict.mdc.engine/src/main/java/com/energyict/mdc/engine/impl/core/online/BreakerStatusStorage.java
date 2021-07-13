@@ -14,7 +14,6 @@ import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
-import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.math.BigDecimal;
@@ -26,7 +25,6 @@ import java.util.Optional;
  * Provides functionality to create/update {@link ActivatedBreakerStatus activatedBreakerStatuses}.
  */
 class BreakerStatusStorage {
-    private static final ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
 
     private final DeviceService deviceDataService;
     private final Clock clock;
@@ -40,32 +38,30 @@ class BreakerStatusStorage {
         return this.deviceDataService;
     }
 
-    void updateBreakerStatus(Optional<BreakerStatus> collectedBreakerStatus, Device device) {
-        collectedBreakerStatus.ifPresent(breakerStatus -> createOrUpdateActiveVersion(device, breakerStatus));
+    void updateBreakerStatus(Optional<BreakerStatus> collectedBreakerStatus, Device device, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+        collectedBreakerStatus.ifPresent(breakerStatus -> createOrUpdateActiveVersion(device, breakerStatus, registerUpdateRequired, tableUpdateRequired));
     }
 
-    private ActivatedBreakerStatus createOrUpdateActiveVersion(Device device, BreakerStatus collectedBreakerStatus) {
-        Optional<ActivatedBreakerStatus> activeBreakerStatus = getDeviceDataService().getActiveBreakerStatus(device);
-        Optional<String> mRid = device.getRegisters().stream()
-                .filter(register -> register.getRegisterTypeObisCode().equals(BREAKER_STATUS))
-                .map(Register::getReadingType)
-                .map(ReadingType::getMRID)
-                .findFirst();
-
-        ActivatedBreakerStatus activatedBreakerStatus;
-        if (!checkIfBreakerStatusesAreEqual(collectedBreakerStatus, activeBreakerStatus)) {
-            activatedBreakerStatus = createNewActiveBreakerStatus(device, collectedBreakerStatus);
-        } else {
-            activatedBreakerStatus = activeBreakerStatus.get();
-            if (mRid.isPresent()) {
+    private ActivatedBreakerStatus createOrUpdateActiveVersion(Device device, BreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+       if (registerUpdateRequired) {
+           Optional<String> mRid = device.getRegisters().stream()
+                   .filter(register -> register.getRegisterTypeObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS))
+                   .map(Register::getReadingType)
+                   .map(ReadingType::getMRID)
+                   .findFirst();
+           if (mRid.isPresent()) {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addReading(ReadingImpl.of(mRid.get(), BigDecimal.valueOf(collectedBreakerStatus.ordinal()), activatedBreakerStatus.getLastChecked()));
+                meterReading.addReading(ReadingImpl.of(mRid.get(), BigDecimal.valueOf(collectedBreakerStatus.ordinal()), now()));
                 device.store(meterReading);
             }
-        }
-        activatedBreakerStatus.setLastChecked(now());
-        activatedBreakerStatus.save();
-        return activatedBreakerStatus;
+       }
+
+       ActivatedBreakerStatus activatedBreakerStatus = createNewActiveBreakerStatus(device, collectedBreakerStatus);
+       activatedBreakerStatus.setLastChecked(now());
+       if (tableUpdateRequired) {
+         activatedBreakerStatus.save();
+       }
+       return activatedBreakerStatus;
     }
 
     private Instant now() {

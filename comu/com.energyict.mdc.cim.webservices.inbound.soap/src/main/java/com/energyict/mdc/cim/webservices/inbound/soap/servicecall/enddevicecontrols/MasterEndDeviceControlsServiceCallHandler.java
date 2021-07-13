@@ -23,12 +23,13 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.energyict.cim.EndDeviceEventOrAction;
-import com.energyict.obis.ObisCode;
 
 import javax.inject.Inject;
 
@@ -45,9 +46,6 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
-    private static final ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
-    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
-    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
     private static final String CONTACTOR_OPEN_COMMAND = "3.31.0.23";
     private static final String CONTACTOR_CLOSE_COMMAND = "3.31.0.18";
     private static final String UPDATE_CREDIT_COMMAND = "3.20.22.13";
@@ -190,7 +188,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     public Optional<EndDeviceEventDetail> createEndDeviceDetailsForContactorStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         return device.getRegisters().stream()
-                .filter(register -> register.getRegisterTypeObisCode().equals(BREAKER_STATUS))
+                .filter(register -> register.getRegisterTypeObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS))
                 .findAny()
                 .map(Register::getLastReading)
                 .filter(Optional::isPresent)
@@ -206,8 +204,8 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     public Optional<EndDeviceEventDetail> createEndDeviceDetailsForCreditStatus (ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         return device.getRegisters().stream()
-                .filter(register -> (register.getRegisterTypeObisCode().equals(IMPORT_CREDIT) ||
-                        register.getRegisterTypeObisCode().equals(EMERGENCY_CREDIT)))
+                .filter(register -> (register.getRegisterTypeObisCode().equals(CreditAmount.IMPORT_CREDIT) ||
+                        register.getRegisterTypeObisCode().equals(CreditAmount.EMERGENCY_CREDIT)))
                 .findAny()
                 .map(Register::getLastReading)
                 .filter(Optional::isPresent)

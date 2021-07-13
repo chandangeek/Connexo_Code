@@ -62,12 +62,10 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Range;
 
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
@@ -765,9 +763,9 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
 
-    void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
+    void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired);
 
-    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount);
+    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, boolean registerUpdateRequired, boolean tableUpdateRequired);
 
     void updateDeviceCSR(DeviceIdentifier deviceIdentifier, String certificateType, String csr);
 
@@ -800,6 +798,4 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     User getComServerUser();
 
     List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort);
-
-    Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode);
 }

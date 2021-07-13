@@ -24,8 +24,6 @@ import java.util.Optional;
  * Provides functionality to create/update {@link CreditAmount creditAmountes}.
  */
 class CreditAmountStorage {
-    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
-    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
 
     private final DeviceService deviceDataService;
     private final Clock clock;
@@ -39,36 +37,29 @@ class CreditAmountStorage {
         return this.deviceDataService;
     }
 
-    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, Device device) {
-        collectedCreditAmount.getCreditAmount().ifPresent(creditAmount -> createOrUpdate(device, collectedCreditAmount));
+    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, Device device, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+        collectedCreditAmount.getCreditAmount().ifPresent(creditAmount -> createOrUpdate(device, collectedCreditAmount, registerUpdateRequired, tableUpdateRequired));
     }
 
-    private CreditAmount createOrUpdate(Device device, CollectedCreditAmount collectedCreditAmount) {
-        Optional<CreditAmount> creditAmount = getDeviceDataService().getCreditAmount(device);
-        ObisCode creditTypeObisCode = collectedCreditAmount.getCreditType().equals("Import Credit") ? IMPORT_CREDIT : EMERGENCY_CREDIT;
-
-        Optional<String> mRid = device.getRegisters().stream()
-                .filter(reg -> reg.getRegisterTypeObisCode().equals(creditTypeObisCode))
-                .map(Register::getReadingType)
-                .map(ReadingType::getMRID)
-                .findFirst();
-
-
-        CreditAmount newCreditAmount;
-        if (!checkIfCreditAmountesAreEqual(collectedCreditAmount, creditAmount)) {
-            newCreditAmount = createNewCreditAmount(device, collectedCreditAmount);
-        } else {
-            newCreditAmount = creditAmount.get();
+    private CreditAmount createOrUpdate(Device device, CollectedCreditAmount collectedCreditAmount, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+        if (registerUpdateRequired) {
+            ObisCode creditTypeObisCode = collectedCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT : CreditAmount.EMERGENCY_CREDIT;
+            Optional<String> mRid = device.getRegisters().stream()
+                    .filter(reg -> reg.getRegisterTypeObisCode().equals(creditTypeObisCode))
+                    .map(Register::getReadingType)
+                    .map(ReadingType::getMRID)
+                    .findFirst();
             if (mRid.isPresent()) {
                 MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addReading(ReadingImpl.of(mRid.get(), newCreditAmount.getCreditAmount(), newCreditAmount.getLastChecked()));
+                meterReading.addReading(ReadingImpl.of(mRid.get(), collectedCreditAmount.getCreditAmount().get(), now()));
                 device.store(meterReading);
             }
         }
-        newCreditAmount.setLastChecked(now());
-        newCreditAmount.save();
-
-        return newCreditAmount;
+        CreditAmount creditAmount = createNewCreditAmount(device, collectedCreditAmount);
+        if (tableUpdateRequired) {
+            creditAmount.save();
+        }
+        return creditAmount;
     }
 
     private Instant now() {

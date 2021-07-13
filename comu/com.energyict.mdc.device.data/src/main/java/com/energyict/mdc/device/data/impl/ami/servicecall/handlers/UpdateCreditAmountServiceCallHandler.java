@@ -31,7 +31,6 @@ import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 
-import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -52,8 +51,6 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
 
     public static final String VERSION = "v1.0";
     public static final String SERVICE_CALL_HANDLER_NAME = "UpdateCreditAmountServiceCallHandler";
-    private static final ObisCode IMPORT_CREDIT = ObisCode.fromString("0.0.19.10.0.255");
-    private static final ObisCode EMERGENCY_CREDIT = ObisCode.fromString("0.0.19.10.1.255");
 
     private volatile DeviceService deviceService;
     private volatile CommunicationTaskService communicationTaskService;
@@ -147,13 +144,13 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
-        String desiredCreditTypeObisCode = desiredCreditAmount.getCreditType().equals("Import Credit") ? IMPORT_CREDIT.getValue() : EMERGENCY_CREDIT.getValue();
+        String desiredCreditTypeObisCode = desiredCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT.getValue() : CreditAmount.EMERGENCY_CREDIT.getValue();
 
         Optional<ReadingType> readingType = getReadingType(device, desiredCreditTypeObisCode);
         List<? extends BaseReadingRecord> readings;
 
         if (!readingType.isPresent() || (readings = getComparableReadings(device, readingType.get())).isEmpty()) {
-            serviceCall.log(LogLevel.SEVERE, "Device doesn''t have a relevant register");
+            serviceCall.log(LogLevel.SEVERE, "Device doesn' t have a relevant register");
             getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
             serviceCall.requestTransition(DefaultState.FAILED);
         } else {

@@ -66,7 +66,6 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
-import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.TypedPropertiesValueAdapter;
 import com.energyict.mdc.device.data.exceptions.CanNotFindForIdentifier;
@@ -141,7 +140,6 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
@@ -1918,20 +1916,20 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedBreakerStatus.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
             BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceService(), serviceProvider.clock());
-            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device);
+            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device, registerUpdateRequired , tableUpdateRequired );
         });
     }
 
     @Override
-    public void updateCreditAmount(CollectedCreditAmount collectedCreditAmount) {
+    public void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedCreditAmount.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
             CreditAmountStorage creditAmountStorage = new CreditAmountStorage(getDeviceService(), serviceProvider.clock());
-            creditAmountStorage.updateCreditAmount(collectedCreditAmount, device);
+            creditAmountStorage.updateCreditAmount(collectedCreditAmount, device, registerUpdateRequired, tableUpdateRequired);
         });
     }
 
@@ -2095,20 +2093,6 @@ public class ComServerDAOImpl implements ComServerDAO {
     @Override
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return serviceProvider.engineConfigurationService().findContainingActiveComPortPoolsForComPort(comPort);
-    }
-
-    @Override
-    public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode creditType) {
-        Device device = findDevice(deviceIdentifier);
-            List<Register> listOfRegisters = device.getRegisters();
-            NumericalReading numericalReading;
-            for (Register register : listOfRegisters) {
-                if (register.getRegisterTypeObisCode().equals(creditType) && register.getLastReading().isPresent()) {
-                    numericalReading = (NumericalReading) register.getLastReading().get();
-                    return Optional.of(numericalReading.getValue());
-                }
-            }
-        return Optional.empty();
     }
 
     private Register getStorageRegister(Register register, Instant readingDate) {

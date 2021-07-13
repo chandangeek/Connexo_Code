@@ -7,6 +7,7 @@ package com.energyict.mdc.device.data;
 import com.elster.jupiter.orm.associations.Effectivity;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
 
@@ -15,6 +16,7 @@ import java.time.Instant;
  * @since 7/04/2016 - 11:06
  */
 public interface ActivatedBreakerStatus extends Effectivity {
+   ObisCode BREAKER_STATUS = ObisCode.fromString("0.0.96.3.10.255");
 
     long getId();
 

@@ -61,10 +61,8 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
-import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -459,11 +457,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 
-    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
+    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 
@@ -644,11 +642,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return Collections.emptyList();
     }
 
-    @Override
-    public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
-        return Optional.empty();
-    }
-
     private class VerifyingComServerDAO implements ComServerDAO {
         private CounterVerifier verifier;
 
@@ -751,10 +744,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+        public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         }
 
-        public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
+        public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         }
 
         @Override
@@ -1157,11 +1150,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
             return Collections.emptyList();
-        }
-
-        @Override
-        public Optional<BigDecimal> getCurrentCreditAmount(DeviceIdentifier deviceIdentifier, ObisCode obisCode) {
-            return Optional.empty();
         }
     }
 }
