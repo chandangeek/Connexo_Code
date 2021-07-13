@@ -39,7 +39,6 @@ import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.RegistersTask;
-import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.command.impl.exceptions.LimitsExceededForCommandException;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
@@ -51,10 +50,6 @@ import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
 import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ServerDeviceMessage;
-import com.energyict.mdc.device.data.impl.ami.commands.ArmRemoteSwitchCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.CloseRemoteSwitchCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.OpenRemoteSwitchCommand;
-import com.energyict.mdc.device.data.impl.ami.commands.UpdateCreditAmountCommand;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommunicationTestServiceCallDomainExtension;
@@ -447,11 +442,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         try {
             boolean needToExecuteComTaskWithPriority = withPriority && releaseDate.isBefore(clock.instant());
             checkComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
-            if (endDeviceCommand instanceof OpenRemoteSwitchCommand || endDeviceCommand instanceof CloseRemoteSwitchCommand
-                    || endDeviceCommand instanceof ArmRemoteSwitchCommand || endDeviceCommand instanceof UpdateCreditAmountCommand) {
-                // check Status Information com task exists and is manual system for 3 command types which trigger it in service call handlers
-                checkStatusInformationComTask(multiSenseDevice, needToExecuteComTaskWithPriority);
-            }
             List<DeviceMessage> deviceMessages = ((MultiSenseEndDeviceCommand) endDeviceCommand).createCorrespondingMultiSenseDeviceMessages(serviceCall, releaseDate);
             updateCommandServiceCallDomainExtension(serviceCall, deviceMessages, needToExecuteComTaskWithPriority);
             scheduleDeviceCommandsComTaskEnablement(findDeviceForEndDevice(endDeviceCommand.getEndDevice()), deviceMessages, needToExecuteComTaskWithPriority); // Intentionally reload the device here
@@ -490,29 +480,6 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
         if (withPriority && !canRunWithPriority(comTaskExecution)) {
             throw NoSuchElementException.comTaskToRunWithPriorityCouldNotBeLocated(thesaurus).get();
-        }
-    }
-
-    private void checkStatusInformationComTask(Device device, boolean withPriority) throws NoSuchElementException {
-        // just to check negative case when there is no ManualSystemTask of type StatusInformationTask
-        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration()
-                .getComTaskEnablements().stream()
-                .filter(cte -> cte.getComTask().isManualSystemTask())
-                .filter(cte -> cte.getComTask().getProtocolTasks().stream()
-                        .anyMatch(task -> task instanceof StatusInformationTask))
-                .findFirst()
-                .orElseThrow(() -> NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get());
-
-        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
-                .findFirst();
-        if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
-            throw NoSuchElementException.statusInformationComTaskCouldNotBeLocated(thesaurus).get();
-        }
-
-        ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
-        if (withPriority && !canRunWithPriority(comTaskExecution)) {
-            throw NoSuchElementException.statusInformationComTaskToRunWithPriorityCouldNotBeLocated(thesaurus).get();
         }
     }
 

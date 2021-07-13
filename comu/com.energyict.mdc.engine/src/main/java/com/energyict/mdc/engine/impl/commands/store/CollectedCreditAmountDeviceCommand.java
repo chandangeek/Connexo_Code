@@ -32,7 +32,7 @@ public class CollectedCreditAmountDeviceCommand extends DeviceCommandImpl<Collec
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO) {
-        comServerDAO.updateCreditAmount(collectedCreditAmount);
+        comServerDAO.updateCreditAmount(collectedCreditAmount, true, true);
     }
 
     @Override

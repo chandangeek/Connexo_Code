@@ -5,6 +5,8 @@
 package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.metering.BaseReadingRecord;
+import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -13,20 +15,14 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
-import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
-import com.energyict.mdc.common.tasks.StatusInformationTask;
-import com.energyict.mdc.device.data.CreditAmount;
-import com.energyict.mdc.device.data.DeviceDataServices;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
-import com.energyict.mdc.device.data.exceptions.NoSuchElementException;
-import com.energyict.mdc.device.data.impl.MessageSeeds;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandCustomPropertySet;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandOperationStatus;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDomainExtension;
@@ -41,9 +37,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.Objects;
+import java.time.Clock;
 import java.util.Optional;
+import java.util.List;
+
+import java.util.stream.Stream;
 
 @Component(name = "com.energyict.servicecall.ami.creditamount.handler",
         service = ServiceCallHandler.class,
@@ -59,6 +57,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     private volatile PriorityComTaskService priorityComTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile Clock clock;
 
     public UpdateCreditAmountServiceCallHandler() {
         super();
@@ -68,7 +67,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     public UpdateCreditAmountServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus,
                                                 CompletionOptionsCallBack completionOptionsCallBack, CommunicationTaskService communicationTaskService,
                                                 EngineConfigurationService engineConfigurationService, PriorityComTaskService priorityComTaskService,
-                                                DeviceMessageService deviceMessageService) {
+                                                DeviceMessageService deviceMessageService, Clock clock) {
         super.setMessageService(messageService);
         this.setDeviceService(deviceService);
         super.setThesaurus(thesaurus);
@@ -77,7 +76,7 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
         this.setEngineConfigurationService(engineConfigurationService);
         this.setPriorityComTaskService(priorityComTaskService);
         this.setDeviceMessageService(deviceMessageService);
-
+        this.setClock(clock);
     }
 
     public static final String APPLICATION = "MDC";
@@ -103,6 +102,12 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
     }
 
     @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+
+    @Reference
     public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
         this.engineConfigurationService = engineConfigurationService;
     }
@@ -124,99 +129,63 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
 
     @Override
     protected void handleAllDeviceCommandsExecutedSuccessfully(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
-        triggerStatusInformationTask(serviceCall, domainExtension);
+        switchToReadStatusInformation(serviceCall, domainExtension);
         serviceCall.requestTransition(DefaultState.WAITING);
+        serviceCall.requestTransition(DefaultState.ONGOING);
     }
 
-    private void triggerStatusInformationTask(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
-        serviceCall.log(LogLevel.INFO, "Scheduling status information task to verify credit amount...");
-        Device device = (Device) serviceCall.getTargetObject().get();
+    private void switchToReadStatusInformation(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
+        serviceCall.log(LogLevel.INFO, "Verifying credit amount via register");
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         serviceCall.update(domainExtension);
-
-        boolean withPriority = domainExtension.isRunWithPriority();
-
-        ComTaskEnablement comTaskEnablement = getStatusInformationComTaskEnablement(device, serviceCall);
-        Optional<ComTaskExecution> optionalExistingComTaskExecution = device.getComTaskExecutions().stream()
-                .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
-                .findFirst();
-        if (optionalExistingComTaskExecution.isPresent() && optionalExistingComTaskExecution.get().isOnHold()) {
-            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK).format());
-        }
-        ComTaskExecution existingComTaskExecution = optionalExistingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
-
-        if (withPriority && !canRunWithPriority(existingComTaskExecution)) {
-            throw NoSuchElementException.comTaskToRunWithPriorityCouldNotBeLocated(getThesaurus()).get();
-        }
-
-        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(existingComTaskExecution.getId())
-                .orElseThrow(() -> new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(existingComTaskExecution.getId())));
-
-        if (withPriority) {
-            Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(lockedComTaskExecution);
-            priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(lockedComTaskExecution));
-        }
-
-        lockedComTaskExecution.addNewComTaskExecutionTrigger(domainExtension.getReleaseDate());
-        lockedComTaskExecution.updateNextExecutionTimestamp();
-    }
-
-    private ComTaskExecution createAdHocComTaskExecution(Device device, ComTaskEnablement comTaskEnablement) {
-        ComTaskExecutionBuilder comTaskExecutionBuilder = device.newAdHocComTaskExecution(comTaskEnablement);
-        if (comTaskEnablement.hasPartialConnectionTask()) {
-            device.getConnectionTasks().stream()
-                    .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == comTaskEnablement.getPartialConnectionTask().get().getId())
-                    .findFirst()
-                    .ifPresent(comTaskExecutionBuilder::connectionTask);
-        }
-        ComTaskExecution manuallyScheduledComTaskExecution = comTaskExecutionBuilder.add();
-        device.save();
-        return manuallyScheduledComTaskExecution;
-    }
-
-    private ComTaskEnablement getStatusInformationComTaskEnablement(Device device, ServiceCall serviceCall) {
-        Optional<ComTaskEnablement> enablementOptional = device.getDeviceConfiguration()
-                .getComTaskEnablements()
-                .stream()
-                .filter(cte -> cte.getComTask().isManualSystemTask())
-                .filter(cte -> cte.getComTask().getProtocolTasks().stream()
-                        .anyMatch(StatusInformationTask.class::isInstance))
-                .findAny();
-        if (enablementOptional.isPresent()) {
-            return enablementOptional.get();
-        } else {
-            serviceCall.log(LogLevel.SEVERE, MessageSeeds.NO_STATUS_INFORMATION_COMTASK.getDefaultFormat());
-            getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.NO_COMTASK_TO_VERIFY_BREAKER_STATUS);
-            serviceCall.requestTransition(DefaultState.FAILED);
-            throw new IllegalStateException(getThesaurus().getFormat(MessageSeeds.NO_STATUS_INFORMATION_COMTASK).format());
-        }
     }
 
     @Override
     protected void verifyDeviceStatus(ServiceCall serviceCall) {
         Device device = (Device) serviceCall.getTargetObject().get();
-        Optional<CreditAmount> creditAmount = deviceService.getCreditAmount(device);
         CreditAmount desiredCreditAmount = getDesiredCreditAmount(device, serviceCall);
-        if (creditAmount.isPresent()) {
-            if (creditAmount.get().getCreditAmount().equals(desiredCreditAmount.getCreditAmount())
-                    && creditAmount.get().getCreditType().equals(desiredCreditAmount.getCreditType())) {
-                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", creditAmount.get().getCreditAmount(), creditAmount.get().getCreditType()));
+        String desiredCreditTypeObisCode = desiredCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT_OBIS_CODE.getValue() : CreditAmount.EMERGENCY_CREDIT_OBIS_CODE.getValue();
+
+        Optional<ReadingType> readingType = getReadingType(device, desiredCreditTypeObisCode);
+        List<? extends BaseReadingRecord> readings;
+
+        if (!readingType.isPresent() || (readings = getComparableReadings(device, readingType.get())).isEmpty()) {
+            serviceCall.log(LogLevel.SEVERE, "Device doesn' t have a relevant register");
+            getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
+            serviceCall.requestTransition(DefaultState.FAILED);
+        } else {
+            BigDecimal currentValue = readings.get(0).getValue();
+            BigDecimal previousValue = readings.size() != 2 ? BigDecimal.ZERO : readings.get(1).getValue();
+            if (previousValue.add(desiredCreditAmount.getCreditAmount()).equals(currentValue)) {
+                serviceCall.log(LogLevel.INFO, MessageFormat.format("Confirmed device credit amount: {0} of type {1}.", currentValue, desiredCreditAmount.getCreditType()));
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
-                serviceCall.log(LogLevel.SEVERE, MessageFormat.format("Device credit amount {0} of type {1} doesn''t match the expected amount: {2} of type {3}.",
-                        creditAmount.get().getCreditAmount(), creditAmount.get().getCreditType(),
-                        desiredCreditAmount.getCreditAmount(), desiredCreditAmount.getCreditType())
+                serviceCall.log(LogLevel.SEVERE,
+                        MessageFormat.format("Device credit amount {0} doesn''t match the expected amount: {1} of type {2}.",
+                                currentValue,
+                                (previousValue.add(desiredCreditAmount.getCreditAmount())), desiredCreditAmount.getCreditType())
                 );
                 getCompletionOptionsCallBack().sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_CREDIT_AMOUNT);
                 serviceCall.requestTransition(DefaultState.FAILED);
             }
-        } else {
-            //Else in case no credit amount is present, put the ServiceCall again in waiting state
-            serviceCall.requestTransition(DefaultState.WAITING);
         }
     }
 
+    private List<? extends BaseReadingRecord> getComparableReadings(Device device, ReadingType readingType) {
+        return device.getMeter().getReadingsBefore(clock.instant(), readingType, 2);
+    }
+
+    private Optional<ReadingType> getReadingType(Device device, String desiredCreditType) {
+        return Stream.of(device)
+                .map(Device::getRegisters)
+                .flatMap(List::stream)
+                .filter(register -> register.getDeviceObisCode().getValue().equals(desiredCreditType))
+                .findFirst()
+                .map(Register::getReadingType);
+    }
+
     private CreditAmount getDesiredCreditAmount(Device device, ServiceCall serviceCall) {
+
         String creditType = null;
         BigDecimal creditAmount = null;
         CommandServiceCallDomainExtension domainExtension = serviceCall.getExtensionFor(new CommandCustomPropertySet()).get();
@@ -236,17 +205,5 @@ public class UpdateCreditAmountServiceCallHandler extends AbstractOperationServi
             }
         }
         return deviceService.creditAmountFrom(device, creditType, creditAmount);
-    }
-
-    private Optional<ComTaskExecution> getLockedComTaskExecution(long id) {
-        return communicationTaskService.findAndLockComTaskExecutionById(id)
-                .filter(candidate -> !candidate.isObsolete());
-    }
-
-    private boolean canRunWithPriority(ComTaskExecution comTaskExecution) {
-        return comTaskExecution.getConnectionTask()
-                .filter(connectionTask -> Objects.nonNull(connectionTask.getComPortPool()) &&
-                        engineConfigurationService.calculateMaxPriorityConnections(connectionTask.getComPortPool(), connectionTask.getComPortPool().getPctHighPrioTasks()) > 0)
-                .isPresent();
     }
 }

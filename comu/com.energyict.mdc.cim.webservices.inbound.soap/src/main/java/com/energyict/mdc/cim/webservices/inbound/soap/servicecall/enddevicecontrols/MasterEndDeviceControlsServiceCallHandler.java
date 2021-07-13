@@ -4,6 +4,11 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontrols;
 
+import ch.iec.tc57._2011.enddeviceevents.Asset;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
+import ch.iec.tc57._2011.enddeviceevents.EndDeviceEventDetail;
+import ch.iec.tc57._2011.enddeviceevents.Name;
+import ch.iec.tc57._2011.enddeviceevents.NameType;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -17,12 +22,12 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.device.data.ActivatedBreakerStatus;
+import com.energyict.mdc.device.data.CreditAmount;
+import com.energyict.mdc.device.data.NumericalReading;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 
-import ch.iec.tc57._2011.enddeviceevents.Asset;
-import ch.iec.tc57._2011.enddeviceevents.EndDeviceEvent;
-import ch.iec.tc57._2011.enddeviceevents.Name;
-import ch.iec.tc57._2011.enddeviceevents.NameType;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.energyict.cim.EndDeviceEventOrAction;
 
@@ -40,6 +45,10 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     public static final String SERVICE_CALL_HANDLER_NAME = "MasterEndDeviceControls";
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
+
+    private static final String CONTACTOR_OPEN_COMMAND = "3.31.0.23";
+    private static final String CONTACTOR_CLOSE_COMMAND = "3.31.0.18";
+    private static final String UPDATE_CREDIT_COMMAND = "3.20.22.13";
 
     private final EndPointConfigurationService endPointConfigurationService;
     private final EndDeviceEventsServiceProvider endDeviceEventsServiceProvider;
@@ -112,6 +121,24 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
 
                 Optional<Device> device = (Optional<Device>) childSC.getTargetObject();
 
+                String commandCode =  subExtension.getCommandCode();
+                EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
+                Optional<EndDeviceEventDetail> endDeviceEventDetailOptional = Optional.empty();
+                switch (commandCode) {
+                    case CONTACTOR_OPEN_COMMAND:
+                    case CONTACTOR_CLOSE_COMMAND:
+                        endDeviceEventDetailOptional = createEndDeviceDetailsForContactorStatus(childSC);
+                        break;
+                    case UPDATE_CREDIT_COMMAND:
+                        endDeviceEventDetailOptional = createEndDeviceDetailsForCreditStatus(childSC);
+                        break;
+                    default:
+                        //nothing special to do
+                }
+
+                endDeviceEventDetailOptional.ifPresent(endDeviceEventDetail -> endDeviceEvent.getEndDeviceEventDetails()
+                        .add(endDeviceEventDetail));
+
                 if (childExtension.getError() != null) {
                     String name;
                     String mrid;
@@ -131,7 +158,6 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                     } else {
                         asset = createAsset(childExtension.getDeviceMrid(), childExtension.getDeviceName());
                     }
-                    EndDeviceEvent endDeviceEvent = new EndDeviceEvent();
                     endDeviceEvent.setAssets(asset);
                     endDeviceEvent.setCreatedDateTime(clock.instant());
 
@@ -153,6 +179,53 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
             serviceCall.log(LogLevel.INFO, "Sending " + events.size() + " event(s) and " + errorTypes.size() + " error(s).");
             endDeviceEventsServiceProvider.call(events, errorTypes, endPointConfigurationOptional.get(), extension.getCorrelationId());
         }
+    }
+
+    /**
+     *  Create {@link EndDeviceEventDetail} with information about breaker status
+     *  in case service call contains command to change breaker status
+     */
+    public Optional<EndDeviceEventDetail> createEndDeviceDetailsForContactorStatus(ServiceCall serviceCall) {
+        Device device = (Device) serviceCall.getTargetObject().get();
+        return device.getRegisters().stream()
+                .filter(register -> register.getRegisterTypeObisCode().equals(ActivatedBreakerStatus.BREAKER_STATUS_OBIS_CODE))
+                .findAny()
+                .map(Register::getLastReading)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(NumericalReading.class::cast)
+                .map(this::wrapContactorStatusToEndDeviceEventDetail);
+    }
+
+    /**
+     *  Create {@link EndDeviceEventDetail} with information about credit amount
+     *  in case service call contains command to change credit amount
+     */
+    public Optional<EndDeviceEventDetail> createEndDeviceDetailsForCreditStatus (ServiceCall serviceCall) {
+        Device device = (Device) serviceCall.getTargetObject().get();
+        return device.getRegisters().stream()
+                .filter(register -> (register.getRegisterTypeObisCode().equals(CreditAmount.IMPORT_CREDIT_OBIS_CODE) ||
+                        register.getRegisterTypeObisCode().equals(CreditAmount.EMERGENCY_CREDIT_OBIS_CODE)))
+                .findAny()
+                .map(Register::getLastReading)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(NumericalReading.class::cast)
+                .map(this::wrapCreditAmountToEndDeviceEventDetail);
+    }
+
+    private EndDeviceEventDetail wrapContactorStatusToEndDeviceEventDetail(NumericalReading reading) {
+        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+        endDeviceEventDetail.setName("Contactor status");
+        endDeviceEventDetail.setValue(reading.getValue().intValue() == 0 ? "Opened" : "Closed");
+        return endDeviceEventDetail;
+    }
+
+    private EndDeviceEventDetail wrapCreditAmountToEndDeviceEventDetail(NumericalReading reading) {
+        EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
+        endDeviceEventDetail.setName("Credit amount");
+        endDeviceEventDetail.setValue(reading.getValue().toString());
+        return endDeviceEventDetail;
     }
 
     /**
@@ -214,8 +287,8 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     enum CommandEventCodeMapping {
 
         DEFAULT(null, EndDeviceEventOrAction.PROCESSED, EndDeviceEventOrAction.ERROR),
-        CONTACTOR_CLOSE(CLOSE_REMOTE_SWITCH, EndDeviceEventOrAction.CONNECTED, EndDeviceEventOrAction.CONNECTFAILED),
-        CONTACTOR_OPEN(OPEN_REMOTE_SWITCH, EndDeviceEventOrAction.DISCONNECTED, EndDeviceEventOrAction.DISCONNECTFAILED),
+        CONTACTOR_CLOSE(CLOSE_REMOTE_SWITCH, EndDeviceEventOrAction.PROCESSED, EndDeviceEventOrAction.ERROR),
+        CONTACTOR_OPEN(OPEN_REMOTE_SWITCH, EndDeviceEventOrAction.PROCESSED, EndDeviceEventOrAction.ERROR),
         ;
 
         private final EndDeviceControlTypeMapping endDeviceControlTypeMapping;
