@@ -17,6 +17,6 @@ public class UpgraderV10_4_22 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 4, 19));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 4, 22));
     }
 }
