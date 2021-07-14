@@ -1875,7 +1875,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
-    public List<DeviceMessage> getDeviceFirmwareMessages() {
+    public List<DeviceMessage> getFirmwareMessages() {
         return deviceMessageService.findDeviceFirmwareMessages(this);
     }
 

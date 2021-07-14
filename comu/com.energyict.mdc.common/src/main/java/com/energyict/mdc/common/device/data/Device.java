@@ -163,7 +163,7 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
 
     List<DeviceMessage> getMessages();
 
-    List<DeviceMessage> getDeviceFirmwareMessages();
+    List<DeviceMessage> getFirmwareMessages();
 
     /**
      * Gets the released pending messages for this device.
