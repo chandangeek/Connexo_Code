@@ -8,8 +8,8 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimplv2.dlms.a2.A2Inbound;
-import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
-import com.energyict.protocolimplv2.dlms.ei7.properties.EI7DlmsProperties;
+import com.energyict.protocolimplv2.dlms.ei7.properties.EI7InboundConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.ei7.properties.EI7InboundDlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.util.ArrayList;
@@ -35,7 +35,7 @@ public class EI7Inbound extends A2Inbound {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-04-22$";
+        return "$Date: 2021-07-01$";
     }
 
     public boolean isPushingCompactFrames() {
@@ -75,19 +75,19 @@ public class EI7Inbound extends A2Inbound {
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        pushingCompactFrames = properties.getTypedProperty(EI7ConfigurationSupport.PUSHING_COMPACT_FRAMES, false);
+        pushingCompactFrames = properties.getTypedProperty(EI7InboundConfigurationSupport.PUSHING_COMPACT_FRAMES, false);
     }
 
-    public EI7DlmsProperties getDlmsProperties() {
+    public EI7InboundDlmsProperties getDlmsProperties() {
         if (dlmsProperties == null) {
-            dlmsProperties = new EI7DlmsProperties();
+            dlmsProperties = new EI7InboundDlmsProperties();
         }
-        return (EI7DlmsProperties) dlmsProperties;
+        return (EI7InboundDlmsProperties) dlmsProperties;
     }
 
     protected HasDynamicProperties getDlmsConfigurationSupport() {
         if (dlmsConfigurationSupport == null) {
-            dlmsConfigurationSupport = new EI7ConfigurationSupport(getPropertySpecService());
+            dlmsConfigurationSupport = new EI7InboundConfigurationSupport(getPropertySpecService());
         }
         return dlmsConfigurationSupport;
     }

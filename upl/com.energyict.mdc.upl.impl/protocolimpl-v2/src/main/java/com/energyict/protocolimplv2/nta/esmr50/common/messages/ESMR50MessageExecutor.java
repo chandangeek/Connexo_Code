@@ -316,7 +316,7 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     private void doInitiateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException, InterruptedException {
         getProtocol().journal("Initiating LTE Firmware image transfer.");
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer(LTE_IMAGE_TRANSFER_OBIS);
-        imageTransfer.initializeFOTA();
+        imageTransfer.initializeFOTA(true);
 
         final int max_attempt_count = 30; // 5 min wait for firmware downloading
         int attempt_count = 0;

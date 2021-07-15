@@ -95,7 +95,9 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
     protected void doRun() {
         if (prepareExecution()) {
             ComPortRelatedComChannel comChannel = listen();
-            this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor()), comChannel));
+            if (!comChannel.isVoid()) {
+                this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor()), comChannel));
+            }
         } else {
             waitForFreeResources();
         }

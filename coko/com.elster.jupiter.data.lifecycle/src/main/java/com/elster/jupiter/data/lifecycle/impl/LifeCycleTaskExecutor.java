@@ -26,7 +26,7 @@ public class LifeCycleTaskExecutor implements TaskExecutor {
         try {
             Logger logger = Logger.getAnonymousLogger();
             logger.addHandler(occurrence.createTaskLogHandler().asHandler());
-            lifeCycleService.execute(logger);
+            lifeCycleService.purgeData(logger);
         } catch (Exception e){
             postFailEvent(eventService, occurrence, e.getLocalizedMessage());
             throw e;

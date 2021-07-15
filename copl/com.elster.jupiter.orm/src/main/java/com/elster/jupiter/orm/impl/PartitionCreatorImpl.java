@@ -34,16 +34,22 @@ public class PartitionCreatorImpl implements PartitionCreator {
 		this.logger = logger;
 	}
 
+	@Override
 	public Instant create(Instant instant) {
+		return create(instant, false);
+	}
+
+	@Override
+	public Instant create(Instant instant, boolean dryRun) {
 		this.upTo = instant;
 		try {
-			return createPartitions();
+			return createPartitions(dryRun);
 		} catch (SQLException ex) {
 			throw new UnderlyingSQLFailedException(ex);
 		}
 	}
-	
-	private Instant createPartitions() throws SQLException {
+
+	private Instant createPartitions(boolean dryRun) throws SQLException {
 		List<Long> highValues = new ArrayList<>();
 		try (Connection connection = dataModel.getConnection(false)) {
 			try(PreparedStatement statement = connection.prepareStatement(partitionQuerySql())) {
@@ -75,7 +81,7 @@ public class PartitionCreatorImpl implements PartitionCreator {
 				.orElseThrow(() -> new RuntimeException("No partitions found for table " + tableName)); 
 			while (high < upTo.toEpochMilli()) {
 				high += PARTITIONSIZE;
-				createPartition(connection, high);
+				createPartition(connection, high, dryRun);
 			}
 			return Instant.ofEpochMilli(high);
 		}
@@ -97,11 +103,15 @@ public class PartitionCreatorImpl implements PartitionCreator {
 	}
 	
 	
-	private void createPartition(Connection connection, long end) throws SQLException {
+	private void createPartition(Connection connection, long end, boolean dryRun) throws SQLException {
 		String partitionName = "P" + Instant.ofEpochMilli(end).toString().replaceAll("-","").substring(0,8);
 		try (Statement statement = connection.createStatement()) {
-			statement.executeUpdate(createPartitionSql(tableName, partitionName, end));
-			logger.info("Created partition " + partitionName + " for table " + tableName);
+			String createPartitionStatement = createPartitionSql(tableName, partitionName, end);
+			logger.fine("Command for partition creation '" + createPartitionStatement + "'.");
+			if (!dryRun) {
+				statement.executeUpdate(createPartitionStatement);
+				logger.info("Created partition '" + partitionName + "' for table '" + tableName + "'.");
+			}
 		}
 	}
 	

@@ -206,6 +206,10 @@ public final class VaultImpl implements IVault {
     }
 
     public Instant extendTo(Instant to, Logger logger) {
+        return extendTo(to, false, logger);
+    }
+
+    public Instant extendTo(Instant to, boolean dryRun, Logger logger) {
         if (!isActive()) {
             throw new IllegalStateException("Vault " + getTableName() + " is not active");
         }
@@ -214,9 +218,9 @@ public final class VaultImpl implements IVault {
         }
         this.maxTime = to;
         if (isPartitioned()) {
-            this.maxTime = dataModel.partitionCreator(getTableName(), logger).create(to);
+            this.maxTime = dataModel.partitionCreator(getTableName(), logger).create(to, dryRun);
             if (hasJournal()) {
-                dataModel.partitionCreator(getJournalTableName(), logger).create(to);
+                dataModel.partitionCreator(getJournalTableName(), logger).create(to, dryRun);
             }
         }
         dataModel.update(this, "maxTime");
@@ -267,11 +271,11 @@ public final class VaultImpl implements IVault {
         return builder.toString();
     }
 
-    private String getTableName() {
+    String getTableName() {
         return getTableName(false);
     }
 
-    private String getJournalTableName() {
+    String getJournalTableName() {
         return getTableName(true);
     }
 

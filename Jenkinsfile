@@ -4,7 +4,8 @@
 //
 def MAVEN_REPO = "/home2/src/maven/repository"
 def MIRROR_CLONE = "/home2/src/maven/mirror"
-def MAXIMUM_COVERITY_ISSUES = 402
+def MAXIMUM_COVERITY_ISSUES = 476
+SENCHA_4 = "/home2/tools/y/Sencha/Cmd/4.0.5.87"
 SENCHA_4 = "/home2/tools/y/Sencha/Cmd/4.0.5.87"
 
 pipeline {
@@ -108,7 +109,7 @@ pipeline {
             COMMAND = mavenCommand()
             EXTRA_PARAMS = getMavenExtras()
             SENCHA = "-Dsencha.ext.dir=$env.WORKSPACE/copl/com.elster.jupiter.extjs/src/main/web/js/ext"
-            PROFILES = '-Psencha-build,coverage,!enforce-version'
+            PROFILES = '-Psencha-build,coverage,enforce-version'
             DIRECTORIES = "$DIRECTORIES"
           }
           steps {
@@ -134,35 +135,6 @@ pipeline {
     }
     stage('results') {
       parallel {
-        stage('Coverity') {
-          agent {
-            label 'coverity'
-          }
-          when {
-            expression { params.runAnalysis }
-          }
-          environment {
-            STREAM = getCoverityStream()
-            TARGET_DIR = "target"
-            COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
-            MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
-          }
-          steps {
-            checkout([$class: 'GitSCM',
-                      poll: false,
-                      changelog: false,
-                      branches: scm.branches,
-                      extensions: [[$class: 'CloneOption',
-                      depth: 2,
-                      noTags: false,
-                      reference: MIRROR_CLONE, shallow: true]],
-                      userRemoteConfigs: scm.userRemoteConfigs])
-            unstash "java_classes"
-            lock(resource: "Coverity", inversePrecedence: false) {
-              runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
-            }
-          }
-        }
         stage('Analysis') {
           agent {
             label 'linux && java'
@@ -215,8 +187,8 @@ pipeline {
                 recordIssues aggregatingResults: true,
                              enabledForFailure: true,
                              qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
-                                            [threshold: 97, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
+                                            [threshold: 75, type: 'TOTAL_HIGH', unstable: true],
+                                            [threshold: 21915, type: 'TOTAL_NORMAL', unstable: true]],
                              tools: [junitParser(pattern: '**/Test-*.xml'),
                                      pmdParser(),
                                      checkStyle(),
@@ -226,9 +198,9 @@ pipeline {
                        changeBuildStatus: true,
                        exclusionPattern: '**/*Test*.class',
                        // Must exceed these values or the build will be unstable
-                       maximumBranchCoverage: '14',
+                       maximumBranchCoverage: '10',
                        maximumClassCoverage: '42',
-                       maximumComplexityCoverage: '21',
+                       maximumComplexityCoverage: '17',
                        maximumLineCoverage: '26',
                        maximumMethodCoverage: '28',
                        // Must exceed these values or the build will fail
@@ -293,6 +265,38 @@ pipeline {
               }
             }
           }
+        }
+      }
+    }
+    stage('Coverity') {
+      agent {
+        label 'coverity'
+      }
+      when {
+        expression { params.runAnalysis }
+      }
+      environment {
+        STREAM = getCoverityStream()
+        TARGET_DIR = "target"
+        COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
+        MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
+      }
+      steps {
+        milestone label: 'Setup Coverity', ordinal: 5
+        lock(resource: "Coverity-$env.STREAM", inversePrecedence: true) {
+          milestone label: 'Start Coverity', ordinal: 6
+          checkout([$class: 'GitSCM',
+                    poll: false,
+                    changelog: false,
+                    branches: scm.branches,
+                    extensions: [[$class: 'CloneOption',
+                    depth: 2,
+                    noTags: false,
+                    reference: MIRROR_CLONE, shallow: true]],
+                    userRemoteConfigs: scm.userRemoteConfigs])
+          unstash "java_classes"
+          runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
+          milestone label: 'Finish Coverity', ordinal: 7
         }
       }
     }

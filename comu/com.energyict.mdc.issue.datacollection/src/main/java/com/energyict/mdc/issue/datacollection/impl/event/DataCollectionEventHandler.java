@@ -127,12 +127,12 @@ public class DataCollectionEventHandler implements MessageHandler {
 
     private void createEventsBasedOnDescription(List<IssueEvent> events, Map<?, ?> map, EventDescription description, Device device) {
         for (Map<?, ?> mapForSingleEvent : description.splitEvents(map)) {
-            issueDataCollectionService.logDataCollectionEventDescription(device, description.getName(), (Long) map.get("timestamp"));
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
             try {
                 dcEvent.wrap(mapForSingleEvent, description, device);
                 if (description.validateEvent(dcEvent)) {
                     events.add(dcEvent);
+                    issueDataCollectionService.logDataCollectionEventDescription(device, description.getName(), (Long) map.get("timestamp"));
                 }
             } catch (UnableToCreateIssueException e) {
                 LOG.severe(e.getMessage());

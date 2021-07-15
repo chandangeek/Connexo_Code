@@ -3,6 +3,7 @@ package com.energyict.dlms.cosem;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ProtocolLink;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.BooleanObject;
@@ -544,16 +545,23 @@ public class ImageTransfer extends AbstractCosemObject {
     /**
      *  LTE FW Upgrade initialization
      */
-    public void initializeFOTA() throws IOException {
+    public void initializeFOTA( boolean useEnexisInitFOTAInsteadStandard) throws IOException {
         // Set the imageTransferEnabledState to true (otherwise the upgrade can not be performed)
         writeImageTransferEnabledState(true);
 
         if (getImageTransferEnabledState().getState()) {
-            Structure imageInitiateStructure = new Structure();
-            imageInitiateStructure.addDataType(OctetString.fromByteArray(new byte[]{0x1, 0xF, 0x0}));
-            imageInitiateStructure.addDataType(new Unsigned32(1));
-            imageTransferInitiate(imageInitiateStructure);
-        } else {
+            // Instead octet-string + unsigned int Enexis use Int8 transfer to initiate update
+            if( useEnexisInitFOTAInsteadStandard ) {
+                imageTransferInitiate(new Integer8(0));
+            }
+            else {
+                Structure imageInitiateStructure = new Structure();
+                imageInitiateStructure.addDataType(OctetString.fromByteArray(new byte[]{0x1, 0xF, 0x0}));
+                imageInitiateStructure.addDataType(new Unsigned32(1));
+                imageTransferInitiate(imageInitiateStructure);
+            }
+        }
+        else {
             throw new IOException("Could not perform the upgrade because meter does not allow it.");
         }
     }
@@ -999,24 +1007,21 @@ public class ImageTransfer extends AbstractCosemObject {
     }
 
     /**
-     * <pre>
-     * Initializes the Image transfer process.
-     * The structure has the form of :
-     * 		data ::= structure
-     *         {
-     * 		image_identifier:  octet-string,
-     * 		 image_size:   double-long-unsigned
-     *         }
-     * 		where:
-     * 		-  image_identifier identifies the Image to be transferred;
-     * 		-  image_size holds the ImageSize, expressed in octets.
-     * </pre>
      *
+     * Initializes the Image transfer process.
      * @param imageInfo
      * @throws java.io.IOException
      */
-    public void imageTransferInitiate(final Structure imageInfo) throws IOException {
-        final byte[] berEncodedByteArray = imageInfo.getBEREncodedByteArray();
+    public void imageTransferInitiate(final AbstractDataType imageInfo) throws IOException {
+        imageTransferInitiate(imageInfo.getBEREncodedByteArray());
+    }
+
+    /**
+     * Initializes the Image transfer process.
+     * @param berEncodedByteArray
+     * @throws java.io.IOException
+     */
+    private void imageTransferInitiate(final byte[] berEncodedByteArray) throws IOException {
         if (getObjectReference().isLNReference()) {
             invoke(IMAGE_TRANSFER_INITIATE, berEncodedByteArray);
         } else { // SN referencing

@@ -31,6 +31,7 @@ import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -99,12 +100,16 @@ public class A2 extends AbstractDlmsProtocol {
     private final Converter converter;
     private final NlsService nlsService;
     private final DeviceMessageFileExtractor messageFileExtractor;
+    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
-    public A2(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor) {
+    public A2(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+              NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
+              KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
         this.nlsService = nlsService;
         this.converter = converter;
         this.messageFileExtractor = messageFileExtractor;
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     @Override
@@ -384,6 +389,10 @@ public class A2 extends AbstractDlmsProtocol {
         return converter;
     }
 
+    public KeyAccessorTypeExtractor getKeyAccessorTypeExtractor() {
+        return keyAccessorTypeExtractor;
+    }
+
     public NlsService getNlsService() {
         return nlsService;
     }
@@ -440,12 +449,12 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getProtocolDescription() {
-        return "EI6 ThemisUno DLMS Protocol";
+        return "EI6 pre-2021 ThemisUno DLMS Protocol";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-05-07$";
+        return "$Date: 2021-06-17$";
     }
 
     protected A2Messaging getProtocolMessaging() {
@@ -456,7 +465,7 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     protected A2Messaging createMessaging() {
-        return new A2Messaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor());
+        return new A2Messaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor(), getKeyAccessorTypeExtractor());
     }
 
     @Override

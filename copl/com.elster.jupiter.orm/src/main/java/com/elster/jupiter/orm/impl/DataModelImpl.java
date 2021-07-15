@@ -23,6 +23,7 @@ import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.references.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
+import com.elster.jupiter.util.ResultWrapper;
 import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.RangeSet;
@@ -612,12 +613,23 @@ public class DataModelImpl implements DataModel {
                 .forEach(table -> table.dropData(upTo, logger));
     }
 
-    public void createPartitions(Instant upTo, Logger logger) {
+    public ResultWrapper<String> createPartitions(Instant upTo, Logger logger, boolean dryRun) {
+        ResultWrapper<String> result = new ResultWrapper();
         if (getSqlDialect().hasPartitioning()) {
             getTables().stream()
                     .filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
-                    .forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
+                    .forEach(table -> {
+                        try {
+                            logger.log(Level.INFO, "Creating partition for table " + table.getName() + " up to " + upTo + "...");
+                            partitionCreator(table.getName(), logger).create(upTo, dryRun);
+                        } catch (Exception ex) {
+                            result.addFailedObject(table.getName());
+                            logger.log(Level.SEVERE, "Failed to create partition for table '" + table.getName() + "', up to " + upTo + ". Exception: " + ex.getLocalizedMessage() + ".");
+                            ex.printStackTrace();
+                        }
+                    });
         }
+        return result;
     }
 
     @Override

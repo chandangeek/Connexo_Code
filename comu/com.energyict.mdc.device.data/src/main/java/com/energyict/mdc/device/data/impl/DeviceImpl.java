@@ -2272,7 +2272,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             meterHasData = this.addChannelDataToMap(interval, meter.get(), channel, sortedLoadProfileReadingMap);
             if (meterHasData) {
                 loadProfileReadings = new ArrayList<>(sortedLoadProfileReadingMap.values());
-                loadProfileReadings.removeIf(loadProfileReading -> loadProfileReading.getRange().lowerEndpoint().atZone(getZone()).getHour() != channel.getOffset() / 3600);
             }
         }
         return Lists.reverse(loadProfileReadings);

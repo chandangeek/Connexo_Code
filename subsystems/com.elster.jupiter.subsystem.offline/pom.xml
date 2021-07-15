@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>5.0.0-Kratos-SNAPSHOT</version>
+        <version>6.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>offline</artifactId>
@@ -60,20 +60,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <dependency>
-            <groupId>com.elster.jupiter.subsystem</groupId>
-            <artifactId>kore</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter.subsystem</groupId>
-            <artifactId>third-party</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-            <scope>provided</scope>
-        </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.parent</artifactId>
@@ -498,31 +484,69 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>offline</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <archiverConfig>
-                        <duplicateBehavior>skip</duplicateBehavior>
-                    </archiverConfig>
-                    <descriptors>
-                        <descriptor>assembly/assembly.xml</descriptor>
-                    </descriptors>
-                    <finalName>offline-v${project.version}</finalName>
-                    <appendAssemblyId>false</appendAssemblyId>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
+    <profiles>
+        <profile>
+            <id>assembly</id>
+            <activation>
+                <property>
+                    <name>!assembly.skip</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.elster.jupiter.subsystem</groupId>
+                    <artifactId>kore</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                </dependency>
+                <dependency>
+                    <groupId>com.elster.jupiter.subsystem</groupId>
+                    <artifactId>third-party</artifactId>
+                    <version>${project.version}</version>
+                    <type>zip</type>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>offline</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <archiverConfig>
+                                <duplicateBehavior>skip</duplicateBehavior>
+                            </archiverConfig>
+                            <descriptors>
+                                <descriptor>assembly/assembly.xml</descriptor>
+                            </descriptors>
+                            <finalName>offline-v${project.version}</finalName>
+                            <appendAssemblyId>false</appendAssemblyId>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>copy</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <configuration>
+                            <skip>${offline.copy.skip}</skip>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

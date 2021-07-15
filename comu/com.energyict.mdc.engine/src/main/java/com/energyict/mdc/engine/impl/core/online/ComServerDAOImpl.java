@@ -1211,6 +1211,8 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
+        Optional<Instant> originalLastReading = findLoadProfile(loadProfileIdentifier).map(LoadProfile::getLastReading).map(Date::toInstant);
+
         Optional<OfflineLoadProfile> optionalOfflineLoadProfile = findLoadProfile(loadProfileIdentifier).flatMap(loadProfile -> {
             loadProfile.getUpdater().setLastReading(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint().minusSeconds(1)).update();
             return findOfflineLoadProfile(loadProfileIdentifier);
@@ -1221,6 +1223,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (preStoredLoadProfile.getPreStoreResult().equals(PreStoreLoadProfile.PreStoredLoadProfile.PreStoreResult.OK)) {
                 Map<DeviceIdentifier, MeterReadingImpl> meterReadings = new HashMap<>();
                 Map<LoadProfileIdentifier, Instant> lastReadings = new HashMap<>();
+                originalLastReading.ifPresent(originalLastReadingDate -> lastReadings.put(loadProfileIdentifier, originalLastReadingDate));
                 ((PreStoreLoadProfile.CompositePreStoredLoadProfile) preStoredLoadProfile).getPreStoredLoadProfiles().forEach(eachPreStoredLoadProfile -> {
                     if (!eachPreStoredLoadProfile.getIntervalBlocks().isEmpty()) {
                         Pair<DeviceIdentifier, LoadProfileIdentifier> identifiers = getIdentifiers(eachPreStoredLoadProfile, loadProfileIdentifier, collectedLoadProfile);

@@ -52,7 +52,6 @@ alldata as (
           ON hp.comtaskexecution = cte.id
    --
     WHERE cte.obsolete_date is null
-      AND comschedule is not null      -- added by Jozsef
 ),
 --
 alldatagrouped as (

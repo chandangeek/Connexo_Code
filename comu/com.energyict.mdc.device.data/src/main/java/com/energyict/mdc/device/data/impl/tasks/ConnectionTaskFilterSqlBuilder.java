@@ -9,7 +9,6 @@ import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.elster.jupiter.util.streams.FancyJoiner;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ConnectionTask;
@@ -157,7 +156,7 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
             this.appendWhereOrAnd();
             this.append("ct.ID IN (" +
                     " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
-                    connectionTasksIds.stream().collect(FancyJoiner.joining(",", ""))
+                    connectionTasksIds.stream().map(Object::toString).collect(Collectors.joining(","))
                     + ") )");
         }
     }

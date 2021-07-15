@@ -67,9 +67,8 @@ public class InboundUdpSessionImpl extends AbstractUdpSession implements Inbound
 
             datagramComChannel.receive(datagramPacket);
             datagramComChannel.startReading();   // need to set the startReading because we are listening for data!
-            // prevent starting a new Worker thread if the session already exists - see MultiThreadedComPortListener.doRun()
-            // return existingComChannel ? new VoidComChannel() : datagramComChannel;
-            return datagramComChannel;
+
+            return existingComChannel ? new VoidDatagramComChannel() : datagramComChannel;
         } catch (IOException e) {
             throw new ConnectionSetupException(e, MessageSeeds.SETUP_OF_INBOUND_CALL_FAILED);
         }
