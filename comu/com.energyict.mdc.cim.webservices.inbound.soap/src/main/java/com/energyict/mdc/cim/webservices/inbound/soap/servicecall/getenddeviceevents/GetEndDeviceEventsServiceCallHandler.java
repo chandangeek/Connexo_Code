@@ -48,20 +48,12 @@ public class GetEndDeviceEventsServiceCallHandler implements ServiceCallHandler 
     private volatile MeteringGroupsService meteringGroupsService;
 
     private ReplyGetEndDeviceEventsWebService replyGetEndDeviceEventsWebService;
-    private Set<EndDevice> endDevices = new HashSet<>();
-    private List<EndDeviceEventRecord> endDeviceEvents = new ArrayList<>();
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
             case ONGOING:
                 processServiceCall(serviceCall);
-                break;
-            case SUCCESSFUL:
-                sendResponseToOutboundEndPoint(serviceCall);
-                break;
-            case FAILED:
-                sendResponseToOutboundEndPoint(serviceCall);
                 break;
             case PENDING:
                 serviceCall.requestTransition(DefaultState.ONGOING);
@@ -99,18 +91,20 @@ public class GetEndDeviceEventsServiceCallHandler implements ServiceCallHandler 
     private void processServiceCall(ServiceCall serviceCall) {
         GetEndDeviceEventsDomainExtension extensionFor = serviceCall.getExtensionFor(new GetEndDeviceEventsCustomPropertySet()).get();
         try {
-            setEndDeviceEvents(extensionFor);
+            List<EndDeviceEventRecord> endDeviceEvents = getEndDeviceEvents(extensionFor);
+            sendResponseToOutboundEndPoint(serviceCall, endDeviceEvents);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } catch (Exception faultMessage) {
             GetEndDeviceEventsDomainExtension extension = serviceCall.getExtension(GetEndDeviceEventsDomainExtension.class)
                     .orElseThrow(() -> new IllegalStateException("Unable to get domain extension for service call"));
             extension.setErrorMessage(faultMessage.getLocalizedMessage());
             serviceCall.update(extension);
+            sendResponseToOutboundEndPoint(serviceCall, new ArrayList<EndDeviceEventRecord>());
             serviceCall.requestTransition(DefaultState.FAILED);
         }
     }
 
-    private void sendResponseToOutboundEndPoint(ServiceCall serviceCall) {
+    private void sendResponseToOutboundEndPoint(ServiceCall serviceCall, List<EndDeviceEventRecord> endDeviceEvents) {
         GetEndDeviceEventsDomainExtension extension = serviceCall.getExtensionFor(new GetEndDeviceEventsCustomPropertySet()).get();
         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService.findEndPointConfigurations().find()
                 .stream()
@@ -122,13 +116,12 @@ public class GetEndDeviceEventsServiceCallHandler implements ServiceCallHandler 
         replyGetEndDeviceEventsWebService.call(endPointConfiguration.get(), endDeviceEvents, extension.getCorrelationId());
     }
 
-    private void setEndDeviceEvents(GetEndDeviceEventsDomainExtension extension) {
+    private List<EndDeviceEventRecord> getEndDeviceEvents(GetEndDeviceEventsDomainExtension extension) {
         Set<String> meterIds = split(extension.getMeters());
         Set<String> deviceGroupIds = split(extension.getDeviceGroups());
         Set<int[]> eventTypes = EndDeviceEventsBuilder.getEventTypeFilters(split(extension.getEventTypes()));
+        Set<EndDevice> endDevices = new HashSet<>();
 
-        endDevices.clear();
-        endDeviceEvents.clear();
         Range<Instant> range = Range.openClosed(extension.getFromDate(), extension.getToDate());
 
         deviceGroupIds.forEach(identifier ->
@@ -141,14 +134,16 @@ public class GetEndDeviceEventsServiceCallHandler implements ServiceCallHandler 
 
         endDevices.addAll(meteringService.findEndDevices(meterIds));
 
-        endDeviceEvents = eventTypes.isEmpty() ?
-                endDevices.stream()
-                        .flatMap(endDevice -> endDevice.getDeviceEvents(range).stream())
-                        .collect(Collectors.toList())
-                : endDevices.stream()
-                        .flatMap(endDevice -> endDevice.getDeviceEvents(range).stream())
-                        .filter(EndDeviceEventsBuilder.filter(eventTypes))
-                        .collect(Collectors.toList());
+        if (eventTypes.isEmpty()) {
+            return endDevices.stream()
+                    .flatMap(endDevice -> endDevice.getDeviceEvents(range).stream())
+                    .collect(Collectors.toList());
+        } else {
+            return endDevices.stream()
+                    .flatMap(endDevice -> endDevice.getDeviceEvents(range).stream())
+                    .filter(EndDeviceEventsBuilder.filter(eventTypes))
+                    .collect(Collectors.toList());
+        }
     }
 
     private Set<String> split(String identifiers) {
