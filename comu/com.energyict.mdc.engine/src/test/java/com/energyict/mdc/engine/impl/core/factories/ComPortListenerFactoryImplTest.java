@@ -173,9 +173,25 @@ public class ComPortListenerFactoryImplTest {
     }
 
     @Test
+    public void testSingleThreadedTCPComPortListener(){
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
+        final ComPortListener comPortListener = factory.newFor(runningComServer, this.singleThreadedTCPInboundComPort());
+        assertNotNull(comPortListener);
+        assertTrue(comPortListener instanceof SingleThreadedComPortListener);
+    }
+
+    @Test
     public void testMultiThreadedComPortListener() {
         ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
         final ComPortListener comPortListener = factory.newFor(runningComServer, this.multiThreadedInboundComPort());
+        assertNotNull(comPortListener);
+        assertTrue(comPortListener instanceof MultiThreadedComPortListener);
+    }
+
+    @Test
+    public void testMultiThreadedComPortListenerForOneSimultaneousUDP(){
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
+        final ComPortListener comPortListener = factory.newFor(runningComServer, this.singleThreadedUDPInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof MultiThreadedComPortListener);
     }
@@ -230,6 +246,7 @@ public class ComPortListenerFactoryImplTest {
         when(comPort.getComPortPool()).thenReturn(portPool);
         when(((InboundComPortPool) portPool).getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
         when(pluggableClass.getProperties(Mockito.any(List.class))).thenReturn(typedProperties);
+        when(comPort.getNumberOfSimultaneousConnections()).thenReturn(0);
         return comPort;
     }
 
@@ -242,6 +259,34 @@ public class ComPortListenerFactoryImplTest {
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.isServletBased()).thenReturn(false);
+        when(comPort.getNumberOfSimultaneousConnections()).thenReturn(1);
+        return comPort;
+    }
+
+    private InboundComPort singleThreadedUDPInboundComPort() {
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
+        InboundComPort comPort = mock(TCPBasedInboundComPort.class);
+        when(comPort.getComServer()).thenReturn(comServer);
+        when(comPort.isActive()).thenReturn(true);
+        when(comPort.isServletBased()).thenReturn(false);
+        when(comPort.isUDPBased()).thenReturn(true);
+        when(comPort.getNumberOfSimultaneousConnections()).thenReturn(1);
+        return comPort;
+    }
+
+    private InboundComPort singleThreadedTCPInboundComPort() {
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
+        InboundComPort comPort = mock(TCPBasedInboundComPort.class);
+        when(comPort.getComServer()).thenReturn(comServer);
+        when(comPort.isActive()).thenReturn(true);
+        when(comPort.isServletBased()).thenReturn(false);
+        when(comPort.isTCPBased()).thenReturn(true);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(1);
         return comPort;
     }
