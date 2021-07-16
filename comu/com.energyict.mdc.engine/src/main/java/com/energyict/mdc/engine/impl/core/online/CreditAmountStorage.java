@@ -4,11 +4,16 @@
 
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
+import com.elster.jupiter.metering.readings.beans.ReadingImpl;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.obis.ObisCode;
 import com.google.common.collect.Range;
 
 import java.time.Clock;
@@ -32,22 +37,31 @@ class CreditAmountStorage {
         return this.deviceDataService;
     }
 
-    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, Device device) {
-        collectedCreditAmount.getCreditAmount().ifPresent(creditAmount -> createOrUpdate(device, collectedCreditAmount));
+    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, Device device, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+        collectedCreditAmount.getCreditAmount().ifPresent(creditAmount -> createOrUpdate(device, collectedCreditAmount, registerUpdateRequired, tableUpdateRequired));
     }
 
-    private CreditAmount createOrUpdate(Device device, CollectedCreditAmount collectedCreditAmount) {
-        Optional<CreditAmount> creditAmount = getDeviceDataService().getCreditAmount(device);
-
-        CreditAmount newCreditAmount;
-        if (!checkIfCreditAmountesAreEqual(collectedCreditAmount, creditAmount)) {
-            newCreditAmount = createNewCreditAmount(device, collectedCreditAmount);
-        } else {
-            newCreditAmount = creditAmount.get();
+    private CreditAmount createOrUpdate(Device device, CollectedCreditAmount collectedCreditAmount, boolean registerUpdateRequired, boolean tableUpdateRequired) {
+        Instant now = now();
+        if (registerUpdateRequired) {
+            ObisCode creditTypeObisCode = collectedCreditAmount.getCreditType().equals("Import Credit") ? CreditAmount.IMPORT_CREDIT_OBIS_CODE : CreditAmount.EMERGENCY_CREDIT_OBIS_CODE;
+            Optional<String> mRid = device.getRegisters().stream()
+                    .filter(reg -> reg.getRegisterTypeObisCode().equals(creditTypeObisCode))
+                    .map(Register::getReadingType)
+                    .map(ReadingType::getMRID)
+                    .findFirst();
+            if (mRid.isPresent()) {
+                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+                meterReading.addReading(ReadingImpl.of(mRid.get(), collectedCreditAmount.getCreditAmount().get(), now));
+                device.store(meterReading);
+            }
         }
-        newCreditAmount.setLastChecked(now());
-        newCreditAmount.save();
-        return newCreditAmount;
+        CreditAmount creditAmount = createNewCreditAmount(device, collectedCreditAmount);
+        creditAmount.setLastChecked(now);
+        if (tableUpdateRequired) {
+            creditAmount.save();
+        }
+        return creditAmount;
     }
 
     private Instant now() {

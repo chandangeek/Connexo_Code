@@ -1919,20 +1919,20 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedBreakerStatus.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
             BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceService(), serviceProvider.clock());
-            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device);
+            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device, registerUpdateRequired , tableUpdateRequired );
         });
     }
 
     @Override
-    public void updateCreditAmount(CollectedCreditAmount collectedCreditAmount) {
+    public void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedCreditAmount.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
             CreditAmountStorage creditAmountStorage = new CreditAmountStorage(getDeviceService(), serviceProvider.clock());
-            creditAmountStorage.updateCreditAmount(collectedCreditAmount, device);
+            creditAmountStorage.updateCreditAmount(collectedCreditAmount, device, registerUpdateRequired, tableUpdateRequired);
         });
     }
 

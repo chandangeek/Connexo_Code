@@ -6,7 +6,6 @@ package com.energyict.mdc.device.data.impl.ami.servicecall.handlers;
 
 import com.elster.jupiter.devtools.tests.rules.Expected;
 import com.elster.jupiter.devtools.tests.rules.ExpectedExceptionRule;
-import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ami.CompletionMessageInfo;
 import com.elster.jupiter.nls.NlsMessageFormat;
@@ -33,7 +32,6 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDoma
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import javax.xml.bind.annotation.XmlElement;
 import java.text.MessageFormat;
@@ -41,6 +39,7 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Optional;
 
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,6 +48,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
@@ -69,8 +69,6 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     public TestRule expectedRule = new ExpectedExceptionRule();
 
     private static final long SERVICE_CALL_ID = 1;
-    private static final String DESTINATION_SPEC = "destination spec";
-    private static final String DESTIONATION_MSG = "destination msg";
 
     @Mock
     Thesaurus thesaurus;
@@ -88,8 +86,6 @@ public class AbstractContactorOperationServiceCallHandlerTest {
     private ServiceCallType serviceCallType;
     @Mock
     private ServiceCallService serviceCallService;
-    @Mock
-    private DestinationSpec destinationSpec;
     @Mock
     Device device;
     @Mock
@@ -225,32 +221,7 @@ public class AbstractContactorOperationServiceCallHandlerTest {
         ArgumentCaptor<CommandServiceCallDomainExtension> domainExtensionArgumentCaptor = ArgumentCaptor.forClass(CommandServiceCallDomainExtension.class);
         verify(serviceCall).update(domainExtensionArgumentCaptor.capture());
         assertEquals(CommandOperationStatus.READ_STATUS_INFORMATION, domainExtensionArgumentCaptor.getValue().getCommandOperationStatus());
-
-        verify(comTaskExecution).addNewComTaskExecutionTrigger(any());
-        verify(comTaskExecution).updateNextExecutionTimestamp();
         verify(serviceCall).requestTransition(DefaultState.WAITING);
-    }
-
-    @Test
-    @Expected(value = IllegalStateException.class, message = "A communication task to read out the status information can't be located or is inactive.")
-    public void testStateChangeFromWaitingToOngoingStatusInformationComTaskEnablementNotFound() throws Exception {
-        AbstractOperationServiceCallHandler serviceCallHandler = new DisconnectServiceCallHandler(messageService, deviceService, thesaurus, completionOptionsCallBack, communicationTaskService,
-                engineConfigurationService, priorityComTaskService, deviceMessageService);
-        CommandServiceCallDomainExtension domainExtension = new CommandServiceCallDomainExtension();
-        domainExtension.setCommandOperationStatus(CommandOperationStatus.SEND_OUT_DEVICE_MESSAGES);
-        domainExtension.setNrOfUnconfirmedDeviceCommands(0);
-        when(serviceCall.getExtensionFor(any(CommandCustomPropertySet.class))).thenReturn(Optional.of(domainExtension));
-        ActivatedBreakerStatus breakerStatus = mock(ActivatedBreakerStatus.class);
-        when(breakerStatus.getBreakerStatus()).thenReturn(BreakerStatus.DISCONNECTED);
-        when(deviceService.getActiveBreakerStatus(device)).thenReturn(Optional.of(breakerStatus));
-        when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.emptyList());
-
-        // Business method
-        serviceCallHandler.onStateChange(serviceCall, DefaultState.WAITING, DefaultState.ONGOING);
-
-        // Asserts
-        verify(serviceCall).requestTransition(DefaultState.FAILED);
-        verify(completionOptionsCallBack).sendFinishedMessageToDestinationSpec(serviceCall, CompletionMessageInfo.CompletionMessageStatus.FAILURE, CompletionMessageInfo.FailureReason.INCORRECT_DEVICE_BREAKER_STATUS);
     }
 
     @Test

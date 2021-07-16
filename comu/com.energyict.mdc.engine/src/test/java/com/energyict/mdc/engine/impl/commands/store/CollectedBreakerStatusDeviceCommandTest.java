@@ -45,7 +45,7 @@ public class CollectedBreakerStatusDeviceCommandTest {
         collectedBreakerStatusDeviceCommand.doExecute(comServerDAO);
 
         //asserts
-        verify(comServerDAO).updateBreakerStatus(collectedBreakerStatus);
+        verify(comServerDAO).updateBreakerStatus(collectedBreakerStatus, true, true);
     }
 
     @Test

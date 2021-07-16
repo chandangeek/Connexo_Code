@@ -521,12 +521,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 
     @Override
-    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
+    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 

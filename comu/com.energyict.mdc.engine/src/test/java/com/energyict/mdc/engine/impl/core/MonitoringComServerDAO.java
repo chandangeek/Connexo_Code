@@ -41,6 +41,8 @@ import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
 import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
@@ -455,11 +457,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+    public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 
-    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
+    public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
 
     }
 
@@ -742,10 +744,10 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
-        public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus) {
+        public void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         }
 
-        public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus) {
+        public void updateCreditAmount(CollectedCreditAmount collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired) {
         }
 
         @Override

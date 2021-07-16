@@ -63,7 +63,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -547,7 +546,7 @@ public class ComServerDAOImplTest {
 
         // Business methods
         CollectedBreakerStatus collectedBreakerStatus = new DeviceBreakerStatus(deviceIdentifier);
-        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus, false, true);
 
         // Asserts
         verify(this.deviceService, never()).getActiveBreakerStatus(any(Device.class));
@@ -568,7 +567,7 @@ public class ComServerDAOImplTest {
         when(this.deviceService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
 
         // Business methods
-        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus, false, true);
 
         // asserts
         verify(this.deviceService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
@@ -581,7 +580,6 @@ public class ComServerDAOImplTest {
         assertThat(range.hasLowerBound()).isTrue();
         assertThat(range.lowerEndpoint().minusMillis(1)).isLessThan(Instant.now());
     }
-
     @Test
     public void updateBreakerStatusWhenDifferentActivatedBreakerStatusAlreadyExistsTest() {
         when(this.deviceService.findDeviceByIdentifier(this.deviceIdentifier)).thenReturn(Optional.of(this.device));
@@ -598,7 +596,7 @@ public class ComServerDAOImplTest {
         when(this.deviceService.newActivatedBreakerStatusFrom(deviceCaptor.capture(), breakerStatusCaptor.capture(), intervalCaptor.capture())).thenReturn(mock(ActivatedBreakerStatus.class));
 
         // Business methods
-        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus, false, true);
 
         // asserts
         verify(this.deviceService, times(1)).newActivatedBreakerStatusFrom(any(Device.class), any(BreakerStatus.class), any(Interval.class));
@@ -623,7 +621,7 @@ public class ComServerDAOImplTest {
         collectedBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
 
         // business method
-        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus);
+        this.comServerDAO.updateBreakerStatus(collectedBreakerStatus, false, true);
 
         // asserts
         verify(activatedBreakerStatus).setLastChecked(any(Instant.class));

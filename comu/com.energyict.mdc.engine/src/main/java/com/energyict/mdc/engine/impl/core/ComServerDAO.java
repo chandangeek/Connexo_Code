@@ -763,9 +763,9 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     void updateFirmwareVersions(CollectedFirmwareVersion collectedFirmwareVersions);
 
-    void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus);
+    void updateBreakerStatus(CollectedBreakerStatus collectedBreakerStatus, boolean registerUpdateRequired, boolean tableUpdateRequired);
 
-    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount);
+    void updateCreditAmount(CollectedCreditAmount collectedCreditAmount, boolean registerUpdateRequired, boolean tableUpdateRequired);
 
     void updateDeviceCSR(DeviceIdentifier deviceIdentifier, String certificateType, String csr);
 
