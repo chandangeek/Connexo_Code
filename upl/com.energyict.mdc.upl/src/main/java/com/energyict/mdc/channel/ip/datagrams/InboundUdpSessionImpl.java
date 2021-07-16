@@ -1,9 +1,9 @@
 package com.energyict.mdc.channel.ip.datagrams;
 
+import aQute.lib.hex.Hex;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.InboundUdpSession;
 import com.energyict.mdc.upl.io.UPLSocketService;
-
 import com.energyict.protocol.exceptions.ConnectionSetupException;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class InboundUdpSessionImpl extends AbstractUdpSession implements Inbound
             final DatagramPacket datagramPacket = new DatagramPacket(receiveData, receiveData.length);
             logger.info("InboundUdpSession - waiting for data");
             datagramSocket.receive(datagramPacket);
-            logger.info("InboundUdpSession - " + datagramPacket.getLength() + " bytes received: " + new String(datagramPacket.getData()));
+            logger.info("InboundUdpSession - " + datagramPacket.getLength() + " bytes received: " + Hex.toHexString(datagramPacket.getData()));
             String remoteAddress = datagramPacket.getAddress() + ":" + datagramPacket.getPort();
             DatagramComChannel datagramComChannel = sessions.get(remoteAddress);
             boolean existingComChannel = false;

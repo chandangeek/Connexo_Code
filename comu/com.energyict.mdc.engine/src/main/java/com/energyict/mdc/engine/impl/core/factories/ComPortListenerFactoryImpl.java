@@ -35,24 +35,15 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
 
     @Override
     public ComPortListener newFor(RunningComServer runningComServer, InboundComPort comPort) {
-        if (comPort.isActive()) {
-            if (!comPort.isServletBased()) {
-                switch (comPort.getNumberOfSimultaneousConnections()) {
-                    case 0: {
-                        return null;
-                    }
-                    case 1: {
-                        return new SingleThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
-                    }
-                    default: {
-                        return new MultiThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
-                    }
-                }
-            } else {
-                return new ServletInboundComPortListener(runningComServer, comPort, this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
-            }
-        } else {
-            return null;
+        if (comPort.isActive() && comPort.isServletBased()) {
+            return new ServletInboundComPortListener(runningComServer, comPort, this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
         }
+        if (comPort.isActive() && comPort.getNumberOfSimultaneousConnections()==1 && !comPort.isUDPBased()) {
+            return new SingleThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
+        }
+        if (comPort.isActive() && comPort.getNumberOfSimultaneousConnections()>0) {
+            return new MultiThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
+        }
+        return null;
     }
 }
