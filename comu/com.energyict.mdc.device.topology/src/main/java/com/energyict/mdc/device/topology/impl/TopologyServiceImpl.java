@@ -1089,7 +1089,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
         sqlBuilder.addLong(target.getId());
         sqlBuilder.append(" and cps.endtime = ");
         sqlBuilder.addLong(ETERNITY);
-        sqlBuilder.append(") connect by (cps.srcdevice = prior cps.nexthopdevice and cps.targetdevice = ");
+        sqlBuilder.append(") connect by nocycle(cps.srcdevice = prior cps.nexthopdevice and cps.targetdevice = ");
         sqlBuilder.addLong(target.getId());
         sqlBuilder.append(")");
         return sqlBuilder;
