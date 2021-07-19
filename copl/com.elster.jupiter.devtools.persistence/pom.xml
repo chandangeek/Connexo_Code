@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>6.0.0-Kratos-SNAPSHOT</version>
+        <version>7.0.0-Kratos-SNAPSHOT</version>
     </parent>
     <artifactId>devtools.persistence</artifactId>
     <packaging>jar</packaging>
