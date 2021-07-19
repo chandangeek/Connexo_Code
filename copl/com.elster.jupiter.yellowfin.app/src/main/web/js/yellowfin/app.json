@@ -3,7 +3,7 @@
   "local" : false,
   "name" : "com.elster.jupiter.yellowfin.app",
   "requires" : [
-    "com.elster.jupiter.loaderjs@10.9.5",
-    "com.elster.jupiter.unifyingjs@10.9.5"
+    "com.elster.jupiter.loaderjs@10.9.6",
+    "com.elster.jupiter.unifyingjs@10.9.6"
   ]
 }
