@@ -847,7 +847,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
     }
 
     private MeterReadingsResponseMessageType createMeterReadingsResponseMessageType(MeterReadings meterReadings,
-                                                                                    Map<Pair<String, String>, ErrorType> errorTypes,
+                                                                                    List<ErrorType> errorTypes,
                                                                                     String correlationId,
                                                                                     SyncReplyIssue syncReplyIssue) {
         MeterReadingsResponseMessageType meterReadingsResponseMessageType =
@@ -860,7 +860,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             if (syncReplyIssue.isAsyncFlag() && syncReplyIssue.getExistedReadingsIndexes().isEmpty()) {
                 replyTypeRes = ReplyType.Result.FAILED;
             }
-            replyType = replyTypeFactory.failureReplyType(replyTypeRes, errorTypes.values().stream()
+            replyType = replyTypeFactory.failureReplyType(replyTypeRes, errorTypes.stream()
                     .toArray(ErrorType[]::new));
         }
         meterReadingsResponseMessageType.setReply(replyType);
