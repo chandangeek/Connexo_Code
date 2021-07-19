@@ -97,6 +97,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -113,6 +115,8 @@ public class DeviceAlarmResource extends BaseAlarmResource {
     private final TransactionService transactionService;
     private final Clock clock;
     private final IssueResourceUtility issueResourceUtility;
+
+    private Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
     public DeviceAlarmResource(Clock clock, DeviceAlarmInfoFactory deviceAlarmInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, BpmService bpmService, TransactionService transactionService, IssueResourceUtility issueResourceUtility) {
@@ -316,9 +320,7 @@ public class DeviceAlarmResource extends BaseAlarmResource {
                         .entity(getThesaurus().getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}."))
                         .build());
             } catch (RuntimeException e) {
-                throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(String.format(getThesaurus().getString("error.flow.invalid.response", "Invalid response received, please check your Flow version."), e.getMessage()))
-                        .build());
+                getLogger().log(Level.SEVERE, e.getMessage(), e);
             }
             List<BpmProcessDefinition> activeProcesses = bpmService.getActiveBpmProcessDefinitions();
             issueProcessInfos = new AlarmProcessInfos(arr);
@@ -740,5 +742,8 @@ public class DeviceAlarmResource extends BaseAlarmResource {
                 throw new LocalizedFieldValidationException(MessageSeeds.INVALID_VALUE, "filter");
             }
         }).collect(Collectors.toList());
+    }
+    private Logger getLogger() {
+        return logger;
     }
 }
