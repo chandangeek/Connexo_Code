@@ -14,6 +14,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -345,25 +346,28 @@ public class SyncReplyIssue {
     }
 
     public void addErrorType(ErrorType errorType) {
-        getErrorTypes().put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
+        if (errorTypes == null) {
+            getErrorTypes().forEach(errorType1 -> errorTypes.put(Pair.of(errorType1.getCode(), errorType1.getDetails()), errorType1));
+        }
+        errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
     }
 
-    public void addErrorTypes(Set<ErrorType> errorTypes) {
-        Map<Pair<String, String>, ErrorType> errorTypeMap = getErrorTypes();
-        errorTypes.forEach(errorType -> errorTypeMap.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType));
+    public void addErrorTypes(Set<ErrorType> errorTypesSet) {
+        if (errorTypes == null) {
+            getErrorTypes().forEach(errorType1 -> errorTypes.put(Pair.of(errorType1.getCode(), errorType1.getDetails()), errorType1));
+        }
+        errorTypesSet.forEach(errorType -> errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType));
     }
 
-    public Map<Pair<String, String>, ErrorType> getErrorTypes() {
+    public Collection<ErrorType> getErrorTypes() {
         if (errorTypes == null) {
             errorTypes = new LinkedHashMap<>();
         }
-        return errorTypes;
+        return errorTypes.values();
     }
 
     public List<ErrorType> getResultErrorTypes() {
         // reading types issue
-        Map<Pair<String, String>, ErrorType> errorTypes = getErrorTypes();
-        ErrorType errorType;
         if (!notFoundRTMRIDs.isEmpty() && !notFoundRTNames.isEmpty()) {
             addErrorType(replyTypeFactory.errorType(MessageSeeds.READING_TYPES_NOT_FOUND_IN_THE_SYSTEM, null,
                     combineNotFoundElementMessage(notFoundRTMRIDs),
