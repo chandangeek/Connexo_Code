@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
 		<artifactId>prepayment</artifactId>
-        <version>7.0.0-Kratos-SNAPSHOT</version>
+        <version>7.0.1-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>prepayment.export</artifactId>
