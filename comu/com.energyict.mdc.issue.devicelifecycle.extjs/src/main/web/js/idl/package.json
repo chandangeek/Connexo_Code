@@ -1,17 +1,17 @@
 {
-  "compatVersion" : "10.9.6",
+  "compatVersion" : "10.9.7",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.energyict.mdc.issue.devicelifecycle.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.6",
-    "com.elster.jupiter.issue.extjs@10.9.6",
-    "com.energyict.mdc.device.data.validation.extjs@10.9.6",
-    "com.energyict.comserver.comserver.core.extjs@10.9.6"
+    "com.elster.jupiter.unifyingjs@10.9.7",
+    "com.elster.jupiter.issue.extjs@10.9.7",
+    "com.energyict.mdc.device.data.validation.extjs@10.9.7",
+    "com.energyict.comserver.comserver.core.extjs@10.9.7"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.6"
+  "version" : "10.9.7"
 }

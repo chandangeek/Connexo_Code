@@ -1,21 +1,21 @@
 {
-  "compatVersion" : "10.9.6",
+  "compatVersion" : "10.9.7",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Screens for CRUD operations on metering objects",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.mdm.metering.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.6",
-    "com.elster.jupiter.config.extjs@10.9.6",
-    "com.elster.jupiter.bpm.extjs@10.9.6",
-    "com.energyict.mdc.bpm.extjs@10.9.6",
-    "com.elster.jupiter.servicecall.extjs@10.9.6",
-    "com.elster.jupiter.estimation.extjs@10.9.6",
-    "com.elster.jupiter.yellowfin.extjs@10.9.6",
-    "com.elster.jupiter.issue.extjs@10.9.6"
+    "com.elster.jupiter.unifyingjs@10.9.7",
+    "com.elster.jupiter.config.extjs@10.9.7",
+    "com.elster.jupiter.bpm.extjs@10.9.7",
+    "com.energyict.mdc.bpm.extjs@10.9.7",
+    "com.elster.jupiter.servicecall.extjs@10.9.7",
+    "com.elster.jupiter.estimation.extjs@10.9.7",
+    "com.elster.jupiter.yellowfin.extjs@10.9.7",
+    "com.elster.jupiter.issue.extjs@10.9.7"
   ],
   "summary" : "Metering EXTJS package",
   "type" : "code",
-  "version" : "10.9.6"
+  "version" : "10.9.7"
 }
