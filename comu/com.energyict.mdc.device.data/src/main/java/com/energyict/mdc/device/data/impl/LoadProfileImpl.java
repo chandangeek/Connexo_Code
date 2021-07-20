@@ -393,7 +393,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
                     .stream()
                     .map(channelsContainer -> channelsContainer.getChannel(getReadingType()))
                     .flatMap(Functions.asStream())
-                    .findFirst()
+                    .reduce((first,second) -> second)
                     .map(com.elster.jupiter.metering.Channel::getOffset)
                     .orElse(0L);
         }
