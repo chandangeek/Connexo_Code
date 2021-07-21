@@ -15,6 +15,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -65,7 +66,7 @@ public class SyncReplyIssue {
     private Map<Long, ComTaskExecution> deviceMessagesComTaskExecutionMap;
 
     // additional errors to be sent synchronously
-    private Map<Pair<String, String>, ErrorType> errorTypes;
+    private Map<Pair<String, String>, ErrorType> errorTypes = new LinkedHashMap<>();
 
     @Inject
     public SyncReplyIssue(ReplyTypeFactory replyTypeFactory) {
@@ -346,23 +347,14 @@ public class SyncReplyIssue {
     }
 
     public void addErrorType(ErrorType errorType) {
-        if (errorTypes == null) {
-            getErrorTypes().forEach(errorType1 -> errorTypes.put(Pair.of(errorType1.getCode(), errorType1.getDetails()), errorType1));
-        }
         errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType);
     }
 
     public void addErrorTypes(Set<ErrorType> errorTypesSet) {
-        if (errorTypes == null) {
-            getErrorTypes().forEach(errorType1 -> errorTypes.put(Pair.of(errorType1.getCode(), errorType1.getDetails()), errorType1));
-        }
         errorTypesSet.forEach(errorType -> errorTypes.put(Pair.of(errorType.getCode(), errorType.getDetails()), errorType));
     }
 
     public Collection<ErrorType> getErrorTypes() {
-        if (errorTypes == null) {
-            errorTypes = new LinkedHashMap<>();
-        }
         return errorTypes.values();
     }
 
