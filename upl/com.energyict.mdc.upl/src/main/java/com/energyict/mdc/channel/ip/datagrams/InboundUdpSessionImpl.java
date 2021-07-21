@@ -1,6 +1,6 @@
 package com.energyict.mdc.channel.ip.datagrams;
 
-import aQute.lib.hex.Hex;
+import org.bouncycastle.util.encoders.Hex;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.io.InboundUdpSession;
 import com.energyict.mdc.upl.io.UPLSocketService;
