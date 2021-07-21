@@ -29,7 +29,6 @@
              will be set to false by the release profile for releases -->
         <include.source>true</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <bouncycastle.jss.version>1.64</bouncycastle.jss.version>
         <jackson.version>2.10.3</jackson.version>
         <guava.version>27.1-jre</guava.version>
         <assertj.version>3.3.0</assertj.version>
@@ -87,18 +86,6 @@
             <groupId>org.rxtx</groupId>
             <artifactId>rxtx</artifactId>
             <version>2.2pre2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcpkix-jdk15to18</artifactId>
-            <version>${bouncycastle.jss.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15to18</artifactId>
-            <version>${bouncycastle.jss.version}</version>
-            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
