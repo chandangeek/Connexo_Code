@@ -122,7 +122,6 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1095,10 +1094,10 @@ public class ServiceCallCommands {
     private boolean isLPMeterReadingRequired(String source, Set<LoadProfile> loadProfiles, Instant startTime, Instant endTime) {
         return ReadingSourceEnum.HYBRID.getSource().equals(source) && startTime == null
                 ? loadProfiles.stream()
-                    .anyMatch(lp -> lp.getLastReading() == null
+                .anyMatch(lp -> lp.getLastReading() == null
                         || !lp.getLastReading().toInstant().atZone(lp.getDevice().getZone()).plus(lp.getInterval().asTemporalAmount()).toInstant().isAfter(endTime))
                 : loadProfiles.stream()
-                    .anyMatch(lp -> lp.getLastReading() == null
+                .anyMatch(lp -> lp.getLastReading() == null
                         || !lp.getLastReading().toInstant().atZone(lp.getDevice().getZone()).plus(lp.getInterval().asTemporalAmount()).toInstant().isAfter(endTime)
                         || lp.getChannelData(Range.openClosed(startTime, endTime)).stream().anyMatch(lpReading -> lpReading.getChannelValues().isEmpty()));
     }
