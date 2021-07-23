@@ -8,6 +8,9 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
+import java.time.Duration;
+import java.util.Date;
+
 /**
  * Produces {@link DeviceMessageSpec}s.
  *
@@ -28,51 +31,77 @@ public interface DeviceMessageSpecSupplier {
         return this.stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
-    default PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    default PropertySpec optStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.optStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
+    default PropertySpecBuilder<String> optStringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .stringSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+                .describedAs(translationKey.description());
+    }
+
+    default PropertySpecBuilder<String> stringSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .markRequired();
     }
 
-    default PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    default PropertySpecBuilder<Boolean> optBooleanSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .booleanSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+                .describedAs(translationKey.description());
+    }
+
+    default PropertySpec optBooleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optBooleanSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .finish();
+    }
+
+    default PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optBooleanSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .markRequired()
                 .finish();
     }
 
-    default PropertySpec durationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    default PropertySpecBuilder<Duration> optDurationSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .durationSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+                .describedAs(translationKey.description());
+    }
+
+    default PropertySpec durationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optDurationSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .markRequired()
                 .finish();
     }
 
-    default PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+    default PropertySpec optDurationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optDurationSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .finish();
+    }
+
+    default PropertySpecBuilder<Date> optDateTimeSpecBuilder(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .dateTimeSpec()
                 .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+                .describedAs(translationKey.description());
+    }
+
+    default PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optDateTimeSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .markRequired()
                 .finish();
     }
 
     default PropertySpec optDateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .dateTimeSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+        return optDateTimeSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .finish();
     }
 }
