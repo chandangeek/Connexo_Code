@@ -146,7 +146,7 @@ public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protoc
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-09 09:38:14 +0300 (Mon, 09 May 2016)$";
+        return "$Date: 2021-07-26 10:29:00 +0300 (Mon, 26 Jul 2021)$";
     }
 
     /**
