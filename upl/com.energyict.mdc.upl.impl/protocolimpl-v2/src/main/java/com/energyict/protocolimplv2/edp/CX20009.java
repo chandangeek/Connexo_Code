@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.edp;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.serial.direct.rxtx.RxTxSerialConnectionType;
 import com.energyict.mdc.channels.serial.direct.serialio.SioSerialConnectionType;
@@ -89,7 +88,8 @@ public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protoc
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+
+        setDlmsSession(new EDPDlmsSession(comChannel, getDlmsSessionProperties()));
     }
 
     /**
@@ -146,7 +146,7 @@ public class CX20009 extends AbstractDlmsProtocol implements MigrateFromV1Protoc
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-05-09 09:38:14 +0300 (Mon, 09 May 2016)$";
+        return "$Date: 2021-07-26 10:29:00 +0300 (Mon, 26 Jul 2021)$";
     }
 
     /**
