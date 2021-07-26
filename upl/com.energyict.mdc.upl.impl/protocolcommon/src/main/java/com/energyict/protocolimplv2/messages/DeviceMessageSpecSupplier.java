@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
 import java.math.BigDecimal;
@@ -31,6 +32,10 @@ public interface DeviceMessageSpecSupplier extends DeviceMessageSpecSupplierUtil
         return stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
     }
 
+    default PropertySpec optStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).finish();
+    }
+
     default PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... possibleValues) {
         return stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .addValues(possibleValues)
@@ -38,33 +43,44 @@ public interface DeviceMessageSpecSupplier extends DeviceMessageSpecSupplierUtil
                 .finish();
     }
 
+    default PropertySpec optStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, String... possibleValues) {
+        return optStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .addValues(possibleValues)
+                .markExhaustive()
+                .finish();
+    }
+
     default PropertySpec stringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, int length) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .stringSpecOfExactLength(length)
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
+        return stringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, length).finish();
+    }
+
+    default PropertySpec optStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, int length) {
+        return optStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation, length).finish();
+    }
+
+    default PropertySpec optBooleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optBooleanSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .finish();
+    }
+
+    default PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return booleanSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .finish();
+    }
+
+    default PropertySpec optHexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optHexStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .finish();
     }
 
     default PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .hexStringSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .markRequired()
+        return hexStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .finish();
     }
 
     default PropertySpec hexStringSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, HexString defaultValue) {
-        return hexStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation).setDefaultValue(defaultValue).finish();
-    }
-
-
-    default PropertySpec booleanSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        return booleanSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+        return hexStringSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .setDefaultValue(defaultValue)
                 .finish();
     }
 
@@ -75,36 +91,34 @@ public interface DeviceMessageSpecSupplier extends DeviceMessageSpecSupplierUtil
     }
 
     default PropertySpec durationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .durationSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+        return optDurationSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .markRequired()
                 .finish();
     }
 
+    default PropertySpec optDurationSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return optDurationSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .finish();
+    }
+
     default PropertySpec dateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .dateTimeSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+        return optDateTimeSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .markRequired()
                 .finish();
     }
 
     default PropertySpec optDateTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .dateTimeSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
+        return optDateTimeSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .finish();
     }
 
     default PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
+                .finish();
+    }
+
+    default PropertySpec optBigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        return this.optBigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .finish();
     }
 
