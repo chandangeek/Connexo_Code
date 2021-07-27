@@ -228,7 +228,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     protected void prepareComTaskExecution(ComTaskExecution comTaskExecution, ComTaskExecutionConnectionSteps connectionSteps, DeviceProtocolSecurityPropertySet deviceProtocolSecurityPropertySet, GroupedDeviceCommand groupedDeviceCommand, CommandCreator commandCreator) {
         final List<ProtocolTask> protocolTasks = protocolTasksAlreadyExecutedForComTask.getOrDefault(comTaskExecution, new ArrayList<>(comTaskExecution.getComTask().getProtocolTasks()));
 
-        if (!protocolTasks.isEmpty()) {
+        if (!protocolTasks.isEmpty() || hasConnectionSteps(connectionSteps)) {
             protocolTasks.sort(BasicCheckTasks.FIRST);
 
             commandCreator.createCommands(
@@ -246,6 +246,10 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 replaceLoadProfileTaskWithBackFillTaskWhenExists(groupedDeviceCommand, comTaskExecution, protocolTasks);
             }
         }
+    }
+
+    private boolean hasConnectionSteps(ComTaskExecutionConnectionSteps steps) {
+        return steps.isDaisyChainedLogOffRequired() || steps.isDaisyChainedLogOnRequired() || steps.isLogOffRequired() || steps.isLogOnRequired();
     }
 
     private boolean backFillEnabled() {
