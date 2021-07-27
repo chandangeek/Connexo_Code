@@ -561,7 +561,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
             return collectedMessage;
         }
-        return null;
+        throw new ProtocolException(String.format("Breaker status for device %s not found", pendingMessage.getDeviceSerialNumber()));
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
