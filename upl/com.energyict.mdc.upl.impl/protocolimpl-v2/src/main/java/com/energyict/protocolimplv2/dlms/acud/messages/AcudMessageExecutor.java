@@ -28,6 +28,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -40,6 +41,7 @@ import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
+import com.energyict.protocolimplv2.common.DisconnectControlState;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.acud.AcudCreditUtils;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
@@ -60,6 +62,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.energyict.cbo.BaseUnit.COUNT;
 import static com.energyict.cbo.BaseUnit.UNITLESS;
@@ -546,13 +549,19 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         CollectedBreakerStatus colBreakStatus = getProtocol().getBreakerStatus();
         Register register = new Register(-1, BREAKER_STATUS, pendingMessage.getDeviceSerialNumber());
         List<CollectedRegister> collectedRegisters = new ArrayList<>();
-        final RegisterValue registerValue = new RegisterValue(register, new Quantity(colBreakStatus.getBreakerStatus().get().ordinal(), Unit.get(UNITLESS, 0)));
-        collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
+        // Set value of register as text
+        Optional<BreakerStatus> breakerStatus = colBreakStatus.getBreakerStatus();
+        if (breakerStatus.isPresent()) {
+            String registerValueText = BreakerStatus.CONNECTED.equals(breakerStatus.get())
+                    ? DisconnectControlState.CONNECTED.getDescription()
+                    : DisconnectControlState.DISCONNECTED.getDescription();
+            final RegisterValue registerValue = new RegisterValue(register, null, null, null, null, new Date(), 0, registerValueText);
+            collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
 
-        CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
-        collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
-
-        return collectedMessage;
+            CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
+            return collectedMessage;
+        }
+        throw new ProtocolException(String.format("Breaker status for device %s not found", pendingMessage.getDeviceSerialNumber()));
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {
