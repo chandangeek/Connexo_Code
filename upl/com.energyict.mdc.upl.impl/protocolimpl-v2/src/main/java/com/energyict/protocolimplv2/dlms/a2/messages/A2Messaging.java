@@ -103,7 +103,9 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             return ((Password) messageAttribute).getValue();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
             return messageAttribute.toString();
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.contactorActivationDateAttributeName)) {
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.contactorActivationDateAttributeName) ||
+            propertySpec.getName().equals(DeviceMessageConstants.StartOfDSTAttributeName) ||
+            propertySpec.getName().equals(DeviceMessageConstants.EndOfDSTAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
