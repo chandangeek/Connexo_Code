@@ -1102,6 +1102,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         }
 
         @Override
+        public CollectedRegister createTextCollectedRegister(RegisterIdentifier registerIdentifier) {
+            return this.getCollectedDataFactory().createTextCollectedRegister(registerIdentifier);
+        }
+
+        @Override
         public CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier) {
             return this.getCollectedDataFactory().createNoLogBookCollectedData(deviceIdentifier);
         }

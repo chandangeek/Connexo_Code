@@ -33,6 +33,8 @@ public interface CollectedDataFactory {
 
     CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier);
 
+    CollectedRegister createTextCollectedRegister(RegisterIdentifier registerIdentifier);
+
     CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier);
 
     CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier);

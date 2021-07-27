@@ -125,6 +125,11 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     @Override
+    public CollectedRegister createTextCollectedRegister(RegisterIdentifier registerIdentifier) {
+        return new DeviceTextRegister(registerIdentifier);
+    }
+
+    @Override
     public CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier) {
         return new NoLogBooksForDevice(deviceIdentifier);
     }

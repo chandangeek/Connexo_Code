@@ -556,7 +556,7 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
                     ? DisconnectControlState.CONNECTED.getDescription()
                     : DisconnectControlState.DISCONNECTED.getDescription();
             final RegisterValue registerValue = new RegisterValue(register, null, null, null, null, new Date(), 0, registerValueText);
-            collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
+            collectedRegisters.add(createTextCollectedRegister(registerValue, pendingMessage));
 
             CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
             return collectedMessage;

@@ -14,6 +14,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.enddevicecontr
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.TextReading;
 import com.energyict.obis.ObisCode;
 import org.junit.Before;
 import org.junit.Test;
@@ -61,6 +62,10 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
     @Mock
     private NumericalReading numericalReading;
 
+    @Mock
+    private TextReading textReading;
+
+
     @Before
     public void setUp() {
         testable = new MasterEndDeviceControlsServiceCallHandler(endPointConfigurationService, endDeviceEventsServiceProvider,
@@ -78,8 +83,8 @@ public class MasterEndDeviceControlsServiceCallHandlerTest {
 
     @Test
     public void testCreateEndDeviceDetails_Success() {
-        when(register.getLastReading()).thenReturn(Optional.of(numericalReading));
-        when(numericalReading.getValue()).thenReturn(BigDecimal.valueOf(0));
+        when(register.getLastReading()).thenReturn(Optional.of(textReading));
+        when(textReading.getValue()).thenReturn("Disconnected");
         when(register.getRegisterTypeObisCode()).thenReturn(ObisCode.fromString("0.0.96.3.10.255"));
         when(((Optional<Device>) serviceCall.getTargetObject())).thenReturn(Optional.of(device));
         ArrayList<Register> registers = new ArrayList<>();

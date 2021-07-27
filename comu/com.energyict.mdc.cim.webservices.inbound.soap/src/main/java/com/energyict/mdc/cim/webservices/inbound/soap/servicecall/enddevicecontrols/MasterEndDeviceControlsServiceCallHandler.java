@@ -26,6 +26,7 @@ import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.CreditAmount;
 import com.energyict.mdc.device.data.NumericalReading;
+import com.energyict.mdc.device.data.TextReading;
 import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -193,7 +194,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                 .map(Register::getLastReading)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
-                .map(NumericalReading.class::cast)
+                .map(TextReading.class::cast)
                 .map(this::wrapContactorStatusToEndDeviceEventDetail);
     }
 
@@ -214,10 +215,10 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                 .map(this::wrapCreditAmountToEndDeviceEventDetail);
     }
 
-    private EndDeviceEventDetail wrapContactorStatusToEndDeviceEventDetail(NumericalReading reading) {
+    private EndDeviceEventDetail wrapContactorStatusToEndDeviceEventDetail(TextReading reading) {
         EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
         endDeviceEventDetail.setName("Contactor status");
-        endDeviceEventDetail.setValue(reading.getValue().intValue() == 0 ? "Opened" : "Closed");
+        endDeviceEventDetail.setValue(reading.getValue().equals(ActivatedBreakerStatus.BREAKER_STATUS_CONNECTED) ? "Closed" : "Opened");
         return endDeviceEventDetail;
     }
 
