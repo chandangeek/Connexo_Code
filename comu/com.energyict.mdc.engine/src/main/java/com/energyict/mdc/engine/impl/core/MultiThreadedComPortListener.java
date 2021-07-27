@@ -93,15 +93,15 @@ public class MultiThreadedComPortListener extends ComChannelBasedComPortListener
 
     @Override
     protected void doRun() {
-        if (prepareExecution()) {
-            ComPortRelatedComChannel comChannel = listen();
-            if (!comChannel.isVoid()) {
+        ComPortRelatedComChannel comChannel = listen();
+        if (!comChannel.isVoid()) {
+            if (prepareExecution()) {
                 this.executorService.execute(new Worker(this.inboundComPortExecutorFactory.create(getComPort(), getComServerDAO(), getDeviceCommandExecutor()), comChannel));
             }
-        } else {
-            waitForFreeResources();
+            else {
+                waitForFreeResources();
+            }
         }
-
     }
 
     /**

@@ -126,7 +126,6 @@ public interface DeviceMessageSpecSupplier extends DeviceMessageSpecSupplierUtil
     default PropertySpec bigDecimalSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, BigDecimal defaultVal) {
         return this.bigDecimalSpecBuilder(service, deviceMessageConstantKey, deviceMessageConstantDefaultTranslation)
                 .setDefaultValue(defaultVal)
-                .markExhaustive()
                 .markRequired()
                 .finish();
     }
