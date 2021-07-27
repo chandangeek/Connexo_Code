@@ -33,6 +33,6 @@ public class AcudGas extends Acud {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-07-06 $";
+        return "$Date: 2021-07-27 $";
     }
 }
