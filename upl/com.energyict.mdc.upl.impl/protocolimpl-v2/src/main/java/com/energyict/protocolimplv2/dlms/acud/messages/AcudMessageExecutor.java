@@ -552,16 +552,14 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         // Set value of register as text
         Optional<BreakerStatus> breakerStatus = colBreakStatus.getBreakerStatus();
         if (breakerStatus.isPresent()) {
-            String registerValueText = BreakerStatus.CONNECTED.equals(breakerStatus.get())
-                    ? DisconnectControlState.CONNECTED.getDescription()
-                    : DisconnectControlState.DISCONNECTED.getDescription();
+            String registerValueText = breakerStatus.get().getDescription();
             final RegisterValue registerValue = new RegisterValue(register, null, null, null, null, new Date(), 0, registerValueText);
             collectedRegisters.add(createTextCollectedRegister(registerValue, pendingMessage));
 
             CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
             return collectedMessage;
         }
-        return null;
+        throw new ProtocolException(String.format("Breaker status for device %s not found", pendingMessage.getDeviceSerialNumber()));
     }
 
     private void upgradeFirmware(OfflineDeviceMessage pendingMessage) throws IOException {

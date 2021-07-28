@@ -53,9 +53,7 @@ class BreakerStatusStorage {
                    .findFirst();
            if (mRid.isPresent()) {
                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-               String registerValueText = BreakerStatus.CONNECTED.equals(collectedBreakerStatus.ordinal())
-                       ? ActivatedBreakerStatus.BREAKER_STATUS_CONNECTED
-                       : ActivatedBreakerStatus.BREAKER_STATUS_DISCONNECTED;
+               String registerValueText = collectedBreakerStatus.getDescription();
                meterReading.addReading(ReadingImpl.of(mRid.get(), registerValueText, now));
                device.store(meterReading);
             }

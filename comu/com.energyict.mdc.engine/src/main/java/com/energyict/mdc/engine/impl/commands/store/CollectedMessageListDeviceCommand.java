@@ -155,13 +155,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
         String breakerStatus = collectedRegister.getText();
         DeviceBreakerStatus deviceBreakerStatus = new DeviceBreakerStatus(((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getDeviceIdentifier());
         if (breakerStatus != null) {
-            if (breakerStatus.equals("Connected")) {
-                deviceBreakerStatus.setBreakerStatus(BreakerStatus.CONNECTED);
-            } else if (breakerStatus.equals("Disconnected")) {
-                deviceBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
-            } else {
-                deviceBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
-            }
+            deviceBreakerStatus.setBreakerStatus(BreakerStatus.fromDescription(breakerStatus));
             comServerDAO.updateBreakerStatus(deviceBreakerStatus, false, true);
         }
     }

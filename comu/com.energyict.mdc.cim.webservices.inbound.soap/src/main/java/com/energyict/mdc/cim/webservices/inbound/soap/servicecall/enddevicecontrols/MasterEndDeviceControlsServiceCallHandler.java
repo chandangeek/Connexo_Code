@@ -31,6 +31,7 @@ import com.energyict.mdc.device.data.impl.ami.EndDeviceControlTypeMapping;
 
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import com.energyict.cim.EndDeviceEventOrAction;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import javax.inject.Inject;
 
@@ -218,7 +219,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     private EndDeviceEventDetail wrapContactorStatusToEndDeviceEventDetail(TextReading reading) {
         EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
         endDeviceEventDetail.setName("Contactor status");
-        endDeviceEventDetail.setValue(reading.getValue().equals(ActivatedBreakerStatus.BREAKER_STATUS_CONNECTED) ? "Closed" : "Opened");
+        endDeviceEventDetail.setValue(reading.getValue().equals(BreakerStatus.CONNECTED.getDescription()) ? "Closed" : "Opened");
         return endDeviceEventDetail;
     }
 
