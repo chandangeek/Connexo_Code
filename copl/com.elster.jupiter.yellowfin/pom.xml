@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>7.0.1-Kratos-SNAPSHOT</version>
+        <version>7.1.0-Kratos-SNAPSHOT</version>
     </parent>
     <artifactId>yellowfin</artifactId>
     <name>[Jupiter] com.elster.jupiter.yellowfin</name>
