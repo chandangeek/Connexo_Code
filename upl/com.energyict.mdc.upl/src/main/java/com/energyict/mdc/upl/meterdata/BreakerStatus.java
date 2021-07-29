@@ -39,7 +39,7 @@ public enum BreakerStatus {
 
     public static BreakerStatus fromDescription(String descr) {
         for (BreakerStatus state : values()) {
-            if (state.getDescription() == descr) {
+            if (state.getDescription().equals(descr)) {
                 return state;
             }
         }
