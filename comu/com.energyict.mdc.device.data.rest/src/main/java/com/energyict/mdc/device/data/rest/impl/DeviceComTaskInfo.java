@@ -56,4 +56,6 @@ public class DeviceComTaskInfo {
     public boolean ignoreNextExecutionSpecsForInbound;
     @JsonProperty("maxNumberOfTries")
     public int maxNumberOfTries;
+    @JsonProperty("isTracing")
+    public boolean isTracing;
 }

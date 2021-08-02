@@ -384,7 +384,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {
         if (comPortRelatedComChannel != null) { // Is null for inbound communication via servlet technology
-            comPortRelatedComChannel.setJournalEntryFactory(this);
+            comPortRelatedComChannel.setIsTracing(this.comTaskExecution.isTracing());
             this.comPortRelatedComChannel = comPortRelatedComChannel;
             this.jobExecution.connected(comPortRelatedComChannel);
         }

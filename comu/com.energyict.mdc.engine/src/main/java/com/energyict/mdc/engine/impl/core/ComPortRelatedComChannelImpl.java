@@ -11,14 +11,12 @@ import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.core.logging.ComChannelLogger;
 import com.energyict.mdc.engine.impl.events.AbstractComServerEventImpl;
 import com.energyict.mdc.engine.impl.events.EventPublisher;
 import com.energyict.mdc.engine.impl.events.io.ReadEvent;
 import com.energyict.mdc.engine.impl.events.io.WriteEvent;
 import com.energyict.mdc.engine.impl.logging.LogLevel;
 import com.energyict.mdc.engine.impl.logging.LogLevelMapper;
-import com.energyict.mdc.engine.impl.logging.LoggerFactory;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -29,6 +27,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.Clock;
 import java.time.Duration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides an implementation for the {@link ComPortRelatedComChannel} interface.
@@ -48,10 +48,11 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     private final Counters taskSessionCounters = new Counters();
     private final DeviceMessageService deviceMessageService;
     private ComChannel comChannel;
-    private ComChannelLogger logger;
     private ComPort comPort;
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
+    private Logger logger = Logger.getLogger("bytesTracing");
+    private boolean isTracing = false;
 
     public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, DeviceMessageService deviceMessageService, HexService hexService, EventPublisher eventPublisher) {
         super();
@@ -96,12 +97,6 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
             return ((SerialPortComChannel) getActualComChannel()).getSerialPort();
         }
         return null;
-    }
-
-    public void setJournalEntryFactory(JournalEntryFactory journalEntryFactory) {
-        this.logger = LoggerFactory.getUniqueLoggerFor(ComChannelLogger.class, this.getServerLogLevel());
-        LoggerFactory.LoggerHolder loggerHolder = (LoggerFactory.LoggerHolder) this.logger;
-        loggerHolder.getLogger().addHandler(new ComChannelLogHandler(journalEntryFactory));
     }
 
     @Override
@@ -328,9 +323,9 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
 
     private void logBytesWrittenAndReset() {
         byte[] bytesWrittenForLogging = this.bytesWrittenForLogging.toByteArray();
-        if (this.logger != null) {
+        if (this.logger != null && isTracing) {
             String hexBytes = this.hexService.toHexString(bytesWrittenForLogging);
-            this.logger.bytesWritten(hexBytes);
+            this.logger.log(Level.INFO,"TX " + hexBytes);
         }
         this.publish(new WriteEvent(new ComServerEventServiceProvider(), this.comPort, bytesWrittenForLogging));
     }
@@ -344,9 +339,9 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
 
     private void logBytesReadAndReset() {
         byte[] bytesReadForLogging = this.bytesReadForLogging.toByteArray();
-        if (this.logger != null) {
+        if (this.logger != null && isTracing) {
             String hexBytes = this.hexService.toHexString(bytesReadForLogging);
-            this.logger.bytesRead(hexBytes);
+            this.logger.log(Level.INFO,"RX " + hexBytes);
         }
         this.publish(new ReadEvent(new ComServerEventServiceProvider(), this.comPort, bytesReadForLogging));
     }
@@ -380,5 +375,9 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
         public DeviceMessageService deviceMessageService() {
             return deviceMessageService;
         }
+    }
+
+    public void setIsTracing(boolean isTracing) {
+        this.isTracing = isTracing;
     }
 }

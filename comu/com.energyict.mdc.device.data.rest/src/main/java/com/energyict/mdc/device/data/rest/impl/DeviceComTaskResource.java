@@ -150,6 +150,27 @@ public class DeviceComTaskResource {
 
     @PUT
     @Transactional
+    @Path("/{comTaskId}/tracing")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response updateComTaskExecutionTracing(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskTracingInfo comTaskTracingInfo) {
+        Device device = resourceHelper.lockDeviceOrThrowException(comTaskTracingInfo.device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        if (comTaskExecutions.isEmpty()) {
+            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+            for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
+                comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
+            }
+        }
+        if (!comTaskExecutions.isEmpty()) {
+            comTaskExecutions.forEach(updateTracing(comTaskTracingInfo, device));
+        }
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Transactional
     @Path("/{comTaskId}/frequency")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -658,6 +679,12 @@ public class DeviceComTaskResource {
             } else {
                 throw exceptionFactory.newException(MessageSeeds.UPDATE_URGENCY_NOT_ALLOWED);
             }
+        };
+    }
+
+    private Consumer<ComTaskExecution> updateTracing(ComTaskTracingInfo comTaskTracingInfo, Device device) {
+        return comTaskExecution -> {
+            device.getComTaskExecutionUpdater(comTaskExecution).setIsTracing(comTaskTracingInfo.isTracing).update();
         };
     }
 

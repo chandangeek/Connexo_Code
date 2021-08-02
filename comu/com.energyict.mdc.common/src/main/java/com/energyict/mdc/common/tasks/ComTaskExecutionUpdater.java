@@ -58,6 +58,8 @@ public interface ComTaskExecutionUpdater {
 
     ComTaskExecutionUpdater priority(int plannedPriority);
 
+    ComTaskExecutionUpdater setIsTracing(boolean isTracing);
+
     ComTaskExecutionUpdater ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     /**
