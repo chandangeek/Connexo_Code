@@ -137,7 +137,9 @@ import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -1238,6 +1240,21 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         @Override
         public CollectedCalendar createCalendarCollectedData(DeviceIdentifier deviceIdentifier) {
             return this.getCollectedDataFactory().createCalendarCollectedData(deviceIdentifier);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithUmiwanStructure(MessageIdentifier deviceMessageIdentifierById, Map<String, Object> properties, String cas) {
+            return this.getCollectedDataFactory().createCollectedMessageWithUmiwanStructure(deviceMessageIdentifierById, properties, cas);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithUmiwanProfileControl(MessageIdentifier messageIdentifier, Date startDate) {
+            return this.getCollectedDataFactory().createCollectedMessageWithUmiwanProfileControl(messageIdentifier, startDate);
+        }
+
+        @Override
+        public CollectedMessage createCollectedMessageWithUmiwanEventControl(MessageIdentifier messageIdentifier, Date startTime, long controlFlags, long acknowledgeFlags) {
+            return this.getCollectedDataFactory().createCollectedMessageWithUmiwanEventControl(messageIdentifier, startTime, controlFlags, acknowledgeFlags);
         }
     }
 

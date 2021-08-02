@@ -32,8 +32,8 @@ public class DeviceMessageSpecInfoFactory {
 
     public DeviceMessageSpecInfo asInfo(DeviceMessageSpec deviceMessageSpec) {
         DeviceMessageSpecInfo info = new DeviceMessageSpecInfo();
-        info.id=deviceMessageSpec.getId().name();
-        info.name=deviceMessageSpec.getName();
+        info.id = deviceMessageSpec.getId().name();
+        info.name = deviceMessageSpec.getName();
         return info;
     }
 
@@ -46,8 +46,8 @@ public class DeviceMessageSpecInfoFactory {
                 .map(ComTask::getProtocolTasks)
                 .flatMap(Collection::stream)
                 .filter(task -> task instanceof MessagesTask).
-                flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                anyMatch(category -> category.getId() == deviceMessageSpec.getCategory().getId());
+                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
+                        anyMatch(category -> category.getId() == deviceMessageSpec.getCategory().getId());
         if (info.willBePickedUpByPlannedComTask) {
             info.willBePickedUpByComTask = true; // shortcut
         } else {
@@ -73,5 +73,4 @@ public class DeviceMessageSpecInfoFactory {
         info.properties = mdcPropertyUtils.convertPropertySpecsToPropertyInfos(deviceMessageSpec.getPropertySpecs(), TypedProperties.empty());
         return info;
     }
-
 }

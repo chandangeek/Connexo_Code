@@ -631,6 +631,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         return Collections.emptyList();
     }
 
+    @Override
+    public void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas) {
+
+    }
+
     private class VerifyingComServerDAO implements ComServerDAO {
         private CounterVerifier verifier;
 
@@ -1132,6 +1137,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         @Override
         public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
             return Collections.emptyList();
+        }
+
+        @Override
+        public void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas) {
+
         }
     }
 }
