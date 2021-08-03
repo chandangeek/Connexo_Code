@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>7.1.0-Kratos-SNAPSHOT</version>
+        <version>7.1.0-Kratos</version>
 
     </parent>
     <artifactId>kore.api.rest</artifactId>
