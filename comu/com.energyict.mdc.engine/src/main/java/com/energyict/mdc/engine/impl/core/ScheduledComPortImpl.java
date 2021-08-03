@@ -328,10 +328,8 @@ public abstract class ScheduledComPortImpl implements ScheduledComPort, Runnable
     private List<ComJob> getJobsToSchedule() {
         if (serviceProvider.engineService().isPrefetchEnabled()) {
             List<ComJob> jobs = getJobsForFetchedTasks();
-            if (jobs.size() > 0) {
-                LOGGER.info("Prefetch: Fetch data from pool. Returned jobs: " + jobs.size() + " - PoolSize after fetch:" + executableOutBoundComTaskPool.size());
-                return jobs;
-            }
+            LOGGER.info("Prefetch: Fetch data from pool. Returned jobs: " + jobs.size() + " - PoolSize after fetch:" + executableOutBoundComTaskPool.size());
+            return jobs;
         }
         return getComServerDAO().findExecutableOutboundComTasks(getComPort());
     }
