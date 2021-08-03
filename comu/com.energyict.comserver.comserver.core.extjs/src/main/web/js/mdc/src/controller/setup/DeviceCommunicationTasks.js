@@ -65,6 +65,12 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
                 '#changeButton[action=changeUrgencyOfDeviceComTask]': {
                     click: this.changeUrgency
                 },
+                '#activateTracingOfDeviceComTask[action=activateTracing]': {
+                    click: this.activateTracing
+                },
+                '#deactivateTracingOfDeviceComTask[action=deactivateTracing]': {
+                    click: this.deactivateTracing
+                },
                 '#changeButton[action=changeFrequencyOfDeviceComTask]': {
                     click: this.changeFrequency
                 },
@@ -120,6 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     configureMenu: function (menu) {
         var selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
             isOnHold = selection.get('isOnHold'),
+            isTracing = selection.get('isTracing'),
             isSystemComtask = selection.get('comTask').isSystemComTask,
             connectionDefinedOnDevice = selection.get('connectionDefinedOnDevice'),
             isMinimizeConnections = !connectionDefinedOnDevice ? false : selection.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
@@ -131,6 +138,20 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         }
         if (menu.down('#changeUrgencyOfDeviceComTask')) {
             menu.down('#changeUrgencyOfDeviceComTask').show();
+        }
+        if (menu.down('#activateTracingOfDeviceComTask')) {
+            if (isTracing) {
+                menu.down('#activateTracingOfDeviceComTask').hide();
+            } else {
+                menu.down('#activateTracingOfDeviceComTask').show();
+            }
+        }
+        if (menu.down('#deactivateTracingOfDeviceComTask')) {
+            if (isTracing) {
+                menu.down('#deactivateTracingOfDeviceComTask').show();
+            } else {
+                menu.down('#deactivateTracingOfDeviceComTask').hide();
+            }
         }
         if (menu.down('#runDeviceComTaskNow')) {
             if (connectionDefinedOnDevice && !isOnHold && !isSystemComtask) {
@@ -352,6 +373,24 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
         this.sendToServer(request,
             '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + this.comTask.id + '/urgency',
             Uni.I18n.translate('deviceCommunicationTask.urgencyChanged', 'MDC', 'Urgency changed'));
+    },
+
+    activateTracing: function () {
+         var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
+             request = {};
+        request.isTracing = true;
+        this.sendToServer(request,
+            '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + comTask.get('comTask').id + '/tracing',
+            Uni.I18n.translate('deviceCommunicationTask.tracingActivated', 'MDC', 'Tracing activated'));
+    },
+
+    deactivateTracing: function () {
+        var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
+            request = {};
+        request.isTracing = false;
+        this.sendToServer(request,
+            '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + comTask.get('comTask').id + '/tracing',
+            Uni.I18n.translate('deviceCommunicationTask.tracingDeactivated', 'MDC', 'Tracing deactivated'));
     },
 
     changeFrequency: function () {
