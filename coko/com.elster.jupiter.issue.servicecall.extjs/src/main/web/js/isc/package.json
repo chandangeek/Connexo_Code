@@ -1,15 +1,15 @@
 {
-  "compatVersion" : "10.9.7",
+  "compatVersion" : "10.9.8",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.issue.servicecall.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.7",
-    "com.elster.jupiter.issue.extjs@10.9.7"
+    "com.elster.jupiter.unifyingjs@10.9.8",
+    "com.elster.jupiter.issue.extjs@10.9.8"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.7"
+  "version" : "10.9.8"
 }
