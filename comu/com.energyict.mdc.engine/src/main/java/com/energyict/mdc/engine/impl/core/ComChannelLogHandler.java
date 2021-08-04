@@ -28,42 +28,39 @@ class ComChannelLogHandler extends FileHandler {
 
     public ComChannelLogHandler() throws IOException, SecurityException {
         super();
-        if(this.getFormatter() != null){
+        if (this.getFormatter() != null) {
             this.setFormatter(new ComChannelLogFormatter());
         }
     }
 
-    private class  ComChannelLogFormatter extends Formatter {
+    private static class ComChannelLogFormatter extends Formatter {
 
         @Override
         public String format(LogRecord record) {
             return extractInfo(record);
         }
 
-        private String extractInfo (LogRecord record) {
+        private String extractInfo(LogRecord record) {
             String messageFormat = this.getMessageFormat(record);
             Object[] args = record.getParameters();
             if (args == null || args.length == 0) {
                 return messageFormat;
-            }
-            else {
+            } else {
                 return MessageFormat.format(messageFormat, args);
             }
         }
 
-        private String getMessageFormat (LogRecord record) {
+        private String getMessageFormat(LogRecord record) {
             ResourceBundle rb = record.getResourceBundle();
             String messageInRecord = record.getMessage();
             if (rb != null) {
                 try {
                     return rb.getString(messageInRecord);
-                }
-                catch (MissingResourceException ex) {
+                } catch (MissingResourceException ex) {
                     // key not found, so messageInRecord is key
                     return messageInRecord;
                 }
-            }
-            else {
+            } else {
                 return messageInRecord;
             }
         }
