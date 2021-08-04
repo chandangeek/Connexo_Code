@@ -20,7 +20,7 @@ import java.util.List;
 public enum UmiwanDeviceMessage implements DeviceMessageSpecSupplier {
 
 
-    WRITE_UMIWAN_CONFIGURATION(42001, "Write umiwan configuration") {
+    SET_UMIWAN_CONFIGURATION(42001, "Set umiwan configuration") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
@@ -43,7 +43,7 @@ public enum UmiwanDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WRITE_UMIWAN_PROFILE_CONTROL(42002, "Write umiwan profile control") {
+    SET_UMIWAN_PROFILE_CONTROL(42002, "Set umiwan profile control") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(
@@ -51,7 +51,7 @@ public enum UmiwanDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    WRITE_UMIWAN_EVENT_CONTROL(42003, "Write umiwan event control") {
+    SET_UMIWAN_EVENT_CONTROL(42003, "Set umiwan event control") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Collections.singletonList(

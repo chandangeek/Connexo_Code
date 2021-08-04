@@ -9,7 +9,6 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -88,8 +87,6 @@ public class EI4Umi extends AbstractUmiProtocol {
     private static PrivateKey ownPrivateKey = Keys.getOwnPrivateKey();
     private static UmiCVCCertificate ownCertificate = Keys.getOwnCert();
     private static UmiCVCCertificate comModuleCertificate = Keys.getRemoteCMCert();
-
-    static private UmiId comModuleUmiId = new UmiId("144115188075855873");
 
     public EI4Umi(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory,
                   IssueFactory issueFactory, NlsService nlsService, Converter converter,
@@ -271,9 +268,6 @@ public class EI4Umi extends AbstractUmiProtocol {
             Pair<ResultCode, ReadObjRspPayload> pair = umiSession.readObject(UmiSession.UMI_ID_CODE);
             if (pair.getFirst() == ResultCode.OK) {
                 deviceId = new UmiId(pair.getLast().getValue(), true);
-                TypedProperties typedProperties = com.energyict.mdc.upl.TypedProperties.empty();
-                typedProperties.setProperty("UmiId", deviceId.toString());
-                this.setUPLProperties(typedProperties);
             }
         } catch (GeneralSecurityException generalSecurityException) {
             getLogger().severe(generalSecurityException.getLocalizedMessage());

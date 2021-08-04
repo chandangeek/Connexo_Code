@@ -53,11 +53,9 @@ public class EI4UmiMessaging implements DeviceMessageSupport {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
-                /*LoadProfileMessage.READ_PROFILE_DATA.get(this.propertySpecService, this.nlsService, this.converter),
-                LogBookDeviceMessage.ReadLogBook.get(this.propertySpecService, this.nlsService, this.converter),*/
-                UmiwanDeviceMessage.WRITE_UMIWAN_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
-                UmiwanDeviceMessage.WRITE_UMIWAN_PROFILE_CONTROL.get(this.propertySpecService, this.nlsService, this.converter),
-                UmiwanDeviceMessage.WRITE_UMIWAN_EVENT_CONTROL.get(this.propertySpecService, this.nlsService, this.converter),
+                UmiwanDeviceMessage.SET_UMIWAN_CONFIGURATION.get(this.propertySpecService, this.nlsService, this.converter),
+                UmiwanDeviceMessage.SET_UMIWAN_PROFILE_CONTROL.get(this.propertySpecService, this.nlsService, this.converter),
+                UmiwanDeviceMessage.SET_UMIWAN_EVENT_CONTROL.get(this.propertySpecService, this.nlsService, this.converter),
                 UmiwanDeviceMessage.READ_UMIWAN_STD_STATUS.get(this.propertySpecService, this.nlsService, this.converter),
                 UmiwanDeviceMessage.READ_GSM_STD_STATUS.get(this.propertySpecService, this.nlsService, this.converter),
 
