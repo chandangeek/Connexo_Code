@@ -60,7 +60,7 @@ public interface CommunicationTaskService {
      * Gets all {@link ComTaskExecution}s of the specified {@link Device}
      * that are using the specified {@link ConnectionFunction}
      *
-     * @param device The Device
+     * @param device             The Device
      * @param connectionFunction the ConnectionFunction
      * @return The List of ComTaskExecution
      */
@@ -248,8 +248,8 @@ public interface CommunicationTaskService {
      * communication errors of the specified type
      * that have occurred in the specified {@link Interval}.
      *
-     * @param devices The List of Devices that are used for counting
-     * @param interval The Interval during which the communication errors have occurred
+     * @param devices                   The List of Devices that are used for counting
+     * @param interval                  The Interval during which the communication errors have occurred
      * @param successIndicatorCondition The condition that specifies the type of communication error
      * @return The number of communication errors
      */

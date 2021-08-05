@@ -710,7 +710,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     /**
      * Provide my two dates and I'll update this object according to it's settings.
      *
-     * @param nextExecutionTimestamp the time you think this object should schedule
+     * @param nextExecutionTimestamp        the time you think this object should schedule
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
      */
     private void schedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
@@ -741,7 +741,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * the nextExecutionTimeStamp according to the specs of this object
      * or the specs of my ConnectionTask.
      *
-     * @param nextExecutionTimestamp the time you think this object should schedule
+     * @param nextExecutionTimestamp        the time you think this object should schedule
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
      */
     private void doReschedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
@@ -936,8 +936,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
-        this.getConnectionTask().ifPresent(ct -> connectionTaskService.findAndLockConnectionTaskByIdAndVersion(ct.getId(), ct.getVersion()));
-        communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(this.getId(), version);
+        this.getConnectionTask().ifPresent(ct -> connectionTaskService.findAndLockConnectionTaskById(ct.getId()));
+        communicationTaskService.findAndLockComTaskExecutionById(this.getId());
         LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = " + this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),

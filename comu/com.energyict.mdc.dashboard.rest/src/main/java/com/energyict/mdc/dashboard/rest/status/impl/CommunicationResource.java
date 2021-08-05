@@ -31,6 +31,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionFilterSpecificationMessage;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.ItemizeCommunicationsFilterQueueMessage;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
@@ -178,7 +179,11 @@ public class CommunicationResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunication(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
-        ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
+        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
+        ConnectionTask connectionTask = resourceHelper.getLockedConnectionTask(comTaskExecution.getConnectionTaskId())
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, comTaskExecution.getConnectionTaskId()));
+        comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
                 .orElseThrow(conflictFactory.conflict()
                         .withActualVersion(() -> resourceHelper.getCurrentComTaskExecutionVersion(info.id))
                         .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.name)
@@ -196,7 +201,11 @@ public class CommunicationResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationNow(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
-        ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
+        ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecId)
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_COMMUNICATION_TASK, comTaskExecId));
+        ConnectionTask connectionTask = resourceHelper.getLockedConnectionTask(comTaskExecution.getConnectionTaskId())
+                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_SUCH_CONNECTION_TASK, comTaskExecution.getConnectionTaskId()));
+        comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
                 .orElseThrow(conflictFactory.conflict()
                         .withActualVersion(() -> resourceHelper.getCurrentComTaskExecutionVersion(info.id))
                         .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.name)

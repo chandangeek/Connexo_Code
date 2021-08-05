@@ -400,6 +400,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
     }
 
+    @Override
+    public Optional<ConnectionTask> findAndLockConnectionTaskById(long id) {
+        return Optional.ofNullable(this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lock(id));
+    }
+
     public List<ConnectionTask> findTimedOutConnectionTasksByComPort(ComPort comPort) {
         Set<ConnectionTask> timedOutComTasks = new HashSet<>();
         deviceDataModelService.engineConfigurationService().findContainingComPortPoolsForComPort((OutboundComPort) comPort)

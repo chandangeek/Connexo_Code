@@ -50,6 +50,11 @@ public class ResourceHelper {
                 .filter(candidate -> !candidate.isObsolete());
     }
 
+    public Optional<ConnectionTask> getLockedConnectionTask(long id) {
+        return connectionTaskService.findAndLockConnectionTaskById(id)
+                .filter(candidate -> !candidate.isObsolete());
+    }
+
     PriorityComTaskExecutionLink getLockedPriorityComTaskExecution(ComTaskExecution comTaskExecution) {
         Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(comTaskExecution);
         return priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(comTaskExecution));
