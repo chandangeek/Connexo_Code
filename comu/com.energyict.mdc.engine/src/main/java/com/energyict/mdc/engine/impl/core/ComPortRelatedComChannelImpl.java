@@ -51,7 +51,7 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     private ComPort comPort;
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
-    private Logger logger = Logger.getLogger("bytesTracing");
+    private Logger logger = Logger.getLogger("deviceMessageTracing");
     private boolean isTracing = false;
 
     public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, DeviceMessageService deviceMessageService, HexService hexService, EventPublisher eventPublisher) {
