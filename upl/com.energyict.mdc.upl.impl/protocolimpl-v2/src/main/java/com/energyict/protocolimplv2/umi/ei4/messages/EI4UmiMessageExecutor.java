@@ -45,11 +45,11 @@ public class EI4UmiMessageExecutor {
             CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             try {
-                if (pendingMessage.getSpecification().equals(UmiwanDeviceMessage.WRITE_UMIWAN_CONFIGURATION)) {
+                if (pendingMessage.getSpecification().equals(UmiwanDeviceMessage.SET_UMIWAN_CONFIGURATION)) {
                     collectedMessage = writeUmiwanConfiguration(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(UmiwanDeviceMessage.WRITE_UMIWAN_PROFILE_CONTROL)) {
+                } else if (pendingMessage.getSpecification().equals(UmiwanDeviceMessage.SET_UMIWAN_PROFILE_CONTROL)) {
                     collectedMessage = writeUmiwanProfileControl(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(UmiwanDeviceMessage.WRITE_UMIWAN_EVENT_CONTROL)) {
+                } else if (pendingMessage.getSpecification().equals(UmiwanDeviceMessage.SET_UMIWAN_EVENT_CONTROL)) {
                     collectedMessage = writeUmiwanEventControl(pendingMessage);
                 } else if (pendingMessage.getSpecification().equals(UmiwanDeviceMessage.READ_UMIWAN_STD_STATUS)) {
                     collectedMessage = readUmiwanStdStatus(pendingMessage);

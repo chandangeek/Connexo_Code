@@ -23,7 +23,6 @@ import com.energyict.protocolimplv2.umi.properties.UmiSessionProperties;
 import com.energyict.protocolimplv2.umi.session.IUmiSession;
 import com.energyict.protocolimplv2.umi.session.UmiSession;
 import com.energyict.protocolimplv2.umi.types.ResultCode;
-import com.energyict.protocolimplv2.umi.types.UmiCode;
 import com.energyict.protocolimplv2.umi.types.UmiObjectPart;
 
 import java.util.Collections;
@@ -31,8 +30,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 public class EI4UmiInbound implements BinaryInboundDeviceProtocol {
-    private static final UmiCode UMI_ID_CODE = new UmiCode("umi.0.0.0.0");
-
     protected ComChannel comChannel;
     private InboundDiscoveryContext context;
     private DeviceIdentifier deviceIdentifier;

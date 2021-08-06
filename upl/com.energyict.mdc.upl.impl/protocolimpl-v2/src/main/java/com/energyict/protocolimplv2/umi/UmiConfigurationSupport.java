@@ -12,6 +12,7 @@ import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class UmiConfigurationSupport implements HasDynamicProperties {
@@ -23,9 +24,8 @@ public class UmiConfigurationSupport implements HasDynamicProperties {
     }
 
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
-                this.stringSpec("UmiId", false, PropertyTranslationKeys.UMI_ID)
-        );
+        return Collections.emptyList();
+        //Arrays.asList(this.stringSpec("UmiId", false, PropertyTranslationKeys.UMI_ID));
     }
 
     @Override
