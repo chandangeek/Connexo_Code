@@ -9,13 +9,13 @@ import com.elster.jupiter.upgrade.Upgrader;
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
-public class UpgraderV10_9_7 implements Upgrader {
+public class UpgraderV10_9_8 implements Upgrader {
 
     private final InstallerV10_8_1Impl installerV10_8_1;
-    private final static Logger logger = Logger.getLogger(UpgraderV10_9_7.class.getName());
+    private final static Logger logger = Logger.getLogger(UpgraderV10_9_8.class.getName());
 
     @Inject
-    UpgraderV10_9_7(InstallerV10_8_1Impl installerV10_8_1) {
+    UpgraderV10_9_8(InstallerV10_8_1Impl installerV10_8_1) {
         this.installerV10_8_1 = installerV10_8_1;
     }
 
