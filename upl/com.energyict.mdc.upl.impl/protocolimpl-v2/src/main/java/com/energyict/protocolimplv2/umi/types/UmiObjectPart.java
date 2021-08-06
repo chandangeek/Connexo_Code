@@ -130,7 +130,7 @@ public class UmiObjectPart extends LittleEndianData {
                 arrayStartElement = startElementStr.isEmpty() ? 0 : Integer.parseInt(startElementStr);
                 if (matcher.group(4) != null) { // :endElement
                     String endElementStr = matcher.group(4);
-                    arrayEndElement = endElementStr.isEmpty() ? 0 : Integer.parseInt(endElementStr);
+                    arrayEndElement = endElementStr.isEmpty() ? 0xFFFF : Integer.parseInt(endElementStr);
                 } else { // [:] or [startElement:] or [startElement]
                     arrayEndElement = matcher.group(3) != null ? 0xFFFF : arrayStartElement;
                     if (startElementStr.isEmpty() && matcher.group(3) != null && matcher.group(5) != null) { // [:]/member
