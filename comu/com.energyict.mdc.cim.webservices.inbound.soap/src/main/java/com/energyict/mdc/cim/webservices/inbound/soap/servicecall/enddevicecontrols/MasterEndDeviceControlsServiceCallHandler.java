@@ -219,7 +219,17 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     private EndDeviceEventDetail wrapContactorStatusToEndDeviceEventDetail(TextReading reading) {
         EndDeviceEventDetail endDeviceEventDetail = new EndDeviceEventDetail();
         endDeviceEventDetail.setName("Contactor status");
-        endDeviceEventDetail.setValue(reading.getValue().equals(BreakerStatus.CONNECTED.getDescription()) ? "Closed" : "Opened");
+        switch (BreakerStatus.fromDescription(reading.getValue())) {
+            case CONNECTED:
+                endDeviceEventDetail.setValue("Closed");
+                break;
+            case DISCONNECTED:
+                endDeviceEventDetail.setValue("Opened");
+                break;
+            case ARMED:
+                endDeviceEventDetail.setValue("Armed");
+                break;
+        }
         return endDeviceEventDetail;
     }
 
