@@ -453,69 +453,69 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int LOW_CURRENT_TEST = 139;
 
-    public static final int POWER_FACTOR  = 140;
+    public static final int POWER_FACTOR = 140;
 
-    public static final int SECOND_HARMONIC_CURRENT_TEST  = 141;
+    public static final int SECOND_HARMONIC_CURRENT_TEST = 141;
 
-    public static final int TOTAL_HARMONIC_CURRENT  = 142;
+    public static final int TOTAL_HARMONIC_CURRENT = 142;
 
-    public static final int TOTAL_HARMONIC_VOLTAGE  = 143;
+    public static final int TOTAL_HARMONIC_VOLTAGE = 143;
 
-    public static final int VOLTAGE_IMBALANCE  = 144;
+    public static final int VOLTAGE_IMBALANCE = 144;
 
-    public static final int CURRENT_IMBALANCE  = 145;
+    public static final int CURRENT_IMBALANCE = 145;
 
-    public static final int TOTAL_DEMAND_DISTORTION  = 146;
+    public static final int TOTAL_DEMAND_DISTORTION = 146;
 
-    public static final int HIGH_VOLTAGE_TEST  = 147;
+    public static final int HIGH_VOLTAGE_TEST = 147;
 
-    public static final int REVERSE_POWER_TEST  = 148;
+    public static final int REVERSE_POWER_TEST = 148;
 
-    public static final int TOU_PROGRAMMED  = 149;
+    public static final int TOU_PROGRAMMED = 149;
 
-    public static final int EXTERNAL_ALERT  = 150;
+    public static final int EXTERNAL_ALERT = 150;
 
-    public static final int FIRMWARE_VERIFICATION_FAIL  = 151;
+    public static final int FIRMWARE_VERIFICATION_FAIL = 151;
 
-    public static final int UNEXPECTED_CONSUMPTION  = 152;
+    public static final int UNEXPECTED_CONSUMPTION = 152;
 
-    public static final int PHASE_REVERSAL  = 153;
+    public static final int PHASE_REVERSAL = 153;
 
-    public static final int MISSING_NEUTRAL  = 154;
+    public static final int MISSING_NEUTRAL = 154;
 
-    public static final int N_TIMES_DECRYPT_FAIL  = 155;
+    public static final int N_TIMES_DECRYPT_FAIL = 155;
 
-    public static final int DISCONNECTOR_READY_FOR_RECONN  = 156;
+    public static final int DISCONNECTOR_READY_FOR_RECONN = 156;
 
-    public static final int DISCONNECT_RECONNECT_FAIL  = 157;
+    public static final int DISCONNECT_RECONNECT_FAIL = 157;
 
-    public static final int LOCAL_RECONNECTION  = 158;
+    public static final int LOCAL_RECONNECTION = 158;
 
-    public static final int SUPERVISION_1_EXCEEDED  = 159;
+    public static final int SUPERVISION_1_EXCEEDED = 159;
 
-    public static final int SUPERVISION_1_OK  = 160;
+    public static final int SUPERVISION_1_OK = 160;
 
-    public static final int SUPERVISION_2_EXCEEDED  = 161;
+    public static final int SUPERVISION_2_EXCEEDED = 161;
 
-    public static final int SUPERVISION_2_OK  = 162;
+    public static final int SUPERVISION_2_OK = 162;
 
-    public static final int SUPERVISION_3_EXCEEDED  = 163;
+    public static final int SUPERVISION_3_EXCEEDED = 163;
 
-    public static final int SUPERVISION_3_OK  = 164;
+    public static final int SUPERVISION_3_OK = 164;
 
-    public static final int PHASE_ASYMMETRY  = 165;
+    public static final int PHASE_ASYMMETRY = 165;
 
-    public static final int COMMUNICATION_TIMEOUT  = 166;
+    public static final int COMMUNICATION_TIMEOUT = 166;
 
-    public static final int MODEM_INITIALIZATION_FAIL  = 167;
+    public static final int MODEM_INITIALIZATION_FAIL = 167;
 
-    public static final int SIM_CARD_FAIL  = 168;
+    public static final int SIM_CARD_FAIL = 168;
 
-    public static final int SIM_CARD_OK  = 169;
+    public static final int SIM_CARD_OK = 169;
 
-    public static final int GSM_GPRS_REGISTRATION_FAIL  = 170;
+    public static final int GSM_GPRS_REGISTRATION_FAIL = 170;
 
-    public static final int PDP_CONTEXT_ESTABLISHED  = 171;
+    public static final int PDP_CONTEXT_ESTABLISHED = 171;
 
     public static final int PDP_CONTEXT_DESTROYED = 172;
 
@@ -754,7 +754,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int INDEX_VALUE_DECREASE_OR_RESET = 353;
 
     public static final int MISMATCH_BETWEEN_TOTAL_AND_TARIFF_REGISTERS = 354;
-    
+
     public static final int TAMPER_BATTERY = 355;
 
     public static final int HLC_DAMAGE = 356;
@@ -797,7 +797,9 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
 
     public static final int BINDING_FLAG = 375;
 
+    public static final int MODEM_FAILS_RESPONSE = 428;
 
+    public static final int SOFTWARE_RESTART_REQUEST = 10001;
     /**
      * Start of Beacon3100 custom codes
      * Range from 100000 to 100129
@@ -1087,7 +1089,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
         return codeToMessage(eiCode);
     }
 
-    public static String codeToMessage(int code){
+    public static String codeToMessage(int code) {
         switch (code) {
             case POWERDOWN:
                 return ("Power down.");

@@ -34,7 +34,8 @@ import static java.nio.file.attribute.PosixFilePermission.OWNER_EXECUTE;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_READ;
 import static java.nio.file.attribute.PosixFilePermission.OWNER_WRITE;
 
-@Sandboxed(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PARENT_BREAKING_PATH + "}")
+// TODO: uncomment the following line when CXO-12451 is fixed
+//@Sandboxed(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PARENT_BREAKING_PATH + "}")
 class LocalFileDestinationImpl extends AbstractDataExportDestination implements FileDestination, FormattedFileDestination {
     private static final String NON_PATH_INVALID = "\":*?<>|";
     private static final String PATH_INVALID = "\"*?<>|";

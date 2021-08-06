@@ -1,15 +1,22 @@
 package com.energyict.mdc.upl.meterdata;
 
-import aQute.bnd.annotation.ProviderType;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateWrapper;
+
+import aQute.bnd.annotation.ProviderType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 
 import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -91,4 +98,11 @@ public interface CollectedDataFactory {
     CollectedBreakerStatus createBreakerStatusCollectedData(DeviceIdentifier deviceIdentifier);
 
     CollectedCalendar createCalendarCollectedData(DeviceIdentifier deviceIdentifier);
+
+    CollectedMessage createCollectedMessageWithUmiwanStructure(MessageIdentifier deviceMessageIdentifierById, Map<String, Object> properties, String structureCAS);
+
+    CollectedMessage createCollectedMessageWithUmiwanProfileControl(MessageIdentifier deviceMessageIdentifierById, Date startDate);
+
+    CollectedMessage createCollectedMessageWithUmiwanEventControl(MessageIdentifier deviceMessageIdentifierById, Date startTime, long controlFlags, long acknowledgeFlags);
+
 }

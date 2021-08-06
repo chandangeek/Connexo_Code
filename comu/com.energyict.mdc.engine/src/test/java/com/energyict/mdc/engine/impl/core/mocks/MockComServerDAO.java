@@ -769,4 +769,8 @@ public class MockComServerDAO implements ComServerDAO {
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return Collections.emptyList();
     }
+
+    @Override
+    public void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas) {
+    }
 }

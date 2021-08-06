@@ -20,6 +20,7 @@ import com.energyict.protocolimplv2.dlms.ei7.EI7Inbound;
 import com.energyict.protocolimplv2.eict.eiweb.EIWebBulk;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.CtrInboundDeviceProtocol;
 import com.energyict.protocolimplv2.elster.ctr.MTU155.discover.ProximusSMSInboundDeviceProtocol;
+import com.energyict.protocolimplv2.umi.ei4.EI4UmiInbound;
 
 public enum InboundDeviceProtocolRule implements PluggableClassDefinition<InboundDeviceProtocol> {
 
@@ -40,7 +41,8 @@ public enum InboundDeviceProtocolRule implements PluggableClassDefinition<Inboun
     EIWebBulk(EIWebBulk.class),
     DlmsSerialNumberDiscover(DlmsSerialNumberDiscover.class),
     CtrInboundDeviceProtocol(CtrInboundDeviceProtocol.class),
-    NFCDataPushNotification(NFCDataPushNotification.class);
+    NFCDataPushNotification(NFCDataPushNotification.class),
+    EI4UmiInbound(EI4UmiInbound.class);
 
     private final Class<? extends InboundDeviceProtocol> inboundDeviceProtocolClass;
 

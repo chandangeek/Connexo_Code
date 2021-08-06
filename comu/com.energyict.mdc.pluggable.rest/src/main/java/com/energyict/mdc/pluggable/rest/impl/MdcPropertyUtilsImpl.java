@@ -87,7 +87,7 @@ public class MdcPropertyUtilsImpl implements MdcPropertyUtils {
 
     public void convertPropertySpecsToPropertyInfos(final UriInfo uriInfo, Collection<PropertySpec> propertySpecs, TypedProperties properties, List<PropertyInfo> propertyInfoList,
                                                     MdcPropertyUtils.ValueVisibility showValue, MdcPropertyUtils.PrivilegePresence privilegePresence) {
-        if(!propertySpecs.isEmpty()) {
+        if (!propertySpecs.isEmpty()) {
             for (PropertySpec propertySpec : propertySpecs) {
                 PropertyInfo propertyInfo = propertyValueInfoService.getPropertyInfo(propertySpec, properties.getLocalValue(propertySpec.getName()) != null ? properties::getLocalValue : null);
                 modifyPropertyValueInfo(propertyInfo, propertySpec, properties, showValue, privilegePresence);

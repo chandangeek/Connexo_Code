@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.offline;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.*;
@@ -96,7 +97,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     }
 
     private void startUIThread() {
-        new Thread(new Runnable(){
+        new Thread(new Runnable() {
             public void run() {
                 try {
                     startUI();
@@ -306,6 +307,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
     private volatile List<DeactivationNotificationListener> deactivationNotificationListeners = new CopyOnWriteArrayList<>();
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private volatile TimeOfUseCampaignService timeOfUseCampaignService;
+    private volatile CustomPropertySetService customPropertySetService;
 
     @Reference
     public void setOrmService(OrmService ormService) {
@@ -493,6 +495,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
+    }
+
     private class RunningComServerServiceProvider implements RunningComServerImpl.ServiceProvider {
         @Override
         public Thesaurus thesaurus() {
@@ -534,7 +541,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
             return protocolPluggableService;
         }
 
-        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+        public DeviceMessageSpecificationService deviceMessageSpecificationService() {
             return deviceMessageSpecificationService;
         }
 
@@ -651,6 +658,11 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         @Override
         public SecurityManagementService securityManagementService() {
             return securityManagementService;
+        }
+
+        @Override
+        public CustomPropertySetService customPropertySetService() {
+            return customPropertySetService;
         }
 
         @Override
@@ -847,7 +859,7 @@ public class OfflineEngine implements OfflineEngineService, TranslationKeyProvid
         }
 
         @Override
-        public NlsMessageFormat getSimpleFormat(MessageSeed seed)  {
+        public NlsMessageFormat getSimpleFormat(MessageSeed seed) {
             return new OfflineNlsMessageFormat(seed);
         }
 

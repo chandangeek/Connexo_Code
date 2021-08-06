@@ -394,6 +394,10 @@ public enum EndDeviceEventTypeMapping {
     TEMPERATURE_SENSOR_ERROR                (374, EndDeviceEventTypeFactory.getTemperatureSensorError()),
     BINDING_FLAG                            (375, EndDeviceEventTypeFactory.getBindingFlag() ),
 
+    MODEM_FAILS_RESPONSE(428, EndDeviceEventTypeFactory.getModemFailsResponse()),
+
+    SOFTWARE_RESTART_REQUEST( 10001, EndDeviceEventTypeFactory.getSoftwareRestartRequest()),
+
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),
     POWER_MANAGEMENT_SWITCH_FULL_POWER      (100003, EndDeviceEventTypeFactory.getPowerManagementSwitchFullPowerEventType()),

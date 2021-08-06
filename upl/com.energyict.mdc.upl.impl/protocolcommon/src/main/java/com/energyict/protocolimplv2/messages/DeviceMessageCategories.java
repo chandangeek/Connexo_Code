@@ -385,6 +385,12 @@ public enum DeviceMessageCategories implements DeviceMessageCategorySupplier {
         protected List<DeviceMessageSpecSupplier> factories() {
             return Arrays.asList(FirewallConfigurationMessage.values());
         }
+    },
+    UMIWAN(42, "Umiwan messages", "This category summarizes all messages related to the umiwan messages") {
+        @Override
+        protected List<DeviceMessageSpecSupplier> factories() {
+            return Arrays.asList(UmiwanDeviceMessage.values());
+        }
     };
 
     private final int id;

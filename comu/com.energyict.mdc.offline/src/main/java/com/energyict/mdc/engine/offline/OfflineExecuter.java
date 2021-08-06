@@ -1,6 +1,7 @@
 package com.energyict.mdc.engine.offline;
 
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
@@ -720,6 +721,11 @@ public class OfflineExecuter implements OfflineActionExecuter {
         @Override
         public SecurityManagementService securityManagementService() {
             return serviceProvider.securityManagementService();
+        }
+
+        @Override
+        public CustomPropertySetService customPropertySetService() {
+            return serviceProvider.customPropertySetService();
         }
     }
 
