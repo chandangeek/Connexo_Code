@@ -459,7 +459,7 @@ public enum TableSpecs {
                     .add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).notAudited().add();
             table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).notAudited().add();
-            table.column("TRACED").bool().installValue("Y").map(ComTaskExecutionFields.TRACED.fieldName()).since(version(10, 4, 23)).notAudited().add();
+            table.column("TRACED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.TRACED.fieldName()).since(version(10, 4, 23)).notAudited().add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
