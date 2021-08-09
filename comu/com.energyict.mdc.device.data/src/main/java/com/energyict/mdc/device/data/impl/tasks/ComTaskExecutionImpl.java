@@ -142,7 +142,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private int executionPriority;
     @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     private int plannedPriority;
-    private boolean isTracing;
+    private boolean traced;
     private int currentRetryCount;
     private boolean lastExecutionFailed;
     private Reference<ComTaskExecutionSession> lastSession = ValueReference.absent();
@@ -218,7 +218,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
             this.doSetConnectionFunction(null);
             setConnectionTaskIfExists(device, comTaskEnablement);
         }
-        this.isTracing = false;
     }
 
     @JsonIgnore
@@ -674,12 +673,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
-    public boolean isTracing() {
-        return this.isTracing;
+    public boolean isTraced() {
+        return this.traced;
     }
 
-    void setIsTracing(boolean isTracing){
-        this.isTracing = isTracing;
+    void setTraced(boolean traced){
+        this.traced = traced;
     }
 
     @Override
@@ -1845,8 +1844,8 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionUpdater setIsTracing(boolean isTracing) {
-            this.comTaskExecution.setIsTracing(isTracing);
+        public ComTaskExecutionUpdater setTraced(boolean traced) {
+            this.comTaskExecution.setTraced(traced);
             return this;
         }
 

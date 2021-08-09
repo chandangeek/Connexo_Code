@@ -28,9 +28,7 @@ class ComChannelLogHandler extends FileHandler {
 
     public ComChannelLogHandler() throws IOException, SecurityException {
         super();
-        if (this.getFormatter() != null) {
-            this.setFormatter(new ComChannelLogFormatter());
-        }
+        this.setFormatter(new ComChannelLogFormatter());
     }
 
     private static class ComChannelLogFormatter extends Formatter {

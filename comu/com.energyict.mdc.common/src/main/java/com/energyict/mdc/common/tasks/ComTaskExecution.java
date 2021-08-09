@@ -306,12 +306,12 @@ public interface ComTaskExecution extends HasId, DataCollectionConfiguration {
     int getPlannedPriority();
 
     /**
-     * Tests if this ComTaskExecution should be tracing,
+     * Tests if this ComTaskExecution should be traced,
      * i.e. logs each time bytes have been read or written.
      *
-     * @return A flag that indicates if this ComTaskExecution should be tracing
+     * @return A flag that indicates if this ComTaskExecution should be traced
      */
-    boolean isTracing();
+    boolean isTraced();
 
     /**
      * Calculates and updates the next execution of this ComTaskExecution

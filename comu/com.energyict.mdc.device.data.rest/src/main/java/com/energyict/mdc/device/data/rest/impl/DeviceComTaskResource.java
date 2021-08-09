@@ -684,7 +684,7 @@ public class DeviceComTaskResource {
 
     private Consumer<ComTaskExecution> updateTracing(ComTaskTracingInfo comTaskTracingInfo, Device device) {
         return comTaskExecution -> {
-            device.getComTaskExecutionUpdater(comTaskExecution).setIsTracing(comTaskTracingInfo.isTracing).update();
+            device.getComTaskExecutionUpdater(comTaskExecution).setTraced(comTaskTracingInfo.traced).update();
         };
     }
 

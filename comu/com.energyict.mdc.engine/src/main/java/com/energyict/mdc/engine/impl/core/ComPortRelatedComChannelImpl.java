@@ -52,7 +52,7 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
     private Logger logger = Logger.getLogger("deviceMessageTracing");
-    private boolean isTracing = false;
+    private boolean traced;
 
     public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, DeviceMessageService deviceMessageService, HexService hexService, EventPublisher eventPublisher) {
         super();
@@ -323,7 +323,7 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
 
     private void logBytesWrittenAndReset() {
         byte[] bytesWrittenForLogging = this.bytesWrittenForLogging.toByteArray();
-        if (this.logger != null && isTracing) {
+        if (this.logger != null && traced) {
             String hexBytes = this.hexService.toHexString(bytesWrittenForLogging);
             this.logger.log(Level.INFO,"TX " + hexBytes);
         }
@@ -339,7 +339,7 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
 
     private void logBytesReadAndReset() {
         byte[] bytesReadForLogging = this.bytesReadForLogging.toByteArray();
-        if (this.logger != null && isTracing) {
+        if (this.logger != null && traced) {
             String hexBytes = this.hexService.toHexString(bytesReadForLogging);
             this.logger.log(Level.INFO,"RX " + hexBytes);
         }
@@ -377,7 +377,8 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
         }
     }
 
-    public void setIsTracing(boolean isTracing) {
-        this.isTracing = isTracing;
+    @Override
+    public void setTraced(boolean traced) {
+        this.traced = traced;
     }
 }

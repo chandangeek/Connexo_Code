@@ -33,6 +33,6 @@ public interface ComPortRelatedComChannel extends ComChannel, SerialPortComChann
 
     Counters getTaskSessionCounters();
 
-    void setIsTracing(boolean isTracing);
+    void setTraced(boolean traced);
 
 }

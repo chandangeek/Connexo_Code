@@ -92,7 +92,7 @@ public class DeviceComTaskInfoFactory {
                         .orElse(null);
         deviceComTasksInfo.successfulFinishTime = comTaskExecution.getLastSuccessfulCompletionTimestamp();
         deviceComTasksInfo.isOnHold = comTaskExecution.isOnHold();
-        deviceComTasksInfo.isTracing = comTaskExecution.isTracing();
+        deviceComTasksInfo.isTracing = comTaskExecution.isTraced();
         deviceComTasksInfo.status = TaskStatusTranslationKeys.translationFor(comTaskExecution.getStatus(), thesaurus);
         deviceComTasksInfo.urgency = comTaskExecution.getPlannedPriority();
         deviceComTasksInfo.ignoreNextExecutionSpecsForInbound = comTaskExecution.isIgnoreNextExecutionSpecsForInbound();
