@@ -152,16 +152,12 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     }
 
     private void storeBreakerStatus(CollectedRegister collectedRegister, CollectedMessage collectedMessage, ComServerDAO comServerDAO) {
-        BigDecimal breakerStatus = collectedRegister.getCollectedQuantity().getAmount();
+        String breakerStatus = collectedRegister.getText();
         DeviceBreakerStatus deviceBreakerStatus = new DeviceBreakerStatus(((DeviceProtocolMessageWithCollectedRegisterData) collectedMessage).getDeviceIdentifier());
-        if (breakerStatus.equals(BigDecimal.ONE)) {
-            deviceBreakerStatus.setBreakerStatus(BreakerStatus.CONNECTED);
-        } else if (breakerStatus.equals(BigDecimal.ZERO)){
-            deviceBreakerStatus.setBreakerStatus(BreakerStatus.DISCONNECTED);
-        } else  {
-            deviceBreakerStatus.setBreakerStatus(BreakerStatus.ARMED);
+        if (breakerStatus != null) {
+            deviceBreakerStatus.setBreakerStatus(BreakerStatus.fromDescription(breakerStatus));
+            comServerDAO.updateBreakerStatus(deviceBreakerStatus, false, true);
         }
-        comServerDAO.updateBreakerStatus(deviceBreakerStatus, false , true);
     }
 
     private String retrieveCreditType(CollectedRegister collectedRegister) {

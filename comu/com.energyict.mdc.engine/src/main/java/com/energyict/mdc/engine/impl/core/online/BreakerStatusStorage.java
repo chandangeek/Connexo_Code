@@ -52,9 +52,10 @@ class BreakerStatusStorage {
                    .map(ReadingType::getMRID)
                    .findFirst();
            if (mRid.isPresent()) {
-                MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
-                meterReading.addReading(ReadingImpl.of(mRid.get(), BigDecimal.valueOf(collectedBreakerStatus.ordinal()), now));
-                device.store(meterReading);
+               MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
+               String registerValueText = collectedBreakerStatus.getDescription();
+               meterReading.addReading(ReadingImpl.of(mRid.get(), registerValueText, now));
+               device.store(meterReading);
             }
        }
 
