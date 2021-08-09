@@ -384,7 +384,6 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {
         if (comPortRelatedComChannel != null) { // Is null for inbound communication via servlet technology
-            comPortRelatedComChannel.setTraced(this.comTaskExecution.isTraced());
             this.comPortRelatedComChannel = comPortRelatedComChannel;
             this.jobExecution.connected(comPortRelatedComChannel);
         }
@@ -414,6 +413,9 @@ public final class ExecutionContext implements JournalEntryFactory {
      */
     public void start(ComTaskExecutionComCommand comTaskExecutionComCommand) {
         this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
+        if (comPortRelatedComChannel != null && comTaskExecution != null) {
+            this.comPortRelatedComChannel.setTraced(this.comTaskExecution.isTraced());
+        }
         getComServerDAO().executionStarted(comTaskExecutionComCommand.getComTaskExecution(), getComPort(), true);
         this.publish(
                 new ComTaskExecutionStartedEvent(
