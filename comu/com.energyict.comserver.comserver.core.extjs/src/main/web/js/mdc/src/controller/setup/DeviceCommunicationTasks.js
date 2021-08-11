@@ -378,7 +378,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     activateTracing: function () {
          var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
              request = {};
-        request.isTracing = true;
+        request.traced = true;
         this.sendToServer(request,
             '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + comTask.get('comTask').id + '/tracing',
             Uni.I18n.translate('deviceCommunicationTask.tracingActivated', 'MDC', 'Tracing activated'));
@@ -387,7 +387,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     deactivateTracing: function () {
         var comTask = this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
             request = {};
-        request.isTracing = false;
+        request.traced = false;
         this.sendToServer(request,
             '/api/ddr/devices/' + encodeURIComponent(this.deviceId) + '/comtasks/' + comTask.get('comTask').id + '/tracing',
             Uni.I18n.translate('deviceCommunicationTask.tracingDeactivated', 'MDC', 'Tracing deactivated'));

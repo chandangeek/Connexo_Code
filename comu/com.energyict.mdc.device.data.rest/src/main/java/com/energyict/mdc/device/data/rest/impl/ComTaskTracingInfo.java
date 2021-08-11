@@ -10,12 +10,12 @@ import com.fasterxml.jackson.annotation.JsonSetter;
  * Created by Yulia Alenkova on 02/08/2021.
  */
 public class ComTaskTracingInfo {
-    public boolean isTracing;
+    public boolean traced;
     public DeviceInfo device;
 
     @JsonSetter
-    public void setIsTracing(boolean isTracing) {
-        this.isTracing = isTracing;
+    public void setTraced(boolean traced) {
+        this.traced = traced;
     }
 
 }
