@@ -14,7 +14,7 @@ Ext.define('Mdc.model.DeviceCommunicationTask', {
         {name: 'nextCommunication', dateFormat: 'time', type: 'date'},
         {name: 'lastCommunicationStart', dateFormat: 'time', type: 'date'},
         {name: 'urgency', type: 'int'},
-        {name: 'isTracing', type: 'boolean'},
+        {name: 'traced', type: 'boolean'},
         {name: 'securitySettings', type: 'string'},
         'temporalExpression',
         {name: 'scheduleType', type: 'string'},

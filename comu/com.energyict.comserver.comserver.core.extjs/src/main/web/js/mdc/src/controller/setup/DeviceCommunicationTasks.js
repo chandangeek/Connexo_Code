@@ -126,7 +126,7 @@ Ext.define('Mdc.controller.setup.DeviceCommunicationTasks', {
     configureMenu: function (menu) {
         var selection = menu.record || this.getDeviceCommunicationTaskGrid().getSelectionModel().getSelection()[0],
             isOnHold = selection.get('isOnHold'),
-            isTracing = selection.get('isTracing'),
+            isTracing = selection.get('traced'),
             isSystemComtask = selection.get('comTask').isSystemComTask,
             connectionDefinedOnDevice = selection.get('connectionDefinedOnDevice'),
             isMinimizeConnections = !connectionDefinedOnDevice ? false : selection.get('connectionStrategyKey') === 'MINIMIZE_CONNECTIONS',
