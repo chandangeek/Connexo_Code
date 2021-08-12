@@ -35,4 +35,8 @@ public interface ComPortRelatedComChannel extends ComChannel, SerialPortComChann
 
     void setTraced(boolean traced);
 
+    void setDeviceName(String deviceName);
+
+    void setComTaskName(String comTaskName);
+
 }

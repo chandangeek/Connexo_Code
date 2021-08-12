@@ -415,6 +415,8 @@ public final class ExecutionContext implements JournalEntryFactory {
         this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
         if (comPortRelatedComChannel != null && comTaskExecution != null) {
             this.comPortRelatedComChannel.setTraced(this.comTaskExecution.isTraced());
+            this.comPortRelatedComChannel.setDeviceName(this.comTaskExecution.getDevice().getName());
+            this.comPortRelatedComChannel.setComTaskName(this.comTaskExecution.getComTask().getName());
         }
         getComServerDAO().executionStarted(comTaskExecutionComCommand.getComTaskExecution(), getComPort(), true);
         this.publish(

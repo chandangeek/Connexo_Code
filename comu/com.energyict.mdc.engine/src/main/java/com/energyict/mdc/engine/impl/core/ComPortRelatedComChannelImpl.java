@@ -53,6 +53,8 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     private ByteArrayOutputStream bytesWrittenForLogging;
     private Logger logger = Logger.getLogger("deviceMessageTracing");
     private boolean traced;
+    private String deviceName;
+    private String comTaskName;
 
     public ComPortRelatedComChannelImpl(ComChannel comChannel, ComPort comPort, Clock clock, DeviceMessageService deviceMessageService, HexService hexService, EventPublisher eventPublisher) {
         super();
@@ -325,7 +327,7 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
         byte[] bytesWrittenForLogging = this.bytesWrittenForLogging.toByteArray();
         if (this.logger != null && traced) {
             String hexBytes = this.hexService.toHexString(bytesWrittenForLogging);
-            this.logger.log(Level.INFO,"TX " + hexBytes);
+            this.logger.log(Level.INFO, "TX " + hexBytes, new Object[]{deviceName, comTaskName});
         }
         this.publish(new WriteEvent(new ComServerEventServiceProvider(), this.comPort, bytesWrittenForLogging));
     }
@@ -341,7 +343,7 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
         byte[] bytesReadForLogging = this.bytesReadForLogging.toByteArray();
         if (this.logger != null && traced) {
             String hexBytes = this.hexService.toHexString(bytesReadForLogging);
-            this.logger.log(Level.INFO,"RX " + hexBytes);
+            this.logger.log(Level.INFO, "RX " + hexBytes, new Object[]{deviceName, comTaskName});
         }
         this.publish(new ReadEvent(new ComServerEventServiceProvider(), this.comPort, bytesReadForLogging));
     }
@@ -380,5 +382,15 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     @Override
     public void setTraced(boolean traced) {
         this.traced = traced;
+    }
+
+    @Override
+    public void setDeviceName(String deviceName) {
+        this.deviceName = deviceName;
+    }
+
+    @Override
+    public void setComTaskName(String comTaskName) {
+        this.comTaskName = comTaskName;
     }
 }
