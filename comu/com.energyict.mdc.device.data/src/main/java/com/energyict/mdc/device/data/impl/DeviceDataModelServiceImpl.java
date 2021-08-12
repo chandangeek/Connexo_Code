@@ -48,7 +48,7 @@ import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_8_11SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_9_3SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_23SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -767,7 +767,6 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 9), UpgraderV10_4_9.class)
                         .put(version(10, 4, 10), UpgraderV10_4_10.class)
                         .put(version(10, 4, 21), V10_4_21SimpleUpgrader.class)
-                        .put(version(10, 4, 23), V10_4_23SimpleUpgrader.class)
                         .put(version(10, 4, 24), V10_4_24SimpleUpgrader.class)
                         .put(version(10, 4, 25), UpgraderV10_4_25.class)
                         .put(version(10, 4, 28), UpgraderV10_4_28.class)
