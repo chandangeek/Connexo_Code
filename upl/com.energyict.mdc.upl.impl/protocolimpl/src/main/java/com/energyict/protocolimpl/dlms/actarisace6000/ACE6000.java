@@ -1385,7 +1385,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-01-23 10:23:42 +0200 (Wed, 23 Jan 2019)$";
+        return "$Date: 2021-08-16$";
     }
 
     @Override

@@ -455,7 +455,7 @@ public class ABBA230 extends PluggableMeterProtocol implements ProtocolLink, HHU
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-07-15 15:30:00 +0300 (Mon, 15 Jul 2019)$";
+        return "$Date: 2021-08-16$";
     }
 
     @Override

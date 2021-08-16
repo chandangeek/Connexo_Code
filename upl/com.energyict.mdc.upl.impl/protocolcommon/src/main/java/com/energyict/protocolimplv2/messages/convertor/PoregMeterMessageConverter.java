@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleAttributeMessageEntry;
@@ -36,7 +37,7 @@ public class PoregMeterMessageConverter extends AbstractMessageConverter {
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
         return ImmutableMap
                 .<DeviceMessageSpec, MessageEntryCreator>builder()
-                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry("DemandReset"))
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(RtuMessageConstant.DEMAND_RESET))
                 .put(messageSpec(ClockDeviceMessage.SetStartOfDSTWithoutHour), new MultipleAttributeMessageEntry("StartOfDST", "Month", "Day of month", "Day of week"))
                 .put(messageSpec(ClockDeviceMessage.SetEndOfDSTWithoutHour), new MultipleAttributeMessageEntry("EndOfDST", "Month", "Day of month", "Day of week"))
                 .put(messageSpec(ClockDeviceMessage.SetDSTAlgorithm), new MultipleAttributeMessageEntry("Algorithms", "Start Algorithm", "End Algorithm"))

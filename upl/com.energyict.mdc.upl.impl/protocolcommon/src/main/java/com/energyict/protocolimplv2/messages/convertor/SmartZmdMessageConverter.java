@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -45,7 +46,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month
  * Time: 16:26
  */
 public class SmartZmdMessageConverter extends AbstractMessageConverter {
-    private static final String BILLING_RESET = "BillingReset";
 
     private final TariffCalendarExtractor tariffCalendarExtractor;
 
@@ -94,7 +94,7 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(PowerConfigurationDeviceMessage.SetVoltageRatioNumerator), new NumberMessageEntry(VoltageRatioNumeratorAttributeName))
                 .put(messageSpec(PowerConfigurationDeviceMessage.SetCurrentRatioNumerator), new NumberMessageEntry(CurrentRatioNumeratorAttributeName))
                 // reset messages
-                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(RtuMessageConstant.DEMAND_RESET, false))
                 .build();
     }
 }
