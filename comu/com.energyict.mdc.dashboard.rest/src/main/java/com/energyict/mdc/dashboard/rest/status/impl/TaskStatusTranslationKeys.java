@@ -22,7 +22,7 @@ public enum TaskStatusTranslationKeys implements TranslationKey {
     PENDING_PRIO(TaskStatus.PendingWithPriority, "Pending with Priority"),
     FAILED(TaskStatus.Failed, "Failed"),
     BUSY(TaskStatus.Busy, "Busy"),
-    ON_HOLD(TaskStatus.OnHold, "Inactive"),
+    ON_HOLD(TaskStatus.OnHold, "Active"),
     RETRYING(TaskStatus.Retrying, "Retrying"),
     RETRYING_PRIO(TaskStatus.RetryingWithPriority, "Retrying with Priority"),
     NEVER_COMPLETED(TaskStatus.NeverCompleted, "Never completed"),

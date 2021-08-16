@@ -77,7 +77,7 @@ public class ConnectionTaskInfoFactory {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
             if (scheduledConnectionTask.getTaskStatus()!=null) {
                 TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(scheduledConnectionTask.getTaskStatus());
-                info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());
+                info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), taskStatusTranslationKey.getDefaultFormat());
             }
             info.connectionStrategyInfo=new DeviceConnectionTaskInfo.ConnectionStrategyInfo();
             info.connectionStrategyInfo.connectionStrategy = scheduledConnectionTask.getConnectionStrategy().name();
