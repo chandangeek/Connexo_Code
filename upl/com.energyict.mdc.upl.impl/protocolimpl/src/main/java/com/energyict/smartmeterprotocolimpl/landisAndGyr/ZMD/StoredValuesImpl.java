@@ -92,16 +92,16 @@ public class StoredValuesImpl implements StoredValues {
         CapturedObject cao = getCapturedObject(index);
 
 
-        int resetCounter = getVZ() - Math.abs(obisCode.getF());
+        long resetCounter = getVZ() - Math.abs(obisCode.getF());
 
         HistoricalValue historicalValue = new HistoricalValue();
 
         for (int i=0;i<getBuffer().getRoot().getNrOfElements();i++) {
             DataStructure ds = (DataStructure)buffer.getRoot().getElement(i);
-
+            Long IdxResetCount = ds.getLong(INDEX_RESET_COUNTER);
             // if the obiscode F field contains the right resetcounter historical value
-            if (((Integer)ds.getElement(INDEX_RESET_COUNTER)).intValue() == resetCounter) {
-                historicalValue.setResetCounter(((Integer)ds.getElement(INDEX_RESET_COUNTER)).intValue());
+            if ( IdxResetCount == resetCounter) {
+                historicalValue.setResetCounter(IdxResetCount.intValue());
                 Clock clock = new Clock(protocolLink,cof.getObjectReference(DLMSCOSEMGlobals.CLOCK_OBJECT_LN,protocolLink.getMeterConfig().getClockSN()));
                 clock.setDateTime((OctetString)ds.getElement(INDEX_CLOCK));
                 historicalValue.setBillingDate(clock.getDateTime());
