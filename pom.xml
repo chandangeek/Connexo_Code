@@ -60,8 +60,7 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <!--<url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>-->
-            <url>http://10.25.123.133/nexus/content/repositories/releases/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -72,8 +71,7 @@
         <repository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <!--<url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>-->
-            <url>http://10.25.123.133/nexus/content/repositories/snapshots/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -84,8 +82,7 @@
         <repository>
             <id>eict-third-party</id>
             <name>EnergyICT public releases repository</name>
-            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url> -->
-            <url>http://10.25.123.133/nexus/content/repositories/thirdparty/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -100,8 +97,7 @@
         <pluginRepository>
             <id>eict-plugins</id>
             <name>EnergyICT plugin repository</name>
-            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>-->
-            <url>http://10.25.123.133/nexus/content/repositories/plugins/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -112,8 +108,7 @@
         <pluginRepository>
             <id>eict-plugins-snapshots</id>
             <name>EnergyICT plugin repository</name>
-            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url> -->
-            <url>http://10.25.123.133/nexus/content/repositories/plugins-snapshots</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -162,16 +157,14 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url> -->
-            <url>http://10.25.123.133/nexus/content/repositories/releases/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
         </repository>
 
         <!--  TODO:  This should be replaced with Artifactory  -->
         <snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <!-- <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url> -->
-            <url>http://10.25.123.133/nexus/content/repositories/snapshots/</url>
+            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
