@@ -90,11 +90,6 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-        <repository>
-            <id>miredot-plugins-snapshots</id>
-            <name>EnergyICT plugin repository</name>
-            <url>http://nexus.qmino.com/content/repositories/miredot</url>
-        </repository>
     </repositories>
 
     <!-- Plugin repository specification -->
