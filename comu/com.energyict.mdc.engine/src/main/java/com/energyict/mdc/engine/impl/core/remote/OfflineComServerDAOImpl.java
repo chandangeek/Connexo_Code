@@ -698,6 +698,11 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
         return null;    // Not used in mobile DAO, as only used for scheduling of high priority tasks
     }
 
+    @Override
+    public void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas) {
+        // TODO: 19.06.2021
+    }
+
     public BlockingQueue<ComJob> getJobQueue() {
         return jobQueue;
     }

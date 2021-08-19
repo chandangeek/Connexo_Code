@@ -4,6 +4,9 @@
 
 package com.energyict.mdc.engine.impl.core.online;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.metering.readings.MeterReading;
@@ -726,8 +729,8 @@ public class ComServerDAOImpl implements ComServerDAO {
      * This method should be used when trying to set the actual security accessor value and we don't have a passive key generated. This could be the case during key agreement
      *
      * @param deviceIdentifier
-     * @param propertyName the name of the security accessor
-     * @param propertyValue the new label and key in hex format separated by a colon e.g. 574B2D44422D30312D544553542D5048415345322D32303137:800202300D020012301A0D021220041420586F8048EB8683B5EA8A51BD8317CEF38C50E7AA28A4260D0224580420FA9829FF5E6D2AC488DE3249714E7CE9CC18DA04FB4099910E0C7CB7AC76ECC1
+     * @param propertyName     the name of the security accessor
+     * @param propertyValue    the new label and key in hex format separated by a colon e.g. 574B2D44422D30312D544553542D5048415345322D32303137:800202300D020012301A0D021220041420586F8048EB8683B5EA8A51BD8317CEF38C50E7AA28A4260D0224580420FA9829FF5E6D2AC488DE3249714E7CE9CC18DA04FB4099910E0C7CB7AC76ECC1
      */
     @Override
     public void updateDeviceSecurityProperty(DeviceIdentifier deviceIdentifier, String propertyName, Object propertyValue) {
@@ -1214,7 +1217,9 @@ public class ComServerDAOImpl implements ComServerDAO {
         Optional<Instant> originalLastReading = findLoadProfile(loadProfileIdentifier).map(LoadProfile::getLastReading).map(Date::toInstant);
 
         Optional<OfflineLoadProfile> optionalOfflineLoadProfile = findLoadProfile(loadProfileIdentifier).flatMap(loadProfile -> {
-            loadProfile.getUpdater().setLastReading(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint().minusSeconds(1)).update();
+            if (collectedLoadProfile.getCollectedIntervalDataRange().hasLowerBound()) {
+                loadProfile.getUpdater().setLastReading(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint().minusSeconds(1)).update();
+            }
             return findOfflineLoadProfile(loadProfileIdentifier);
         });
         PreStoreLoadProfile loadProfilePreStorer = new PreStoreLoadProfile(this.serviceProvider.mdcReadingTypeUtilService(), this);
@@ -1587,7 +1592,7 @@ public class ComServerDAOImpl implements ComServerDAO {
      * the Device is communicating to the ComServer
      * via the specified {@link InboundConnectionTask}.
      *
-     * @param device The Device
+     * @param device         The Device
      * @param connectionTask The ConnectionTask
      * @return The SecurityPropertySet or <code>null</code> if the Device is not ready for inbound communication
      */
@@ -2195,6 +2200,8 @@ public class ComServerDAOImpl implements ComServerDAO {
         DeviceConfigurationService deviceConfigurationService();
 
         SecurityManagementService securityManagementService();
+
+        CustomPropertySetService customPropertySetService();
     }
 
     private class OfflineDeviceServiceProvider implements OfflineDeviceImpl.ServiceProvider {
@@ -2243,6 +2250,20 @@ public class ComServerDAOImpl implements ComServerDAO {
         public EventService eventService() {
             return serviceProvider.eventService();
         }
+    }
+
+    @Override
+    public void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas) {
+        Device device = getDeviceService().findDeviceById(comTaskExecution.getDevice().getId())
+                .orElseThrow(() -> new IllegalStateException("Device with id: " + comTaskExecution.getDevice().getId() + " not found."));
+        RegisteredCustomPropertySet registeredCustomPropertySet = device.getDeviceType().getCustomPropertySets()
+                .stream()
+                .filter(registeredCustomPropertySet1 -> registeredCustomPropertySet1.getCustomPropertySetId().equals(cas))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Custom property set " + cas + " not found."));
+        CustomPropertySetValues customPropertySetValues = CustomPropertySetValues.empty();
+        properties.forEach(customPropertySetValues::setProperty);
+        serviceProvider.customPropertySetService().setValuesFor(registeredCustomPropertySet.getCustomPropertySet(), device, customPropertySetValues);
     }
 
 }

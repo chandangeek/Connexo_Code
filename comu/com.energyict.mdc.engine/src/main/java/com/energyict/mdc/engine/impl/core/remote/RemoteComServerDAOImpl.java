@@ -263,6 +263,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas) {
+        // TODO: 19.06.2021
+    }
+
+    @Override
     public List<ComTaskExecution> findExecutableInboundComTasks(OfflineDevice device, InboundComPort comPort) {
         if (!isComServerDAOShutDown()) {
             Map<String, Object> queryParameters = new HashMap<>();

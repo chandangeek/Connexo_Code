@@ -454,6 +454,7 @@ public enum EndDeviceEventTypeMapping {
     ACK_NOT_RECEIVED( 431, EndDeviceEventTypeFactory.getAckNotReceived()),
     PING_RESPONSE_NOT_RECEIVED( 432, EndDeviceEventTypeFactory.getPingResponseNotReceived()),
 
+    SOFTWARE_RESTART_REQUEST( 10001, EndDeviceEventTypeFactory.getSoftwareRestartRequest()),
 
     CLEARED                                 (100001, EndDeviceEventTypeFactory.getClearedEventType()),
     POWER_MANAGEMENT_SWITCH_LOW_POWER       (100002, EndDeviceEventTypeFactory.getPowerManagementSwitchLowPowerEventType()),
