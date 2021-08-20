@@ -42,7 +42,10 @@ public class CustomPropertySetInfo {
         this.objectTypeId = objectTypeId;
         this.objectTypeVersion = objectTypeVersion;
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
-        this.editable = registeredCustomPropertySet.isEditableByCurrentUser();
+        this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
+        this.editable = !registeredCustomPropertySet.getCustomPropertySetId().equals("com.energyict.protocolimplv2.umi.GsmStdStatusCustomPropertySet")
+                && !registeredCustomPropertySet.getCustomPropertySetId().equals("com.energyict.protocolimplv2.umi.UmiwanStdStatusCustomPropertySet")
+                && registeredCustomPropertySet.isEditableByCurrentUser();
         this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.properties = properties;
         this.customPropertySetId = registeredCustomPropertySet.getCustomPropertySet().getId();
@@ -55,10 +58,13 @@ public class CustomPropertySetInfo {
         this.objectTypeId = objectTypeId;
         this.objectTypeVersion = objectTypeVersion;
         this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
-        this.editable = registeredCustomPropertySet.isEditableByCurrentUser();
+        this.name = registeredCustomPropertySet.getCustomPropertySet().getName();
+        this.editable = !registeredCustomPropertySet.getCustomPropertySetId().equals("com.energyict.protocolimplv2.umi.GsmStdStatusCustomPropertySet")
+                && !registeredCustomPropertySet.getCustomPropertySetId().equals("com.energyict.protocolimplv2.umi.UmiwanStdStatusCustomPropertySet")
+                && registeredCustomPropertySet.isEditableByCurrentUser();
         this.timesliced = registeredCustomPropertySet.getCustomPropertySet().isVersioned();
         this.properties = properties;
-        this.versionId =  effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : 0;
+        this.versionId = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : 0;
         this.startTime = effective.hasLowerBound() ? effective.lowerEndpoint().toEpochMilli() : null;
         this.endTime = effective.hasUpperBound() ? effective.upperEndpoint().toEpochMilli() : null;
         this.isActive = !properties.isEmpty() && properties.get(0).getPropertyValueInfo().getValue() != null;

@@ -368,7 +368,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_USE_REGISTER_PROFILE("upl.property.v2.eict.useRegisterProfile", "Use register profile"),
     TIME_INTERVAL_OVER_CLOCK_SYNC("upl.property.v2.eict.TIME_INTERVAL_OVER_CLOCK_SYNC", "Skip clock synchronization around time intervals"),
     IPV6_ADDRESS_AND_PREFIX_LENGTH("upl.property.v2.eict.IPV6_ADDRESS_AND_PREFIX_LENGTH", "IPv6 address and prefix length"),
-    EEK_STORAGE_LABEL("upl.property.v2.eict.EEK_STORAGE_LABEL", "Ephemeral encryption key storage label");
+    EEK_STORAGE_LABEL("upl.property.v2.eict.EEK_STORAGE_LABEL", "Ephemeral encryption key storage label"),
+    UMI_ID("upl.property.v2.eict.UMI_ID", "UMI ID");
+
     private final String key;
     private final String defaultFormat;
 
@@ -387,7 +389,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
         return this.defaultFormat;
     }
 
-   
+
 }
 
 

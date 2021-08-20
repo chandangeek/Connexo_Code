@@ -174,7 +174,7 @@ public final class DeviceMessageConstants {
      * Attribute containing the location of user file for LTE modem firmware upgrade
      */
     public static final String LTEModemFirmwareUgradeDownloadTimeoutAttributeName = "FirmwareDeviceMessage.Download_Timeout";
-    public static final String LTEModemFirmwareUgradeDownloadTimeoutAttributeNameDefaultTranslation  = "Download timeout";
+    public static final String LTEModemFirmwareUgradeDownloadTimeoutAttributeNameDefaultTranslation = "Download timeout";
 
 
     public static final String contractAttributeName = "contract";
@@ -2137,4 +2137,38 @@ public final class DeviceMessageConstants {
 
     public static final String friendlyWeekdays = "friendlyWeekdays";
     public static final String friendlyWeekdaysDefaultTranslation = "Friendly Week Days (SuSaFrThWeTuMo)";
+
+    public static final String primHost = "primHost";
+    public static final String primHostDefaultTranslation = "Primary Host";
+    public static final String secHost = "secHost";
+    public static final String secHostDefaultTranslation = "Secondary Host";
+    public static final String gateHost = "gateHost";
+    public static final String gateHostDefaultTranslation = "Gate Host";
+    public static final String inactiveTimeout = "inactiveTimeout";
+    public static final String inactiveTimeoutDefaultTranslation = "Inactive Timeout";
+    public static final String sessionTimeout = "sessionTimeout";
+    public static final String sessionTimeoutDefaultTranslation = "Session Timeout";
+    public static final String preferredTimeOfDay = "preferredTimeOfDay";
+    public static final String preferredTimeOfDayDefaultTranslation = "Preferred Time Of Day";
+    public static final String callDistance = "callDistance";
+    public static final String callDistanceDefaultTranslation = "Call Distance";
+    public static final String shortRetryDistance = "shortRetryDistance";
+    public static final String shortRetryDistanceDefaultTranslation = "Short Retry Distance";
+    public static final String longRetryDistance = "longRetryDistance";
+    public static final String longRetryDistanceDefaultTranslation = "Long Retry Distance";
+    public static final String randomZone = "randomZone";
+    public static final String randomZoneDefaultTranslation = "Random Zone";
+    public static final String controlFlags = "controlFlags";
+    public static final String controlFlagsDefaultTranslation = "Control Flags";
+    public static final String primPort = "primPort";
+    public static final String primPortDefaultTranslation = "Primary Port";
+    public static final String secPort = "secPort";
+    public static final String secPortDefaultTranslation = "Secondary Port";
+    public static final String gatePort = "gatePort";
+    public static final String gatePortDefaultTranslation = "Gate Port";
+    public static final String maxShortRetries = "maxShortRetries";
+    public static final String maxShortRetriesDefaultTranslation = "Maximum Short Retries";
+    public static final String maxLongRetries = "maxLongRetries";
+    public static final String maxLongRetriesDefaultTranslation = "Maximum Long Retries";
+
 }
