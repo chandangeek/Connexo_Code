@@ -278,6 +278,10 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>cps</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
@@ -357,11 +361,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.lifecycle.config</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>cps</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>

@@ -5,6 +5,7 @@
 package com.energyict.mdc.engine.impl;
 
 import com.elster.jupiter.appserver.AppService;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.messaging.MessageService;
@@ -168,6 +169,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     private volatile TimeOfUseCampaignService timeOfUseCampaignService;
     private volatile MessageService messageService;
     private volatile TaskService taskService;
+    private volatile CustomPropertySetService customPropertySetService;
     private OptionalIdentificationService identificationService = new OptionalIdentificationService();
     private ComServerLauncher launcher;
     private ProtocolDeploymentListenerRegistration protocolDeploymentListenerRegistration;
@@ -195,7 +197,8 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
             FirmwareService firmwareService,
             UpgradeService upgradeService,
             SecurityManagementService securityManagementService,
-            TimeOfUseCampaignService timeOfUseCampaignService) {
+            TimeOfUseCampaignService timeOfUseCampaignService,
+            CustomPropertySetService customPropertySetService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -230,6 +233,7 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         setSecurityManagementService(securityManagementService);
         setUpgradeService(upgradeService);
         setTimeOfUseCampaignService(timeOfUseCampaignService);
+        setCustomPropertySetService(customPropertySetService);
         activate(componentContext.getBundleContext());
     }
 
@@ -378,6 +382,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
     @Reference
     public void setTimeOfUseCampaignService(TimeOfUseCampaignService timeOfUseCampaignService) {
         this.timeOfUseCampaignService = timeOfUseCampaignService;
+    }
+
+    @Reference
+    public void setCustomPropertySetService(CustomPropertySetService customPropertySetService) {
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -1084,6 +1093,11 @@ public class EngineServiceImpl implements ServerEngineService, TranslationKeyPro
         @Override
         public SecurityManagementService securityManagementService() {
             return securityManagementService;
+        }
+
+        @Override
+        public CustomPropertySetService customPropertySetService() {
+            return customPropertySetService;
         }
     }
 

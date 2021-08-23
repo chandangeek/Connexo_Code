@@ -19,6 +19,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageCategories;
 import com.energyict.protocolimplv2.messages.DeviceMessageSpecSupplier;
+import com.energyict.protocolimplv2.messages.UmiwanDeviceMessage;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -254,6 +255,7 @@ public class DeviceMessageSpecificationServiceImpl implements DeviceMessageSpeci
         addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.ZigBeeConfigurationDeviceMessage.values());
         addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.CreditDeviceMessage.values());
         addAllTranslationKeys(keys, com.energyict.protocolimplv2.messages.ChargeDeviceMessage.values());
+        addAllTranslationKeys(keys, UmiwanDeviceMessage.values());
 
         return keys;
     }

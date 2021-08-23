@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl;
 
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.OrmService;
@@ -23,7 +24,11 @@ import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.common.comserver.OutboundCapable;
 import com.energyict.mdc.common.comserver.RemoteComServer;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
-import com.energyict.mdc.device.data.*;
+import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.LoadProfileService;
+import com.energyict.mdc.device.data.LogBookService;
+import com.energyict.mdc.device.data.RegisterService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
@@ -126,10 +131,10 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         this.logger = LoggerFactory.getLoggerFor(ComServerLauncherLogger.class);
     }
 
-    private void initComserverUser(){
+    private void initComserverUser() {
         try {
             comserverUser = serviceProvider.userService().findUser(EngineServiceImpl.COMSERVER_USER).get();
-        }catch(FoundUserIsNotActiveException e){
+        } catch (FoundUserIsNotActiveException e) {
             logger.userComServerNotActive(HostName.getCurrent(), EngineServiceImpl.COMSERVER_USER);
             throw e;
         }
@@ -153,7 +158,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     public boolean isStarted() {
         Set<ServerProcessStatus> startedStatusses = EnumSet.of(ServerProcessStatus.STARTING, ServerProcessStatus.STARTED);
         return this.runningComServer != null
-            && startedStatusses.contains(runningComServer.getStatus());
+                && startedStatusses.contains(runningComServer.getStatus());
     }
 
     public void stopComServer() {
@@ -188,10 +193,10 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
     }
 
     private void startOnlineComServer() {
-            Services.objectMapperService(new ObjectMapperServiceImpl(new OnlineJSONTypeMapper()));
-            ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider(), comserverUser); // we should always have the comserver user
-            this.comServer = comServerDAO.getThisComServer();
-            this.doStartOnlineComServer(comServerDAO);
+        Services.objectMapperService(new ObjectMapperServiceImpl(new OnlineJSONTypeMapper()));
+        ComServerDAO comServerDAO = new ComServerDAOImpl(new ComServerDaoServiceProvider(), comserverUser); // we should always have the comserver user
+        this.comServer = comServerDAO.getThisComServer();
+        this.doStartOnlineComServer(comServerDAO);
     }
 
     private void doStartOnlineComServer(ComServerDAO comServerDAO) {
@@ -295,7 +300,7 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
             return serviceProvider.protocolPluggableService();
         }
 
-        public DeviceMessageSpecificationService deviceMessageSpecificationService(){
+        public DeviceMessageSpecificationService deviceMessageSpecificationService() {
             return serviceProvider.deviceMessageSpecificationService();
         }
 
@@ -397,6 +402,11 @@ public final class ComServerLauncher implements ProtocolDeploymentListener {
         @Override
         public SecurityManagementService securityManagementService() {
             return serviceProvider.securityManagementService();
+        }
+
+        @Override
+        public CustomPropertySetService customPropertySetService() {
+            return serviceProvider.customPropertySetService();
         }
     }
 
