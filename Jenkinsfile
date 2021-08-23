@@ -185,9 +185,9 @@ pipeline {
                 unstash "java_classes"
                 recordIssues aggregatingResults: true,
                              enabledForFailure: true,
-                             qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
+                             qualityGates: [[threshold: 3, type: 'TOTAL_ERROR', unstable: false],
                                             [threshold: 81, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
+                                            [threshold: 21508, type: 'TOTAL_NORMAL', unstable: true]],
                              tools: [junitParser(pattern: '**/Test-*.xml'),
                                      pmdParser(),
                                      checkStyle(),
