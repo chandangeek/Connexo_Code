@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.impl.commands.store;
@@ -17,14 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-/**
- * Provides an implementation for the {@link DeviceCommand} interface
- * that will update the connection property (host, portNumber...) of a {@link com.energyict.mdc.upl.meterdata.Device device}
- * from information that was collected during the device communication session.
- *
- * @author Rudi Vankeirsbilck (rudi)
- * @since 2012-10-16 (15:48)
- */
 public class UpdateUmiwanStructure extends DeviceCommandImpl<UpdateUmiwanStructueEvent> {
 
     public static final String DESCRIPTION_TITLE = "Update umiwan structure";
