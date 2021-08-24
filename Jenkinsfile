@@ -203,9 +203,9 @@ pipeline {
                        maximumLineCoverage: '26',
                        maximumMethodCoverage: '28',
                        // Must exceed these values or the build will fail
-                       minimumBranchCoverage: '14',
+                       minimumBranchCoverage: '12',
                        minimumClassCoverage: '20',
-                       minimumComplexityCoverage: '20',
+                       minimumComplexityCoverage: '19',
                        minimumLineCoverage: '20',
                        minimumMethodCoverage: '20'
               }
