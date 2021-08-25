@@ -185,9 +185,9 @@ pipeline {
                 unstash "java_classes"
                 recordIssues aggregatingResults: true,
                              enabledForFailure: true,
-                             qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
-                                            [threshold: 80, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 21900, type: 'TOTAL_NORMAL', unstable: true]],
+                             qualityGates: [[threshold: 3, type: 'TOTAL_ERROR', unstable: false],
+                                            [threshold: 82, type: 'TOTAL_HIGH', unstable: true],
+                                            [threshold: 21510, type: 'TOTAL_NORMAL', unstable: true]],
                              tools: [junitParser(pattern: '**/Test-*.xml'),
                                      pmdParser(),
                                      checkStyle(),
@@ -203,9 +203,9 @@ pipeline {
                        maximumLineCoverage: '26',
                        maximumMethodCoverage: '28',
                        // Must exceed these values or the build will fail
-                       minimumBranchCoverage: '14',
+                       minimumBranchCoverage: '12',
                        minimumClassCoverage: '20',
-                       minimumComplexityCoverage: '20',
+                       minimumComplexityCoverage: '19',
                        minimumLineCoverage: '20',
                        minimumMethodCoverage: '20'
               }
