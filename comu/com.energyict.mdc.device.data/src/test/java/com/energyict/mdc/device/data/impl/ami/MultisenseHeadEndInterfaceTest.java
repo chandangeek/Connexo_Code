@@ -58,6 +58,7 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -137,6 +138,10 @@ public class MultisenseHeadEndInterfaceTest {
     @Mock
     private volatile ThreadPrincipalService threadPrincipalService;
     @Mock
+    private volatile CommunicationTaskService communicationTaskService;
+    @Mock
+    private volatile ConnectionTaskService connectionTaskService;
+    @Mock
     private EndDeviceCommandFactory endDeviceCommandFactory;
     @Mock
     private ReadingType readingType;
@@ -159,7 +164,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(user.hasPrivilege(KnownAmrSystem.MDC.getName(), Privileges.Constants.VIEW_DEVICE)).thenReturn(true);
         when(context.getProperty(MultiSenseHeadEndInterfaceImpl.MDC_URL)).thenReturn(url);
         headEndInterface = Mockito.spy(new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService, meteringService, thesaurus, serviceCallService,
-                customPropertySetService, endDeviceCommandFactory, threadPrincipalService, clock, communicationTaskService, priorityComTaskService, engineConfigurationService));
+                customPropertySetService, endDeviceCommandFactory, threadPrincipalService, clock, communicationTaskService, connectionTaskService, priorityComTaskService, engineConfigurationService));
         when(headEndInterface.getServiceCallCommands()).thenReturn(serviceCallCommands);    // Use mocked variant of ServiceCallCommands, as for this test we are not interested in what happens with ServiceCalls
         headEndInterface.activate(context);
         when(serviceCallCommands.createOperationServiceCall(any(), any(), any(), any())).thenReturn(serviceCall);

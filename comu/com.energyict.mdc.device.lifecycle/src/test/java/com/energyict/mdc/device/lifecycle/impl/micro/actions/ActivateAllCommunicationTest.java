@@ -5,6 +5,8 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -31,11 +33,19 @@ public class ActivateAllCommunicationTest {
     private Thesaurus thesaurus;
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     @Test
     public void executeSchedulesAllCommunicationTasks() {
         ComTaskExecution comTaskExecution1 = mock(ComTaskExecution.class);
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
+        when(comTaskExecution1.getId()).thenReturn(1L);
+        when(comTaskExecution2.getId()).thenReturn(2L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(1)).thenReturn(Optional.of(comTaskExecution1));
+        when(communicationTaskService.findAndLockComTaskExecutionById(2)).thenReturn(Optional.of(comTaskExecution2));
         comTaskExecution1.putOnHold();
         comTaskExecution2.putOnHold();
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2));
@@ -50,7 +60,7 @@ public class ActivateAllCommunicationTest {
     }
 
     private ActivateAllCommunication getTestInstance() {
-        return new ActivateAllCommunication(thesaurus, deviceService);
+        return new ActivateAllCommunication(thesaurus, deviceService, this.communicationTaskService, this.connectionTaskService);
     }
 
 }

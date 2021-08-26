@@ -57,7 +57,12 @@ import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.*;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.Calendar;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -216,9 +221,9 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
             if (!comTaskExecution.isOnHold()) {
                 if (comTaskExecution.usesSharedSchedule()) {
-                    comTaskExecution.updateNextExecutionTimestamp();
+                    communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::updateNextExecutionTimestamp);
                 } else {
-                    comTaskExecution.schedule(comTaskExecution.getNextExecutionTimestamp());
+                    communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(cte -> cte.schedule(comTaskExecution.getNextExecutionTimestamp()));
                 }
             }
         }
@@ -459,6 +464,8 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         this.getScheduledComTasks().stream().
                 filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus())).
                 filter(comTaskExecution -> !comTaskExecution.isObsolete()).
+                map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())).
+                map(Optional::get).
                 forEach(ComTaskExecution::runNow);
         return scheduleConnectionNow();
     }
@@ -506,7 +513,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     private void triggerComTasks(Instant when) {
         for (ComTaskExecution scheduledComTask : this.getScheduledComTasks()) {
             if (this.needsTriggering(scheduledComTask)) {
-                scheduledComTask.schedule(when);
+                communicationTaskService.findAndLockComTaskExecutionById(scheduledComTask.getId()).ifPresent(comTaskExecution -> comTaskExecution.schedule(when));
             }
         }
     }

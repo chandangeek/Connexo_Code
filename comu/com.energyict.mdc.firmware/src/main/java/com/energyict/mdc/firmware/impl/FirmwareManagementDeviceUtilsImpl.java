@@ -15,6 +15,8 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -54,6 +56,8 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private final FirmwareService firmwareService;
     private final DeviceMessageService deviceMessageService;
     private final TaskService taskService;
+    private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
 
     private Device device;
     private ComTaskExecution firmwareComTaskExecution;
@@ -61,7 +65,13 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private final Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
     @Inject
-    public FirmwareManagementDeviceUtilsImpl(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, TaskService taskService, DeviceMessageService deviceMessageService) {
+    public FirmwareManagementDeviceUtilsImpl(Thesaurus thesaurus,
+                                             DeviceMessageSpecificationService deviceMessageSpecificationService,
+                                             FirmwareService firmwareService,
+                                             TaskService taskService,
+                                             DeviceMessageService deviceMessageService,
+                                             ConnectionTaskService connectionTaskService,
+                                             CommunicationTaskService communicationTaskService) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareService = firmwareService;
@@ -69,6 +79,8 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         this.deviceMessageService = deviceMessageService;
         this.uploadOptionsCache = new HashMap<>();
         this.firmwareMessages = new ArrayList<>();
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     public FirmwareManagementDeviceUtils initFor(Device device, boolean onlyLastMessagePerFirmwareType) {
@@ -277,7 +289,11 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public Optional<ComTaskExecution> getFirmwareComTaskExecution() {
-        return Optional.ofNullable(firmwareComTaskExecution);
+        if (firmwareComTaskExecution.isPresent()) {
+            Optional<ConnectionTask> ct = connectionTaskService.findAndLockConnectionTaskById(this.firmwareComTaskExecution.get().getConnectionTaskId());
+            return communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.get().getId());
+        }
+        return this.firmwareComTaskExecution;
     }
 
     @Override
@@ -364,7 +380,11 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion(Device device) {
         return device.getComTaskExecutions().stream()
                 .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
-                .findFirst();
+                .findFirst()
+                .flatMap(comTaskExecution1 -> {
+                    connectionTaskService.findAndLockConnectionTaskById(comTaskExecution1.getConnectionTaskId());
+                    return communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution1.getId());
+                });
     }
 
     private Optional<ComTaskEnablement> getComTaskEnablementToCheckTheFirmwareVersion(Device device) {

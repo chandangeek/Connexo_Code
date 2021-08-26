@@ -294,7 +294,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * Note that the Start date is set while initializing and
      * the stop date is set in the close method.
      *
-     * @param e The ConnectionException that explains the failure
+     * @param e              The ConnectionException that explains the failure
      * @param connectionTask The ConnectionTask that failed to connect
      * @see #close()
      */

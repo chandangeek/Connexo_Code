@@ -62,6 +62,7 @@ import org.mockito.Matchers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -516,7 +517,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(1L, 10L)).thenReturn(Optional.<ComTaskExecution>empty());
         when(communicationTaskService.findComTaskExecution(1L)).thenReturn(Optional.of(comTaskExecution));
-
+        when(connectionTaskService.findAndLockConnectionTaskById(anyLong())).thenReturn(Optional.ofNullable(mock(ConnectionTask.class)));
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.id = 1L;
         info.version = 10L;
@@ -533,7 +534,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(1L, 10L)).thenReturn(Optional.<ComTaskExecution>empty());
         when(communicationTaskService.findComTaskExecution(1L)).thenReturn(Optional.of(comTaskExecution));
-
+        when(connectionTaskService.findAndLockConnectionTaskById(anyLong())).thenReturn(Optional.ofNullable(mock(ConnectionTask.class)));
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.id = 1L;
         info.version = 10L;

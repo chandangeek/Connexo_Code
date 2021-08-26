@@ -11,11 +11,14 @@ import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -28,19 +31,26 @@ import java.util.stream.Collectors;
 public class ActivateAllRecurringCommunications extends TranslatableServerMicroAction {
 
     protected final DeviceService deviceService;
+    private final CommunicationTaskService communicationTaskService;
+    private final ConnectionTaskService connectionTaskService;
 
-    public ActivateAllRecurringCommunications(Thesaurus thesaurus, DeviceService deviceService) {
+    public ActivateAllRecurringCommunications(Thesaurus thesaurus, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService) {
         super(thesaurus);
         this.deviceService = deviceService;
+        this.communicationTaskService = communicationTaskService;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        device.getConnectionTasks().forEach(ConnectionTask::activate);
+        device.getConnectionTasks().stream()
+                .map(connectionTask -> connectionTaskService.findAndLockConnectionTaskById(connectionTask.getId()))
+                .map(Optional::get)
+                .forEach(ConnectionTask::activate);
         device.getComTaskExecutions().stream()
                 .forEach(comTaskExecution -> {
                     if (comTaskExecution.isOnHold() && comTaskExecution.getPlannedNextExecutionTimestamp() != null) {
-                        comTaskExecution.resume();
+                        communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::resume);
                     }
                 });
 
@@ -74,5 +84,4 @@ public class ActivateAllRecurringCommunications extends TranslatableServerMicroA
         return manuallyScheduledComTaskExecutionComTaskExecutionBuilder;
     }
 }
-
 

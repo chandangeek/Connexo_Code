@@ -33,6 +33,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.FilterFactory;
 import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecification;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFilterSpecificationMessage;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
@@ -95,9 +96,23 @@ public class ConnectionResource {
     private final FilterFactory filterFactory;
     private final ResourceHelper resourceHelper;
     private final ConcurrentModificationExceptionFactory conflictFactory;
+    private final CommunicationTaskService communicationTaskService;
 
     @Inject
-    public ConnectionResource(ConnectionTaskService connectionTaskService, EngineConfigurationService engineConfigurationService, ProtocolPluggableService protocolPluggableService, DeviceConfigurationService deviceConfigurationService, ConnectionTaskInfoFactory connectionTaskInfoFactory, ExceptionFactory exceptionFactory, MeteringGroupsService meteringGroupsService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory, MessageService messageService, JsonService jsonService, AppService appService, MdcPropertyUtils mdcPropertyUtils, FilterFactory filterFactory, ResourceHelper resourceHelper, ConcurrentModificationExceptionFactory conflictFactory) {
+    public ConnectionResource(ConnectionTaskService connectionTaskService,
+                              EngineConfigurationService engineConfigurationService,
+                              ProtocolPluggableService protocolPluggableService,
+                              DeviceConfigurationService deviceConfigurationService,
+                              ConnectionTaskInfoFactory connectionTaskInfoFactory,
+                              ExceptionFactory exceptionFactory,
+                              MeteringGroupsService meteringGroupsService,
+                              ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory,
+                              MessageService messageService, JsonService jsonService,
+                              AppService appService, MdcPropertyUtils mdcPropertyUtils,
+                              FilterFactory filterFactory,
+                              ResourceHelper resourceHelper,
+                              ConcurrentModificationExceptionFactory conflictFactory,
+                              CommunicationTaskService communicationTaskService) {
         super();
         this.connectionTaskService = connectionTaskService;
         this.engineConfigurationService = engineConfigurationService;
@@ -114,6 +129,7 @@ public class ConnectionResource {
         this.filterFactory = filterFactory;
         this.resourceHelper = resourceHelper;
         this.conflictFactory = conflictFactory;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @GET
@@ -341,10 +357,12 @@ public class ConnectionResource {
 
         if (connectionTask instanceof ScheduledConnectionTask) {
             ScheduledConnectionTask scheduledConnectionTask = (ScheduledConnectionTask) connectionTask;
-            scheduledConnectionTask.getScheduledComTasks().stream().
-                    filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus())).
-                    filter(comTaskExecution -> !comTaskExecution.isObsolete()).
-                    forEach(ComTaskExecution::runNow);
+            scheduledConnectionTask.getScheduledComTasks().stream()
+                    .filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus()))
+                    .filter(comTaskExecution -> !comTaskExecution.isObsolete())
+                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                    .map(Optional::get)
+                    .forEach(ComTaskExecution::runNow);
 
             scheduledConnectionTask.scheduleNow();
         } else {
@@ -446,10 +464,10 @@ public class ConnectionResource {
     /**
      * Gets the ConnectionTypePluggableClass from either filter or list of connections.
      *
-     * @param filterQueryParam Describes the filter accepted by the method
+     * @param filterQueryParam      Describes the filter accepted by the method
      * @param connectionsQueryParam Describes a list of (long) ids
      * @return unique ConnectionTypePluggableClass, or exception if not unique
-     * @throws IOException if Jackson was unable to parse the Json filter or id list
+     * @throws IOException      if Jackson was unable to parse the Json filter or id list
      * @throws RuntimeException if the distills ConnectionTypePluggableClass was not unique
      */
     private ConnectionTypePluggableClass getConnectionTypePluggableClassFromQueryParameters(String filterQueryParam, String connectionsQueryParam) throws Exception {
@@ -469,9 +487,9 @@ public class ConnectionResource {
      * Gets the ConnectionTypePluggableClass from either filter or list of connections.
      *
      * @param filterMessage Describes the filter accepted by the method
-     * @param connections Describes a list of (long) ids
+     * @param connections   Describes a list of (long) ids
      * @return unique ConnectionTypePluggableClass, or exception if not unique
-     * @throws IOException if Jackson was unable to parse the Json filter or id list
+     * @throws IOException      if Jackson was unable to parse the Json filter or id list
      * @throws RuntimeException if the distilles ConnectionTypePluggableClass was not unique
      */
     private ConnectionTypePluggableClass getConnectionTypePluggableClassFromQueryParameters(ConnectionTaskFilterSpecificationMessage filterMessage, List<Long> connections) throws Exception {

@@ -12,33 +12,47 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
 /**
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will activate all communication tasks with the device.
+ *
  * @see {@link MicroAction#ACTIVATE_ALL_COMMUNICATION}
  * @since 2020-03-26 (16:58)
  */
 public class ActivateAllCommunication extends TranslatableServerMicroAction {
 
     protected final DeviceService deviceService;
+    private final CommunicationTaskService communicationTaskService;
+    private final ConnectionTaskService connectionTaskService;
 
-    public ActivateAllCommunication(Thesaurus thesaurus, DeviceService deviceService) {
+    public ActivateAllCommunication(Thesaurus thesaurus, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService) {
         super(thesaurus);
         this.deviceService = deviceService;
+        this.communicationTaskService = communicationTaskService;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        device.getConnectionTasks().forEach(ConnectionTask::activate);
-        device.getComTaskExecutions().stream().filter(ComTaskExecution::isOnHold).forEach(ComTaskExecution::resume);
+        device.getConnectionTasks().stream()
+                .map(connectionTask -> connectionTaskService.findAndLockConnectionTaskById(connectionTask.getId()))
+                .map(Optional::get)
+                .forEach(ConnectionTask::activate);
+        device.getComTaskExecutions().stream()
+                .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                .map(Optional::get)
+                .forEach(ComTaskExecution::resume);
         deviceService.findDeviceById(device.getId())
                 .ifPresent(modDevice -> modDevice.getDeviceConfiguration().getComTaskEnablements().stream()
                         .filter(comTaskEnablement -> !modDevice.getComTaskExecutions().stream()

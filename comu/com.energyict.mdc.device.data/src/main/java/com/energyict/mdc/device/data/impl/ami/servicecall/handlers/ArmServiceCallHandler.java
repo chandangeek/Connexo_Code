@@ -14,6 +14,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
@@ -43,13 +44,14 @@ public class ArmServiceCallHandler extends AbstractContactorOperationServiceCall
 
     // Constructor only to be used in JUnit tests
     public ArmServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus,
-                                 CompletionOptionsCallBack completionOptionsCallBack, CommunicationTaskService communicationTaskService,
+                                 CompletionOptionsCallBack completionOptionsCallBack, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService,
                                  EngineConfigurationService engineConfigurationService, PriorityComTaskService priorityComTaskService,
                                  DeviceMessageService deviceMessageService) {
         super.setMessageService(messageService);
         super.setDeviceService(deviceService);
         super.setThesaurus(thesaurus);
         super.setCompletionOptionsCallBack(completionOptionsCallBack);
+        super.setConnectionTaskService(connectionTaskService);
         super.setCommunicationTaskService(communicationTaskService);
         super.setEngineConfigurationService(engineConfigurationService);
         super.setPriorityComTaskService(priorityComTaskService);
@@ -74,6 +76,11 @@ public class ArmServiceCallHandler extends AbstractContactorOperationServiceCall
     @Reference
     public void setNlsService(NlsService nlsService) {
         super.setThesaurus(nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        super.setConnectionTaskService(connectionTaskService);
     }
 
     @Reference

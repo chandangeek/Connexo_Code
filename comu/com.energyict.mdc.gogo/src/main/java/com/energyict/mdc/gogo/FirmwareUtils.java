@@ -22,6 +22,8 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -64,6 +66,8 @@ public class FirmwareUtils {
     private volatile UserService userService;
     private volatile TaskService taskService;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile ConnectionTaskService connectionTaskService;
 
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
@@ -113,6 +117,16 @@ public class FirmwareUtils {
     @Reference
     public void setTaskService(TaskService taskService) {
         this.taskService = taskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     /**
@@ -195,7 +209,11 @@ public class FirmwareUtils {
                 Device.DeviceMessageBuilder deviceMessageBuilder = device.get().newDeviceMessage(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE);
 
                 DeviceMessageSpec deviceMessageSpec = deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue()).get();
-                PropertySpec firmwareVersionPropertySpec = deviceMessageSpec.getPropertySpecs().stream().filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class)).findAny().get();
+                PropertySpec firmwareVersionPropertySpec = deviceMessageSpec.getPropertySpecs()
+                        .stream()
+                        .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
+                        .findAny()
+                        .get();
 
                 DeviceMessage deviceMessage = deviceMessageBuilder
                         .addProperty(firmwareVersionPropertySpec.getName(), firmwareVersion)
@@ -221,9 +239,8 @@ public class FirmwareUtils {
                 executeTransaction(() -> {
                     if (existingFirmwareComTaskExecution.isPresent()) {
                         System.out.println("Reusing existing FirmwareComTaskExecution");
-                        ComTaskExecution firmwareComTaskExecution = existingFirmwareComTaskExecution.get();
-                        firmwareComTaskExecution.runNow();
-                        System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
+                        connectionTaskService.findAndLockConnectionTaskById(existingFirmwareComTaskExecution.get().getConnectionTaskId());
+                        communicationTaskService.findAndLockComTaskExecutionById(existingFirmwareComTaskExecution.get().getId()).ifPresent(ComTaskExecution::runNow);
                     } else {
                         System.out.println("Creating a new FirmwareComTaskExecution based on the enablement of the config");
                         Optional<ComTaskEnablement> firmwareComTaskEnablement = device.get().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask.get());
@@ -231,7 +248,7 @@ public class FirmwareUtils {
                             ComTaskExecutionBuilder firmwareComTaskExecutionBuilder = device.get().newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
                             ComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionBuilder.add();
                             device.get().save();
-                            firmwareComTaskExecution.runNow();
+                            communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
                             System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                         } else {
                             System.out.println("There is no 'Firmware management' ComTaskEnablement defined for device " + deviceName);

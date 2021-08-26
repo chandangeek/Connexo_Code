@@ -55,6 +55,7 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -194,6 +195,8 @@ public class DeviceDeleteTest {
     private MessageService messageService;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
 
     @Before
     public void setup() {
@@ -339,7 +342,7 @@ public class DeviceDeleteTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService);
+                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService, communicationTaskService);
         device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;

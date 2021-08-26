@@ -28,6 +28,7 @@ import com.energyict.mdc.device.data.rest.DeviceStagesRestricted;
 import com.energyict.mdc.device.data.rest.LogLevelAdapter;
 import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -79,16 +80,23 @@ public class DeviceComTaskResource {
     private final ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory;
     private final ComSessionInfoFactory comSessionInfoFactory;
     private final JournalEntryInfoFactory journalEntryInfoFactory;
+    private final ConnectionTaskService connectionTaskService;
     private final ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck;
     private final Clock clock;
 
-
     @Inject
-    public DeviceComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, DeviceComTaskInfoFactory deviceComTaskInfoFactory,
-                                 TaskService taskService, CommunicationTaskService communicationTaskService, EngineConfigurationService engineConfigurationService,
-                                 TopologyService topologyService, ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory,
-                                 ComSessionInfoFactory comSessionInfoFactory, JournalEntryInfoFactory journalEntryInfoFactory,
-                                 ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck, Clock clock) {
+    public DeviceComTaskResource(ResourceHelper resourceHelper,
+                                 ExceptionFactory exceptionFactory,
+                                 DeviceComTaskInfoFactory deviceComTaskInfoFactory,
+                                 TaskService taskService,
+                                 CommunicationTaskService communicationTaskService,
+                                 TopologyService topologyService,
+                                 ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory,
+                                 ComSessionInfoFactory comSessionInfoFactory,
+                                 JournalEntryInfoFactory journalEntryInfoFactory,
+                                 ConnectionTaskService connectionTaskService,
+                                 ComTaskExecutionPrivilegeCheck comTaskExecutionPrivilegeCheck,
+                                 Clock clock) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.deviceComTaskInfoFactory = deviceComTaskInfoFactory;
@@ -99,6 +107,7 @@ public class DeviceComTaskResource {
         this.comTaskExecutionSessionInfoFactory = comTaskExecutionSessionInfoFactory;
         this.comSessionInfoFactory = comSessionInfoFactory;
         this.journalEntryInfoFactory = journalEntryInfoFactory;
+        this.connectionTaskService = connectionTaskService;
         this.comTaskExecutionPrivilegeCheck = comTaskExecutionPrivilegeCheck;
         this.clock = clock;
     }
@@ -204,7 +213,7 @@ public class DeviceComTaskResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response run(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
             @Context SecurityContext securityContext) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.name = name;
@@ -215,7 +224,7 @@ public class DeviceComTaskResource {
         LOGGER.log(Level.INFO, "CONM-3550 :: Run performed at device level by " + user.getName());
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
-                comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
+                comTaskExecutions.stream().map(this::getLockedComTaskExecution).forEach(ComTaskExecution::scheduleNow);
             }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
@@ -234,7 +243,7 @@ public class DeviceComTaskResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response runnow(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskConnectionMethodInfo info,
             @Context SecurityContext securityContext) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.name = name;
@@ -245,7 +254,10 @@ public class DeviceComTaskResource {
         LOGGER.log(Level.INFO, "CONM-3550 :: RunNow performed at device level by " + user.getName());
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
-                comTaskExecutions.forEach(runComTaskFromExecutionNow());
+                comTaskExecutions.forEach(comTaskExecution -> {
+                    connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+                    communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
+                });
             }
         } else {
             List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
@@ -324,7 +336,7 @@ public class DeviceComTaskResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response runnowForMultipleTasks(@PathParam("name") String name, RetriggerComTasksInfo info,
             @Context SecurityContext securityContext) {
-        if (info==null || info.device==null) {
+        if (info == null || info.device == null) {
             throw exceptionFactory.newException(Response.Status.BAD_REQUEST, MessageSeeds.VERSION_MISSING);
         }
         info.device.name = name;
@@ -336,7 +348,10 @@ public class DeviceComTaskResource {
                 checkForNoActionsAllowedOnSystemComTask(comTaskId);
                 List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
                 if (!comTaskExecutions.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
-                    comTaskExecutions.forEach(runComTaskFromExecutionNow());
+                    comTaskExecutions.forEach(comTaskExecution -> {
+                        connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+                        communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
+                    });
                 } else {
                     List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
                     if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
@@ -462,7 +477,7 @@ public class DeviceComTaskResource {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
-        comTaskExecutions.stream().filter(ComTaskExecution::isOnHold).forEach(ComTaskExecution::resume);
+        comTaskExecutions.stream().filter(ComTaskExecution::isOnHold).map(this::getLockedComTaskExecution).forEach(ComTaskExecution::resume);
     }
 
     @PUT
@@ -490,7 +505,7 @@ public class DeviceComTaskResource {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
-        comTaskExecutions.stream().filter(not(ComTaskExecution::isOnHold)).forEach(ComTaskExecution::putOnHold);
+        comTaskExecutions.stream().filter(not(ComTaskExecution::isOnHold)).map(this::getLockedComTaskExecution).forEach(ComTaskExecution::putOnHold);
     }
 
     @PUT
@@ -544,14 +559,14 @@ public class DeviceComTaskResource {
     private Consumer<? super ComTaskEnablement> runComTaskFromEnablement(Device device) {
         return comTaskEnablement -> {
             ComTaskExecution comTaskExecution = createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add();
-            comTaskExecution.scheduleNow();
+            getLockedComTaskExecution(comTaskExecution).scheduleNow();
         };
     }
 
     private Consumer<? super ComTaskEnablement> runComTaskFromEnablementNow(Device device) {
         return comTaskEnablement -> {
             ComTaskExecution comTaskExecution = createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add();
-            comTaskExecution.runNow();
+            communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
         };
     }
 
@@ -574,11 +589,6 @@ public class DeviceComTaskResource {
         }
         return manuallyScheduledComTaskExecutionComTaskExecutionBuilder;
     }
-
-    private Consumer<? super ComTaskExecution> runComTaskFromExecutionNow() {
-        return ComTaskExecution::runNow;
-    }
-
 
     private List<ComTaskExecution> getComTaskExecutionsForDeviceAndComTask(Long comTaskId, Device device) {
         return device.getComTaskExecutions().stream()
@@ -677,5 +687,12 @@ public class DeviceComTaskResource {
                 : Collections.emptyList();
         return supportedConnectionFunctions.stream().filter(cf -> cf.getId() == connectionFunctionId).findFirst()
                 .orElseThrow(() -> this.exceptionFactory.newException(MessageSeeds.NO_SUCH_CONNECTION_FUNCTION));
+    }
+
+    private ComTaskExecution getLockedComTaskExecution(ComTaskExecution comTaskExecution) {
+        long comTaskId = comTaskExecution.getId();
+        Optional<ConnectionTask> ct = connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+        return communicationTaskService.findAndLockComTaskExecutionById(comTaskId)
+                .orElseThrow(() -> new IllegalStateException("ComTaskExecution with id: " + comTaskId + " not found."));
     }
 }

@@ -18,6 +18,8 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.multisense.api.impl.utils.MessageSeeds;
 import com.energyict.mdc.multisense.api.security.Privileges;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
@@ -53,21 +55,31 @@ public class DeviceContactorResource {
     private final DeviceService deviceService;
     private final Clock clock;
     private final ExceptionFactory exceptionFactory;
+    private final CommunicationTaskService communicationTaskService;
+    private final ConnectionTaskService connectionTaskService;
 
     @Inject
-    public DeviceContactorResource(DeviceMessageSpecificationService deviceMessageSpecificationService, DeviceService deviceService, Clock clock, ExceptionFactory exceptionFactory) {
+    public DeviceContactorResource(DeviceMessageSpecificationService deviceMessageSpecificationService,
+                                   DeviceService deviceService,
+                                   Clock clock,
+                                   ExceptionFactory exceptionFactory,
+                                   CommunicationTaskService communicationTaskService,
+                                   ConnectionTaskService connectionTaskService) {
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceService = deviceService;
         this.clock = clock;
         this.exceptionFactory = exceptionFactory;
+        this.communicationTaskService = communicationTaskService;
+        this.connectionTaskService = connectionTaskService;
     }
 
     /**
      * Change the device's contacter state. A device command will be created to put the requested state on the
      * contactor. The comTask responsible of sending the command to the device will be triggered to run (runnow).
      * Note: loadLimit and loadTolerance are not currently supported.
-     * @param mRID             The device's mrid
-     * @param contactorInfo     The requested contactor state
+     *
+     * @param mRID          The device's mrid
+     * @param contactorInfo The requested contactor state
      * @param uriInfo
      * @return HTTP 202 upon success
      * @responseheader location href to device message/command. Poll this resource to follow up on message state
@@ -76,8 +88,8 @@ public class DeviceContactorResource {
      */
     @PUT
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
-    @Consumes(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed(Privileges.Constants.PUBLIC_REST_API)
     public Response updateContactor(@PathParam("mrid") String mRID, ContactorInfo contactorInfo, @Context UriInfo uriInfo) {
         Device device = deviceService.findDeviceByMrid(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
@@ -87,7 +99,9 @@ public class DeviceContactorResource {
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
                 .findFirst();
         long messageId = createDeviceMessageOnDevice(contactorInfo, device, deviceMessageId);
-        existingComTaskExecution.orElseGet(()->createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
+        existingComTaskExecution.ifPresent(comTaskExecution -> connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId()));
+        existingComTaskExecution.flatMap(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                .orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
 
         URI uri = uriInfo.getBaseUriBuilder().
                 path(DeviceMessageResource.class).
@@ -113,11 +127,11 @@ public class DeviceContactorResource {
      * <br> The call above will return only the requested fields of the entity. In the absence of a field list, all fields
      * will be returned. If IDs are required in the URL for parent entities, then will be ignored when using the PROPFIND method.
      *
-     * @summary List the fields available on this type of entity
      * @return A list of field names that can be requested as parameter in the GET method on this entity type
+     * @summary List the fields available on this type of entity
      */
     @PROPFIND
-    @Produces(MediaType.APPLICATION_JSON+";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.PUBLIC_REST_API})
     public List<String> getFields() { // Needs to be hardcoded: no GET method => No factory to read fields from
         return Arrays.asList("status", "loadLimit", "activationDate", "loadTolerance", "callback").stream().sorted().collect(toList());
@@ -139,9 +153,8 @@ public class DeviceContactorResource {
     private long createDeviceMessageOnDevice(ContactorInfo contactorInfo, Device device, DeviceMessageId deviceMessageId) {
         Device.DeviceMessageBuilder deviceMessageBuilder =
                 device
-                    .newDeviceMessage(deviceMessageId)
-                    .setReleaseDate(clock.instant())
-                ;
+                        .newDeviceMessage(deviceMessageId)
+                        .setReleaseDate(clock.instant());
         if (contactorInfo.activationDate != null) {
             Optional<DeviceMessageSpec> optionalMessageSpec = deviceMessageSpecificationService.findMessageSpecById(deviceMessageId.dbValue());
             if (optionalMessageSpec.isPresent()) {
@@ -163,29 +176,29 @@ public class DeviceContactorResource {
 
     private ComTaskEnablement getComTaskEnablementForDeviceMessage(Device device, DeviceMessageId deviceMessageId) {
         return device.getDeviceConfiguration().
-                    getComTaskEnablements().stream().
-                    filter(cte -> cte.getComTask().getProtocolTasks().stream().
-                            filter(task -> task instanceof MessagesTask).
-                            flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
-                            flatMap(category -> category.getMessageSpecifications().stream()).
-                            filter(dms -> dms.getId().equals(deviceMessageId)).
-                            findFirst().
-                            isPresent()).
-                    findAny().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_COMTASK_FOR_COMMAND));
+                getComTaskEnablements().stream().
+                filter(cte -> cte.getComTask().getProtocolTasks().stream().
+                        filter(task -> task instanceof MessagesTask).
+                        flatMap(task -> ((MessagesTask) task).getDeviceMessageCategories().stream()).
+                        flatMap(category -> category.getMessageSpecifications().stream()).
+                        filter(dms -> dms.getId().equals(deviceMessageId)).
+                        findFirst().
+                        isPresent()).
+                findAny().orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.NO_COMTASK_FOR_COMMAND));
     }
 
     private DeviceMessageId getMessageId(ContactorInfo contactorInfo) {
-        if (contactorInfo.status==null) {
+        if (contactorInfo.status == null) {
             throw exceptionFactory.newException(MessageSeeds.EXPECTED_CONTACTOR_STATUS);
         }
         // TODO load limiting DeviceMessageId.LOAD_BALANCING...
         switch (contactorInfo.status) {
             case connected:
-                return contactorInfo.activationDate!=null?DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE:DeviceMessageId.CONTACTOR_CLOSE;
+                return contactorInfo.activationDate != null ? DeviceMessageId.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_CLOSE;
             case disconnected:
-                return contactorInfo.activationDate!=null?DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE:DeviceMessageId.CONTACTOR_OPEN;
+                return contactorInfo.activationDate != null ? DeviceMessageId.CONTACTOR_OPEN_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_OPEN;
             case armed:
-                return contactorInfo.activationDate!=null?DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE:DeviceMessageId.CONTACTOR_ARM;
+                return contactorInfo.activationDate != null ? DeviceMessageId.CONTACTOR_ARM_WITH_ACTIVATION_DATE : DeviceMessageId.CONTACTOR_ARM;
             default:
                 throw exceptionFactory.newException(MessageSeeds.UNKNOWN_STATUS);
         }

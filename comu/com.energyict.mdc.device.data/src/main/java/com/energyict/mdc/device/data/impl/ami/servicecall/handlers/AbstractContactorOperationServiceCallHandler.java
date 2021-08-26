@@ -16,6 +16,7 @@ import com.energyict.mdc.device.data.impl.ami.servicecall.CommandServiceCallDoma
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import java.text.MessageFormat;
@@ -34,6 +35,7 @@ import static com.elster.jupiter.metering.ami.CompletionMessageInfo.FailureReaso
 public abstract class AbstractContactorOperationServiceCallHandler extends AbstractOperationServiceCallHandler {
 
     private volatile DeviceService deviceService;
+    private volatile ConnectionTaskService connectionTaskService;
     private volatile CommunicationTaskService communicationTaskService;
     private volatile PriorityComTaskService priorityComTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
@@ -45,6 +47,10 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
 
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {

@@ -203,6 +203,7 @@ import com.energyict.mdc.device.data.impl.tasks.ConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ServerConnectionTask;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.TypedProperties;
@@ -317,6 +318,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Reference<Batch> batch = ValueReference.absent();
     private ConnectionTaskService connectionTaskService;
     private MeteringZoneService meteringZoneService;
+    private CommunicationTaskService communicationTaskService;
 
     @SuppressWarnings("unused")
     private long id;
@@ -401,7 +403,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             ConnectionTaskService connectionTaskService,
             MeteringZoneService meteringZoneService,
             MessageService messageService,
-            JsonService jsonService) {
+            JsonService jsonService,
+            CommunicationTaskService communicationTaskService) {
         this.dataModel = dataModel;
         this.eventService = eventService;
         this.issueService = issueService;
@@ -427,6 +430,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         this.connectionTaskService = connectionTaskService;
         this.messageService = messageService;
         this.jsonService = jsonService;
+        this.communicationTaskService = communicationTaskService;
         this.koreHelper.syncWithKore(this);
         this.meteringZoneService = meteringZoneService;
     }
@@ -1325,11 +1329,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        comTaskEnablement.getPartialConnectionTask().ifPresent(partialConnectionTask -> connectionTaskService.findAndLockConnectionTaskById(partialConnectionTask.getId()));
         return new AdHocComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
     }
 
     @Override
     public ComTaskExecutionBuilder newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement) {
+        comTaskEnablement.getPartialConnectionTask().ifPresent(partialConnectionTask -> connectionTaskService.findAndLockConnectionTaskById(partialConnectionTask.getId()));
         return new FirmwareComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
     }
 
@@ -1533,20 +1539,16 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .filter(comTaskEnablement -> containsStatusInformationProtocolTask(comTaskEnablement.getComTask().getProtocolTasks()))
                 .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()))
                 .findFirst();
-        if (bestComTaskExecution.isPresent() && bestComTaskEnablement.isPresent()) {
-            if (bestComTaskExecution.get().getComTask().equals(bestComTaskEnablement.get().getComTask())) {
-                comTaskExecution = bestComTaskExecution;
-            } else {
-                comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
-            }
-        } else if (bestComTaskExecution.isPresent()) {
+        if (bestComTaskExecution.isPresent()) {
             comTaskExecution = bestComTaskExecution;
+            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.get().getConnectionTaskId());
         } else if (bestComTaskEnablement.isPresent()) {
             comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
         }
         if (!comTaskExecution.isPresent()) {
             throw new NoStatusInformationTaskException();
         }
+        comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.get().getId());
         requestedAction.accept(comTaskExecution.get());
     }
 
@@ -2333,9 +2335,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     /**
      * Adds meter readings for a single channel to the timeslot-map.
      *
-     * @param interval The interval over which meter readings are requested
-     * @param meter The meter for which readings are requested
-     * @param mdcChannel The meter's channel for which readings are requested
+     * @param interval                    The interval over which meter readings are requested
+     * @param meter                       The meter for which readings are requested
+     * @param mdcChannel                  The meter's channel for which readings are requested
      * @param sortedLoadProfileReadingMap The map to add the readings to in the correct timeslot
      * @return true if any readings were added to the map, false otherwise
      */
@@ -2505,9 +2507,9 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * just a list of placeholders for each reading interval within the requestedInterval for all timestamps
      * that occur with the bounds of a meter activation and load profile's last reading.
      *
-     * @param loadProfile The LoadProfile
+     * @param loadProfile       The LoadProfile
      * @param requestedInterval interval over which user wants to see readings
-     * @param meter The Meter
+     * @param meter             The Meter
      * @return The map
      */
     private Map<Instant, LoadProfileReadingImpl> getPreFilledLoadProfileReadingMap(LoadProfile loadProfile, Range<Instant> requestedInterval, Meter meter) {
@@ -2883,7 +2885,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
      * Sorts the {@link MeterActivation}s of the specified {@link Meter}
      * that overlap with the {@link Interval}, where the most recent activations are returned first.
      *
-     * @param meter The Meter
+     * @param meter    The Meter
      * @param interval The Interval
      * @return The List of MeterActivation
      */
@@ -2990,8 +2992,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
         ComTaskExecutionBuilder comTaskExecutionBuilder = newAdHocComTaskExecution(enablement);
         if (enablement.hasPartialConnectionTask()) {
-            getConnectionTasks().stream()
+            getConnectionTasks()
+                    .stream()
                     .filter(connectionTask -> connectionTask.getPartialConnectionTask().getId() == enablement.getPartialConnectionTask().get().getId())
+                    .map(connectionTask -> connectionTaskService.findAndLockConnectionTaskById(connectionTask.getId()))
+                    .map(Optional::get)
                     .forEach(comTaskExecutionBuilder::connectionTask);
         }
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
@@ -3482,7 +3487,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             comTaskExecutionsBuilders.stream()
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::scheduleNow);
             comTaskExecutionsUpdaters.stream()
-                    .forEach(comTaskExecutionUpdater -> comTaskExecutionUpdater.getComTaskExecution().scheduleNow());
+                    .map(ComTaskExecutionUpdater::getComTaskExecution)
+                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                    .map(Optional::get)
+                    .forEach(ComTaskExecution::scheduleNow);
             return this;
         }
 
@@ -3491,7 +3499,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             comTaskExecutionsBuilders.stream()
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::runNow);
             comTaskExecutionsUpdaters.stream()
-                    .forEach(comTaskExecutionUpdater -> comTaskExecutionUpdater.getComTaskExecution().runNow());
+                    .map(ComTaskExecutionUpdater::getComTaskExecution)
+                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                    .map(Optional::get)
+                    .forEach(ComTaskExecution::runNow);
             return this;
         }
 
@@ -3500,7 +3511,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             comTaskExecutionsBuilders.stream()
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::putOnHold);
             comTaskExecutionsUpdaters.stream()
-                    .forEach(comTaskExecutionUpdater -> comTaskExecutionUpdater.getComTaskExecution().putOnHold());
+                    .map(ComTaskExecutionUpdater::getComTaskExecution)
+                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                    .map(Optional::get)
+                    .forEach(ComTaskExecution::putOnHold);
         }
 
         @Override
@@ -3508,7 +3522,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             comTaskExecutionsBuilders.stream()
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::resume);
             comTaskExecutionsUpdaters.stream()
-                    .forEach(comTaskExecutionUpdater -> comTaskExecutionUpdater.getComTaskExecution().resume());
+                    .map(ComTaskExecutionUpdater::getComTaskExecution)
+                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                    .map(Optional::get)
+                    .forEach(ComTaskExecution::resume);
         }
 
         @Override

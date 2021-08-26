@@ -22,6 +22,8 @@ import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -87,6 +89,10 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     private DeviceMessageCategory firmwareCategory;
     @Mock
     private DeviceMessageService deviceMessageService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     private List<DeviceMessage> messages;
 

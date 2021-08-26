@@ -55,6 +55,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
@@ -159,6 +161,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile TransactionService transactionService;
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
     private volatile DeviceConfigurationService deviceConfigurationService;
+    private volatile ConnectionTaskService connectionTaskService;
 
     private final List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private final List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
@@ -189,7 +192,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                                BundleContext bundleContext,
                                TransactionService transactionService,
                                MeteringGroupsService meteringGroupsService,
-                               DeviceConfigurationService deviceConfigurationService) {
+                               DeviceConfigurationService deviceConfigurationService,
+                               ConnectionTaskService connectionTaskService) {
         this();
         setOrmService(ormService);
         setNlsService(nlsService);
@@ -210,6 +214,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         setTransactionService(transactionService);
         setMeteringGroupsService(meteringGroupsService);
         setDeviceConfigurationService(deviceConfigurationService);
+        setConnectionTaskService(connectionTaskService);
         activate(bundleContext);
     }
 
@@ -236,6 +241,11 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Reference
@@ -608,6 +618,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     private void cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
+        long comTaskId = fwComTaskExecution.getId();
+        Optional<ConnectionTask> ct = connectionTaskService.findAndLockConnectionTaskById(fwComTaskExecution.getConnectionTaskId());
+        fwComTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskId)
+                .orElseThrow(() -> new IllegalStateException("ComTaskExecution with id: " + comTaskId + " not found."));
         if (fwComTaskExecution.getNextExecutionTimestamp() != null) {
             fwComTaskExecution.schedule(null);
             fwComTaskExecution.updateNextExecutionTimestamp();
@@ -718,6 +732,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     bind(MessageService.class).toInstance(messageService);
                     bind(UserService.class).toInstance(userService);
                     bind(PropertySpecService.class).toInstance(propertySpecService);
+                    bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                    bind(ConnectionTaskService.class).toInstance(connectionTaskService);
                     bind(TopologyService.class).toInstance(topologyService);
                     bind(ServiceCallService.class).toInstance(serviceCallService);
                     bind(OrmService.class).toInstance(ormService);

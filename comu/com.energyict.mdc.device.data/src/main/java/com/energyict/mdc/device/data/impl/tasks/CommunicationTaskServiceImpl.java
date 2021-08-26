@@ -161,7 +161,9 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private ServerComTaskExecution refreshComTaskExecution(ComTaskExecution comTaskExecution) {
-        ServerComTaskExecution freshComTaskExecution = (ServerComTaskExecution) deviceDataModelService.dataModel().mapper(ComTaskExecution.class).getUnique("id", comTaskExecution.getId()).get();
+        long comTaskId = comTaskExecution.getId();
+        Optional<ConnectionTask> ct = deviceDataModelService.connectionTaskService().findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+        ServerComTaskExecution freshComTaskExecution = (ServerComTaskExecution) this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class).lock(comTaskId);
         Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(comTaskExecution);
         if (priorityComTaskExecutionLink.isPresent()) {
             return new PriorityComTaskExecutionImpl(freshComTaskExecution, (ServerPriorityComTaskExecutionLink) priorityComTaskExecutionLink.get());

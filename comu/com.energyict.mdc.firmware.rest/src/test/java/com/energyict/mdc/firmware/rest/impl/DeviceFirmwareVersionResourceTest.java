@@ -12,11 +12,14 @@ import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareManagementDeviceUtilsImpl;
+
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -56,6 +59,10 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     private DeviceMessageCategory deviceMessageCategory;
     @Mock
     DeviceMessageService deviceMessageService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     @Before
     public void setUpStubs() {
@@ -78,7 +85,7 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(deviceMessageCategory.getId()).thenReturn(8);
         when(this.taskService.findFirmwareComTask()).thenReturn(Optional.<ComTask>empty());
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
                         .getArguments()[0], false)
         );
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class), eq(true))).thenAnswer(

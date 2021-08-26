@@ -936,8 +936,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
-        Optional<ConnectionTask> ct = this.getConnectionTask().flatMap(ct1 -> connectionTaskService.findAndLockConnectionTaskById(ct1.getId()));
-        communicationTaskService.findAndLockComTaskExecutionById(this.getId());
         LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = " + this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
@@ -948,12 +946,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 ComTaskExecutionFields.ONHOLD.fieldName(),
                 ComTaskExecutionFields.PLANNEDNEXTEXECUTIONTIMESTAMP.fieldName());
         if (informConnectionTask) {
-            if (ct.isPresent()) {
+            this.getConnectionTask().ifPresent(ct -> {
                 if (!calledByConnectionTask) {
-                    ((ServerConnectionTask) ct.get()).scheduledComTaskRescheduled(this);
+                    ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this);
                 }
                 calledByConnectionTask = false;
-            }
+            });
         }
     }
 

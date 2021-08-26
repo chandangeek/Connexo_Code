@@ -42,6 +42,7 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -161,6 +162,8 @@ public class DeviceMultiplierTest {
     private MessageService messageService;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
 
     private Instant now = Instant.ofEpochSecond(1448460000L); //25-11-2015
     private Instant startOfMeterActivation = Instant.ofEpochSecond(1447977600L); // 20-11-2015
@@ -239,7 +242,7 @@ public class DeviceMultiplierTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationTaskProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService);
+                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService, communicationTaskService);
 //        setId(device, ID);
         device.initialize(deviceConfiguration, "Name", startOfMeterActivation);
         device.save();
@@ -469,7 +472,7 @@ public class DeviceMultiplierTest {
 
         Device mockedDevice = createMockedDevice(meterActivationStart);
 
-        doReturn(Arrays.asList(otherMeterActivation3,otherMeterActivation2,otherMeterActivation1, meterActivation)).when(meter).getMeterActivations();
+        doReturn(Arrays.asList(otherMeterActivation3, otherMeterActivation2, otherMeterActivation1, meterActivation)).when(meter).getMeterActivations();
         when(meterActivation.getStart()).thenReturn(meterActivationStart);
         when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
         when(otherMeterActivation1.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
@@ -501,7 +504,7 @@ public class DeviceMultiplierTest {
 
         Device mockedDevice = createMockedDevice(meterActivationStart);
 
-        doReturn(Arrays.asList(otherMeterActivation3,otherMeterActivation2,otherMeterActivation1, meterActivation)).when(meter).getMeterActivations();
+        doReturn(Arrays.asList(otherMeterActivation3, otherMeterActivation2, otherMeterActivation1, meterActivation)).when(meter).getMeterActivations();
         when(meterActivation.getStart()).thenReturn(meterActivationStart);
         when(meterActivation.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.TEN));
         when(otherMeterActivation1.getMultiplier(multiplierType)).thenReturn(Optional.of(BigDecimal.TEN));

@@ -31,22 +31,24 @@ public class ConnectionTaskRescheduleMessageHandler implements MessageHandler {
         RescheduleConnectionTaskQueueMessage rescheduleConnectionTaskQueueMessage = jsonService.deserialize(message.getPayload(), RescheduleConnectionTaskQueueMessage.class);
         ConnectionTask connectionTask = connectionTaskService.findConnectionTask(rescheduleConnectionTaskQueueMessage.connectionTaskId).orElseThrow(() -> new RuntimeException());
         switch (rescheduleConnectionTaskQueueMessage.action) {
-            case "scheduleNow": scheduleNow(connectionTask);
+            case "scheduleNow":
+                scheduleNow(connectionTask);
                 break;
-            default: LOGGER.log(Level.WARNING, "Unknown action for ConnectionTask: "+ rescheduleConnectionTaskQueueMessage.action);
+            default:
+                LOGGER.log(Level.WARNING, "Unknown action for ConnectionTask: " + rescheduleConnectionTaskQueueMessage.action);
         }
     }
 
     private void scheduleNow(ConnectionTask connectionTask) {
         if (!connectionTask.isObsolete()) {
             if (connectionTask instanceof ScheduledConnectionTask) {
-                LOGGER.info("Connection task '"+connectionTask.getName()+"': scheduleNow()");
-                ((ScheduledConnectionTask) connectionTask).scheduleNow();
+                LOGGER.info("Connection task '" + connectionTask.getName() + "': scheduleNow()");
+                connectionTaskService.findAndLockConnectionTaskById(connectionTask.getId()).ifPresent(ct -> ((ScheduledConnectionTask) ct).scheduleNow());
             } else {
-                LOGGER.info("Connection task '"+connectionTask.getName()+"' skipped: not a ScheduledConnectionTask");
+                LOGGER.info("Connection task '" + connectionTask.getName() + "' skipped: not a ScheduledConnectionTask");
             }
         } else {
-            LOGGER.info("Connection task '"+connectionTask.getName()+"' skipped: it is obsolete");
+            LOGGER.info("Connection task '" + connectionTask.getName() + "' skipped: it is obsolete");
         }
     }
 

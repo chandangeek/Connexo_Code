@@ -62,6 +62,7 @@ import com.energyict.mdc.device.data.security.Privileges;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -108,8 +109,9 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     private volatile CustomPropertySetService customPropertySetService;
     private volatile EndDeviceCommandFactory endDeviceCommandFactory;
     private volatile ThreadPrincipalService threadPrincipalService;
-    private volatile CommunicationTaskService communicationTaskService;
     private volatile Clock clock;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile ConnectionTaskService connectionTaskService;
     private volatile PriorityComTaskService priorityComTaskService;
     private volatile EngineConfigurationService engineConfigurationService;
 
@@ -120,10 +122,18 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     @Inject
-    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService, DeviceConfigurationService deviceConfigurationService, MeteringService meteringService, Thesaurus thesaurus,
-                                          ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService, EndDeviceCommandFactory endDeviceCommandFactory,
-                                          ThreadPrincipalService threadPrincipalService, Clock clock, CommunicationTaskService communicationTaskService,
-                                          PriorityComTaskService priorityComTaskService, EngineConfigurationService engineConfigurationService) {
+    public MultiSenseHeadEndInterfaceImpl(DeviceService deviceService,
+                                          DeviceConfigurationService deviceConfigurationService,
+                                          MeteringService meteringService, Thesaurus thesaurus,
+                                          ServiceCallService serviceCallService,
+                                          CustomPropertySetService customPropertySetService,
+                                          EndDeviceCommandFactory endDeviceCommandFactory,
+                                          ThreadPrincipalService threadPrincipalService,
+                                          Clock clock,
+                                          CommunicationTaskService communicationTaskService,
+                                          ConnectionTaskService connectionTaskService,
+                                          PriorityComTaskService priorityComTaskService,
+                                          EngineConfigurationService engineConfigurationService) {
         this.deviceService = deviceService;
         this.meteringService = meteringService;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -134,6 +144,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
         this.threadPrincipalService = threadPrincipalService;
         this.clock = clock;
         this.communicationTaskService = communicationTaskService;
+        this.connectionTaskService = connectionTaskService;
         this.priorityComTaskService = priorityComTaskService;
         this.engineConfigurationService = engineConfigurationService;
     }
@@ -187,6 +198,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     @Reference
     public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Reference
@@ -385,10 +401,11 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
     }
 
     private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {
-        ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId())
+        connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+        comTaskExecution = getLockedComTaskExecution(comTaskExecution.getId())
                 .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
-        lockedComTaskExecution.addNewComTaskExecutionTrigger(instant);
-        lockedComTaskExecution.updateNextExecutionTimestamp();
+        comTaskExecution.addNewComTaskExecutionTrigger(instant);
+        comTaskExecution.updateNextExecutionTimestamp();
     }
 
     private Optional<ComTaskExecution> getLockedComTaskExecution(long id) {
@@ -494,6 +511,7 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
             if (existingComTaskExecution.isPresent() && existingComTaskExecution.get().isOnHold()) {
                 throw NoSuchElementException.comTaskCouldNotBeLocated(thesaurus).get();
             }
+            existingComTaskExecution.ifPresent(comTaskExecution -> connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId()));
             ComTaskExecution comTaskExecution = existingComTaskExecution.orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablementEntry.getKey()));
 
             ComTaskExecution lockedComTaskExecution = getLockedComTaskExecution(comTaskExecution.getId())

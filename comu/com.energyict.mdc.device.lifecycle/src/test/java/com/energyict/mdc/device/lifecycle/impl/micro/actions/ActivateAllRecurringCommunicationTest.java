@@ -5,6 +5,8 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -30,6 +32,10 @@ public class ActivateAllRecurringCommunicationTest {
     private Thesaurus thesaurus;
     @Mock
     private DeviceService deviceService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     @Test
     public void executeSchedulesAllCommunicationTasks() {
@@ -54,7 +60,7 @@ public class ActivateAllRecurringCommunicationTest {
     }
 
     private ActivateAllRecurringCommunications getTestInstance() {
-        return new ActivateAllRecurringCommunications(thesaurus, deviceService);
+        return new ActivateAllRecurringCommunications(thesaurus, deviceService, this.communicationTaskService, this.connectionTaskService);
     }
 
 }

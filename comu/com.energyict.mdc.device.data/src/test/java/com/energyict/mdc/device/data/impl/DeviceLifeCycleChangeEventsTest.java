@@ -39,6 +39,7 @@ import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -70,9 +71,9 @@ import static org.mockito.Mockito.when;
 
 /**
  * Tests getting the List of {@link DeviceLifeCycleChangeEvent}s from a {@link DeviceImpl}.
- * @see {@link DeviceImpl#getDeviceLifeCycleChangeEvents()}
  *
  * @author Rudi Vankeirsbilck (rudi)
+ * @see {@link DeviceImpl#getDeviceLifeCycleChangeEvents()}
  * @since 2015-05-15 (14:14)
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -151,6 +152,8 @@ public class DeviceLifeCycleChangeEventsTest {
     private MessageService messageService;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
 
     @Mock
     private MeteringZoneService meteringZoneService;
@@ -369,7 +372,8 @@ public class DeviceLifeCycleChangeEventsTest {
                 connectionTaskService,
                 meteringZoneService,
                 messageService,
-                jsonService)
+                jsonService,
+                communicationTaskService)
                 .initialize(this.deviceConfiguration, "Hello world", Instant.now());
         device.save();
         return device;

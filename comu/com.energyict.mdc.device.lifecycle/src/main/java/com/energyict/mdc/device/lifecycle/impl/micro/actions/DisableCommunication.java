@@ -12,11 +12,14 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.ExecutableActionProperty;
 import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
@@ -25,24 +28,34 @@ import static com.elster.jupiter.util.streams.Predicates.not;
  * Provides an implementation for the {@link ServerMicroAction} interface
  * that will disable communication with the device
  * by putting all connection and communication tasks on hold.
- * @see {@link MicroAction#DISABLE_COMMUNICATION}
  *
  * @author Rudi Vankeirsbilck (rudi)
+ * @see {@link com.energyict.mdc.device.lifecycle.config.MicroAction#DISABLE_COMMUNICATION}
  * @since 2015-05-05 (16:58)
  */
 public class DisableCommunication extends TranslatableServerMicroAction {
 
     protected final DeviceService deviceService;
+    private final CommunicationTaskService communicationTaskService;
+    private final ConnectionTaskService connectionTaskService;
 
-    public DisableCommunication(Thesaurus thesaurus, DeviceService deviceService) {
+    public DisableCommunication(Thesaurus thesaurus, DeviceService deviceService, CommunicationTaskService communicationTaskService, ConnectionTaskService connectionTaskService) {
         super(thesaurus);
         this.deviceService = deviceService;
+        this.communicationTaskService = communicationTaskService;
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
-        device.getConnectionTasks().forEach(ConnectionTask::deactivate);
-        device.getComTaskExecutions().forEach(ComTaskExecution::putOnHold);
+        device.getConnectionTasks().stream()
+                .map(connectionTask -> connectionTaskService.findAndLockConnectionTaskById(connectionTask.getId()))
+                .map(Optional::get)
+                .forEach(ConnectionTask::deactivate);
+        device.getComTaskExecutions().stream()
+                .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                .map(Optional::get)
+                .forEach(ComTaskExecution::putOnHold);
         deviceService.findDeviceById(device.getId())
                 .ifPresent(modDevice -> modDevice.getDeviceConfiguration().getComTaskEnablements().stream()
                         .filter(comTaskEnablement -> !modDevice.getComTaskExecutions().stream()
