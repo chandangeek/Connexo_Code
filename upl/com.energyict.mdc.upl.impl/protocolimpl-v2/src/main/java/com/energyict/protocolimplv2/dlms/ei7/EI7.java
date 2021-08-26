@@ -49,7 +49,6 @@ public class EI7 extends A2 {
 
             Data firmwareData = getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_OBIS_CODE);
             AbstractDataType valueAttr = firmwareData.getValueAttr();
-            ;
 
 
             if (valueAttr.isOctetString()) {
