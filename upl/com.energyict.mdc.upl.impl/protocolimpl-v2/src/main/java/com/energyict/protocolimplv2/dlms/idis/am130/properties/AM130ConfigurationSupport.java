@@ -1,10 +1,15 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.HDLC2Connection;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
-import com.energyict.mdc.upl.properties.*;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
@@ -54,8 +59,10 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 this.cipheringTypePropertySpec(),
                 this.callingAPTitlePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
+                this.serverLowerMacAddressPropertySpec(),
                 this.callHomeIdPropertySpec(),
-                this.masterKeyPropertySpec());
+                this.masterKeyPropertySpec(),
+                this.getConnectionMode());
     }
 
     @Override
@@ -64,7 +71,23 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec serverUpperMacAddressPropertySpec() {
-        return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE, PropertyTranslationKeys.V2_DLMS_SERVER_UPPER_MAC_ADDRESS);
+        return this.bigDecimalSpec(SERVER_UPPER_MAC_ADDRESS, BigDecimal.ONE, PropertyTranslationKeys.V2_DLMS_SERVER_UPPER_MAC_ADDRESS);
+    }
+
+    protected PropertySpec serverLowerMacAddressPropertySpec() {
+        return this.bigDecimalSpec(SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO, PropertyTranslationKeys.V2_DLMS_SERVER_LOWER_MAC_ADDRESS);
+    }
+
+    protected PropertySpec getConnectionMode()
+    {
+        return UPLPropertySpecFactory
+                .specBuilder(CONNECTION_MODE, false, PropertyTranslationKeys.V2_DLMS_CONNECTION_MODE, this.propertySpecService::stringSpec)
+                .setDefaultValue("WRAPPER")
+                .addValues(
+                        "WRAPPER",
+                        "HDLC")
+                .markExhaustive()
+                .finish();
     }
 
     protected PropertySpec useGeneralBlockTransferPropertySpec() {
@@ -81,7 +104,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec cipheringTypePropertySpec() {
         return UPLPropertySpecFactory
-                .specBuilder(DlmsProtocolProperties.CIPHERING_TYPE, false, PropertyTranslationKeys.V2_DLMS_CIPHERING_TYPE, this.propertySpecService::stringSpec)
+                .specBuilder(CIPHERING_TYPE, false, PropertyTranslationKeys.V2_DLMS_CIPHERING_TYPE, this.propertySpecService::stringSpec)
                 .setDefaultValue(this.getDefaultCipheringType().getDescription())
                 .addValues(
                         CipheringType.GLOBAL.getDescription(),

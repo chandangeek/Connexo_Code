@@ -28,6 +28,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.IDISStoredValues;
 import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.events.Mx382LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.messages.Mx382Messaging;
 import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata.Mx382ProfileDataReader;
+import com.energyict.protocolimplv2.edp.EDPDlmsSession;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 
 import java.util.Arrays;
@@ -57,8 +58,12 @@ public class Mx382 extends AM130 {
     }
 
     protected void initDlmsSession(ComChannel comChannel) {
-        readFrameCounter(comChannel, (int) getDlmsSessionProperties().getTimeout());
-        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), hhuSignOn, offlineDevice.getSerialNumber()));
+        readFrameCounter( comChannel, (int) getDlmsSessionProperties().getTimeout() );
+        if(getDlmsSessionProperties().getConnectionMode().equals("HDLC")) {
+            setDlmsSession(new EDPDlmsSession(comChannel, getDlmsSessionProperties()));
+        } else {
+            setDlmsSession( new DlmsSession( comChannel, getDlmsSessionProperties(), hhuSignOn, offlineDevice.getSerialNumber() ) );
+        }
     }
 
     private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
