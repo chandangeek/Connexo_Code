@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>8.0.0-Kratos-SNAPSHOT</version>
+        <version>8.0.1-Kratos-SNAPSHOT</version>
     </parent>
     <artifactId>bootstrap.h2</artifactId>
     <packaging>bundle</packaging>
