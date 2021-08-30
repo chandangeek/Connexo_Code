@@ -16,6 +16,7 @@ import java.util.Date;
 
 /**
  * Created by H165680 on 17/04/2017.
+ * Modified by H219811 on 30/08/2021
  */
 public class GSMDiagnosticsMapping extends G3Mapping {
 
