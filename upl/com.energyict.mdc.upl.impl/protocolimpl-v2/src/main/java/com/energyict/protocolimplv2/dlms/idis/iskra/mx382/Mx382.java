@@ -81,7 +81,7 @@ public class Mx382 extends AM130 {
 
     @Override
     public String getVersion(){
-        return "$Date: 2021-07-07 15:30:00 +0300 (Wed, 07 Jul 2021)$";
+        return "2021-08-30";
     }
 
     @Override
