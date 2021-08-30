@@ -260,4 +260,10 @@ public interface DlmsSessionProperties extends CommunicationSessionProperties {
      * @return
      */
     long getFrameCounterLimit();
+    /**
+    * Used to split HDLC and WRAPPER connection modes.
+    */
+    default String getConnectionMode() {
+        return "";
+    }
 }

@@ -278,7 +278,8 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 .finish();
     }
 
-    private PropertySpec serverLowerMacAddressPropertySpec() {
+    @Override
+    protected PropertySpec serverLowerMacAddressPropertySpec() {
         return this.bigDecimalSpec(DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS, false, PropertyTranslationKeys.V2_DLMS_SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
     }
 
