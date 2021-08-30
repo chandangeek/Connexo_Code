@@ -52,6 +52,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static com.energyict.dlms.common.DlmsProtocolProperties.HDLC_STR;
+
 /**
  * Extension of the old AM500 protocol (IDIS package 1), adding extra features (IDIS package 2)
  * Copyrights EnergyICT
@@ -146,7 +148,7 @@ public class AM130 extends AM500 {
 
         long frameCounter;
         DlmsSession publicDlmsSession = null;
-        if(getDlmsSessionProperties().getConnectionMode().equals("HDLC")) {
+        if(getDlmsSessionProperties().getConnectionMode().equals(HDLC_STR)) {
             publicDlmsSession = new EDPDlmsSession(comChannel, publicClientProperties);
         } else {
             publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);

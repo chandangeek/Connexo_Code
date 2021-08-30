@@ -78,14 +78,13 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
         return this.bigDecimalSpec(SERVER_LOWER_MAC_ADDRESS, BigDecimal.ZERO, PropertyTranslationKeys.V2_DLMS_SERVER_LOWER_MAC_ADDRESS);
     }
 
-    protected PropertySpec getConnectionMode()
-    {
+    protected PropertySpec getConnectionMode() {
         return UPLPropertySpecFactory
                 .specBuilder(CONNECTION_MODE, false, PropertyTranslationKeys.V2_DLMS_CONNECTION_MODE, this.propertySpecService::stringSpec)
-                .setDefaultValue("WRAPPER")
+                .setDefaultValue(DEFAULT_CONNECTION_MODE)
                 .addValues(
-                        "WRAPPER",
-                        "HDLC")
+                        WRAPPER_STR,
+                        HDLC_STR)
                 .markExhaustive()
                 .finish();
     }
