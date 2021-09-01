@@ -39,14 +39,7 @@ import com.elster.jupiter.pki.SecurityAccessorUserAction;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
-import com.elster.jupiter.upgrade.InstallIdentifier;
-import com.elster.jupiter.upgrade.UpgradeService;
-import com.elster.jupiter.upgrade.Upgrader;
-import com.elster.jupiter.upgrade.V10_4_2SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_8SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_9SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_6SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_7SimpleUpgrader;
+import com.elster.jupiter.upgrade.*;
 import com.elster.jupiter.users.Privilege;
 import com.elster.jupiter.users.Resource;
 import com.elster.jupiter.users.User;
@@ -744,6 +737,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         .put(Version.version(10, 7), V10_7SimpleUpgrader.class)
                         .put(Version.version(10, 8), UpgraderV10_8.class)
                         .put(Version.version(10, 8, 1), UpgraderV10_8_1.class)
+                        .put(Version.version(10, 8, 16), V10_8_16SimpleUpgrader.class)
                         .build());
         initPrivileges();
     }

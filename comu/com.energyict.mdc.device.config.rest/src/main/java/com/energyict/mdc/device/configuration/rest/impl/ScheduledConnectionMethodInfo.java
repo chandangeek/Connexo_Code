@@ -39,6 +39,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
             connectionStrategyInfo.localizedValue = ConnectionStrategyTranslationKeys.translationFor(partialConnectionTask.getConnectionStrategy(), thesaurus);
         }
         this.numberOfSimultaneousConnections = partialConnectionTask.getNumberOfSimultaneousConnections();
+        this.numberOfRetriesConnectionMethod = partialConnectionTask.getNumberOfRetriesConnectionMethod();
         this.rescheduleRetryDelay = TimeDurationInfo.of(partialConnectionTask.getRescheduleDelay());
         if (partialConnectionTask.getCommunicationWindow()!=null) {
             this.comWindowStart=partialConnectionTask.getCommunicationWindow().getStart().getMillis()/1000;
@@ -56,6 +57,7 @@ public class ScheduledConnectionMethodInfo extends ConnectionMethodInfo<PartialS
         super.writeTo(partialConnectionTask, deviceType, engineConfigurationService, protocolPluggableService);
         partialConnectionTask.setDefault(this.isDefault);
         partialConnectionTask.setNumberOfSimultaneousConnections(this.numberOfSimultaneousConnections);
+        partialConnectionTask.setNumberOfRetriesConnectionMethod(this.numberOfRetriesConnectionMethod);
         if (this.comWindowEnd!=null && this.comWindowStart!=null) {
             partialConnectionTask.setComWindow(new ComWindow(this.comWindowStart, this.comWindowEnd));
         } else {

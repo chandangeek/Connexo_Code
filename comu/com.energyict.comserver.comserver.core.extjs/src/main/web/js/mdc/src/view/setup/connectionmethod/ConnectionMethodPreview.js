@@ -232,7 +232,20 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodPreview', {
                                             field.hide();
                                         }
                                     }
-                                }
+                                },
+                                {
+                                    xtype: 'displayfield',
+                                    name: 'numberOfRetriesConnectionMethod',
+                                    fieldLabel: Uni.I18n.translate('deviceconnectionmethod.numberOfRetries', 'MDC', 'Max number of tries'),
+                                    renderer: function (value, field) {
+                                        if (value !== null) {
+                                            field.show();
+                                            return value;
+                                        } else {
+                                            field.hide();
+                                        }
+                                    }
+                                },
                             ]
                         }
                     ]
