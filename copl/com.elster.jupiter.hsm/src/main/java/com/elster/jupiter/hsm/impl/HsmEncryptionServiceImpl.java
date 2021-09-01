@@ -5,6 +5,7 @@ import com.elster.jupiter.hsm.impl.config.HsmConfiguration;
 import com.elster.jupiter.hsm.model.HsmBaseException;
 import com.elster.jupiter.hsm.model.HsmNotConfiguredException;
 import com.elster.jupiter.hsm.model.config.HsmLabelConfiguration;
+import com.atos.worldline.jss.api.FunctionTimedOutException;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
 import com.atos.worldline.jss.api.basecrypto.Asymmetric;
@@ -42,11 +43,18 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     public byte[] symmetricEncrypt(byte[] bytes, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
         logger.debug("Symmetric encrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ", Base64.getEncoder()
                 .encodeToString(bytes), label, icv, chainingMode, paddingAlgorithm);
-        try {
-            return Symmetric.encrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, bytes, getIcv(icv), paddingAlgorithm, chainingMode).getData();
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                return Symmetric.encrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, bytes, getIcv(icv), paddingAlgorithm, chainingMode).getData();
+            } catch (FunctionTimedOutException e){
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
+        throw new HsmBaseException("Symmetric.encrypt failed after all retries");
     }
 
     @Override
@@ -59,31 +67,52 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     public byte[] symmetricDecrypt(byte[] cipher, String label, byte[] icv, ChainingMode chainingMode, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
         logger.debug("Symmetric decrypt:\n bytes:{}\nlabel:{}\nicv:{}\nchaining mode:{}\npadding algorithm:{}\n ", Base64.getEncoder()
                 .encodeToString(cipher), label, icv, chainingMode, paddingAlgorithm);
-        try {
-            return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipher, getIcv(icv), paddingAlgorithm, chainingMode);
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                return Symmetric.decrypt(new KeyLabel(label), KeyDerivation.FIXED_KEY_ARRAY, cipher, getIcv(icv), paddingAlgorithm, chainingMode);
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
+        throw new HsmBaseException("Symmetric.decrypt failed after all retries");
     }
 
     @Override
     public byte[] asymmetricDecrypt(byte[] cipher, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
         logger.debug("Asymmetric decrypt:\n bytes:{}\nlabel:{}\npadding algorithm:{}\n ", Base64.getEncoder().encodeToString(cipher), label, paddingAlgorithm);
-        try {
-            return Asymmetric.decrypt(new KeyLabel(label), cipher, paddingAlgorithm);
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                return Asymmetric.decrypt(new KeyLabel(label), cipher, paddingAlgorithm);
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
+        throw new HsmBaseException("Asymmetric.decrypt failed after all retries");
     }
 
     @Override
     public byte[] asymmetricEncrypt(byte[] bytes, String label, PaddingAlgorithm paddingAlgorithm) throws HsmBaseException {
         logger.debug("Asymmetric encrypt:\n bytes:{}\nlabel:{}\npadding algorithm:{}\n ", Base64.getEncoder().encodeToString(bytes), label, paddingAlgorithm);
-        try {
-            return Asymmetric.encrypt(new KeyLabel(label), bytes, paddingAlgorithm);
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                return Asymmetric.encrypt(new KeyLabel(label), bytes, paddingAlgorithm);
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
+        throw new HsmBaseException("Asymmetric.encrypt failed after all retries");
     }
 
     private ChainingValue getIcv(byte[] icv) {
@@ -96,5 +125,14 @@ public class HsmEncryptionServiceImpl implements HsmEncryptionService {
     @Reference
     public void setHsmConfigurationService(HsmConfigurationService hsmConfigurationService) throws HsmNotConfiguredException {
         this.hsmConfigurationService = hsmConfigurationService;
+    }
+
+    private int getTimeoutRetryCount()  {
+        try {
+            return this.hsmConfigurationService.getHsmConfiguration().getTimeoutRetryCount();
+        } catch (HsmNotConfiguredException e) {
+            // do not trow exception here, other methods will do, this is just a parameter
+            return HsmConfiguration.HSM_CONFIG_TIMEOUT_RETRY_COUNT_DEFAULT;
+        }
     }
 }
