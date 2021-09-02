@@ -1,19 +1,16 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.impl.events.datastorage;
 
-import com.energyict.mdc.engine.events.CollectedDataProcessingEvent;
 import com.energyict.mdc.engine.impl.commands.store.UpdateDeviceConnectionProperty;
 import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 
 import org.json.JSONException;
 import org.json.JSONWriter;
 
-/**
- * {@link CollectedDataProcessingEvent} related to a {@link UpdateDeviceConnectionProperty}
- */
+
 public class UpdateUmiwanStructueEvent extends AbstractCollectedDataProcessingEventImpl {
 
     private MessageIdentifier messageIdentifier;

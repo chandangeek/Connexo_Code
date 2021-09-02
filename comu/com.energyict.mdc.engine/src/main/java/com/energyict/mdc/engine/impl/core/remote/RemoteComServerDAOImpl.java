@@ -254,7 +254,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas) {
-        // TODO: 19.06.2021
     }
 
     @Override
