@@ -50,11 +50,15 @@ public interface PartialScheduledConnectionTask extends PartialOutboundConnectio
      */
     public int getNumberOfSimultaneousConnections();
 
+    public int getNumberOfRetriesConnectionMethod();
+
     void setComWindow(ComWindow comWindow);
 
     void setConnectionStrategy(ConnectionStrategy connectionStrategy);
 
     void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections);
+
+    void setNumberOfRetriesConnectionMethod(int numberOfRetriesConnectionMethod);
 
     void setInitiationTask(PartialConnectionInitiationTask partialConnectionInitiationTask);
 

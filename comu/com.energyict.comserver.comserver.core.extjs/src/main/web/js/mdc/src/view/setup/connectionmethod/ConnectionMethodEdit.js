@@ -321,8 +321,30 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
                                         width: 70
                                     }
                                 ]
-                            }
-
+                            },
+                            {
+                                xtype: 'fieldcontainer',
+                                fieldLabel: Uni.I18n.translate('deviceconnectionmethod.numberOfRetriesConnectionMethod', 'MDC', 'Max number of tries'),
+                                layout: {
+                                    type: 'hbox',
+                                    align: 'stretch'
+                                },
+                                itemId: 'numberOfRetriesConnectionMethod',
+                                items: [
+                                    {
+                                        xtype: 'numberfield',
+                                        name: 'numberOfRetriesConnectionMethod',
+                                        defaultValue: 3,
+                                        maxValue: 10,
+                                        minValue: 1,
+                                        width: 70,
+                                        allowDecimals: false,
+                                        listeners: {
+                                            blur: this.numberFieldValidation
+                                        }
+                                    }
+                                ]
+                            },
                         ]
                     },
                     {
@@ -417,6 +439,13 @@ Ext.define('Mdc.view.setup.connectionmethod.ConnectionMethodEdit', {
         }
         this.down('#cancelLink').href = this.returnLink;
 
+    },
+    numberFieldValidation: function (field) {
+        var value = field.getValue();
+
+        if (Ext.isEmpty(value) || value < field.minValue || value > field.maxValue) {
+            field.setValue(field.minValue);
+        }
     }
 
 

@@ -106,7 +106,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "2021-07-16";
+        return "$Date: 2021-08-25 12:00:00 +0200 (Wed, 25 Aug 2020) $";
     }
 
     @Override
