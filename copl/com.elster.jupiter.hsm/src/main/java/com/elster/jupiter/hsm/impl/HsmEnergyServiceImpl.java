@@ -4,6 +4,7 @@
 package com.elster.jupiter.hsm.impl;
 
 import com.atos.worldline.jss.api.FunctionFailedException;
+import com.atos.worldline.jss.api.FunctionTimedOutException;
 import com.atos.worldline.jss.api.basecrypto.BlockMode;
 import com.atos.worldline.jss.api.basecrypto.ChainingValue;
 import com.atos.worldline.jss.api.basecrypto.HashAlgorithm;
@@ -132,36 +133,37 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     }
 
     public HsmRenewKey renewKey(RenewKeyRequest renewKeyRequest) throws HsmBaseException, FUAKPassiveGenerationNotSupportedException {
-        try {
-            KeyLabel newLabel = new KeyLabel(renewKeyRequest.getRenewLabel());
-            ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getMasterKeyLabel()), renewKeyRequest.getMasterKey());
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                KeyLabel newLabel = new KeyLabel(renewKeyRequest.getRenewLabel());
+                ProtectedSessionKey protectedSessionKey = new ProtectedSessionKey(new KeyLabel(renewKeyRequest.getMasterKeyLabel()), renewKeyRequest.getMasterKey());
 
-            if (isSecretRenewal(renewKeyRequest)) {
-                KeyRenewalResponse response = Energy.cosemSecretRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
-                        renewKeyRequest.getHsmKeyType().getKeySize(),
-                        protectedSessionKey,
-                        newLabel);
-                ProtectedSessionKey psk = response.getMdmStorageKey();
-                String kekLabel = ((KeyLabel) psk.getKek()).getValue();
-                return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
-            } else {
-                final ProtectedSessionKeyCapability keyCapability = renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability();
-
-                if (keyCapability.equals(ProtectedSessionKeyCapability.SM_WK_MBUSFWAUTH_RENEWAL)) {
-                    throw new FUAKPassiveGenerationNotSupportedException("FUAK key renew is currently not supported by this functionality. Key will be renewed from the protocol command.");
+                if (isSecretRenewal(renewKeyRequest)) {
+                    KeyRenewalResponse response = Energy.cosemSecretRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
+                            renewKeyRequest.getHsmKeyType().getKeySize(),
+                            protectedSessionKey,
+                            newLabel);
+                    ProtectedSessionKey psk = response.getMdmStorageKey();
+                    String kekLabel = ((KeyLabel) psk.getKek()).getValue();
+                    return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
+                } else {
+                    KeyRenewalResponse response = Energy.cosemKeyRenewal(renewKeyRequest.getRenewCapability().toProtectedSessionKeyCapability(),
+                            protectedSessionKey,
+                            newLabel,
+                            getSessionKeyType(renewKeyRequest.getHsmKeyType()));
+                    ProtectedSessionKey psk = response.getMdmStorageKey();
+                    String kekLabel = ((KeyLabel) psk.getKek()).getValue();
+                    return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
                 }
-
-                KeyRenewalResponse response = Energy.cosemKeyRenewal(keyCapability,
-                        protectedSessionKey,
-                        newLabel,
-                        getSessionKeyType(renewKeyRequest.getHsmKeyType()));
-                ProtectedSessionKey psk = response.getMdmStorageKey();
-                String kekLabel = ((KeyLabel) psk.getKek()).getValue();
-                return new HsmRenewKey(response.getSmartMeterKey(), psk.getValue(), kekLabel);
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
             }
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
         }
+        throw new HsmBaseException("Energy.cosemSecretRenewal failed after all retries");
     }
 
     private ProtectedSessionKeyType getSessionKeyType(HsmKeyType hsmKeyType) throws HsmBaseException {
@@ -235,172 +237,262 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
     @Override
     public byte[] generateDigestSHA1(byte[] challenge, HsmIrreversibleKey hlsSecret) throws HsmBaseException {
         CosemHLSAuthenticationResponse response;
-        try {
-            response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM4,
-                    challenge);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM4,
+                        challenge);
+                return response.getAuthenticationTag();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getAuthenticationTag();
+        throw new HsmBaseException("Energy.cosemHlsAuthentication failed after all retries");
+
     }
 
     @Override
     public byte[] authenticateApdu(byte[] apdu, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
-                    initializationVector);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
+                        initializationVector);
+                return response.getAuthTag();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getAuthTag();
+        throw new HsmBaseException("Energy.cosemAuthDataEncrypt failed after all retries");
     }
 
     @Override
     public byte[] authenticateApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataEncryptWithAAD(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
-                    initializationVector);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataEncryptWithAAD(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
+                        initializationVector);
+                return response.getAuthTag();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getAuthTag();
+        throw new HsmBaseException("Energy.cosemAuthDataEncryptWithAAD failed after all retries");
     }
 
     @Override
     public byte[] encryptApdu(byte[] apdu, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), null, apdu,
-                    initializationVector);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), null, apdu,
+                        initializationVector);
+                return response.getData();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getData();
+        throw new HsmBaseException("Energy.cosemAuthDataEncrypt failed after all retries");
     }
 
     @Override
     public DataAndAuthenticationTag authenticateEncryptApdu(byte[] apdu, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
-                    initializationVector);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataEncrypt(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
+                        initializationVector);
+                return new DataAndAuthenticationTagImpl(response.getData(), response.getAuthTag());
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return new DataAndAuthenticationTagImpl(response.getData(), response.getAuthTag());
+
+        throw new HsmBaseException("Energy.cosemAuthDataEncrypt failed after all retries");
     }
 
     @Override
     public byte[] verifyAuthenticationDecryptApdu(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
-                    initializationVector, authenticationTag);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
+                        initializationVector, authenticationTag);
+                final Boolean authResult = response.getAuthResult();
+                if (authResult == null || authResult.equals(false)) {
+                    throw new HsmBaseException(new HsmBaseException("Authentication failed."));
+                }
+                return response.getData();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-
-        final Boolean authResult = response.getAuthResult();
-        if (authResult == null || authResult.equals(false)) {
-            throw new HsmBaseException(new HsmBaseException("Authentication failed."));
-        }
-        return response.getData();
+        throw new HsmBaseException("Energy.cosemAuthDataDecrypt failed after all retries");
     }
+
 
     @Override
     public DataAndAuthenticationTag authenticateEncryptApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataEncryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataEncryptWithAAD(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
-                    initializationVector);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataEncryptWithAAD(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
+                        initializationVector);
+                return new DataAndAuthenticationTagImpl(response.getData(), response.getAuthTag());
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return new DataAndAuthenticationTagImpl(response.getData(), response.getAuthTag());
+        throw new HsmBaseException("Energy.cosemAuthDataEncryptWithAAD failed after all retries");
     }
 
     @Override
     public byte[] verifyAuthenticationDecryptApduWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] authenticationTag, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataDecryptWithAAD(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
-                    initializationVector, authenticationTag);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataDecryptWithAAD(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE_AND_ENCRYPT, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
+                        initializationVector, authenticationTag);
+                final Boolean authResult = response.getAuthResult();
+                if (authResult == null || authResult.equals(false)) {
+                    throw new HsmBaseException(new HsmBaseException("Authentication failed."));
+                }
+                return response.getData();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-
-        final Boolean authResult = response.getAuthResult();
-        if (authResult == null || authResult.equals(false)) {
-            throw new HsmBaseException(new HsmBaseException("Authentication failed."));
-        }
-        return response.getData();
+        throw new HsmBaseException("Energy.cosemAuthDataDecryptWithAAD failed after all retries");
     }
 
 
     @Override
     public byte[] wrapMeterKeyForConcentrator(HsmIrreversibleKey meterKey, HsmIrreversibleKey concentratorKey) throws HsmBaseException {
-        byte[] result;
-        try {
-            result = Energy.cosemPskExportDataConcentrator(toProtectedSessionKey(meterKey),
-                    toProtectedSessionKey(concentratorKey));
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                return Energy.cosemPskExportDataConcentrator(toProtectedSessionKey(meterKey),
+                        toProtectedSessionKey(concentratorKey));
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return result;
+
+        throw new HsmBaseException("Energy.cosemPskExportDataConcentrator failed after all retries");
     }
 
     @Override
     public void verifyApduAuthentication(byte[] apdu, byte[] authenticationTag, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
-                    initializationVector, authenticationTag);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), apdu,
+                        initializationVector, authenticationTag);
+                final Boolean authResult = response.getAuthResult();
+                if (authResult == null || authResult.equals(false)) {
+                    throw new HsmBaseException(new HsmBaseException("Authentication failed."));
+                }
+                return;
+
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        final Boolean authResult = response.getAuthResult();
-        if (authResult == null || authResult.equals(false)) {
-            throw new HsmBaseException(new HsmBaseException("Authentication failed."));
-        }
+        throw new HsmBaseException("Energy.cosemAuthDataDecrypt failed after all retries");
     }
+
 
     @Override
     public void verifyApduAuthenticationWithAAD(byte[] apdu, byte[] additionalAuthenticationData, byte[] authenticationTag, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataDecryptWithAAD(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
-                    initializationVector, authenticationTag);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataDecryptWithAAD(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.AUTHENTICATE, getAtosSecuritySuite(securitySuite)), toProtectedSessionKey(gak), additionalAuthenticationData, apdu,
+                        initializationVector, authenticationTag);
+                final Boolean authResult = response.getAuthResult();
+                if (authResult == null || authResult.equals(false)) {
+                    throw new HsmBaseException(new HsmBaseException("Authentication failed."));
+                }
+                return;
+
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        final Boolean authResult = response.getAuthResult();
-        if (authResult == null || authResult.equals(false)) {
-            throw new HsmBaseException(new HsmBaseException("Authentication failed."));
-        }
+        throw new HsmBaseException("Energy.cosemAuthDataDecrypt failed after all retries");
     }
 
     @Override
     public byte[] cosemGenerateSignature(int securitySuite, String keyLabel, byte[] dataToSign) throws HsmBaseException {
-        byte[] result;
-        try {
-            KeyLabel hsmKeyLabel = new KeyLabel(keyLabel);
-            result = Energy.cosemGenerateSignature(getAtosSecuritySuite(securitySuite), hsmKeyLabel, dataToSign);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                KeyLabel hsmKeyLabel = new KeyLabel(keyLabel);
+                return Energy.cosemGenerateSignature(getAtosSecuritySuite(securitySuite), hsmKeyLabel, dataToSign);
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return result;
+
+
+        throw new HsmBaseException("Energy.cosemGenerateSignature failed after all retries");
     }
+
 
     @Override
     public boolean verifyFramecounterHMAC(byte[] serverSysT, byte[] clientSysT, byte[] challenge, long framecounter, HsmIrreversibleKey gak, byte[] challengeResponse) throws HsmBaseException {
@@ -421,139 +513,217 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
 
         final MAC mac = new MAC(challengeResponse);
 
-        try {
-            final SecretKey ak = new AESKeyToken(AES_KEY_LENGTH, gak.getKey(), null, KEKEncryptionMethod.PROTECTED_SESSION_KEY, new KeyLabel(gak.getLabel()), KeyDerivation.FIXED_KEY_ARRAY);
-            final SymmetricMACVerifyResponse response = Symmetric.verifyHMAC(ak, KeyDerivation.FIXED_KEY_ARRAY, macInputData, null, HashAlgorithm.SHA_256, BlockMode.SINGLE, mac);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                final SecretKey ak = new AESKeyToken(AES_KEY_LENGTH, gak.getKey(), null, KEKEncryptionMethod.PROTECTED_SESSION_KEY, new KeyLabel(gak.getLabel()), KeyDerivation.FIXED_KEY_ARRAY);
+                final SymmetricMACVerifyResponse response = Symmetric.verifyHMAC(ak, KeyDerivation.FIXED_KEY_ARRAY, macInputData, null, HashAlgorithm.SHA_256, BlockMode.SINGLE, mac);
 
-            if (response != null) {
-                return response.getResult();
+                if (response != null) {
+                    return response.getResult();
+                }
+                return false;
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (final FunctionFailedException e) {
+                throw new HsmBaseException(e);
             }
-
-            return false;
-        } catch (final FunctionFailedException e) {
-            throw new HsmBaseException(e);
         }
+        throw new HsmBaseException("Energy.verifyHMAC failed after all retries");
     }
+
 
     @Override
     public byte[] generateDigestMD5(byte[] challenge, HsmIrreversibleKey hlsSecret) throws HsmBaseException {
         CosemHLSAuthenticationResponse response;
-        try {
-            response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM3,
-                    challenge);
-        } catch (FunctionFailedException ffe) {
-            //TODO: add also the HSM related messageSeed to the exception?. This should be applied to all "HsmBaseException" exceptions thrown in this class
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemHlsAuthentication(toProtectedSessionKey(hlsSecret), AuthenticationMechanism.MECHANISM3,
+                        challenge);
+                return response.getAuthenticationTag();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getAuthenticationTag();
+
+        throw new HsmBaseException("Energy.cosemHlsAuthentication failed after all retries");
     }
 
     @Override
     public byte[] generateDigestGMAC(byte[] challenge, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemHLSAuthenticationResponse response;
-        try {
-            response = Energy.cosemHlsGMACAuthentication(toProtectedSessionKey(guek), toProtectedSessionKey(gak), challenge,
-                    initializationVector, getAtosSecuritySuite(securitySuite));
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemHlsGMACAuthentication(toProtectedSessionKey(guek), toProtectedSessionKey(gak), challenge,
+                        initializationVector, getAtosSecuritySuite(securitySuite));
+                return response.getAuthenticationTag();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getAuthenticationTag();
+
+        throw new HsmBaseException("Energy.cosemHlsGMACAuthentication failed after all retries");
     }
 
     @Override
     public byte[] generateDigestMechanism6(boolean isServerToClient, HsmIrreversibleKey hlsSecret, byte[] systemTitleClient, byte[] systemTitleServer, byte[] challengeServerToClient, byte[] challengeClientToServer) throws HsmBaseException {
         CosemHLSAuthenticationResponse response;
-        try {
-            response = Energy.cosemHlsAuthenticationMechanism6(isServerToClient, toProtectedSessionKey(hlsSecret), systemTitleClient, systemTitleServer, challengeServerToClient, challengeClientToServer);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemHlsAuthenticationMechanism6(isServerToClient, toProtectedSessionKey(hlsSecret), systemTitleClient, systemTitleServer, challengeServerToClient, challengeClientToServer);
+                return response.getAuthenticationTag();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getAuthenticationTag();
+
+        throw new HsmBaseException("Energy.cosemHlsAuthenticationMechanism6 failed after all retries");
     }
 
     @Override
     public byte[] decryptApdu(byte[] apdu, byte[] initializationVector, HsmIrreversibleKey gak, HsmIrreversibleKey guek, int securitySuite) throws HsmBaseException {
         CosemAuthDataDecryptionResponse response;
-        try {
-            response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
-                    new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), null, apdu,
-                    initializationVector, null);
-        } catch (FunctionFailedException ffe) {
-            throw new HsmBaseException(ffe);
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                response = Energy.cosemAuthDataDecrypt(toProtectedSessionKey(guek),
+                        new SecurityControlExtended(SecurityControl.ENCRYPT, getAtosSecuritySuite(securitySuite)), null, apdu,
+                        initializationVector, null);
+                return response.getData();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException ffe) {
+                throw new HsmBaseException(ffe);
+            }
         }
-        return response.getData();
+
+        throw new HsmBaseException("Energy.cosemAuthDataDecrypt failed after all retries");
     }
 
     @Override
     public HsmIrreversibleKey eekAgreeReceiver1e1s(int securitySuite, Certificate[] deviceSignatureKeyCertChain, byte[] ephemeralKaKey, byte[] signature, String hesKaKeyLabel, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
         KeyDerivation[] signatureKeyCertChain = createKeyDerivationArray(deviceSignatureKeyCertChain);
-        ProtectedSessionKey protectedSessionKey = null;
+        ProtectedSessionKey protectedSessionKey;
+        int retry = getTimeoutRetryCount();
+        while (retry > 0) {
+            try {
+                protectedSessionKey = Energy.eekAgreeReceiver1e1s(getAtosSecuritySuite(securitySuite),
+                        signatureKeyCertChain,
+                        ephemeralKaKey,
+                        signature,
+                        new KeyLabel(hesKaKeyLabel),
+                        new KeyLabel(deviceCaCertificateLabel),
+                        kdfOtherInfo,
+                        new KeyLabel(storageKeyLabel));
 
-        try {
-            protectedSessionKey = Energy.eekAgreeReceiver1e1s(getAtosSecuritySuite(securitySuite),
-                    signatureKeyCertChain,
-                    ephemeralKaKey,
-                    signature,
-                    new KeyLabel(hesKaKeyLabel),
-                    new KeyLabel(deviceCaCertificateLabel),
-                    kdfOtherInfo,
-                    new KeyLabel(storageKeyLabel));
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+                return new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
-        return new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+
+        throw new HsmBaseException("Energy.eekAgreeReceiver1e1s failed after all retries");
     }
 
     @Override
     public byte[] generateRandom(int length) throws HsmBaseException {
-        try {
-            return Symmetric.rndGenerate(getRandomGenerator(), length).getData();
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                return Symmetric.rndGenerate(getRandomGenerator(), length).getData();
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
+        throw new HsmBaseException("Symmetric.rndGenerate failed after all retries");
     }
 
     @Override
     public EEKAgreeResponse eekAgreeSender1e1s(int securitySuite, String hesSignatureKeyLabel, Certificate[] deviceKeyAgreementKeyCertChain, String deviceCaCertificateLabel, byte[] kdfOtherInfo, String storageKeyLabel) throws HsmBaseException {
         KeyDerivation[] certChainFromReceiver = createKeyDerivationArray(deviceKeyAgreementKeyCertChain);
-        com.atos.worldline.jss.api.custom.energy.EEKAgreeResponse eekAgreeResponse = null;
-
-        try {
-            eekAgreeResponse = Energy.eekAgreeSender1e1s(getAtosSecuritySuite(securitySuite),
-                    new KeyLabel(hesSignatureKeyLabel),
-                    certChainFromReceiver,
-                    new KeyLabel(deviceCaCertificateLabel),
-                    kdfOtherInfo,
-                    new KeyLabel(storageKeyLabel));
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        com.atos.worldline.jss.api.custom.energy.EEKAgreeResponse eekAgreeResponse;
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                eekAgreeResponse = Energy.eekAgreeSender1e1s(getAtosSecuritySuite(securitySuite),
+                        new KeyLabel(hesSignatureKeyLabel),
+                        certChainFromReceiver,
+                        new KeyLabel(deviceCaCertificateLabel),
+                        kdfOtherInfo,
+                        new KeyLabel(storageKeyLabel));
+                return new EEKAgreeResponseImpl(new HsmIrreversibleKey(eekAgreeResponse.getEek().getValue(),
+                        ((KeyLabel) eekAgreeResponse.getEek().getKek()).getValue()),
+                        eekAgreeResponse.getEphemeralKaKey(),
+                        eekAgreeResponse.getSignature());
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
-        return new EEKAgreeResponseImpl(new HsmIrreversibleKey(eekAgreeResponse.getEek().getValue(), ((KeyLabel) eekAgreeResponse.getEek().getKek()).getValue()), eekAgreeResponse.getEphemeralKaKey(), eekAgreeResponse.getSignature());
+
+        throw new HsmBaseException("Energy.eekAgreeSender1e1s failed after all retries");
     }
 
     @Override
     public final KeyRenewalAgree2EGenerateResponse keyRenewalAgree2EGenerate(int securitySuite, int keyIDForAgreement, String privateEccSigningKeyLabel, String mdmStorageKeyLabel) throws HsmBaseException {
         //TODO: implement CXO workflow/action to make use of it
-        try {
-            com.atos.worldline.jss.api.custom.energy.KeyRenewalAgree2EGenerateResponse keyRenewalAgree2EGenerateResponse = Energy.keyRenewalAgree2EGenerate(getAtosSecuritySuite(securitySuite), getAtosKeyIDForAgreement(keyIDForAgreement), getRandomGenerator(), new KeyLabel(privateEccSigningKeyLabel), new KeyLabel(mdmStorageKeyLabel));
-            byte[] serializedPrivateEccKey = SerializationUtils.serialize(keyRenewalAgree2EGenerateResponse.getPrivateEccKey());
-            return new KeyRenewalAgree2EGenerateResponseImpl(keyRenewalAgree2EGenerateResponse.getAgreementData(), keyRenewalAgree2EGenerateResponse.getSignature(), serializedPrivateEccKey);
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                com.atos.worldline.jss.api.custom.energy.KeyRenewalAgree2EGenerateResponse keyRenewalAgree2EGenerateResponse = Energy.keyRenewalAgree2EGenerate(getAtosSecuritySuite(securitySuite), getAtosKeyIDForAgreement(keyIDForAgreement), getRandomGenerator(), new KeyLabel(privateEccSigningKeyLabel), new KeyLabel(mdmStorageKeyLabel));
+                byte[] serializedPrivateEccKey = SerializationUtils.serialize(keyRenewalAgree2EGenerateResponse.getPrivateEccKey());
+                return new KeyRenewalAgree2EGenerateResponseImpl(keyRenewalAgree2EGenerateResponse.getAgreementData(), keyRenewalAgree2EGenerateResponse.getSignature(), serializedPrivateEccKey);
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
+        throw new HsmBaseException("Energy.keyRenewalAgree2EGenerate failed after all retries");
     }
 
     @Override
     public final HsmIrreversibleKey keyRenewalAgree2EFinalise(int securitySuite, int keyIDForAgree, byte[] serializedPrivateEccKey, byte[] ephemeralEccPubKeyForSmAgreementData, byte[] signature, String caCertificateLabel, Certificate[] certificateChain, byte[] otherInfo, String storageKeyLabel) throws HsmBaseException {
         //TODO: implement CXO workflow/action to make use of it
-        try {
-            PrivateKeyToken privateKeyToken = SerializationUtils.deserialize(serializedPrivateEccKey);
-            ProtectedSessionKey protectedSessionKey = Energy.keyRenewalAgree2EFinalise(getAtosSecuritySuite(securitySuite), getAtosKeyIDForAgreement(keyIDForAgree), privateKeyToken, ephemeralEccPubKeyForSmAgreementData, signature, new KeyLabel(caCertificateLabel), createKeyDerivationArray(certificateChain), otherInfo, new KeyLabel(storageKeyLabel));
-            return new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
-        } catch (FunctionFailedException e) {
-            throw new HsmBaseException(e);
+        int retry = getTimeoutRetryCount();
+        while (retry>0) {
+            try {
+                PrivateKeyToken privateKeyToken = SerializationUtils.deserialize(serializedPrivateEccKey);
+                ProtectedSessionKey protectedSessionKey = Energy.keyRenewalAgree2EFinalise(getAtosSecuritySuite(securitySuite), getAtosKeyIDForAgreement(keyIDForAgree), privateKeyToken, ephemeralEccPubKeyForSmAgreementData, signature, new KeyLabel(caCertificateLabel), createKeyDerivationArray(certificateChain), otherInfo, new KeyLabel(storageKeyLabel));
+                return new HsmIrreversibleKey(protectedSessionKey.getValue(), ((KeyLabel) protectedSessionKey.getKek()).getValue());
+            } catch (FunctionTimedOutException e) {
+                retry--;
+                logger.warn(e.getLocalizedMessage() + "; will retry " + retry + " more times");
+            } catch (FunctionFailedException e) {
+                throw new HsmBaseException(e);
+            }
         }
+        throw new HsmBaseException("Energy.keyRenewalAgree2EFinalise failed after all retries");
     }
+
 
     /**
      * Used for TLS connection
@@ -704,4 +874,12 @@ public class HsmEnergyServiceImpl implements HsmEnergyService, HsmProtocolServic
         this.hsmEncryptService = hsmEncryptService;
     }
 
+    private int getTimeoutRetryCount()  {
+        try {
+            return this.hsmConfigurationService.getHsmConfiguration().getTimeoutRetryCount();
+        } catch (HsmNotConfiguredException e) {
+            // do not trow exception here, other methods will do, this is just a parameter
+            return HsmConfiguration.HSM_CONFIG_TIMEOUT_RETRY_COUNT_DEFAULT;
+        }
+    }
 }

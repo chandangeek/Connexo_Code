@@ -37,6 +37,8 @@ public class HsmConfigurationPropFileImplTest {
     private final static String CONFIG_FILE = "hsm-test-bundle-configuration.properties";
     private String testFilePath;
 
+    private final static String CONFIG_FILE_DEFAULT = "hsm-test-bundle-configuration-default.properties";
+    private String testFilePathDefault;
     @Mock
     private Properties properties;
 
@@ -48,6 +50,9 @@ public class HsmConfigurationPropFileImplTest {
     public void setUp() throws URISyntaxException  {
         URL resource = this.getClass().getClassLoader().getResource(CONFIG_FILE);
         this.testFilePath = new URI(resource.getFile()).getPath();
+
+        URL resourceDefault = this.getClass().getClassLoader().getResource(CONFIG_FILE_DEFAULT);
+        this.testFilePathDefault = resourceDefault.getFile();
     }
 
     @Test
@@ -126,6 +131,20 @@ public class HsmConfigurationPropFileImplTest {
         assertEquals(label, labels.iterator().next());
         assertEquals(ChainingMode.CBC, label.getChainingMode());
         assertEquals(PaddingAlgorithm.EME_PKCS1_V1_5, label.getPaddingAlgorithm());
+    }
+
+    @Test
+    public void testTimeoutRetryCountDefault() throws HsmBaseException {
+        hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePathDefault);
+
+        assertEquals(3, hsmConfigurationPropFile.getTimeoutRetryCount());
+    }
+
+    @Test
+    public void testTimeoutRetryCount() throws HsmBaseException {
+        hsmConfigurationPropFile = new HsmConfigurationPropFileImpl(testFilePath);
+
+        assertEquals(2, hsmConfigurationPropFile.getTimeoutRetryCount());
     }
 
 }
