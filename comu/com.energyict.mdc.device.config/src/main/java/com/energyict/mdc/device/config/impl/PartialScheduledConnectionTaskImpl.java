@@ -50,6 +50,8 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     private ConnectionStrategy connectionStrategy;
     @Range(min = 1, max = 16, message = '{' + MessageSeeds.Keys.INVALID_NUMBER_OF_SIMULTANEOUS_CONNECTIONS + '}', groups = {Save.Create.class, Save.Update.class})
     private int numberOfSimultaneousConnections = 1;
+    @Range(min = 1, max = 10, message = '{' + MessageSeeds.Keys.INVALID_NUMBER_OF_MAXIMUM_RETRIES_CONNECTIONS + '}', groups = {Save.Create.class, Save.Update.class})
+    private int numberOfRetriesConnectionMethod = 3;
     private Reference<PartialConnectionInitiationTask> initiator = ValueReference.absent();
 
     public PartialScheduledConnectionTaskImpl() {
@@ -90,6 +92,11 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     @Override
     public int getNumberOfSimultaneousConnections() {
         return numberOfSimultaneousConnections;
+    }
+
+    @Override
+    public int getNumberOfRetriesConnectionMethod() {
+        return numberOfRetriesConnectionMethod;
     }
 
     @Override
@@ -141,6 +148,11 @@ public class PartialScheduledConnectionTaskImpl extends PartialOutboundConnectio
     @Override
     public void setNumberOfSimultaneousConnections(int numberOfSimultaneousConnections) {
         this.numberOfSimultaneousConnections = numberOfSimultaneousConnections;
+    }
+
+    @Override
+    public void setNumberOfRetriesConnectionMethod(int numberOfRetriesConnectionMethod) {
+        this.numberOfRetriesConnectionMethod = numberOfRetriesConnectionMethod;
     }
 
     @Override

@@ -33,7 +33,7 @@ Ext.define('Dsh.view.widget.DeviceGroupFilter', {
                 label: Uni.I18n.translate('general.deviceGroup', 'DSH', 'Device group') + ': ',
                 arrowAlign: 'right',
                 groupName:null, // yellowfin reports use names instead of id
-                menuAlign: 'tr-br',
+                menuAlign: 'tl-bl',
                 menu: {
                     xtype: 'uni-actions-menu',
                     enableScrolling: true,
