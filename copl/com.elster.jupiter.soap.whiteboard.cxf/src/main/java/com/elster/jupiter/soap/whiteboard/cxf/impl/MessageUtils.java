@@ -38,9 +38,13 @@ public class MessageUtils {
         return getOccurrenceId(webServiceContext.getMessageContext());
     }
 
-    public static long getOccurrenceId(Map<?, ?> map) {
+    public static Optional<Long> findOccurrenceId(Map<?, ?> map) {
         return Optional.ofNullable(map.get(WebServiceCallOccurrence.MESSAGE_CONTEXT_OCCURRENCE_ID))
-                .map(Long.class::cast)
+                .map(Long.class::cast);
+    }
+
+    public static long getOccurrenceId(Map<?, ?> map) {
+        return findOccurrenceId(map)
                 .orElseThrow(() -> new IllegalStateException("Web service call occurrence id isn't present in context"));
     }
 
