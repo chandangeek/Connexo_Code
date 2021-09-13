@@ -1,12 +1,16 @@
 package com.energyict.protocolimplv2.edp;
 
+import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 
 /**
  * Copyrights EnergyICT
@@ -21,8 +25,15 @@ public class JanzB280 extends CX20009 {
     }
 
     @Override
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
+        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties()));
+    }
+
+    @Override
     public String getVersion() {
-        return "$Date: 2014-06-02 13:26:25 +0200 (Mon, 02 Jun 2014) $";
+        return "2021-08-10";
     }
 
     @Override

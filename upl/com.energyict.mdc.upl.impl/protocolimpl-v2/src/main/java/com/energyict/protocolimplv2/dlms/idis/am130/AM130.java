@@ -42,6 +42,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
+import com.energyict.protocolimplv2.edp.EDPDlmsSession;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
@@ -50,6 +51,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static com.energyict.dlms.common.DlmsProtocolProperties.HDLC_STR;
 
 /**
  * Extension of the old AM500 protocol (IDIS package 1), adding extra features (IDIS package 2)
@@ -144,7 +147,12 @@ public class AM130 extends AM500 {
         publicClientProperties.setSecurityPropertySet(new DeviceProtocolSecurityPropertySetImpl(BigDecimal.valueOf(IDIS2_CLIENT_PUBLIC), 0, 0, 0, 0, 0, clone));    //SecurityLevel 0:0
 
         long frameCounter;
-        DlmsSession publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        DlmsSession publicDlmsSession = null;
+        if(getDlmsSessionProperties().getConnectionMode().equals(HDLC_STR)) {
+            publicDlmsSession = new EDPDlmsSession(comChannel, publicClientProperties);
+        } else {
+            publicDlmsSession = new DlmsSession(comChannel, publicClientProperties);
+        }
         getLogger().info("Connecting to public client:" + IDIS2_CLIENT_PUBLIC);
         connectToPublicClient(publicDlmsSession);
         try {

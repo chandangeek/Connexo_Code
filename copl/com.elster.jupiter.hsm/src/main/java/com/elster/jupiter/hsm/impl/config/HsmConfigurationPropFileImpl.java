@@ -83,6 +83,16 @@ public class HsmConfigurationPropFileImpl extends HsmAbstractConfiguration imple
     }
 
 
+    @Override
+    public int getTimeoutRetryCount() {
+        String value = properties.getProperty(HSM_CONFIG_TIMEOUT_RETRY_COUNT);
+        if (Objects.isNull(value) || value.isEmpty() || Integer.parseInt(value)<=0) {
+            return HSM_CONFIG_TIMEOUT_RETRY_COUNT_DEFAULT;
+        }
+        return Integer.parseInt(value);
+    }
+
+
     private void loadImportToHsmLabelMap() throws HsmBaseException {
         Set<Map.Entry<Object, Object>> allEntries = properties.entrySet();
         for (Map.Entry<Object, Object> entry : allEntries) {
@@ -95,6 +105,8 @@ public class HsmConfigurationPropFileImpl extends HsmAbstractConfiguration imple
             }
         }
     }
+
+
 
     private String getFileImportLabel(String fileLabel, HsmLabelConfiguration cfg) {
         try {

@@ -188,7 +188,8 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_MESSAGE_ID_NOT_SUPPORTED(15033, Keys.DEVICE_MESSAGE_ID_NOT_SUPPORTED, "The command is not supported for the device"),
     SECURITY_ACCESSOR_WRAPPER_IN_USE(15034, Keys.SECURITY_ACCESSOR_WRAPPER_IN_USE, "Security accessor is defined as wrapper for another security accessor"),
     SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND(15035, Keys.SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND, "Found multiple security accessor type with name: {0}"),
-    VETO_DEVICETYPE_DELETION(15036, Keys.VETO_DEVICETYPE_DELETION_KEY, "Device type {0} is still in use by a device group", Level.SEVERE);
+    VETO_DEVICETYPE_DELETION(15036, Keys.VETO_DEVICETYPE_DELETION_KEY, "Device type {0} is still in use by a device group", Level.SEVERE),
+    INVALID_NUMBER_OF_MAXIMUM_RETRIES_CONNECTIONS(15037, Keys.INVALID_NUMBER_OF_MAXIMUM_RETRIES_CONNECTIONS, "Invalid number of maximum number of connection retries, should be between 1 and 10");
 
     private final int number;
     private final String key;
@@ -326,7 +327,7 @@ public enum MessageSeeds implements MessageSeed {
         public static final String SECURITY_ACCESSOR_TYPE_MULTIPLE_FOUND = "security.accessor.type.multiple";
         public static final String SECURITY_ACCESSOR_WRAPPER_IN_USE = "security.accessor.type.in.use";
         public static final String VETO_DEVICETYPE_DELETION_KEY = "devicetype.still.in.use.by.devicegroup";
-
+        public static final String INVALID_NUMBER_OF_MAXIMUM_RETRIES_CONNECTIONS = "InvalidNumberOfRetriesConnections";
 
     }
 }

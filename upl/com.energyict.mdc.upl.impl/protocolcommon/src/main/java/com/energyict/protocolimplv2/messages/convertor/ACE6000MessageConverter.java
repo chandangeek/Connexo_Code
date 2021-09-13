@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TariffCalendar;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
@@ -20,9 +21,7 @@ import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.spec
 import com.google.common.collect.ImmutableMap;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.CurrentRatioDenominatorAttributeName;
@@ -71,7 +70,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.month
  */
 public class ACE6000MessageConverter extends AbstractMessageConverter {
 
-    private static final String BILLING_RESET = "BillingReset";
     public static final String VOLTAGE_AND_CURRENT_PARAMS = "VoltageAndCurrentParams";
 
     private TariffCalendarExtractor tariffCalendarExtractor;
@@ -112,7 +110,7 @@ public class ACE6000MessageConverter extends AbstractMessageConverter {
                 //Display configuration
                 .put(messageSpec(DisplayDeviceMessage.SET_DISPLAY_MESSAGE), new SetDisplayMessageEntry(DisplayMessageAttributeName))
                 //EOB reset messages
-                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(RtuMessageConstant.DEMAND_RESET, false))
                 .put(messageSpec(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS),
                     new MultipleInnerTagsMessageEntry(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS.toString(),
                         DisplayLeadingZero, DisplayBacklight,

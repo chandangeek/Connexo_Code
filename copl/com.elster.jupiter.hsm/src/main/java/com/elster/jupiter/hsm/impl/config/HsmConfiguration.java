@@ -21,6 +21,8 @@ public interface HsmConfiguration {
     String HSM_CONFIG_JSS_INIT_FILE = "hsm.config.jss.init.file";
     String HSM_CONFIG_LABEL_PREFIX = "hsm.config.label";
     String HSM_CONFIG_SEPARATOR = ".";
+    String HSM_CONFIG_TIMEOUT_RETRY_COUNT = "hsm.config.timeout.retry";
+    int HSM_CONFIG_TIMEOUT_RETRY_COUNT_DEFAULT = 3;
 
     /**
      *
@@ -47,6 +49,11 @@ public interface HsmConfiguration {
      * @return all configured labels
      */
     Collection<HsmLabelConfiguration> getLabels() throws HsmBaseException;
+
+        /**
+          *  @return how many times the operations shall be retried in case of HSM timeouts
+          */
+        int getTimeoutRetryCount();
 
 
 

@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.DeviceMessageFile;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
@@ -36,7 +37,6 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
     private static final String CONNECT_LOAD = "ConnectLoad";
     private static final String DISCONNECT_LOAD = "DisconnectLoad";
     private static final String ARM_METER = "ArmMeter";
-    private static final String BILLING_RESET = "BillingReset";
     private static final String UPGRADE_METER_FIRMWARE = "UpgradeMeterFirmware";
     private static final String UPGRADE_METER_SCHEME = "UploadMeterScheme";
 
@@ -65,7 +65,7 @@ public class ABBA230MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(ContactorDeviceMessage.CONTACTOR_CLOSE), new SimpleTagMessageEntry(DISCONNECT_LOAD, false))
                 .put(messageSpec(ContactorDeviceMessage.CONTACTOR_ARM), new SimpleTagMessageEntry(ARM_METER, false))
 
-                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(BILLING_RESET, false))
+                .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(RtuMessageConstant.DEMAND_RESET, false))
                 .put(messageSpec(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE), new ABBA230UserFileMessageEntry(UPGRADE_METER_FIRMWARE))
                 .put(messageSpec(ConfigurationChangeDeviceMessage.UploadMeterScheme), new ABBA230UserFileMessageEntry(UPGRADE_METER_SCHEME))
 

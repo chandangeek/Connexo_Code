@@ -188,6 +188,13 @@ public abstract class AbstractMessageExecutor {
         return deviceRegister;
     }
 
+    protected CollectedRegister createTextCollectedRegister(RegisterValue registerValue, OfflineDeviceMessage pendingMessage) {
+        CollectedRegister deviceRegister = this.collectedDataFactory.createTextCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(registerValue.getObisCode(), new DeviceIdentifierById(pendingMessage.getDeviceId())));
+        deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
+        deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime());
+        return deviceRegister;
+    }
+
     protected Array convertEpochToDateTimeArray(String epoch) {
         Calendar cal = Calendar.getInstance(getProtocol().getTimeZone());
         cal.setTimeInMillis(Long.parseLong(epoch));

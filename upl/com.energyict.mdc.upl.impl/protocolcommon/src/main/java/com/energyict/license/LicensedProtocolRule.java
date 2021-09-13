@@ -388,6 +388,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     EI6_THEMISUNO(325, "com.energyict.protocolimplv2.dlms.a2.A2", FamilyRule.EICT_THEMISUNO),
     EI7_THEMISUNO(326, "com.energyict.protocolimplv2.dlms.ei7.EI7", FamilyRule.EICT_THEMISUNO),
+    EI4_UMI(337, "com.energyict.protocolimplv2.umi.ei4.EI4Umi"),
 
     ACUD_GAS(327, "com.energyict.protocolimplv2.dlms.acud.AcudGas", FamilyRule.ACUD),
     ACUD_WATER(328, "com.energyict.protocolimplv2.dlms.acud.AcudWater", FamilyRule.ACUD),

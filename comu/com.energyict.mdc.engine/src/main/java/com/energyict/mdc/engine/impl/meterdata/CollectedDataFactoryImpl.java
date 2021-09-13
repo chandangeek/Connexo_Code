@@ -27,8 +27,14 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
-import com.energyict.mdc.upl.meterdata.identifiers.*;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.security.CertificateWrapper;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import org.osgi.service.component.annotations.Activate;
@@ -38,11 +44,11 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.security.cert.X509Certificate;
 import java.time.Clock;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 /**
- *
  * Date: 14/05/13
  * Time: 11:31
  */
@@ -122,6 +128,11 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedRegister createDefaultCollectedRegister(RegisterIdentifier registerIdentifier) {
         return new DefaultDeviceRegister(registerIdentifier);
+    }
+
+    @Override
+    public CollectedRegister createTextCollectedRegister(RegisterIdentifier registerIdentifier) {
+        return new DeviceTextRegister(registerIdentifier);
     }
 
     @Override
@@ -272,6 +283,21 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     @Override
     public CollectedCalendar createCalendarCollectedData(DeviceIdentifier deviceIdentifier) {
         return new DeviceCalendar(deviceIdentifier);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithUmiwanStructure(MessageIdentifier messageIdentifier, Map<String, Object> map, String structureCAS) {
+        return new UmiwanStructure(messageIdentifier, map, structureCAS);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithUmiwanProfileControl(MessageIdentifier messageIdentifier, Date startDate) {
+        return new UmiwanProfileControl(messageIdentifier, startDate);
+    }
+
+    @Override
+    public CollectedMessage createCollectedMessageWithUmiwanEventControl(MessageIdentifier messageIdentifier, Date startTime, long controlFlags, long acknowledgeFlags) {
+        return new UmiwanEventControl(messageIdentifier, startTime, controlFlags, acknowledgeFlags);
     }
 
 }

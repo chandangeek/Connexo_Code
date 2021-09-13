@@ -298,6 +298,11 @@ public class DlmsProperties implements DlmsSessionProperties {
     }
 
     @Override
+    public String getConnectionMode() {
+            return properties.getTypedProperty(CONNECTION_MODE, DEFAULT_CONNECTION_MODE);
+    }
+
+    @Override
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }

@@ -8,7 +8,7 @@ import com.energyict.mdc.protocol.ComChannel;
 
 public class EDPDlmsSession extends DlmsSession {
 
-    EDPDlmsSession(ComChannel comChannel, DlmsSessionProperties properties) {
+    public EDPDlmsSession(ComChannel comChannel, DlmsSessionProperties properties) {
         super(comChannel, properties);
     }
 

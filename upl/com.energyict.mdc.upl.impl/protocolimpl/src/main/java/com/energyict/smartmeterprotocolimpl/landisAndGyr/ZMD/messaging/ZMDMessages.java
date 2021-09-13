@@ -221,12 +221,14 @@ public class ZMDMessages extends ProtocolMessages {
         END_OF_DST = "EndOfDST";
         catDaylightSaving.addMessageSpec(addMsgWithValues("Program End of Daylight Saving Time", END_OF_DST, false, false, "Month", "Day of month", "Day of week", "Hour"));
         catDaylightSaving.addMessageSpec(addMsgWithValue("Enable DST switch", ENABLE_DST, false));
+        categories.add(catDaylightSaving);
 
         categories.add(ProtocolMessageCategories.getDemandResetCategory());
-        categories.add(catDaylightSaving);
+
         MessageCategorySpec catDisplay = new MessageCategorySpec("'Display' Messages");
         catDisplay.addMessageSpec(addBasicMsg(SET_DISPLAY_MESSAGE, SET_DISPLAY_MESSAGE_TAG, false));
         categories.add(catDisplay);
+
         MessageCategorySpec catBilling = new MessageCategorySpec("Billing");
         MessageSpec  msgSpec = addBasicMsg(BILLINGRESET_DISPLAY, BILLINGRESET, false);
         catBilling.addMessageSpec(msgSpec);

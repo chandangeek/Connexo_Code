@@ -21,10 +21,10 @@ public enum TranslationKeys implements TranslationKey {
     EMI_PROPERTY_MAX_CURRENT_RATING(DeviceEMeterInfoCustomPropertySet.PREFIX + ".maxCurrentRating", "Max current rating"),
     EMI_PROPERTY_MAX_VOLTAGE(DeviceEMeterInfoCustomPropertySet.PREFIX + ".maxVoltage", "Max voltage"),
 
-    DMI_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".name", "Manufacturer-info"),
-    DMI_DOMAIN_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".domain.name", "Device type"),
-    DMI_MANUFACTURER_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".manufacturername", "Manufacturer Name"),
-    DMI_MANUFACTURER_ID(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX +".manufacturerid", "Manufacturer Id");
+    DMI_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX + ".name", "Manufacturer-info"),
+    DMI_DOMAIN_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX + ".domain.name", "Device type"),
+    DMI_MANUFACTURER_NAME(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX + ".manufacturername", "Manufacturer Name"),
+    DMI_MANUFACTURER_ID(DeviceTypeManufacturerInfoCustomPropertySet.PREFIX + ".manufacturerid", "Manufacturer Id");
 
     private final String key;
     private final String defaultFormat;

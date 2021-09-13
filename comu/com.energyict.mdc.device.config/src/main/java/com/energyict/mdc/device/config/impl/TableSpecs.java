@@ -510,6 +510,7 @@ public enum TableSpecs {
             table.column("COMWINDOWEND").number().conversion(NUMBER2INT).map("comWindowEnd").add();
             table.column("CONNECTIONSTRATEGY").number().conversion(NUMBER2ENUM).map("connectionStrategy").add();
             table.column("SIMULTANEOUSCONNECTIONS").number().conversion(NUMBER2INT).map("numberOfSimultaneousConnections").add();
+            table.column("MAXIMUMRETRIES").number().conversion(NUMBER2INT).map("numberOfRetriesConnectionMethod").add().since(version(10, 9, 9));
             table.column("ISDEFAULT").number().conversion(NUMBER2BOOLEAN).map("isDefault").add();
             Column nextexecutionspecs = table.column("NEXTEXECUTIONSPECS").number().add();
             table.column("RESCHEDULERETRYDELAY").number().conversion(NUMBER2INT).map("rescheduleRetryDelay.count").add();

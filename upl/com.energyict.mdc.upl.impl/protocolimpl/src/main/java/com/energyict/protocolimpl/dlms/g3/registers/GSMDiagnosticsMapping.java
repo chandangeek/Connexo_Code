@@ -16,6 +16,7 @@ import java.util.Date;
 
 /**
  * Created by H165680 on 17/04/2017.
+ * Modified by H219811 on 30/08/2021
  */
 public class GSMDiagnosticsMapping extends G3Mapping {
 
@@ -44,7 +45,16 @@ public class GSMDiagnosticsMapping extends G3Mapping {
 
     @Override
     public int getAttributeNumber() {
-        return getObisCode().getE();    // The E-field of the obiscode indicates which attribute is being read
+        // The E-field of the obiscode indicates which attribute is being read
+        int attributeNumber = getObisCode().getE();
+
+        if (attributeNumber > 128){
+            // for attributes with minus (-1, -2, etc.) translate them to 256 offset (vs current 255 offset)
+            // this is a dirty post-fix, since all systems and documentation are using already the wrong attribute nr.
+            return attributeNumber+1;
+        } else {
+            return attributeNumber;
+        }
     }
 
     @Override

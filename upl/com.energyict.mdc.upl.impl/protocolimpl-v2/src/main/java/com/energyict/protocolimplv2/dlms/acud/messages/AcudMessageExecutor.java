@@ -552,11 +552,9 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         // Set value of register as text
         Optional<BreakerStatus> breakerStatus = colBreakStatus.getBreakerStatus();
         if (breakerStatus.isPresent()) {
-            String registerValueText = BreakerStatus.CONNECTED.equals(breakerStatus.get())
-                    ? DisconnectControlState.CONNECTED.getDescription()
-                    : DisconnectControlState.DISCONNECTED.getDescription();
+            String registerValueText = breakerStatus.get().getDescription();
             final RegisterValue registerValue = new RegisterValue(register, null, null, null, null, new Date(), 0, registerValueText);
-            collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
+            collectedRegisters.add(createTextCollectedRegister(registerValue, pendingMessage));
 
             CollectedMessage collectedMessage = createCollectedMessageWithRegisterData(pendingMessage, collectedRegisters);
             return collectedMessage;

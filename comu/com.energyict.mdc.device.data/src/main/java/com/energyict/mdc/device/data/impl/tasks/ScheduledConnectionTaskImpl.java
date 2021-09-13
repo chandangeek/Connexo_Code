@@ -681,7 +681,11 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     @XmlAttribute
     public int getMaxNumberOfTries() {
         if (getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
-            return DEFAULT_MAX_NUMBER_OF_TRIES;
+            int getMaxConnectionRetries = 0;
+            if(this.getPartialConnectionTask() != null) {
+                getMaxConnectionRetries = this.getPartialConnectionTask().getNumberOfRetriesConnectionMethod();
+            }
+            return getMaxConnectionRetries != 0 ? getMaxConnectionRetries : DEFAULT_MAX_NUMBER_OF_TRIES;
         } else {
             if (this.maxNumberOfTries == -1) {
                 this.maxNumberOfTries =
