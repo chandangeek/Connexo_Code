@@ -83,7 +83,7 @@ public class Mx382 extends AM130 {
 
     @Override
     public String getVersion(){
-        return "2021-08-30";
+        return "2021-09-14";
     }
 
     @Override

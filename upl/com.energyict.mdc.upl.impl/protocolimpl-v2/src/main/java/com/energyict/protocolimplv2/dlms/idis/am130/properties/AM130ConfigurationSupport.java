@@ -15,6 +15,7 @@ import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
+import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
@@ -38,6 +39,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
     public static final boolean USE_GBT_DEFAULT_VALUE = true;
     public static final CipheringType DEFAULT_CIPHERING_TYPE = CipheringType.GENERAL_GLOBAL;
 
+
     protected final PropertySpecService propertySpecService;
 
     public AM130ConfigurationSupport(PropertySpecService propertySpecService) {
@@ -60,6 +62,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 this.callingAPTitlePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
+                this.overwriteServerLowerMacAddressPropertySpec(),
                 this.callHomeIdPropertySpec(),
                 this.masterKeyPropertySpec(),
                 this.getConnectionMode());
@@ -199,5 +202,8 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
         return propertySpecService;
     }
 
+    private PropertySpec overwriteServerLowerMacAddressPropertySpec() {
+        return this.booleanSpec(AM130Properties.OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false, com.energyict.protocolimpl.nls.PropertyTranslationKeys.DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS);
+    }
 
 }

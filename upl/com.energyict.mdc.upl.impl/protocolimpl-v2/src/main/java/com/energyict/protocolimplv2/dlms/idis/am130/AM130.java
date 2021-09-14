@@ -80,7 +80,7 @@ public class AM130 extends AM500 {
      */
     @Override
     public String getVersion() {
-        return "$Date: Fri Sep 2 11:39:06 2016 +0300 $";
+        return "2021-09-14";
     }
 
     protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
