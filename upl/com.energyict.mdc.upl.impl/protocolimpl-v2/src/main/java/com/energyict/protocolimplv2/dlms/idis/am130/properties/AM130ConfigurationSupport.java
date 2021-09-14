@@ -1,8 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -15,14 +13,30 @@ import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.CONNECTION_MODE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_CONNECTION_MODE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.HDLC_STR;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.WRAPPER_STR;
 
 /**
  * Copyrights EnergyICT
