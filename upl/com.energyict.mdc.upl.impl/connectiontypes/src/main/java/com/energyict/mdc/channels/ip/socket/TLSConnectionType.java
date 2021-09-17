@@ -15,6 +15,7 @@ import com.energyict.protocol.exceptions.ConnectionException;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
+
 import javax.net.ssl.*;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -40,6 +41,8 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     public static final String PREFERRED_CIPHER_SUITES_PROPERTY_NAME = "PreferredCipherSuites";
     public static final String TLS_DEFAULT_VERSION = "TLSv1.2";
     private static final String SEPARATOR = ",";
+    public static final String DEFAULT_SECURE_RANDOM_ALG_SHA_1_PRNG = "SHA1PRNG";
+    public static final String DEFAULT_SECURE_RANDOM_PROVIDER_SUN = "SUN";
 
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private Logger logger;
@@ -127,20 +130,42 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public ComChannel newTcpIpConnection(String host, int port, int timeOut) throws ConnectionException {
-        System.setProperty("jdk.tls.client.protocols", getTLSVersionPropertyValue());
+        String logPrefix = String.format("[TLS:%s:%d] ", host ,port);
+        getLogger().info(logPrefix+"Setting up a new TLS connection to "+host+":"+port+" (timeout="+timeOut+")");
+        String tlsVersion = getTLSVersionPropertyValue();
+        System.setProperty("jdk.tls.client.protocols", tlsVersion);
 
         try {
-            final SSLContext sslContext = SSLContext.getInstance(getTLSVersionPropertyValue());
-            //TODO: As now the truststore and keystore comes from core and not created here, we need to see who will do the specific work we had on EIServer to validate certificates, CRL and so on
-            X509TrustManager trustManager = certificateWrapperExtractor.getTrustManager(getTlsServerCertificate()).get();           //This contains sub-CA and root-CA certificates.
+            getLogger().info(logPrefix+"Getting SSLContext for: "+tlsVersion);
+            final SSLContext sslContext = SSLContext.getInstance(tlsVersion);  // Oracle uses only TLS as example
+
+            getLogger().info(logPrefix+"Creating trustManager");
+            X509TrustManager trustManager = getTrustManager();             //This contains sub-CA and root-CA certificates.
+
+            getLogger().info(logPrefix+"Creating keyManager");
+
             X509KeyManager keyManager = getKeyManager();                  //This contains the private key for TLS and its matching certificate.
 
-            sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, new SecureRandom());
+            getLogger().info(logPrefix+"Initializing SSL context");
+            sslContext.init(new KeyManager[]{keyManager}, new TrustManager[]{trustManager}, getSecureRandom(logPrefix));
+
+            getLogger().info(logPrefix+"Creating socket factory");
             SSLSocketFactory socketFactory = sslContext.getSocketFactory();
 
+            getLogger().info(logPrefix+"Creating socket");
             SSLSocket socket = (SSLSocket) socketFactory.createSocket();
-            handlePreferredCipherSuites(socket);
+
+            getLogger().info(logPrefix+"Setting TLS enabled protocols: "+tlsVersion);
+            socket.setEnabledProtocols(new String[]{tlsVersion});
+            setPreferredCipherSuites(socket);
+
+            getLogger().info(logPrefix+"Socket created, connecting TCP "+tlsVersion);
             socket.connect(new InetSocketAddress(host, port), timeOut);
+
+            getLogger().info(logPrefix+"TCP Socket connected, starting TLS handshake "+tlsVersion);
+            socket.startHandshake();
+
+            getLogger().info(logPrefix+"TLS Socket is ready for communication "+tlsVersion);
 
             return new SocketComChannel(socket);
         } catch (NoSuchAlgorithmException | KeyManagementException | IOException | UnrecoverableKeyException | KeyStoreException | InvalidKeyException | CertificateException e) {
@@ -149,11 +174,41 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
         }
     }
 
+    /**
+     * Because we use the JSS runtime is used as default to be able to handle the private key
+     * For random generator we have to use the native SUN provider,
+     *      else it will use the true-random from JSS, which is very resource intensive!
+     *
+     * @param logPrefix just for clear output
+     * @return either the default random from sun, or the fallback from JSS
+     */
+    private SecureRandom getSecureRandom(String logPrefix) {
+
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance(DEFAULT_SECURE_RANDOM_ALG_SHA_1_PRNG, DEFAULT_SECURE_RANDOM_PROVIDER_SUN);
+            getLogger().info(logPrefix+"Using default SUN random generator for TLS handshake.");
+            return secureRandom;
+        } catch (Exception e) {
+            getLogger().warning(logPrefix+"Falling back to default random generator (JSS), cannot use the native random generator: "+e.getMessage());
+        }
+
+        return new SecureRandom();
+    }
+
+    /**
+     * Use this to set the algorithm
+     *          ssl.TrustManagerFactory.algorithm=SunX509
+     */
+    private X509TrustManager getTrustManager() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, IOException {
+        CertificateWrapper tlsServerCertificate = getTlsServerCertificate();
+        return certificateWrapperExtractor.getTrustManager(tlsServerCertificate).get();
+    }
+
     protected X509KeyManager getKeyManager() throws CertificateException, NoSuchAlgorithmException, KeyStoreException, InvalidKeyException, IOException, UnrecoverableKeyException, ConnectionException {
         return certificateWrapperExtractor.getKeyManager(getTlsClientPrivateKey()).get();
     }
 
-    private void handlePreferredCipherSuites(SSLSocket socket) throws ConnectionException {
+    private void setPreferredCipherSuites(SSLSocket socket) throws ConnectionException {
         String preferredCipherSuitesPropertyValue = getPreferredCipherSuitesPropertyValue();
         if (preferredCipherSuitesPropertyValue != null) {
 
@@ -177,7 +232,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2016-10-27 14:22:27 +0200 (Thu, 27 Oct 2016)$";
+        return "Date: 2021-04-19";
     }
 
     private PropertySpec stringWithDefault(String name, TranslationKey translationKey, String defaultValue) {

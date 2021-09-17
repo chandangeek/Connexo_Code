@@ -2,6 +2,8 @@ package com.elster.jupiter.hsm.impl;
 
 import com.atos.worldline.jss.api.jca.JSSJCAProvider;
 import com.atos.worldline.jss.api.jca.spec.KeyLabelKeySpec;
+import com.atos.worldline.jss.api.jca.spec.*;
+
 
 import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
@@ -12,6 +14,10 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.security.interfaces.*;
+import java.security.spec.*;
+
+
 
 public class HsmKeyManagerImpl implements X509KeyManager {
 
@@ -113,7 +119,7 @@ public class HsmKeyManagerImpl implements X509KeyManager {
     public PrivateKey getPrivateKey(String alias) {
         PrivateKey privateKey;
         try {
-            KeyLabelKeySpec privateKeySpec = new KeyLabelKeySpec(alias);
+            KeyLabelKeySpec privateKeySpec = new EcKeyLabelKeySpec(alias, getECParameterSpec());
             KeyFactory keyFactory = KeyFactory.getInstance(JSSJCAProvider.ALGORITHM_NAME_EC, JSSJCAProvider.NAME);
             privateKey = keyFactory.generatePrivate(privateKeySpec);
         } catch (NoSuchAlgorithmException | InvalidKeySpecException | NoSuchProviderException e) {
@@ -121,4 +127,24 @@ public class HsmKeyManagerImpl implements X509KeyManager {
         }
         return privateKey;
     }
+    /**
+     * Extracts the ECParameterSpec from public key, to initialize properly the privateKey
+     */
+    private ECParameterSpec getECParameterSpec() {
+        try {
+            if (certificateChain.length==0){
+                System.out.println("Empty certificate chain, cannot extract ECParameterSpec");
+                return null;
+            }
+
+            X509Certificate certificate = certificateChain[certificateChain.length - 1];
+            ECPublicKey publicKey = (ECPublicKey) certificate.getPublicKey();
+            return publicKey.getParams();
+        } catch (Exception ex){
+            System.err.println("Cannot extract parameter spec from certificate chain");
+        }
+
+        return null;
+    }
 }
+
