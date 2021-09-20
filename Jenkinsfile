@@ -188,7 +188,7 @@ pipeline {
                              enabledForFailure: true,
                              qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
                                             [threshold: 77, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 22005, type: 'TOTAL_NORMAL', unstable: true]],
+                                            [threshold: 22010, type: 'TOTAL_NORMAL', unstable: true]],
                              tools: [junitParser(pattern: '**/Test-*.xml'),
                                      pmdParser(),
                                      checkStyle(),
