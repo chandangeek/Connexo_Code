@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -54,6 +55,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     public static final long startTimeFirst = 1416403197000L;

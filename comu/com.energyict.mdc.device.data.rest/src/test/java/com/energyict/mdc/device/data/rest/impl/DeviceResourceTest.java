@@ -175,6 +175,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private static final Instant NOW = Instant.ofEpochMilli(1409738114);

@@ -89,6 +89,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -106,6 +107,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
 
     private static final String BATTERY_LOW = "Battery low";

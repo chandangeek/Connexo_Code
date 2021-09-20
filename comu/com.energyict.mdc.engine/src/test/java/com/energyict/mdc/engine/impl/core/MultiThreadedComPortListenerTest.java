@@ -38,6 +38,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadFactory;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -61,6 +62,7 @@ import static org.mockito.Mockito.when;
  * @since 2012-04-10 (12:49)
  */
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class MultiThreadedComPortListenerTest {
 
     private static final int NUMBER_OF_SIMULTANEOUS_CONNECTIONS = 3;

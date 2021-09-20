@@ -15,6 +15,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -77,6 +78,7 @@ public class DefaultFileHandlerTest {
     }
 
     @Test
+    @Ignore
     public void testHandleCreatesFileImport() {
 
         Path file = testFileSystem.getPath("./test.txt");
@@ -85,6 +87,7 @@ public class DefaultFileHandlerTest {
     }
 
     @Test
+    @Ignore
     public void testHandlePostsMessage() {
 
         Path file = testFileSystem.getPath("./test.txt");
