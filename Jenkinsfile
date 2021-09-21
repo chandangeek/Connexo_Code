@@ -205,10 +205,10 @@ pipeline {
                        maximumComplexityCoverage: '21',
                        // Must exceed these values or the build will fail
                        minimumClassCoverage: '40',
-                       minimumMethodCoverage: '26'
+                       minimumMethodCoverage: '26',
                        minimumLineCoverage: '24',
                        minimumBranchCoverage: '12',
-                       minimumComplexityCoverage: '20',
+                       minimumComplexityCoverage: '20'
               }
             }
           }
