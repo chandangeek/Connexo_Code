@@ -5,6 +5,7 @@ import com.energyict.obis.ObisCode;
 
 public class A2ObjectList {
     private UniversalObject[] objectList = {
+            new UniversalObject(ObisCode.fromString("0.1.96.5.4.255").getLN(),1,0),
             new UniversalObject(ObisCode.fromString("0.0.1.0.0.255").getLN(),8,0),
             new UniversalObject(ObisCode.fromString("0.0.1.1.0.101").getLN(),1,0),
             new UniversalObject(ObisCode.fromString("0.0.1.1.0.255").getLN(),1,0),

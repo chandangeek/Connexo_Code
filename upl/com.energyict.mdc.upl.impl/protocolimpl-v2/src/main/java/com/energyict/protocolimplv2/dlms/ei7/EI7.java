@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
+import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.OctetString;
+import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -17,6 +19,7 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.a2.A2;
+import com.energyict.protocolimplv2.dlms.a2.A2ObjectList;
 import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.ei7.messages.EI7Messaging;
 import com.energyict.protocolimplv2.dlms.ei7.profiles.EI7LoadProfileDataReader;
@@ -47,6 +50,21 @@ public class EI7 extends A2 {
 
     protected EI7Messaging createMessaging() {
         return new EI7Messaging(this, getPropertySpecService(), getNlsService(), getConverter(), getMessageFileExtractor(), getKeyAccessorTypeExtractor());
+    }
+
+    @Override
+    protected void checkCacheObjects() {
+        if (getDeviceCache() == null) {
+            setDeviceCache(new DLMSCache());
+        }
+        DLMSCache dlmsCache = getDeviceCache();
+        readObjectList();
+        dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
+    }
+
+    @Override
+    protected void readObjectList() {
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(new A2ObjectList().getObjectList());
     }
 
 
@@ -106,7 +124,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-08-25 12:00:00 +0200 (Wed, 25 Aug 2020) $";
+        return "$Date: 2021-09-22$";
     }
 
     @Override
