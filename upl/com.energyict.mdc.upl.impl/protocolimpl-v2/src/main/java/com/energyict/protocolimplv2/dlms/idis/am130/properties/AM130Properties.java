@@ -19,7 +19,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.*;
  */
 public class AM130Properties extends IDISProperties {
 
-    private static int SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH = 4;
+    private static int SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH = 2;
     private static int SERIAL_NUMBER_TO_MAC_ADDRESS_OFFSET = 16;
 
     public static final String OVERWRITE_SERVER_LOWER_MAC_ADDRESS = "OverwriteServerLowerMacAddress";
@@ -34,7 +34,7 @@ public class AM130Properties extends IDISProperties {
 
     @Override
     public int getServerLowerMacAddress() {
-        if (isOverwriteServerLowerMacAddress())
+        if (!isOverwriteServerLowerMacAddress())
             return super.getServerLowerMacAddress();
         return createServerLowerMacAddress();
     }
