@@ -134,6 +134,15 @@ public class DeviceFirmwareVersionInfoFactory {
                 possibleStates.stream()
                         .filter(state -> state.validateMessage(message, versionUtils))
                         .findFirst()
+                        .filter(upgradeState -> {
+                            if (upgradeState instanceof FailedFirmwareUploadState) {
+                                Optional<DeviceFirmwareVersionInfo> currentFirmware = info.firmwares.stream().findFirst();
+                                long lastCheckedData = currentFirmware.isPresent() ? currentFirmware.get().activeVersion.lastCheckedDate : 0;
+                                long lastReleaseDate = message.getReleaseDate().toEpochMilli();
+                                return lastCheckedData <= lastReleaseDate;
+                            }
+                            return true;
+                        })
                         .ifPresent(upgradeState ->
                                 info.addUpgradeVersion(
                                         upgradeState.getFirmwareVersionName(),
@@ -270,6 +279,8 @@ public class DeviceFirmwareVersionInfoFactory {
     }
 
     public static class FailedFirmwareUploadState extends AbstractFirmwareUpgradeState {
+        protected static final String FIRMWARE_VERSION_NAME = "failedVersion";
+
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
@@ -287,7 +298,7 @@ public class DeviceFirmwareVersionInfoFactory {
 
         @Override
         public String getFirmwareVersionName() {
-            return "failedVersion";
+            return FIRMWARE_VERSION_NAME;
         }
 
         @Override
@@ -391,6 +402,8 @@ public class DeviceFirmwareVersionInfoFactory {
     }
 
     public static class FailedFirmwareActivationState extends FailedFirmwareUploadState {
+        protected static final String FIRMWARE_VERSION_NAME = "failedActivatingVersion";
+
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
@@ -402,7 +415,7 @@ public class DeviceFirmwareVersionInfoFactory {
 
         @Override
         public String getFirmwareVersionName() {
-            return "failedActivatingVersion";
+            return FIRMWARE_VERSION_NAME;
         }
 
         @Override
