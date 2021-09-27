@@ -64,7 +64,7 @@ public class EI7 extends A2 {
 
     @Override
     protected void readObjectList() {
-        getDlmsSession().getMeterConfig().setInstantiatedObjectList(new A2ObjectList().getObjectList());
+        getDlmsSession().getMeterConfig().setInstantiatedObjectList(new EI7ObjectList().getObjectList());
     }
 
 
