@@ -286,7 +286,6 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                         .put(UpgraderV10_7.VERSION, UpgraderV10_7.class)
                         .put(UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class)
                         .put(UpgraderV10_7_4.VERSION, UpgraderV10_7_4.class)
-                        .put(UpgraderV10_7_5.VERSION, UpgraderV10_7_5.class)
                         .put(UpgraderV10_8.VERSION, UpgraderV10_8.class)
                         .put(Version.version(10, 8, 7), UpgraderV10_8_7.class)
                         .put(Version.version(10, 8, 7, 1), UpgraderV10_8_7_1.class)
