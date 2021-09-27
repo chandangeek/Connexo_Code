@@ -3,8 +3,11 @@ package com.energyict.mdc.protocol.inbound.g3;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import org.osgi.framework.FrameworkUtil;
 
+
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.logging.Logger;
+
 
 /**
  * Copyrights EnergyICT
@@ -21,6 +24,9 @@ public class CryptoBeaconPSKProviderFactory {
 
     private final boolean provideProtocolJavaClasName;
 
+    Logger logger = Logger.getLogger(this.getClass().getName());
+
+
     /**
      * A list of PSK providers mapped to unique identifier strings.
      */
@@ -36,7 +42,9 @@ public class CryptoBeaconPSKProviderFactory {
                 new LinkedHashMap<DeviceIdentifier, CryptoBeaconPSKProvider>(providersMaxCapacity, 0.75f, true) {
                     @Override
                     protected boolean removeEldestEntry(Map.Entry eldest) {
-                        return size() > providersMaxCapacity;
+                        boolean willRemove = size() > providersMaxCapacity;
+                        logger.info("[PSK] Provider capacity "+ getUsageStatus()+". Will remove eldest: "+willRemove);
+                        return willRemove;
                     }
                 };
     }
@@ -54,10 +62,25 @@ public class CryptoBeaconPSKProviderFactory {
      */
     public synchronized CryptoBeaconPSKProvider getPSKProvider(DeviceIdentifier deviceIdentifier) {
         if (!providers.containsKey(deviceIdentifier)) {
+            logger.info("[PSK]["+deviceIdentifier+"] Creating new PSK-provider "+ getUsageStatus());
             providers.put(deviceIdentifier, new CryptoBeaconPSKProvider(deviceIdentifier, provideProtocolJavaClasName));
+            logger.info("[PSK] Creating new PSK-provider for "+deviceIdentifier.toString());
+        } else {
+            logger.info("[PSK] Reusing PSK-provider for "+deviceIdentifier.toString());
         }
+
         return providers.get(deviceIdentifier);
     }
+
+
+    private String getUsageStatus() {
+        if (providers != null) {
+            return " - using " + providers.size() + "/" + providersMaxCapacity;
+        } else {
+            return " providers not-initialized";
+        }
+    }
+
 
     private static String getSystemProperty(String propertyName, String defaultValue) {
         try {
