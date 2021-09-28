@@ -2844,6 +2844,7 @@ public class DeviceResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySetId()).thenReturn("customPropertySetId");
         doReturn(Device.class).when(customPropertySet).getDomainClass();
         MdcPropertyUtils mdcPropertyUtils = mock(MdcPropertyUtils.class);
         PropertyInfo propertyInfo = mock(PropertyInfo.class);

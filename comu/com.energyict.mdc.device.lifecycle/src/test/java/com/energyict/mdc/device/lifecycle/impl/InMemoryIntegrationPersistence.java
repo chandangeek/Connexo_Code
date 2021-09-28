@@ -263,6 +263,7 @@ public class InMemoryIntegrationPersistence {
                     new StateTransitionChangeEventTopicHandler(
                             this.injector.getInstance(FiniteStateMachineService.class),
                             this.injector.getInstance(MeteringService.class),
+                            this.injector.getInstance(DeviceService.class),
                             this.clock);
             ((EventServiceImpl) this.injector.getInstance(EventService.class)).addTopicHandler(stateTransitionChangeEventTopicHandler);
             DeviceLifeCycleChangeEventHandler deviceLifeCycleChangeEventHandler = getDeviceLifeCycleChangeEventHandler();
