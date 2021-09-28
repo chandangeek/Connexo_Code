@@ -15,6 +15,8 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -33,8 +35,6 @@ import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.DeltaElectr
 import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.InitiatorElectricalPhaseType;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.PANConnectionStatus;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.model.PLCG3BandplanType;
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
@@ -78,6 +78,7 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
         prepareReading(offlineRegisterList);
 
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(getDlmsSession(), getDlmsSession().getProperties().isBulkRequest(), getDLMSAttributes());
+        composedCosemObject.setUseAccessService(true);
 
         for (OfflineRegister offlineRegister : offlineRegisterList) {
 
