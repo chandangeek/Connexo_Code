@@ -214,6 +214,7 @@ public enum TableSpecs {
             table.addAuditColumns();
             Column deviceId = table.column("DEVICEID").number().notNull().add();
             table.column("LASTREADING").number().map("lastReading").conversion(ColumnConversion.NUMBER2INSTANT).add();
+            table.column("LASTCONSECUTIVEREADING").number().map("lastConsecutiveReading").conversion(ColumnConversion.NUMBER2INSTANT).since(Version.version(10, 9, 9)).add();
             Column loadProfileSpec = table.column("LOADPROFILESPECID").number().add();
             table.primaryKey("PK_DDC_LOADPROFILE").on(id).add();
             table.foreignKey("FK_DDC_LOADPROFILE_LPSPEC")

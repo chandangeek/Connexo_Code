@@ -797,6 +797,7 @@ public class ChannelResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySetId()).thenReturn("customPropertySetId");
         MdcPropertyUtils mdcPropertyUtils = mock(MdcPropertyUtils.class);
         PropertyInfo propertyInfo = mock(PropertyInfo.class);
         PropertyValueInfo propertyValueInfo = mock(PropertyValueInfo.class);

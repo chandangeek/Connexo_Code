@@ -16,6 +16,7 @@ import com.elster.jupiter.metering.LifecycleDates;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.util.conditions.Condition;
 
+import com.energyict.mdc.device.data.DeviceService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
@@ -40,6 +41,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     private Logger logger = Logger.getLogger(StateTransitionChangeEventTopicHandler.class.getName());
     private volatile FiniteStateMachineService stateMachineService;
     private volatile MeteringService meteringService;
+    private volatile DeviceService deviceService;
     private volatile Clock clock;
 
     // For OSGi purposes
@@ -49,10 +51,11 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
 
     // For testing purposes
     @Inject
-    public StateTransitionChangeEventTopicHandler(FiniteStateMachineService stateMachineService, MeteringService meteringService, Clock clock) {
+    public StateTransitionChangeEventTopicHandler(FiniteStateMachineService stateMachineService, MeteringService meteringService, DeviceService deviceService, Clock clock) {
         this();
         this.setStateMachineService(stateMachineService);
         this.setMeteringService(meteringService);
+        this.setDeviceService(deviceService);
         this.setClock(clock);
     }
 
@@ -92,6 +95,8 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             }
             case ACTIVE: {
                 lifecycleDates.setInstalledDate(effectiveTimestamp);
+                deviceService.findAndLockDeviceById(device.getId())
+                        .ifPresent(d -> d.getLoadProfiles().forEach(lp -> lp.getUpdater().setLastConsecutiveReading(effectiveTimestamp).update()));
                 device.update();
                 break;
             }
@@ -133,6 +138,11 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setDeviceService(DeviceService deviceService) {
+        this.deviceService = deviceService;
     }
 
     @Reference

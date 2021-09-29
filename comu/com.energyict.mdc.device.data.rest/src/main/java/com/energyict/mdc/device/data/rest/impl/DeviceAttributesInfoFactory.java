@@ -320,6 +320,7 @@ public class DeviceAttributesInfoFactory {
         }
         if (DeviceAttribute.INSTALLATION_DATE.isEditableForState(state) && info.installationDate != null) {
             lifecycleDates.setInstalledDate(info.installationDate.displayValue);
+            device.getLoadProfiles().forEach(lp -> lp.getUpdater().setLastConsecutiveReading(info.installationDate.displayValue).update());
         }
         if (DeviceAttribute.DEACTIVATION_DATE.isEditableForState(state) && info.deactivationDate != null) {
             lifecycleDates.setRemovedDate(info.deactivationDate.displayValue);

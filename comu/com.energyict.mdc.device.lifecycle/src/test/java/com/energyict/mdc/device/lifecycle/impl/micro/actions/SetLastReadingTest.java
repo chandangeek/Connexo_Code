@@ -84,16 +84,18 @@ public class SetLastReadingTest {
     }
 
     @Test
-    public void executeSetsLastReadingOnAllLoadProfiles() {
+    public void executeSetsLastReadingAndLastConsecutiveReadingOnAllLoadProfiles() {
         Instant now = Instant.ofEpochSecond(97L);
         SetLastReading microAction = this.getTestInstance();
         LoadProfile loadProfile1 = mock(LoadProfile.class);
         LoadProfile.LoadProfileUpdater updater1 = mock(LoadProfile.LoadProfileUpdater.class);
         when(updater1.setLastReadingIfLater(any(Instant.class))).thenReturn(updater1);
+        when(updater1.setLastConsecutiveReadingIfLater(any(Instant.class))).thenReturn(updater1);
         when(this.device.getLoadProfileUpdaterFor(loadProfile1)).thenReturn(updater1);
         LoadProfile loadProfile2 = mock(LoadProfile.class);
         LoadProfile.LoadProfileUpdater updater2 = mock(LoadProfile.LoadProfileUpdater.class);
         when(updater2.setLastReadingIfLater(any(Instant.class))).thenReturn(updater2);
+        when(updater2.setLastConsecutiveReadingIfLater(any(Instant.class))).thenReturn(updater2);
         when(this.device.getLoadProfileUpdaterFor(loadProfile2)).thenReturn(updater2);
         when(this.device.getLogBooks()).thenReturn(Collections.emptyList());
         when(this.device.getLoadProfiles()).thenReturn(Arrays.asList(loadProfile1, loadProfile2));
@@ -103,9 +105,11 @@ public class SetLastReadingTest {
 
         // Asserts
         verify(updater1).setLastReadingIfLater(now);
-        verify(updater1).update();
+        verify(updater1).setLastConsecutiveReadingIfLater(now);
+        verify(updater1, times(2)).update();
         verify(updater2).setLastReadingIfLater(now);
-        verify(updater2).update();
+        verify(updater2).setLastConsecutiveReadingIfLater(now);
+        verify(updater2, times(2)).update();
     }
 
     private SetLastReading getTestInstance() {
