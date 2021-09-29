@@ -23,10 +23,13 @@ import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.LoadProfileReader;
 
 import java.text.MessageFormat;
+
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.stream.Collectors;
 
 /**
  * Simple command that just reads the requested {@link com.energyict.mdc.upl.meterdata.LoadProfile loadProfiles} from the device
@@ -44,7 +47,12 @@ public class ReadLoadProfileDataCommandImpl extends SimpleComCommand implements 
 
     @Override
     public void doExecute(final DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
-        this.loadProfileReaders = loadProfileCommand.getLoadProfileReaders();
+        List<LoadProfileReader> loadProfileReaders = loadProfileCommand.getLoadProfileReaders();
+        // make loadProfileReaders list be bigger-intervals-first
+        Comparator<LoadProfileReader> byIntervalReversed = (LoadProfileReader lpr1, LoadProfileReader lpr2)->
+                Integer.compare(loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(lpr2), loadProfileCommand.findLoadProfileIntervalForLoadProfileReader(lpr1));
+
+        this.loadProfileReaders = loadProfileReaders.stream().sorted(byIntervalReversed).collect(Collectors.toList());
         this.collectedLoadProfileList = deviceProtocol.getLoadProfileData(this.loadProfileReaders);
 
         List<CollectedData> collectedDatas = new ArrayList<>();

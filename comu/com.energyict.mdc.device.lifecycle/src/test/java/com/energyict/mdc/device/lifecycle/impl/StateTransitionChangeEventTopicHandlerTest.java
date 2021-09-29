@@ -19,7 +19,10 @@ import com.elster.jupiter.metering.DefaultState;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Collections;
+import java.util.Optional;
 
+import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.device.data.DeviceService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -50,6 +53,8 @@ public class StateTransitionChangeEventTopicHandlerTest {
     @Mock
     private MeteringService meteringService;
     @Mock
+    private DeviceService deviceService;
+    @Mock
     private Clock clock;
     @Mock
     private LocalEvent localEvent;
@@ -65,6 +70,12 @@ public class StateTransitionChangeEventTopicHandlerTest {
     private LifecycleDates lifecycleDates;
     @Mock
     private Query<EndDevice> endDeviceQuery;
+    @Mock
+    private Device device;
+    @Mock
+    private LoadProfile loadProfile;
+    @Mock
+    private LoadProfile.LoadProfileUpdater loadProfileUpdater;
 
     @Before
     public void initializeMocks() {
@@ -76,6 +87,11 @@ public class StateTransitionChangeEventTopicHandlerTest {
         when(this.meteringService.getEndDeviceQuery()).thenReturn(endDeviceQuery);
         when(endDeviceQuery.select(any(Condition.class))).thenReturn(Collections.singletonList(endDevice));
         when(this.endDevice.getLifecycleDates()).thenReturn(this.lifecycleDates);
+        when(this.endDevice.getId()).thenReturn(1L);
+        when(this.deviceService.findAndLockDeviceById(1L/*anyLong()*/)).thenReturn(Optional.of(device));
+        when(this.device.getLoadProfiles()).thenReturn(Collections.singletonList(loadProfile));
+        when(this.loadProfile.getUpdater()).thenReturn(loadProfileUpdater);
+        when(this.loadProfileUpdater.setLastConsecutiveReading(any())).thenReturn(loadProfileUpdater);
     }
 
     @Test
@@ -118,6 +134,23 @@ public class StateTransitionChangeEventTopicHandlerTest {
         verify(this.endDevice).getLifecycleDates();
         verify(this.lifecycleDates).setInstalledDate(expectedInstalledDate);
         verify(this.endDevice).update();
+    }
+
+    @Test
+    public void transitionToActiveSetsLastConsecutiveReading() {
+        Instant expectedInstalledDate = Instant.ofEpochMilli(10000L);
+        StateTransitionChangeEventTopicHandler handler = getTestInstance();
+        when(this.newState.isCustom()).thenReturn(false);
+        when(this.newState.getName()).thenReturn(DefaultState.ACTIVE.getKey());
+        when(this.clock.instant()).thenReturn(expectedInstalledDate);
+
+        // Business method
+        handler.handle(this.localEvent);
+
+        // Asserts
+        verify(this.device).getLoadProfiles();
+        verify(this.loadProfileUpdater).setLastConsecutiveReading(any());
+        verify(this.loadProfileUpdater).update();
     }
 
     @Test
@@ -228,7 +261,7 @@ public class StateTransitionChangeEventTopicHandlerTest {
     }
 
     private StateTransitionChangeEventTopicHandler getTestInstance() {
-        return new StateTransitionChangeEventTopicHandler(this.stateMachineService, this.meteringService, this.clock);
+        return new StateTransitionChangeEventTopicHandler(this.stateMachineService, this.meteringService, this.deviceService, this.clock);
     }
 
 }

@@ -42,6 +42,7 @@ public class SetLastReading extends TranslatableServerMicroAction {
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         device.getLogBooks().forEach(logBook -> this.setLastReading(device, logBook, effectiveTimestamp));
         device.getLoadProfiles().forEach(loadProfile -> this.setLastReading(device, loadProfile, effectiveTimestamp));
+        device.getLoadProfiles().forEach(loadProfile -> this.setLastConsecutiveReading(device, loadProfile, effectiveTimestamp));
     }
 
     private void setLastReading(Device device, LogBook logBook, Instant commissioningTimestamp) {
@@ -50,6 +51,10 @@ public class SetLastReading extends TranslatableServerMicroAction {
 
     private void setLastReading(Device device, LoadProfile loadProfile, Instant commissioningTimestamp) {
         device.getLoadProfileUpdaterFor(loadProfile).setLastReadingIfLater(commissioningTimestamp).update();
+    }
+
+    private void setLastConsecutiveReading(Device device, LoadProfile loadProfile, Instant commissioningTimestamp) {
+        device.getLoadProfileUpdaterFor(loadProfile).setLastConsecutiveReadingIfLater(commissioningTimestamp).update();
     }
 
     @Override

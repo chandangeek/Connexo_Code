@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.common.device.data;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.device.config.LoadProfileSpec;
@@ -22,6 +23,7 @@ import java.util.List;
  * Date: 3/17/14
  * Time: 3:30 PM
  */
+@ConsumerType
 public interface LoadProfile extends com.energyict.mdc.upl.meterdata.LoadProfile, HasId {
 
     Device getDevice();
@@ -113,6 +115,21 @@ public interface LoadProfile extends com.energyict.mdc.upl.meterdata.LoadProfile
          * @param lastReading the new last reading
          */
         LoadProfileUpdater setLastReading(Instant lastReading);
+
+        /**
+         * Updates the last consecutive reading.
+         *
+         * @param lastConsecutiveReading the new last reading
+         */
+        LoadProfileUpdater setLastConsecutiveReading(Instant lastConsecutiveReading);
+
+        /**
+         * Updates the last consecutive reading if the argument is later than
+         * the current last consecutive reading.
+         *
+         * @param lastConsecutiveReading the new last reading
+         */
+        LoadProfileUpdater setLastConsecutiveReadingIfLater(Instant lastConsecutiveReading);
 
         /**
          * Updates the LoadProfile, preferably via his Device.

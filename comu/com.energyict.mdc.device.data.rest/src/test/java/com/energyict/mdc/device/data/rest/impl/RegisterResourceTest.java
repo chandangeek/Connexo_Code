@@ -123,6 +123,7 @@ public class RegisterResourceTest extends DeviceDataRestApplicationJerseyTest {
         when(registeredCustomPropertySet.isEditableByCurrentUser()).thenReturn(true);
         when(registeredCustomPropertySet.getId()).thenReturn(1L);
         when(registeredCustomPropertySet.getCustomPropertySet()).thenReturn(customPropertySet);
+        when(registeredCustomPropertySet.getCustomPropertySetId()).thenReturn("customPropertySetId");
         when(customPropertySet.getId()).thenReturn("provider.class");
         MdcPropertyUtils mdcPropertyUtils = mock(MdcPropertyUtils.class);
         PropertyInfo propertyInfo = mock(PropertyInfo.class);

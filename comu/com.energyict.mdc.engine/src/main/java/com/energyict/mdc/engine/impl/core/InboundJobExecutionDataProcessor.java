@@ -8,7 +8,10 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.NotFoundException;
 import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.data.LoadProfile;
 import com.energyict.mdc.common.masterdata.LogBookType;
 import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.common.masterdata.RegisterType;
@@ -51,15 +54,7 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLogBook;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
-import com.energyict.mdc.upl.meterdata.LoadProfileType;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -67,8 +62,10 @@ import com.energyict.protocol.LoadProfileReader;
 
 import java.time.Clock;
 import java.time.Instant;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -363,13 +360,19 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     }
 
     private boolean requiredBackFillRead(LoadProfileCommand inboundCollectedLoadProfileReadCommand, List<ServerCollectedData> collectedData) {
+        Device device = inboundCollectedLoadProfileReadCommand.getCommandRoot().getServiceProvider().deviceService()
+                .findDeviceByIdentifier(offlineDevice.getDeviceIdentifier()).orElseThrow(() -> new NotFoundException("Could not resolve device identifier: '" + offlineDevice.getDeviceIdentifier().toString() + "'"));
+        Instant installedDate = device.getLifecycleDates().getInstalledDate().orElseThrow(() -> new IllegalStateException("The device has not been installed active, the installation date has not been set"));
+
         for (LoadProfileReader reader : inboundCollectedLoadProfileReadCommand.getLoadProfileReaders()) {
+            Optional<LoadProfile> loadProfileOptional = device.getLoadProfiles().stream().filter(lp -> lp.getObisCode().equals(reader.getProfileObisCode())).findFirst();
             Optional<CollectedLoadProfile> collectedLoadProfile = collectedData.stream().filter(CollectedLoadProfile.class::isInstance).map(CollectedLoadProfile.class::cast)
                     .filter(clp -> clp.getLoadProfileIdentifier().getLoadProfileObisCode().equals(reader.getProfileObisCode()))
                     .findFirst();
+            if (loadProfileOptional.isPresent() && collectedLoadProfile.isPresent()) {
+                Optional<Date> lastConsecutiveReadingDate = loadProfileOptional.get().getLastConsecutiveReading();
+                Instant lastConsecutiveReading = lastConsecutiveReadingDate.isPresent() ? lastConsecutiveReadingDate.get().toInstant() : installedDate;
 
-            if (collectedLoadProfile.isPresent()) {
-                Instant lastReading = Instant.ofEpochMilli(reader.getStartReadingTime().getTime());
                 AtomicReference<Instant> firstReceived = new AtomicReference(collectedLoadProfile.get().getCollectedIntervalDataRange().lowerEndpoint());
                 offlineDevice.getAllOfflineLoadProfiles()
                         .stream()
@@ -378,7 +381,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                         .findFirst()
                         .ifPresent(interval ->  firstReceived.set(firstReceived.get().minus(interval)));
 
-                if (lastReading.isBefore(firstReceived.get())) {
+                if(lastConsecutiveReading.isBefore(firstReceived.get())) {
                     return true;
                 }
             }

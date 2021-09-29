@@ -44,10 +44,12 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
+
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.InboundConnectionTask;
 import com.energyict.mdc.common.device.data.LoadProfile;
+import com.energyict.mdc.common.device.data.LoadProfileReading;
 import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.common.device.data.ProtocolDialectProperties;
 import com.energyict.mdc.common.device.data.Register;
@@ -160,6 +162,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1214,9 +1217,10 @@ public class ComServerDAOImpl implements ComServerDAO {
 
     @Override
     public void storeLoadProfile(final LoadProfileIdentifier loadProfileIdentifier, final CollectedLoadProfile collectedLoadProfile, final Instant currentDate) {
-        Optional<Instant> originalLastReading = findLoadProfile(loadProfileIdentifier).map(LoadProfile::getLastReading).map(Date::toInstant);
+        Optional<LoadProfile> loadProfileOptional = findLoadProfile(loadProfileIdentifier);
+        Optional<Instant> originalLastReading = loadProfileOptional.map(LoadProfile::getLastReading).map(Date::toInstant);
 
-        Optional<OfflineLoadProfile> optionalOfflineLoadProfile = findLoadProfile(loadProfileIdentifier).flatMap(loadProfile -> {
+        Optional<OfflineLoadProfile> optionalOfflineLoadProfile = loadProfileOptional.flatMap(loadProfile -> {
             if (collectedLoadProfile.getCollectedIntervalDataRange().hasLowerBound()) {
                 loadProfile.getUpdater().setLastReading(collectedLoadProfile.getCollectedIntervalDataRange().lowerEndpoint().minusSeconds(1)).update();
             }
@@ -1247,7 +1251,6 @@ public class ComServerDAOImpl implements ComServerDAO {
                             lastReadings.put(identifiers.getLast(), eachPreStoredLoadProfile.getLastReading());
                         }
                     }
-
                 });
                 meterReadings.forEach((deviceIdentifier, meterReading) -> {
                     storeMeterReadings(deviceIdentifier, meterReading);
@@ -1259,6 +1262,27 @@ public class ComServerDAOImpl implements ComServerDAO {
                     List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(theLoadProfileIdentifier.getDeviceIdentifier(), k -> new ArrayList<>());
                     functionList.add(updateLoadProfile(loadProfile, timestamp));
                 });
+                // Track continuity
+                Optional<Date> originalLastConsecutiveReadingOptional = loadProfileOptional.flatMap(LoadProfile::getLastConsecutiveReading);
+                Range<Instant> collectedIntervalRange = collectedLoadProfile.getCollectedIntervalDataRange();
+
+                if (optionalOfflineLoadProfile.isPresent() && originalLastConsecutiveReadingOptional.isPresent()
+                        && collectedIntervalRange.hasLowerBound() && collectedIntervalRange.hasUpperBound()) {
+                    Instant nextToLastConsecutiveReading = originalLastConsecutiveReadingOptional.get().toInstant().plus(optionalOfflineLoadProfile.get().getInterval());
+                    // the following condition is an alternative to Range.contains() with the lowerBound included into comparison
+                    if(!nextToLastConsecutiveReading.isBefore(collectedIntervalRange.lowerEndpoint()) && !nextToLastConsecutiveReading.isAfter(collectedIntervalRange.upperEndpoint())) {
+                        findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
+                            Instant lastConsecutiveReading = Instant.ofEpochSecond(collectedIntervalRange.upperEndpoint().getEpochSecond());
+                            if (originalLastReading.isPresent() && lastConsecutiveReading.isBefore(originalLastReading.get())) {
+                                lastConsecutiveReading = promoteLastConsecutiveReading(lp.getChannelData(Range.openClosed(lastConsecutiveReading, originalLastReading.get())),
+                                        lastConsecutiveReading, optionalOfflineLoadProfile.get().getInterval());
+                            }
+                            lp.getUpdater().setLastConsecutiveReadingIfLater(lastConsecutiveReading).update();
+                        });
+                    }
+                }
+
+
                 // then do your thing
                 updateMap.forEach((deviceId, functions) -> {
                     Device oldDevice = findDevice(deviceId);
@@ -1267,6 +1291,20 @@ public class ComServerDAOImpl implements ComServerDAO {
                 });
             }
         }
+    }
+
+    private Instant promoteLastConsecutiveReading(List<LoadProfileReading> loadProfileReadingList, Instant initial, TemporalAmount interval) {
+        // the list is in a latest-readings-first order. Reverse it.
+        Collections.reverse(loadProfileReadingList);
+        // the list contains stub-readings with readingTime = null for all missing readings
+        for ( LoadProfileReading reading :  loadProfileReadingList) {
+            if (reading.getReadingTime() == null) {
+                return initial;
+            } else {
+                initial = initial.plus(interval);
+            }
+        }
+        return initial;
     }
 
     private Pair<DeviceIdentifier, LoadProfileIdentifier> getIdentifiers(PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile, LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
@@ -1928,7 +1966,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         Optional<Device> optionalDevice = getOptionalDeviceByIdentifier(collectedBreakerStatus.getDeviceIdentifier());
         optionalDevice.ifPresent(device -> {
             BreakerStatusStorage breakerStatusStorage = new BreakerStatusStorage(getDeviceService(), serviceProvider.clock());
-            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device, registerUpdateRequired , tableUpdateRequired );
+            breakerStatusStorage.updateBreakerStatus(collectedBreakerStatus.getBreakerStatus(), device, registerUpdateRequired, tableUpdateRequired);
         });
     }
 
