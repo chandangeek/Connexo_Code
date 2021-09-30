@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
 import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.OctetString;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.Data;
@@ -19,14 +18,11 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.a2.A2;
-import com.energyict.protocolimplv2.dlms.a2.A2ObjectList;
 import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.ei7.messages.EI7Messaging;
 import com.energyict.protocolimplv2.dlms.ei7.profiles.EI7LoadProfileDataReader;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Hex;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -58,6 +54,7 @@ public class EI7 extends A2 {
             setDeviceCache(new DLMSCache());
         }
         DLMSCache dlmsCache = getDeviceCache();
+
         readObjectList();
         dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
     }
@@ -65,8 +62,9 @@ public class EI7 extends A2 {
     @Override
     protected void readObjectList() {
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(new EI7ObjectList().getObjectList());
-    }
 
+
+    }
 
     @Override
     public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
