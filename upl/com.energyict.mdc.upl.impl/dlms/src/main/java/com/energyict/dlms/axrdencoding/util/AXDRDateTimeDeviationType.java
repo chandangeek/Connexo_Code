@@ -36,23 +36,24 @@ public enum AXDRDateTimeDeviationType {
     /**
      * Returns the GMT notation string from the given deviation argument
      *
-     * @param deviation the deviation
+     * @param deviation_minutes the deviation
      * @return the GMT notation of the given deviation
      */
-    public String getGmtNotation(int deviation) {
-        if(deviation == 0){
+    public String getGmtNotation(int deviation_minutes) {
+        if( 0 == deviation_minutes) {
             return GMT;
-        } else if (inverse) {
-            deviation *= -1;
         }
-        return GMT + (deviation < 0 ? "" : "+") + deviation;
+
+        // add '+' if deviation positive
+        char dev_sign = deviation_minutes < 0 ? ( inverse ? '+' : '-' )
+                                              : ( inverse ? '-' : '+' );
+
+        return GMT + dev_sign + deviation_minutes / 60 + ':' + deviation_minutes % 60;
     }
 
-    public int getGmtOffset(int deviation){
-        if(inverse){
-            return deviation *= -1;
-        } else {
-            return deviation;
-        }
+    // @param deviation in minutes
+    public int getGmtOffset(int deviation_minutes) {
+        return inverse ?(-deviation_minutes)
+                       :(deviation_minutes);
     }
 }
