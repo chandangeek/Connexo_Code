@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.*;
 
 /**
  * Copyrights EnergyICT
@@ -67,7 +68,7 @@ public class G3GatewayPSKProvider {
 
     public synchronized void providePSK(DeviceProtocolSecurityPropertySet securityPropertySet, InboundDiscoveryContext context) {
 
-        context.getLogger().info(() -> "[PSK]["+getDeviceIdentifier()+"] Provider locked ");
+        context.getLogger().info(() -> "[PSK][" + getDeviceIdentifier() + "] Provider locked ");
         this.inUse = true;
 
         try {
@@ -84,7 +85,7 @@ public class G3GatewayPSKProvider {
         } finally {
             closeConnection();
             this.inUse = false;
-            context.getLogger().info(() -> "[PSK]["+getDeviceIdentifier()+"] Provider unlocked ");
+            context.getLogger().info(() -> "[PSK][" + getDeviceIdentifier() + "] Provider unlocked ");
         }
 
     }
@@ -238,11 +239,16 @@ public class G3GatewayPSKProvider {
      * Find their PSK properties in EIServer and provide them to the Rtu+Server.
      */
     private void providePSK(DeviceProtocol gatewayProtocol, InboundDiscoveryContext context) {
+        String logSeed = "[PSK][" + gatewayProtocol.getSerialNumber() + "] ";
+        context.getLogger().info(() -> logSeed + "Starting PSK provider");
+
         DlmsSession dlmsSession = getDlmsSession(gatewayProtocol);
         G3NetworkManagement g3NetworkManagement;
         try {
+            context.getLogger().info(() -> logSeed + "Reading joining nodes " + gatewayProtocol.getSerialNumber());
             g3NetworkManagement = getG3NetworkManagement(gatewayProtocol, dlmsSession);
         } catch (ProtocolException e) {
+            context.getLogger().severe(() -> logSeed + "Exception on G3NetworkManagement: " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
 
@@ -251,21 +257,24 @@ public class G3GatewayPSKProvider {
 
             Array joiningNodes = g3NetworkManagement.getJoiningNodes();
 
-            context.getLogger().info(() ->logSeed+"There are "+joiningNodes.nrOfDataTypes()+" nodes waiting for PSK");
+            context.getLogger().info(() -> logSeed + "There are " + joiningNodes.nrOfDataTypes() + " nodes waiting for PSK");
 
             for (AbstractDataType joiningNode : joiningNodes) {
                 try {
                     processJoiningNode(joiningNode, macKeyPairs, context, dlmsSession, logSeed);
-                } catch (Exception ex){
-                    context.getLogger().severe(() -> logSeed+" Exception while processing joining node "+joiningNode+"+: "+ex.getMessage());
+                } catch (Exception ex) {
+                    context.getLogger().severe(() -> logSeed + " Exception while processing joining node " + joiningNode + "+: " + ex.getMessage());
                 }
             }
 
+            context.getLogger().info(() -> logSeed + "Sending " + macKeyPairs.nrOfDataTypes() + " PSKs to the Beacon");
             g3NetworkManagement.provideKeyPairs(macKeyPairs);
-
+            context.getLogger().fine(() -> logSeed + " finishing PSK provisioning with success!");
         } catch (ProtocolException e) {
+            context.getLogger().severe(() -> logSeed + " Protocol Exception: " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         } catch (IOException e) {
+            context.getLogger().severe(() -> logSeed + " IOException Exception: " + e.getMessage());
             throw DLMSIOExceptionHandler.handle(e, dlmsSession.getProperties().getRetries());
         }
     }
@@ -277,41 +286,41 @@ public class G3GatewayPSKProvider {
     private void processJoiningNode(AbstractDataType joiningNode, Array macKeyPairs, InboundDiscoveryContext context, DlmsSession dlmsSession, String logSeed) {
         OctetString macAddressOctetString = joiningNode.getOctetString();
         if (macAddressOctetString == null) {
-            context.getLogger().fine(() ->logSeed+"Empty macAddressOctetString");
+            context.getLogger().fine(() -> logSeed + "Empty macAddressOctetString");
         }
 
-        context.getLogger().fine(() ->logSeed+"Processing "+macAddressOctetString.toString());
+        context.getLogger().fine(() -> logSeed + "Processing " + macAddressOctetString.toString());
 
         String macAddress = ProtocolTools.getHexStringFromBytes((macAddressOctetString).getOctetStr(), "");
 
-        context.getLogger().fine(() ->logSeed+"MAC= "+macAddress);
+        context.getLogger().fine(() -> logSeed + "MAC= " + macAddress);
 
         final DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);
         final TypedProperties deviceProtocolProperties = context.getInboundDAO().getDeviceProtocolProperties(slaveDeviceIdentifier);
         if (deviceProtocolProperties != null) {
-            context.getLogger().fine(() ->logSeed+"Device identified, extracting PSK");
+            context.getLogger().fine(() -> logSeed + "Device identified, extracting PSK");
             final String psk = deviceProtocolProperties.getTypedProperty(G3Properties.PSK);
 
-            context.getLogger().fine(() ->logSeed+"PSK extracted ");
+            context.getLogger().fine(() -> logSeed + "PSK extracted ");
             if (psk != null && psk.length() > 0) {
-                context.getLogger().fine(() ->logSeed+"Wrapping PSK  ");
+                context.getLogger().fine(() -> logSeed + "Wrapping PSK  ");
                 final byte[] pskBytes = parseKey(psk);
                 if (pskBytes != null) {
-                    context.getLogger().fine(() ->logSeed+"Preparing MAC-PSK response");
+                    context.getLogger().fine(() -> logSeed + "Preparing MAC-PSK response");
                     final OctetString wrappedPSKKey = wrap(dlmsSession.getProperties().getProperties(), pskBytes);
                     Structure macAndKeyPair = createMacAndKeyPair(macAddressOctetString, wrappedPSKKey, slaveDeviceIdentifier, context);
                     macKeyPairs.addDataType(macAndKeyPair);
                     //finishedNodes.add(macAddress);
-                    context.getLogger().info(() -> logSeed+"Adding PSK key for joining module '" + macAddress + "' to list");
+                    context.getLogger().info(() -> logSeed + "Adding PSK key for joining module '" + macAddress + "' to list");
                 } else {
-                    context.getLogger().warning(() -> logSeed+"Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
+                    context.getLogger().warning(() -> logSeed + "Device with MAC address " + macAddress + " has an invalid PSK property: '" + psk + "'. Should be 32 hex characters. Skipping.");
                 }
             } else {
-                context.getLogger().warning(() -> logSeed+"Device with MAC address " + macAddress + " does not have a PSK property in Connexo, skipping.");
+                context.getLogger().warning(() -> logSeed + "Device with MAC address " + macAddress + " does not have a PSK property in Connexo, skipping.");
             }
         } else {
             //TODO: notify issue management framework.
-            context.getLogger().warning(() -> logSeed+"No unique device with MAC address " + macAddress + " exists in Connexo, cannot provide PSK key. Skipping.");
+            context.getLogger().warning(() -> logSeed + "No unique device with MAC address " + macAddress + " exists in Connexo, cannot provide PSK key. Skipping.");
         }
 
     }

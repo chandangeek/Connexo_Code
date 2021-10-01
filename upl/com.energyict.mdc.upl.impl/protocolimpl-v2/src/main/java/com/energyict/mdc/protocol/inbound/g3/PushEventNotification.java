@@ -72,7 +72,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
                 } else {
                     logger.warning(getLoggingPrefix()+"provider in use");
                 }
-            } catch (CommunicationException e) {
+            } catch (Exception e) {
                 pskProvider.provideError(e.getMessage(), context);
             } finally {
                 getCollectedData().addAll(pskProvider.getCollectedDataList());
