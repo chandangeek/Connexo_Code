@@ -569,7 +569,7 @@ public class Dsmr23RegisterFactory implements DeviceRegisterSupport {
 
     protected CollectedRegister createIncompatibleRegister(OfflineRegister register, String errorMessage) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
-        collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage));
+        collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue: " + errorMessage, register.getObisCode(), errorMessage));
         return collectedRegister;
     }
 }

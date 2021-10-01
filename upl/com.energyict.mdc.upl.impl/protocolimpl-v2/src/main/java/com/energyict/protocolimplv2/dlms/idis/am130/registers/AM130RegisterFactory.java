@@ -325,12 +325,13 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
 
             int configuredTimeZoneOffset = offsetAtCaptureTime / (-1 * 60 * 1000);
             if (dlmsDateTimeOctetString.getDeviation() != configuredTimeZoneOffset) {
-                timeZoneIssue = getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
-                        "Time zone offset reported by the meter [" + dlmsDateTimeOctetString.getDeviation() + "] " +
-                                (dlmsDateTimeOctetString.isDST() ? " (in DST) " : "") +
-                                "differs from the time zone configured in HES [" + configuredTimeZone.getID() + "] = [" + configuredTimeZoneOffset + "]");
-            }
 
+                String errorStr ="Time zone offset reported by the meter [" + dlmsDateTimeOctetString.getDeviation() + "] " +
+                        (dlmsDateTimeOctetString.isDST() ? " (in DST) " : "") +
+                        "differs from the time zone configured in HES [" + configuredTimeZone.getID() +
+                        "] = [" + configuredTimeZoneOffset + "] for register: " + offlineRegister.getObisCode().toString();
+                timeZoneIssue = getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue: " + errorStr, offlineRegister.getObisCode(), errorStr);
+            }
         }
 
         AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
@@ -484,12 +485,12 @@ public class AM130RegisterFactory implements DeviceRegisterSupport {
     protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, getIssueFactory().createWarning(register.getObisCode(), "registerXissue: " + errorMessage[0], register.getObisCode(), errorMessage[0]));
         } else {
             if (errorMessage.length == 0) {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported: " + register.getObisCode(), register.getObisCode()));
             } else {
-                collectedRegister.setFailureInformation(ResultType.NotSupported, getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupportedBecause", register.getObisCode(), errorMessage[0]));
+                collectedRegister.setFailureInformation(ResultType.NotSupported, getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupportedBecause: " + errorMessage[0], register.getObisCode(), errorMessage[0]));
             }
         }
         return collectedRegister;
