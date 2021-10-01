@@ -10,10 +10,8 @@ import com.energyict.protocolimpl.dlms.idis.events.DisconnectorControlLog;
 import com.energyict.protocolimpl.dlms.idis.events.PowerFailureEventLog;
 import com.energyict.protocolimplv2.dlms.idis.AS3000G.AS3000G;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130CommunicationLog;
-import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130FraudDetectionLog;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130PowerQualityEventLog;
-import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130StandardEventLog;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,17 +42,11 @@ public final class AS3000GLogBookFactory extends AM130LogBookFactory<AS3000G> {
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
-            meterEvents = new AM130StandardEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
+            meterEvents = new AS3000GStandardEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(FRAUD_DETECTION_LOG)) {
-            meterEvents = new AM130FraudDetectionLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
+            meterEvents = new AS3000GFraudDetectionLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else if (logBookObisCode.equals(DISCONNECTOR_CONTROL_LOG)) {
-            meterEvents = new DisconnectorControlLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
-        } else if (logBookObisCode.equals(POWER_QUALITY_EVENT_LOG)) {
-            meterEvents = new AM130PowerQualityEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
-        } else if (logBookObisCode.equals(COMMUNICATION_LOG)) {
-            meterEvents = new AM130CommunicationLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
-        } else if (logBookObisCode.equals(POWER_FAILURE_EVENT_LOG)) {
-            meterEvents = new PowerFailureEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
+            meterEvents = new AS3000DisconnectorControlLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
         } else {
             //map the meter events in order to change the device type of the code to the correct device type from protocol
             return super.parseEvents(dataContainer, logBookObisCode)
