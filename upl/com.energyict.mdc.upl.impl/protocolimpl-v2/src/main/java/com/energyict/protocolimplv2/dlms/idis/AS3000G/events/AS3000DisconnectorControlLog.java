@@ -18,6 +18,7 @@ public class AS3000DisconnectorControlLog extends DisconnectorControlLog {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case 236:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.METER_RECORDS_CONTRACTOR_CHANGED_TO_ARMED_STATUS, eventId, "Meter records when the contactor is changed to the armed status"));
                 break;
             default:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OTHER, eventId, "Unknown eventcode: " + eventId));

@@ -23,10 +23,13 @@ public class AS3000GStandardEventLog extends StandardEventLog {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.UNEXPECTED_CONSUMPTION, eventId, "Unexpected consumption"));
                 break;
             case 200:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CT_VT_RATIO_CHANGED, eventId, "Indicates that the CT or VT Ratio is changed"));
                 break;
             case 203:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.START_CERTIFICATION_MODE, eventId, "Indicates that the certification mode is started"));
                 break;
             case 204:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.END_CERTIFICATION_MODE, eventId, "Indicates that the certification mode is ended"));
                 break;
             default:
                 super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);

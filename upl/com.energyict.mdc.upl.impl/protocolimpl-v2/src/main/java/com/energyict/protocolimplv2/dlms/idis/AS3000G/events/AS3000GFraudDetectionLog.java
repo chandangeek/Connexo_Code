@@ -18,8 +18,10 @@ public class AS3000GFraudDetectionLog extends AM130FraudDetectionLog {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case 241:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.COMMS_HUB_PRESENT, eventId, "Communication Module Present"));
                 break;
             case 242:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.COMMS_HUB_REMOVED, eventId, "Communication Module removed"));
                 break;
             default:
                 super.buildMeterEvent(meterEvents, eventTimeStamp, eventId);
