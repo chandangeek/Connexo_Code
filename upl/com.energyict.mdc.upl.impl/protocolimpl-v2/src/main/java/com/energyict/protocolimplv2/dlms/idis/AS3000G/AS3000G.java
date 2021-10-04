@@ -86,7 +86,7 @@ public class AS3000G extends AM540 {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AS3000 DLMS";
+        return "Elster AS3000G DLMS";
     }
 
     @Override
