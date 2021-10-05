@@ -410,13 +410,15 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
 
     @Override
     public List<PartialConnectionTask> findPartialConnectionTasks(){
-        return deviceDataModelService.dataModel()
-                .mapper(ConnectionTask.class)
-                .find()
-                .stream()
-                .map(ct->ct.getPartialConnectionTask())
-                .distinct()
-                .collect(Collectors.toList());
+        List<PartialConnectionTask> partialConnectionTasks = new ArrayList<>();
+        Iterator<ConnectionTask> connectionTaskIterator = deviceDataModelService.dataModel()
+                .mapper(ConnectionTask.class)  .fetcher(new SqlBuilder("select * from " + TableSpecs.DDC_CONNECTIONTASK +
+                        " where id in (select min(id) from ddc_connectiontask GROUP BY partialconnectiontask)"))
+                .iterator();
+        while (connectionTaskIterator.hasNext()){
+            partialConnectionTasks.add(connectionTaskIterator.next().getPartialConnectionTask());
+        }
+        return partialConnectionTasks;
         // all partial connections are fetched from DB (5000). After that I filter them and only 1-5 remains
         // THis method could be optimized, to fetch from DB directly last 1-5 results
     }

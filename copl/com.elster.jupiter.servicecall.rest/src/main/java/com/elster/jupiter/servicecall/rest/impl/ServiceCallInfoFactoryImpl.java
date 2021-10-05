@@ -181,6 +181,7 @@ public class ServiceCallInfoFactoryImpl implements ServiceCallInfoFactory {
         serviceCallInfo.customPropertySets = serviceCall.getType().getCustomPropertySets()
                 .stream()
                 .filter(RegisteredCustomPropertySet::isViewableByCurrentUser)
+                .filter(registeredCustomPropertySet -> registeredCustomPropertySet.getCustomPropertySet() != null)
                 .map(registeredCustomPropertySet -> getServiceCallCustomPropertySetInfo(registeredCustomPropertySet, serviceCall))
                 .collect(Collectors.toList());
     }

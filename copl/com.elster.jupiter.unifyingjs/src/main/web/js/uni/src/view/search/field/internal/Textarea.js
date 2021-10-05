@@ -38,9 +38,13 @@ Ext.define('Uni.view.search.field.internal.Textarea', {
       value = [];
     }
 
-    this.getField().setValue(
-      value.join(me.separator + ' ')
-    );
+    if(value instanceof Array) {
+      this.getField().setValue(
+          value.join(me.separator + ' ')
+      );
+    } else {
+      this.getField().setValue(value);
+    }
   },
 
   getValue: function() {
