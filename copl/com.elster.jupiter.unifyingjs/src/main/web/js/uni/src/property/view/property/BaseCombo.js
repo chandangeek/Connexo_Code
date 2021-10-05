@@ -111,12 +111,13 @@ Ext.define('Uni.property.view.property.BaseCombo', {
     },
 
     doEnable: function(enable) {
+        const comboField = this.getComboField();
         if (this.getField()) {
-            if (this.isCombo()) {
+            if (this.isCombo() && comboField !== null) {
                 if (enable) {
-                    this.getComboField().enable();
+                    comboField.enable();
                 } else {
-                    this.getComboField().disable();
+                    comboField.disable();
                 }
             } else {
                 this.callParent(arguments);
