@@ -16,7 +16,8 @@ public class EI7ObjectList extends A2ObjectList {
     public UniversalObject[] getObjectList() {
         List<UniversalObject> list = Arrays.stream(super.getObjectList()).collect(Collectors.toList());
         list.addAll(Arrays.stream(objectList).collect(Collectors.toList()));
+        UniversalObject[] universalObjectList = list.toArray(new UniversalObject[0]);
 
-        return (UniversalObject[]) list.toArray();
+        return universalObjectList;
     }
 }
