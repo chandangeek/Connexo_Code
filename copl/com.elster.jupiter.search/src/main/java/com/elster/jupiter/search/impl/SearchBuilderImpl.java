@@ -207,6 +207,15 @@ public class SearchBuilderImpl<T> implements SearchBuilder<T> {
         }
 
         @Override
+        public SearchBuilder<T> likeNVL(String wildCardPattern) throws InvalidValueException {
+            PropertySpec specification = this.property.getSpecification();
+            this.validateValue(wildCardPattern, specification);
+            addCondition(this,
+                    new SearchablePropertyComparison(Operator.LIKENVL.compare(specification.getName(), toOracleSql(wildCardPattern)), this.property));
+            return SearchBuilderImpl.this;
+        }
+
+        @Override
         public SearchBuilder<T> likeIgnoreCase(String wildCardPattern) throws InvalidValueException {
             PropertySpec specification = this.property.getSpecification();
         this.validateValue(wildCardPattern, specification);

@@ -298,6 +298,22 @@ public interface SearchBuilder<T> {
 
         /**
          * Builds a criterion that checks that the target {@link SearchableProperty}
+         * matches the specified wildcard pattern.
+         * <p>
+         * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}
+         * when the specified value is not compatible with the
+         * property's {@link com.elster.jupiter.properties.PropertySpec specification}.
+         * </p>
+         *
+         * @param wildCardPattern The wild card pattern
+         * @return The same SearchBuilder to support method chaining
+         * @throws InvalidValueException Thrown on the first value that is not compatible
+         *         with the property's specification
+         */
+        SearchBuilder<T> likeNVL(String wildCardPattern) throws InvalidValueException;
+
+        /**
+         * Builds a criterion that checks that the target {@link SearchableProperty}
          * matches the specified wildcard pattern when character casing is ignored.
          * <p>
          * Will throw an {@link com.elster.jupiter.properties.InvalidValueException}

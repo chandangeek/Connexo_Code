@@ -10,6 +10,7 @@ Ext.define('Dal.store.Alarms', {
     proxy: {
         type: 'rest',
         url: '/api/dal/alarms',
+        timeout: 9999999,
         reader: {
             type: 'json',
             root: 'data'

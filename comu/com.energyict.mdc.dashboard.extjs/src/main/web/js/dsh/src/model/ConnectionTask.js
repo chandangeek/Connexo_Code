@@ -61,6 +61,7 @@ Ext.define('Dsh.model.ConnectionTask', {
     proxy: {
         type: 'rest',
         url: '/api/dsr/connections',
+        timeout: 9999999,
         reader: {
             type: 'json',
             root: 'connectionTasks',

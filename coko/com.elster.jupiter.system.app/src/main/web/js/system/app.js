@@ -69,6 +69,7 @@ Ext.onReady(function () {
     // </debug>
 
     Ext.Ajax.on("beforerequest", function(conn, options){
+        Ext.Ajax.timeout = 90000;
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
         delete conn.defaultHeaders['X-CSRF-TOKEN'];
 
