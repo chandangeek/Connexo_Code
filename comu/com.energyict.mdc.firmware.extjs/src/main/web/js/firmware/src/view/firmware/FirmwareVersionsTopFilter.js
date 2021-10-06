@@ -35,7 +35,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersionsTopFilter', {
         }
     ],
 
-    showOrHideFirmwareTypeFilter: function(visible) {
+    showOrHideFirmwareTypeFilter: function (visible) {
         this.down('#fwc-view-firmware-versions-topfilter-type').setVisible(visible);
     }
 });

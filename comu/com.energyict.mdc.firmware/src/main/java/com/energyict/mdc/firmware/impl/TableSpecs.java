@@ -191,7 +191,7 @@ public enum TableSpecs {
                     .on(firmwareCampaignColumn, cps)
                     .references(FirmwareCampaignDomainExtension.class)
                     .onDelete(CASCADE)
-                    .map(FirmwareCampaignManagementOptionsImpl.Fields.FWRCAMPAIGN.fieldName())
+                    .map(FirmwareCampaignVersionSnapshotImpl.Fields.FWRCAMPAIGN.fieldName())
                     .add();
         }
     },

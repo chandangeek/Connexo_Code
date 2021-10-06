@@ -5,7 +5,7 @@
 Ext.define('Fwc.firmwarecampaigns.view.DeviceActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.firmware-campaigns-device-action-menu',
-    requires:[
+    requires: [
         'Fwc.privileges.FirmwareCampaign'
     ],
     manuallyCancelled: null,
@@ -31,7 +31,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DeviceActionMenu', {
     },
 
     listeners: {
-        beforeshow: function(menu) {
+        beforeshow: function (menu) {
             var me = this,
                 currentDeviceStatus = menu.record.get('status').id,
                 cancelAllowed = currentDeviceStatus === 'PENDING',

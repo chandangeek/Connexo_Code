@@ -19,63 +19,65 @@ Ext.define('Fwc.model.FirmwareManagementOptions', {
         'supportedOptions',
         'allowedOptions',
         {
-              name: 'selectedOptions',
-              type: 'auto',
-              useNull: true
+            name: 'selectedOptions',
+            type: 'auto',
+            useNull: true
         },
         {
-              name: 'checkOptions',
-              type: 'auto',
-              useNull: true
+            name: 'checkOptions',
+            type: 'auto',
+            useNull: true
         },
         {
-              name: 'masterOptions',
-              persist: false,
-              mapping:  function (data) {
-                   var masterData = {};
-                   if (data && data.checkOptions) {
-                      if (data.checkOptions['MASTER_FIRMWARE_CHECK']) return data.checkOptions['MASTER_FIRMWARE_CHECK'];
-                   }else{
-                      return null;
-                   }
-              }
+            name: 'masterOptions',
+            persist: false,
+            mapping: function (data) {
+                var masterData = {};
+                if (data && data.checkOptions) {
+                    if (data.checkOptions['MASTER_FIRMWARE_CHECK']) return data.checkOptions['MASTER_FIRMWARE_CHECK'];
+                } else {
+                    return null;
+                }
+            }
         },
         {
-              name: 'currOptions',
-              persist: false,
-              mapping:  function (data) {
-                   var masterData = {};
-                   if (data && data.checkOptions) {
-                      if (data.checkOptions['CURRENT_FIRMWARE_CHECK']) return data.checkOptions['CURRENT_FIRMWARE_CHECK'];
-                   }else{
-                      return null;
-                   }
-              }
+            name: 'currOptions',
+            persist: false,
+            mapping: function (data) {
+                var masterData = {};
+                if (data && data.checkOptions) {
+                    if (data.checkOptions['CURRENT_FIRMWARE_CHECK']) return data.checkOptions['CURRENT_FIRMWARE_CHECK'];
+                } else {
+                    return null;
+                }
+            }
         },
         {
-              name: 'targetOptions',
-              persist: false,
-              mapping:  function (data) {
-                   if (data && data.checkOptions && data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK']) {
-                      return data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK'];
-                   }
-                   return null;
-              }
+            name: 'targetOptions',
+            persist: false,
+            mapping: function (data) {
+                if (data && data.checkOptions && data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK']) {
+                    return data.checkOptions['TARGET_FIRMWARE_STATUS_CHECK'];
+                }
+                return null;
+            }
         }
 
-        ],
+    ],
     associations: [
-           {type: 'hasMany',
+        {
+            type: 'hasMany',
             model: 'FirmwareManagementOption',
             name: 'supportedOptions',
             associatedModel: 'FirmwareManagementOption'
-           },
-           {type: 'hasMany',
+        },
+        {
+            type: 'hasMany',
             model: 'FirmwareManagementOption',
             name: 'allowedOptions',
             associatedModel: 'FirmwareManagementOption'
-           }
-      ],
+        }
+    ],
     proxy: {
         type: 'rest',
         urlTpl: '/api/fwc/devicetypes/{deviceTypeId}/firmwaremanagementoptions',
@@ -87,12 +89,12 @@ Ext.define('Fwc.model.FirmwareManagementOptions', {
             this.url = this.urlTpl.replace('{deviceTypeId}', deviceTypeId);
         }
     },
-    save : function(){
-        var allowed= [];
+    save: function () {
+        var allowed = [];
         var supported = this.get('supportedOptions');
         var selected = new Array().concat(this.get('selectedOptions'));
         for (i = 0; i < supported.length; i++) {
-            if (selected.indexOf(supported[i]["id"]) >= 0){
+            if (selected.indexOf(supported[i]["id"]) >= 0) {
                 allowed.push(supported[i]);
             }
         }

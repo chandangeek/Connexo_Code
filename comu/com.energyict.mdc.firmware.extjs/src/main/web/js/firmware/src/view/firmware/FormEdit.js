@@ -51,14 +51,13 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             itemId: 'disp-firmware-type',
             fieldLabel: Uni.I18n.translate('general.firmwareType', 'FWC', 'Firmware type'),
             name: 'type',
-            renderer: function (value){
+            renderer: function (value) {
                 var form = this.up('firmware-form-edit');
-                if (form){
+                if (form) {
                     if (value === 'Image') {
                         form.down('#firmware-min-meter-version-common').hide();
                         form.down('#firmware-min-communication-version').hide();
-                    }
-                    else {
+                    } else {
                         form.down('#firmware-min-meter-version-common').show();
                         form.down('#firmware-min-communication-version').show();
                     }
@@ -79,146 +78,147 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             itemId: 'firmware-min-meter-version-common',
             fieldLabel: Uni.I18n.translate('general.minMeterVersion', 'FWC', 'Minimum meter firmware version'),
             items: [
-                       {    xtype: 'combobox',
-                            itemId: 'firmware-min-meter-version',
-                            allowBlank: false,
-                            store: 'Fwc.store.MeterFirmwareDependenciesEdit',
-                            forceSelection: true,
-                            queryMode: 'local',
-                            displayField: 'name',
-                            valueField: 'id',
-                            hiddenName: 'meterFirmwareDependency',
-                            listeners: {
-                               beforerender: function () {
-                                    var store = this.getStore();
-                                    var me = this;
-                                    var formRecord = this.up('firmware-form-edit').getRecord();
-                                    var versionId = formRecord.getId();
-                                    var currMeterId;
-                                    var curMeterVersion = formRecord.getMeterFirmwareDependency();
-                                    if (curMeterVersion){
-                                        currMeterId = curMeterVersion.getId();
-                                    }
-                                    var proxy = store.getProxy();
-                                    store.getProxy().setUrl(versionId);
-                                    store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'meter', property: 'firmwareType' }]));
-                                    var combobox = this;
-                                    store.load(function (data) {
-                                        if ( !data || !data.length){
-                                            combobox.hide();
-                                            combobox.nextSibling('uni-default-button').hide();
-                                            combobox.up('fieldcontainer').add({
-                                                  itemId: 'firmware-min-meter-version-common-dispfld',
-                                                  xtype: 'displayfield',
-                                                  value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
-                                                  fieldStyle: 'color: red'
-                                            });
-                                            return;
-                                        }
-                                        for (var iCnt = 0; iCnt < data.length; iCnt++){
-                                            var item = data[iCnt];
-                                            if (item.getId() === currMeterId) me.setValue(item);
-                                        }
+                {
+                    xtype: 'combobox',
+                    itemId: 'firmware-min-meter-version',
+                    allowBlank: false,
+                    store: 'Fwc.store.MeterFirmwareDependenciesEdit',
+                    forceSelection: true,
+                    queryMode: 'local',
+                    displayField: 'name',
+                    valueField: 'id',
+                    hiddenName: 'meterFirmwareDependency',
+                    listeners: {
+                        beforerender: function () {
+                            var store = this.getStore();
+                            var me = this;
+                            var formRecord = this.up('firmware-form-edit').getRecord();
+                            var versionId = formRecord.getId();
+                            var currMeterId;
+                            var curMeterVersion = formRecord.getMeterFirmwareDependency();
+                            if (curMeterVersion) {
+                                currMeterId = curMeterVersion.getId();
+                            }
+                            var proxy = store.getProxy();
+                            store.getProxy().setUrl(versionId);
+                            store.getProxy().setExtraParam('filter', Ext.encode([{value: 'meter', property: 'firmwareType'}]));
+                            var combobox = this;
+                            store.load(function (data) {
+                                if (!data || !data.length) {
+                                    combobox.hide();
+                                    combobox.nextSibling('uni-default-button').hide();
+                                    combobox.up('fieldcontainer').add({
+                                        itemId: 'firmware-min-meter-version-common-dispfld',
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
+                                        fieldStyle: 'color: red'
                                     });
-                                },
-                                change: function (combobox) {
-                                    if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-meter-version-default-button');
-                                    if (combobox.getValue()) {
-                                        this.resetButton.setDisabled(false);
-                                    } else {
-                                        this.resetButton.setDisabled(true);
-                                    }
+                                    return;
                                 }
-                            }
+                                for (var iCnt = 0; iCnt < data.length; iCnt++) {
+                                    var item = data[iCnt];
+                                    if (item.getId() === currMeterId) me.setValue(item);
+                                }
+                            });
                         },
-                        {
-                            xtype: 'uni-default-button',
-                            itemId: 'firmware-min-meter-version-default-button',
-                            hidden: false,
-                            disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
-                            margin: '0 30',
-                            handler: function () {
-                                this.previousSibling('#firmware-min-meter-version').reset();
+                        change: function (combobox) {
+                            if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-meter-version-default-button');
+                            if (combobox.getValue()) {
+                                this.resetButton.setDisabled(false);
+                            } else {
+                                this.resetButton.setDisabled(true);
                             }
-
                         }
-                       ]
-            },
-            {
-                xtype: 'fieldcontainer',
-                layout: 'hbox',
-                flex: 1,
-                itemId: 'firmware-min-communication-version-common',
-                fieldLabel: Uni.I18n.translate('general.minCommVersion', 'FWC', 'Minimum communication firmware version'),
-                items: [
-                        {
-                            xtype: 'combobox',
-                            itemId: 'firmware-min-communication-version',
-                            allowBlank: false,
-                            store: 'Fwc.store.CommunicationFirmwareDependenciesEdit',
-                            forceSelection: true,
-                            queryMode: 'local',
-                            displayField: 'name',
-                            valueField: 'id',
-                            hiddenName: 'communicationFirmwareDependency',
-                            listeners: {
-                                beforerender: function () {
-                                    var me = this;
-                                    var store = this.getStore();
-                                    var formRecord = this.up('firmware-form-edit').getRecord();
-                                    var versionId = formRecord.getId();
-                                    var currCommunicationId;
-                                    var curCommunicationVersion = formRecord.getCommunicationFirmwareDependency();
-                                    var combobox = this;
-                                    if (curCommunicationVersion){
-                                        currCommunicationId = curCommunicationVersion.getId();
-                                    }
-                                    var proxy = store.getProxy();
-                                    store.getProxy().setUrl(versionId);
-                                    store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'communication', property: 'firmwareType' }]));
-                                    store.load(function (data) {
-                                        if ( !data || !data.length){
-                                            combobox.hide();
-                                            combobox.nextSibling('uni-default-button').hide();
-                                            combobox.up('fieldcontainer').add({
-                                                  itemId: 'firmware-min-communication-version-common-dispfld',
-                                                  xtype: 'displayfield',
-                                                  value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
-                                                  fieldStyle: 'color: red'
-                                            });
-                                            return;
-                                        }
-                                        for (var iCnt = 0; iCnt < data.length; iCnt++){
-                                            var item = data[iCnt];
-                                            if (item.getId() === currCommunicationId) me.setValue(item);
-                                        }
+                    }
+                },
+                {
+                    xtype: 'uni-default-button',
+                    itemId: 'firmware-min-meter-version-default-button',
+                    hidden: false,
+                    disabled: true,
+                    tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
+                    margin: '0 30',
+                    handler: function () {
+                        this.previousSibling('#firmware-min-meter-version').reset();
+                    }
+
+                }
+            ]
+        },
+        {
+            xtype: 'fieldcontainer',
+            layout: 'hbox',
+            flex: 1,
+            itemId: 'firmware-min-communication-version-common',
+            fieldLabel: Uni.I18n.translate('general.minCommVersion', 'FWC', 'Minimum communication firmware version'),
+            items: [
+                {
+                    xtype: 'combobox',
+                    itemId: 'firmware-min-communication-version',
+                    allowBlank: false,
+                    store: 'Fwc.store.CommunicationFirmwareDependenciesEdit',
+                    forceSelection: true,
+                    queryMode: 'local',
+                    displayField: 'name',
+                    valueField: 'id',
+                    hiddenName: 'communicationFirmwareDependency',
+                    listeners: {
+                        beforerender: function () {
+                            var me = this;
+                            var store = this.getStore();
+                            var formRecord = this.up('firmware-form-edit').getRecord();
+                            var versionId = formRecord.getId();
+                            var currCommunicationId;
+                            var curCommunicationVersion = formRecord.getCommunicationFirmwareDependency();
+                            var combobox = this;
+                            if (curCommunicationVersion) {
+                                currCommunicationId = curCommunicationVersion.getId();
+                            }
+                            var proxy = store.getProxy();
+                            store.getProxy().setUrl(versionId);
+                            store.getProxy().setExtraParam('filter', Ext.encode([{value: 'communication', property: 'firmwareType'}]));
+                            store.load(function (data) {
+                                if (!data || !data.length) {
+                                    combobox.hide();
+                                    combobox.nextSibling('uni-default-button').hide();
+                                    combobox.up('fieldcontainer').add({
+                                        itemId: 'firmware-min-communication-version-common-dispfld',
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
+                                        fieldStyle: 'color: red'
                                     });
-                                },
-                                change: function (combobox) {
-                                    if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-communication-version-default-button');
-                                    if (combobox.getValue()) {
-                                        this.resetButton.setDisabled(false);
-                                    } else {
-                                        this.resetButton.setDisabled(true);
-                                    }
+                                    return;
                                 }
-                            }
+                                for (var iCnt = 0; iCnt < data.length; iCnt++) {
+                                    var item = data[iCnt];
+                                    if (item.getId() === currCommunicationId) me.setValue(item);
+                                }
+                            });
                         },
-                        {
-                            xtype: 'uni-default-button',
-                            itemId: 'firmware-min-communication-version-default-button',
-                            hidden: false,
-                            disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
-                            margin: '0 30',
-                            handler: function () {
-                                this.previousSibling('#firmware-min-communication-version').reset();
+                        change: function (combobox) {
+                            if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-communication-version-default-button');
+                            if (combobox.getValue()) {
+                                this.resetButton.setDisabled(false);
+                            } else {
+                                this.resetButton.setDisabled(true);
                             }
-
                         }
-                       ]
-            },
+                    }
+                },
+                {
+                    xtype: 'uni-default-button',
+                    itemId: 'firmware-min-communication-version-default-button',
+                    hidden: false,
+                    disabled: true,
+                    tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
+                    margin: '0 30',
+                    handler: function () {
+                        this.previousSibling('#firmware-min-communication-version').reset();
+                    }
+
+                }
+            ]
+        },
         {
             xtype: 'fieldcontainer',
             layout: 'hbox',
@@ -226,75 +226,76 @@ Ext.define('Fwc.view.firmware.FormEdit', {
             itemId: 'firmware-min-auxiliary-version-common',
             fieldLabel: Uni.I18n.translate('general.minAuxiliaryVersion', 'FWC', 'Minimum auxiliary firmware version'),
             items: [
-                       {    xtype: 'combobox',
-                            itemId: 'firmware-min-auxiliary-version',
-                            allowBlank: false,
-                            store: 'Fwc.store.AuxiliaryFirmwareDependenciesEdit',
-                            forceSelection: true,
-                            queryMode: 'local',
-                            displayField: 'name',
-                            valueField: 'id',
-                            hiddenName: 'auxiliaryFirmwareDependency',
-                            listeners: {
-                               beforerender: function () {
-                                    var store = this.getStore();
-                                    var me = this;
-                                    var formRecord = this.up('firmware-form-edit').getRecord();
-                                    var versionId = formRecord.getId();
-                                    var currAuxiliaryId;
-                                    var curAuxiliaryVersion = formRecord.getAuxiliaryFirmwareDependency();
-                                    if (curAuxiliaryVersion){
-                                        currAuxiliaryId = curAuxiliaryVersion.getId();
-                                    }
-                                    var proxy = store.getProxy();
-                                    store.getProxy().setUrl(versionId);
-                                    store.getProxy().setExtraParam('filter', Ext.encode([{ value: 'auxiliary', property: 'firmwareType' }]));
-                                    var combobox = this;
-                                    store.load(function (data) {
-                                        if ( !data || !data.length){
-                                            combobox.hide();
-                                            combobox.nextSibling('uni-default-button').hide();
-                                            combobox.up('fieldcontainer').add({
-                                                  itemId: 'firmware-min-auxiliary-version-common-dispfld',
-                                                  xtype: 'displayfield',
-                                                  value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
-                                                  fieldStyle: 'color: red'
-                                            });
-                                            return;
-                                        }
-                                        for (var iCnt = 0; iCnt < data.length; iCnt++){
-                                            var item = data[iCnt];
-                                            if (item.getId() === currAuxiliaryId) me.setValue(item);
-                                        }
+                {
+                    xtype: 'combobox',
+                    itemId: 'firmware-min-auxiliary-version',
+                    allowBlank: false,
+                    store: 'Fwc.store.AuxiliaryFirmwareDependenciesEdit',
+                    forceSelection: true,
+                    queryMode: 'local',
+                    displayField: 'name',
+                    valueField: 'id',
+                    hiddenName: 'auxiliaryFirmwareDependency',
+                    listeners: {
+                        beforerender: function () {
+                            var store = this.getStore();
+                            var me = this;
+                            var formRecord = this.up('firmware-form-edit').getRecord();
+                            var versionId = formRecord.getId();
+                            var currAuxiliaryId;
+                            var curAuxiliaryVersion = formRecord.getAuxiliaryFirmwareDependency();
+                            if (curAuxiliaryVersion) {
+                                currAuxiliaryId = curAuxiliaryVersion.getId();
+                            }
+                            var proxy = store.getProxy();
+                            store.getProxy().setUrl(versionId);
+                            store.getProxy().setExtraParam('filter', Ext.encode([{value: 'auxiliary', property: 'firmwareType'}]));
+                            var combobox = this;
+                            store.load(function (data) {
+                                if (!data || !data.length) {
+                                    combobox.hide();
+                                    combobox.nextSibling('uni-default-button').hide();
+                                    combobox.up('fieldcontainer').add({
+                                        itemId: 'firmware-min-auxiliary-version-common-dispfld',
+                                        xtype: 'displayfield',
+                                        value: Uni.I18n.translate('general.noFirmFiles', 'FWC', 'There are no firmware files of this type uploaded to the device type'),
+                                        fieldStyle: 'color: red'
                                     });
-                                },
-                                change: function (combobox) {
-                                    if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-auxiliary-version-default-button');
-                                    if (combobox.getValue()) {
-                                        this.resetButton.setDisabled(false);
-                                    } else {
-                                        this.resetButton.setDisabled(true);
-                                    }
+                                    return;
                                 }
-                            }
+                                for (var iCnt = 0; iCnt < data.length; iCnt++) {
+                                    var item = data[iCnt];
+                                    if (item.getId() === currAuxiliaryId) me.setValue(item);
+                                }
+                            });
                         },
-                        {
-                            xtype: 'uni-default-button',
-                            itemId: 'firmware-min-auxiliary-version-default-button',
-                            hidden: false,
-                            disabled: true,
-                            tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
-                            margin: '0 30',
-                            handler: function () {
-                                this.previousSibling('#firmware-min-auxiliary-version').reset();
+                        change: function (combobox) {
+                            if (!this.resetButton) this.resetButton = this.nextSibling('#firmware-min-auxiliary-version-default-button');
+                            if (combobox.getValue()) {
+                                this.resetButton.setDisabled(false);
+                            } else {
+                                this.resetButton.setDisabled(true);
                             }
-
                         }
-                       ]
-            },
-            {
-                xtype: 'hiddenfield',
-                name: 'version'
-            }
+                    }
+                },
+                {
+                    xtype: 'uni-default-button',
+                    itemId: 'firmware-min-auxiliary-version-default-button',
+                    hidden: false,
+                    disabled: true,
+                    tooltip: Uni.I18n.translate('general.clear', 'FWC', 'Clear'),
+                    margin: '0 30',
+                    handler: function () {
+                        this.previousSibling('#firmware-min-auxiliary-version').reset();
+                    }
+
+                }
+            ]
+        },
+        {
+            xtype: 'hiddenfield',
+            name: 'version'
+        }
     ]
 });

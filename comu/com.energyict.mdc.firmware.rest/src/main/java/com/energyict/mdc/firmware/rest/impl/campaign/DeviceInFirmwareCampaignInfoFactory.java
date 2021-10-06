@@ -24,7 +24,7 @@ public class DeviceInFirmwareCampaignInfoFactory {
         Device device = deviceInFirmwareCampaign.getDevice();
         DefaultState defaultState = deviceInFirmwareCampaign.getServiceCall().getState();
         return new DeviceInFirmwareCampaignInfo(deviceInFirmwareCampaign.getId(),
-                new IdWithNameInfo( device.getId(), device.getName()),
+                new IdWithNameInfo(device.getId(), device.getName()),
                 StatusInfoFactory.getDeviceStatus(defaultState, thesaurus),
                 deviceInFirmwareCampaign.getStartedOn(),
                 deviceInFirmwareCampaign.getFinishedOn());

@@ -45,7 +45,7 @@ public class FirmwareTypesResourceTest extends BaseFirmwareTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>> get("$.firmwareTypes")).hasSize(1);
+        assertThat(jsonModel.<List<?>>get("$.firmwareTypes")).hasSize(1);
         assertThat(jsonModel.<String>get("$.firmwareTypes[0].id")).isEqualTo("meter");
     }
 
@@ -56,7 +56,7 @@ public class FirmwareTypesResourceTest extends BaseFirmwareTest {
 
         JsonModel jsonModel = JsonModel.create(json);
 
-        assertThat(jsonModel.<List<?>> get("$.firmwareTypes")).hasSize(2);
+        assertThat(jsonModel.<List<?>>get("$.firmwareTypes")).hasSize(2);
         assertThat(jsonModel.<String>get("$.firmwareTypes[0].id")).isEqualTo("meter");
         assertThat(jsonModel.<String>get("$.firmwareTypes[1].id")).isEqualTo("communication");
     }

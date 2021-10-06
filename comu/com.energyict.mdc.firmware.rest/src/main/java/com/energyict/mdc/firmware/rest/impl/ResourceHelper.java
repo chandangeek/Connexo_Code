@@ -121,11 +121,6 @@ public class ResourceHelper {
                         .supplier());
     }
 
-    public FirmwareCampaign findFirmwareCampaignOrThrowException(long id) {
-        return firmwareCampaignService.getFirmwareCampaignById(id)
-                .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_CAMPAIGN_NOT_FOUND, id));
-    }
-
     public Long getCurrentFirmwareCampaignVersion(long id) {
         return firmwareCampaignService.getFirmwareCampaignById(id).map(FirmwareCampaign::getVersion).orElse(null);
     }

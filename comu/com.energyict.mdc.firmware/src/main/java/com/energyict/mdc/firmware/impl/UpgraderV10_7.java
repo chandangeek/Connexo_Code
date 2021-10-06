@@ -96,7 +96,7 @@ public class UpgraderV10_7 implements Upgrader {
             execute(statement, "DROP TABLE FWC_CAMPAIGN");
             execute(dataModel, "UPDATE FWC_FIRMWAREVERSION SET TYPE = 3 WHERE TYPE = 2");
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new UnderlyingSQLFailedException(e);
         }
     }
 
@@ -291,7 +291,7 @@ public class UpgraderV10_7 implements Upgrader {
 
         firmwareCampaignInfo.firmwareUploadComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
                 .map(deviceType -> deviceType.getConfigurations().stream()
-                        .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                        .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                         .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME) && !cte.isSuspended())
                         .findAny()
                         .map(cte -> cte.getComTask().getId())
@@ -300,11 +300,11 @@ public class UpgraderV10_7 implements Upgrader {
 
         firmwareCampaignInfo.validationComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
                 .map(deviceType -> deviceType.getConfigurations().stream()
-                        .flatMap( cnf -> cnf.getComTaskEnablements().stream())
+                        .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                         .flatMap(cte -> {
-                            if(!cte.isSuspended()) {
+                            if (!cte.isSuspended()) {
                                 return cte.getComTask().getProtocolTasks().stream();
-                            }else{
+                            } else {
                                 return new ArrayList<ProtocolTask>().stream();
                             }
                         })

@@ -90,8 +90,8 @@ public class FirmwareCampaignFactoryTest {
     public void getOverviewTest() {
         FirmwareCampaign firmwareCampaign = createMockCampaign();
         FirmwareCampaignInfo firmwareCampaignInfo = firmwareCampaignInfoFactory.getOverviewCampaignInfo(firmwareCampaign);
-        assertEquals(3L,firmwareCampaignInfo.id);
-        assertEquals(4L,firmwareCampaignInfo.version);
+        assertEquals(3L, firmwareCampaignInfo.id);
+        assertEquals(4L, firmwareCampaignInfo.version);
         assertEquals(2, firmwareCampaignInfo.validationTimeout.count);
         assertEquals("TestCampaign", firmwareCampaignInfo.name);
         assertEquals("activate", firmwareCampaignInfo.managementOption.localizedValue);
