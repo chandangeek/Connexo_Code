@@ -12,7 +12,6 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
-
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
@@ -77,7 +76,7 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
                 long comTaskExecutionId = comTaskExecution.getId();
-                comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())
+                comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecutionId)
                         .orElseThrow(() -> new IllegalStateException("Com Task Execution " + comTaskExecutionId + " no more exist."));
                 comTaskExecution.updateNextExecutionTimestamp();
                 comTaskExecution.getDevice().save();
