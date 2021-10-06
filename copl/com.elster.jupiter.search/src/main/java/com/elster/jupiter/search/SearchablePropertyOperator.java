@@ -90,7 +90,7 @@ public enum SearchablePropertyOperator {
         protected <T> void appendSingle(SearchableProperty searchableProperty, SearchBuilder.CriterionBuilder<?> criterionBuilder, T value) throws InvalidValueException {
             Class valueType = searchableProperty.getSpecification().getValueFactory().getValueType();
             if (String.class.isAssignableFrom(valueType)) {
-                criterionBuilder.likeNVL((String) value);
+                criterionBuilder.likeIgnoreCase((String) value);
             } else if (Boolean.class.isAssignableFrom(valueType)) {
                 criterionBuilder.is((Boolean) value);
             } else if (Instant.class.isAssignableFrom(valueType)) {
