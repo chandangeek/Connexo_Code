@@ -61,15 +61,43 @@ public abstract class AbstractHardcodedProfileParser extends DLMSProfileInterval
         // 0 = calendar
         Calendar cal = null;
         cal = constructIntervalCalendar(cal, element.getDataType(ch++), timeZone);
+        cal = sanitizeTimeStamp(cal);
         currentInterval = new IntervalData(cal.getTime(), profileStatus);
 
-        // all other channels are considere by default numerical
+        // all other channels are considered by default numerical
         while (element.hasMoreElements()){
             currentInterval.addValue(getNumericalValue(element.getNextDataType()));
+            Number value = getNumericalValue(element.getNextDataType());
+            Number finalValue = postProcess(ch++, value);
+            currentInterval.addValue(finalValue);
         }
         return currentInterval;
     }
 
+    /**
+     * Allow lower classes to post-process some value - e.g. RSRP, RSRQ adjustint, etc
+     *
+     * @param channelId channel ID (0 = date/time)
+     * @param rawValue  original value (read from Beacon)
+     * @return  adjusted value (read to be displayed)
+     */
+    protected Number postProcess(int channelId, Number rawValue){
+        return rawValue;
+    }
+
+    /**
+     * Reset all seconds and hundred of seconds to 00:00, since this will not be accepted by Connexo storing
+     * There are bugs in the Beacons, until they are solved, fix things here as much as we can
+     *
+     * @param cal - dirty time stamp from Beacon
+     * @return - cleaned time stamp
+     */
+    protected Calendar sanitizeTimeStamp(Calendar cal){
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal;
+    }
 
     /**
      * Extract a numerical value from various data types which support a numerical value
