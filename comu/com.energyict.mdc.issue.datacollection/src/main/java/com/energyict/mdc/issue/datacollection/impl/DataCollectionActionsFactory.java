@@ -16,13 +16,13 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskReportService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryCommunicationTaskNowAction;
 import com.energyict.mdc.issue.datacollection.impl.actions.RetryConnectionTaskAction;
-
 import com.google.inject.AbstractModule;
 import com.google.inject.ConfigurationException;
 import com.google.inject.Guice;
@@ -51,6 +51,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
     private volatile ConnectionTaskService connectionTaskService;
+    private volatile CommunicationTaskService communicationTaskService;
     private volatile CommunicationTaskReportService communicationTaskReportService;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
@@ -72,6 +73,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     public DataCollectionActionsFactory(OrmService ormService,
                                         NlsService nlsService,
                                         ConnectionTaskService connectionTaskService,
+                                        CommunicationTaskService communicationTaskService,
                                         CommunicationTaskReportService communicationTaskReportService,
                                         IssueService issueService,
                                         PropertySpecService propertySpecService,
@@ -82,6 +84,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
         setOrmService(ormService);
         setThesaurus(nlsService);
         setConnectionTaskService(connectionTaskService);
+        setCommunicationTaskService(communicationTaskService);
         setCommunicationTaskReportService(communicationTaskReportService);
         setIssueService(issueService);
         setPropertySpecService(propertySpecService);
@@ -136,6 +139,11 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
     @Reference
     public final void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
         this.connectionTaskService = connectionTaskService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Reference
