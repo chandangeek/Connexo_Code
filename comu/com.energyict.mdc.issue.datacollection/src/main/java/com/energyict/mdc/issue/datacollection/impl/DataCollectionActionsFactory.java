@@ -105,6 +105,7 @@ public class DataCollectionActionsFactory implements IssueActionFactory {
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(ConnectionTaskService.class).toInstance(connectionTaskService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
                 bind(CommunicationTaskReportService.class).toInstance(communicationTaskReportService);
                 bind(IssueService.class).toInstance(issueService);
                 bind(PropertySpecService.class).toInstance(propertySpecService);
