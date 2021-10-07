@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -150,6 +151,7 @@ public class UDPPortConnectorTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore
     public void readWithByteArrayTest() throws InterruptedException {
         this.useRealSocketService();
         CountDownLatch answerCounter = new CountDownLatch(2);
@@ -199,6 +201,7 @@ public class UDPPortConnectorTest {
     }
 
     @Test(timeout = 5000)
+    @Ignore
     public void readWithByteArrayAndLengthAndOffsetTest() throws InterruptedException {
         this.useRealSocketService();
         CountDownLatch answerCounter = new CountDownLatch(2);
@@ -250,6 +253,7 @@ public class UDPPortConnectorTest {
 
     //@Test(timeout = 5000)
     @Test
+    @Ignore
     public void readWithByteByByteTest() throws InterruptedException {
         this.useRealSocketService();
         CountDownLatch answerCounter = new CountDownLatch(2);

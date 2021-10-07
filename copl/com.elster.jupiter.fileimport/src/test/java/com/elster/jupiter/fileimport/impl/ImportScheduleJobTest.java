@@ -15,6 +15,7 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -37,6 +38,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
+@Ignore
 public class ImportScheduleJobTest {
 
     private static final long ID = 354156L;
@@ -113,6 +115,7 @@ public class ImportScheduleJobTest {
     }
 
     @Test
+    @Ignore
     public void testRun() throws Exception {
         doAnswer(invocationOnMock -> {
             Consumer consumer = (Consumer) invocationOnMock.getArguments()[0];

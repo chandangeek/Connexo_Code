@@ -86,8 +86,9 @@ public class ScheduledComTaskExecutionGroup extends ScheduledJobImpl {
         } catch (Throwable e) {
             if (commandRoot == null) {
                 commandRoot = initCommandRoot();    //Initialize it here so that the reschedule can happen.
-                commandRoot.generalSetupErrorOccurred(e, getComTaskExecutions());
             }
+            commandRoot.generalSetupErrorOccurred(e, getComTaskExecutions());
+            commandRoot.getExecutionContext().connectionLogger.taskExecutionFailed(e, Thread.currentThread().getName(), "General setup");
             throw e;
         } finally {
             try {

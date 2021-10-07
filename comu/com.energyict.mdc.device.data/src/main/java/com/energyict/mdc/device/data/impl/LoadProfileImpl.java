@@ -59,6 +59,7 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     private Reference<DeviceImpl> device = ValueReference.absent();
     private Reference<LoadProfileSpec> loadProfileSpec = ValueReference.absent();
     private Instant lastReading;
+    private Instant lastConsecutiveReading;
     @SuppressWarnings("unused")
     private String userName;
     @SuppressWarnings("unused")
@@ -84,6 +85,11 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     @Override
     public Date getLastReading() {
         return this.lastReading == null ? null : Date.from(this.lastReading);
+    }
+
+    @Override
+    public Optional<Date> getLastConsecutiveReading() {
+        return this.lastConsecutiveReading == null ? Optional.empty() : Optional.of(Date.from(this.lastConsecutiveReading));
     }
 
     @Override
@@ -166,6 +172,14 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         this.dataModel.update(this, "lastReading");
     }
 
+    private void updateLastConsecutiveReading() {
+        this.dataModel.update(this, "lastConsecutiveReading");
+    }
+
+    private void updateBothLastReadingAndLastConsecutiveReading() {
+        this.dataModel.update(this, "lastReading", "lastConsecutiveReading");
+    }
+
     @Override
     public void setNewLoadProfileSpec(LoadProfileSpec loadProfileSpec) {
         this.loadProfileSpec.set(loadProfileSpec);
@@ -179,7 +193,8 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
     abstract static class LoadProfileUpdater implements LoadProfile.LoadProfileUpdater {
 
         private final LoadProfileImpl loadProfile;
-        private boolean dirty = false;
+        private boolean dirtyLastReading = false;
+        private boolean dirtyLastConsecutiveReading = false;
 
         protected LoadProfileUpdater(LoadProfileImpl loadProfile) {
             this.loadProfile = loadProfile;
@@ -197,20 +212,40 @@ public class LoadProfileImpl implements ServerLoadProfileForConfigChange {
         @Override
         public LoadProfile.LoadProfileUpdater setLastReading(Instant lastReading) {
             this.loadProfile.lastReading = lastReading;
-            this.dirty = true;
+            this.dirtyLastReading = true;
+            return this;
+        }
+
+        @Override
+        public LoadProfile.LoadProfileUpdater setLastConsecutiveReading(Instant lastConsecutiveReading) {
+            this.loadProfile.lastConsecutiveReading = lastConsecutiveReading;
+            this.dirtyLastConsecutiveReading = true;
+            return this;
+        }
+
+        @Override
+        public LoadProfile.LoadProfileUpdater setLastConsecutiveReadingIfLater(Instant lastConsecutiveReading) {
+            Instant loadProfileLastConsecutiveReading = this.loadProfile.lastConsecutiveReading;
+            if (lastConsecutiveReading != null && (loadProfileLastConsecutiveReading == null || lastConsecutiveReading.isAfter(loadProfileLastConsecutiveReading))) {
+                this.setLastConsecutiveReading(lastConsecutiveReading);
+            }
             return this;
         }
 
         @Override
         public void update() {
-            if (this.dirty) {
+            if (this.dirtyLastReading && this.dirtyLastConsecutiveReading) {
+                this.loadProfile.updateBothLastReadingAndLastConsecutiveReading();
+            } else if (this.dirtyLastReading) {
                 this.loadProfile.updateLastReading();
+            } else if (this.dirtyLastConsecutiveReading) {
+                this.loadProfile.updateLastConsecutiveReading();
             }
         }
 
     }
 
-    class LoadProfileUpdaterImpl extends LoadProfileUpdater {
+    class LoadProfileUpdaterImpl extends LoadProfileImpl.LoadProfileUpdater {
         protected LoadProfileUpdaterImpl(LoadProfileImpl loadProfile) {
             super(loadProfile);
         }

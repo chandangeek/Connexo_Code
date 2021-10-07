@@ -53,7 +53,7 @@ public class ABBA230MessageConverterTest extends AbstractV2MessageConverterTest 
 
         offlineDeviceMessage = createMessage(DeviceActionMessage.DEMAND_RESET);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);
-        assertEquals("<BillingReset></BillingReset>", messageEntry.getContent());
+        assertEquals("<DemandReset></DemandReset>", messageEntry.getContent());
 
         offlineDeviceMessage = createMessage(ConfigurationChangeDeviceMessage.UploadMeterScheme);
         messageEntry = getMessageConverter().toMessageEntry(offlineDeviceMessage);

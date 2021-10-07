@@ -1,8 +1,6 @@
 package com.energyict.protocolimplv2.dlms.idis.am130.properties;
 
 import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.HDLC2Connection;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -21,7 +19,24 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.energyict.dlms.common.DlmsProtocolProperties.*;
+import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.CIPHERING_TYPE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.CONNECTION_MODE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_BULK_REQUEST;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_CONNECTION_MODE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.GBT_WINDOW_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.HDLC_STR;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
+import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
+import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.USE_GBT;
+import static com.energyict.dlms.common.DlmsProtocolProperties.VALIDATE_INVOKE_ID;
+import static com.energyict.dlms.common.DlmsProtocolProperties.WRAPPER_STR;
 
 /**
  * Copyrights EnergyICT
@@ -37,6 +52,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
     public static final BigDecimal DEFAULT_GBT_WINDOW_SIZE = BigDecimal.valueOf(5);
     public static final boolean USE_GBT_DEFAULT_VALUE = true;
     public static final CipheringType DEFAULT_CIPHERING_TYPE = CipheringType.GENERAL_GLOBAL;
+
 
     protected final PropertySpecService propertySpecService;
 
@@ -60,6 +76,7 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
                 this.callingAPTitlePropertySpec(),
                 this.serverUpperMacAddressPropertySpec(),
                 this.serverLowerMacAddressPropertySpec(),
+                this.overwriteServerLowerMacAddressPropertySpec(),
                 this.callHomeIdPropertySpec(),
                 this.masterKeyPropertySpec(),
                 this.getConnectionMode());
@@ -199,5 +216,8 @@ public class AM130ConfigurationSupport implements HasDynamicProperties {
         return propertySpecService;
     }
 
+    private PropertySpec overwriteServerLowerMacAddressPropertySpec() {
+        return this.booleanSpec(AM130Properties.OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false, com.energyict.protocolimpl.nls.PropertyTranslationKeys.DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS);
+    }
 
 }

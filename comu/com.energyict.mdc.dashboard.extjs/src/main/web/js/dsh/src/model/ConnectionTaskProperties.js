@@ -25,6 +25,7 @@ Ext.define('Dsh.model.ConnectionTaskProperties', {
         pageParam: undefined,
         startParam: undefined,
         limitParam: undefined,
+        timeout: 9999999,
         reader: {
             type: 'json'
         }

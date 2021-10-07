@@ -19,6 +19,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 /**
@@ -29,6 +31,7 @@ import java.util.stream.Stream;
  */
 public class ConnectionTaskBreakdownsImpl implements ConnectionTaskBreakdowns, BreakdownResultProcessor {
 
+    private static final Logger LOGGER = Logger.getLogger(ConnectionTaskBreakdownsImpl.class.getName());
     private final EngineConfigurationService engineConfigurationService;
     private final ProtocolPluggableService protocolPluggableService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -76,11 +79,16 @@ public class ConnectionTaskBreakdownsImpl implements ConnectionTaskBreakdowns, B
     }
 
     private void addToComPortPoolBreakdown(Long comPortPoolId, Map<TaskStatus, Long> counters, Map<ComPortPool, Map<TaskStatus, Long>> breakDown) {
-        ComPortPool comPortPool = this.findById(comPortPoolId, breakDown.keySet());
-        breakDown.put(comPortPool, counters);
+        try{
+            ComPortPool comPortPool = this.findById(comPortPoolId, breakDown.keySet());
+            breakDown.put(comPortPool, counters);
+        }
+        catch (Exception e){
+            LOGGER.log(Level.SEVERE, "No Com Port Pools "+ e);
+        }
     }
 
-    private <T extends HasId> T findById(long id, Set<T> idBusinessObjects) {
+    private <T extends HasId> T findById(long id, Set<T> idBusinessObjects) throws Exception  {
         return idBusinessObjects.stream().filter(cs -> cs.getId() == id).findAny().get();
     }
 
@@ -96,8 +104,12 @@ public class ConnectionTaskBreakdownsImpl implements ConnectionTaskBreakdowns, B
     }
 
     private void addToConnectionTypeBreakdown(Long id, Map<TaskStatus, Long> counters, Map<ConnectionTypePluggableClass, Map<TaskStatus, Long>> breakDown) {
-        ConnectionTypePluggableClass comPortPool = this.findById(id, breakDown.keySet());
-        breakDown.put(comPortPool, counters);
+        try {
+            ConnectionTypePluggableClass comPortPool = this.findById(id, breakDown.keySet());
+            breakDown.put(comPortPool, counters);
+        }catch (Exception e){
+            LOGGER.log(Level.SEVERE, "No such connections "+ e);
+        }
     }
 
     @Override
@@ -112,8 +124,12 @@ public class ConnectionTaskBreakdownsImpl implements ConnectionTaskBreakdowns, B
     }
 
     private void addToDeviceTypeBreakdown(Long deviceTypeId, Map<TaskStatus, Long> counters, Map<DeviceType, Map<TaskStatus, Long>> breakDown) {
-        DeviceType deviceType = this.findById(deviceTypeId, breakDown.keySet());
-        breakDown.put(deviceType, counters);
+        try {
+            DeviceType deviceType = this.findById(deviceTypeId, breakDown.keySet());
+            breakDown.put(deviceType, counters);
+        }catch (Exception e){
+            LOGGER.log(Level.SEVERE, "No such Device Types "+ e);
+        }
     }
 
     public void addOverallStatusCount(BreakdownResult row) {

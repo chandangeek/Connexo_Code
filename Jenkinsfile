@@ -188,7 +188,7 @@ pipeline {
                              enabledForFailure: true,
                              qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
                                             [threshold: 77, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 22005, type: 'TOTAL_NORMAL', unstable: true]],
+                                            [threshold: 22010, type: 'TOTAL_NORMAL', unstable: true]],
                              tools: [junitParser(pattern: '**/Test-*.xml'),
                                      pmdParser(),
                                      checkStyle(),
@@ -198,17 +198,17 @@ pipeline {
                        changeBuildStatus: true,
                        exclusionPattern: '**/*Test*.class',
                        // Must exceed these values or the build will be unstable
-                       maximumBranchCoverage: '14',
-                       maximumClassCoverage: '42',
-                       maximumComplexityCoverage: '22',
-                       maximumLineCoverage: '26',
-                       maximumMethodCoverage: '28',
+                       maximumClassCoverage: '43',
+                       maximumMethodCoverage: '27',
+                       maximumLineCoverage: '25',
+                       maximumBranchCoverage: '13',
+                       maximumComplexityCoverage: '21',
                        // Must exceed these values or the build will fail
+                       minimumClassCoverage: '40',
+                       minimumMethodCoverage: '26',
+                       minimumLineCoverage: '24',
                        minimumBranchCoverage: '12',
-                       minimumClassCoverage: '30',
-                       minimumComplexityCoverage: '19',
-                       minimumLineCoverage: '20',
-                       minimumMethodCoverage: '20'
+                       minimumComplexityCoverage: '20'
               }
             }
           }

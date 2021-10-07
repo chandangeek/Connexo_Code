@@ -700,6 +700,28 @@ public abstract class AbstractCosemObject {
         return result;
     }
 
+    protected byte[][] getResponseDataWithAccessService(DLMSAttribute[] attributes) throws IOException {
+        byte[][] result = new byte[attributes.length][];
+        byte[] request = buildAccessWithListRequest(attributes);
+        byte[] responseData = sendAndReceiveValidResponse(request);
+        responseData = checkCosemPDUResponseHeader(responseData);
+
+        int ptr = 0;
+        if ((responseData[ptr] & 0xFF) != attributes.length) {
+            throw new IOException("Requested " + attributes.length + " attributes with a bulk request, but received " + (responseData[ptr] & 0xFF) + " attributes!");
+        }
+        ptr++;
+
+        for (int i = 0; i < attributes.length; i++) {
+            AbstractDataType dataType = AXDRDecoder.decode(responseData, ptr);
+            int objectLength = dataType.getBEREncodedByteArray().length;
+            result[i] = ProtocolTools.getSubArray(responseData, ptr, ptr + objectLength);
+            ptr += objectLength;
+        }
+
+        return result;
+    }
+
     /**
      * @param method        the method to invoke
      * @param data          the additional data to write with he method
@@ -1048,6 +1070,19 @@ public abstract class AbstractCosemObject {
         return buffer.toByteArray();
     }
 
+    private byte[] buildAccessWithListRequest(DLMSAttribute... attributes) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        buffer.write(0xE6); // Destination_LSAP
+        buffer.write(0xE6); // Source_LSAP
+        buffer.write(0x00);
+        if (getObjectReference().isLNReference()) {
+            buffer.write(getLnAccessWithListRequest(attributes));
+        } else {
+            throw new ProtocolException("SN Access request is not supported.");
+        }
+        return buffer.toByteArray();
+    }
+
     private byte[] getLnGetWithListRequest(DLMSAttribute... attributes) {
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();
         buffer.write(DLMSCOSEMGlobals.COSEM_GETREQUEST);
@@ -1065,6 +1100,33 @@ public abstract class AbstractCosemObject {
             } catch (IOException e) {
                 // ByteArrayOutputStream never throws exception
             }
+        }
+        return buffer.toByteArray();
+    }
+
+    private byte[] getLnAccessWithListRequest(DLMSAttribute... attributes) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        buffer.write(DLMSCOSEMGlobals.COSEM_ACCESSREQUEST);
+        buffer.write(this.invokeIdAndPriorityHandler.getNextInvokeIdAndPriority()); // next invoke id and priority
+        buffer.write((byte)0x00); // long
+        buffer.write((byte)0x00); // invoke
+        buffer.write((byte)0x00); // id
+        buffer.write((byte)0x00); // date-time with length 0
+        buffer.write(attributes.length); // Number of items
+        for (DLMSAttribute dlmsAttribute : attributes) {
+            // cosem-attribute-descriptor
+            try {
+                buffer.write((byte)0x01); // access-request-get
+                buffer.write(new Unsigned16(dlmsAttribute.getClassId()).getContentByteArray()); // cosem-class-id
+                buffer.write(dlmsAttribute.getObisCode().getLN());                              // cosem-object-instance-id
+                buffer.write(new Integer8(dlmsAttribute.getAttribute()).getContentByteArray()); // cosem-attribute-id
+            } catch (IOException e) {
+                // ByteArrayOutputStream never throws exception
+            }
+        }
+        buffer.write(attributes.length); // Number of items
+        for (int i = 0; i < attributes.length; i++) {
+            buffer.write((byte)0x00); // null-data
         }
         return buffer.toByteArray();
     }
@@ -1589,6 +1651,16 @@ public abstract class AbstractCosemObject {
                                 throw new ProtocolException("Unknown/unimplemented DLMSCOSEMGlobals.COSEM_SETRESPONSE, " + responseData[i]);
                             }
                         } // switch(responseData[i])
+                    }
+
+                    case DLMSCOSEMGlobals.COSEM_ACCESSRESPONSE: {
+                        i++; // skip the tag
+                        i = i + 4; // skip the long invoke id & priority
+                        i++; // skip the date-time with length 0, NOTE: this means no support for other date-time lengths
+                        i++; // skip the (optional) access-request-specification
+                        // TODO maybe some validation in the future
+                        receiveBuffer.addArray(responseData, i);
+                        return receiveBuffer.getArray();
                     }
 
                     case DLMSCOSEMGlobals.COSEM_EXCEPTION_RESPONSE: {

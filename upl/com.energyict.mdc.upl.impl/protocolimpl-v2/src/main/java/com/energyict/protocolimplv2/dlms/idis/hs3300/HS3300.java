@@ -149,7 +149,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-02-09$";
+        return "$Date: 2021-09-26$";
     }
 
     /**

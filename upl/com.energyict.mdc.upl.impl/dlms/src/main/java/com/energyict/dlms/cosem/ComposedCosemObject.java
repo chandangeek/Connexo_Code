@@ -27,6 +27,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
     private final DLMSAttribute[] attributes;
     private final AbstractDataType[] dataResult;
     private final boolean useGetWithList;
+    private boolean useAccessService;
     private Date lastAttributeReadTime;
 
     public ComposedCosemObject(ProtocolLink protocolLink, boolean useGetWithList, List<DLMSAttribute> dlmsAttributes) {
@@ -100,6 +101,19 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         return false;
     }
 
+    private boolean isAccessServiceSupported() {
+        if (isUseAccessService()) {
+            ApplicationServiceObject serviceObject = getProtocolLink().getAso();
+            if (serviceObject != null) {
+                ConformanceBlock block = serviceObject.getAssociationControlServiceElement().getXdlmsAse().getNegotiatedConformanceBlock();
+                if (block != null) {
+                    return block.isAccess();
+                }
+            }
+        }
+        return false;
+    }
+
     private int getAttributeIndex(DLMSAttribute attribute) throws ProtocolException {
         for (int i = 0; i < attributes.length; i++) {
             DLMSAttribute dlmsAttribute = attributes[i];
@@ -114,7 +128,7 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
         int index = getAttributeIndex(attribute);
         if (dataResult[index] == null) {
             this.lastAttributeReadTime = new Date();
-            if (isGetWithListSupported()) {
+            if (isGetWithListSupported() && !isAccessServiceSupported()) {
                 byte[][] dataWithList = getResponseDataWithList(attributes);
                 for (int i = 0; i < dataWithList.length; i++) {
                     switch (dataWithList[i][0]) {
@@ -127,6 +141,11 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
                         default:
                             throw new ProtocolException("Invalid response while reading GetResponseWithList: expected '0' or '1' but was " + dataWithList[i][0]);
                     }
+                }
+            } else if (isAccessServiceSupported()) {
+                byte[][] dataWithList = getResponseDataWithAccessService(attributes);
+                for (int i = 0; i < dataWithList.length; i++) {
+                    dataResult[i] = AXDRDecoder.decode(dataWithList[i], 0);
                 }
             } else {
                 try {
@@ -180,6 +199,14 @@ public class ComposedCosemObject extends AbstractCosemObject implements Iterable
 
     public boolean isUseGetWithList() {
         return useGetWithList;
+    }
+
+    public boolean isUseAccessService() {
+        return useAccessService;
+    }
+
+    public void setUseAccessService(boolean useAccessService) {
+        this.useAccessService = useAccessService;
     }
 
     /**

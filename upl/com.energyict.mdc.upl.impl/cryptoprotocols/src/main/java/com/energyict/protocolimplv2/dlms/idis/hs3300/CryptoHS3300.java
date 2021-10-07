@@ -1,5 +1,10 @@
 package com.energyict.protocolimplv2.dlms.idis.hs3300;
 
+import com.energyict.common.IrreversibleKeyImpl;
+import com.energyict.common.framework.CryptoDlmsSession;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.TypedProperties;
@@ -14,12 +19,6 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.common.IrreversibleKeyImpl;
-import com.energyict.common.framework.CryptoDlmsSession;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
@@ -48,7 +47,7 @@ public class CryptoHS3300 extends HS3300 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-08-27$";
+        return "$Date: 2021-09-26$";
     }
 
     @Override

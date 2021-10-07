@@ -233,6 +233,9 @@ public interface DLMSCOSEMGlobals {
     byte COSEM_EXCEPTION_RESPONSE = (byte) 0xD8;
 	byte COSEM_GENERAL_BLOCK_TRANSFER = (byte) 0xE0;
 	byte COSEM_DATA_NOTIFICATION = 15;
+    byte COSEM_ACCESSREQUEST = (byte) 0xD9;
+    byte COSEM_ACCESSREQUEST_WITH_LIST = 3;
+    byte COSEM_ACCESSRESPONSE = (byte) 0xDA;
 
 	// Global-ciphering tags (LongName)
 	byte GLO_GETREQUEST = (byte)0xC8;
