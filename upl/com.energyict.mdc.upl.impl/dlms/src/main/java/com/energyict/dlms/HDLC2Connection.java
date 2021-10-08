@@ -4,7 +4,9 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.Connection;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
+
 import com.energyict.mdc.upl.ProtocolException;
+
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -56,7 +58,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
     // Maximum number of consecutive ReceiveReady cycles (both request and response are RR frame) during a single receiveInformationField() method - used for safety reasons (to provide an escape point out of an endless loop)
     protected static final int MAX_RECEIVE_INFORMATION_FIELD_CONSECUTIVE_RECEIVE_READY_CYCLES = 20;
 
-    protected static final int MAX_BUFFER_SIZE = 512;
+    protected static final int MAX_BUFFER_SIZE = 1024;
     protected static final int HDLC_RX_OK = 0x00;
     protected static final int HDLC_BADCRC = 0x01;
     protected static final int HDLC_TIMEOUT = 0x02;
@@ -139,6 +141,8 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
     protected InvokeIdAndPriorityHandler invokeIdAndPriorityHandler;
     protected boolean useDefaultParameterLength = true;
 
+    protected boolean infoFieldRequired = true;
+
     /**
      * Default constructor, only for V2 protocol usage.
      * This uses a ComChannel instead of input/output streams
@@ -204,25 +208,31 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
                         (byte) 0x81,
                         (byte) 0x80,
                         (byte) (useDefaultParameterLength ? 0x0E : 0x12)};
-        byte[] macSNRM_part2 = useDefaultParameterLength ? new byte[]{0x07, 0x01, 0x01, 0x08, 0x01, 0x01, 0x00, 0x00} : new byte[]{0x07, 0x04, 0x00, 0x00, 0x00, 0x01, 0x08, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
-        byte[] infoFieldBytes = new byte[useDefaultParameterLength ? 8 : 6];
-        int index = 0;
-        infoFieldBytes[index++] = 0x05;
-        infoFieldBytes[index++] = (byte) (useDefaultParameterLength ? 2 : 1);
-        if (useDefaultParameterLength) {
-            infoFieldBytes[index++] = highByte(informationFieldSize);
+
+        if (infoFieldRequired) {
+            byte[] macSNRM_part2 = useDefaultParameterLength ? new byte[]{0x07, 0x01, 0x01, 0x08, 0x01, 0x01, 0x00, 0x00} : new byte[]{0x07, 0x04, 0x00, 0x00, 0x00, 0x01, 0x08, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
+            byte[] infoFieldBytes = new byte[useDefaultParameterLength ? 8 : 6];
+            int index = 0;
+            infoFieldBytes[index++] = 0x05;
+            infoFieldBytes[index++] = (byte) (useDefaultParameterLength ? 2 : 1);
+            if (useDefaultParameterLength) {
+                infoFieldBytes[index++] = highByte(informationFieldSize);
+            }
+            infoFieldBytes[index++] = lowByte(informationFieldSize);
+            infoFieldBytes[index++] = 0x06;
+            infoFieldBytes[index++] = (byte) (useDefaultParameterLength ? 2 : 1);
+            if (useDefaultParameterLength) {
+                infoFieldBytes[index++] = highByte(informationFieldSize);
+            }
+            infoFieldBytes[index++] = lowByte(informationFieldSize);
+            macSNRMFrame = new byte[macSNRM_part1.length + macSNRM_part2.length + infoFieldBytes.length];
+            System.arraycopy(macSNRM_part1, 0, macSNRMFrame, 0, macSNRM_part1.length);
+            System.arraycopy(infoFieldBytes, 0, macSNRMFrame, macSNRM_part1.length, infoFieldBytes.length);
+            System.arraycopy(macSNRM_part2, 0, macSNRMFrame, macSNRM_part1.length + infoFieldBytes.length, macSNRM_part2.length);
+        } else {
+            macSNRMFrame = new byte[macSNRM_part1.length];
+            System.arraycopy(macSNRM_part1, 0, macSNRMFrame, 0, macSNRM_part1.length);
         }
-        infoFieldBytes[index++] = lowByte(informationFieldSize);
-        infoFieldBytes[index++] = 0x06;
-        infoFieldBytes[index++] = (byte) (useDefaultParameterLength ? 2 : 1);
-        if (useDefaultParameterLength) {
-            infoFieldBytes[index++] = highByte(informationFieldSize);
-        }
-        infoFieldBytes[index++] = lowByte(informationFieldSize);
-        macSNRMFrame = new byte[macSNRM_part1.length + macSNRM_part2.length + infoFieldBytes.length];
-        System.arraycopy(macSNRM_part1, 0, macSNRMFrame, 0, macSNRM_part1.length);
-        System.arraycopy(infoFieldBytes, 0, macSNRMFrame, macSNRM_part1.length, infoFieldBytes.length);
-        System.arraycopy(macSNRM_part2, 0, macSNRMFrame, macSNRM_part1.length + infoFieldBytes.length, macSNRM_part2.length);
     }
 
     private void getAddressingMode(int addressingMode) throws DLMSConnectionException {
