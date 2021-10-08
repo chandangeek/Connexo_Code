@@ -1,12 +1,5 @@
 package com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile;
 
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ObjectReference;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -14,6 +7,14 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
+
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ObjectReference;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -45,7 +46,9 @@ public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends Ab
 
     @Override
     public CollectedLoadProfile read(T protocol, com.energyict.protocol.LoadProfileReader loadProfileReader) {
-        CollectedLoadProfile collectedLoadProfile = collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier()));
+        CollectedLoadProfile collectedLoadProfile = collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), protocol
+                .getOfflineDevice()
+                .getDeviceIdentifier()));
         ObisCode lpObisCode = loadProfileReader.getProfileObisCode();
         try {
             CollectedLoadProfileConfiguration collectedLoadProfileConfiguration = this.readConfiguration(protocol, loadProfileReader);
@@ -71,11 +74,15 @@ public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends Ab
     @Override
     public CollectedLoadProfileConfiguration readConfiguration(T protocol, com.energyict.protocol.LoadProfileReader lpr) {
         try {
-            CollectedLoadProfileConfiguration lpc = collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier(), lpr.getMeterSerialNumber());
-            ProfileGeneric pg = new ProfileGeneric(protocol.getDlmsSession(), new ObjectReference(DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode()).getLNArray(), DLMSClassId.PROFILE_GENERIC.getClassId()));
+            CollectedLoadProfileConfiguration lpc = collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), protocol.getOfflineDevice()
+                    .getDeviceIdentifier(), lpr.getMeterSerialNumber());
+            ProfileGeneric pg = new ProfileGeneric(protocol.getDlmsSession(), new ObjectReference(DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession()
+                    .getMeterConfig()
+                    .getInstantiatedObjectList(), lpr.getProfileObisCode()).getLNArray(), DLMSClassId.PROFILE_GENERIC.getClassId()));
             List<ChannelInfo> channelInfos = this.channelInfoReader.getChannelInfo(protocol, lpr, pg);
             lpc.setSupportedByMeter(true);
             lpc.setChannelInfos(channelInfos);
+            lpc.setProfileInterval(pg.getCapturePeriod());
             return lpc;
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
