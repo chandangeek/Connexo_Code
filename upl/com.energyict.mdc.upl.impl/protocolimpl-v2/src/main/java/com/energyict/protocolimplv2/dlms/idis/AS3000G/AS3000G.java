@@ -86,12 +86,12 @@ public class AS3000G extends AM540 {
 
     @Override
     public String getProtocolDescription() {
-        return "Elster AS3000G DLMS";
+        return "Honeywell AS3000G DLMS";
     }
 
     @Override
     public String getVersion() {
-        return "01.01.2021";
+        return "11.10.2021";
     }
 
 }
