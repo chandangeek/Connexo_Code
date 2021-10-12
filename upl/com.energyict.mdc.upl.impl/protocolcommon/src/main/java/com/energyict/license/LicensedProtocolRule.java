@@ -388,7 +388,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     EI6_THEMISUNO(325, "com.energyict.protocolimplv2.dlms.a2.A2", FamilyRule.EICT_THEMISUNO),
     EI7_THEMISUNO(326, "com.energyict.protocolimplv2.dlms.ei7.EI7", FamilyRule.EICT_THEMISUNO),
-    EI4_UMI(337, "com.energyict.protocolimplv2.umi.ei4.EI4Umi"),
 
     ACUD_GAS(327, "com.energyict.protocolimplv2.dlms.acud.AcudGas", FamilyRule.ACUD),
     ACUD_WATER(328, "com.energyict.protocolimplv2.dlms.acud.AcudWater", FamilyRule.ACUD),
@@ -403,6 +402,10 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SL7000(335, "com.energyict.protocolimplv2.dlms.actaris.sl7000.ActarisSl7000"),
 
     EI6_2021_THEMISUNO(336, "com.energyict.protocolimplv2.dlms.ei6v2021.EI6v2021", FamilyRule.EICT_THEMISUNO),
+
+    EI4_UMI(337, "com.energyict.protocolimplv2.umi.ei4.EI4Umi"),
+
+    ISKRA_AM550(340, "com.energyict.protocolimplv2.dlms.idis.iskra.am550.AM550"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
