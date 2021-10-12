@@ -81,6 +81,7 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
+import java.net.*;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -117,6 +118,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     private SixLowPanAdaptationLayerSetup sixLowPanSetup;
     private Array neighbourTable;
     private Array adpRoutingTable;
+    protected String serialNumber;
 
     public HS3300(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
                   TariffCalendarExtractor calendarExtractor, NlsService nlsService, Converter converter,
@@ -135,13 +137,18 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        this.serialNumber = offlineDevice.getSerialNumber();
         //getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
-        journal("Start protocol for " + offlineDevice.getSerialNumber());
-        journal("Version: " + getVersion());
+        getLogger().info(getLogPrefix()+" Starting protocol for " + offlineDevice.getSerialNumber() + " (version: " + getVersion()+")");
         handleFC(comChannel);
         initDlmsSession(comChannel);
-        journal("Protocol init successful");
+        getLogger().info(getLogPrefix()+"Protocol init successful");
     }
+
+    protected String getLogPrefix() {
+        return "["+this.serialNumber+"] ";
+    }
+
 
     protected void initDlmsSession(ComChannel comChannel) {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger()));
@@ -149,7 +156,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-09-26$";
+        return "$Date: 2021-05-25$";
     }
 
     /**
@@ -158,10 +165,15 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
      */
     @Override
     public String getSerialNumber() {
-        if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || !getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
-            return getMeterInfo().getSerialNr();
-        } else {
-            return getMeterInfo().getEquipmentIdentifier();
+        try {
+            if (getDlmsSessionProperties().useBeaconMirrorDeviceDialect() || !getDlmsSessionProperties().useEquipmentIdentifierAsSerialNumber()) {
+                return getMeterInfo().getSerialNr();
+            } else {
+                return getMeterInfo().getEquipmentIdentifier();
+            }
+        } catch (Exception e){
+            final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the serial number: " + e.getMessage());
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
         }
     }
 
@@ -172,6 +184,24 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     public void logOn() {
         connectWithRetries(getDlmsSession());
         checkCacheObjects();
+    }
+
+    @Override
+    public void logOff() {
+        if (getDlmsSession() != null) {
+            try {
+                getDlmsSession().disconnect();
+            } catch (Exception e){
+                final ProtocolException protocolException = new ProtocolException(e, "Error while disconnecting: " + e.getMessage());
+                throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
+            }
+        }
+    }
+
+    @Override
+    public void daisyChainedLogOff() {
+        getLogger().info(getLogPrefix()+"Logging off");
+        logOff();
     }
 
     /**
@@ -185,7 +215,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         while (true) {
             ProtocolRuntimeException exception;
             try {
-                journal("Connecting with client "+dlmsSession.getProperties().getClientMacAddress()+" to "+dlmsSession.getProperties().getServerUpperMacAddress());
+                getLogger().info(getLogPrefix()+"Connecting with client "+dlmsSession.getProperties().getClientMacAddress()+" to "+dlmsSession.getProperties().getServerUpperMacAddress());
                 dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
@@ -207,10 +237,10 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
-                journal(Level.SEVERE, "Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
+                getLogger().severe(getLogPrefix()+"Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
                 throw CommunicationException.protocolConnectFailed(exception);
             } else {
-                journal("Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                getLogger().info(getLogPrefix()+"Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
                 } catch (ProtocolRuntimeException e) {
@@ -275,14 +305,15 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
 
         if ((getDeviceCache().getObjectList(clientId) == null) || readCache) {
-            journal(readCache ? "ReReadCache property is true, reading cache!" : "The cache was empty, reading out the object list!");
+            getLogger().info(readCache ? (getLogPrefix()+"ReReadCache property is true, reading cache!")
+                                        : (getLogPrefix()+"The cache was empty, reading out the object list!"));
 
             readObjectList();
 
             final UniversalObject[] objectList = getDlmsSession().getMeterConfig().getInstantiatedObjectList();
             getDeviceCache().setObjectList(clientId, objectList);
         } else {
-            journal("Cache exist, will not be read!");
+            getLogger().info(getLogPrefix()+"Cache exist, will not be read!");
         }
 
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList(clientId));
@@ -310,7 +341,8 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
             long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
             int clientMacAddress = getDlmsSessionProperties().getClientMacAddress();
             getDeviceCache().setTXFrameCounter(clientMacAddress, frameCounter);
-            journal("Caching frameCounter=" + frameCounter + " for client=" + clientMacAddress);
+            getLogger().info(getLogPrefix()+"Caching frameCounter=" + frameCounter + " for client=" + clientMacAddress);
+            getLogger().info(getLogPrefix()+"Connection terminated");
         }
     }
 
@@ -323,17 +355,18 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
         if (!getNeighbourTable().isPresent()){
             canReadTopology = false;
-            journal(Level.WARNING, "Cannot read topology: Neighbour table is not present.");
+            getLogger().warning(getLogPrefix()+"Cannot read topology: Neighbour table is not present.");
         }
 
         if (!getPLCMacSetup().isPresent()){
             canReadTopology = false;
-            journal(Level.WARNING, "Cannot read topology: PLC Mac-Setup table is not present.");
+            getLogger().warning(getLogPrefix()+"Cannot read topology: PLC Mac-Setup table is not present.");
         }
 
         if (canReadTopology) {
             final Array neighbourArray = getNeighbourTable().get();
-            journal(neighbourArray.toString());
+            getLogger().info(getLogPrefix()+"Reading topology");
+            getLogger().info(neighbourArray.toString());
             for (final AbstractDataType node : neighbourArray) {
                 final Structure neighbourStruct = (Structure) node;
 
@@ -354,9 +387,9 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 try {
                     macPANId = getPLCMacSetup().get().readPanId().longValue();
                 } catch (final NotInObjectListException e) {
-                    journal(Level.WARNING, "Could not read PAN ID: NotInObjectListException");
+                    getLogger().warning(getLogPrefix()+"Could not read PAN ID: NotInObjectListException");
                 } catch (final IOException e) {
-                    journal(Level.WARNING, "IOException while reading PAN ID");
+                    getLogger().warning(getLogPrefix()+"IOException while reading PAN ID");
                 }
 
                 /**
@@ -407,7 +440,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 sb.append(", lastPathRequest: ").append(lastPathRequest);
                 sb.append(", neighbourValidTime: ").append(neighbourValidTime);
 
-                journal(sb.toString());
+                getLogger().info(getLogPrefix()+sb.toString());
             }
         }
 
@@ -434,13 +467,13 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                     neighbourTable = (Array) getPLCMacSetup().get().readNeighbourTable();
                     return Optional.of(neighbourTable);
                 } else {
-                    journal(Level.WARNING, "Could not read neighbour table: could not get PLCOFDMType2MACSetup");
+                    getLogger().warning(getLogPrefix()+"Could not read neighbour table: could not get PLCOFDMType2MACSetup");
                 }
             } else {
                 return Optional.of(neighbourTable);
             }
         } catch (final IOException e) {
-            journal(Level.WARNING, "Could not read neighbour table: " + e.getMessage());
+            getLogger().warning(getLogPrefix()+"Could not read neighbour table: " + e.getMessage());
         }
         return Optional.empty();
     }
@@ -463,13 +496,13 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                     adpRoutingTable = getSixLowPanSetup().get().readAdpRoutingTable();
                     return Optional.of(adpRoutingTable);
                 } else {
-                    journal(Level.WARNING, "Could not read ADP routing table: could not get SixLowPanAdaptationLayerSetup");
+                    getLogger().warning(getLogPrefix()+"Could not read ADP routing table: could not get SixLowPanAdaptationLayerSetup");
                 }
             } else {
                 return Optional.of(adpRoutingTable);
             }
         } catch (final IOException e) {
-            journal(Level.WARNING, "Could not read ADP routing table: " + e.getMessage());
+            getLogger().warning(getLogPrefix()+"Could not read ADP routing table: " + e.getMessage());
         }
         return Optional.empty();
     }
@@ -480,7 +513,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 plcMACSetup = getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup();
                 return Optional.of(plcMACSetup);
             } catch (final NotInObjectListException e) {
-                journal(Level.WARNING, "Could not get PLCOFDMType2MACSetup: NotInObjectListException");
+                getLogger().warning(getLogPrefix()+"Could not get PLCOFDMType2MACSetup: NotInObjectListException");
             }
         } else {
             return Optional.of(plcMACSetup);
@@ -494,7 +527,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 sixLowPanSetup = getDlmsSession().getCosemObjectFactory().getSixLowPanAdaptationLayerSetup();
                 return Optional.of(sixLowPanSetup);
             } catch (final NotInObjectListException e) {
-                journal(Level.WARNING, "Could not get SixLowPanAdaptationLayerSetup: NotInObjectListException");
+                getLogger().warning(getLogPrefix()+"Could not get SixLowPanAdaptationLayerSetup: NotInObjectListException");
             }
         } else {
             return Optional.of(sixLowPanSetup);
@@ -567,6 +600,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
+        getLogger().info(getLogPrefix()+"Reading "+registers.size()+" registers");
         return getRegisterFactory().readRegisters(registers);
     }
 
@@ -583,7 +617,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
      */
     private void handleFC(ComChannel comChannel) {
         if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5) {
-            journal("Skipping FC handling due to lower security level.");
+            getLogger().info(getLogPrefix()+"Skipping FC handling due to lower security level.");
             return; // no need to handle any FC
         }
 
@@ -605,7 +639,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
      * Read frame counter by calling a custom method in the Beacon
      */
     protected void readFrameCounterSecure(ComChannel comChannel) {
-        journal("Reading frame counter using secure method");
+        getLogger().info(getLogPrefix()+"Reading frame counter using secure method");
 
         byte[] authenticationKey = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();
         if (authenticationKey.length != 16) {
@@ -623,23 +657,23 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
         final long frameCounter;
 
-        publicDlmsSession.getDlmsV2Connection().connectMAC();
-        publicDlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
 
         try {
+            publicDlmsSession.getDlmsV2Connection().connectMAC();
+            publicDlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
 
             FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
             frameCounterProvider.setSkipValidation(getDlmsSessionProperties().skipFramecounterAuthenticationTag());
 
             frameCounter = frameCounterProvider.getFrameCounter(authenticationKey);
 
-            journal("The read-out frame-counter is: " + frameCounter);
+            getLogger().info(getLogPrefix()+"The read-out frame-counter is: " + frameCounter);
 
         } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+            throw DLMSIOExceptionHandler.handleRecoverable(e, publicDlmsSession.getProperties().getRetries() + 1);
         } catch (Exception e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the secure frame counter, cannot continue! " + e.getMessage());
-            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
         } finally {
             publicDlmsSession.disconnect();
         }
@@ -660,11 +694,11 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
         if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1).
-            journal("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
+            getLogger().info(getLogPrefix()+"Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(initialFrameCounter);
             weHaveAFrameCounter = true;
         } else if (cachedFrameCounter > 0) {
-            journal("Using cached frame counter: " + cachedFrameCounter);
+            getLogger().info(getLogPrefix()+"Using cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(cachedFrameCounter + 1);
             weHaveAFrameCounter = true;
         }
@@ -673,7 +707,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
             if (getDlmsSessionProperties().validateCachedFrameCounter()) {
                 return testConnectionAndRetryWithFrameCounterIncrements(comChannel);
             } else {
-                journal(Level.WARNING, " - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
+                getLogger().info(getLogPrefix()+" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
                 // do not validate, just use it and hope for the best
                 return true;
             }
@@ -692,7 +726,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
         boolean releaseOnce = true;
 
-        journal("Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
+        getLogger().info(getLogPrefix()+"Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
         if (retries <= 0) {
             retries = 0;
             step = 0;
@@ -704,14 +738,14 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 testDlmsSession.createAssociation();
                 if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
                     testDlmsSession.disconnect();
-                    journal("Cached FrameCounter is valid!");
+                    getLogger().info(getLogPrefix()+"Cached FrameCounter is valid!");
                     setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     return true;
                 }
             } catch (CommunicationException ex) {
                 if (isAssociationFailed(ex)) {
                     long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
-                    journal(Level.WARNING, "Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
+                    getLogger().warning(getLogPrefix()+"Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                     frameCounter += step;
                     setTXFrameCounter(frameCounter);
                     testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
@@ -734,7 +768,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         } while (retries > 0);
 
         testDlmsSession.disconnect();
-        journal(Level.WARNING, "Could not validate the frame counter, seems that it's out-of sync with the device. You'll have to read a fresh one.");
+        getLogger().warning(getLogPrefix()+"Could not validate the frame counter, seems that it's out-of sync with the device. You'll have to read a fresh one.");
         return false;
     }
 
