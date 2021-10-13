@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.as3000.properties;
 
-import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
@@ -51,14 +50,6 @@ public class AS3000ConfigurationSupport extends DlmsConfigurationSupport {
     }
 
     private PropertySpec overwriteServerLowerMacAddressPropertySpec() {
-        return this.booleanSpec(AS3000Properties.OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false, com.energyict.protocolimpl.nls.PropertyTranslationKeys.DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS);
+        return UPLPropertySpecFactory.specBuilder(AS3000Properties.OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false, com.energyict.protocolimpl.nls.PropertyTranslationKeys.DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS, this.getPropertySpecService()::booleanSpec).finish();
     }
-
-    private PropertySpec booleanSpec(String name, boolean defaultValue, TranslationKey translationKey) {
-        return UPLPropertySpecFactory
-                .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
-                .setDefaultValue(defaultValue)
-                .finish();
-    }
-
 }

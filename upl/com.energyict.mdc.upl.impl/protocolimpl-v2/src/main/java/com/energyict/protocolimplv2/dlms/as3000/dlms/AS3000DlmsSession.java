@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 public class AS3000DlmsSession extends DlmsSession {
 
 
-    public AS3000DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, HHUSignOnV2 hhuSignOn, Logger logger) {
-        super(comChannel, properties, hhuSignOn, "");
+    public AS3000DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, Logger logger) {
+        super(comChannel, properties, "");
     }
 
     @Override

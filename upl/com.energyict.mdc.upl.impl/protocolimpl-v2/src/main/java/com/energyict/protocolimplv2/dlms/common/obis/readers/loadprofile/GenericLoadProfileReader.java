@@ -46,9 +46,7 @@ public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends Ab
 
     @Override
     public CollectedLoadProfile read(T protocol, com.energyict.protocol.LoadProfileReader loadProfileReader) {
-        CollectedLoadProfile collectedLoadProfile = collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), protocol
-                .getOfflineDevice()
-                .getDeviceIdentifier()));
+        CollectedLoadProfile collectedLoadProfile = collectedDataFactory.createCollectedLoadProfile(new LoadProfileIdentifierById(loadProfileReader.getLoadProfileId(), loadProfileReader.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier()));
         ObisCode lpObisCode = loadProfileReader.getProfileObisCode();
         try {
             CollectedLoadProfileConfiguration collectedLoadProfileConfiguration = this.readConfiguration(protocol, loadProfileReader);
@@ -74,11 +72,8 @@ public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends Ab
     @Override
     public CollectedLoadProfileConfiguration readConfiguration(T protocol, com.energyict.protocol.LoadProfileReader lpr) {
         try {
-            CollectedLoadProfileConfiguration lpc = collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), protocol.getOfflineDevice()
-                    .getDeviceIdentifier(), lpr.getMeterSerialNumber());
-            ProfileGeneric pg = new ProfileGeneric(protocol.getDlmsSession(), new ObjectReference(DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession()
-                    .getMeterConfig()
-                    .getInstantiatedObjectList(), lpr.getProfileObisCode()).getLNArray(), DLMSClassId.PROFILE_GENERIC.getClassId()));
+            CollectedLoadProfileConfiguration lpc = collectedDataFactory.createCollectedLoadProfileConfiguration(lpr.getProfileObisCode(), protocol.getOfflineDevice().getDeviceIdentifier(), lpr.getMeterSerialNumber());
+            ProfileGeneric pg = new ProfileGeneric(protocol.getDlmsSession(), new ObjectReference(DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), lpr.getProfileObisCode()).getLNArray(), DLMSClassId.PROFILE_GENERIC.getClassId()));
             List<ChannelInfo> channelInfos = this.channelInfoReader.getChannelInfo(protocol, lpr, pg);
             lpc.setSupportedByMeter(true);
             lpc.setChannelInfos(channelInfos);

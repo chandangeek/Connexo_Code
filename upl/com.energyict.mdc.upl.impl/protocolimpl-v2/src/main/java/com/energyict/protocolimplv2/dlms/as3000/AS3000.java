@@ -1,11 +1,7 @@
 package com.energyict.protocolimplv2.dlms.as3000;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ComChannelType;
-import com.energyict.mdc.protocol.SerialPortComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
@@ -24,7 +20,6 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
@@ -45,9 +40,7 @@ import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedR
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLogBookReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
-import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -60,7 +53,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
-                new ManufacturerInformation(Manufacturer.Elster), "15-10-2020", "AS3000"), new AS3000Properties());
+                new ManufacturerInformation(Manufacturer.Elster), "13-10-2021", "AS3000"), new AS3000Properties());
         this.nlsService = nlsService;
         this.converter = converter;
     }
@@ -88,20 +81,9 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
-        if (comChannel.getComChannelType() == ComChannelType.OpticalComChannel) {
-            hhuSignOn = getHHUSignOn((SerialPortComChannel) comChannel);
-        }
         AS3000Properties dlmsSessionProperties = getDlmsSessionProperties();
-        super.handleFrameCounter(new AS3000PublicSessionProvider(comChannel, hhuSignOn, getLogger()));
-        setDlmsSession(new AS3000DlmsSession(comChannel, dlmsSessionProperties, hhuSignOn, getLogger()));
-    }
-
-    private HHUSignOnV2 getHHUSignOn(SerialPortComChannel serialPortComChannel) {
-        HHUSignOnV2 hhuSignOn = new IEC1107HHUSignOn(serialPortComChannel, getDlmsSessionProperties());
-        hhuSignOn.setMode(HHUSignOn.MODE_MANUFACTURER_SPECIFIC_SEVCD);
-        hhuSignOn.setProtocol(HHUSignOn.PROTOCOL_HDLC);
-        hhuSignOn.enableDataReadout(false);
-        return hhuSignOn;
+        super.handleFrameCounter(new AS3000PublicSessionProvider(comChannel, getLogger()));
+        setDlmsSession(new AS3000DlmsSession(comChannel, dlmsSessionProperties, getLogger()));
     }
 
     @Override
@@ -116,8 +98,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     @Override
     public List<? extends ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.asList(new OutboundTcpIpConnectionType(getPropertySpecService()),
-                new SioOpticalConnectionType(getPropertySpecService()), new RxTxOpticalConnectionType(getPropertySpecService()));
+        return Collections.singletonList(new OutboundTcpIpConnectionType(getPropertySpecService()));
     }
 
     @Override
