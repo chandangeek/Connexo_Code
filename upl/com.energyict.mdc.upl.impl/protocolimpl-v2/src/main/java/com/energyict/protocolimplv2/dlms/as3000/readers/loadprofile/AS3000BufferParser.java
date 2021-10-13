@@ -56,7 +56,6 @@ public class AS3000BufferParser implements BufferParser {
         // Due to CXO-13002 we need to alter the value, however keeping the change only to seconds and bellow units. If offset is larger then store job will fail when storing the values...
         if (structure.isOctetString(0)) {
             Calendar calendar = structure.getOctetString(0).toCalendar(TimeZone.getDefault());
-            structure.isOctetString(0);
             calendar.set(Calendar.SECOND, 0);
             calendar.set(Calendar.MILLISECOND, 0);
             lastTimeStamp = calendar.getTime();
