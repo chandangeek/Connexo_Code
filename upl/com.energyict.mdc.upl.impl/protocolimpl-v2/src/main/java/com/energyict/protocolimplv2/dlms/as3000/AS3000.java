@@ -20,7 +20,6 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
-import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSAttribute;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractFacadeDlmsProtocol;
@@ -49,7 +48,6 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     private final NlsService nlsService;
     private final Converter converter;
-    private HHUSignOnV2 hhuSignOn;
 
     public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
