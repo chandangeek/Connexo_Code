@@ -37,7 +37,7 @@ public class AS3000Properties extends DlmsPropertiesFrameCounterSupport {
 
     @Override
     public int getServerLowerMacAddress() {
-        if (isOverwriteServerLowerMacAddress()) {
+        if (!isOverwriteServerLowerMacAddress()) {
             return super.getServerLowerMacAddress();
         }
         return createServerLowerMacAddress();

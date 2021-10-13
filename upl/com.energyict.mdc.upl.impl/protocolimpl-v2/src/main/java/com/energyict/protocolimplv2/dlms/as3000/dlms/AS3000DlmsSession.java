@@ -14,7 +14,7 @@ public class AS3000DlmsSession extends DlmsSession {
 
 
     public AS3000DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, Logger logger) {
-        super(comChannel, properties, "");
+        super(comChannel, properties, logger);
     }
 
     @Override
