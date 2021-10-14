@@ -1,9 +1,10 @@
 package com.energyict.protocolimplv2.dlms.as3000.readers.loadprofile;
 
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.LoadProfileReader;
@@ -19,12 +20,16 @@ import java.util.TimeZone;
  * This class should be used when you have timestamp (unix), status and value within buffer. No specific status mapping or other stuff.
  */
 public class AS3000BufferParser implements BufferParser {
+    private Date lastTimeStamp;
+    private int loadProfileIntervalInSeconds;
+
     @Override
     public List<IntervalData> parse(DataContainer buffer, CollectedLoadProfileConfiguration collectedLoadProfileConfiguration, LoadProfileReader lpr) throws ProtocolException {
         List<IntervalData> intervalData = new ArrayList<>();
         Object[] loadProfileEntries;
         loadProfileEntries = buffer.getRoot().getElements();
 
+        loadProfileIntervalInSeconds = collectedLoadProfileConfiguration.getProfileInterval();
         for (int index = 0; index < loadProfileEntries.length; index++) {
             DataStructure structure = buffer.getRoot().getStructure(index);
             readStructure(intervalData, structure);
@@ -49,9 +54,17 @@ public class AS3000BufferParser implements BufferParser {
 
     private Date getTimeStamp(DataStructure structure) {
         // Due to CXO-13002 we need to alter the value, however keeping the change only to seconds and bellow units. If offset is larger then store job will fail when storing the values...
-        Calendar calendar = structure.getOctetString(0).toCalendar(TimeZone.getDefault());
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
-        return calendar.getTime();
+        if (structure.isOctetString(0)) {
+            Calendar calendar = structure.getOctetString(0).toCalendar(TimeZone.getDefault());
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            lastTimeStamp = calendar.getTime();
+        } else {
+            Calendar calendar = Calendar.getInstance(TimeZone.getDefault());
+            calendar.setTime(lastTimeStamp);
+            calendar.add(Calendar.SECOND, loadProfileIntervalInSeconds);
+            lastTimeStamp = calendar.getTime();
+        }
+        return lastTimeStamp;
     }
 }

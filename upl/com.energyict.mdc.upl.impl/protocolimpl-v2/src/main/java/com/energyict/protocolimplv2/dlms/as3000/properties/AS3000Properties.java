@@ -3,18 +3,21 @@ package com.energyict.protocolimplv2.dlms.as3000.properties;
 import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.common.properties.DlmsPropertiesFrameCounterSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.math.BigDecimal;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERTY;
-import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_ADDRESS;
 
 public class AS3000Properties extends DlmsPropertiesFrameCounterSupport {
 
+    private static int SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH = 2;
+    private static int SERIAL_NUMBER_TO_MAC_ADDRESS_OFFSET = 16;
+
+    public static final String OVERWRITE_SERVER_LOWER_MAC_ADDRESS = "OverwriteServerLowerMacAddress";
 
     public ObisCode frameCounterObisCode() {
         return FrameCounterProvider.getDefaultObisCode();
@@ -34,7 +37,26 @@ public class AS3000Properties extends DlmsPropertiesFrameCounterSupport {
 
     @Override
     public int getServerLowerMacAddress() {
-        return parseBigDecimalProperty(SERVER_LOWER_MAC_ADDRESS, BigDecimal.valueOf(85));
+        if (!isOverwriteServerLowerMacAddress()) {
+            return super.getServerLowerMacAddress();
+        }
+        return createServerLowerMacAddress();
+    }
+
+    private int createServerLowerMacAddress() {
+        String serialNumber = getSerialNumber();
+        if (serialNumber != null && serialNumber.length() >= SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH) {
+            try {
+                String macAddress = serialNumber.substring(serialNumber.length() - SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH);
+                return Integer.parseInt(macAddress) + SERIAL_NUMBER_TO_MAC_ADDRESS_OFFSET;
+            } catch (NumberFormatException e) {
+            }
+        }
+        throw DeviceConfigurationException.invalidPropertyFormat(DlmsProtocolProperties.SYSTEM_IDENTIFIER, serialNumber, "Last " + SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH + " characters should be a number");
+    }
+
+    public boolean isOverwriteServerLowerMacAddress() {
+        return getProperties().<Boolean>getTypedProperty(OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false);
     }
 
     public boolean flushCachedObjectList() {

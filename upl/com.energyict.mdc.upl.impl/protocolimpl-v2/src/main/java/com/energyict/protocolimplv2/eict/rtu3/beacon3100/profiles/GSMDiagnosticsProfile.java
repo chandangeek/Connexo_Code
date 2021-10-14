@@ -107,7 +107,7 @@ public class GSMDiagnosticsProfile extends AbstractHardcodedProfileParser {
         List<ChannelInfo> channelInfos = new ArrayList<ChannelInfo>();
 
         int ch = 0;
-        channelInfos.add(new ChannelInfo(ch++, Clock.getDefaultObisCode().toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), true));
+        //channelInfos.add(new ChannelInfo(ch++, Clock.getDefaultObisCode().toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), true));
 
         channelInfos.add(new ChannelInfo(ch++, GSM_MONITORING_PROFILE_1_STATUS.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
         channelInfos.add(new ChannelInfo(ch++, GSM_MONITORING_PROFILE_2_PS_STATUS.toString(), Unit.getUndefined(), lpc.getMeterSerialNumber(), false));
