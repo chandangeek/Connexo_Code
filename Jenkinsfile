@@ -170,7 +170,7 @@ pipeline {
                     // Clean out specific directory that has issues
                     runMaven("-pl coko/com.elster.jupiter.calendar clean")
                     // Static code analysis
-                    runMaven("compile spotbugs:spotbugs pmd:pmd checkstyle:checkstyle -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
+                    runMaven("compile spotbugs:spotbugs pmd:pmd -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
                   }
                   stash name:"bug_reports",
                         allowEmpty: true,
@@ -357,11 +357,7 @@ def getBranchVersion() {
     echo "releaseVersion set, use ${params.releaseVersion}"
     return params.releaseVersion.trim()
   }
-  if (env.BRANCH_NAME.startsWith('release') || env.BRANCH_NAME.startsWith('develop')) {
-    return ""
-  }
-  version = "1.0.0"
-  return "$version" + "-${env.BRANCH_NAME}-SNAPSHOT".replaceAll("[^A-Za-z0-9]", "-")
+  return ""
 }
 
 def getPomVersion() {
