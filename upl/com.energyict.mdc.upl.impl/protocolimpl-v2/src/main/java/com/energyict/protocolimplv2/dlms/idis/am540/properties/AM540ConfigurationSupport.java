@@ -218,7 +218,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      *
      * @return The property specification.
      */
-    protected final PropertySpec useUndefinedForClockStatus() {
+    protected PropertySpec useUndefinedForClockStatus() {
         return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_UNDEFINED_AS_CLOCK_STATUS, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_CLOCK_STATUS, getPropertySpecService()::booleanSpec)
                 .setDefaultValue(true)
                 .finish();
@@ -229,7 +229,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
      *
      * @return The property specification.
      */
-    protected final PropertySpec useUndefinedForTimeDeviation() {
+    protected PropertySpec useUndefinedForTimeDeviation() {
         return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_TIME_DEVIATION, getPropertySpecService()::booleanSpec)
                 .setDefaultValue(true)
                 .finish();

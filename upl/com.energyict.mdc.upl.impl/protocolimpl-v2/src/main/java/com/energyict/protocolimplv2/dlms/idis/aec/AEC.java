@@ -7,8 +7,6 @@ import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionTy
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -20,35 +18,23 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
-import com.energyict.obis.ObisCode;
-import com.energyict.protocol.exception.ConnectionCommunicationException;
-import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
-import com.energyict.protocolimplv2.dlms.acud.AcudDlmsSession;
 import com.energyict.protocolimplv2.dlms.idis.aec.messages.AECMessaging;
+import com.energyict.protocolimplv2.dlms.idis.aec.profiledata.AECProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.aec.properties.AECConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.aec.properties.AECDlmsProperties;
 import com.energyict.protocolimplv2.dlms.idis.aec.registers.AECRegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.AM500SecuritySupport;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
-import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
+import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
-import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
-import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
-import com.energyict.protocolimplv2.edp.EDPDlmsSession;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
-import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
-import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
-
-import static com.energyict.dlms.common.DlmsProtocolProperties.HDLC_STR;
 
 public class AEC extends AM540 {
 
@@ -73,6 +59,14 @@ public class AEC extends AM540 {
             registerFactory = new AECRegisterFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return registerFactory;
+    }
+
+    @Override
+    public IDISProfileDataReader getIDISProfileDataReader() {
+        if (idisProfileDataReader == null) {
+            idisProfileDataReader = new AECProfileDataReader(this, this.getCollectedDataFactory(), this.getIssueFactory(), getDlmsSessionProperties().getLimitMaxNrOfDays());
+        }
+        return idisProfileDataReader;
     }
 
     @Override
@@ -125,6 +119,14 @@ public class AEC extends AM540 {
             dlmsConfigurationSupport = getNewInstanceOfConfigurationSupport();
         }
         return dlmsConfigurationSupport;
+    }
+
+    @Override
+    protected DeviceProtocolSecurityCapabilities getSecuritySupport() {
+        if (dlmsSecuritySupport == null) {
+            dlmsSecuritySupport = new AECSecuritySupport(this.getPropertySpecService());
+        }
+        return dlmsSecuritySupport;
     }
 
     @Override
