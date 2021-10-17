@@ -362,7 +362,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
     private boolean requiredBackFillRead(LoadProfileCommand inboundCollectedLoadProfileReadCommand, List<ServerCollectedData> collectedData) {
         Device device = inboundCollectedLoadProfileReadCommand.getCommandRoot().getServiceProvider().deviceService()
                 .findDeviceByIdentifier(offlineDevice.getDeviceIdentifier()).orElseThrow(() -> new NotFoundException("Could not resolve device identifier: '" + offlineDevice.getDeviceIdentifier().toString() + "'"));
-        Instant installedDate = device.getLifecycleDates().getInstalledDate().orElseThrow(() -> new IllegalStateException("The device has not been installed active, the installation date has not been set"));
+        Optional<Instant> installedDate = device.getLifecycleDates().getInstalledDate();
+        if (!installedDate.isPresent()) {
+            logger.log(Level.WARNING, "Installation date hasn't been set. Disabling backfill. Please activate the device first.");
+            return false;
+        }
 
         for (LoadProfileReader reader : inboundCollectedLoadProfileReadCommand.getLoadProfileReaders()) {
             Optional<LoadProfile> loadProfileOptional = device.getLoadProfiles().stream().filter(lp -> lp.getObisCode().equals(reader.getProfileObisCode())).findFirst();
@@ -371,7 +375,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                     .findFirst();
             if (loadProfileOptional.isPresent() && collectedLoadProfile.isPresent()) {
                 Optional<Date> lastConsecutiveReadingDate = loadProfileOptional.get().getLastConsecutiveReading();
-                Instant lastConsecutiveReading = lastConsecutiveReadingDate.isPresent() ? lastConsecutiveReadingDate.get().toInstant() : installedDate;
+                if (!lastConsecutiveReadingDate.isPresent()) {
+                    logger.log(Level.WARNING, "Last consecutive reading hasn't been set on the load profile " +  loadProfileOptional.get().getObisCode() + ". Disabling backfill.");
+                    return false;
+                }
+                Instant lastConsecutiveReading = lastConsecutiveReadingDate.get().toInstant();
 
                 AtomicReference<Instant> firstReceived = new AtomicReference(collectedLoadProfile.get().getCollectedIntervalDataRange().lowerEndpoint());
                 offlineDevice.getAllOfflineLoadProfiles()

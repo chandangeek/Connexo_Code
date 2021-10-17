@@ -17,6 +17,10 @@ public class UpgraderV10_9_9 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        boolean columnExistedBefore =  dataModel.doesColumnExist(TableSpecs.DDC_LOADPROFILE.name(), "LASTCONSECUTIVEREADING");
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 9));
+        if (!columnExistedBefore) {
+            execute(dataModel, "UPDATE " + TableSpecs.DDC_LOADPROFILE.name() + " SET LASTCONSECUTIVEREADING = LASTREADING");
+        }
     }
 }
