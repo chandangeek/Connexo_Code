@@ -22,12 +22,13 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.protocolimplv2.dlms.idis.aec.events.AECLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.aec.messages.AECMessaging;
 import com.energyict.protocolimplv2.dlms.idis.aec.profiledata.AECProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.aec.properties.AECConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.aec.properties.AECDlmsProperties;
 import com.energyict.protocolimplv2.dlms.idis.aec.registers.AECRegisterFactory;
-import com.energyict.protocolimplv2.dlms.idis.am500.AM500SecuritySupport;
+import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
@@ -51,6 +52,14 @@ public class AEC extends AM540 {
             idisMessaging = new AECMessaging(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor(), this.getMessageFileExtractor(), this.getKeyAccessorTypeExtractor());
         }
         return idisMessaging;
+    }
+
+    @Override
+    protected IDISLogBookFactory getIDISLogBookFactory() {
+        if (idisLogBookFactory == null) {
+            idisLogBookFactory = new AECLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
+        }
+        return idisLogBookFactory;
     }
 
     @Override
