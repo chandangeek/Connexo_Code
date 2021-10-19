@@ -19,6 +19,7 @@ import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadBalanceDeviceMessage;
 import com.energyict.protocolimplv2.messages.LoadProfileMessage;
 import com.energyict.protocolimplv2.messages.LogBookDeviceMessage;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 
 import java.util.List;
@@ -49,12 +50,7 @@ public class AS3000GMessaging extends AM540Messaging {
         supportedMessages.add(DeviceActionMessage.BILLING_RESET.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(DeviceActionMessage.BillingDateConfiguration.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
 
-        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(FirmwareDeviceMessage.ENABLE_AND_INITIATE_IMAGE_TRANSFER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmware.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(FirmwareDeviceMessage.VerifyAndActivateFirmwareAtGivenDate.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(FirmwareDeviceMessage.ENABLE_IMAGE_TRANSFER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(FirmwareDeviceMessage.CONFIGURABLE_IMAGE_TRANSFER_WITH_RESUME_OPTION.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
 
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_ALL_LOAD_LIMIT_PARAMETERS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(LoadBalanceDeviceMessage.CONFIGURE_SUPERVISION_MONITOR.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
@@ -73,6 +69,9 @@ public class AS3000GMessaging extends AM540Messaging {
 
         supportedMessages.add(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+
+        supportedMessages.add(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+
 
         addContactorDeviceMessages(supportedMessages);
 

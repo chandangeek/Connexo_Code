@@ -12,6 +12,7 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.idis.am540.messages.AM540MessageExecutor;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
+import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 
 import java.io.IOException;
@@ -36,6 +37,8 @@ public class AS3000GMessageExecutor extends AM540MessageExecutor {
         } else { // if it was not a PLC message
             if (pendingMessage.getSpecification().equals(DeviceActionMessage.BillingDateConfiguration)) {
                 collectedMessage = billingDateConfiguration(collectedMessage, pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
+                executeImageTransferActions(pendingMessage);
             } else {
                 collectedMessage = super.executeMessage(pendingMessage, collectedMessage);
             }
