@@ -12,7 +12,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>copa</artifactId>
-        <version>9.0.0-Kratos-SNAPSHOT</version>
+        <version>9.0.1-Kratos-SNAPSHOT</version>
     </parent>
 
     <repositories>

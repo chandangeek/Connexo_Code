@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.as3000;
 
-import com.energyict.dlms.DLMSAttribute;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -20,6 +19,8 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
+
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractFacadeDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DeviceInformation;
@@ -39,7 +40,6 @@ import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileRead
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLogBookReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +51,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
-                new ManufacturerInformation(Manufacturer.Elster), "15-10-2020", "AS3000"), new AS3000Properties());
+                new ManufacturerInformation(Manufacturer.Elster), "13-10-2021", "AS3000"), new AS3000Properties());
         this.nlsService = nlsService;
         this.converter = converter;
     }
@@ -96,7 +96,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     @Override
     public List<? extends ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.asList(new OutboundTcpIpConnectionType(getPropertySpecService()));
+        return Collections.singletonList(new OutboundTcpIpConnectionType(getPropertySpecService()));
     }
 
     @Override
@@ -157,10 +157,10 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
     }
 
     protected ComposedMeterInfo getMeterInfo() {
-        return  new ComposedMeterInfo(getDlmsSession(),
-                    getDlmsSessionProperties().isBulkRequest(),
-                    getDlmsSessionProperties().getRoundTripCorrection(),
-                    getDlmsSessionProperties().getRetries(), DLMSAttribute.fromString("1:1.1.96.1.0.255:2"), DLMSAttribute.fromString("8:0.0.1.0.0.255:2"));
+        return new ComposedMeterInfo(getDlmsSession(),
+                getDlmsSessionProperties().isBulkRequest(),
+                getDlmsSessionProperties().getRoundTripCorrection(),
+                getDlmsSessionProperties().getRetries(), DLMSAttribute.fromString("1:1.1.96.1.0.255:2"), DLMSAttribute.fromString("8:0.0.1.0.0.255:2"));
     }
 
     @Override

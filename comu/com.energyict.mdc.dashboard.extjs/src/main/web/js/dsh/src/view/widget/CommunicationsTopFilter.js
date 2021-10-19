@@ -34,7 +34,12 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Dsh.store.filter.CommunicationTask',
-                itemId: 'com-task-filter'
+                itemId: 'com-task-filter',
+                listeners: {
+                    change: {
+                        fn: me.updateCommunicationTask
+                    }
+                }
             },
             {
                 type: 'combobox',
@@ -119,7 +124,12 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
                 displayField: 'name',
                 valueField: 'id',
                 store: 'Dsh.store.filter.CommunicationSchedule',
-                itemId: 'com-schedule-filter'
+                itemId: 'com-schedule-filter',
+                listeners: {
+                    change: {
+                        fn: me.updateSharedCommunicationTask
+                    }
+                }
             },
             {
                 type: 'interval',
@@ -190,6 +200,25 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             });
         } else {
             connectionTypeFilter.setDisabled(true);
+        }
+    },
+
+    updateCommunicationTask: function (combo, newValue){
+        var comScheduleFilter = combo.up('dsh-view-widget-communicationstopfilter').down('#com-schedule-filter');
+        if(newValue.length > 0) {
+            comScheduleFilter.disable();
+        } else {
+            comScheduleFilter.enable();
+        }
+    },
+
+    updateSharedCommunicationTask: function (combo, newValue){
+        //com-task-filter
+        var comTaskFilter = combo.up('dsh-view-widget-communicationstopfilter').down('#com-task-filter');
+        if(newValue.length > 0) {
+            comTaskFilter.disable();
+        } else {
+            comTaskFilter.enable();
         }
     }
 

@@ -83,7 +83,7 @@ public class CryptoHS3300 extends HS3300 {
 
     @Override
     protected void readFrameCounterSecure(ComChannel comChannel) {
-        getLogger().info("Reading frame counter using secure method");
+        getLogger().info(getLogPrefix()+"Reading frame counter using secure method (HSM validation)");
 
         byte[] authenticationKeyBytes = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();
         final IrreversibleKey authKey = IrreversibleKeyImpl.fromByteArray(authenticationKeyBytes);
@@ -99,24 +99,26 @@ public class CryptoHS3300 extends HS3300 {
         final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
         final long frameCounter;
 
-        publicDlmsSession.getDlmsV2Connection().connectMAC();
-        publicDlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
-
         try {
+            publicDlmsSession.getDlmsV2Connection().connectMAC();
+            publicDlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+
             FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
             frameCounterProvider.setSkipValidation(getDlmsSessionProperties().skipFramecounterAuthenticationTag());
 
             frameCounter = frameCounterProvider.getFrameCounterHSM(authKey);
 
-            getLogger().info("The read-out frame-counter is: " + frameCounter);
+            getLogger().info(getLogPrefix()+"The read-out frame-counter is: " + frameCounter);
+
+            publicDlmsSession.disconnect();
 
         } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
+            getLogger().severe(getLogPrefix()+" I/O Exception while reading the secure frame-counter: "+e.getMessage());
+            throw DLMSIOExceptionHandler.handleRecoverable(e, publicDlmsSession.getProperties().getRetries() + 1);
         } catch (Exception e) {
+            getLogger().severe(getLogPrefix()+" Exception while reading the secure frame-counter: "+e.getMessage());
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the secure frame counter, cannot continue! " + e.getMessage());
-            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
-        } finally {
-            publicDlmsSession.disconnect();
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection still intact
         }
 
         // Set TX frame counter
