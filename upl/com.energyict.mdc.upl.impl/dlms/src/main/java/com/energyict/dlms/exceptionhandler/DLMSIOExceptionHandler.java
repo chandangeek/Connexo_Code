@@ -94,7 +94,7 @@ public class DLMSIOExceptionHandler {
      * Indicates whether or not the given {@link IOException} is a {@link DataAccessResultCode#TEMPORARY_FAILURE}.
      *
      * @param e The {@link IOException}.
-     * @return <code>true</code> if the {@link IOException} is in fact a {@link DataAccessResultCode#TEMPORARY_FAILURE}, <code>false</code> otherwise.
+     * @return        <code>true</code> if the {@link IOException} is in fact a {@link DataAccessResultCode#TEMPORARY_FAILURE}, <code>false</code> otherwise.
      */
     public static final boolean isTemporaryFailure(final IOException e) {
         if (e instanceof DataAccessResultException) {
@@ -108,7 +108,7 @@ public class DLMSIOExceptionHandler {
      * Checks whether the returned error is an authorization error (basically an R/W denied).
      *
      * @param e The IO error.
-     * @return <code>true</code> if this concerns an authorization problem, <code>false</code> if not.
+     * @return        <code>true</code> if this concerns an authorization problem, <code>false</code> if not.
      */
     public static final boolean isAuthorizationProblem(final IOException e) {
         Throwable t = e;

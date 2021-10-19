@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.common.writers.impl;
 
 import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -10,6 +11,8 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 
@@ -33,7 +36,14 @@ public class RemoteDisconnect extends AbstractMessage {
     @Override
     public CollectedMessage execute(OfflineDeviceMessage message) {
         try {
-            dlmsProtocol.getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
+            TypeEnum controlMode = dlmsProtocol.getDlmsSession().getCosemObjectFactory().getDisconnector().getControlMode();
+            if (controlMode != null && !(controlMode.getValue() == 2)) {
+                controlMode.setValue(1);
+                dlmsProtocol.getDlmsSession().getCosemObjectFactory().getDisconnector().writeControlMode(controlMode);
+                dlmsProtocol.getDlmsSession().getCosemObjectFactory().getDisconnector().remoteDisconnect();
+            } else if (controlMode == null) {
+                throw new ProtocolException("Wrong control mode: " + controlMode);
+            }
             return super.createConfirmedCollectedMessage(message);
         } catch (NotInObjectListException e) {
             return super.createNotSupportedMessage(message);

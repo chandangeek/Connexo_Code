@@ -86,17 +86,18 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 
 public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport, AdvancedDeviceProtocolSecurityCapabilities {
 
-    protected static final int MANAGEMENT_CLIENT = 1;
+    protected static final int MANAGEMENT_CLIENT   = 1;
     protected static final int DATA_READOUT_CLIENT = 2;
-    protected static final int PLC_CLIENT = 4;
-    protected static final int PUBLIC_CLIENT = 16;
+    protected static final int PLC_CLIENT          = 4;
+    protected static final int PUBLIC_CLIENT       = 16;
 
-    private static final ObisCode FC_MANAGEMENT = ObisCode.fromString("0.0.43.1.1.255");
+    private static final ObisCode FC_MANAGEMENT   = ObisCode.fromString("0.0.43.1.1.255");
     private static final ObisCode FC_DATA_READOUT = ObisCode.fromString("0.0.43.1.2.255");
-    private static final ObisCode FC_PLC_CLIENT = ObisCode.fromString("0.0.43.1.4.255");
+    private static final ObisCode FC_PLC_CLIENT   = ObisCode.fromString("0.0.43.1.4.255");
 
     private static final EndDeviceType typeMeter = EndDeviceType.ELECTRICMETER;
 
@@ -123,12 +124,12 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                   DeviceMessageFileExtractor messageFileExtractor, CertificateWrapperExtractor certificateWrapperExtractor,
                   KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
-        this.calendarExtractor = calendarExtractor;
-        this.nlsService = nlsService;
-        this.converter = converter;
-        this.messageFileExtractor = messageFileExtractor;
+        this.calendarExtractor           = calendarExtractor;
+        this.nlsService                  = nlsService;
+        this.converter                   = converter;
+        this.messageFileExtractor        = messageFileExtractor;
         this.certificateWrapperExtractor = certificateWrapperExtractor;
-        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
+        this.keyAccessorTypeExtractor    = keyAccessorTypeExtractor;
     }
 
     @Override
