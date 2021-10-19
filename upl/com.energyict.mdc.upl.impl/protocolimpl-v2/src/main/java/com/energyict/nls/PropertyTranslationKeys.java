@@ -368,7 +368,10 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_USE_REGISTER_PROFILE("upl.property.v2.eict.useRegisterProfile", "Use register profile"),
     TIME_INTERVAL_OVER_CLOCK_SYNC("upl.property.v2.eict.TIME_INTERVAL_OVER_CLOCK_SYNC", "Skip clock synchronization around time intervals"),
     IPV6_ADDRESS_AND_PREFIX_LENGTH("upl.property.v2.eict.IPV6_ADDRESS_AND_PREFIX_LENGTH", "IPv6 address and prefix length"),
-    EEK_STORAGE_LABEL("upl.property.v2.eict.EEK_STORAGE_LABEL", "Ephemeral encryption key storage label");
+    EEK_STORAGE_LABEL("upl.property.v2.eict.EEK_STORAGE_LABEL", "Ephemeral encryption key storage label"),
+    V2_TOPOLOGY_UPDATE_IPV6("upl.property.v2.eict.topology.updateIPv6","Update IPv6 on topology update"),
+    V2_TOPOLOGY_DO_PATH_REQUEST("upl.property.v2.eict.topology.request.path","Do path requests on topology update"),
+    V2_TOPOLOGY_DO_ROUTE_REQUEST("upl.property.v2.eict.topology.request.route","Do route requests on topology update");
 
     private final String key;
     private final String defaultFormat;

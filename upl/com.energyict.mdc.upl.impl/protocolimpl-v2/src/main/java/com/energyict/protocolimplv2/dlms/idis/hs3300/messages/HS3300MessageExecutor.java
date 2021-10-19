@@ -111,7 +111,8 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
                     collectedMessage.setDeviceProtocolInformation(e.getMessage());
                     collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
                 }
-                throw e;
+                final ProtocolException protocolException = new ProtocolException(e, "Error while executing message:"+pendingMessage.getSpecification().getName()+ ": " + e.getMessage());
+                throw com.energyict.protocol.exception.ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
             }
             result.addCollectedMessage(collectedMessage);
         }
