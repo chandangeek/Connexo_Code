@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.aec.profiledata;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSAttribute;
@@ -17,6 +18,8 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.IntervalStateBits;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
@@ -25,9 +28,11 @@ import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataR
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<AEC> {
     private static final ObisCode HALF_HOURLY_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.1.255");
@@ -50,6 +55,32 @@ public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<
         }
         return false;
     }
+
+    @Override
+    protected int getEiServerStatus(int protocolStatus) {
+        int status = IntervalStateBits.OK;
+        if ((protocolStatus & 0x80) == 0x80) {
+            status = status | IntervalStateBits.POWERDOWN;
+        }
+        if ((protocolStatus & 0x20) == 0x20) {
+            status = status | IntervalStateBits.SHORTLONG;
+        }
+        if ((protocolStatus & 0x08) == 0x08) {
+            status = status | IntervalStateBits.OTHER;
+        }
+        if ((protocolStatus & 0x04) == 0x04) {
+            status = status | IntervalStateBits.CORRUPTED;
+        }
+        if ((protocolStatus & 0x02) == 0x02) {
+            status = status | IntervalStateBits.BADTIME;
+        }
+        if ((protocolStatus & 0x01) == 0x01) {
+            status = status | IntervalStateBits.DEVICE_ERROR;
+        }
+        return status;
+    }
+
+
 
     @Override
     public Map<ObisCode, Unit> readUnits(ObisCode correctedLoadProfileObisCode, List<ObisCode> channelObisCodes) throws ProtocolException {
@@ -117,5 +148,18 @@ public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<
         return result;
     }
 
+    @Override
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfileReaders) {
+        List<CollectedLoadProfile> collectedLoadProfiles = super.getLoadProfileData(loadProfileReaders);
+        for (CollectedLoadProfile profile : collectedLoadProfiles) {
+             List<IntervalData> intervalData = profile.getCollectedIntervalData().stream().filter(id ->  {
+                 Calendar cal = Calendar.getInstance();
+                 cal.setTime(id.getEndTime());
+                 return cal.get(Calendar.MINUTE) == 30 || cal.get(Calendar.MINUTE) == 0;
+             }).collect(Collectors.toList());
+            profile.setCollectedIntervalData(intervalData, profile.getChannelInfo());
+        }
+        return collectedLoadProfiles;
+    }
 
 }
