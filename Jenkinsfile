@@ -120,9 +120,7 @@ pipeline {
                   publisherStrategy: 'EXPLICIT',
                   options: [openTasksPublisher()],
                   mavenLocalRepo: MAVEN_REPO) {
-                catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
-                  runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
-                }
+                runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
                 //  These stashes are really too large. Need to find another way to do this...
                 stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
                 stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
@@ -144,6 +142,9 @@ pipeline {
           }
           stages {
             stage('Static') {
+              when {
+                expression { currentBuild.currentResult == "SUCCESS" }
+              }
               environment {
                 DIRECTORIES = "$DIRECTORIES"
                 EXTRA_PARAMS = getMavenExtras()
@@ -273,7 +274,7 @@ pipeline {
         label 'coverity'
       }
       when {
-        expression { params.runAnalysis }
+        expression { params.runAnalysis && currentBuild.currentResult == "SUCCESS" }
       }
       environment {
         STREAM = getCoverityStream()
