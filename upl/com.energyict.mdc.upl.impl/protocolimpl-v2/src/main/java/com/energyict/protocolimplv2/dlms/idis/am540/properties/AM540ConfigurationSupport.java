@@ -160,11 +160,11 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
         return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.SHORT_ADDRESS_PAN, false, PropertyTranslationKeys.V2_SHORT_ADDRESS_PAN, getPropertySpecService()::bigDecimalSpec).finish();
     }
 
-    private PropertySpec ipV6Address() {
+    protected PropertySpec ipV6Address() {
         return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.IP_V6_ADDRESS, false, PropertyTranslationKeys.V2_IP_V6_ADDRESS, this.getPropertySpecService()::stringSpec).finish();
     }
 
-    private PropertySpec ipV4Address() {
+    protected PropertySpec ipV4Address() {
         return UPLPropertySpecFactory.specBuilder(AM540ConfigurationSupport.IP_V4_ADDRESS, false, PropertyTranslationKeys.V2_IP_V4_ADDRESS, this.getPropertySpecService()::stringSpec).finish();
     }
 
@@ -333,7 +333,7 @@ public class AM540ConfigurationSupport extends AM130ConfigurationSupport {
                 .finish();
     }
 
-    private PropertySpec bigDecimalSpec(String name, boolean required, TranslationKey translationKey, BigDecimal defaultValue, BigDecimal... validValues) {
+    protected PropertySpec bigDecimalSpec(String name, boolean required, TranslationKey translationKey, BigDecimal defaultValue, BigDecimal... validValues) {
         PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);

@@ -17,8 +17,6 @@ public class AS3000GStandardEventLog extends StandardEventLog {
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
-            case 7:
-                break; // block 7th event because AS3000G not support it
             case 52:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.UNEXPECTED_CONSUMPTION, eventId, "Unexpected consumption"));
                 break;
