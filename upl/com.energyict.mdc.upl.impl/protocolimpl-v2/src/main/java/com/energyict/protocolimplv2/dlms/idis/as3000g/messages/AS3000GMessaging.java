@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.AS3000G.messages;
+package com.energyict.protocolimplv2.dlms.idis.as3000g.messages;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -36,7 +36,7 @@ public class AS3000GMessaging extends AM540Messaging {
 
     @Override
     protected List<DeviceMessageSpec> addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
-        supportedMessages.add(AlarmConfigurationMessage.WRITE_FILTER_FOR_ALARM_REGISTER_1_OR_2.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(AlarmConfigurationMessage.WRITE_FILTER_FOR_ALARM_REGISTER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
 
         supportedMessages.add(DeviceActionMessage.BILLING_RESET.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));

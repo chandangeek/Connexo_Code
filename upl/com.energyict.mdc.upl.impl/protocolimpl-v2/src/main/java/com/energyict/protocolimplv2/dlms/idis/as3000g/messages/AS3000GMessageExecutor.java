@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.AS3000G.messages;
+package com.energyict.protocolimplv2.dlms.idis.as3000g.messages;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;

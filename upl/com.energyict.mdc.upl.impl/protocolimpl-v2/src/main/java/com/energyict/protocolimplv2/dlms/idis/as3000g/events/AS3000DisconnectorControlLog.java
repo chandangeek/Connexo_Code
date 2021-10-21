@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.AS3000G.events;
+package com.energyict.protocolimplv2.dlms.idis.as3000g.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;

@@ -1,9 +1,6 @@
-package com.energyict.protocolimplv2.dlms.idis.AS3000G;
+package com.energyict.protocolimplv2.dlms.idis.as3000g;
 
-import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -14,11 +11,11 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.protocolimplv2.dlms.idis.AS3000G.events.AS3000GLogBookFactory;
-import com.energyict.protocolimplv2.dlms.idis.AS3000G.messages.AS3000GMessaging;
-import com.energyict.protocolimplv2.dlms.idis.AS3000G.properties.AS3000GConfigurationSupport;
-import com.energyict.protocolimplv2.dlms.idis.AS3000G.properties.AS3000GProperties;
-import com.energyict.protocolimplv2.dlms.idis.AS3000G.registers.AS3000GRegisterFactory;
+import com.energyict.protocolimplv2.dlms.idis.as3000g.events.AS3000GLogBookFactory;
+import com.energyict.protocolimplv2.dlms.idis.as3000g.messages.AS3000GMessaging;
+import com.energyict.protocolimplv2.dlms.idis.as3000g.properties.AS3000GConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.as3000g.properties.AS3000GProperties;
+import com.energyict.protocolimplv2.dlms.idis.as3000g.registers.AS3000GRegisterFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.AS3000G.properties;
+package com.energyict.protocolimplv2.dlms.idis.as3000g.properties;
 
 import com.energyict.dlms.CipheringType;
 import com.energyict.dlms.DLMSConnectionException;

@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.AS3000G.events;
+package com.energyict.protocolimplv2.dlms.idis.as3000g.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -6,12 +6,8 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterEvent;
 import com.energyict.protocol.MeterProtocolEvent;
-import com.energyict.protocolimpl.dlms.idis.events.DisconnectorControlLog;
-import com.energyict.protocolimpl.dlms.idis.events.PowerFailureEventLog;
-import com.energyict.protocolimplv2.dlms.idis.AS3000G.AS3000G;
-import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130CommunicationLog;
+import com.energyict.protocolimplv2.dlms.idis.as3000g.AS3000G;
 import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130LogBookFactory;
-import com.energyict.protocolimplv2.dlms.idis.am130.events.AM130PowerQualityEventLog;
 
 import java.util.List;
 import java.util.stream.Collectors;
