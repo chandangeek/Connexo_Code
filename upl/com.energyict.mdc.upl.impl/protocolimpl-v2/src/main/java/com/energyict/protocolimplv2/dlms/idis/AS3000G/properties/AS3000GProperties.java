@@ -19,10 +19,7 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_LOWER_MAC_
 import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
 import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOCOL_DIALECT;
 
-/**
- * @author sva
- * @since 11/08/2015 - 15:04
- */
+
 public class AS3000GProperties extends AM540Properties {
 
     private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
@@ -119,31 +116,9 @@ public class AS3000GProperties extends AM540Properties {
         return getProperties().getTypedProperty(AS3000GConfigurationSupport.AARQ_TIMEOUT_PROPERTY, AS3000GConfigurationSupport.DEFAULT_NOT_USED_AARQ_TIMEOUT).toMillis();
     }
 
-    /**
-     * A timeout (lack of response from the AM540) should be handled differently according to the context:
-     * - in case of G3 gateway mode, you can still read out the next physical slave devices if one slave device does not reply.
-     * - in case of Beacon DC mode (reading out 'mirror' logical devices), a timeout is fatal, the next physical slaves cannot be read out.
-     * - in case of a serial connection we should fail on a timeout
-     */
     @Override
     public boolean timeoutMeansBrokenConnection() {
-        return useBeaconMirrorDeviceDialect() || useSerialDialect();
-    }
-
-    public boolean useMeterInTransparentMode() {
-        return getProperties().getTypedProperty(AS3000GConfigurationSupport.USE_METER_IN_TRANSPARENT_MODE, false);
-    }
-
-    public int getTransparentConnectTime() {
-        return getProperties().getTypedProperty(AS3000GConfigurationSupport.TRANSP_CONNECT_TIME, BigDecimal.valueOf(10)).intValue();
-    }
-
-    public String getTransparentPassword() {
-        return getProperties().getTypedProperty(AS3000GConfigurationSupport.PASSWORD, "00000000");
-    }
-
-    public String getTransparentSecurityLevel() {
-        return getProperties().getTypedProperty(AS3000GConfigurationSupport.METER_SECURITY_LEVEL, "1:0");
+        return true;
     }
 
     public boolean getRequestAuthenticatedFrameCounter() {
