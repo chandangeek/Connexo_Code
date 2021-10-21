@@ -32,6 +32,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<AEC> {
@@ -66,7 +67,7 @@ public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<
             status = status | IntervalStateBits.SHORTLONG;
         }
         if ((protocolStatus & 0x08) == 0x08) {
-            status = status | IntervalStateBits.OTHER;
+            status = status | IntervalStateBits.OTHER; // DST
         }
         if ((protocolStatus & 0x04) == 0x04) {
             status = status | IntervalStateBits.CORRUPTED;
@@ -155,7 +156,12 @@ public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<
              List<IntervalData> intervalData = profile.getCollectedIntervalData().stream().filter(id ->  {
                  Calendar cal = Calendar.getInstance();
                  cal.setTime(id.getEndTime());
-                 return cal.get(Calendar.MINUTE) == 30 || cal.get(Calendar.MINUTE) == 0;
+                 if (cal.get(Calendar.MINUTE) == 30 || cal.get(Calendar.MINUTE) == 0) {
+                     return true;
+                 }
+                 protocol.journal(Level.WARNING, "Removing the out-of-interval reading at " + id.getEndTime() + " with reading qualities "
+                          + id.getIntervalValues().stream().flatMap(iv -> iv.getReadingQualityTypes().stream()).collect(Collectors.toSet()));
+                 return false;
              }).collect(Collectors.toList());
             profile.setCollectedIntervalData(intervalData, profile.getChannelInfo());
         }
