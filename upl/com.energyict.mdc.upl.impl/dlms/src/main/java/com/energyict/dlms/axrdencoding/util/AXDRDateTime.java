@@ -171,10 +171,10 @@ public class AXDRDateTime extends AbstractDataType {
         int deviation = 0;
         if ((berEncodedData[offset + 11] != NO_DEVIATION[0]) || (berEncodedData[offset + 12] != NO_DEVIATION[1])) {
             int tOffset = (short) ProtocolUtils.getInt(berEncodedData, offset + 11, 2);
-            deviation = tOffset / SECONDS_PER_MINUTE;
+            deviation = tOffset;
         }
 
-        TimeZone tz = new SimpleTimeZone(deviationType.getGmtOffset(deviation) * 3600 * 1000, deviationType.getGmtNotation(deviation));
+        TimeZone tz = new SimpleTimeZone(deviationType.getGmtOffset(deviation) * SECONDS_PER_MINUTE * 1000, deviationType.getGmtNotation(deviation));
         dateTime = Calendar.getInstance(tz);
 
         int year = ProtocolUtils.getShort(berEncodedData, ptr);

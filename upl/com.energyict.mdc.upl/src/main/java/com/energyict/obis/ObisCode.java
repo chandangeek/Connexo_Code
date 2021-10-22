@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
         include = JsonTypeInfo.As.PROPERTY,
         property = "type")
 @XmlAccessorType(XmlAccessType.NONE)
-public class ObisCode implements Serializable {
+public class ObisCode implements Serializable, Comparable<ObisCode> {
 
     public static final int CODE_D_CUMULATIVE_MAXUMUM_DEMAND = 2;
     public static final int CODE_D_RISING_DEMAND = 4;
@@ -388,5 +388,10 @@ public class ObisCode implements Serializable {
         }
 
         return ObisCode.fromString( String.join(".", obisLetters) );
+    }
+
+    @Override
+    public int compareTo(ObisCode o) {
+        return this.toString().compareTo(o.toString());
     }
 }

@@ -405,6 +405,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     EI4_UMI(337, "com.energyict.protocolimplv2.umi.ei4.EI4Umi"),
 
+    AS3000G( 339, "com.energyict.protocolimplv2.dlms.idis.as3000g.AS3000G" ),
     ISKRA_AM550(340, "com.energyict.protocolimplv2.dlms.idis.iskra.am550.AM550"),
 
     // Deprecated

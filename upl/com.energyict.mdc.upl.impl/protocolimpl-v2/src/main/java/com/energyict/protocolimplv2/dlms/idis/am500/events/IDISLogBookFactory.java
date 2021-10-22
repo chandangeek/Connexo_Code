@@ -28,9 +28,11 @@ import com.energyict.protocolimpl.utils.ProtocolUtils;
 import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 
 import java.io.IOException;
+import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TreeSet;
 
 /**
  * Copyrights EnergyICT
@@ -53,7 +55,7 @@ public class IDISLogBookFactory<T extends AM500> implements DeviceLogBookSupport
     /**
      * List of obiscodes of the supported log books
      */
-    protected final List<ObisCode> supportedLogBooks;
+    protected final AbstractSet<ObisCode> supportedLogBooks;
     protected final AM500 protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
@@ -62,7 +64,7 @@ public class IDISLogBookFactory<T extends AM500> implements DeviceLogBookSupport
         this.protocol = protocol;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
-        supportedLogBooks = new ArrayList<>();
+        supportedLogBooks = new TreeSet<>();
         supportedLogBooks.add(DISCONNECTOR_CONTROL_LOG);
         supportedLogBooks.add(STANDARD_EVENT_LOG);
         supportedLogBooks.add(FRAUD_DETECTION_LOG);
