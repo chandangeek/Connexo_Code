@@ -21,7 +21,7 @@ public class AECMessageExecutor extends AM540MessageExecutor {
 
     @Override
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
-        if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SetDST)) {
+        if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SetDSTCheckbox)) {
             enableDST(pendingMessage);
         } else {
             collectedMessage = super.executeMessage(pendingMessage, collectedMessage);

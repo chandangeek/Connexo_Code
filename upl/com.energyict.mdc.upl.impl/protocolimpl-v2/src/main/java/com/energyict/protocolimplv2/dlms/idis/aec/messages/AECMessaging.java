@@ -35,7 +35,7 @@ public class AECMessaging extends AM540Messaging {
     protected List<DeviceMessageSpec> addSupportedDeviceMessages(List<DeviceMessageSpec> supportedMessages) {
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_OPEN.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         supportedMessages.add(ContactorDeviceMessage.CONTACTOR_CLOSE.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
-        supportedMessages.add(ClockDeviceMessage.SetDST.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
+        supportedMessages.add(ClockDeviceMessage.SetDSTCheckbox.get(this.getPropertySpecService(), this.getNlsService(), this.getConverter()));
         return supportedMessages;
     }
 }
