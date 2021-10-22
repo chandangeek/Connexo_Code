@@ -142,7 +142,7 @@ public enum TableSpecs {
             Column mRIDColumn = table.column("MRID").varChar(NAME_LENGTH).map("mRID").add();
             table.column("NAME").varChar(NAME_LENGTH).map("name").add();
             table.column("ALIASNAME").varChar(NAME_LENGTH).map("aliasName").add();
-            table.column("DESCRIPTION").varChar(SHORT_DESCRIPTION_LENGTH).map("description").add();
+            table.column("DESCRIPTION").varChar(DESCRIPTION_LENGTH).map("description").add();
             table.column("DIRECTION").varChar(NAME_LENGTH).map("direction").add();
             table.column("EAEMAIL1").varChar(NAME_LENGTH).map("electronicAddress.email1").add();
             table.column("EAEMAIL2").varChar(NAME_LENGTH).map("electronicAddress.email2").add();
