@@ -120,9 +120,7 @@ pipeline {
                   publisherStrategy: 'EXPLICIT',
                   options: [openTasksPublisher()],
                   mavenLocalRepo: MAVEN_REPO) {
-                catchError(buildResult: 'FAILURE', message: 'FAILURE: Maven build did not complete properly', stageResult: 'UNSTABLE') {
-                  runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
-                }
+                runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
                 //  These stashes are really too large. Need to find another way to do this...
                 stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
                 stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
@@ -144,6 +142,9 @@ pipeline {
           }
           stages {
             stage('Static') {
+              when {
+                expression { currentBuild.currentResult == "SUCCESS" }
+              }
               environment {
                 DIRECTORIES = "$DIRECTORIES"
                 EXTRA_PARAMS = getMavenExtras()
@@ -170,7 +171,7 @@ pipeline {
                     // Clean out specific directory that has issues
                     runMaven("-pl coko/com.elster.jupiter.calendar clean")
                     // Static code analysis
-                    runMaven("compile spotbugs:spotbugs pmd:pmd checkstyle:checkstyle -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
+                    runMaven("compile spotbugs:spotbugs pmd:pmd -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
                   }
                   stash name:"bug_reports",
                         allowEmpty: true,
@@ -188,7 +189,7 @@ pipeline {
                              enabledForFailure: true,
                              qualityGates: [[threshold: 4, type: 'TOTAL_ERROR', unstable: false],
                                             [threshold: 77, type: 'TOTAL_HIGH', unstable: true],
-                                            [threshold: 22010, type: 'TOTAL_NORMAL', unstable: true]],
+                                            [threshold: 22030, type: 'TOTAL_NORMAL', unstable: true]],
                              tools: [junitParser(pattern: '**/Test-*.xml'),
                                      pmdParser(),
                                      checkStyle(),
@@ -273,7 +274,7 @@ pipeline {
         label 'coverity'
       }
       when {
-        expression { params.runAnalysis }
+        expression { params.runAnalysis && currentBuild.currentResult == "SUCCESS" }
       }
       environment {
         STREAM = getCoverityStream()
@@ -357,11 +358,7 @@ def getBranchVersion() {
     echo "releaseVersion set, use ${params.releaseVersion}"
     return params.releaseVersion.trim()
   }
-  if (env.BRANCH_NAME.startsWith('release') || env.BRANCH_NAME.startsWith('develop')) {
-    return ""
-  }
-  version = "1.0.0"
-  return "$version" + "-${env.BRANCH_NAME}-SNAPSHOT".replaceAll("[^A-Za-z0-9]", "-")
+  return ""
 }
 
 def getPomVersion() {

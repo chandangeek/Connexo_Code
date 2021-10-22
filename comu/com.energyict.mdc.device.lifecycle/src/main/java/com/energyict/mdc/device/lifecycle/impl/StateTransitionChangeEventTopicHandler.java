@@ -95,7 +95,7 @@ public class StateTransitionChangeEventTopicHandler implements TopicHandler {
             }
             case ACTIVE: {
                 lifecycleDates.setInstalledDate(effectiveTimestamp);
-                deviceService.findAndLockDeviceById(device.getId())
+                deviceService.findAndLockDeviceById(Long.parseLong(device.getAmrId()))
                         .ifPresent(d -> d.getLoadProfiles().forEach(lp -> lp.getUpdater().setLastConsecutiveReading(effectiveTimestamp).update()));
                 device.update();
                 break;
