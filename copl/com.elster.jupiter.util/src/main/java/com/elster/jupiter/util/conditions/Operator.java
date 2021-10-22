@@ -21,7 +21,7 @@ public enum Operator {
     LIKENVL("LIKE") {
         @Override
         public String getFormat() {
-            return "nvl({0}, ''''), LIKE ? ESCAPE ''\\''";
+            return "nvl({0}, '''') LIKE ? ESCAPE ''\\''";
         }
     },
     REGEXP_LIKE("REGEXP_LIKE") {
