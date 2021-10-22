@@ -41,6 +41,20 @@ public class DLMSIOExceptionHandler {
     }
 
     /**
+     * Throw the proper ComServer runtime exception - but recoverable connection, i.e. we're reading a slave device
+     */
+
+    public static com.energyict.protocol.exceptions.CommunicationException handleRecoverable(IOException e, int nbRetries) {
+        if (isUnexpectedResponse(e, nbRetries)) {
+            //Unexpected problem or response, but we can still communicate with the device
+            return CommunicationException.unexpectedResponse(e);
+        } else {
+            //We can no longer communicate with the device
+            return connectionCommunicationExceptionRecoverable(e, nbRetries);
+        }
+    }
+
+    /**
      * Indicates if the exception occurred because the meter returned an unexpected response.
      * In case of communication problem, throw the proper ComServer runtime exception.
      */
@@ -114,21 +128,6 @@ public class DLMSIOExceptionHandler {
         return false;
     }
 
-
-    /**
-     * Throw the proper ComServer runtime exception - but recoverable connection, i.e. we're reading a slave device
-     */
-
-    public static com.energyict.protocol.exceptions.CommunicationException handleRecoverable(IOException e, int nbRetries) {
-        if (isUnexpectedResponse(e, nbRetries)) {
-            //Unexpected problem or response, but we can still communicate with the device
-            return CommunicationException.unexpectedResponse(e);
-        } else {
-            //We can no longer communicate with the device
-            return connectionCommunicationExceptionRecoverable(e, nbRetries);
-        }
-    }
-
     private static com.energyict.protocol.exceptions.CommunicationException connectionCommunicationException(IOException e, int noRetries) {
         return ConnectionCommunicationException.numberOfRetriesReached(e, noRetries);
     }
@@ -136,7 +135,4 @@ public class DLMSIOExceptionHandler {
     private static com.energyict.protocol.exceptions.CommunicationException connectionCommunicationExceptionRecoverable(IOException e, int noRetries) {
         return ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, noRetries);
     }
-
-
-
 }

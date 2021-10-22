@@ -81,7 +81,6 @@ import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
-import java.net.*;
 import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Date;
@@ -139,16 +138,15 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
         this.serialNumber = offlineDevice.getSerialNumber();
         //getDeviceCache().setConnectionToBeaconMirror(getDlmsSessionProperties().useBeaconMirrorDeviceDialect());
-        getLogger().info(getLogPrefix()+" Starting protocol for " + offlineDevice.getSerialNumber() + " (version: " + getVersion()+")");
+        getLogger().info(getLogPrefix() + " Starting protocol for " + offlineDevice.getSerialNumber() + " (version: " + getVersion() + ")");
         handleFC(comChannel);
         initDlmsSession(comChannel);
-        getLogger().info(getLogPrefix()+"Protocol init successful");
+        getLogger().info(getLogPrefix() + "Protocol init successful");
     }
 
     protected String getLogPrefix() {
-        return "["+this.serialNumber+"] ";
+        return "[" + this.serialNumber + "] ";
     }
-
 
     protected void initDlmsSession(ComChannel comChannel) {
         setDlmsSession(new DlmsSession(comChannel, getDlmsSessionProperties(), getLogger()));
@@ -171,11 +169,12 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
             } else {
                 return getMeterInfo().getEquipmentIdentifier();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
             final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the serial number: " + e.getMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
         }
     }
+
 
     /**
      * Connect to the device and check the cached object list.
@@ -186,12 +185,13 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         checkCacheObjects();
     }
 
+
     @Override
     public void logOff() {
         if (getDlmsSession() != null) {
             try {
                 getDlmsSession().disconnect();
-            } catch (Exception e){
+            } catch (Exception e) {
                 final ProtocolException protocolException = new ProtocolException(e, "Error while disconnecting: " + e.getMessage());
                 throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
             }
@@ -200,7 +200,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public void daisyChainedLogOff() {
-        getLogger().info(getLogPrefix()+"Logging off");
+        getLogger().info(getLogPrefix() + "Logging off");
         logOff();
     }
 
@@ -215,7 +215,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         while (true) {
             ProtocolRuntimeException exception;
             try {
-                getLogger().info(getLogPrefix()+"Connecting with client "+dlmsSession.getProperties().getClientMacAddress()+" to "+dlmsSession.getProperties().getServerUpperMacAddress());
+                getLogger().info(getLogPrefix() + "Connecting with client " + dlmsSession.getProperties().getClientMacAddress() + " to " + dlmsSession.getProperties().getServerUpperMacAddress());
                 dlmsSession.getDLMSConnection().setRetries(0);   //Temporarily disable retries in the connection layer, AARQ retries are handled here
                 if (dlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_DISCONNECTED) {
                     dlmsSession.getDlmsV2Connection().connectMAC();
@@ -237,10 +237,10 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
             //Release and retry the AARQ in case of ACSE exception
             if (++tries > getDlmsSessionProperties().getAARQRetries()) {
-                getLogger().severe(getLogPrefix()+"Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
+                getLogger().severe(getLogPrefix() + "Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries.");
                 throw CommunicationException.protocolConnectFailed(exception);
             } else {
-                getLogger().info(getLogPrefix()+"Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                getLogger().info(getLogPrefix() + "Unable to establish association after [" + tries + "/" + (getDlmsSessionProperties().getAARQRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
                 } catch (ProtocolRuntimeException e) {
@@ -305,15 +305,21 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         final int clientId = getDlmsSessionProperties().getClientMacAddress();
 
         if ((getDeviceCache().getObjectList(clientId) == null) || readCache) {
-            getLogger().info(readCache ? (getLogPrefix()+"ReReadCache property is true, reading cache!")
-                                        : (getLogPrefix()+"The cache was empty, reading out the object list!"));
 
-            readObjectList();
+            getLogger().info(readCache ? (getLogPrefix() + "ReReadCache property is true, reading cache!")
+                    : (getLogPrefix() + "The cache was empty, reading out the object list!"));
+
+            try {
+                readObjectList();
+            } catch (Exception e) {
+                final ProtocolException protocolException = new ProtocolException(e, "Error while reading the object list: " + e.getMessage());
+                throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
+            }
 
             final UniversalObject[] objectList = getDlmsSession().getMeterConfig().getInstantiatedObjectList();
             getDeviceCache().setObjectList(clientId, objectList);
         } else {
-            getLogger().info(getLogPrefix()+"Cache exist, will not be read!");
+            getLogger().info(getLogPrefix() + "Cache exist, will not be read!");
         }
 
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(getDeviceCache().getObjectList(clientId));
@@ -341,119 +347,128 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
             long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
             int clientMacAddress = getDlmsSessionProperties().getClientMacAddress();
             getDeviceCache().setTXFrameCounter(clientMacAddress, frameCounter);
-            getLogger().info(getLogPrefix()+"Caching frameCounter=" + frameCounter + " for client=" + clientMacAddress);
-            getLogger().info(getLogPrefix()+"Connection terminated");
+            getLogger().info(getLogPrefix() + "Caching frameCounter=" + frameCounter + " for client=" + clientMacAddress);
+            getLogger().info(getLogPrefix() + "Meter protocol session ended.");
         }
     }
 
     @Override
     public CollectedTopology getDeviceTopology() {
-        final DeviceIdentifier meterId = new DeviceIdentifierById(offlineDevice.getId());
-        CollectedTopology deviceTopology = getCollectedDataFactory().createCollectedTopology(meterId);
+        try {
+            final DeviceIdentifier meterId = new DeviceIdentifierById(offlineDevice.getId());
+            CollectedTopology deviceTopology = getCollectedDataFactory().createCollectedTopology(meterId);
 
-        boolean canReadTopology = true;
+            boolean canReadTopology = true;
 
-        if (!getNeighbourTable().isPresent()){
-            canReadTopology = false;
-            getLogger().warning(getLogPrefix()+"Cannot read topology: Neighbour table is not present.");
-        }
-
-        if (!getPLCMacSetup().isPresent()){
-            canReadTopology = false;
-            getLogger().warning(getLogPrefix()+"Cannot read topology: PLC Mac-Setup table is not present.");
-        }
-
-        if (canReadTopology) {
-            final Array neighbourArray = getNeighbourTable().get();
-            getLogger().info(getLogPrefix()+"Reading topology");
-            getLogger().info(neighbourArray.toString());
-            for (final AbstractDataType node : neighbourArray) {
-                final Structure neighbourStruct = (Structure) node;
-
-                // build up the topologyNeighbour
-                long shortAddress = neighbourStruct.getDataType(0).getUnsigned16().longValue();
-                int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
-                long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
-                int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
-                int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
-                int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
-                int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
-                int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
-                int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
-                int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
-                int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
-
-                long macPANId = -1;
-                try {
-                    macPANId = getPLCMacSetup().get().readPanId().longValue();
-                } catch (final NotInObjectListException e) {
-                    getLogger().warning(getLogPrefix()+"Could not read PAN ID: NotInObjectListException");
-                } catch (final IOException e) {
-                    getLogger().warning(getLogPrefix()+"IOException while reading PAN ID");
-                }
-
-                /**
-                 * The neighborDeviceIdentifier and nodeAddress (full MAC address)
-                 * cannot be obtain from the meter. We rely on the shortAddress to find later the device with
-                 * the corresponding 'Short address PAN' property equal to this.
-                 */
-                final DeviceIdentifier neighbourDeviceIdentifier = null;
-                final String nodeAddress = null;
-
-                final Date lastUpdate = new Date();
-                final Date lastPathRequest = new Date();
-                final int state = G3NodeState.UNKNOWN.getValue();
-                final long roundTrip = 0;
-                int linkCost = 0;
-
-                if (getADPRoutingTable().isPresent()) {
-                    final Optional<Structure> neighbourNode = findNeighbourNode(shortAddress);
-                    if (neighbourNode.isPresent()) {
-                        linkCost = neighbourNode.get().getDataType(2).getUnsigned16().getValue();
-                    }
-                }
-
-                deviceTopology.addTopologyNeighbour(
-                        neighbourDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
-                        txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, macPANId,
-                        nodeAddress, Math.toIntExact(shortAddress), lastUpdate, lastPathRequest, state, roundTrip, linkCost
-                );
-
-                StringBuilder sb = new StringBuilder();
-
-                sb.append("Topology neighbour: ");
-                sb.append("shortAddress: ").append(Math.toIntExact(shortAddress));
-                sb.append(", modulationSchema: ").append(modulationSchema);
-                sb.append(", toneMap: ").append(toneMap);
-                sb.append(", modulation: ").append(modulation);
-                sb.append(", txGain: ").append(txGain);
-                sb.append(", txRes: ").append(txRes);
-                sb.append(", txCoeff: ").append(txCoeff);
-                sb.append(", lqi: ").append(lqi);
-                sb.append(", phaseDifferential: ").append(phaseDifferential);
-                sb.append(", tmrValidTime: ").append(tmrValidTime);
-                sb.append(", macPANId: ").append(macPANId);
-                sb.append(", state: ").append(state);
-                sb.append(", roundTrip: ").append(roundTrip);
-                sb.append(", linkCost: ").append(linkCost);
-                sb.append(", lastUpdate: ").append(lastUpdate);
-                sb.append(", lastPathRequest: ").append(lastPathRequest);
-                sb.append(", neighbourValidTime: ").append(neighbourValidTime);
-
-                getLogger().info(getLogPrefix()+sb.toString());
+            if (!getNeighbourTable().isPresent()) {
+                canReadTopology = false;
+                getLogger().warning(getLogPrefix() + "Cannot read topology: Neighbour table is not present.");
             }
-        }
 
-        return deviceTopology;
+            if (!getPLCMacSetup().isPresent()) {
+                canReadTopology = false;
+                getLogger().warning(getLogPrefix() + "Cannot read topology: PLC Mac-Setup table is not present.");
+            }
+
+            if (canReadTopology) {
+                final Array neighbourArray = getNeighbourTable().get();
+
+                getLogger().info(getLogPrefix() + "Reading topology");
+                getLogger().fine(neighbourArray.toString());
+                for (final AbstractDataType node : neighbourArray) {
+                    final Structure neighbourStruct = (Structure) node;
+
+
+                    // build up the topologyNeighbour
+                    long shortAddress = neighbourStruct.getDataType(0).getUnsigned16().longValue();
+                    int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
+                    long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
+                    int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
+                    int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
+                    int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
+                    int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
+                    int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
+                    int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
+                    int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
+                    int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
+
+                    long macPANId = -1;
+                    try {
+                        macPANId = getPLCMacSetup().get().readPanId().longValue();
+                    } catch (final NotInObjectListException e) {
+                        getLogger().warning(getLogPrefix() + "Could not read PAN ID: NotInObjectListException");
+                    } catch (final IOException e) {
+                        getLogger().warning(getLogPrefix() + "IOException while reading PAN ID");
+                    }
+
+                    /**
+                     * The neighborDeviceIdentifier and nodeAddress (full MAC address)
+                     * cannot be obtain from the meter. We rely on the shortAddress to find later the device with
+                     * the corresponding 'Short address PAN' property equal to this.
+                     */
+                    final DeviceIdentifier neighbourDeviceIdentifier = null;
+                    final String nodeAddress = null;
+
+                    final Date lastUpdate = new Date();
+                    final Date lastPathRequest = new Date();
+                    final int state = G3NodeState.UNKNOWN.getValue();
+                    final long roundTrip = 0;
+                    int linkCost = 0;
+
+                    if (getADPRoutingTable().isPresent()) {
+                        final Optional<Structure> neighbourNode = findNeighbourNode(shortAddress);
+                        if (neighbourNode.isPresent()) {
+                            linkCost = neighbourNode.get().getDataType(2).getUnsigned16().getValue();
+                        }
+                    }
+
+                    deviceTopology.addTopologyNeighbour(
+                            neighbourDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
+                            txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, macPANId,
+                            nodeAddress, Math.toIntExact(shortAddress), lastUpdate, lastPathRequest, state, roundTrip, linkCost
+                    );
+
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.append("Topology neighbour: ");
+                    sb.append("shortAddress: ").append(Math.toIntExact(shortAddress));
+                    sb.append(", modulationSchema: ").append(modulationSchema);
+                    sb.append(", toneMap: ").append(toneMap);
+                    sb.append(", modulation: ").append(modulation);
+                    sb.append(", txGain: ").append(txGain);
+                    sb.append(", txRes: ").append(txRes);
+                    sb.append(", txCoeff: ").append(txCoeff);
+                    sb.append(", lqi: ").append(lqi);
+                    sb.append(", phaseDifferential: ").append(phaseDifferential);
+                    sb.append(", tmrValidTime: ").append(tmrValidTime);
+                    sb.append(", macPANId: ").append(macPANId);
+                    sb.append(", state: ").append(state);
+                    sb.append(", roundTrip: ").append(roundTrip);
+                    sb.append(", linkCost: ").append(linkCost);
+                    sb.append(", lastUpdate: ").append(lastUpdate);
+                    sb.append(", lastPathRequest: ").append(lastPathRequest);
+                    sb.append(", neighbourValidTime: ").append(neighbourValidTime);
+
+                    getLogger().info(getLogPrefix() + sb.toString());
+                }
+            }
+
+
+            return deviceTopology;
+        } catch (Exception e) {
+            final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the topology: " + e.getMessage());
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
+        }
     }
 
     private Optional<Structure> findNeighbourNode(long shortAddress) {
+
         if (getADPRoutingTable().isPresent()) {
             for (final AbstractDataType item : getADPRoutingTable().get()) {
                 final Structure structure = item.getStructure();
                 if (structure.getDataType(0).isUnsigned16() &&
-                    structure.getDataType(0).getUnsigned16().longValue() == shortAddress) {
-                    return Optional.of( structure );
+                        structure.getDataType(0).getUnsigned16().longValue() == shortAddress) {
+                    return Optional.of(structure);
                 }
             }
         }
@@ -467,13 +482,13 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                     neighbourTable = (Array) getPLCMacSetup().get().readNeighbourTable();
                     return Optional.of(neighbourTable);
                 } else {
-                    getLogger().warning(getLogPrefix()+"Could not read neighbour table: could not get PLCOFDMType2MACSetup");
+                    getLogger().warning(getLogPrefix() + "Could not read neighbour table: could not get PLCOFDMType2MACSetup");
                 }
             } else {
                 return Optional.of(neighbourTable);
             }
         } catch (final IOException e) {
-            getLogger().warning(getLogPrefix()+"Could not read neighbour table: " + e.getMessage());
+            getLogger().warning(getLogPrefix() + "Could not read neighbour table: " + e.getMessage());
         }
         return Optional.empty();
     }
@@ -481,12 +496,12 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     /**
      * @return Optional of Array of routing_table: struct
      * {
-     *    destination_address: long_unsigned
-     *    next_hop_address: long_unsigned
-     *    route_cost: long_unsigned
-     *    hop_count: unsigned
-     *    weak_link_count: unsigned
-     *    valid time: long_unsigned
+     * destination_address: long_unsigned
+     * next_hop_address: long_unsigned
+     * route_cost: long_unsigned
+     * hop_count: unsigned
+     * weak_link_count: unsigned
+     * valid time: long_unsigned
      * } if available, Optional.empty() otherwise
      */
     private Optional<Array> getADPRoutingTable() {
@@ -496,13 +511,13 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                     adpRoutingTable = getSixLowPanSetup().get().readAdpRoutingTable();
                     return Optional.of(adpRoutingTable);
                 } else {
-                    getLogger().warning(getLogPrefix()+"Could not read ADP routing table: could not get SixLowPanAdaptationLayerSetup");
+                    getLogger().warning(getLogPrefix() + "Could not read ADP routing table: could not get SixLowPanAdaptationLayerSetup");
                 }
             } else {
                 return Optional.of(adpRoutingTable);
             }
         } catch (final IOException e) {
-            getLogger().warning(getLogPrefix()+"Could not read ADP routing table: " + e.getMessage());
+            getLogger().warning(getLogPrefix() + "Could not read ADP routing table: " + e.getMessage());
         }
         return Optional.empty();
     }
@@ -513,7 +528,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 plcMACSetup = getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup();
                 return Optional.of(plcMACSetup);
             } catch (final NotInObjectListException e) {
-                getLogger().warning(getLogPrefix()+"Could not get PLCOFDMType2MACSetup: NotInObjectListException");
+                getLogger().warning(getLogPrefix() + "Could not get PLCOFDMType2MACSetup: NotInObjectListException");
             }
         } else {
             return Optional.of(plcMACSetup);
@@ -527,7 +542,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 sixLowPanSetup = getDlmsSession().getCosemObjectFactory().getSixLowPanAdaptationLayerSetup();
                 return Optional.of(sixLowPanSetup);
             } catch (final NotInObjectListException e) {
-                getLogger().warning(getLogPrefix()+"Could not get SixLowPanAdaptationLayerSetup: NotInObjectListException");
+                getLogger().warning(getLogPrefix() + "Could not get SixLowPanAdaptationLayerSetup: NotInObjectListException");
             }
         } else {
             return Optional.of(sixLowPanSetup);
@@ -600,7 +615,8 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        getLogger().info(getLogPrefix()+"Reading "+registers.size()+" registers");
+        getLogger().info(getLogPrefix() + "Reading " + registers.size() + " registers");
+        // communication exceptions are handled inside readRegisters
         return getRegisterFactory().readRegisters(registers);
     }
 
@@ -617,7 +633,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
      */
     private void handleFC(ComChannel comChannel) {
         if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5) {
-            getLogger().info(getLogPrefix()+"Skipping FC handling due to lower security level.");
+            getLogger().info(getLogPrefix() + "Skipping FC handling due to lower security level.");
             return; // no need to handle any FC
         }
 
@@ -639,7 +655,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
      * Read frame counter by calling a custom method in the Beacon
      */
     protected void readFrameCounterSecure(ComChannel comChannel) {
-        getLogger().info(getLogPrefix()+"Reading frame counter using secure method");
+        getLogger().info(getLogPrefix() + "Reading frame counter using secure method");
 
         byte[] authenticationKey = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();
         if (authenticationKey.length != 16) {
@@ -657,17 +673,17 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         final ObisCode frameCounterObisCode = getFrameCounterForClient(getDlmsSessionProperties().getClientMacAddress());
         final long frameCounter;
 
-
         try {
             publicDlmsSession.getDlmsV2Connection().connectMAC();
             publicDlmsSession.createAssociation((int) getDlmsSessionProperties().getAARQTimeout());
+
 
             FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
             frameCounterProvider.setSkipValidation(getDlmsSessionProperties().skipFramecounterAuthenticationTag());
 
             frameCounter = frameCounterProvider.getFrameCounter(authenticationKey);
 
-            getLogger().info(getLogPrefix()+"The read-out frame-counter is: " + frameCounter);
+            getLogger().info(getLogPrefix() + "The read-out frame-counter is: " + frameCounter);
 
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handleRecoverable(e, publicDlmsSession.getProperties().getRetries() + 1);
@@ -688,17 +704,17 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
      * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
      */
     private boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
-        journal("Will try to use a cached frame counter");
+        getLogger().fine(getLogPrefix() + "Will use the cached frame counter");
         boolean weHaveAFrameCounter = false;
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
         if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1).
-            getLogger().info(getLogPrefix()+"Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
+            getLogger().info(getLogPrefix() + "Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(initialFrameCounter);
             weHaveAFrameCounter = true;
         } else if (cachedFrameCounter > 0) {
-            getLogger().info(getLogPrefix()+"Using cached frame counter: " + cachedFrameCounter);
+            getLogger().info(getLogPrefix() + "Using cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(cachedFrameCounter + 1);
             weHaveAFrameCounter = true;
         }
@@ -707,7 +723,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
             if (getDlmsSessionProperties().validateCachedFrameCounter()) {
                 return testConnectionAndRetryWithFrameCounterIncrements(comChannel);
             } else {
-                getLogger().info(getLogPrefix()+" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
+                getLogger().fine(getLogPrefix() + " - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
                 // do not validate, just use it and hope for the best
                 return true;
             }
@@ -721,12 +737,22 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
     }
 
     private boolean testConnectionAndRetryWithFrameCounterIncrements(ComChannel comChannel) {
-        DlmsSession testDlmsSession = getDlmsSessionForFCTesting(comChannel);
+
+
+        DlmsSession testDlmsSession;
+        try {
+            testDlmsSession = getDlmsSessionForFCTesting(comChannel);
+        } catch (Exception ex) {
+            final ProtocolException protocolException = new ProtocolException(ex, "Error while establishing a test DLMS session: " + ex.getMessage());
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
+        }
+
+
         int retries = getDlmsSessionProperties().getFrameCounterRecoveryRetries();
         int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
         boolean releaseOnce = true;
 
-        getLogger().info(getLogPrefix()+"Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
+        getLogger().info(getLogPrefix() + "Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
         if (retries <= 0) {
             retries = 0;
             step = 0;
@@ -738,14 +764,14 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                 testDlmsSession.createAssociation();
                 if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
                     testDlmsSession.disconnect();
-                    getLogger().info(getLogPrefix()+"Cached FrameCounter is valid!");
+                    getLogger().info(getLogPrefix() + "Cached FrameCounter is valid!");
                     setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     return true;
                 }
             } catch (CommunicationException ex) {
                 if (isAssociationFailed(ex)) {
                     long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
-                    getLogger().warning(getLogPrefix()+"Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
+                    getLogger().warning(getLogPrefix() + "Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                     frameCounter += step;
                     setTXFrameCounter(frameCounter);
                     testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
@@ -761,14 +787,18 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
                         }
                     }
                 } else {
-                    throw ex;       //Propagate any other exception
+                    final ProtocolException protocolException = new ProtocolException(ex, "Communication-Exception while recovering the frame counter, cannot continue! " + ex.getMessage());
+                    throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
                 }
+            } catch (Exception ex) {
+                final ProtocolException protocolException = new ProtocolException(ex, "Error while recovering the frame counter, cannot continue! " + ex.getMessage());
+                throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
             }
             retries--;
         } while (retries > 0);
 
         testDlmsSession.disconnect();
-        getLogger().warning(getLogPrefix()+"Could not validate the frame counter, seems that it's out-of sync with the device. You'll have to read a fresh one.");
+        getLogger().warning(getLogPrefix() + "Could not validate the frame counter, seems that it's out-of sync with the device. You'll have to read a fresh one.");
         return false;
     }
 
