@@ -80,6 +80,6 @@ public class AS3000G extends AM540 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-10-20 14:48:00 +0300 (Wed, 20 Oct 2021)$";
+        return "$Date: 2021-10-22 10:05:00 +0300 (Fri, 22 Oct 2021)$";
     }
 }
