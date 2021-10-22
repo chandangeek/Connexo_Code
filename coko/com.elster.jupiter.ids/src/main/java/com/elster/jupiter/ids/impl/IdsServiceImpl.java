@@ -197,6 +197,7 @@ public class IdsServiceImpl implements IdsService, MessageSeedProvider {
                 dataModel,
                 InstallerImpl.class,
                 ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 4, 24), UpgraderV10_4_24.class)
                         .put(version(10, 9), UpgraderV10_9.class)
                         .build());
     }
