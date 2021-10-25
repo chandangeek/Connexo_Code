@@ -11,7 +11,7 @@ import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class AECConfigurationSupport extends AM540ConfigurationSupport {
@@ -22,15 +22,28 @@ public class AECConfigurationSupport extends AM540ConfigurationSupport {
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        List<PropertySpec> specs = new ArrayList<>(super.getUPLPropertySpecs());
-        specs.add(this.serverUpperMacAddressPropertySpec());
-        specs.add(this.overwriteServerLowerMacAddressPropertySpec());
-        specs.add(this.addressModePropertySpec());
-        return specs;
+        return Arrays.asList(
+                this.forcedDelayPropertySpec(),
+                this.maxRecPduSizePropertySpec(),
+                this.bulkRequestPropertySpec(),
+                this.timeZonePropertySpec(),
+                this.validateInvokeIdPropertySpec(),
+                this.limitMaxNrOfDaysPropertySpec(),
+                this.readCachePropertySpec(),
+                this.callingAPTitlePropertySpec(),
+                this.useGeneralBlockTransferPropertySpec(),
+                this.generalBlockTransferWindowSizePropertySpec(),
+                this.useUndefinedForClockStatus(),
+                this.useUndefinedForTimeDeviation(),
+                this.serverUpperMacAddressPropertySpec(),
+                this.serverLowerMacAddressPropertySpec(),
+                this.overwriteServerLowerMacAddressPropertySpec(),
+                this.addressModePropertySpec()
+        );
     }
 
     protected PropertySpec overwriteServerLowerMacAddressPropertySpec() {
-        return this.booleanSpecBuilder(AECDlmsProperties.OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false, com.energyict.protocolimpl.nls.PropertyTranslationKeys.DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS);
+        return this.booleanSpecBuilder(AECDlmsProperties.OVERWRITE_SERVER_LOWER_MAC_ADDRESS, true, com.energyict.protocolimpl.nls.PropertyTranslationKeys.DLMS_OVERWRITE_SERVER_LOWER_MAC_ADDRESS);
     }
 
     protected PropertySpec booleanSpecBuilder(String name, boolean defaultValue, TranslationKey translationKey) {

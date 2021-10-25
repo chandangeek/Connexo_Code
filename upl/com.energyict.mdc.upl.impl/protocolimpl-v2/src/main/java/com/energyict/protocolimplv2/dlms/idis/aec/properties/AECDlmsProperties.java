@@ -6,7 +6,9 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540Properties;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_UPPER_SERVER_MAC_ADDRESS;
+import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
 
 public class AECDlmsProperties extends AM540Properties {
     private static int SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH = 4;
@@ -25,20 +27,28 @@ public class AECDlmsProperties extends AM540Properties {
     }
 
     @Override
+    public int getServerUpperMacAddress() {
+        return parseBigDecimalProperty(SERVER_UPPER_MAC_ADDRESS, DEFAULT_UPPER_SERVER_MAC_ADDRESS);
+    }
+
+
+    @Override
     public int getServerLowerMacAddress() {
-        if (!isOverwriteServerLowerMacAddress())
+        if (!isOverwriteServerLowerMacAddress()) {
             return super.getServerLowerMacAddress();
+        }
         return createServerLowerMacAddress();
     }
 
     private int createServerLowerMacAddress() {
         String serialNumber = getSerialNumber();
-        if (serialNumber != null && serialNumber.length() >= SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH)
+        if (serialNumber != null && serialNumber.length() >= SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH) {
             try {
                 String macAddress = serialNumber.substring(serialNumber.length() - SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH);
                 return Integer.parseInt(macAddress) + SERIAL_NUMBER_TO_MAC_ADDRESS_OFFSET;
             } catch (NumberFormatException e) {
             }
+        }
         throw DeviceConfigurationException.invalidPropertyFormat(DlmsProtocolProperties.SYSTEM_IDENTIFIER, serialNumber, "Last " + SERIAL_NUMBER_TO_MAC_ADDRESS_LENGTH + " characters should be a number");
     }
 
@@ -47,7 +57,7 @@ public class AECDlmsProperties extends AM540Properties {
     }
 
     public boolean isOverwriteServerLowerMacAddress() {
-        return getProperties().<Boolean>getTypedProperty(OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false);
+        return getProperties().<Boolean>getTypedProperty(OVERWRITE_SERVER_LOWER_MAC_ADDRESS, true);
     }
 }
 

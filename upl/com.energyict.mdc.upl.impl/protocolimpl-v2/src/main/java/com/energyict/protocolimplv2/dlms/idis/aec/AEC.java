@@ -1,12 +1,11 @@
 package com.energyict.protocolimplv2.dlms.idis.aec;
 
-import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
-import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
-import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
+import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -34,7 +33,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataR
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class AEC extends AM540 {
@@ -80,10 +79,7 @@ public class AEC extends AM540 {
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Arrays.asList((ConnectionType) new SioOpticalConnectionType(this.getPropertySpecService()),
-                new RxTxOpticalConnectionType(this.getPropertySpecService()),
-                new OutboundTcpIpConnectionType(this.getPropertySpecService()),
-                new InboundIpConnectionType() );
+        return Collections.singletonList(new OutboundTcpIpConnectionType(this.getPropertySpecService()));
     }
 
     @Override
@@ -136,6 +132,12 @@ public class AEC extends AM540 {
             dlmsSecuritySupport = new AECSecuritySupport(this.getPropertySpecService());
         }
         return dlmsSecuritySupport;
+    }
+
+    @Override
+    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+        return Collections.singletonList(
+                new TcpDeviceProtocolDialect(this.getPropertySpecService(), getNlsService()));
     }
 
     @Override
