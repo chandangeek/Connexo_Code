@@ -21,6 +21,9 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.idis.aec.events.AECLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.aec.messages.AECMessaging;
 import com.energyict.protocolimplv2.dlms.idis.aec.profiledata.AECProfileDataReader;
@@ -31,15 +34,28 @@ import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.am500.messages.IDISMessaging;
 import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.am540.AM540;
+import com.energyict.protocolimplv2.dlms.idis.am540.registers.FIFOStoredValues;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 public class AEC extends AM540 {
 
+    /**
+     * OBIS code for the billing profile.
+     */
+    private static final ObisCode OBIS_BILLING_PROFILE = ObisCode.fromString("0.0.98.2.0.255");
+
     protected AECRegisterFactory registerFactory;
     private HHUSignOnV2 hhuSignOnV2;
+
+    /**
+     * For billing registers.
+     */
+    private StoredValues storedValues;
 
     public AEC(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, TariffCalendarExtractor calendarExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, messageFileExtractor, keyAccessorTypeExtractor);
@@ -75,6 +91,28 @@ public class AEC extends AM540 {
             idisProfileDataReader = new AECProfileDataReader(this, this.getCollectedDataFactory(), this.getIssueFactory(), getDlmsSessionProperties().getLimitMaxNrOfDays());
         }
         return idisProfileDataReader;
+    }
+
+    @Override
+    public StoredValues getStoredValues() {
+        if (this.storedValues == null) {
+            try {
+                this.storedValues = new FIFOStoredValues(OBIS_BILLING_PROFILE,
+                        this.getDlmsSession().getCosemObjectFactory(),
+                        this.getDlmsSessionProperties(),
+                        this.getIDISProfileDataReader(),
+                        this.getTimeZone(),
+                        this.getLogger());
+            } catch (IOException e) {
+                if (this.getLogger().isLoggable(Level.WARNING)) {
+                    this.getLogger().log(Level.WARNING, "IO error when creating StoredValues : [" + e.getMessage() + "]", e);
+                }
+
+                throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+            }
+        }
+
+        return this.storedValues;
     }
 
     @Override

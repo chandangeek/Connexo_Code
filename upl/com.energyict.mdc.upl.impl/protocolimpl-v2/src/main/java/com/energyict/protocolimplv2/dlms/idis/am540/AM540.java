@@ -137,7 +137,7 @@ public class AM540 extends AM130 implements SerialNumberSupport {
      * {@inheritDoc}
      */
     @Override
-    public final StoredValues getStoredValues() {
+    public StoredValues getStoredValues() {
         if (this.storedValues == null) {
             try {
                 this.storedValues = new FIFOStoredValues(OBIS_BILLING_PROFILE,

@@ -37,14 +37,14 @@ import java.util.stream.Collectors;
 
 public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<AEC> {
     private static final ObisCode HALF_HOURLY_LOAD_PROFILE = ObisCode.fromString("1.0.99.1.1.255");
-    //private static final ObisCode DAILY_LOAD_PROFILE = ObisCode.fromString("0.0.98.2.0.255");
+    private static final ObisCode BILLING_LOAD_PROFILE = ObisCode.fromString("0.0.98.2.0.255");
     protected final List<ObisCode> supportedLoadProfiles ;
 
     public AECProfileDataReader(AEC protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, long limitMaxNrOfDays) {
        super(protocol, limitMaxNrOfDays, collectedDataFactory, issueFactory);
         supportedLoadProfiles = new ArrayList<>();
         supportedLoadProfiles.add(HALF_HOURLY_LOAD_PROFILE);
-        //supportedLoadProfiles.add(DAILY_LOAD_PROFILE);
+        supportedLoadProfiles.add(BILLING_LOAD_PROFILE);
     }
 
     @Override
