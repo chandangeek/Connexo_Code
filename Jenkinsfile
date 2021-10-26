@@ -50,8 +50,20 @@ pipeline {
         label 'linux && java'
       }
       stages {
-        stage("Checkout") {
+        stage("Setup") {
           steps {
+            milestone label: 'Start', ordinal: 1
+            script {
+              MILESTONE_OFFSET = getMilestoneOffset()
+            }
+          }
+        }
+        stage("Checkout") {
+          options {
+            lock(resource: "Build-$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true)
+          }
+          steps {
+            milestone label: 'Next Build', ordinal: 2 + MILESTONE_OFFSET
             deleteDir()
             checkout([$class: 'GitSCM',
                       branches: scm.branches,
@@ -112,20 +124,22 @@ pipeline {
             PROFILES = '-Psencha-build,coverage,enforce-version'
             DIRECTORIES = "$DIRECTORIES"
           }
+          options {
+            lock(resource: "Compile-$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true)
+          }
           steps {
-            lock(resource: "$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true) {
-              withMaven(maven: 'Maven 3.6.3',
-                  mavenSettingsConfig: 'ehc-mirror',
-                  mavenOpts: '-Xmx5g',
-                  publisherStrategy: 'EXPLICIT',
-                  options: [openTasksPublisher()],
-                  mavenLocalRepo: MAVEN_REPO) {
-                runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
-                //  These stashes are really too large. Need to find another way to do this...
-                stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
-                stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
-                stash name:"zip_files", allowEmpty: true, includes: "**/*.zip"
-              }
+            milestone label: 'Compile', ordinal: 3 + MILESTONE_OFFSET
+            withMaven(maven: 'Maven 3.6.3',
+                mavenSettingsConfig: 'ehc-mirror',
+                mavenOpts: '-Xmx5g',
+                publisherStrategy: 'EXPLICIT',
+                options: [openTasksPublisher()],
+                mavenLocalRepo: MAVEN_REPO) {
+              runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
+              //  These stashes are really too large. Need to find another way to do this...
+              stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
+              stash name:"java_classes", allowEmpty: true, includes: "**/target/**/classes/**"
+              stash name:"zip_files", allowEmpty: true, includes: "**/*.zip"
             }
           }
         }
@@ -144,6 +158,9 @@ pipeline {
             stage('Static') {
               when {
                 expression { currentBuild.currentResult == "SUCCESS" }
+              }
+              options {
+                lock(resource: "Static-$env.JOB_NAME$env.BRANCH_NAME", inversePrecedence: true)
               }
               environment {
                 DIRECTORIES = "$DIRECTORIES"
@@ -165,6 +182,7 @@ pipeline {
                           publisherStrategy: 'EXPLICIT',
                           options: [],
                           mavenLocalRepo: MAVEN_REPO) {
+                  milestone label: 'Static', ordinal: 4 + MILESTONE_OFFSET, unsafe: true
                   catchError(buildResult: 'UNSTABLE',
                              message: 'UNSTABLE: Maven static analysis failed',
                              stageResult: 'UNSTABLE') {
@@ -173,10 +191,10 @@ pipeline {
                     // Static code analysis
                     runMaven("compile spotbugs:spotbugs pmd:pmd -DskipTests=true -P'!enforce-version' $env.EXTRA_PARAMS $env.DIRECTORIES")
                   }
-                  stash name:"bug_reports",
-                        allowEmpty: true,
-                        includes: "**/spotbugsXml.xml,**/pmd.xml,**/checkstyle-result.xml"
                 }
+                stash name:"bug_reports",
+                      allowEmpty: true,
+                      includes: "**/spotbugsXml.xml,**/pmd.xml,**/checkstyle-result.xml"
               }
             }
             stage('Reports') {
@@ -282,23 +300,22 @@ pipeline {
         COVERITY_TOOL_HOME = "$COVERITY_TOOL_HOME"
         MAXIMUM_COVERITY_ISSUES = "$MAXIMUM_COVERITY_ISSUES"
       }
+      options {
+        lock(resource: "Coverity-$env.STREAM", inversePrecedence: true)
+      }
       steps {
-        milestone label: 'Setup Coverity', ordinal: 5
-        lock(resource: "Coverity-$env.STREAM", inversePrecedence: true) {
-          milestone label: 'Start Coverity', ordinal: 6
-          checkout([$class: 'GitSCM',
-                    poll: false,
-                    changelog: false,
-                    branches: scm.branches,
-                    extensions: [[$class: 'CloneOption',
-                    depth: 2,
-                    noTags: false,
-                    reference: MIRROR_CLONE, shallow: true]],
-                    userRemoteConfigs: scm.userRemoteConfigs])
-          unstash "java_classes"
-          runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
-          milestone label: 'Finish Coverity', ordinal: 7
-        }
+        milestone label: 'Start Coverity', ordinal: 5 + MILESTONE_OFFSET
+        checkout([$class: 'GitSCM',
+                  poll: false,
+                  changelog: false,
+                  branches: scm.branches,
+                  extensions: [[$class: 'CloneOption',
+                  depth: 2,
+                  noTags: false,
+                  reference: MIRROR_CLONE, shallow: true]],
+                  userRemoteConfigs: scm.userRemoteConfigs])
+        unstash "java_classes"
+        runCoverity("$MAXIMUM_COVERITY_ISSUES".toInteger())
       }
     }
   }
@@ -452,4 +469,8 @@ def getCoverityProject() {
 
 def getCoverityStream() {
  return getCoverityProject() + "-MASTER"
+}
+
+def getMilestoneOffset() {
+  return 2 * env.BUILD_NUMBER.toInteger() + 1
 }
