@@ -1444,6 +1444,18 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getReceiveFrameCounterAboveThreshold() {
         return new EndDeviceEventType("3.12.261.80");
     }
+    
+    
+
+    public static EndDeviceEventType getHeartBeatEventType() {
+        return new EndDeviceEventType(
+                EndDeviceType.COMDEVICE,
+                EndDeviceDomain.COMMUNICATION,
+                EndDeviceSubdomain.SELFTEST,
+                EndDeviceEventOrAction.NORMAL
+        );
+
+    }
 
     public static EndDeviceEventType getTamperBattery() {
         return new EndDeviceEventType("4.2.0.257");
