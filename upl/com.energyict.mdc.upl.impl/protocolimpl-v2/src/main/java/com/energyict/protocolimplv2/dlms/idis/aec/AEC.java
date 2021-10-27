@@ -184,14 +184,12 @@ public class AEC extends AM540 {
     }
 
     @Override
-    //TODO
     public String getProtocolDescription() {
-        return "AEC DLMS (IDIS P2)";
+        return "AEC DLMS Single phase";
     }
 
     @Override
-    // TODO
     public String getVersion() {
-        return "$Date: 2021-09-31$";
+        return "$Date: 2021-10-27$";
     }
 }
