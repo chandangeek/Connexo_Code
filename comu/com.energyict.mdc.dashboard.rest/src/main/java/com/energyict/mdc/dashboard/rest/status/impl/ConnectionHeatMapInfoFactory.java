@@ -38,23 +38,27 @@ public class ConnectionHeatMapInfoFactory {
 
             for (ConnectionTaskHeatMapRow<H> row : heatMap) {
                 HeatMapRowInfo heatMapRowInfo = new HeatMapRowInfo();
-                heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
-                heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
-                heatMapRowInfo.alias = FilterOption.latestResults; // Type of object
-                heatMapRowInfo.data = new ArrayList<>();
-                for (ComSessionSuccessIndicatorOverview counters : row) {
-                    for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
+                if (row.getTarget() != null) {
+                    heatMapRowInfo.displayValue = row.getTarget().getName(); // CPP name, device type name, ...
+                    heatMapRowInfo.id = row.getTarget().getId(); // ID of the object
+                    heatMapRowInfo.alias = FilterOption.latestResults; // Type of object
+                    heatMapRowInfo.data = new ArrayList<>();
+                    for (ComSessionSuccessIndicatorOverview counters : row) {
+                        for (Counter<ComSession.SuccessIndicator> successIndicatorCounter : counters) {
+                            TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
+                            taskCounterInfo.id = successIndicatorCounter.getCountTarget().name();
+                            taskCounterInfo.displayName = ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicatorCounter.getCountTarget(), thesaurus);
+                            taskCounterInfo.count = successIndicatorCounter.getCount();
+                            heatMapRowInfo.data.add(taskCounterInfo);
+                        }
                         TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                        taskCounterInfo.id = successIndicatorCounter.getCountTarget().name();
-                        taskCounterInfo.displayName = ComSessionSuccessIndicatorTranslationKeys.translationFor(successIndicatorCounter.getCountTarget(), thesaurus);
-                        taskCounterInfo.count = successIndicatorCounter.getCount();
+                        taskCounterInfo.id = TranslationKeys.SUCCESS_WITH_FAILED_TASKS.getKey();
+                        taskCounterInfo.displayName = thesaurus.getFormat(TranslationKeys.SUCCESS_WITH_FAILED_TASKS).format();
+                        taskCounterInfo.count = counters.getAtLeastOneTaskFailedCount();
                         heatMapRowInfo.data.add(taskCounterInfo);
                     }
-                    TaskCounterInfo taskCounterInfo = new TaskCounterInfo();
-                    taskCounterInfo.id = TranslationKeys.SUCCESS_WITH_FAILED_TASKS.getKey();
-                    taskCounterInfo.displayName = thesaurus.getFormat(TranslationKeys.SUCCESS_WITH_FAILED_TASKS).format();
-                    taskCounterInfo.count = counters.getAtLeastOneTaskFailedCount();
-                    heatMapRowInfo.data.add(taskCounterInfo);
+                    Collections.sort(heatMapRowInfo.data, new SuccessIndicatorTaskCounterInfoComparator());
+                    info.heatMap.add(heatMapRowInfo);
                 }
                 Collections.sort(heatMapRowInfo.data, new SuccessIndicatorTaskCounterInfoComparator());
                 info.heatMap.add(heatMapRowInfo);
