@@ -587,7 +587,8 @@ public enum EndDeviceEventTypeMapping {
     POWER_DOWN_SECURE_ELEMENT_WATCHDOG      (100126, EndDeviceEventTypeFactory.getPowerDownSecureElementWatchdogEventType()),
     POWER_DOWN_EXTERNAL_WATCHDOG            (100127, EndDeviceEventTypeFactory.getPowerDownExternalWatchdogEventType()),
     PROTOCOL_LOG_CLEARED                    (100128, EndDeviceEventTypeFactory.getProtocolLogClearedEventType()),
-    METER_CLOCK_INVALID                     (100129, EndDeviceEventTypeFactory.getMeterClockInvalidEventType());
+    METER_CLOCK_INVALID                     (100129, EndDeviceEventTypeFactory.getMeterClockInvalidEventType()),
+    HEART_BEAT                              (100130, EndDeviceEventTypeFactory.getHeartBeatEventType());
 
     private final int eisCode;
     private final EndDeviceEventType eventType;
