@@ -16,6 +16,7 @@ Ext.define('Uni.store.search.Domains', {
     proxy: {
         type: 'ajax',
         url: '/api/jsr/search',
+        timeout:9999999,
         reader: {
             type: 'json',
             root: 'domains'

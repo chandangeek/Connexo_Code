@@ -9,7 +9,7 @@ Ext.define('Mdc.commands.store.Commands', {
     proxy: {
         type: 'rest',
         url: '/api/ddr/devicemessages',
-
+        timeout: 9999999,
         reader: {
             type: 'json',
             root: 'deviceMessages'

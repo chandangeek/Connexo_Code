@@ -188,14 +188,14 @@ public class G3RegisterMapper {
     private static final ObisCode PUSH_SETUP_ATTRc5 = ObisCode.fromString("0.0.25.9.0.251");
 
     private static final ObisCode WAN_DL_REFERENCE          = ObisCode.fromString("0.0.25.1.2.255");
-    private static final ObisCode WAN_IP_ADDRESS            = ObisCode.fromString("0.0.25.1.3.255");
+    public static final ObisCode WAN_IP_ADDRESS            = ObisCode.fromString("0.0.25.1.3.255");
     private static final ObisCode WAN_MULTICAST_IP_ADDRESS  = ObisCode.fromString("0.0.25.1.4.255");
     private static final ObisCode WAN_IP_OPTIONS            = ObisCode.fromString("0.0.25.1.5.255");
-    private static final ObisCode WAN_SUBNET_MASK           = ObisCode.fromString("0.0.25.1.6.255");
+    public static final ObisCode WAN_SUBNET_MASK           = ObisCode.fromString("0.0.25.1.6.255");
     private static final ObisCode WAN_GATEWAY_IP_ADDRESS    = ObisCode.fromString("0.0.25.1.7.255");
     private static final ObisCode WAN_USE_DHCP_FLAG         = ObisCode.fromString("0.0.25.1.8.255");
-    private static final ObisCode WAN_PRIMARY_DNS_ADDRESS   = ObisCode.fromString("0.0.25.1.9.255");
-    private static final ObisCode WAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.0.25.1.10.255");
+    public static final ObisCode WAN_PRIMARY_DNS_ADDRESS   = ObisCode.fromString("0.0.25.1.9.255");
+    public static final ObisCode WAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.0.25.1.10.255");
 
     private static final ObisCode LAN_DL_REFERENCE          = ObisCode.fromString("0.1.25.1.2.255");
     private static final ObisCode LAN_IP_ADDRESS            = ObisCode.fromString("0.1.25.1.3.255");
@@ -207,15 +207,17 @@ public class G3RegisterMapper {
     private static final ObisCode LAN_PRIMARY_DNS_ADDRESS   = ObisCode.fromString("0.1.25.1.9.255");
     private static final ObisCode LAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.1.25.1.10.255");
 
+    public  static final ObisCode LOOPBACK_IP_ADDRESS       = ObisCode.fromString("0.2.25.1.3.255");
+
     private static final ObisCode WWAN_DL_REFERENCE         = ObisCode.fromString("0.3.25.1.2.255");
-    private static final ObisCode WWAN_IP_ADDRESS           = ObisCode.fromString("0.3.25.1.3.255");
+    public static final ObisCode WWAN_IP_ADDRESS           = ObisCode.fromString("0.3.25.1.3.255");
     private static final ObisCode WWAN_MULTICAST_IP_ADDRESS = ObisCode.fromString("0.3.25.1.4.255");
     private static final ObisCode WWAN_IP_OPTIONS           = ObisCode.fromString("0.3.25.1.5.255");
     private static final ObisCode WWAN_SUBNET_MASK          = ObisCode.fromString("0.3.25.1.6.255");
     private static final ObisCode WWAN_GATEWAY_IP_ADDRESS   = ObisCode.fromString("0.3.25.1.7.255");
     private static final ObisCode WWAN_USE_DHCP_FLAG        = ObisCode.fromString("0.3.25.1.8.255");
-    private static final ObisCode WWAN_PRIMARY_DNS_ADDRESS  = ObisCode.fromString("0.3.25.1.9.255");
-    private static final ObisCode WWAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.10.255");
+    public static final ObisCode WWAN_PRIMARY_DNS_ADDRESS  = ObisCode.fromString("0.3.25.1.9.255");
+    public static final ObisCode WWAN_SECONDARY_DNS_ADDRESS = ObisCode.fromString("0.3.25.1.10.255");
 
     private static final ObisCode USB_SETUP_ATTR1 = ObisCode.fromString("0.194.96.144.0.1");
     private static final ObisCode USB_SETUP_ATTR2 = ObisCode.fromString("0.194.96.144.0.2");

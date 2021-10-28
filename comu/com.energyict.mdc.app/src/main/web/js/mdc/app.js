@@ -116,6 +116,7 @@ Ext.onReady(function () {
     loader.initPackages(packages);
     // </debug>
     Ext.Ajax.on("beforerequest", function(conn, options){
+        Ext.Ajax.timeout = 90000;
         delete conn.defaultHeaders['X-CSRF-TOKEN'];
 
         if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {

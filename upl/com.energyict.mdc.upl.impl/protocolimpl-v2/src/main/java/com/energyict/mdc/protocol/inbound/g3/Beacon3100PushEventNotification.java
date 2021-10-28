@@ -2,15 +2,16 @@ package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.cbo.ObservationDateProperty;
 import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.CollectedData;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.upl.meterdata.*;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimpl.dlms.g3.registers.G3RegisterMapper;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.am540.properties.AM540ConfigurationSupport;
@@ -44,6 +45,13 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     public static final String JSON_SAP_IPV_6 = "SAP_IPV6";
     public static final String JSON_SAP_IPV_4 = "SAP_IPV4";
     public static final String JSON_SAP_802_15_4_ID = "SAP_802_15_4_ID";
+    public static final String HEART_BEAT_ETH_1_GLOBAL = "eth1_global";
+    public static final String HEART_BEAT_PPP_GLOBAL = "ppp_global";
+    public static final String HEART_BEAT_DUMMY_1_GLOBAL = "dummy1_global";
+    public static final String HEART_BEAT_DNS = "dns";
+    public static final String HEART_BEAT_TOTAL_SPACE = "total_space";
+    public static final String HEART_BEAT_USED_SPACE = "used_space";
+    public static final String HEART_BEAT_FREE_SPACE = "free_space";
     public enum TopologyAction {
         REMOVE,
         ADD;
@@ -58,11 +66,17 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
     private static final int PLC_G3_UNREGISTER_NODE = 0xC30000;
     private static final int PLC_G3_NODE_LINK_LOST = 0xCB0000;
     private static final int PLC_G3_NODE_LINK_RECOVERED = 0xCC0000;
+    private static final int BEACON_HEART_BEAT = 0xD10000;
     protected boolean provideProtocolJavaClasName = true;
     /**
      * Used to pass back any topology changes observed during push notifications
      */
     protected CollectedTopology collectedTopology;
+
+    /**
+     * Used to pass back register values collected by various push events
+     */
+    protected CollectedRegisterList collectedRegisterList;
 
     protected final PropertySpecService propertySpecService;
     private final CollectedDataFactory collectedDataFactory;
@@ -111,8 +125,9 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         DiscoverResultType discoverResultType = super.doDiscovery();
 
         // do a specific Beacon post-processing of the push event
+
         try {
-            searchForTopologyUpdateEvents();
+            processSpecificEvents();
         } catch (JSONException e) {
             getContext().getLogger().log(Level.WARNING, "Exception while parsing inbound message: " + e.getMessage(), e);
         }
@@ -120,7 +135,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         return discoverResultType;
     }
 
-    private void searchForTopologyUpdateEvents() throws JSONException {
+    private void processSpecificEvents() throws JSONException {
         MeterProtocolEvent receivedEvent = getMeterProtocolEvent();
 
         if (receivedEvent == null) {
@@ -128,6 +143,13 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         }
 
         switch (receivedEvent.getProtocolCode()) {
+
+            /**
+             * Periodic event pushing networking information about the Beacon
+             */
+            case BEACON_HEART_BEAT:
+                handleHeartBeatEvent(receivedEvent);
+                break;
 
             /**
              * Generates when node successfully joins the PAN.
@@ -171,6 +193,21 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
             if (collectedTopology.getAdditionalCollectedDeviceInfo() != null) {
                 getContext().getLogger().info("> device parameters: " + collectedTopology.getAdditionalCollectedDeviceInfo().toString());
             }
+        }
+
+        if (collectedRegisterList != null){
+            collectedRegisterList.getCollectedRegisters().stream().forEach(r->{
+                String obisCode="n/a"; // some failsafe checks ... GOD knows what we can receive here...
+                if (r.getRegisterIdentifier()!=null && r.getRegisterIdentifier().getRegisterObisCode()!=null){
+                    obisCode = r.getRegisterIdentifier().getRegisterObisCode().toString();
+                }
+                if (r.getText()!=null) {
+                    getContext().getLogger().info("> text register: " + obisCode + "=" + r.getText());
+                }
+                if (r.getCollectedQuantity() != null){
+                    getContext().getLogger().info("> number register: "+obisCode+"=" +r.getCollectedQuantity().toString());
+                }
+            });
         }
     }
 
@@ -382,5 +419,183 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
         String prefixToReplace = Beacon3100AbstractEventLog.getDescriptionPrefix(receivedEvent.getEiCode());
         return receivedEvent.getMessage().replaceFirst(prefixToReplace, "");
     }
+    /**
+     * Parsing the payload of an Beacon heart-beat event:
+     *
+     * 	"dummy1_global": "0.0.0.0",
+     * 	"eth1_global": "10.78.63.113/24",
+     * 	"eth1_local": "fe80:0:0:0:224:28ff:fe00:b7de%eth1/64",
+     * 	"gre1_global": "0.0.0.0",
+     * 	"gre1_local": "0.0.0.0",
+     * 	"ppp_global": "117.231.127.224/32",
+     * 	"ppp_local": "0.0.0.0",
+     * 	"dns": "nameserver 218.248.112.72\nnameserver 218.248.112.6",
+     * 	"total_space": "0xb6bd8",
+     * 	"used_space": "0x146b8",
+     * 	"free_space": "0xa123c"
+     * @param receivedEvent
+     */
 
+    private void handleHeartBeatEvent(MeterProtocolEvent receivedEvent) {
+        String message = extractReceivedDescription(receivedEvent);
+        boolean haveWAN = false;
+        boolean haveWWAN = false;
+
+        if (message == null || message.isEmpty()) {
+            return;
+        }
+
+        JSONObject json;
+
+        try {
+            json = new JSONObject(message);
+            getContext().getLogger().info("Parsing heart-beat message");
+
+            collectedRegisterList = collectedDataFactory.createCollectedRegisterList(getDeviceIdentifier());
+
+        } catch (Exception e) {
+            getContext().getLogger().log(Level.SEVERE, "Exception parsing JSON message: " + e.getMessage(), e);
+            return;
+        }
+
+        try {
+            /* WAN IP address (outer-ip for Ethernet connections) */
+            if (json.has(HEART_BEAT_ETH_1_GLOBAL)) {
+                String eth1_global = json.getString(HEART_BEAT_ETH_1_GLOBAL);
+                if (validIp(eth1_global)) {
+                    addCollectedRegister(G3RegisterMapper.WAN_IP_ADDRESS, eth1_global);
+                    haveWAN = true;
+                }
+            }
+        } catch (Exception e) {
+            getContext().getLogger().warning("Exception parsing JSON message (WAN-IP): " + e.getMessage());
+        }
+
+        try {
+            /* WWAN IP address (outer-ip for modem connections) */
+            if (json.has(HEART_BEAT_PPP_GLOBAL)) {
+                String ppp_global = json.getString(HEART_BEAT_PPP_GLOBAL);
+                if (validIp(ppp_global)) {
+                    addCollectedRegister(G3RegisterMapper.WWAN_IP_ADDRESS, ppp_global);
+                    haveWWAN = true;
+                }
+            }
+        } catch (Exception e) {
+            getContext().getLogger().warning("Exception parsing JSON message (WWAN-IP): " + e.getMessage());
+        }
+
+        try {
+            /* Dummy/Loopback IP address (inner-ip aka VPN ip) */
+            if (json.has(HEART_BEAT_DUMMY_1_GLOBAL)) {
+                String dummy_1_global_global = json.getString(HEART_BEAT_DUMMY_1_GLOBAL);
+                if (validIp(dummy_1_global_global)) {
+                    addCollectedRegister(G3RegisterMapper.LOOPBACK_IP_ADDRESS, dummy_1_global_global);
+                }
+            }
+        } catch (Exception e) {
+            getContext().getLogger().warning("Exception parsing JSON message (loopback-IP): " + e.getMessage());
+        }
+
+        try {
+            /* DNS servers */
+            if (json.has(HEART_BEAT_DNS)) {
+                String dns = json.getString(HEART_BEAT_DNS);
+                parseDNS(dns, haveWAN, haveWWAN);
+            }
+        } catch (Exception e) {
+            getContext().getLogger().warning("Exception parsing JSON message (DNS): " + e.getMessage());
+        }
+
+        try {
+            parseMemory(json);
+        } catch (Exception e) {
+            getContext().getLogger().warning("Exception parsing JSON message (memory): " + e.getMessage());
+        }
+
+
+    }
+
+
+    private boolean validIp(String ip) {
+        if (ip==null || ip.isEmpty()){
+            return false;
+        }
+
+        if ("0.0.0.0".equals(ip)){
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Parses a string like this  "nameserver 218.248.112.72\nnameserver 218.248.112.6"
+     * and adds it to the WAN (or WWAN?) name-servers registers
+     */
+    private void parseDNS(String dns, boolean haveWAN, boolean haveWWAN) {
+        dns = dns
+                .trim()
+                .replace("\n", " ")
+                .replace(";"," ")
+                .replace(","," ")
+                .replace("nameserver ", " ")
+                .replace("  ", " ")
+                .trim()     ;
+        String[] nameServers = dns.split(" ");
+
+        if (validIp(nameServers[0])) {
+            if (haveWAN) {
+                addCollectedRegister(G3RegisterMapper.WAN_PRIMARY_DNS_ADDRESS, nameServers[0]);
+            }
+            if (haveWWAN) {
+                addCollectedRegister(G3RegisterMapper.WAN_SECONDARY_DNS_ADDRESS, nameServers[0]);
+            }
+        }
+
+        if (validIp(nameServers[1])) {
+            if (haveWAN) {
+                addCollectedRegister(G3RegisterMapper.WWAN_PRIMARY_DNS_ADDRESS, nameServers[1]);
+            }
+            if (haveWWAN) {
+                addCollectedRegister(G3RegisterMapper.WWAN_SECONDARY_DNS_ADDRESS, nameServers[1]);
+            }
+        }
+    }
+
+
+    /**
+     * Parse and add JSON attributes
+     *          "total_space": "0xb6bd8",
+     *       	"used_space": "0x146b8",
+     *       	"free_space": "0xa123c"
+     *
+     *
+     */
+    private void parseMemory(JSONObject jsonEvent) throws JSONException {
+        JSONObject memory = new JSONObject();
+
+        String[] objectsToMove = new String[]{HEART_BEAT_TOTAL_SPACE, HEART_BEAT_USED_SPACE, HEART_BEAT_FREE_SPACE};
+
+        for (String key : objectsToMove){
+            if (jsonEvent.has(key)){
+                memory.put(key, getJsonInt(jsonEvent, key));
+            }
+        }
+        addCollectedRegister(G3RegisterMapper.MEMORY_MANAGEMENT_ATTR2, memory.toString());
+    }
+
+    /**
+     * Go through the tedious process of returning some data back to ComServer
+     * @param obisCode what ObisCode to save data to
+     * @param value actual value
+     */
+    private void addCollectedRegister(ObisCode obisCode, String value){
+        RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier());
+        CollectedRegister collectedRegister = collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
+
+        collectedRegister.setCollectedData(value);
+
+        collectedRegisterList.addCollectedRegister(collectedRegister);
+    }
 }
+
