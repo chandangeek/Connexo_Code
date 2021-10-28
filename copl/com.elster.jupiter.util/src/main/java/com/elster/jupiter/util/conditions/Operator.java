@@ -18,6 +18,12 @@ public enum Operator {
             return "{0} LIKE ? ESCAPE ''\\''";
         }
     },
+    LIKENVL("LIKE") {
+        @Override
+        public String getFormat() {
+            return "nvl({0}, '''') LIKE ? ESCAPE ''\\''";
+        }
+    },
     REGEXP_LIKE("REGEXP_LIKE") {
         @Override
         public String getFormat() {

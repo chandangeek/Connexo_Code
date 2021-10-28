@@ -38,7 +38,7 @@ Ext.define('Mdc.model.DeviceCommand', {
     proxy: {
         type: 'rest',
         pageParam: false,
-        timeout: 60000,
+        timeout: 9999999,
         urlTpl: '/api/ddr/devicemessages',
         reader: {
             type: 'json'

@@ -185,10 +185,8 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
                 continue;
             }
 
-            // Add another registers five in a batch
-            if (toRead.size() < 5) {
-                toRead.add(a_register);
-            } else {
+            toRead.add(a_register);
+            if (toRead.size() >= BULK_RESQUEST_LIMIT) {
                 result.addAll(super.readRegisters(toRead));
                 toRead.clear();
             }

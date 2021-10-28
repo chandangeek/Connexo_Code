@@ -468,6 +468,10 @@ public class FileImportScheduleResource {
     }
 
     private void loadFile(InputStream inputStream, String fileName, String importFolder, String appServerName) {
+        File importDir = new File(importFolder);
+        if (!importDir.exists()) {
+            importDir.mkdirs();
+        }
         File copiedFile = new File(importFolder + File.separator + FilenameUtils.getBaseName(fileName) + ".tmp");
         PathVerification.validatePathForFolders(copiedFile.toPath().normalize().toString());
         try (FileOutputStream outputStream = new FileOutputStream(copiedFile.getCanonicalPath()); InputStream ins = inputStream) {

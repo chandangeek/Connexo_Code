@@ -171,7 +171,7 @@ Ext.define('Isu.view.issues.IssueFilter', {
                 setFilterValue: me.comboSetFilterValue,
                 getParamValue: me.comboGetParamValue,
                 forceSelection: true,
-                hidden: me.isOverviewFilter,
+                hidden: me.isOverviewFilter || !Uni.store.Apps.checkApp('Insight'),
                 listeners: {
                     expand: {
                         fn: me.comboLimitNotification
