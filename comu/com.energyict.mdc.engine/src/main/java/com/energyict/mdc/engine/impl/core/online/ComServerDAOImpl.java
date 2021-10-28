@@ -1259,7 +1259,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                 // do update the loadprofile
                 lastReadings.forEach((theLoadProfileIdentifier, timestamp) -> {
                     LoadProfile loadProfile = findLoadProfileOrThrowException(theLoadProfileIdentifier);
-                    List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(theLoadProfileIdentifier.getDeviceIdentifier(), k -> new ArrayList<>());
+                    List<Function<Device, Void>> functionList = updateMap.computeIfAbsent(loadProfile.getDeviceIdentifier(), k -> new ArrayList<>());
                     functionList.add(updateLoadProfile(loadProfile, timestamp));
                 });
                 // Track continuity
