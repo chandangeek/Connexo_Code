@@ -69,6 +69,8 @@ public abstract class Beacon3100AbstractEventLog {
         deviceToEIServerCodeMapping.put(0x00cd0000, MeterEvent.PLC_G3_PAN_ID);
         deviceToEIServerCodeMapping.put(0x00ce0000, MeterEvent.PLC_G3_TOPOLOGY_UPDATE);
         //
+        deviceToEIServerCodeMapping.put(0x00D10000, MeterEvent.HEART_BEAT);
+        //
         deviceToEIServerCodeMapping.put(0x00200000, MeterEvent.DLMS_SERVER_SESSION_ACCEPTED);
         deviceToEIServerCodeMapping.put(0x00210000, MeterEvent.DLMS_SERVER_SESSION_FINISHED);
         deviceToEIServerCodeMapping.put(0x00220000, MeterEvent.DLMS_OTHER);

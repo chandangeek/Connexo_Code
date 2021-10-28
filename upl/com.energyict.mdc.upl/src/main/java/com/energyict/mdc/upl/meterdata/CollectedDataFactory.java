@@ -40,6 +40,8 @@ public interface CollectedDataFactory {
 
     CollectedRegister createTextCollectedRegister(RegisterIdentifier registerIdentifier);
 
+    CollectedRegister createDeviceTextRegister(RegisterIdentifier registerIdentifier);
+
     CollectedLogBook createNoLogBookCollectedData(DeviceIdentifier deviceIdentifier);
 
     CollectedMessage createCollectedMessage(MessageIdentifier messageIdentifier);
