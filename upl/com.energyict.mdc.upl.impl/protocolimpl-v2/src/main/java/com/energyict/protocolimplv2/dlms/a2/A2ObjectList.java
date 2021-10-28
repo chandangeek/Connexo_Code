@@ -72,7 +72,7 @@ public class A2ObjectList {
             new UniversalObject(ObisCode.fromString("0.0.96.15.1.255").getLN(),1,0),
             new UniversalObject(ObisCode.fromString("0.0.96.15.2.255").getLN(),1,0),
             new UniversalObject(ObisCode.fromString("0.0.96.20.25.255").getLN(),1,0),
-            new UniversalObject(ObisCode.fromString("0.0.96.20.30.255").getLN(),3,0),
+            new UniversalObject(ObisCode.fromString("0.0.96.20.30.255").getLN(),1,0),
             new UniversalObject(ObisCode.fromString("0.0.96.53.0.255").getLN(),1,0),
             new UniversalObject(ObisCode.fromString("0.0.97.97.3.255").getLN(),3,0),
             new UniversalObject(ObisCode.fromString("0.1.43.1.1.255").getLN(),1,0),

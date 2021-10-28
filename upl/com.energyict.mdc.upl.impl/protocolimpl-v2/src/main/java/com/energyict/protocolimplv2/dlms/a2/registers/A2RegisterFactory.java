@@ -292,7 +292,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
             description = String.join(" ","date time=",dateTimeFormatter.print(dateTime.getTime()), "\nuser id =", Integer.toString(userId),
                     "\nuser name =", userName.getStr());
         } else if (obisCode.equals(ON_DEMAND_SNAPSHOT_TIME)) {
-            Date dateTime = new Date(structure.getDataType(0).getUnsigned32().getValue());
+            Date dateTime = new Date(structure.getDataType(0).longValue());
             String reason = Integer.toBinaryString(structure.getDataType(1).getUnsigned8().getValue());
             description = String.join(" ", "date time =", dateTimeFormatter.print(dateTime.getTime()),
                     "\nreason =", StringUtils.leftPad(reason, 8, "0"));
