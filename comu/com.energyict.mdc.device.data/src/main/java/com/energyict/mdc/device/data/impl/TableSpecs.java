@@ -87,6 +87,7 @@ import com.energyict.mdc.device.data.tasks.ComTaskExecutionFields;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskFields;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskExecutionFields;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageAttribute;
+import com.google.common.collect.Range;
 
 import java.util.List;
 
@@ -279,7 +280,9 @@ public enum TableSpecs {
                     .notAudited()
                     .add();
             Column comServer = table.column("COMSERVER").number().notAudited().upTo(version(10, 7)).add();
-            Column comPort = table.column("COMPORT").number().notAudited().since(version(10, 7)).previously(comServer).add();
+            Column comPort = table.column("COMPORT").number().notAudited()
+                    .during(Range.closedOpen(Version.version(10, 4, 24), Version.version(10, 5)), Range.atLeast(version(10, 7)))
+                    .previously(comServer).add();
             Column comPortPool = table.column("COMPORTPOOL").number().add();
             Column partialConnectionTask = table.column("PARTIALCONNECTIONTASK").number().add();
             // Common columns for sheduled connection tasks
