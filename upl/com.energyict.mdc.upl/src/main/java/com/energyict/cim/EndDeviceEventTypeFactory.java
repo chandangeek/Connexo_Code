@@ -1454,7 +1454,15 @@ public class EndDeviceEventTypeFactory {
                 EndDeviceSubdomain.SELFTEST,
                 EndDeviceEventOrAction.NORMAL
         );
+    }
 
+    public static EndDeviceEventType getClearNodeListEventType() {
+        return new EndDeviceEventType(
+                EndDeviceType.PANGATEWAY,
+                EndDeviceDomain.NETWORK,
+                EndDeviceSubdomain.LIST,
+                EndDeviceEventOrAction.CLEARED
+        );
     }
 
     public static EndDeviceEventType getTamperBattery() {

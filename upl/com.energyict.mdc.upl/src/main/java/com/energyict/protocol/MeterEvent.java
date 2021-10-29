@@ -1114,6 +1114,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int PROTOCOL_LOG_CLEARED               = 100128;
     public static final int METER_CLOCK_INVALID                = 100129;
     public static final int HEART_BEAT                         = 100130;
+    public static final int CLEAR_NODE_LIST                    = 100131;
 
 
     // Used by EIServer UI:
@@ -1892,6 +1893,8 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return "Meter clock invalid.";
             case HEART_BEAT:
                 return "Heart-beat";
+            case CLEAR_NODE_LIST:
+                return "Clear node list";
             default:
                 return ("Unknown event." + code);
 

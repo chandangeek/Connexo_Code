@@ -156,7 +156,17 @@ public class MeterReadingStorer {
         List<EndDeviceEventRecord> toCreate = new ArrayList<>(events.size());
         List<EndDeviceEventRecord> toUpdate = new ArrayList<>();
         for (EndDeviceEvent sourceEvent : events) {
-            Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(sourceEvent.getEventTypeCode());
+            String eventCode = sourceEvent.getEventTypeCode();
+            Optional<EndDeviceEventType> found = dataModel.mapper(EndDeviceEventType.class).getOptional(eventCode);
+            if (!found.isPresent()){
+                try {
+                    logger.info("Event code "+eventCode+" is not yet known to the system, we'll add it now");
+                    meteringService.createEndDeviceEventType(eventCode);
+                } catch (Exception ex){
+                    logger.log(Level.SEVERE, "Cannot add new event code: "+eventCode+" "+ex.getMessage(), ex);
+                }
+                found = dataModel.mapper(EndDeviceEventType.class).getOptional(eventCode);
+            }
             if (found.isPresent()) {
                 Optional<EndDeviceEventRecord> existing = getEventMapper().getOptional(meter.getId(), sourceEvent.getEventTypeCode(), sourceEvent.getCreatedDateTime());
                 if (existing.isPresent()) {
