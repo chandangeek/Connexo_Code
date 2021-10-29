@@ -29,12 +29,15 @@ public class UpgraderV10_9 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
+        boolean offsetAlreadyExist = dataModel.doesColumnExist("IDS_TIMESERIES", "OFFSET_VALUE");
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
-        try (Connection connection = dataModel.getConnection(true);
-             Statement statement = connection.createStatement()) {
-            execute(statement, "UPDATE IDS_TIMESERIES SET OFFSET_VALUE=OFFSET_VALUE*3600");
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
+        if (!offsetAlreadyExist) {
+            try (Connection connection = dataModel.getConnection(true);
+                 Statement statement = connection.createStatement()) {
+                execute(statement, "UPDATE IDS_TIMESERIES SET OFFSET_VALUE=OFFSET_VALUE*3600");
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
+            }
         }
     }
 }
