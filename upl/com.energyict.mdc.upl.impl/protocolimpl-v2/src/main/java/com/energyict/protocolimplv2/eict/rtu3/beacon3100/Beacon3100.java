@@ -64,9 +64,11 @@ import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
+import com.energyict.protocolimpl.utils.IPv6Utils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.g3.properties.AS330DConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300ConfigurationSupport;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.firmware.BeaconFirmwareSignatureCheck;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.logbooks.Beacon3100LogBookFactory;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.Beacon3100Messaging;
@@ -127,6 +129,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private Array neighbourTable = null;
     private Set<String> topologySegments = new LinkedHashSet<>();
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurations;
+    private String logPrefix = "";
 
 
     public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
@@ -615,6 +618,9 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         DeviceIdentifier dcIdentifier = new DeviceIdentifierById(offlineDevice.getId());
         CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(dcIdentifier);
 
+        String ipV6Prefix = "";
+        long macPANId = -1;
+
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         final Array nodeList;
         try {
@@ -657,6 +663,25 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     DialHomeIdDeviceIdentifier slaveDeviceIdentifier = new DialHomeIdDeviceIdentifier(macAddress);  //Using callHomeId as a general property
                     ObservationDateProperty observationTimestampProperty = new ObservationDateProperty(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
+
+                    try{
+                        if (ipV6Prefix!=null && !ipV6Prefix.isEmpty()) {
+                            String nodeIpv6Address = IPv6Utils.getNodeAddress(ipV6Prefix, (int) macPANId, g3Node.getShortAddress());
+                            if (IPv6Utils.isValid(nodeIpv6Address)) {
+                                logInfo("Node "+g3Node.getMacAddressString()+" has IPv6 "+nodeIpv6Address);
+
+                                deviceTopology.addAdditionalCollectedDeviceInfo(
+                                        this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
+                                                slaveDeviceIdentifier,
+                                                HS3300ConfigurationSupport.IP_V6_ADDRESS,
+                                                nodeIpv6Address
+                                        )
+                                );
+                            }
+                        }
+                    } catch (Exception ignored){
+                        logWarn("Cannot update IPv6 address for node "+g3Node.getMacAddressString()+": "+ignored.getMessage());
+                    }
 
                     if (!gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
                         deviceTopology.addAdditionalCollectedDeviceInfo(
@@ -724,7 +749,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
                                 int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
                                 int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
-                                long macPANId = -1;
                                 try {
                                     macPANId = getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup().readPanId().longValue();
                                 } catch (NotInObjectListException e) {
@@ -1113,5 +1137,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     @Override
     public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
         return BeaconFirmwareSignatureCheck.verifyFirmwareSignature(firmwareFile, pubKey);
+    }
+
+    private void logInfo(String infoMessage) {
+        getLogger().info(logPrefix+infoMessage);
+    }
+
+
+    private void logWarn(String infoMessage) {
+        getLogger().warning(logPrefix+infoMessage);
     }
 }

@@ -166,6 +166,10 @@ public class Beacon3100Properties extends DlmsProperties {
         }
     }
 
+    public boolean updateIpv6OnTopology() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.UPDATE_IPV6_ON_TOPOLOGY, false);
+    }
+
     public boolean useCachedFrameCounter() {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
     }
