@@ -229,6 +229,11 @@ pipeline {
                        minimumLineCoverage: '24',
                        minimumBranchCoverage: '12',
                        minimumComplexityCoverage: '19'
+                script {
+                  if (currentBuild.currentResult != "SUCCESS") {
+                    unstable("Current build is unstable, check Jacoco results")
+                  }
+                }
               }
             }
           }
