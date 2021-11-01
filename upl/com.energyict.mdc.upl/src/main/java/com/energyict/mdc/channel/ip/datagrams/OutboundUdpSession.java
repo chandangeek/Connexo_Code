@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PipedOutputStream;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 /**
  * Straightforward version of an Outbound UDP session
@@ -24,7 +25,8 @@ public class OutboundUdpSession extends AbstractUdpSession {
     public OutboundUdpSession(int bufferSize, String host, int portNumber) throws IOException {
         super(bufferSize);
         DatagramSocket datagramSocket = new DatagramSocket();
-        datagramSocket.connect(new InetSocketAddress(host, portNumber));
+        SocketAddress socketAddress = new InetSocketAddress(host, portNumber);
+        datagramSocket.connect(socketAddress);
         setDatagramSocket(datagramSocket);
         setSocketAddress(datagramSocket.getRemoteSocketAddress());
         setInputStream(new DatagramInputStream(new PipedOutputStream(), bufferSize));

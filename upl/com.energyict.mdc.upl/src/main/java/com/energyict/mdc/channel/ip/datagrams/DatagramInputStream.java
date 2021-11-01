@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class DatagramInputStream extends PipedInputStream {
     public static final Logger logger = Logger.getLogger(DatagramInputStream.class.getName());
-    private final PipedOutputStream pipedOutputStream;
+    protected final PipedOutputStream pipedOutputStream;
 
     protected DatagramInputStream(PipedOutputStream src, int pipeSize) throws IOException {
         super(src, pipeSize); // need to give the pipeSize in the constructor, otherwise it is not worth it
