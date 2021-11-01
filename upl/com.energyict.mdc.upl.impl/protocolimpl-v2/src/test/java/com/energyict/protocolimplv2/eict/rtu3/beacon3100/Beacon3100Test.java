@@ -18,6 +18,7 @@ import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocolimpl.utils.IPv6Utils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
@@ -36,6 +37,8 @@ import java.util.Arrays;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.api.Assertions.fail;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
@@ -194,6 +197,46 @@ public final class Beacon3100Test {
         // We return 3100 as the FC, so make sure we have set it.
         assertThat(protocol.getDlmsSessionProperties().getSecurityProvider().getInitialFrameCounter()).isEqualTo(3101);
     }
+
+    @Test
+    public final void testIPv6_1(){
+        String prefixAndLength = "fc11:cc60:ff26:1::/64";
+        int panId = 0x94bf;
+        int shortId = 0x74;
+
+        String expectedIpv6 = "fc11:cc60:ff26:1:94bf:ff:fe00:74";
+        String ipv6 = IPv6Utils.getNodeAddress(prefixAndLength, panId, shortId);
+
+        assertEquals(expectedIpv6, ipv6);
+        assertTrue(IPv6Utils.isValid(ipv6));
+    }
+
+    @Test
+    public final void testIPv6_2(){
+        String prefixAndLength = "fc11:cc50:1:49::/64";
+        int panId = 36980;
+        int shortId = 205;
+
+        String expectedIpv6 = "fc11:cc50:1:49:9074:ff:fe00:cd";
+        String ipv6 = IPv6Utils.getNodeAddress(prefixAndLength, panId, shortId);
+
+        assertEquals(expectedIpv6, ipv6);
+        assertTrue(IPv6Utils.isValid(ipv6));
+    }
+
+    @Test
+    public final void testIPv6_3(){
+        String prefixAndLength = "fc11:ee60:1:1::1/64";
+        int panId = 29781;
+        int shortId = 23;
+
+        String expectedIpv6 = "fc11:ee60:1:1:7455:ff:fe00:17";
+        String ipv6 = IPv6Utils.getNodeAddress(prefixAndLength, panId, shortId);
+
+        assertEquals(expectedIpv6, ipv6);
+        assertTrue(IPv6Utils.isValid(ipv6));
+    }
+
 
     /**
      * Tests the readout of the frame counter, pre-established.
