@@ -728,7 +728,7 @@
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names"/>
             <xs:element name="Registers" type="m:Register" minOccurs="0" maxOccurs="unbounded"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#EndDeviceFunction.Registers"/>
-            <xs:element name="Zones" type="m:Zones"
+            <xs:element name="Zones" type="m:Zones" minOccurs="0"
                         sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#EndDeviceFunction.Zones"/>
         </xs:sequence>
     </xs:complexType>
