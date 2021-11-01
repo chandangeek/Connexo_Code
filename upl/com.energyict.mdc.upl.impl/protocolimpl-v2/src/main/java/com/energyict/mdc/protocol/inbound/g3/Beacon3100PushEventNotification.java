@@ -407,6 +407,10 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
             collectedData.add(collectedTopology);
         }
 
+        if (collectedRegisterList != null){
+            collectedData.add(collectedRegisterList);
+        }
+
         return collectedData;
     }
 
@@ -591,9 +595,10 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
      */
     private void addCollectedRegister(ObisCode obisCode, String value){
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier());
-        CollectedRegister collectedRegister = collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);
+        CollectedRegister collectedRegister = collectedDataFactory.createDeviceTextRegister(registerIdentifier);
 
         collectedRegister.setCollectedData(value);
+        collectedRegister.setReadTime(new Date());
 
         collectedRegisterList.addCollectedRegister(collectedRegister);
     }
