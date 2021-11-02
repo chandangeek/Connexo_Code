@@ -26,30 +26,31 @@ public class OutboundDatagramInputStream extends DatagramInputStream {
         return super.available();
     }
 
+    /**
+     * Check if currently we have data available on the pipedInputStream.
+     * If data is available, then don't add any additional data.
+     * If no data is available, then wait for an incoming UDP packet and add it to the pipe.
+     *
+     * @throws IOException if a connection related exception occurs
+     */
     private void udpRead() throws IOException {
         if (super.available() <= 0) {
-            synchronized(this.datagramSocket) {
-                int soTimeout = this.datagramSocket.getSoTimeout();
-                this.receiveData = new byte[this.bufferSize];
-                DatagramPacket datagramPacket = this.socketAddress != null ? this.cleanDatagramPacket() : new DatagramPacket(this.receiveData, this.receiveData.length);
-                this.datagramSocket.setSoTimeout(100);
-
-                label73: {
-                    try {
-                        this.datagramSocket.receive(datagramPacket);
-                        break label73;
-                    } catch (Throwable var10) {
-                    } finally {
-                        this.datagramSocket.setSoTimeout(soTimeout);
-                    }
-
-                    return;
+            synchronized (datagramSocket) {
+                int soTimeout = datagramSocket.getSoTimeout();
+                this.receiveData = new byte[bufferSize];
+                DatagramPacket datagramPacket = socketAddress != null ? cleanDatagramPacket() :
+                        new DatagramPacket(receiveData, receiveData.length);
+                datagramSocket.setSoTimeout(SHORT_TIMEOUT);
+                try {
+                    datagramSocket.receive(datagramPacket);
+                } catch (Throwable e) {
+                    return;//No data for now, OK, let's move on
+                } finally {
+                    datagramSocket.setSoTimeout(soTimeout);
                 }
-
-                this.write(this.receiveData, datagramPacket.getOffset(), datagramPacket.getLength());
+                write(receiveData, datagramPacket.getOffset(), datagramPacket.getLength());
             }
         }
-
     }
 
     public synchronized int read() throws IOException {
