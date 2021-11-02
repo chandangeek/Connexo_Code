@@ -92,6 +92,7 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
     },
 
     //EIWeb messages
+    // Deprecated, use SetDSTCheckbox (15022) instead
     SetDST(15009, "Set DST") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
@@ -182,6 +183,12 @@ public enum ClockDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
+    SetDSTCheckbox(15022, "Set DST") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.SetDSTAttributeName, DeviceMessageConstants.SetDSTAttributeDefaultTranslation));
+        }
+    }
     ;
 
     private final long id;

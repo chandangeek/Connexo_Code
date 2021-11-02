@@ -402,6 +402,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     SL7000(335, "com.energyict.protocolimplv2.dlms.actaris.sl7000.ActarisSl7000"),
 
     EI6_2021_THEMISUNO(336, "com.energyict.protocolimplv2.dlms.ei6v2021.EI6v2021", FamilyRule.EICT_THEMISUNO),
+    AEC(338, "com.energyict.protocolimplv2.dlms.idis.aec.AEC"),
 
     EI4_UMI(337, "com.energyict.protocolimplv2.umi.ei4.EI4Umi"),
 
