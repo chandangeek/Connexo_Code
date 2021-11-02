@@ -135,6 +135,7 @@ pipeline {
                 publisherStrategy: 'EXPLICIT',
                 options: [openTasksPublisher()],
                 mavenLocalRepo: MAVEN_REPO) {
+              clearSnapshotArtifacts(MAVEN_REPO)
               runMaven("$env.COMMAND $env.DIRECTORIES $env.EXTRA_PARAMS $env.SENCHA $env.PROFILES")
               //  These stashes are really too large. Need to find another way to do this...
               stash name:"java_reports", allowEmpty: true, includes: "**/target/surefire-reports/TEST*.xml,**/target/jacoco.exec"
@@ -217,17 +218,22 @@ pipeline {
                        changeBuildStatus: true,
                        exclusionPattern: '**/*Test*.class',
                        // Must exceed these values or the build will be unstable
-                       maximumClassCoverage: '43',
+                       maximumClassCoverage: '42',
                        maximumMethodCoverage: '27',
                        maximumLineCoverage: '25',
                        maximumBranchCoverage: '13',
-                       maximumComplexityCoverage: '21',
+                       maximumComplexityCoverage: '20',
                        // Must exceed these values or the build will fail
                        minimumClassCoverage: '40',
                        minimumMethodCoverage: '26',
                        minimumLineCoverage: '24',
                        minimumBranchCoverage: '12',
-                       minimumComplexityCoverage: '20'
+                       minimumComplexityCoverage: '19'
+                script {
+                  if (currentBuild.currentResult != "SUCCESS") {
+                    unstable("Current build is unstable, check Jacoco results")
+                  }
+                }
               }
             }
           }
@@ -473,4 +479,16 @@ def getCoverityStream() {
 
 def getMilestoneOffset() {
   return 2 * env.BUILD_NUMBER.toInteger() + 1
+}
+
+def clearSnapshotArtifacts(localRepository) {
+  try {
+    localRepository = sh returnStdout: true,
+                         script: 'mvn help:effective-settings | grep localRepository | sed -E "s/<(.)?localRepository>//g" | tail -1'
+  } catch (Exception e) {
+    echo "Could not find localRepository definition, using ${localRepository}"
+  }
+  localRepository = "${localRepository}".trim()
+  echo "Removing SNAPSHOTs from ${localRepository}"
+  sh script: "find ${localRepository} -mtime +2 -name '*SNAPSHOT' | xargs rm -vrf"
 }
