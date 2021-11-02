@@ -29,7 +29,7 @@ public class OutboundUdpSession extends AbstractUdpSession {
         datagramSocket.connect(socketAddress);
         setDatagramSocket(datagramSocket);
         setSocketAddress(datagramSocket.getRemoteSocketAddress());
-        setInputStream(new DatagramInputStream(new PipedOutputStream(), bufferSize));
+        setInputStream(new OutboundDatagramInputStream(datagramSocket, socketAddress, bufferSize, new PipedOutputStream(), bufferSize));
         setOutputStream(new DatagramOutputStream(datagramSocket, datagramSocket.getRemoteSocketAddress(), bufferSize));
     }
 }
