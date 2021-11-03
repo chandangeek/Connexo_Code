@@ -4,7 +4,9 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.topology.impl.*;
 
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.logging.*;
+import java.util.stream.Collectors;
 
 /**
  * Builds a mesh-type G3 PLC topology by combining 3 data sources:
@@ -15,6 +17,7 @@ import java.util.logging.*;
 public class G3TopologyBuilder {
 
     private final TopologyService topologyService;
+    private final Predicate<Device> filterPredicate;
     private final G3TopologyImpl g3Topology;
     private final Set<Device> slaves;
 
@@ -23,10 +26,11 @@ public class G3TopologyBuilder {
     private final Logger logger = Logger.getLogger(this.getClass().getName());
     private Device gateway;
 
-    public G3TopologyBuilder(TopologyService topologyService, Device gateway) {
+    public G3TopologyBuilder(TopologyService topologyService, Device gateway, Predicate<Device> filterPredicate) {
         this.topologyService = topologyService;
         this.gateway = gateway;
 
+        this.filterPredicate = filterPredicate;
         this.g3Topology = new G3TopologyImpl();
         this.slaves = new HashSet<>();
         this.physicalLinks = new HashSet<>();
@@ -34,7 +38,7 @@ public class G3TopologyBuilder {
 
 
     public G3Topology build() {
-        logger.info("Building G3-Topology for gateway "+gateway.getName()+" ("+gateway.getSerialNumber()+")");
+        logger.info("Building G3-Topology for gateway " + gateway.getName() + " (" + gateway.getSerialNumber() + ")");
 
         findPhysicallyConnectedDevices();
 
@@ -46,8 +50,11 @@ public class G3TopologyBuilder {
     }
 
     private void findPhysicallyConnectedDevices() {
-        physicalLinks.addAll(topologyService.findPhysicalConnectedDevices(gateway));
-        logger.info("Found "+physicalLinks.size()+" physically connected devices to "+gateway.getSerialNumber());
+        physicalLinks.addAll(topologyService.findPhysicalConnectedDevices(gateway)
+                .stream()
+                .filter(filterPredicate)
+                .collect(Collectors.toList()));
+        logger.info("Found " + physicalLinks.size() + " physically connected devices to " + gateway.getSerialNumber());
     }
 
 
@@ -76,13 +83,13 @@ public class G3TopologyBuilder {
         g3Topology.addG3NeighborLink(g3n);
     }
 
-    protected void log(String message, G3CommunicationPathSegment segment){
+    protected void log(String message, G3CommunicationPathSegment segment) {
         StringBuilder sb = new StringBuilder();
 
         sb.append(message);
         sb.append(" slave(target)=").append(segment.getTarget().getSerialNumber());
         sb.append(" parent(source)=").append(segment.getSource().getSerialNumber());
-        if (segment.getNextHopDevice().isPresent()){
+        if (segment.getNextHopDevice().isPresent()) {
             sb.append(" nextHop=").append(segment.getNextHopDevice().get().getSerialNumber());
         }
         sb.append(" cost=").append(segment.getCost());
@@ -122,7 +129,7 @@ public class G3TopologyBuilder {
     }
 
     private void processPhysicalLink(Device device) {
-        if (!slaves.contains(device)){
+        if (!slaves.contains(device)) {
             logger.info("Physically linked device not processed yet: "+device.getName()+" ("+device.getSerialNumber()+")");
 
             G3Neighbor g3n = buildPhysicalLink(device);
@@ -146,8 +153,8 @@ public class G3TopologyBuilder {
      * @return
      */
     private G3Neighbor reverseLink(G3Neighbor g3n) {
-        logger.finest("Reversing original G3 link: "+g3n.getDevice().getSerialNumber()+" -> "+g3n.getNeighbor().getSerialNumber());
-        return  topologyService.reverseCloneG3Neighbor(g3n);
+        logger.finest("Reversing original G3 link: " + g3n.getDevice().getSerialNumber() + " -> " + g3n.getNeighbor().getSerialNumber());
+        return topologyService.reverseCloneG3Neighbor(g3n);
     }
 
 
@@ -160,7 +167,7 @@ public class G3TopologyBuilder {
         queue.addAll(physicalLinks);
         queue.add(gateway);
 
-        logger.info("Building G3 links neighborhood for "+queue.size()+" devices");
+        logger.info("Building G3 links neighborhood for " + queue.size() + " devices");
 
         while (queue.size() > 0) {
             Set<Device> devicesToDelete = new HashSet<>();
@@ -171,7 +178,7 @@ public class G3TopologyBuilder {
                 processedDevices.add(device);
 
                 List<G3Neighbor> neighbors = topologyService.findG3Neighbors(device);
-                logger.info("\tdevice " + device.getSerialNumber()+" has " + neighbors.size() + " G3 links.");
+                logger.info("\tdevice " + device.getSerialNumber() + " has " + neighbors.size() + " G3 links.");
 
                 for (G3Neighbor g3Link : neighbors) {
                     logger.info("\t\tadding link " + g3Link.getDevice().getSerialNumber() + " -> " + g3Link.getNeighbor().getSerialNumber() + " to list.");
@@ -180,8 +187,8 @@ public class G3TopologyBuilder {
                     //next iteration will search further links originating from this device if not already processed
                     if (!processedDevices.contains(g3Link.getNeighbor())) {
                         devicesToAdd.add(g3Link.getNeighbor());
-                    } else{
-                        logger.info("\t\tnode already processed: "+g3Link.getNeighbor().getSerialNumber() + "");
+                    } else {
+                        logger.info("\t\tnode already processed: " + g3Link.getNeighbor().getSerialNumber() + "");
                     }
                 }
             }
@@ -212,7 +219,7 @@ public class G3TopologyBuilder {
      * @param device an device found on various sources
      */
     private void deviceFound(Device device) {
-        if (notGateway(device)){
+        if (notGateway(device)) {
             slaves.add(device);
         }
     }

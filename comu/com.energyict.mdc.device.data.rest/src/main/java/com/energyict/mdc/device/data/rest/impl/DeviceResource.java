@@ -1103,10 +1103,11 @@ public class DeviceResource {
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device gateway = resourceHelper.findDeviceByNameOrThrowException(name);
-        logger.info("Getting communication references for "+gateway.getName()+" ("+gateway.getSerialNumber()+")");
+        Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
+        logger.info("Getting communication references for " + gateway.getName() + " (" + gateway.getSerialNumber() + ")");
         TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(gateway);
 
-        List<G3Neighbor> g3Neighbors = topologyService.getSlaveDevices(gateway, queryParameters.getStart().orElse(0));
+        List<G3Neighbor> g3Neighbors = topologyService.getSlaveDevices(gateway, filterPredicate);
 
         logger.info("Mapping final topology list");
         List<DeviceTopologyInfo> topologyList = g3Neighbors
@@ -1119,10 +1120,10 @@ public class DeviceResource {
                         thesaurus))
                 .collect(Collectors.toList());
 
-        logger.info("Returning slave devices of "+topologyList.size()+" slave-devices");
+        logger.info("Returning slave devices of " + topologyList.size() + " slave-devices");
 
         topologyList.forEach(t -> {
-            logger.info("\t * "+t.serialNumber+" parent="+t.g3NodePLCInfo.parentName+" modulation="+t.g3NodePLCInfo.modulation +" lqi="+t.g3NodePLCInfo.linkQualityIndicator);
+            logger.info("\t * " + t.serialNumber + " parent=" + t.g3NodePLCInfo.parentName + " modulation=" + t.g3NodePLCInfo.modulation + " lqi=" + t.g3NodePLCInfo.linkQualityIndicator);
         });
 
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);

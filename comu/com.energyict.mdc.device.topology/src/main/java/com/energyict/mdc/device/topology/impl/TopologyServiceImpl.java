@@ -104,6 +104,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -136,6 +137,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     private volatile UserService userService;
     private RegisteredDevicesKpiService registeredDevicesKpiService;
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+
 
     private static final Logger LOGGER = Logger.getLogger(TopologyServiceImpl.class.getName());
 
@@ -489,10 +491,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     }
 
     @Override
-    public List<G3Neighbor> getSlaveDevices(Device gateway, long pageStart) {
+    public List<G3Neighbor> getSlaveDevices(Device gateway, Predicate<Device> filterPredicate) {
         LOGGER.info("Building the full Slave devices list for " + gateway.getSerialNumber());
 
-        G3TopologyBuilder g3TopologyBuilder = new G3TopologyBuilder(this, gateway);
+        G3TopologyBuilder g3TopologyBuilder = new G3TopologyBuilder(this, gateway, filterPredicate);
 
         G3Topology g3Topology = g3TopologyBuilder.build();
 
@@ -1425,6 +1427,7 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
+
 
 
     private interface FirstLevelTopologyTimeslicer {
