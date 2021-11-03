@@ -1,69 +1,61 @@
 /*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.custom.meterreadingdocument;
 
 import com.elster.jupiter.domain.util.Finder;
-import com.elster.jupiter.events.LocalEvent;
-import com.elster.jupiter.pubsub.EventHandler;
-import com.elster.jupiter.pubsub.Subscriber;
+import com.elster.jupiter.messaging.Message;
+import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.TaskStatus;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
+import java.util.Map;
+import java.util.Optional;
 
-import javax.inject.Inject;
+public class SAPMeterReadingDocumentOnDemandHandler implements MessageHandler {
+    public final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
+    public final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
+    public final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
+    public final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
 
-@Component(name = "SAPMeterReadingDocumentOnDemandHandler", service = Subscriber.class, immediate = true)
-public class SAPMeterReadingDocumentOnDemandHandler extends EventHandler<LocalEvent> {
-    private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
-    private final static String SCHEDULED_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED";
-    private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";
-    private final static String SCHEDULED_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED";
+    private ServiceCallService serviceCallService;
+    private SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper;
+    private CommunicationTaskService communicationTaskService;
+    private JsonService jsonService;
 
-    private volatile ServiceCallService serviceCallService;
-    private volatile SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper;
 
-    public SAPMeterReadingDocumentOnDemandHandler() {
-        super(LocalEvent.class);
-    }
-
-    @Inject
-    public SAPMeterReadingDocumentOnDemandHandler(ServiceCallService serviceCallService,
-                                                  SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper) {
-        this();
-        setServiceCallService(serviceCallService);
-        setSapMeterReadingComTaskExecutionHelper(sapMeterReadingComTaskExecutionHelper);
-    }
-
-    @Reference
-    public void setSapMeterReadingComTaskExecutionHelper(SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper) {
-        this.sapMeterReadingComTaskExecutionHelper = sapMeterReadingComTaskExecutionHelper;
-    }
-
-    @Reference
-    public void setServiceCallService(ServiceCallService serviceCallService) {
+    public SAPMeterReadingDocumentOnDemandHandler(ServiceCallService serviceCallService, SAPMeterReadingComTaskExecutionHelper sapMeterReadingComTaskExecutionHelper, JsonService jsonService, CommunicationTaskService communicationTaskService) {
+        super();
         this.serviceCallService = serviceCallService;
+        this.sapMeterReadingComTaskExecutionHelper = sapMeterReadingComTaskExecutionHelper;
+        this.jsonService = jsonService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     @Override
-    protected void onEvent(LocalEvent event, Object... eventDetails) {
-        switch (event.getType().getTopic()) {
-            case MANUAL_COMTASKEXECUTION_COMPLETED:
-            case SCHEDULED_COMTASKEXECUTION_COMPLETED:
-            case MANUAL_COMTASKEXECUTION_FAILED:
-            case SCHEDULED_COMTASKEXECUTION_FAILED:
-                processEvent(event, this::onComTaskExecutionFinished);
-                break;
-            default:
-                break;
+    public void process(Message message) {
+        Map<String, Object> messageProperties = this.jsonService.deserialize(message.getPayload(), Map.class);
+
+        if (messageProperties.get("event.topics")!=null) {
+
+            switch (messageProperties.get("event.topics").toString()) {
+                case MANUAL_COMTASKEXECUTION_COMPLETED:
+                case SCHEDULED_COMTASKEXECUTION_COMPLETED:
+                case MANUAL_COMTASKEXECUTION_FAILED:
+                case SCHEDULED_COMTASKEXECUTION_FAILED:
+                    processEvent(messageProperties, this::onComTaskExecutionFinished);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -71,11 +63,12 @@ public class SAPMeterReadingDocumentOnDemandHandler extends EventHandler<LocalEv
         void process(ComTaskExecution source);
     }
 
-    private void processEvent(LocalEvent event, EventProcessor processor) {
-        Object source = event.getSource();
-        if (source instanceof ComTaskExecution) {
-            ComTaskExecution comTaskExecution = (ComTaskExecution) source;
-            processor.process(comTaskExecution);
+    private void processEvent(Map<String, Object> messageProperties, EventProcessor processor) {
+        if (messageProperties.get("id") != null) {
+            Optional<ComTaskExecution> comTaskExecution = communicationTaskService.findComTaskExecution(((Number)(messageProperties.get("id"))).longValue());
+            if (comTaskExecution.isPresent()) {
+                processor.process(comTaskExecution.get());
+            }
         }
     }
 

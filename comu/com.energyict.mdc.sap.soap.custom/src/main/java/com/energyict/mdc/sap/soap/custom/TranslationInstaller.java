@@ -44,6 +44,7 @@ public class TranslationInstaller implements MessageSeedProvider, TranslationKey
     public List<TranslationKey> getKeys() {
         return Stream.of(
                 com.energyict.mdc.sap.soap.custom.export.TranslationKeys.values(),
+                com.energyict.mdc.sap.soap.custom.meterreadingdocument.TranslationKeys.values(),
                 TranslationKeys.values(),
                 SAPDeviceEventMappingStatusDomainExtension.FieldNames.values(),
                 com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.TranslationKeys.values())
