@@ -158,6 +158,15 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
         return result;
     }
 
+    public CollectedDataFactory getCollectedDataFactory() {
+        return collectedDataFactory;
+    }
+
+    public IssueFactory getIssueFactory() {
+        return issueFactory;
+    }
+
+
     /**
      * Indicates whether or not we are the mirror connection to read load profile.
      */
@@ -267,7 +276,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
         return result;
     }
 
-    private Map<LoadProfileReader, List<ChannelInfo>> getChannelInfosMap() {
+    protected Map<LoadProfileReader, List<ChannelInfo>> getChannelInfosMap() {
         if (channelInfosMap == null) {
             channelInfosMap = new HashMap<>();
         }
@@ -418,7 +427,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
         return (capturedObject.getAttributeIndex() == 5 && capturedObject.getClassId() == DLMSClassId.EXTENDED_REGISTER.getClassId()) || (capturedObject.getAttributeIndex() == 6 && capturedObject.getClassId() == DLMSClassId.DEMAND_REGISTER.getClassId());
     }
 
-    private boolean isSupported(LoadProfileReader lpr) {
+    protected boolean isSupported(LoadProfileReader lpr) {
         for (ObisCode supportedLoadProfile : supportedLoadProfiles) {
             if (lpr.getProfileObisCode().equalsIgnoreBChannel(supportedLoadProfile)) {
                 return true;

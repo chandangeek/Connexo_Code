@@ -17,6 +17,7 @@ Ext.define('Yfn.store.ReportFilterListItems', {
     proxy: {
         type: 'ajax',
         url: '/api/yfn/report/filterlistitems',
+        timeout:9999999,
         reader: {
             type: 'json',
             root: 'listitems'

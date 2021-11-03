@@ -51,6 +51,7 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String PRE_2_0_FIRMWARE = "Pre20Firmware";
     public static final String BROADCAST_AUTHENTICATION_KEY = "BroadcastAuthenticationKey";
     public static final String BROADCAST_ENCRYPTION_KEY = "BroadcastEncryptionKey";
+    public static final String UPDATE_IPV6_ON_TOPOLOGY = "UpdateIPv6OnTopology";
 
     public static final String DEFAULT_BACKLOG_LOADPROFILE = "DefaultBacklogLoadProfile";
     public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogEventLog";

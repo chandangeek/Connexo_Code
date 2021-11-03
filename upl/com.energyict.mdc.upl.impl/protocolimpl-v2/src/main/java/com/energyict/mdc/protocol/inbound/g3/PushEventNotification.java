@@ -16,6 +16,8 @@ import com.energyict.protocol.exception.CommunicationException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Copyrights EnergyICT
@@ -26,6 +28,8 @@ import java.util.List;
 public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     private static final int METER_JOIN_ATTEMPT = 0xC50000;
+
+    protected Logger logger = Logger.getLogger(this.getClass().getName());
 
     protected InboundDiscoveryContext context;
     protected ComChannel comChannel;
@@ -65,8 +69,10 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
             try {
                 if (!pskProvider.isInUse()) {
                     doProvide(pskProvider);
+                } else {
+                    logger.warning(getLoggingPrefix()+"provider in use");
                 }
-            } catch (CommunicationException e) {
+            } catch (Exception e) {
                 pskProvider.provideError(e.getMessage(), context);
             } finally {
                 getCollectedData().addAll(pskProvider.getCollectedDataList());
@@ -132,10 +138,19 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     private boolean isJoinAttempt() {
         try {
-            return getMeterProtocolEvent().getProtocolCode() == METER_JOIN_ATTEMPT;
+            long protocolCode = getMeterProtocolEvent().getProtocolCode();
+            boolean isJoin = (protocolCode == METER_JOIN_ATTEMPT);
+            logger.info(getLoggingPrefix()+"Event code "+protocolCode+" "+(isJoin?"is":"is not")+" a join request");
+            return isJoin;
         } catch (Exception ex) {
+            logger.log(Level.SEVERE,getLoggingPrefix()+"Cannot detect if is a join attempt: "+ex.getMessage(), ex);
             return false;
+
         }
+    }
+
+    private String getLoggingPrefix() {
+        return "[Inbound]["+((getDeviceIdentifier()!=null)?getDeviceIdentifier().toString():"unknown")+"] ";
     }
 
     /**
@@ -187,7 +202,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-12-29$";
+        return "$Date: 2021-09-21$";
     }
 
     @Override

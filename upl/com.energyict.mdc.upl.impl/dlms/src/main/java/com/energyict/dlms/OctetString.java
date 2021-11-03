@@ -65,8 +65,7 @@ public class OctetString implements Serializable {
         TimeZone tz;
         if ((array[9] != NO_DEVIATION[0]) || (array[10] != NO_DEVIATION[1])) {
             int tOffset = ProtocolUtils.getShort(array, 9);
-            int deviation = tOffset / SECONDS_PER_MINUTE;
-            tz = new SimpleTimeZone(deviationType.getGmtOffset(deviation) * 3600 * 1000, deviationType.getGmtNotation(deviation));
+            tz = new SimpleTimeZone(deviationType.getGmtOffset(tOffset) * SECONDS_PER_MINUTE * 1000, deviationType.getGmtNotation( tOffset ));
         } else {
             tz = deviceTimeZone;
         }

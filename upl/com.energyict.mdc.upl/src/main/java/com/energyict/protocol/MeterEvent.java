@@ -857,11 +857,15 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int TCP_IP_CONNECTION_ESTABLISHMENT_FAILURE = 430;
     public static final int ACK_NOT_RECEIVED = 431;
     public static final int PING_RESPONSE_NOT_RECEIVED = 432;
+    public static final int METER_RECORDS_CONTRACTOR_CHANGED_TO_ARMED_STATUS = 433;
+    public static final int COMMS_HUB_PRESENT = 434;
+    public static final int COMMS_HUB_REMOVED = 435;
+    public static final int CT_VT_RATIO_CHANGED = 436;
 
     public static final int SOFTWARE_RESTART_REQUEST = 10001;
     /**
      * Start of Beacon3100 custom codes
-     * Range from 100000 to 100129
+     * Range from 100000 to 100130
      * Actual codes MUST be remapped and CIM code corespondents created.
      * Event description is currently used in Beacon3100 protocol class.
      * 02.02.2018
@@ -1109,6 +1113,8 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int POWER_DOWN_EXTERNAL_WATCHDOG       = 100127;
     public static final int PROTOCOL_LOG_CLEARED               = 100128;
     public static final int METER_CLOCK_INVALID                = 100129;
+    public static final int HEART_BEAT                         = 100130;
+    public static final int CLEAR_NODE_LIST                    = 100131;
 
 
     // Used by EIServer UI:
@@ -1885,6 +1891,10 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
                 return "Protocol log cleared.";
             case METER_CLOCK_INVALID:
                 return "Meter clock invalid.";
+            case HEART_BEAT:
+                return "Heart-beat";
+            case CLEAR_NODE_LIST:
+                return "Clear node list";
             default:
                 return ("Unknown event." + code);
 

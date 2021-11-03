@@ -18,6 +18,7 @@ import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
 import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
@@ -123,11 +124,13 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
                         addResult(createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage()));
                     }
                 } else {
-                    throw ConnectionCommunicationException.numberOfRetriesReached(e, getDlmsSession().getProperties().getRetries() + 1);
+                    throw ConnectionCommunicationException.numberOfRetriesReachedWithConnectionStillIntact(e, getDlmsSession().getProperties().getRetries() + 1);
                 }
             } catch (Exception ex) {
                 getLogger().warning("Error while reading " + offlineRegister + ": " + ex.getMessage());
                 addResult(createFailureCollectedRegister(offlineRegister, ResultType.Other, ex.getMessage()));
+                final ProtocolException protocolException = new ProtocolException(ex, "Error while reading out "+ offlineRegister.getObisCode().toString()+": " + ex.getMessage());
+                throw ConnectionCommunicationException.unExpectedProtocolError(protocolException); // this leaves the connection intact
             }
         }
         return getCollectedRegisters();

@@ -453,6 +453,10 @@ public enum EndDeviceEventTypeMapping {
     TCP_IP_CONNECTION_ESTABLISHMENT_FAILURE( 430, EndDeviceEventTypeFactory.getTCPIPConnectionEstablishmentFailure()),
     ACK_NOT_RECEIVED( 431, EndDeviceEventTypeFactory.getAckNotReceived()),
     PING_RESPONSE_NOT_RECEIVED( 432, EndDeviceEventTypeFactory.getPingResponseNotReceived()),
+    METER_RECORDS_CONTRACTOR_CHANGED_TO_ARMED_STATUS(433, EndDeviceEventTypeFactory.getMeterRecodsWhenArmedStateChanged()),
+    COMMS_HUB_PRESENT(434, EndDeviceEventTypeFactory.getCommsHubPresent()),
+    COMMS_HUB_REMOVED( 435, EndDeviceEventTypeFactory.getCommsHubRemoved()),
+    CT_VT_RATIO_CHANGED(436, EndDeviceEventTypeFactory.getCtVtRatioChanged()),
 
     SOFTWARE_RESTART_REQUEST( 10001, EndDeviceEventTypeFactory.getSoftwareRestartRequest()),
 
@@ -583,7 +587,9 @@ public enum EndDeviceEventTypeMapping {
     POWER_DOWN_SECURE_ELEMENT_WATCHDOG      (100126, EndDeviceEventTypeFactory.getPowerDownSecureElementWatchdogEventType()),
     POWER_DOWN_EXTERNAL_WATCHDOG            (100127, EndDeviceEventTypeFactory.getPowerDownExternalWatchdogEventType()),
     PROTOCOL_LOG_CLEARED                    (100128, EndDeviceEventTypeFactory.getProtocolLogClearedEventType()),
-    METER_CLOCK_INVALID                     (100129, EndDeviceEventTypeFactory.getMeterClockInvalidEventType());
+    METER_CLOCK_INVALID                     (100129, EndDeviceEventTypeFactory.getMeterClockInvalidEventType()),
+    HEART_BEAT                              (100130, EndDeviceEventTypeFactory.getHeartBeatEventType()),
+    CLEAR_NODE_LIST                         (100131, EndDeviceEventTypeFactory.getClearNodeListEventType());
 
     private final int eisCode;
     private final EndDeviceEventType eventType;

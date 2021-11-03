@@ -223,9 +223,8 @@ public class IDISMessageExecutor extends AbstractMessageExecutor {
         byte[] binaryImage = TempFileLoader.loadTempFile(path);
         boolean resume = Boolean.valueOf(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, resumeFirmwareUpdateAttributeName).getValue());
 
-        String firmwareIdentifier;
         int length = binaryImage[0];
-        firmwareIdentifier = new String(ProtocolTools.getSubArray(binaryImage, 1, 1 + length));   //The image_identifier is included in the header of the bin file
+        String firmwareIdentifier = new String(ProtocolTools.getSubArray(binaryImage, 1, 1 + length));   //The image_identifier is included in the header of the bin file
 
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer();
         if (resume) {

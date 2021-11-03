@@ -1305,6 +1305,22 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.19.211.88");
     }
 
+    public static EndDeviceEventType getMeterRecodsWhenArmedStateChanged() {
+        return new EndDeviceEventType("0.39.17.24");
+    }
+
+    public static EndDeviceEventType getCommsHubPresent() {
+        return new EndDeviceEventType("0.1.43.105");
+    }
+
+    public static EndDeviceEventType getCommsHubRemoved() {
+        return new EndDeviceEventType("0.1.43.212");
+    }
+
+    public static EndDeviceEventType getCtVtRatioChanged() {
+        return new EndDeviceEventType("0.26.27.24");
+    }
+
     public static EndDeviceEventType getTCPIPConnectionEstablishmentFailure() {
         return new EndDeviceEventType("0.19.60.67");
     }
@@ -1427,6 +1443,26 @@ public class EndDeviceEventTypeFactory {
 
     public static EndDeviceEventType getReceiveFrameCounterAboveThreshold() {
         return new EndDeviceEventType("3.12.261.80");
+    }
+    
+    
+
+    public static EndDeviceEventType getHeartBeatEventType() {
+        return new EndDeviceEventType(
+                EndDeviceType.COMDEVICE,
+                EndDeviceDomain.COMMUNICATION,
+                EndDeviceSubdomain.SELFTEST,
+                EndDeviceEventOrAction.NORMAL
+        );
+    }
+
+    public static EndDeviceEventType getClearNodeListEventType() {
+        return new EndDeviceEventType(
+                EndDeviceType.PANGATEWAY,
+                EndDeviceDomain.NETWORK,
+                EndDeviceSubdomain.LIST,
+                EndDeviceEventOrAction.CLEARED
+        );
     }
 
     public static EndDeviceEventType getTamperBattery() {

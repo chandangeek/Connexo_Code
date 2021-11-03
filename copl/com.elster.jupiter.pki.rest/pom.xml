@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>9.0.1-Kratos-SNAPSHOT</version>
+        <version>10.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>pki.rest</artifactId>

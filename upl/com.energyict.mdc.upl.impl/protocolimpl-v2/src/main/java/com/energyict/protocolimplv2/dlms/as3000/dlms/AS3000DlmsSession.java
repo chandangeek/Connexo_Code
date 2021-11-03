@@ -1,10 +1,12 @@
 package com.energyict.protocolimplv2.dlms.as3000.dlms;
 
+import com.energyict.mdc.protocol.ComChannel;
+
+import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.dlms.protocolimplv2.connection.DlmsV2Connection;
 import com.energyict.dlms.protocolimplv2.connection.HDLCConnection;
-import com.energyict.mdc.protocol.ComChannel;
 
 import java.util.logging.Logger;
 

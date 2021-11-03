@@ -170,11 +170,11 @@ public class ReadRegisters extends AbstractRequest<List<OfflineRegister>, List<C
             if (!receivedRegister) {
                 if (isSupported(rtuRegister)) {
                     CollectedRegister defaultDeviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(rtuRegister.getObisCode(), "registerXissue", rtuRegister.getObisCode(), msg));
+                    defaultDeviceRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(rtuRegister.getObisCode(), "registerXissue: " + msg, rtuRegister.getObisCode(), msg));
                     result.add(defaultDeviceRegister);
                 } else {
                     CollectedRegister defaultDeviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(new RegisterDataIdentifierByObisCodeAndDevice(rtuRegister.getObisCode(), getAce4000().getDeviceIdentifier()));
-                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(rtuRegister.getObisCode(), "registerXnotsupported", rtuRegister.getObisCode()));
+                    defaultDeviceRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(rtuRegister.getObisCode(), "registerXnotsupported: " + rtuRegister.getObisCode().toString(), rtuRegister.getObisCode()));
                     result.add(defaultDeviceRegister);
                 }
             }

@@ -22,7 +22,7 @@ public abstract class AbstractHardcodedProfileParser extends DLMSProfileInterval
         super(encodedData, DLMSProfileIntervals.DefaultClockMask, DLMSProfileIntervals.DefaultStatusMask, 0, null);
     }
 
-    public Logger getLogger(){
+    public Logger getLogger() {
         return logger;
     }
 
@@ -54,22 +54,49 @@ public abstract class AbstractHardcodedProfileParser extends DLMSProfileInterval
      * @return
      * @throws IOException
      */
-    protected  IntervalData parseElement(Structure element, TimeZone timeZone, int profileStatus) throws IOException{
+    protected IntervalData parseElement(Structure element, TimeZone timeZone, int profileStatus) throws IOException {
         IntervalData currentInterval = null;
-        int ch=0;
+        int ch = 0;
 
         // 0 = calendar
         Calendar cal = null;
         cal = constructIntervalCalendar(cal, element.getDataType(ch++), timeZone);
+        cal = sanitizeTimeStamp(cal);
         currentInterval = new IntervalData(cal.getTime(), profileStatus);
 
-        // all other channels are considere by default numerical
-        while (element.hasMoreElements()){
-            currentInterval.addValue(getNumericalValue(element.getNextDataType()));
+        // all other channels are considered by default numerical
+        while (element.hasMoreElements()) {
+            Number value = getNumericalValue(element.getNextDataType());
+            Number finalValue = postProcess(ch++, value);
+            currentInterval.addValue(finalValue);
         }
         return currentInterval;
     }
 
+    /**
+     * Allow lower classes to post-process some value - e.g. RSRP, RSRQ adjustint, etc
+     *
+     * @param channelId channel ID (0 = date/time)
+     * @param rawValue  original value (read from Beacon)
+     * @return adjusted value (read to be displayed)
+     */
+    protected Number postProcess(int channelId, Number rawValue) {
+        return rawValue;
+    }
+
+    /**
+     * Reset all seconds and hundred of seconds to 00:00, since this will not be accepted by Connexo storing
+     * There are bugs in the Beacons, until they are solved, fix things here as much as we can
+     *
+     * @param cal - dirty time stamp from Beacon
+     * @return - cleaned time stamp
+     */
+    protected Calendar sanitizeTimeStamp(Calendar cal) {
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+
+        return cal;
+    }
 
     /**
      * Extract a numerical value from various data types which support a numerical value
@@ -78,38 +105,36 @@ public abstract class AbstractHardcodedProfileParser extends DLMSProfileInterval
      * @return
      */
     protected Number getNumericalValue(AbstractDataType dataType) {
-        if (dataType.isUnsigned8()){
+        if (dataType.isUnsigned8()) {
             return dataType.getUnsigned8().getValue();
         }
-        if (dataType.isUnsigned16()){
+        if (dataType.isUnsigned16()) {
             return dataType.getUnsigned16().getValue();
         }
-        if (dataType.isUnsigned32()){
+        if (dataType.isUnsigned32()) {
             return dataType.getUnsigned32().getValue();
         }
-        if (dataType.isInteger8()){
+        if (dataType.isInteger8()) {
             return dataType.getInteger8().getValue();
         }
-        if (dataType.isInteger16()){
+        if (dataType.isInteger16()) {
             return dataType.getInteger16().getValue();
         }
-        if (dataType.isInteger32()){
+        if (dataType.isInteger32()) {
             return dataType.getInteger32().getValue();
         }
-        if (dataType.isInteger64()){
+        if (dataType.isInteger64()) {
             return dataType.getInteger64().getValue();
         }
-        if (dataType.isUnsigned64()){
+        if (dataType.isUnsigned64()) {
             return dataType.getUnsigned64().getValue();
         }
-        if (dataType.isTypeEnum()){
+        if (dataType.isTypeEnum()) {
             return dataType.getTypeEnum().getValue();
         }
 
         return dataType.longValue();
     }
-
-
 
 
 }

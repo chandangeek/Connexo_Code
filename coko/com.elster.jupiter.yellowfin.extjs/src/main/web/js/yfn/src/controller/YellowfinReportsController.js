@@ -145,7 +145,7 @@ Ext.define('Yfn.controller.YellowfinReportsController', {
                 Ext.Ajax.request({
                     url: '/api/yfn/cachegroups/dynamic',
                     method: 'POST',
-                    timeout: 180000,
+                    timeout: 9999999,
                     //async: false,
                     jsonData: {
                         total: groups.length,

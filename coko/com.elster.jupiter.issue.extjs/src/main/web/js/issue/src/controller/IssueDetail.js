@@ -25,7 +25,7 @@ Ext.define('Isu.controller.IssueDetail', {
 
     itemUrl: '/api/isu/issues/',
 
-    showOverview: function (issueId) {
+    showOverview: function (id) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             queryString = Uni.util.QueryString.getQueryStringValues(false),
@@ -34,60 +34,71 @@ Ext.define('Isu.controller.IssueDetail', {
             widgetXtype,
             widget;
 
-        Ext.Ajax.request({
+        var storeParams = {};
 
-            url: '/api/isu/issues/' + issueId +'?variableid=' + issueId + '&variablevalue=' + issueId,
-            method: 'GET',
-            params: {
-                filters: [{property: 'meter',  value : queryString.meter}]
-            },
-            success: function (operation) {
-                var record = Ext.decode(operation.responseText, true);//Ext.JSON.decode(operation.responseText);
+        if (queryString && queryString.meter) {
+            storeParams['filters'] = [{property: 'meter', value: queryString.meter}]
+        }
 
-                store.loadRawData([record]);
-                store.each(function (record) {
-                    if (record) {
-                        var issueActualType = record.get('issueType').uid;
-                        if (issueActualType != issueType) {
-                            queryString.issueType = issueActualType;
-                            window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
-                            issueType = issueActualType;
-                        }
-                    }
-
-                    widgetXtype = me.settingsForCurrentIssueType(issueType);
-
-                    widget = Ext.widget(widgetXtype, {
-                        router: router,
-                        issuesListLink: me.makeLinkToList(router)
-                    });
-
-                    me.widget = widget;
-                    me.getApplication().fireEvent('changecontentevent', widget);
-                    me.setAdditionalSettingsForCurrentIssue(issueType, widget);
-
-                    Ext.getStore('Isu.store.Clipboard').set('issue', record);
-                    widget.down('#issue-detail-top-title').setTitle(record.get('title'));
-                    if (issueType === 'datacollection') {
-                        me.loadDataCollectionIssueDetails(widget, record);
-                    } else {
-                        widget.down('#issue-detail-form').loadRecord(record);
-                    }
-                    Ext.resumeLayouts(true);
-                    var subEl = new Ext.get('issue-status-field-sub-tpl');
-                    subEl.setHTML(record.get('statusDetail'));
-
-                    if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
-                        me.getActionMenu().record = record;
-                    }
-                    else if (widget.down('#issue-detail-action-menu')) {
-                        widget.down('#issue-detail-action-menu').record = record;
-                    }
-                    me.loadComments(record, issueType);
-                    me.loadProcesses(record, issueType, issueId);
-                });
+        var callback = function () {
+            if (store.getCount() && store.getById(parseInt(id)) != null) {
+                var issueActualType = store.getById(parseInt(id)).get('issueType').uid;
+                if (issueActualType != issueType) {
+                    queryString.issueType = issueActualType;
+                    window.location.replace(Uni.util.QueryString.buildHrefWithQueryString(queryString, false));
+                    issueType = issueActualType;
+                }
             }
-        });
+
+            widgetXtype = me.settingsForCurrentIssueType(issueType);
+
+            widget = Ext.widget(widgetXtype, {
+                router: router,
+                issuesListLink: me.makeLinkToList(router)
+            });
+
+            me.widget = widget;
+            me.getApplication().fireEvent('changecontentevent', widget);
+            widget.setLoading(true);
+
+            me.getModel(me.issueModel).load(id, {
+                callback: function () {
+                    widget.setLoading(false);
+                },
+                success: function (record) {
+                    if (!widget.isDestroyed) {
+                        Ext.getStore('Isu.store.Clipboard').set('issue', record);
+                        me.getApplication().fireEvent('issueLoad', record);
+                        Ext.suspendLayouts();
+                        widget.down('#issue-detail-top-title').setTitle(record.get('title'));
+                        if (issueType === 'datacollection') {
+                            me.loadDataCollectionIssueDetails(widget, record);
+                        } else {
+                            widget.down('#issue-detail-form').loadRecord(record);
+                        }
+                        Ext.resumeLayouts(true);
+                        var subEl = new Ext.get('issue-status-field-sub-tpl');
+                        subEl.setHTML(record.get('statusDetail'));
+
+                        if ((typeof me.getActionMenu === "function") && me.getActionMenu()) {
+                            me.getActionMenu().record = record;
+                        }
+                        else if (widget.down('#issue-detail-action-menu')) {
+                            widget.down('#issue-detail-action-menu').record = record;
+                        }
+                        me.loadComments(record, issueType);
+                        me.loadProcesses(record, issueType, id);
+                    }
+                },
+                failure: function () {
+                    router.getRoute(router.currentRoute.replace('/view', '')).forward();
+                }
+            });
+
+            me.setAdditionalSettingsForCurrentIssue(issueType, widget);
+        }
+        storeParams.callback = callback;
+        store.load(storeParams);
     },
 
     settingsForCurrentIssueType: function (issueType) {
@@ -218,7 +229,7 @@ Ext.define('Isu.controller.IssueDetail', {
         return Ext.String.format(link, router.getRoute('workspace/issues').buildUrl(null, queryParams));
     },
 
-    loadProcesses: function (record, issueType, issueId) {
+    loadProcesses: function (record, issueType, id) {
         alarm = Ext.ComponentQuery.query('alarm-timeline')[0];
         var me = this,
             processView = this.widget ? this.widget.down('#issue-process-view') : this.getPage().down('#issue-process-view'),
@@ -232,7 +243,7 @@ Ext.define('Isu.controller.IssueDetail', {
                 case 'task':
                 case 'servicecall':
                 case 'webservice':
-                    processStore.getProxy().setUrl(issueId);
+                    processStore.getProxy().setUrl(id);
                     Ext.Ajax.suspendEvent('requestexception');
                     processView.setLoading();
                     processStore.load({
