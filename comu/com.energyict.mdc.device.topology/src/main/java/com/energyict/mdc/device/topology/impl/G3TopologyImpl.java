@@ -19,7 +19,6 @@ public class G3TopologyImpl implements G3Topology {
 
     @Override
     public void addG3NeighborLink(G3Neighbor g3Neighbor) {
-        log("Adding G3 link", g3Neighbor);
         topology.put(getLinkHash(g3Neighbor), Optional.of(g3Neighbor));
     }
 

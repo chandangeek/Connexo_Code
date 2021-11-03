@@ -50,10 +50,7 @@ public class G3TopologyBuilder {
     }
 
     private void findPhysicallyConnectedDevices() {
-        physicalLinks.addAll(topologyService.findPhysicalConnectedDevices(gateway)
-                .stream()
-                .filter(filterPredicate)
-                .collect(Collectors.toList()));
+        physicalLinks.addAll(topologyService.findPhysicalConnectedDevices(gateway));
         logger.info("Found " + physicalLinks.size() + " physically connected devices to " + gateway.getSerialNumber());
     }
 
@@ -78,9 +75,29 @@ public class G3TopologyBuilder {
         }
 
         log("Processing path segment", segment);
+        addG3NeighborLink(buildSegmentLink(segment));
+    }
 
-        G3Neighbor g3n = buildSegmentLink(segment);
-        g3Topology.addG3NeighborLink(g3n);
+    private void addG3NeighborLink(G3Neighbor g3n){
+        if (filterPredicate.test(g3n.getDevice())) {
+            log("Adding G3 link", g3n);
+            g3Topology.addG3NeighborLink(g3n);
+        } else {
+            log("G3 link filtered out", g3n);
+        }
+    }
+
+    protected void log(String message, G3Neighbor g3n){
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(message);
+        sb.append(" slave(device)=").append(g3n.getDevice().getSerialNumber());
+        sb.append(" parent(neighbor)=").append(g3n.getNeighbor().getSerialNumber());
+        sb.append(" LQI=").append(g3n.getLinkQualityIndicator());
+        sb.append(" modulation=").append(g3n.getModulation());
+        sb.append(" phase=").append(g3n.getPhaseInfo());
+
+        logger.info(sb.toString());
     }
 
     protected void log(String message, G3CommunicationPathSegment segment) {
@@ -115,8 +132,7 @@ public class G3TopologyBuilder {
         deviceFound(g3Neighbor.getDevice());
         deviceFound(g3Neighbor.getNeighbor());
 
-        G3Neighbor g3link = reverseLink(g3Neighbor);
-        g3Topology.addG3NeighborLink(g3link);
+        addG3NeighborLink(reverseLink(g3Neighbor));
     }
 
     /**
@@ -130,10 +146,9 @@ public class G3TopologyBuilder {
 
     private void processPhysicalLink(Device device) {
         if (!slaves.contains(device)) {
-            logger.info("Physically linked device not processed yet: "+device.getName()+" ("+device.getSerialNumber()+")");
+            logger.info("Physically linked device not processed yet: " + device.getName() + " (" + device.getSerialNumber() + ")");
 
-            G3Neighbor g3n = buildPhysicalLink(device);
-            g3Topology.addG3NeighborLink(g3n);
+            addG3NeighborLink(buildPhysicalLink(device));
         }
     }
 
