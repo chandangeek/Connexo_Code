@@ -66,6 +66,7 @@ import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.g3.G3Properties;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3Topology;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.G3Node;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.events.G3GatewayEvents;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.messages.RtuPlusServerMessages;
 import com.energyict.protocolimplv2.eict.rtuplusserver.g3.properties.G3GatewayConfigurationSupport;
@@ -374,7 +375,7 @@ public class RtuPlusServer implements DeviceProtocol, SerialNumberSupport {
      * If true, the gateway link in EIServer will be created and the properties will be set.
      * If false, the gateway link (if it exists at all) will be removed.
      */
-    private boolean hasNewerLastSeenDate(G3Topology.G3Node g3Node, long configuredLastSeenDate) {
+    private boolean hasNewerLastSeenDate(G3Node g3Node, long configuredLastSeenDate) {
         return (configuredLastSeenDate == 0) || (g3Node.getLastSeenDate() == null) || (g3Node.getLastSeenDate().getTime() >= configuredLastSeenDate);
     }
 

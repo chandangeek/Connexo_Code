@@ -111,7 +111,7 @@ Ext.define('CSMonitor.controller.logging.Text', {
 
     openWebSocket: function(){
         var socketProtocol = 'ws:' ;
-        if (window.location.protocol === 'https'){
+        if (window.location.protocol === 'https:'){
             socketProtocol = 'wss:';
         }
 

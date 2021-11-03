@@ -31,7 +31,9 @@ public class G3TopologyBuilder {
         this.gateway = gateway;
 
         this.filterPredicate = filterPredicate;
-        this.g3Topology = new G3TopologyImpl();
+
+        this.g3Topology = new G3TopologyImpl(gateway);
+
         this.slaves = new HashSet<>();
         this.physicalLinks = new HashSet<>();
     }
@@ -40,11 +42,11 @@ public class G3TopologyBuilder {
     public G3Topology build() {
         logger.info("Building G3-Topology for gateway " + gateway.getName() + " (" + gateway.getSerialNumber() + ")");
 
-        findPhysicallyConnectedDevices();
+        findPhysicallyConnectedDevices(); // this is the number of AVAILABLE devices reported by Beacon
 
+        processPhysicalLinks();
         processPathSegments();
         processG3Neighbors();
-        processPhysicalLinks();
 
         return g3Topology;
     }
@@ -67,6 +69,12 @@ public class G3TopologyBuilder {
     }
 
     private void processPathSegment(G3CommunicationPathSegment segment) {
+        if (segment.getTarget().getDeviceType().getId() == gateway.getDeviceType().getId() ||
+                segment.getSource().getDeviceType().getId() == gateway.getDeviceType().getId()){
+            logger.warning("Received obsolete parent, ignoring! "+segment.getSource().getName()+" - "+segment.getTarget().getName());
+            return;
+        }
+
         deviceFound(segment.getSource());
         deviceFound(segment.getTarget());
 
@@ -87,32 +95,36 @@ public class G3TopologyBuilder {
         }
     }
 
-    protected void log(String message, G3Neighbor g3n){
-        StringBuilder sb = new StringBuilder();
+    protected void log(String message, G3Neighbor g3n) {
+        if (logger.isLoggable(Level.FINE)) {
+            StringBuilder sb = new StringBuilder();
 
-        sb.append(message);
-        sb.append(" slave(device)=").append(g3n.getDevice().getSerialNumber());
-        sb.append(" parent(neighbor)=").append(g3n.getNeighbor().getSerialNumber());
-        sb.append(" LQI=").append(g3n.getLinkQualityIndicator());
-        sb.append(" modulation=").append(g3n.getModulation());
-        sb.append(" phase=").append(g3n.getPhaseInfo());
+            sb.append(message);
+            sb.append(" slave(device)=").append(g3n.getDevice().getSerialNumber());
+            sb.append(" parent(neighbor)=").append(g3n.getNeighbor().getSerialNumber());
+            sb.append(" LQI=").append(g3n.getLinkQualityIndicator());
+            sb.append(" modulation=").append(g3n.getModulation());
+            sb.append(" phase=").append(g3n.getPhaseInfo());
 
-        logger.info(sb.toString());
+            logger.info(sb.toString());
+        }
     }
 
     protected void log(String message, G3CommunicationPathSegment segment) {
-        StringBuilder sb = new StringBuilder();
+        if (logger.isLoggable(Level.FINE)) {
+            StringBuilder sb = new StringBuilder();
 
-        sb.append(message);
-        sb.append(" slave(target)=").append(segment.getTarget().getSerialNumber());
-        sb.append(" parent(source)=").append(segment.getSource().getSerialNumber());
-        if (segment.getNextHopDevice().isPresent()) {
-            sb.append(" nextHop=").append(segment.getNextHopDevice().get().getSerialNumber());
+            sb.append(message);
+            sb.append(" slave(target)=").append(segment.getTarget().getSerialNumber());
+            sb.append(" parent(source)=").append(segment.getSource().getSerialNumber());
+            if (segment.getNextHopDevice().isPresent()) {
+                sb.append(" nextHop=").append(segment.getNextHopDevice().get().getSerialNumber());
+            }
+            sb.append(" cost=").append(segment.getCost());
+            sb.append(" ttl=").append(segment.getTimeToLive());
+
+            logger.info(sb.toString());
         }
-        sb.append(" cost=").append(segment.getCost());
-        sb.append(" ttl=").append(segment.getTimeToLive());
-
-        logger.info(sb.toString());
     }
 
     /**
@@ -146,7 +158,7 @@ public class G3TopologyBuilder {
 
     private void processPhysicalLink(Device device) {
         if (!slaves.contains(device)) {
-            logger.info("Physically linked device not processed yet: " + device.getName() + " (" + device.getSerialNumber() + ")");
+            logger.finest("Physically linked device not processed yet: " + device.getName() + " (" + device.getSerialNumber() + ")");
 
             addG3NeighborLink(buildPhysicalLink(device));
         }
@@ -157,6 +169,7 @@ public class G3TopologyBuilder {
     }
 
     private G3Neighbor buildSegmentLink(G3CommunicationPathSegment segment) {
+        //TODO: check the default state?
         return topologyService.newG3Neighbor(segment.getTarget(), segment.getSource(), null, null, null, G3NodeState.AVAILABLE);
     }
 
@@ -174,6 +187,7 @@ public class G3TopologyBuilder {
 
 
     private Set<G3Neighbor> buildG3Neighborhood() {
+
         Set<Device> processedDevices = new HashSet<>();
         Set<G3Neighbor> neighborhood = new HashSet<>();
         Set<Device> queue = new HashSet<>();
@@ -211,19 +225,21 @@ public class G3TopologyBuilder {
             queue.removeAll(devicesToDelete);
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("Returning a neighborhood of ").append(neighborhood.size()).append(" G3 links");
-        neighborhood.forEach(n -> {
-            sb.append("\n");
-            sb.append("device=").append(n.getDevice().getSerialNumber()).append("\t");
-            sb.append("neighbor=").append(n.getNeighbor().getSerialNumber()).append("\t");
-            sb.append("id=").append(n.getNeighbor().getId()).append("\t");
-            sb.append("shortAddress=").append(n.getShortAddress()).append("\t");
-            sb.append("phase=").append(n.getPhaseInfo()).append("\t");
-            sb.append("lqi=").append(n.getLinkQualityIndicator()).append("\t");
-            sb.append("panId=").append(n.getMacPANId());
-        });
-        logger.info(sb.toString());
+        if (logger.isLoggable(Level.FINE)) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Returning a neighborhood of ").append(neighborhood.size()).append(" G3 links");
+            neighborhood.forEach(n -> {
+                sb.append("\n");
+                sb.append("device=").append(n.getDevice().getSerialNumber()).append("\t");
+                sb.append("neighbor=").append(n.getNeighbor().getSerialNumber()).append("\t");
+                sb.append("id=").append(n.getNeighbor().getId()).append("\t");
+                sb.append("shortAddress=").append(n.getShortAddress()).append("\t");
+                sb.append("phase=").append(n.getPhaseInfo()).append("\t");
+                sb.append("lqi=").append(n.getLinkQualityIndicator()).append("\t");
+                sb.append("panId=").append(n.getMacPANId());
+            });
+            logger.fine(sb.toString());
+        }
         return neighborhood;
     }
 
