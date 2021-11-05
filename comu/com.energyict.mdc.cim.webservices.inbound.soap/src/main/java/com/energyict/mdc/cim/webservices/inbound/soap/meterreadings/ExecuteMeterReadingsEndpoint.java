@@ -344,21 +344,22 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
-                Optional<ComTaskExecution> comTaskExecutionOptional = findComTaskExecutionForDeviceMessages(device, reading.getConnectionMethod());
-                if (comTaskExecutionOptional.isPresent()) {
-                    if (ScheduleStrategy.USE_SCHEDULE.getName().equals(scheduleStrategy)) {
-                        if (!comTaskExecutionOptional.get().getComSchedule().isPresent()) {
-                            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null, device.getName()));
-                        }
+                List<ComTaskExecution> comTaskExecutionList = findComTasksExecutionForDeviceMessages(device, reading.getConnectionMethod());
+                Optional<ComTaskExecution> comTaskExecutionOptional = comTaskExecutionList.stream().findAny();
+                if (ScheduleStrategy.USE_SCHEDULE.getName().equals(scheduleStrategy)) {
+                    comTaskExecutionOptional = comTaskExecutionList.stream().filter(cT -> cT.getComSchedule().isPresent()).findAny();
+                    if (!comTaskExecutionOptional.isPresent()) {
+                        syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.COM_TASK_IS_NOT_SCHEDULED, null, device.getName()));
                     }
-                    if (ScheduleStrategy.RUN_WITH_PRIORITY.getName().equals(scheduleStrategy)) {
-                        if (!canRunWithPriority(comTaskExecutionOptional.get())) {
-                            syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null, device.getName()));
-                            continue;
-                        }
-                    }
-                    syncReplyIssue.addDeviceMessagesComTaskExecutions(device.getId(), comTaskExecutionOptional.get());
                 }
+                if (ScheduleStrategy.RUN_WITH_PRIORITY.getName().equals(scheduleStrategy)) {
+                    comTaskExecutionOptional = comTaskExecutionList.stream().filter(this::canRunWithPriority).findAny();
+                    if (!comTaskExecutionOptional.isPresent()) {
+                        syncReplyIssue.addErrorType(syncReplyIssue.getReplyTypeFactory().errorType(MessageSeeds.NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILES, null, device.getName()));
+                        continue;
+                    }
+                }
+                comTaskExecutionOptional.ifPresent(comTaskExecution -> syncReplyIssue.addDeviceMessagesComTaskExecutions(device.getId(), comTaskExecution));
             }
         }
     }
@@ -641,6 +642,22 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                         || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod))
                 .filter(cte -> !cte.isOnHold())
                 .findAny();
+    }
+
+    private List<ComTaskExecution> findComTasksExecutionForDeviceMessages(Device device, String connectionMethod) {
+        return device.getComTaskExecutions().stream()
+                .filter(cte -> cte.getComTask().isManualSystemTask())
+                .filter(cte -> cte.getProtocolTasks().stream()
+                        .filter(MessagesTask.class::isInstance)
+                        .map(task -> ((MessagesTask) task))
+                        .map(MessagesTask::getDeviceMessageCategories)
+                        .flatMap(List::stream)
+                        .anyMatch(deviceMessageCategory -> deviceMessageCategory.getId() == 16)
+                )
+                .filter(cte -> connectionMethod == null
+                        || cte.getConnectionTask().isPresent() && cte.getConnectionTask().get().getPartialConnectionTask().getName().equalsIgnoreCase(connectionMethod))
+                .filter(cte -> !cte.isOnHold())
+                .collect(Collectors.toList());
     }
 
     private void fillDataSource(DataSourceTypeName dsTypeName, Set<String> dsNames, int index,
