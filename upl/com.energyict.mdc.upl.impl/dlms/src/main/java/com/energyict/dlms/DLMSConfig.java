@@ -51,6 +51,7 @@ public final class DLMSConfig {
 	private static final DLMSConfig SPECIALDAYS = new DLMSConfig("",11,0,0,11,0,0,255);
     private static final DLMSConfig SFSKPhyMacSetupSN = new DLMSConfig("",50,0,0,26,0,0,255);
 	private static final DLMSConfig USBSETUP = new DLMSConfig("",0,0,0,128,0,28,255);
+	private static final DLMSConfig NBIOTMODEMSETUP = new DLMSConfig("", 45,0,1,25,4,0,255);
 
 
 	private static final DLMSConfig[] configchange = {
@@ -745,6 +746,11 @@ public final class DLMSConfig {
 
 	public int getGPRSModemSetupSN(UniversalObject[] objectList) {
 		return getSNFromObjectList(objectList, GPRSMODEMSETUP, "GPRSModemSetup");
+	}
+
+
+	public int getNBIOTModemSetupSN(UniversalObject[] objectList) {
+		return getSNFromObjectList(objectList, NBIOTMODEMSETUP, "NBIOTModemSetup");
 	}
 
     public int getLTEModemSetupSN(UniversalObject[] objectList) {
