@@ -28,21 +28,7 @@ public class HDLCConnection extends HDLC2Connection implements DlmsV2Connection 
     private int generalBlockTransferWindowSize;
 
     public HDLCConnection(ComChannel comChannel, CommunicationSessionProperties properties) {
-        super(properties);
-        this.comChannel = comChannel;
-        this.iMaxRetries = properties.getRetries();
-        this.iProtocolTimeout = properties.getTimeout();
-        this.NR = 0;
-        this.NS = 0;
-        this.boolHDLCConnected = false;
-        this.hhuSignonBaudRateCode = properties.getHHUSignonBaudRateCode();
-        this.invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
-        this.useGeneralBlockTransfer = properties.useGeneralBlockTransfer();
-        this.generalBlockTransferWindowSize = properties.getGeneralBlockTransferWindowSize();
-        parseAddressingMode(properties.getAddressingMode());
-        setProtocolParams();
-        setSNRMType(properties.getSNRMType());
-        generateSNRMFrames();
+        this(comChannel, properties, true);
     }
 
     public HDLCConnection(ComChannel comChannel, CommunicationSessionProperties properties, boolean infoFieldRequired) {
