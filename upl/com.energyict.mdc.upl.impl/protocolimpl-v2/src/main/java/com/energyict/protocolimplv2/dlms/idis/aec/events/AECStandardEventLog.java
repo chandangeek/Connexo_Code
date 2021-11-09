@@ -21,7 +21,7 @@ public class AECStandardEventLog extends StandardEventLog {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.EXTERNAL_ALERT, eventId, "External alert detected"));
                 break;
             case 21:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.END_OF_NONPERIODIC_BILLING_INTERVAL, eventId, "End of non-periodic billing interval"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CONFIGURATION_PARAMETER_CHANGED, eventId, "Parameter modified"));
                 break;
             case 52:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.UNEXPECTED_CONSUMPTION, eventId, "Unexpected consumption"));
