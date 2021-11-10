@@ -33,16 +33,15 @@ import com.elster.jupiter.servicecall.rest.ServiceCallInfoFactory;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.User;
+import com.elster.jupiter.util.HasId;
+import com.elster.jupiter.util.HasName;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
-import com.energyict.mdc.common.device.config.AllowedCalendar;
-import com.energyict.mdc.common.device.config.DeviceConfiguration;
-import com.energyict.mdc.common.device.config.DeviceTypePurpose;
-import com.energyict.mdc.common.device.config.GatewayType;
+import com.energyict.mdc.common.device.config.*;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
@@ -98,17 +97,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -127,10 +116,12 @@ import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDE
 import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_CONTRACT;
 import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME_AND_TYPE;
 import static com.energyict.mdc.common.protocol.DeviceMessageId.ACTIVITY_CALENDER_SPECIAL_DAY_CALENDAR_SEND_WITH_CONTRACT_AND_DATETIME;
+import static java.util.stream.Collectors.toList;
 
 @Path("/devices")
 public class DeviceResource {
     private static final int RECENTLY_ADDED_COUNT = 5;
+    private static final Comparator<HasName> BY_NAME_COMPARATOR = Comparator.comparing(HasName::getName, String.CASE_INSENSITIVE_ORDER);
     private static final String DEVICE_ASSOCIATION = "device";
     static final String PROCESS_KEY_DEVICE_STATES = "deviceStates";
     static final String PROCESS_LIFECYCLE_ISSUE_STATES = "lifecycleIssueStates";
@@ -409,7 +400,7 @@ public class DeviceResource {
         List<String> deviceList = deviceStream
                 .filter(device -> deviceStateMatches(device, bpmProcessDefinition.get()))
                 .map(Device::getmRID)
-                .collect(Collectors.toList());
+                .collect(toList());
         return Response.ok(deviceList).build();
     }
 
@@ -793,10 +784,10 @@ public class DeviceResource {
                         .stream()
                         .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
                         .filter(resourceHelper.filterGaps(forced))
-                        .collect(Collectors.toList());
+                        .collect(toList());
         if (!overlapInfos.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(toList())))
                     .build();
         }
         resourceHelper.addDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo);
@@ -820,10 +811,10 @@ public class DeviceResource {
                         .stream()
                         .filter(e -> !e.conflictType.equals(ValuesRangeConflictType.RANGE_INSERTED.name()))
                         .filter(resourceHelper.filterGaps(forced))
-                        .collect(Collectors.toList());
+                        .collect(toList());
         if (!overlapInfos.isEmpty()) {
             return Response.status(Response.Status.BAD_REQUEST)
-                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(Collectors.toList())))
+                    .entity(new CustomPropertySetIntervalConflictErrorInfo(overlapInfos.stream().collect(toList())))
                     .build();
         }
         resourceHelper.setDeviceCustomPropertySetVersioned(lockedDevice, cpsId, customPropertySetInfo, Instant.ofEpochMilli(timeStamp));
@@ -841,11 +832,11 @@ public class DeviceResource {
         List<IdWithNameInfo> privileges = DevicePrivileges.getPrivilegesFor(device, user)
                 .stream()
                 .map(privilege -> new IdWithNameInfo(null, privilege))
-                .collect(Collectors.toList());
+                .collect(toList());
         privileges.addAll(DevicePrivileges.getTimeOfUsePrivilegesFor(device, deviceConfigurationService)
                 .stream()
                 .map(privilege -> new IdWithNameInfo(null, privilege))
-                .collect(Collectors.toList()));
+                .collect(toList()));
         return Response.ok(PagedInfoList.fromCompleteList("privileges", privileges, queryParameters)).build();
     }
 
@@ -882,7 +873,7 @@ public class DeviceResource {
                                     .stream()
                                     .sorted(Comparator.comparing(DeviceMessageSpec::getName))
                                     .map(dms -> deviceMessageSpecInfoFactory.asInfoWithMessagePropertySpecs(dms, device))
-                                    .collect(Collectors.toList());
+                                    .collect(toList());
                     if (!deviceMessageSpecs.isEmpty()) {
                         DeviceMessageCategoryInfo info = deviceMessageCategoryInfoFactory.asInfo(category);
                         info.deviceMessageSpecs = deviceMessageSpecs;
@@ -1027,13 +1018,13 @@ public class DeviceResource {
 
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObjects = Arrays.asList(device, device.getMeter());
-        filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
+        filter.states = states.stream().map(Enum::name).collect(toList());
 
         List<ServiceCallInfo> serviceCallInfos = serviceCallService.getServiceCallFinder(filter)
                 .from(queryParameters)
                 .stream()
                 .map(serviceCallInfoFactory::summarized)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return PagedInfoList.fromPagedList("serviceCalls", serviceCallInfos, queryParameters);
     }
@@ -1051,6 +1042,28 @@ public class DeviceResource {
     }
 
     @GET
+    @Transactional
+    @Path("/{name}/topology/communication/devicetypes")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA,
+            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_1,
+            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_2,
+            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_3,
+            com.energyict.mdc.device.config.security.Privileges.Constants.EXECUTE_DEVICE_MESSAGE_4})
+    public PagedInfoList getCommunicationReferenceDeviceTypes(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
+        Device gateway = resourceHelper.findDeviceByNameOrThrowException(name);
+        List<IdWithNameInfo> deviceTypes = topologyService.findPhysicalConnectedDevices(gateway)
+                .stream()
+                .map(Device::getDeviceType)
+                .distinct()
+                .sorted(BY_NAME_COMPARATOR)
+                .map(IdWithNameInfo::new)
+                .collect(Collectors.toList());
+
+        return PagedInfoList.fromCompleteList("deviceTypes", deviceTypes, queryParameters);
+    }
+
+    @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Path("/{name}/servicecallhistory")
     public PagedInfoList getServiceCallHistoryFor(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter jsonQueryFilter, @HeaderParam("X-CONNEXO-APPLICATION-NAME") String appKey) {
@@ -1065,7 +1078,7 @@ public class DeviceResource {
         ServiceCallFilter filter = serviceCallInfoFactory.convertToServiceCallFilter(jsonQueryFilter, appKey);
         filter.targetObjects = Arrays.asList(device, device.getMeter());
         if (filter.states.isEmpty()) {
-            filter.states = states.stream().map(Enum::name).collect(Collectors.toList());
+            filter.states = states.stream().map(Enum::name).collect(toList());
         }
         serviceCallService.getServiceCallFinder(filter)
                 .from(queryParameters)
@@ -1103,10 +1116,11 @@ public class DeviceResource {
             com.energyict.mdc.common.device.config.DeviceConfigConstants.EXECUTE_DEVICE_MESSAGE_4})
     public PagedInfoList getCommunicationReferences(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters, @BeanParam JsonQueryFilter filter) {
         Device gateway = resourceHelper.findDeviceByNameOrThrowException(name);
-        logger.info("Getting communication references for "+gateway.getName()+" ("+gateway.getSerialNumber()+")");
+        Predicate<Device> filterPredicate = getFilterForCommunicationTopology(filter);
+        logger.info("Getting communication references for " + gateway.getName() + " (" + gateway.getSerialNumber() + ")");
         TopologyTimeline timeline = topologyService.getPhysicalTopologyTimeline(gateway);
 
-        List<G3Neighbor> g3Neighbors = topologyService.getSlaveDevices(gateway, queryParameters.getStart().orElse(0));
+        List<G3Neighbor> g3Neighbors = topologyService.getSlaveDevices(gateway, filterPredicate);
 
         logger.info("Mapping final topology list");
         List<DeviceTopologyInfo> topologyList = g3Neighbors
@@ -1117,12 +1131,12 @@ public class DeviceResource {
                         deviceLifeCycleConfigurationService,
                         Optional.of(g3n),
                         thesaurus))
-                .collect(Collectors.toList());
+                .collect(toList());
 
-        logger.info("Returning slave devices of "+topologyList.size()+" slave-devices");
+        logger.info("Returning slave devices of " + topologyList.size() + " slave-devices");
 
         topologyList.forEach(t -> {
-            logger.info("\t * "+t.serialNumber+" parent="+t.g3NodePLCInfo.parentName+" modulation="+t.g3NodePLCInfo.modulation +" lqi="+t.g3NodePLCInfo.linkQualityIndicator);
+            logger.info("\t * " + t.serialNumber + " parent=" + t.g3NodePLCInfo.parentName + " modulation=" + t.g3NodePLCInfo.modulation + " lqi=" + t.g3NodePLCInfo.linkQualityIndicator);
         });
 
         return PagedInfoList.fromPagedList("slaveDevices", topologyList, queryParameters);
@@ -1154,7 +1168,7 @@ public class DeviceResource {
             return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(deviceService.findAllDevices(getUnlinkedSlaveDevicesCondition(searchText))
                     .stream()
                     .limit(50)
-                    .collect(Collectors.toList()));
+                    .collect(toList()));
         }
         return dataLoggerSlaveDeviceInfoFactory.forDataLoggerSlaves(Collections.emptyList());
     }
@@ -1241,7 +1255,7 @@ public class DeviceResource {
         List<IdWithNameInfo> calendars = device.getDeviceConfiguration().getDeviceType().getAllowedCalendars().stream()
                 .filter(allowedCalendar -> !allowedCalendar.isGhost())
                 .map(allowedCalendar -> new IdWithNameInfo(allowedCalendar.getId(), allowedCalendar.getName()))
-                .collect(Collectors.toList());
+                .collect(toList());
 
         return Response.ok(calendars).build();
     }

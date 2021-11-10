@@ -7,9 +7,8 @@ Ext.define('Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter', {
     xtype: 'mdc-view-setup-devicechannels-topologiestopfilter',
 
     requires: [
-        'Mdc.store.DeviceTypes',
         'Mdc.store.DeviceConfigurations',
-        'Mdc.store.filter.DeviceTypes'
+        'Mdc.store.filter.topology.DeviceTypes'
     ],
 
     store: 'Mdc.store.DeviceTopology',
@@ -35,7 +34,7 @@ Ext.define('Mdc.view.setup.devicechannels.DeviceTopologiesTopFilter', {
                 multiSelect: true,
                 displayField: 'name',
                 valueField: 'id',
-                store: 'Mdc.store.filter.DeviceTypes',
+                store: 'Mdc.store.filter.topology.DeviceTypes',
                 listeners: {
                     collapse: {
                         scope: me,

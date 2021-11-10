@@ -6,7 +6,8 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
     extend: 'Ext.app.Controller',
 
     models: [
-        'Mdc.model.Device'
+        'Mdc.model.Device',
+        'Mdc.store.filter.topology.DeviceTypes'
     ],
 
     stores: [
@@ -47,12 +48,14 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             deviceTopologyStore = me.getStore('Mdc.store.DeviceTopology'),
+            topologyDeviceTypesStore = me.getStore('Mdc.store.filter.topology.DeviceTypes'),
             widget;
 
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 var gatewayType = record.get('gatewayType');
 
+                topologyDeviceTypesStore.getProxy().setExtraParam('deviceId', record.get('name'));
                 if (gatewayType === 'LAN' || gatewayType === 'HAN' || !record.get('isDirectlyAddressed')) {
                     widget = Ext.widget('deviceTopologySetup', {device: record, router: router, hasgateway: (gatewayType === 'LAN' || gatewayType === 'HAN')});
                     me.getApplication().fireEvent('loadDevice', record);
