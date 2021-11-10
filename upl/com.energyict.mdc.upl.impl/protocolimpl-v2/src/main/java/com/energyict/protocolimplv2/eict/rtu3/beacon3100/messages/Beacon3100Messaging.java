@@ -155,6 +155,7 @@ import org.bouncycastle.openssl.PEMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.security.auth.x500.X500Principal;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1189,7 +1190,9 @@ public class Beacon3100Messaging extends AbstractMessageExecutor implements Devi
         String serialNumber = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, meterSerialNumberAttributeName).getValue();
         String certificateIssuer = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, certificateIssuerAttributeName).getValue();
 
-        getCosemObjectFactory().getSecuritySetup().deleteCertificate(serialNumber, certificateIssuer);
+        // pass the issuer as a X500 Principal, as will be decoded by the Beacon
+        X500Principal issuer = new X500Principal(certificateIssuer);
+        getCosemObjectFactory().getSecuritySetup().deleteCertificate(serialNumber, OctetString.fromByteArray(issuer.getEncoded()));
     }
 
     /**
