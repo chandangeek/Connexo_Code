@@ -52,7 +52,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
-                new ManufacturerInformation(Manufacturer.Elster), "09-11-2021", "AS3000"), new AS3000Properties());
+                new ManufacturerInformation(Manufacturer.Elster), "10-11-2021", "AS3000"), new AS3000Properties());
         this.nlsService = nlsService;
         this.converter = converter;
     }
