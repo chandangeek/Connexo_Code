@@ -247,6 +247,10 @@ public class DLMSMeterConfig {
         return config.getGPRSModemSetupSN(IOL);
     }
 
+    public int getNBIOTModemSetupSN() {
+        return config.getNBIOTModemSetupSN(IOL);
+    }
+
     public int getLTEModemSetupSN() {
         return config.getLTEModemSetupSN(IOL);
     }
