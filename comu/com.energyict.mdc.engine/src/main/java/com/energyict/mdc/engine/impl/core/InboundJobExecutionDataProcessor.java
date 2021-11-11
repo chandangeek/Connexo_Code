@@ -47,6 +47,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.Inboun
 import com.energyict.mdc.engine.impl.core.inbound.ComPortDiscoveryLogger;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.core.inbound.InboundDiscoveryContextImpl;
+import com.energyict.mdc.engine.impl.meterdata.DeviceConnectionProperty;
 import com.energyict.mdc.engine.impl.meterdata.ServerCollectedData;
 import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
@@ -202,7 +203,7 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
             }
 
             for (CollectedData collectedData : inboundDeviceProtocol.getCollectedData()) {
-                if (!dataWasProcessed(processedCollectedData, collectedData)) {
+                if (!dataWasProcessed(processedCollectedData, collectedData) && !(collectedData instanceof DeviceConnectionProperty)) {
                     getInboundDiscoveryContext().markNotAllCollectedDataWasProcessed();
                     logDroppedDataOnComPortDiscoveryLogger(collectedData.getClass().getSimpleName());
                 }

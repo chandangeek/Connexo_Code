@@ -1682,12 +1682,8 @@ public class ComServerDAOImpl implements ComServerDAO {
      * indicating that the Device is not ready for inbound communication
      */
     private ComTaskExecution getFirstComTaskExecution(InboundConnectionTask connectionTask) {
-        List<ComTaskExecution> comTaskExecutions = getCommunicationTaskService().findComTaskExecutionsByConnectionTask(connectionTask).find();
-        if (comTaskExecutions.isEmpty()) {
-            return null;
-        } else {
-            return comTaskExecutions.get(0);
-        }
+        return getCommunicationTaskService().findComTaskExecutionsByConnectionTask(connectionTask).find()
+                .stream().filter(cte -> !cte.isObsolete()).findFirst().orElse(null);
     }
 
     private InboundConnectionTask getInboundConnectionTask(InboundComPort comPort, Device device) {
