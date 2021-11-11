@@ -57,6 +57,8 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String DEFAULT_BACKLOG_EVENTLOG = "DefaultBacklogEventLog";
     public static final String DEFAULT_BUFFERSIZE_REGISTERS = "DefaultBufferSizeRegisters";
     public static final String IPV6_ADDRESS_AND_PREFIX_LENGTH = "IPv6AddressAndPrefixLength";
+    public static final String DO_PATH_REQUESTS_ON_TOPOLOGY = "DoPathRequestsOnTopology";
+    public static final String DO_ROUTE_REQUESTS_ON_TOPOLOGY = "DoRouteRequestsOnTopology";
     private PropertySpecService propertySpecService;
 
     public Beacon3100ConfigurationSupport(PropertySpecService propertySpecService) {
@@ -101,6 +103,10 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(useGeneralBlockTransferPropertySpec());
         propertySpecs.add(generalBlockTransferWindowSizePropertySpec());
 
+        propertySpecs.add(updateIpv6OnTopologyPropertySpec());
+        propertySpecs.add(doPathRequestOnTopologyPropertySpec());
+        propertySpecs.add(doRouteRequestOnTopologyPropertySpec());
+
         propertySpecs.remove(ntaSimulationToolPropertySpec());
         propertySpecs.remove(manufacturerPropertySpec());
         propertySpecs.remove(fixMbusHexShortIdPropertySpec());
@@ -109,6 +115,24 @@ public class Beacon3100ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.remove(masterKeyPropertySpec());
 
         return propertySpecs;
+    }
+
+    private PropertySpec updateIpv6OnTopologyPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(UPDATE_IPV6_ON_TOPOLOGY, false, PropertyTranslationKeys.V2_TOPOLOGY_UPDATE_IPV6, this.getPropertySpecService()::booleanSpec)
+                .setDefaultValue(false)
+                .finish();
+    }
+
+    private PropertySpec doPathRequestOnTopologyPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(DO_PATH_REQUESTS_ON_TOPOLOGY, false, PropertyTranslationKeys.V2_TOPOLOGY_DO_PATH_REQUEST, this.getPropertySpecService()::booleanSpec)
+                .setDefaultValue(true)
+                .finish();
+    }
+
+    private PropertySpec doRouteRequestOnTopologyPropertySpec() {
+        return UPLPropertySpecFactory.specBuilder(DO_ROUTE_REQUESTS_ON_TOPOLOGY, false, PropertyTranslationKeys.V2_TOPOLOGY_DO_ROUTE_REQUEST, this.getPropertySpecService()::booleanSpec)
+                .setDefaultValue(true)
+                .finish();
     }
 
     private PropertySpec ipv6AddressAndPrefixLength() {

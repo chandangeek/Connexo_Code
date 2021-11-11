@@ -166,6 +166,15 @@ public class Beacon3100Properties extends DlmsProperties {
         }
     }
 
+
+    public boolean doPathRequestOnTopology() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.DO_PATH_REQUESTS_ON_TOPOLOGY, true);
+    }
+
+    public boolean doRouteRequestsOnTopology() {
+        return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.DO_ROUTE_REQUESTS_ON_TOPOLOGY, true);
+    }
+
     public boolean updateIpv6OnTopology() {
         return getProperties().getTypedProperty(Beacon3100ConfigurationSupport.UPDATE_IPV6_ON_TOPOLOGY, false);
     }
