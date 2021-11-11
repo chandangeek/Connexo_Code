@@ -286,7 +286,10 @@ public class HS3300MessageExecutor extends AbstractMessageExecutor {
 
         try {
             getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().setBit(REQUESTS_SIGNED_FLAG);
-            getCosemObjectFactory().getSecuritySetup(PLC_CLIENT_SECURITY_SETUP).deleteCertificate(serialNumber, certificateIssuer);
+            // pass the issuer as simple octet-string representation
+            OctetString osIssuer = OctetString.fromString(certificateIssuer);
+
+            getCosemObjectFactory().getSecuritySetup(PLC_CLIENT_SECURITY_SETUP).deleteCertificate(serialNumber, osIssuer);
         } finally {
             getProtocol().getDlmsSession().getAso().getSecurityContext().getSecurityPolicy().unsetBit(REQUESTS_SIGNED_FLAG);
         }

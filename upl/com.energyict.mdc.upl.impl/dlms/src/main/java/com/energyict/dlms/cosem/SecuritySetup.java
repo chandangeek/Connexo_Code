@@ -222,8 +222,20 @@ public class SecuritySetup extends AbstractCosemObject {
      * cannot be removed from the server. When update of these certificates is needed the new key
      * pair is generated, new certificate request is generated and new certificate is imported.
      */
-    public void deleteCertificate(String serialNumber, String issuer) throws IOException {
-        Structure certificateIdentificationBySerial = createCertificateIdentificationBySerial(serialNumber, issuer);
+    public void deleteCertificate(String hexSerialNumber, OctetString issuer) throws IOException {
+        hexSerialNumber = hexSerialNumber.toLowerCase().replace("0x","");
+
+        // we expect a hex string, pad to zero if odd
+        if (hexSerialNumber.length()%2!=0){
+            hexSerialNumber='0'+hexSerialNumber;
+        }
+
+        // pass the serial as hex
+        byte[] hexBytes = ProtocolTools.getBytesFromHexString(hexSerialNumber,2);
+        OctetString osSerialNumber = OctetString.fromByteArray(hexBytes);
+
+
+        Structure certificateIdentificationBySerial = createCertificateIdentificationBySerial(osSerialNumber, issuer);
         invoke(METHOD_REMOVE_CERTIFICATE, certificateIdentificationBySerial.getBEREncodedByteArray());
     }
 
@@ -240,7 +252,7 @@ public class SecuritySetup extends AbstractCosemObject {
         invoke(METHOD_REMOVE_CERTIFICATE, certificateIdentificationByEntity.getBEREncodedByteArray());
     }
 
-    public X509Certificate exportCertificate(String serialNumber, String issuer) throws IOException {
+    public X509Certificate exportCertificate(OctetString serialNumber, OctetString issuer) throws IOException {
         Structure certificateIdentification = createCertificateIdentificationBySerial(serialNumber, issuer);
 
         byte[] result = invoke(METHOD_EXPORT_CERTIFICATE, certificateIdentification.getBEREncodedByteArray());
@@ -253,12 +265,12 @@ public class SecuritySetup extends AbstractCosemObject {
         }
     }
 
-    private Structure createCertificateIdentificationBySerial(String serialNumber, String issuer) {
+    private Structure createCertificateIdentificationBySerial(OctetString serialNumber, OctetString issuer) {
         Structure certificateIdentification = new Structure();
         certificateIdentification.addDataType(new TypeEnum(1));     //(1) certificate_identification_serial
         Structure certificateIdentificationBySerial = new Structure();
-        certificateIdentificationBySerial.addDataType(OctetString.fromString(serialNumber));
-        certificateIdentificationBySerial.addDataType(OctetString.fromString(issuer));
+        certificateIdentificationBySerial.addDataType(serialNumber);
+        certificateIdentificationBySerial.addDataType(issuer);
         certificateIdentification.addDataType(certificateIdentificationBySerial);
         return certificateIdentification;
     }
