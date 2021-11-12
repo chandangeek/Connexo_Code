@@ -408,6 +408,7 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     AS3000G( 339, "com.energyict.protocolimplv2.dlms.idis.as3000g.AS3000G" ),
     ISKRA_AM550(340, "com.energyict.protocolimplv2.dlms.idis.iskra.am550.AM550"),
+    AEC3PHASE(341, "com.energyict.protocolimplv2.dlms.idis.aec3phase.AEC3Phase"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
