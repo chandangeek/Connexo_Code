@@ -137,7 +137,6 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
     public static final ObisCode MBUS_CAPTURE_PERIOD        = ObisCode.fromString("0.x.24.1.4.255");
     public static final ObisCode MBUS_PRIMARY_ADDRESS       = ObisCode.fromString("0.x.24.1.5.255");
     public static final ObisCode MBUS_IDENTIFICATION_NUMBER = ObisCode.fromString("0.x.24.1.6.255");
-    public static final ObisCode MBUS_MANUFACTURER_ID       = ObisCode.fromString("0.x.24.1.7.255");
     public static final ObisCode MBUS_VERSION       = ObisCode.fromString("0.x.24.1.8.255");
     public static final ObisCode MBUS_DEVICE_TYPE   = ObisCode.fromString("0.x.24.1.9.255");
     public static final ObisCode MBUS_ACCESS_NUMBER = ObisCode.fromString("0.x.24.1.10.255");
@@ -292,9 +291,6 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
             else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
                 String bcd = ProtocolTools.getBCD(abstractDataType.longValue());
                 return new RegisterValue(register, bcd);
-            } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
-                String manuf_id_string = convertShortIdManufacturerIDToStringView( abstractDataType.getUnsigned16() );
-                return new RegisterValue( register, manuf_id_string );
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
                 return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(UNITLESS)), null, null, null, new Date(), 0);
             } else if (rObisCode.equalsIgnoreBChannel(MBUS_DEVICE_TYPE)) {
@@ -802,9 +798,6 @@ public class ESMR50RegisterFactory extends Dsmr40RegisterFactory {
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_IDENTIFICATION_NUMBER)) {
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.IDENTIFICATION_NUMBER.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
-                    dlmsAttributes.add(this.registerMap.get(register));
-                }else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
-                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
                 }else if (rObisCode.equalsIgnoreBChannel(MBUS_VERSION)) {
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.VERSION.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
