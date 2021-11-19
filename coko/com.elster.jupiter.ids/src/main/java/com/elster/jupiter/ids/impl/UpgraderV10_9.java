@@ -27,7 +27,8 @@ public class UpgraderV10_9 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         boolean offsetAlreadyExist = dataModel.doesColumnExist("IDS_TIMESERIES", "OFFSET_VALUE");
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9));
-        if (!offsetAlreadyExist)
+        if (!offsetAlreadyExist) {
             execute(dataModel, "UPDATE IDS_TIMESERIES SET OFFSET_VALUE=OFFSET_VALUE*3600");
+        }
     }
 }

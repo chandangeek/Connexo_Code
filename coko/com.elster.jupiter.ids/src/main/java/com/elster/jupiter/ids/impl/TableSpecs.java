@@ -100,20 +100,20 @@ public enum TableSpecs {
 			table.column("REGULAR").type("CHAR(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
 			table.column("INTERVALLENGTH").number().conversion(NUMBER2INTNULLZERO).map("intervalLength").add();
 			table.column("INTERVALLENGTHUNIT").number().conversion(NUMBER2ENUMPLUSONE).map("intervalLengthUnit").add();
-			Column oldOffset = table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset")
+			Column oldOffset1 = table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset")
 					.upTo(Version.version(10,4, 24))
 					.add();
-			table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset")
-					.during(Range.closedOpen(Version.version(10, 5), Version.version(10, 9)))
-					.previously(oldOffset)
-					.add();
-			table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map("offset")
+			Column newOffset1 = table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map("offset")
 					.during(Range.closedOpen(Version.version(10, 4, 24), Version.version(10, 5)))
-					.previously(oldOffset)
+					.previously(oldOffset1)
+					.add();
+			Column oldOffset2 = table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset")
+					.during(Range.closedOpen(Version.version(10, 5), Version.version(10, 9)))
+					.previously(newOffset1)
 					.add();
 			table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map("offset")
 					.since(Version.version(10, 9))
-					.previously(oldOffset)
+					.previously(oldOffset2)
 					.add();
 			table.addAuditColumns();
 			table.primaryKey("IDS_PK_TIMESERIES").on(idColumn).add();

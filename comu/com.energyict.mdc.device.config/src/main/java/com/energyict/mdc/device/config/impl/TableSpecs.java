@@ -327,13 +327,7 @@ public enum TableSpecs {
             table.column("INTERVALCODE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map(ChannelSpecImpl.ChannelSpecFields.INTERVAL_CODE.fieldName()).add();
             table.column("USEMULTIPLIER").number().conversion(NUMBER2BOOLEAN).map(ChannelSpecImpl.ChannelSpecFields.USEMULTIPLIER.fieldName()).add();
             table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map(ChannelSpecImpl.ChannelSpecFields.OFFSET.fieldName())
-                    .upTo(Version.version(10, 4, 24))
-                    .add();
-            table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map(ChannelSpecImpl.ChannelSpecFields.OFFSET.fieldName())
-                    .during(Range.closedOpen(Version.version(10, 4, 24), Version.version(10, 5)))
-                    .add();
-            table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map(ChannelSpecImpl.ChannelSpecFields.OFFSET.fieldName())
-                    .since(Version.version(10, 9))
+                    .during(Range.closedOpen(Version.version(10, 4, 24), Version.version(10, 5)), Range.atLeast(version(10, 9)))
                     .add();
             Column calculatedReadingType = table.column("CALCULATEDREADINGTYPE").varChar(Table.NAME_LENGTH).add();
             table.setJournalTableName("DTC_CHANNELSPECJRNL").since(version(10, 2));
