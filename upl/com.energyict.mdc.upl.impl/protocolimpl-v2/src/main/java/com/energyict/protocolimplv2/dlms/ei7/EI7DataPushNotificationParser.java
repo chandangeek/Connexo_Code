@@ -81,7 +81,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode HALF_HOUR_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.1.255");
     private static final ObisCode SNAPSHOT_PERIOD_DATA_LOAD_PROFILE = ObisCode.fromString("7.0.98.11.0.255");
 
-    private static final ObisCode[] supportedLoadProfiles = new ObisCode[]{
+    private static final ObisCode[] supportedLoadProfiles = new ObisCode[] {
             HALF_HOUR_LOAD_PROFILE, DAILY_LOAD_PROFILE, SNAPSHOT_PERIOD_DATA_LOAD_PROFILE
     };
 
@@ -364,7 +364,6 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private void readLogicalDeviceName(Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
         VisibleString logicalDeviceName = new VisibleString(getByteArray(compactFrame, offset, length, AxdrType.VISIBLE_STRING), 0);
         addCollectedRegister(COSEM_LOGICAL_DEVICE_NAME, 0, null, dateTime, logicalDeviceName.getStr());
-
     }
 
     private void readSnapshotPeriodCounter(Date dateTime, byte[] compactFrame, int offset) throws IOException {
