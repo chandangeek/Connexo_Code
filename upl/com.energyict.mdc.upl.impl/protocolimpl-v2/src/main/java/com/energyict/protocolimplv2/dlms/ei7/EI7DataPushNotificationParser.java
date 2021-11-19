@@ -26,6 +26,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -249,9 +250,10 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame51(byte[] compactFrame) {
         try {
-            Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 1, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Date dateTime = getDateTime(unixTime);
-            readLogicalDeviceName(dateTime, compactFrame, 2, 17);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(getDeviceTimeZone());
+            Date dateTime = calendar.getTime();
+            readLogicalDeviceName(dateTime, compactFrame, 1, 18);
             readManagementFcOnline(dateTime, compactFrame, 18);
             readManagementFcOffline(dateTime, compactFrame, 22);
             readGuarantorAuthorityFc(dateTime, compactFrame, 26);
@@ -360,8 +362,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     }
 
     private void readLogicalDeviceName(Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
-        OctetString logicalDeviceName = new OctetString(getByteArray(compactFrame, offset, length, AxdrType.OCTET_STRING), 0);
-        addCollectedRegister(COSEM_LOGICAL_DEVICE_NAME, 0, null, dateTime, logicalDeviceName.stringValue());
+        VisibleString logicalDeviceName = new VisibleString(getByteArray(compactFrame, offset, length, AxdrType.VISIBLE_STRING), 0);
+        addCollectedRegister(COSEM_LOGICAL_DEVICE_NAME, 0, null, dateTime, logicalDeviceName.getStr());
 
     }
 
