@@ -415,7 +415,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
         throw new ProtocolException("Unexpected captured_object in load profile '" + correctedLoadProfileObisCode + "': " + capturedObject.toString());
     }
 
-    private boolean isProfileStatus(ObisCode obisCode) {
+    protected boolean isProfileStatus(ObisCode obisCode) {
         return (obisCode.getA() == 0 && (obisCode.getB() >= 0 && obisCode.getB() <= 6) && obisCode.getC() == 96 && obisCode.getD() == 10 && (obisCode.getE() == 1 || obisCode.getE() == 2 || obisCode.getE() == 3) && obisCode.getF() == 255);
     }
 

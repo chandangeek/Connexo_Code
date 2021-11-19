@@ -16,7 +16,9 @@ import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimplv2.dlms.idis.aec.AEC;
 import com.energyict.protocolimplv2.dlms.idis.aec3phase.events.AEC3PhaseLogBookFactory;
+import com.energyict.protocolimplv2.dlms.idis.aec3phase.profiledata.AEC3PhaseProfileDataReader;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
 
 import java.io.IOException;
 
@@ -48,6 +50,14 @@ public class AEC3Phase extends AEC {
             idisLogBookFactory = new AEC3PhaseLogBookFactory(this, getCollectedDataFactory(), getIssueFactory());
         }
         return idisLogBookFactory;
+    }
+
+    @Override
+    public IDISProfileDataReader getIDISProfileDataReader() {
+        if (idisProfileDataReader == null) {
+            idisProfileDataReader = new AEC3PhaseProfileDataReader(this, this.getCollectedDataFactory(), this.getIssueFactory(), getDlmsSessionProperties().getLimitMaxNrOfDays());
+        }
+        return idisProfileDataReader;
     }
 
     @Override
