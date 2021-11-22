@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 public class AECRegisterFactory extends AM130RegisterFactory {
-    private static final int DEMAND_REGISTER_D = 6;
+    private static final int MAXIMUM_DEMAND_REGISTER_D = 6;
     public AECRegisterFactory(AM130 am130, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(am130, collectedDataFactory, issueFactory);
     }
@@ -62,21 +62,21 @@ public class AECRegisterFactory extends AM130RegisterFactory {
         }
         Date captureTime = null;
         Issue timeZoneIssue = null;
-        boolean isEmptyDate = true;
-        boolean isDemandRegister = offlineRegister.getObisCode().getD() == DEMAND_REGISTER_D;
+        boolean emptyDate = true;
+        boolean maximumDemandRegister = offlineRegister.getObisCode().getD() == MAXIMUM_DEMAND_REGISTER_D;
         String timezoneError = null;
 
         if (composedRegister.getRegisterCaptureTime() != null) {
             AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
 
-            if (isDemandRegister) {
+            if (maximumDemandRegister) {
                 IntBuffer intBuf = ByteBuffer.wrap(captureTimeOctetString.getOctetString().getOctetStr())
                                         .order(ByteOrder.BIG_ENDIAN)
                                         .asIntBuffer();
                 int[] dateArray = new int[intBuf.remaining()];
                 intBuf.get(dateArray);
 
-                isEmptyDate = Arrays.stream(dateArray).allMatch(val -> val == 0);
+                emptyDate = Arrays.stream(dateArray).allMatch(val -> val == 0);
             }
 
             TimeZone configuredTimeZone = getMeterProtocol().getDlmsSession().getTimeZone();
@@ -98,7 +98,7 @@ public class AECRegisterFactory extends AM130RegisterFactory {
                         (dlmsDateTimeOctetString.isDST() ? " (in DST) " : "") +
                         "differs from the time zone configured in HES [" + configuredTimeZone.getID() +
                         "] = [" + configuredTimeZoneOffset + "] for register: " + offlineRegister.getObisCode().toString();
-                if (!isDemandRegister) {
+                if (!maximumDemandRegister) {
                     timeZoneIssue = getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue: " + timezoneError, offlineRegister.getObisCode(), timezoneError);
                 }
             }
@@ -106,8 +106,8 @@ public class AECRegisterFactory extends AM130RegisterFactory {
 
         AbstractDataType attributeValue = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
 
-        if(isDemandRegister) {
-            if (isEmptyDate) {
+        if(maximumDemandRegister) {
+            if (emptyDate) {
                 if (attributeValue.isNumerical() && !attributeValue.isNullData() && attributeValue.intValue() != 0) {
                     String errorStr = "The received capture date is invalid";
                     timeZoneIssue = getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue: " + errorStr, offlineRegister.getObisCode(), errorStr);
@@ -119,8 +119,6 @@ public class AECRegisterFactory extends AM130RegisterFactory {
             }
         }
 
-        // let each sub-protocol to create it's own flavour of time-stamp combination
-        // AM540 when reading mirror will change this
         RegisterValue registerValue = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit);
 
         CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
