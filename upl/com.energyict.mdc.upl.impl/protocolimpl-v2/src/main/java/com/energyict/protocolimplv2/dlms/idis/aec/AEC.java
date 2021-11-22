@@ -21,9 +21,11 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.DLMSAttribute;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
+import com.energyict.protocolimplv2.common.composedobjects.ComposedMeterInfo;
 import com.energyict.protocolimplv2.dlms.idis.aec.events.AECLogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.aec.messages.AECMessaging;
 import com.energyict.protocolimplv2.dlms.idis.aec.profiledata.AECProfileDataReader;
@@ -44,6 +46,8 @@ import java.util.logging.Level;
 
 public class AEC extends AM540 {
 
+    protected static final DLMSAttribute DEFAULT_SERIAL_NUMBER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
+    protected static final DLMSAttribute DEFAULT_CLOCK = DLMSAttribute.fromString("8:0.0.1.0.0.255:2");
     /**
      * OBIS code for the billing profile.
      */
@@ -51,6 +55,7 @@ public class AEC extends AM540 {
 
     protected AECRegisterFactory registerFactory;
     private HHUSignOnV2 hhuSignOnV2;
+    private ComposedMeterInfo meterInfo;
 
     /**
      * For billing registers.
@@ -176,6 +181,20 @@ public class AEC extends AM540 {
     public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
         return Collections.singletonList(
                 new TcpDeviceProtocolDialect(this.getPropertySpecService(), getNlsService()));
+    }
+
+    @Override
+    protected ComposedMeterInfo getMeterInfo() {
+        if (meterInfo == null) {
+            meterInfo = new ComposedMeterInfo(getDlmsSession(),
+                    getDlmsSessionProperties().isBulkRequest(),
+                    getDlmsSessionProperties().getRoundTripCorrection(),
+                    getDlmsSessionProperties().getRetries(),
+                    DEFAULT_SERIAL_NUMBER,
+                    DEFAULT_CLOCK
+            );
+        }
+        return meterInfo;
     }
 
     @Override

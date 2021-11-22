@@ -97,14 +97,18 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
     }
 
     private void fail(Message request, String message, String detailedMessage, int statusCode) {
-        WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), detailedMessage);
-        eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
+        MessageUtils.findOccurrenceId(request).ifPresent(id -> {
+            WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, detailedMessage);
+            eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
+        });
         doFail(message, statusCode);
     }
 
     private void fail(Message request, String message, String detailedMessage, Exception e, int statusCode) {
-        WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(MessageUtils.getOccurrenceId(request), new Exception(detailedMessage, e));
-        eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
+        MessageUtils.findOccurrenceId(request).ifPresent(id -> {
+            WebServiceCallOccurrence occurrence = webServicesService.failOccurrence(id, new Exception(detailedMessage, e));
+            eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
+        });
         doFail(message, statusCode);
     }
 
