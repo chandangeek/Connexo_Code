@@ -143,6 +143,8 @@ public interface DataModel {
 
     Table<?> getTable(String name);
 
+    OrmService getOrmService();
+
     void install(boolean executeDdl, boolean store);
 
     /*

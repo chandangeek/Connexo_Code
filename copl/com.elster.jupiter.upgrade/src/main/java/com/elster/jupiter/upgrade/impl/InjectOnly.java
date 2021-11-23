@@ -7,6 +7,7 @@ package com.elster.jupiter.upgrade.impl;
 import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.PartitionCreator;
 import com.elster.jupiter.orm.QueryExecutor;
 import com.elster.jupiter.orm.QueryStream;
@@ -147,6 +148,11 @@ public class InjectOnly implements DataModel {
     @Override
     public Table<?> getTable(String name) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public OrmService getOrmService() {
+        return injector.getInstance(OrmService.class);
     }
 
     @Override
