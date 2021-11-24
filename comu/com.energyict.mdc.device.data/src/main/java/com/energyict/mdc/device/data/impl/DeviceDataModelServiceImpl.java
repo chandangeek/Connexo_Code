@@ -55,6 +55,7 @@ import com.energyict.mdc.common.device.data.KeyAccessorStatus;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
+import com.energyict.mdc.device.config.impl.UpgraderV10_4_24;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -746,6 +747,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 9), UpgraderV10_4_9.class)
                         .put(version(10, 4, 10), UpgraderV10_4_10.class)
                         .put(version(10, 4, 21), V10_4_21SimpleUpgrader.class)
+                        .put(version(10, 4, 24), UpgraderV10_4_24.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 6, 1), UpgraderV10_6_1.class)
                         .put(version(10, 7), UpgraderV10_7.class)
