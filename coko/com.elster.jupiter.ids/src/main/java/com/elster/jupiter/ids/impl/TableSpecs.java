@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
+import com.google.common.collect.Range;
 
 import static com.elster.jupiter.orm.ColumnConversion.CHAR2BOOLEAN;
 import static com.elster.jupiter.orm.ColumnConversion.NUMBER2ENUM;
@@ -24,6 +25,7 @@ import static com.elster.jupiter.orm.ColumnConversion.NUMBER2LONGNULLZERO;
 import static com.elster.jupiter.orm.DeleteRule.CASCADE;
 import static com.elster.jupiter.orm.DeleteRule.RESTRICT;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
+import static com.elster.jupiter.orm.Version.version;
 
 public enum TableSpecs {
 	IDS_VAULT {
@@ -98,8 +100,21 @@ public enum TableSpecs {
 			table.column("REGULAR").type("CHAR(1)").notNull().conversion(CHAR2BOOLEAN).map("regular").add();
 			table.column("INTERVALLENGTH").number().conversion(NUMBER2INTNULLZERO).map("intervalLength").add();
 			table.column("INTERVALLENGTHUNIT").number().conversion(NUMBER2ENUMPLUSONE).map("intervalLengthUnit").add();
-			Column oldOffset = table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset").upTo(Version.version(10,9)).add();
-			table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map("offset").since(Version.version(10,9)).previously(oldOffset).add();
+			Column oldOffset1 = table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset")
+					.upTo(Version.version(10,4, 24))
+					.add();
+			Column newOffset1 = table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map("offset")
+					.during(Range.closedOpen(Version.version(10, 4, 24), Version.version(10, 5)))
+					.previously(oldOffset1)
+					.add();
+			Column oldOffset2 = table.column("HOUROFFSET").number().conversion(NUMBER2INTNULLZERO).map("offset")
+					.during(Range.closedOpen(Version.version(10, 5), Version.version(10, 9)))
+					.previously(newOffset1)
+					.add();
+			table.column("OFFSET_VALUE").number().conversion(NUMBER2LONGNULLZERO).map("offset")
+					.since(Version.version(10, 9))
+					.previously(oldOffset2)
+					.add();
 			table.addAuditColumns();
 			table.primaryKey("IDS_PK_TIMESERIES").on(idColumn).add();
 			table.foreignKey("IDS_FK_TIMESERIESVAULT").references(IDS_VAULT.name()).onDelete(RESTRICT).map("vault").on(vaultComponent , vaultIdColumn).add();
