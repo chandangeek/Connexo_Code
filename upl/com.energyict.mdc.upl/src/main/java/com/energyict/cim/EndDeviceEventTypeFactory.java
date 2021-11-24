@@ -2268,4 +2268,47 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType("0.31.83.24");
     }
 
+    public static EndDeviceEventType getOvercurrentL1() {
+        return new EndDeviceEventType("0.26.287.248");
+    }
+
+    public static EndDeviceEventType getOvercurrentL2() {
+        return new EndDeviceEventType("0.26.288.248");
+    }
+
+    public static EndDeviceEventType getOvercurrentL3() {
+        return new EndDeviceEventType("0.26.289.248");
+    }
+
+    public static EndDeviceEventType getOvercurrentStoppedL1() {
+        return new EndDeviceEventType("0.26.287.249");
+    }
+
+    public static EndDeviceEventType getOvercurrentStoppedL2() {
+        return new EndDeviceEventType("0.26.288.249");
+    }
+
+    public static EndDeviceEventType getOvercurrentStoppedL3() {
+        return new EndDeviceEventType("0.26.289.249");
+    }
+
+    public static EndDeviceEventType getFactorDeviation() {
+        return new EndDeviceEventType("0.26.27.286");
+    }
+
+    public static EndDeviceEventType getFactorDeviationEnd() {
+        return new EndDeviceEventType("0.26.27.37");
+    }
+
+    public static EndDeviceEventType getDecryptionOrAuthenticationFailure() {
+        return new EndDeviceEventType("0.12.36.85");
+    }
+
+    public static EndDeviceEventType getSecurityKeysUpdated() {
+        return new EndDeviceEventType("0.12.32.13");
+    }
+
+    public static EndDeviceEventType getInputSignalDetection() {
+        return new EndDeviceEventType("0.12.55.24");
+    }
 }
