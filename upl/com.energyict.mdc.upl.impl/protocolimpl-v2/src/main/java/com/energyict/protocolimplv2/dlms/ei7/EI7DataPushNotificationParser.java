@@ -1,5 +1,17 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
@@ -14,17 +26,7 @@ import com.energyict.dlms.axrdencoding.TypeEnum;
 import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.dlms.axrdencoding.VisibleString;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -68,8 +70,12 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode SPARE_OBJECT = ObisCode.fromString("0.0.94.39.40.255");
 
     private static final ObisCode MANAGEMENT_FRAME_COUNTER_ONLINE = ObisCode.fromString("0.0.43.1.1.255");
+    private final static ObisCode MANAGEMENT_FRAME_COUNTER_OFFLINE = ObisCode.fromString("0.1.43.1.1.255");
+    private final static ObisCode GUARANTOR_AUTHORITY_COUNTER = ObisCode.fromString("0.0.43.1.48.255");
+    private final static ObisCode INSTALLER_MAINTAINER_COUNTER = ObisCode.fromString("0.0.43.1.3.255");
     private static final ObisCode CF40_VOLUME_UNITS_SCALAR = ObisCode.fromString("7.0.13.2.3.255");
     private static final ObisCode HALF_HOUR_LP_INTERVAL_LENGTH_SECONDS = ObisCode.fromString("7.4.99.99.1.255");
+    private static final ObisCode COSEM_LOGICAL_DEVICE_NAME = ObisCode.fromString("0.0.42.0.0.255");
 
     private static final ObisCode DAILY_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.3.255");
     private static final ObisCode HALF_HOUR_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.1.255");
@@ -147,7 +153,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             } else if (compactFrameTag == COMPACT_FRAME_51) {
                 readCompactFrame51(compactFrame);
             } else {
-                throw DataParseException.generalParseException( new ProtocolException("Compact Frame " + compactFrameTag + " not supported!") );
+                throw DataParseException.generalParseException(new ProtocolException("Compact Frame " + compactFrameTag + " not supported!"));
             }
         } else {
             throw DataParseException.ioException(new ProtocolException("The element of the Data-notification body should contain the compact frame '" + dataType.getClass().getSimpleName() + "'"));
@@ -227,6 +233,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     /**
      * Compact Frame 47, 48 and 49 have a common first part. Extracted code into this method to avoid duplication.
+     *
      * @param compactFrame pushed by device
      * @throws IOException from data type constructors
      */
@@ -243,11 +250,14 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame51(byte[] compactFrame) {
         try {
-            readLogicalDeviceName(compactFrame, 1, 17);
-            Unsigned32 managementFrameCounterOnline = new Unsigned32(getByteArray(compactFrame, 18, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned32 managementFrameCounterOffline = new Unsigned32(getByteArray(compactFrame, 22, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned32 guarantorAuthorityFrameCounter = new Unsigned32(getByteArray(compactFrame, 26, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-            Unsigned32 installerMainteinerFrameCounter = new Unsigned32(getByteArray(compactFrame, 32, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTimeZone(getDeviceTimeZone());
+            Date dateTime = calendar.getTime();
+            readLogicalDeviceName(dateTime, compactFrame, 1, 18);
+            readManagementFcOnline(dateTime, compactFrame, 18);
+            readManagementFcOffline(dateTime, compactFrame, 22);
+            readGuarantorAuthorityFc(dateTime, compactFrame, 26);
+            readInstallerMaintainerFc(dateTime, compactFrame, 30);
         } catch (IOException e) {
             throw DataParseException.ioException(e);
         }
@@ -256,13 +266,28 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private Date getDateTime(Unsigned32 unixTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(getDeviceTimeZone());
-        calendar.setTimeInMillis(unixTime.longValue()*1000);
+        calendar.setTimeInMillis(unixTime.longValue() * 1000);
         return calendar.getTime();
     }
 
     private void readManagementFcOnline(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 managementFcOnline = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
         addCollectedRegister(MANAGEMENT_FRAME_COUNTER_ONLINE, managementFcOnline.getValue(), null, dateTime, null);
+    }
+
+    private void readManagementFcOffline(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 managementFcOffline = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(MANAGEMENT_FRAME_COUNTER_OFFLINE, managementFcOffline.getValue(), null, dateTime, null);
+    }
+
+    private void readGuarantorAuthorityFc(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 guarantorAuthorityFc = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(GUARANTOR_AUTHORITY_COUNTER, guarantorAuthorityFc.getValue(), null, dateTime, null);
+    }
+
+    private void readInstallerMaintainerFc(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 managementFcOnline = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(INSTALLER_MAINTAINER_COUNTER, managementFcOnline.getValue(), null, dateTime, null);
     }
 
     private void readNetworkStatus(Date dateTime, byte[] compactFrame, int offset) throws IOException {
@@ -336,7 +361,9 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         }
     }
 
-    private void readLogicalDeviceName(byte[] compactFrame, int offset, int length) throws IOException {
+    private void readLogicalDeviceName(Date dateTime, byte[] compactFrame, int offset, int length) throws IOException {
+        VisibleString logicalDeviceName = new VisibleString(getByteArray(compactFrame, offset, length, AxdrType.VISIBLE_STRING), 0);
+        addCollectedRegister(COSEM_LOGICAL_DEVICE_NAME, 0, null, dateTime, logicalDeviceName.getStr());
     }
 
     private void readSnapshotPeriodCounter(Date dateTime, byte[] compactFrame, int offset) throws IOException {

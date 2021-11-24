@@ -11,7 +11,7 @@ public class EI6v2021Inbound extends EI7Inbound {
 
     @Override
     public String getVersion() {
-        return "2021-06-08";
+        return "2021-11-24";
     }
 
 }
