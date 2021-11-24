@@ -467,7 +467,7 @@ public enum EndDeviceEventTypeMapping {
     FACTOR_DEVIATION_END( 444, EndDeviceEventTypeFactory.getFactorDeviationEnd()),
     DECRYPTION_OR_AUTHENTICATION_FAILURE(445, EndDeviceEventTypeFactory.getDecryptionOrAuthenticationFailure()),
     SECURITY_KEYS_UPDATED(446, EndDeviceEventTypeFactory.getSecurityKeysUpdated()),
-    INPUT_SIGNAL_DETECTION( 4547, EndDeviceEventTypeFactory.getInputSignalDetection()),
+    INPUT_SIGNAL_DETECTION( 447, EndDeviceEventTypeFactory.getInputSignalDetection()),
 
     SOFTWARE_RESTART_REQUEST( 10001, EndDeviceEventTypeFactory.getSoftwareRestartRequest()),
 
