@@ -19,6 +19,7 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
 
+import com.energyict.cim.EndDeviceType;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSAttribute;
@@ -45,7 +46,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 public class AEC extends AM540 {
-
+    private final EndDeviceType typeMeter = EndDeviceType.ELECTRICMETER;
     protected static final DLMSAttribute DEFAULT_SERIAL_NUMBER = DLMSAttribute.fromString("1:0.0.96.1.1.255:2");
     protected static final DLMSAttribute DEFAULT_CLOCK = DLMSAttribute.fromString("8:0.0.1.0.0.255:2");
     /**
@@ -195,6 +196,10 @@ public class AEC extends AM540 {
             );
         }
         return meterInfo;
+    }
+
+    public EndDeviceType getTypeMeter() {
+        return typeMeter;
     }
 
     @Override

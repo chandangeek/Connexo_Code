@@ -10,7 +10,7 @@ import java.util.TimeZone;
 
 public class AECStandardEventLog extends StandardEventLog {
 
-    public AECStandardEventLog(TimeZone timeZone, DataContainer dc, boolean isMirrorConnection) {
+    public AECStandardEventLog(TimeZone timeZone, DataContainer dc) {
         super(timeZone, dc);
     }
 

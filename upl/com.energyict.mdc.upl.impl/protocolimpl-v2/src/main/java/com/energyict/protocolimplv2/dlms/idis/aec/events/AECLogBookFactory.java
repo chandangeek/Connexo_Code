@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AECLogBookFactory extends IDISLogBookFactory<AEC> {
 
@@ -25,11 +26,12 @@ public class AECLogBookFactory extends IDISLogBookFactory<AEC> {
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(STANDARD_EVENT_LOG)) {
-            meterEvents = new AECStandardEventLog(protocol.getTimeZone(), dataContainer, protocol.getDlmsSessionProperties().useBeaconMirrorDeviceDialect()).getMeterEvents();
+            meterEvents = new AECStandardEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
         } else {
             return new ArrayList<>();
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+        //map the meter events in order to change the device type of the code to the correct device type from protocol
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList());
     }
 
 }
