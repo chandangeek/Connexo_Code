@@ -2311,4 +2311,8 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getInputSignalDetection() {
         return new EndDeviceEventType("0.12.55.24");
     }
+
+    public static EndDeviceEventType getPhaseFailureEndEventType() {
+        return new EndDeviceEventType("1.26.25.37");
+    }
 }

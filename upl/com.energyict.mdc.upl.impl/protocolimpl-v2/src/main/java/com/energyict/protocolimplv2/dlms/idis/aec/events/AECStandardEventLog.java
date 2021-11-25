@@ -111,7 +111,7 @@ public class AECStandardEventLog extends StandardEventLog {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.DECRYPTION_OR_AUTHENTICATION_FAILURE, eventId, "Decryption or authentication failure"));
                 break;
             case 58:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REPLAY_ATTACK, eventId, "Replay attack"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SECURITY_EVENT, eventId, "Replay attack"));
                 break;
             case 59:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CURRENT_REVERSAL, eventId, "Current reversal"));
@@ -120,7 +120,7 @@ public class AECStandardEventLog extends StandardEventLog {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_FAILURE, eventId, "Neutral fault"));
                 break;
             case 61:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_FAILURE, eventId, "Neutral fault end"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_FAILURE_END, eventId, "Neutral fault end"));
                 break;
             case 62:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.OVERCURRENT_L1, eventId, "Overcurrent L1"));

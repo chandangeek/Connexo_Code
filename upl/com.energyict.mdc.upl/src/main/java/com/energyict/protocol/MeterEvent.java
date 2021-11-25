@@ -873,6 +873,7 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int DECRYPTION_OR_AUTHENTICATION_FAILURE = 445;
     public static final int SECURITY_KEYS_UPDATED = 446;
     public static final int INPUT_SIGNAL_DETECTION = 447;
+    public static final int PHASE_FAILURE_END = 448;
 
     public static final int SOFTWARE_RESTART_REQUEST = 10001;
     /**
