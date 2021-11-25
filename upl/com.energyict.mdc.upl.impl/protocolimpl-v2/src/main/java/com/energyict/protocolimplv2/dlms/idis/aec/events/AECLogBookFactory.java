@@ -31,7 +31,10 @@ public class AECLogBookFactory extends IDISLogBookFactory<AEC> {
             return new ArrayList<>();
         }
         //map the meter events in order to change the device type of the code to the correct device type from protocol
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents).stream().map(item -> {item.getEventType().setType(protocol.getTypeMeter()); return item;}).collect(Collectors.toList());
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents).stream().map(item -> {
+            item.getEventType().setType(protocol.getTypeMeter());
+            return item;
+        }).collect(Collectors.toList());
     }
 
 }
