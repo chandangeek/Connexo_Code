@@ -209,7 +209,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
 //    }
 
 
-    private Calendar getFromCalendar(LoadProfileReader loadProfileReader) {
+    protected Calendar getFromCalendar(LoadProfileReader loadProfileReader) {
         ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) getLimitMaxNrOfDays());
         Calendar fromCal = Calendar.getInstance(protocol.getTimeZone());
         fromCal.setTime(profileLimiter.getFromDate());
@@ -217,7 +217,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
         return fromCal;
     }
 
-    private Calendar getToCalendar(LoadProfileReader loadProfileReader) {
+    protected Calendar getToCalendar(LoadProfileReader loadProfileReader) {
         ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) getLimitMaxNrOfDays());
         Calendar toCal = Calendar.getInstance(protocol.getTimeZone());
         toCal.setTime(profileLimiter.getToDate());
