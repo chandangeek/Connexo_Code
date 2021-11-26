@@ -457,6 +457,18 @@ public enum EndDeviceEventTypeMapping {
     COMMS_HUB_PRESENT(434, EndDeviceEventTypeFactory.getCommsHubPresent()),
     COMMS_HUB_REMOVED( 435, EndDeviceEventTypeFactory.getCommsHubRemoved()),
     CT_VT_RATIO_CHANGED(436, EndDeviceEventTypeFactory.getCtVtRatioChanged()),
+    OVERCURRENT_L1(437, EndDeviceEventTypeFactory.getOvercurrentL1()),
+    OVERCURRENT_L2(438,EndDeviceEventTypeFactory.getOvercurrentL2()),
+    OVERCURRENT_L3(439, EndDeviceEventTypeFactory.getOvercurrentL3()),
+    OVERCURRENT_STOPPED_L1(440, EndDeviceEventTypeFactory.getOvercurrentStoppedL1()),
+    OVERCURRENT_STOPPED_L2(441, EndDeviceEventTypeFactory.getOvercurrentStoppedL2()),
+    OVERCURRENT_STOPPED_L3(442, EndDeviceEventTypeFactory.getOvercurrentStoppedL3()),
+    FACTOR_DEVIATION(443, EndDeviceEventTypeFactory.getFactorDeviation()),
+    FACTOR_DEVIATION_END( 444, EndDeviceEventTypeFactory.getFactorDeviationEnd()),
+    DECRYPTION_OR_AUTHENTICATION_FAILURE(445, EndDeviceEventTypeFactory.getDecryptionOrAuthenticationFailure()),
+    SECURITY_KEYS_UPDATED(446, EndDeviceEventTypeFactory.getSecurityKeysUpdated()),
+    INPUT_SIGNAL_DETECTION( 447, EndDeviceEventTypeFactory.getInputSignalDetection()),
+    PHASE_FAILURE_END(448, EndDeviceEventTypeFactory.getPhaseFailureEndEventType()),
 
     SOFTWARE_RESTART_REQUEST( 10001, EndDeviceEventTypeFactory.getSoftwareRestartRequest()),
 
