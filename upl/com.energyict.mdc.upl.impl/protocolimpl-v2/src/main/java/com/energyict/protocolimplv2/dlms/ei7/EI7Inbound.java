@@ -35,7 +35,7 @@ public class EI7Inbound extends A2Inbound {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-11-24$";
+        return "$Date: 2021-11-25$";
     }
 
     public boolean isPushingCompactFrames() {
