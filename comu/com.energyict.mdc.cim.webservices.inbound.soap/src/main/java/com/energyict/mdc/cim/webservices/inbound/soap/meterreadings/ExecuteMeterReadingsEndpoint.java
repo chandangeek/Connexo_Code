@@ -344,7 +344,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
             Device device = deviceService.findAndLockDeviceById(originDevice.getId())
                     .orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, originDevice.getId()));
             if (!syncReplyIssue.getDeviceMessagesComTaskExecutionMap().containsKey(device.getId())) {
-                List<ComTaskExecution> comTaskExecutionList = findComTasksExecutionForLoadProfileDeviceMessages(device, reading.getConnectionMethod());
+                List<ComTaskExecution> comTaskExecutionList = findComTaskExecutionsForLoadProfileDeviceMessages(device, reading.getConnectionMethod());
                 Optional<ComTaskExecution> comTaskExecutionOptional = comTaskExecutionList.stream().findAny();
                 if (ScheduleStrategy.USE_SCHEDULE.getName().equals(scheduleStrategy)) {
                     comTaskExecutionOptional = comTaskExecutionList.stream().filter(cT -> cT.getComSchedule().isPresent()).findAny();
@@ -626,7 +626,7 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return false;
     }
 
-    private List<ComTaskExecution> findComTasksExecutionForLoadProfileDeviceMessages(Device device, String connectionMethod) {
+    private List<ComTaskExecution> findComTaskExecutionsForLoadProfileDeviceMessages(Device device, String connectionMethod) {
         return device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().isManualSystemTask())
                 .filter(cte -> cte.getProtocolTasks().stream()
