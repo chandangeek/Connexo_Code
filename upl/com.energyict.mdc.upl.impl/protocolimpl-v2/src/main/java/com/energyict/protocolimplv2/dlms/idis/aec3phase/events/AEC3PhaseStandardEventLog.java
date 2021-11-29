@@ -2,13 +2,13 @@ package com.energyict.protocolimplv2.dlms.idis.aec3phase.events;
 
 import com.energyict.dlms.DataContainer;
 import com.energyict.protocol.MeterEvent;
-import com.energyict.protocolimplv2.dlms.idis.aec.events.AECStandardEventLog;
+import com.energyict.protocolimpl.dlms.idis.events.StandardEventLog;
 
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-public class AEC3PhaseStandardEventLog extends AECStandardEventLog {
+public class AEC3PhaseStandardEventLog extends StandardEventLog {
     public AEC3PhaseStandardEventLog(TimeZone timeZone, DataContainer dc) {
         super(timeZone, dc);
     }
@@ -16,23 +16,8 @@ public class AEC3PhaseStandardEventLog extends AECStandardEventLog {
     @Override
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
-            case 47:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.CONFIGURATION_PARAMETER_CHANGED, eventId, "One or more parameters changed"));
-                break;
-            case 48:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SECURITY_KEYS_UPDATED, eventId, "Key modification"));
-                break;
             case 49:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.DECRYPTION_OR_AUTHENTICATION_FAILURE, eventId, "Decryption or authentication failure"));
-                break;
-            case 51:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.FIRMWARE_UPDATE_VERIFY_FAILURE, eventId, "Firmware upgrade verification failure"));
-                break;
-            case 88:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.PHASE_REVERSAL, eventId, "Phase sequence reversal"));
-                break;
-            case 89:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.MISSING_NEUTRAL, eventId, "Missing neutral"));
                 break;
             case 236:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.HARDWARE_ERROR, eventId, "Hardware error"));
@@ -44,19 +29,19 @@ public class AEC3PhaseStandardEventLog extends AECStandardEventLog {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SEASON_CHANGE, eventId, "Season changed"));
                 break;
             case 244:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_DISCONNECTED, eventId, "E-RELAY 1 OFF"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_DISCONNECTED, eventId, "E-relay 1 off"));
                 break;
             case 245:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_CONNECTED, eventId, "E-RELAY 1 ON"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_CONNECTED, eventId, "E-relay 1 on"));
                 break;
             case 246:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_DISCONNECTED, eventId, "E-RELAY 2 OFF"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_DISCONNECTED, eventId, "E-relay 2 off"));
                 break;
             case 247:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_CONNECTED, eventId, "E-RELAY 2 ON"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.RELAY_CONNECTED, eventId, "E-relay 2 on"));
                 break;
             case 248:
-                //meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent., eventId, "E_RS485_ACCESS"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOCAL_COMM_START, eventId, "RS-485 access"));
                 break;
             case 249:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.LOCAL_COMM_START, eventId, "Local communication start"));

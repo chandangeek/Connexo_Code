@@ -198,8 +198,6 @@ public class AEC3PhaseProfileDataReader <T extends AEC3Phase> extends AECProfile
                 Issue problem = getIssueFactory().createWarning(loadProfileReader, "loadProfileXnotsupported", correctedLoadProfileObisCode);
                 collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
             }
-            //TODO: see how to handle this validation in Connexo
-            //validateLoadProfileData(collectedLoadProfile, loadProfileReader);
             result.add(collectedLoadProfile);
         }
 

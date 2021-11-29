@@ -12,6 +12,7 @@ import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class AEC3PhaseLogBookFactory extends IDISLogBookFactory<AEC3Phase> {
     public AEC3PhaseLogBookFactory(AEC3Phase protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
@@ -25,6 +26,12 @@ public class AEC3PhaseLogBookFactory extends IDISLogBookFactory<AEC3Phase> {
         } else {
             return new ArrayList<>();
         }
-        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+        //map the meter events in order to change the device type of the code to the correct device type from protocol
+        return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents)
+                .stream()
+                .map(item -> {
+                    item.getEventType().setType(protocol.getTypeMeter());
+                    return item;
+                }).collect(Collectors.toList());
     }
 }

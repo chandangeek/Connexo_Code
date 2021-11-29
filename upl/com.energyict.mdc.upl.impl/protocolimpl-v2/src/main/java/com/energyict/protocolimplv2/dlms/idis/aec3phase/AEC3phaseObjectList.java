@@ -3,6 +3,15 @@ package com.energyict.protocolimplv2.dlms.idis.aec3phase;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.obis.ObisCode;
 
+/**
+ * Object model is hardcoded to be able to read the following obis-codes:
+ * 1.0.1.6.0.255
+ * 1.0.2.6.0.255
+ * 1.0.3.6.0.255
+ * 1.0.4.6.0.255
+ * 0.0.96.3.10.255
+ * They are accessible but not included in the object list provided by the meter.
+ */
 public class AEC3phaseObjectList {
     private UniversalObject[] objectList = {
             new UniversalObject(ObisCode.fromString("0.0.43.1.1.255").getLN(), 1, 0),
@@ -115,11 +124,6 @@ public class AEC3phaseObjectList {
             new UniversalObject(ObisCode.fromString("1.0.1.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.0.2.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.0.15.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.0.16.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.0.5.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.0.6.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.0.7.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.0.8.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.0.3.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.0.4.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.0.9.8.0.255").getLN(), 3, 0),
@@ -428,10 +432,6 @@ public class AEC3phaseObjectList {
             new UniversalObject(ObisCode.fromString("1.1.2.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.1.3.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.1.4.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.1.5.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.1.6.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.1.7.8.0.255").getLN(), 3, 0),
-            new UniversalObject(ObisCode.fromString("1.1.8.8.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.0.12.55.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.0.12.64.0.255").getLN(), 3, 0),
             new UniversalObject(ObisCode.fromString("1.1.12.64.0.255").getLN(), 3, 0),
