@@ -156,7 +156,7 @@ public class AECProfileDataReader <T extends AEC> extends IDISProfileDataReader<
              List<IntervalData> intervalData = profile.getCollectedIntervalData().stream().filter(id ->  {
                  Calendar cal = Calendar.getInstance();
                  cal.setTime(id.getEndTime());
-                 if (cal.get(Calendar.MINUTE) == 30 || cal.get(Calendar.MINUTE) == 0) {
+                 if ((cal.get(Calendar.MINUTE) == 30 || cal.get(Calendar.MINUTE) == 0) && cal.get(Calendar.SECOND) == 0) {
                      return true;
                  }
                  protocol.journal(Level.WARNING, "Removing the out-of-interval reading at " + id.getEndTime() + " with reading qualities "
