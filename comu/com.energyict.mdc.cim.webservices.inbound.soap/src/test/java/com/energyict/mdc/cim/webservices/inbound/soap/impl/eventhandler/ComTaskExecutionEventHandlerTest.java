@@ -7,11 +7,13 @@ package com.energyict.mdc.cim.webservices.inbound.soap.impl.eventhandler;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventType;
 import com.elster.jupiter.events.LocalEvent;
+import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.getmeterreadings.ChildGetMeterReadingsDomainExtension;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
@@ -21,12 +23,16 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.LoadProfilesTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Before;
@@ -35,6 +41,7 @@ import org.junit.Test;
 import static com.energyict.mdc.cim.webservices.inbound.soap.impl.eventhandler.ComTaskExecutionEventHandler.EventType.MANUAL_COMTASKEXECUTION_COMPLETED;
 import static com.energyict.mdc.cim.webservices.inbound.soap.impl.eventhandler.ComTaskExecutionEventHandler.EventType.MANUAL_COMTASKEXECUTION_FAILED;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -46,8 +53,11 @@ public class ComTaskExecutionEventHandlerTest {
     private Clock clock = mock(Clock.class);
     private LocalEvent event = mock(LocalEvent.class);
     private EventType eventType = mock(EventType.class);
+    private Message message = mock(Message.class);
     private Finder<ServiceCall> serviceCallFinder = mock(Finder.class);
     private ServiceCallService serviceCallService = mock(ServiceCallService.class);
+    private JsonService jsonService = mock(JsonService.class);
+    private CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
     private ServiceCall serviceCall = mock(ServiceCall.class);
     private ComTaskExecutionEventHandler comTaskExecutionEventHandler;
     private DeviceMessageUpdateForLoadProfileEventHandler deviceMessageUpdateForLoadProfileEventHandler;
@@ -56,10 +66,11 @@ public class ComTaskExecutionEventHandlerTest {
     private DeviceMessage deviceMessage = mock(DeviceMessage.class);
     private ComTaskExecution devMessageComTaskExecution = createDevMessageComTaskExecutionMock();
     private ComTaskExecution loadProfileComTaskExecution = createLoadProfileComTaskExecutionMock();
+    private Map<String,Object> newMap = new HashMap<>();
 
     @Before
     public void setUp() {
-        comTaskExecutionEventHandler = new ComTaskExecutionEventHandler(clock, serviceCallService);
+        comTaskExecutionEventHandler = new ComTaskExecutionEventHandler(clock, serviceCallService, jsonService, communicationTaskService);
         deviceMessageUpdateForLoadProfileEventHandler = new DeviceMessageUpdateForLoadProfileEventHandler(serviceCallService, clock);
         when(event.getType()).thenReturn(eventType);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED.topic());
@@ -71,6 +82,14 @@ public class ComTaskExecutionEventHandlerTest {
 
         when(domainExtension.getTriggerDate()).thenReturn(Instant.ofEpochSecond(111));
         when(domainExtension.getCommunicationTask()).thenReturn(COM_TASK_NAME);
+
+        newMap.clear();
+        newMap.put("id",1);
+        when(message.getPayload()).thenReturn(("{\"id\":1}").getBytes());
+        when(jsonService.deserialize(any(byte[].class), eq(Map.class))).thenReturn(newMap);
+        when(communicationTaskService.findComTaskExecution(1)).thenReturn(Optional.of(loadProfileComTaskExecution));
+
+
     }
 
     @Test
@@ -86,8 +105,9 @@ public class ComTaskExecutionEventHandlerTest {
 
     @Test
     public void comTaskExecutionCompleteForLoadProfileTest() {
+        newMap.put("event.topics", MANUAL_COMTASKEXECUTION_COMPLETED.topic());
         when(event.getSource()).thenReturn(loadProfileComTaskExecution);
-        comTaskExecutionEventHandler.onEvent(event);
+        comTaskExecutionEventHandler.process(message);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
         verify(serviceCall).log(LogLevel.FINE, String.format("Communication task execution 'stub_task'(trigger date: %s) is completed",
                 domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
@@ -95,9 +115,10 @@ public class ComTaskExecutionEventHandlerTest {
 
     @Test
     public void comTaskExecutionCompleteTrigerTimeInFutureTest() {
+        newMap.put("event.topics", MANUAL_COMTASKEXECUTION_COMPLETED.topic());
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(1));
         when(event.getSource()).thenReturn(loadProfileComTaskExecution);
-        comTaskExecutionEventHandler.onEvent(event);
+        comTaskExecutionEventHandler.process(message);
         verify(serviceCall, never()).requestTransition(DefaultState.ONGOING);
         verify(serviceCall, never()).log(LogLevel.FINE, String.format("Communication task execution 'stub_task'(trigger date: %s) is completed",
                 domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
@@ -129,10 +150,10 @@ public class ComTaskExecutionEventHandlerTest {
 
     @Test
     public void comTaskExecutionFailedDeviceMessageFailedTest() {
-        when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_FAILED.topic());
+        newMap.put("event.topics", MANUAL_COMTASKEXECUTION_FAILED.topic());
         createMockDeviceMessage(DeviceMessageStatus.FAILED);
         when(event.getSource()).thenReturn(devMessageComTaskExecution);
-        comTaskExecutionEventHandler.onEvent(event);
+        comTaskExecutionEventHandler.process(message);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
         verify(serviceCall).log(LogLevel.SEVERE, String.format("Communication task execution 'stub_task'(trigger date: %s) is failed",
                 domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));
@@ -141,9 +162,8 @@ public class ComTaskExecutionEventHandlerTest {
 
     @Test
     public void comTaskExecutionFailedForLoadProdileTest() {
-        when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_FAILED.topic());
-        when(event.getSource()).thenReturn(loadProfileComTaskExecution);
-        comTaskExecutionEventHandler.onEvent(event);
+        newMap.put("event.topics", MANUAL_COMTASKEXECUTION_FAILED.topic());
+        comTaskExecutionEventHandler.process(message);
         verify(serviceCall).requestTransition(DefaultState.ONGOING);
         verify(serviceCall).log(LogLevel.SEVERE, String.format("Communication task execution 'stub_task'(trigger date: %s) is failed",
                 domainExtension.getTriggerDate().atZone(ZoneId.systemDefault())));

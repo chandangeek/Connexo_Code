@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.eventhandler.ComTaskExecutionEventHandlerFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.EndDeviceControlsCancellationHandlerFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 
@@ -54,6 +55,7 @@ public enum TranslationKeys implements TranslationKey {
     CGMR_CPS("GM3.name", "Child get meter readings custom property set"),
     FUTURE_COM_TASK_EXECUTION_NAME(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_SUBSCRIBER,
             FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DISPLAYNAME),
+    COM_TASK_EXECUTION_EVENT_SUBSCRIBER(ComTaskExecutionEventHandlerFactory.SUBSCRIBER_NAME, ComTaskExecutionEventHandlerFactory.SUBSCRIBER_DISPLAYNAME),
     END_DEVICE_CONTROLS_CANCELLATION_NAME(EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_SUBSCRIBER,
             EndDeviceControlsCancellationHandlerFactory.END_DEVICE_CONTROLS_CANCELLATION_TASK_DISPLAYNAME),
     COMMAND_CODE("commandCode", "Command code"),
