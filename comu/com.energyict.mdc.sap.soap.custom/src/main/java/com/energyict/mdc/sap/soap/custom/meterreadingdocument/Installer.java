@@ -11,6 +11,8 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.upgrade.FullInstaller;
 
+import com.energyict.mdc.sap.soap.custom.eventhandlers.CustomSAPDeviceEventHandler;
+
 import javax.inject.Inject;
 import java.util.logging.Logger;
 
@@ -38,7 +40,7 @@ public class Installer implements FullInstaller {
 
                     if (!subscriberExists) {
                         jupiterEvents.subscribe(TranslationKeys.SAP_METER_READING_DOCUMENT_EVENT_SUBSCRIBER,
-                                SapMeterReadingDocumentOnDemandHandlerFactory.COMPONENT_NAME,
+                                CustomSAPDeviceEventHandler.COMPONENT_NAME,
                                 Layer.DOMAIN,
                                 DestinationSpec.whereCorrelationId().isEqualTo(SAPMeterReadingDocumentOnDemandHandler.SCHEDULED_COMTASKEXECUTION_COMPLETED)
                                         .or(DestinationSpec.whereCorrelationId().isEqualTo(SAPMeterReadingDocumentOnDemandHandler.SCHEDULED_COMTASKEXECUTION_FAILED))

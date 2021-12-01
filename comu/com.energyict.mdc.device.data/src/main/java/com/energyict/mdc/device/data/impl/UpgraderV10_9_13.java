@@ -10,16 +10,16 @@ import com.elster.jupiter.upgrade.Upgrader;
 
 import javax.inject.Inject;
 
-public class UpgraderV10_9_12 implements Upgrader {
+public class UpgraderV10_9_13 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject
-    UpgraderV10_9_12(DataModel dataModel) {
+    UpgraderV10_9_13(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        execute(dataModel, "UPDATE EVT_EVENTTYPE SET publish = 'Y' WHERE topic in ('com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED','com/energyict/mdc/device/data/scheduledcomtaskexecution/COMPLETED','com/energyict/mdc/device/data/manualcomtaskexecution/FAILED','com/energyict/mdc/device/data/scheduledcomtaskexecution/FAILED')");
+        execute(dataModel, "UPDATE EVT_EVENTTYPE SET publish = 'Y' WHERE topic in ('"+EventType.MANUAL_COMTASKEXECUTION_COMPLETED.topic()+"','"+EventType.SCHEDULED_COMTASKEXECUTION_COMPLETED.topic()+"','"+EventType.MANUAL_COMTASKEXECUTION_FAILED.topic()+"','"+EventType.SCHEDULED_COMTASKEXECUTION_FAILED.topic()+"')");
     }
 }
