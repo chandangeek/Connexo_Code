@@ -153,6 +153,7 @@ public class ABBA1140DataIdentityFactory {
 //        add("696", 43,ABBA1140DataIdentity.STREAMEABLE); // TransientEventLog
 //        add("699", 53,ABBA1140DataIdentity.STREAMEABLE); // EndOfBillingEventLog
 //        add("701", 53,ABBA1140DataIdentity.STREAMEABLE); // MeterErrorEventLog
+        add("680", 53,ABBA1140DataIdentity.STREAMEABLE); // SecurityLog
         add("691", 14,ABBA1140DataIdentity.STREAMEABLE); // TerminalCoverEventLog
         add("692", 14,ABBA1140DataIdentity.STREAMEABLE); // MainCoverEventLog
         add("693", 17,ABBA1140DataIdentity.STREAMEABLE); // PhaseFailureEventLog
