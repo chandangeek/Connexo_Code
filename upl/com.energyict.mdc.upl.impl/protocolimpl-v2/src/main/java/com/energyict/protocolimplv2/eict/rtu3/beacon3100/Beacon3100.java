@@ -682,15 +682,19 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                 boolean pathOk = false;
 
                 try {
-                    String progress = String.format("%.1f", 100.0 * current++ / nodes);
-                    logInfo("Requesting path to: " + g3Node.getMacAddressString() + " (" + progress + "%)");
+                    if (getDlmsSessionProperties().doPathRequestOnTopology()){
+                        String progress = String.format("%.1f", 100.0 * current++ / nodes);
+                        logInfo("Requesting path to: " + g3Node.getMacAddressString() + " (" + progress + "%)");
 
-                    pathOk = pathRequest(g3Node, dcMacAddress.get()); //first try
+                        pathOk = pathRequest(g3Node, dcMacAddress.get()); //first try
+                    }
 
                     if (!pathOk) {
                         // error while requesting path, do a ROUTE request now then retry
-                        if (routeRequest(g3Node)) {
-                            pathOk = pathRequest(g3Node, dcMacAddress.get());
+                        if (getDlmsSessionProperties().doRouteRequestsOnTopology()) {
+                            if (routeRequest(g3Node)) {
+                                pathOk = pathRequest(g3Node, dcMacAddress.get());
+                            }
                         }
                     }
 
@@ -706,7 +710,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
                 // neighbor table TTL expires in 1 minute, there is a bug in the Beacon, refresh it asap
                 // TODO: remove this part after Beacon entry-TTL is fixed and we can read this only once
-                if (System.currentTimeMillis() - start > 50 * 1000) {
+                if ((System.currentTimeMillis() - start > 50 * 1000)
+                        && (getDlmsSessionProperties().doPathRequestOnTopology() || getDlmsSessionProperties().doRouteRequestsOnTopology())){
                     try {
                         neighbourTable = null; // invalidate current table
                         Optional<Array> tempNeighborTable = getNeighbourTable();
@@ -770,7 +775,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                             deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
 
                             try {
-                                if (ipV6Prefix != null && !ipV6Prefix.isEmpty() && macPANId > 0) {
+                                if ( getDlmsSessionProperties().updateIpv6OnTopology()
+                                        && ipV6Prefix!=null && !ipV6Prefix.isEmpty() && macPANId>0) {
                                     String nodeIpv6Address = IPv6Utils.getNodeAddress(ipV6Prefix, (int) macPANId, g3Node.getShortAddress());
                                     if (IPv6Utils.isValid(nodeIpv6Address)) {
                                         logInfo("Node " + g3Node.getMacAddressString() + " has IPv6 " + nodeIpv6Address);
@@ -1144,7 +1150,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
             @Override
             public String getVersion () {
-                return "$Date: 2021-05-12$";
+                return "$Date: 2021-06-16$";
             }
 
             @Override
