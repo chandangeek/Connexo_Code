@@ -11,6 +11,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -32,7 +33,13 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
     public List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfosListFromDevice(Device device) {
         FirmwareManagementDeviceUtils versionUtils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = getDeviceFirmwareHistoryInfos(versionUtils);
-        return sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
+        List<DeviceFirmwareLifecycleHistoryInfo> deviceFirmwareLifecycleHistoryInfos = sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
+        deviceFirmwareLifecycleHistoryInfos.stream().forEach(deviceFirmwareLifecycleHistoryInfo -> {
+            if(deviceFirmwareLifecycleHistoryInfo.getResult().equals("Pending")){
+                deviceFirmwareLifecycleHistoryInfo.setUploadedOn(null);
+            }
+        });
+        return deviceFirmwareLifecycleHistoryInfos;
     }
 
     private List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfos(FirmwareManagementDeviceUtils versionUtils) {
