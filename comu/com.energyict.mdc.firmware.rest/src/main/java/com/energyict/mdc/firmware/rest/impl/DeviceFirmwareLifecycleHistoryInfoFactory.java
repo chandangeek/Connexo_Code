@@ -37,6 +37,7 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
         deviceFirmwareLifecycleHistoryInfos.stream().forEach(deviceFirmwareLifecycleHistoryInfo -> {
             if(deviceFirmwareLifecycleHistoryInfo.getResult().equals("Pending")){
                 deviceFirmwareLifecycleHistoryInfo.setUploadedOn(null);
+                deviceFirmwareLifecycleHistoryInfo.setActivationDate(null);
             }
         });
         return deviceFirmwareLifecycleHistoryInfos;
