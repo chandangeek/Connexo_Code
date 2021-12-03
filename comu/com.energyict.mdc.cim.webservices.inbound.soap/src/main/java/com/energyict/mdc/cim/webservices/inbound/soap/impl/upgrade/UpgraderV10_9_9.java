@@ -11,16 +11,16 @@ import com.elster.jupiter.upgrade.Upgrader;
 import javax.inject.Inject;
 
 //for compatibility with release/Enexis_10.9.9 branch
-public class UpgraderV10_9_10 implements Upgrader {
+public class UpgraderV10_9_9 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject
-    UpgraderV10_9_10(DataModel dataModel) {
+    UpgraderV10_9_9(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 10));
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 9));
     }
 }
