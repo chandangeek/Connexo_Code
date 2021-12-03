@@ -75,7 +75,15 @@ public interface SAPCustomPropertySets {
 
     void setLocation(Device device, String locationId);
 
+    void setLocationInformation(Device device, String locationIdInformation);
+
+    void setModificationInformation(Device device, String modificationInformation);
+
+    void setInstallationNumber(Device device, String installationNumber);
+
     void setPod(Device device, String podId);
+
+    void setDivisionCategoryCode(Device device, String divisionCategoryCode);
 
     Set<Pair<Long, ChannelSpec>> getChannelInfosAfterDate(String lrn, String profileId, Instant date);
 

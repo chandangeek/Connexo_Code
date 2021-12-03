@@ -23,8 +23,12 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         DOMAIN("device", "DEVICE"),
         DEVICE_IDENTIFIER("deviceIdentifier", "DEVICE_ID"),
         DEVICE_LOCATION("deviceLocation", "DEVICE_LOCATION"),
+        INSTALLATION_NUMBER("installationNumber", "INSTALLATION_NUMBER"),
         POINT_OF_DELIVERY("pointOfDelivery", "POINT_OF_DELIVERY"),
-        REGISTERED("registered", "REGISTERED");
+        DIVISION_CATEGORY_CODE("divisionCategoryCode", "DIVISION_CATEGORY_CODE"),
+        REGISTERED("registered", "REGISTERED"),
+        DEVICE_LOCATION_INFORMATION("deviceLocationInformation", "DEVICE_LOCATION_INFORMATION"),
+        MODIFICATION_INFORMATION("modificationInformation", "MODIFICATION_INFORMATION");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -51,7 +55,19 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     private String deviceLocation;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String installationNumber;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String pointOfDelivery;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String divisionCategoryCode;
+
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String deviceLocationInformation;
+
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String modificationInformation;
 
     private boolean registered;
 
@@ -67,7 +83,12 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         setDeviceLocation((String) propertyValues.getProperty(FieldNames.DEVICE_LOCATION.javaName()));
         setPointOfDelivery((String) propertyValues.getProperty(FieldNames.POINT_OF_DELIVERY.javaName()));
         setRegistered((boolean) Optional.ofNullable(propertyValues.getProperty(FieldNames.REGISTERED.javaName()))
-                        .orElse(false));
+                .orElse(false));
+        setInstallationNumber((String) propertyValues.getProperty(FieldNames.INSTALLATION_NUMBER.javaName()));
+        setDivisionCategoryCode((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY_CODE.javaName()));
+        setDeviceLocationInformation((String) propertyValues.getProperty(FieldNames.DEVICE_LOCATION_INFORMATION.javaName()));
+        setModificationInformation((String) propertyValues.getProperty(FieldNames.MODIFICATION_INFORMATION.javaName()));
+
     }
 
     @Override
@@ -76,6 +97,10 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         propertySetValues.setProperty(FieldNames.DEVICE_LOCATION.javaName(), deviceLocation);
         propertySetValues.setProperty(FieldNames.POINT_OF_DELIVERY.javaName(), pointOfDelivery);
         propertySetValues.setProperty(FieldNames.REGISTERED.javaName(), this.isRegistered());
+        propertySetValues.setProperty(FieldNames.INSTALLATION_NUMBER.javaName(), installationNumber);
+        propertySetValues.setProperty(FieldNames.DIVISION_CATEGORY_CODE.javaName(), divisionCategoryCode);
+        propertySetValues.setProperty(FieldNames.DEVICE_LOCATION_INFORMATION.javaName(), deviceLocationInformation);
+        propertySetValues.setProperty(FieldNames.MODIFICATION_INFORMATION.javaName(), modificationInformation);
     }
 
     @Override
@@ -91,8 +116,24 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return deviceLocation;
     }
 
+    public String getInstallationNumber() {
+        return installationNumber;
+    }
+
     public String getPointOfDelivery() {
         return pointOfDelivery;
+    }
+
+    public String getDivisionCategoryCode() {
+        return divisionCategoryCode;
+    }
+
+    public String getDeviceLocationInformation() {
+        return deviceLocationInformation;
+    }
+
+    public String getModificationInformation() {
+        return modificationInformation;
     }
 
     public void setDeviceIdentifier(String deviceIdentifier) {
@@ -103,8 +144,24 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         this.deviceLocation = deviceLocation;
     }
 
+    public void setInstallationNumber(String installationNumber) {
+        this.installationNumber = installationNumber;
+    }
+
     public void setPointOfDelivery(String pointOfDelivery) {
         this.pointOfDelivery = pointOfDelivery;
+    }
+
+    public void setDivisionCategoryCode(String divisionCategoryCode) {
+        this.divisionCategoryCode = divisionCategoryCode;
+    }
+
+    public void setDeviceLocationInformation(String deviceLocationInformation) {
+        this.deviceLocationInformation = deviceLocationInformation;
+    }
+
+    public void setModificationInformation(String modificationInformation) {
+        this.modificationInformation = modificationInformation;
     }
 
     public boolean isRegistered() {
@@ -118,4 +175,6 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     public Device getDevice() {
         return device.get();
     }
+
+
 }

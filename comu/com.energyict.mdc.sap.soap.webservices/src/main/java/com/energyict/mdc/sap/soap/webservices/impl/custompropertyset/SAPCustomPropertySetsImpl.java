@@ -291,11 +291,43 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
+    public void setLocationInformation(Device device, String locationIdInformation) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName(), locationIdInformation);
+    }
+
+    @Override
+    public void setModificationInformation(Device device, String modificationInformation) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName(), modificationInformation);
+    }
+
+    @Override
+    public void setInstallationNumber(Device device, String installationNumber) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName(), installationNumber);
+    }
+
+    @Override
     public void setPod(Device device, String podId) {
         lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
         setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
+    }
+
+    @Override
+    public void setDivisionCategoryCode(Device device, String divisionCategoryCode) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName(), divisionCategoryCode);
     }
 
     @Override

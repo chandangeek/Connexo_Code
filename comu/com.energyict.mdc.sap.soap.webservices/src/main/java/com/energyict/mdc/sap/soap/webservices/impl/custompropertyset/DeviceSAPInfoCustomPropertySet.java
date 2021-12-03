@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
@@ -107,8 +108,32 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName(), TranslationKeys.CPS_INSTALLATION_NUMBER)
+                        .describedAs(TranslationKeys.CPS_INSTALLATION_NUMBER_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), TranslationKeys.CPS_POINT_OF_DELIVERY)
                         .describedAs(TranslationKeys.CPS_POINT_OF_DELIVERY_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName(), TranslationKeys.CPS_DIVISION_CATEGORY_CODE)
+                        .describedAs(TranslationKeys.CPS_DIVISION_CATEGORY_CODE_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName(), TranslationKeys.CPS_DEVICE_LOCATION_INFORMATION)
+                        .describedAs(TranslationKeys.CPS_DEVICE_LOCATION_INFORMATION_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName(), TranslationKeys.CPS_MODIFICATION_INFORMATION)
+                        .describedAs(TranslationKeys.CPS_MODIFICATION_INFORMATION_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -183,10 +208,30 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName())
                     .since(Version.version(10, 7))
                     .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName())
+                    .since(Version.version(10, 7, 20))
+                    .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
                     .since(Version.version(10, 7))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName())
+                    .since(Version.version(10, 7, 20))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.databaseName())
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName())
+                    .since(Version.version(10, 7, 20))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.databaseName())
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName())
+                    .since(Version.version(10, 7, 20))
                     .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.databaseName())
                     .bool()

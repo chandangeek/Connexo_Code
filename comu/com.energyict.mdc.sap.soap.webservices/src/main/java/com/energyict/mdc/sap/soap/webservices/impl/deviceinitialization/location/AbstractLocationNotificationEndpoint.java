@@ -15,6 +15,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
@@ -35,12 +37,14 @@ public class AbstractLocationNotificationEndpoint extends AbstractInboundEndPoin
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
     private final ServiceCallCommands serviceCallCommands;
+    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     @Inject
-    public AbstractLocationNotificationEndpoint(ServiceCallService serviceCallService, Thesaurus thesaurus, ServiceCallCommands serviceCallCommands) {
+    public AbstractLocationNotificationEndpoint(ServiceCallService serviceCallService, Thesaurus thesaurus, ServiceCallCommands serviceCallCommands, SAPCustomPropertySets sapCustomPropertySets) {
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
         this.serviceCallCommands = serviceCallCommands;
+        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
     @Override
@@ -106,6 +110,15 @@ public class AbstractLocationNotificationEndpoint extends AbstractInboundEndPoin
     private void createChildServiceCall(ServiceCall parent, LocationMessage locationMessage) {
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_LOCATION_NOTIFICATION);
 
+        Optional<Device> device = sapCustomPropertySets.getDevice(locationMessage.getDeviceId());
+        if (device.isPresent()) {
+            sapCustomPropertySets.setInstallationNumber(device.get(), locationMessage.getInstallationNumber());
+            sapCustomPropertySets.setPod(device.get(), locationMessage.getPod());
+            sapCustomPropertySets.setDivisionCategoryCode(device.get(), locationMessage.getDivisionCategoryCode());
+            sapCustomPropertySets.setLocationInformation(device.get(), locationMessage.getLocationIdInformation());
+            sapCustomPropertySets.setModificationInformation(device.get(), locationMessage.getModificationInformation());
+        }
+
         UtilitiesDeviceLocationNotificationDomainExtension childDomainExtension = new UtilitiesDeviceLocationNotificationDomainExtension();
         childDomainExtension.setDeviceId(locationMessage.getDeviceId());
         childDomainExtension.setLocationId(locationMessage.getLocationId());
@@ -115,6 +128,7 @@ public class AbstractLocationNotificationEndpoint extends AbstractInboundEndPoin
 
         serviceCallBuilder.create();
     }
+
 
     private void logWarning(MessageSeeds messageSeed, Object... messageSeedArgs) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));

@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.locatio
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilitiesDeviceERPSmartMeterLocationBulkNotificationCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocBulkNotifMsg;
@@ -16,8 +17,8 @@ import java.util.Optional;
 public class UtilitiesDeviceLocationBulkNotificationEndpoint extends AbstractLocationNotificationEndpoint implements UtilitiesDeviceERPSmartMeterLocationBulkNotificationCIn {
 
     @Inject
-    UtilitiesDeviceLocationBulkNotificationEndpoint(ServiceCallService serviceCallService, Thesaurus thesaurus, ServiceCallCommands serviceCallCommands) {
-        super(serviceCallService, thesaurus, serviceCallCommands);
+    UtilitiesDeviceLocationBulkNotificationEndpoint(ServiceCallService serviceCallService, Thesaurus thesaurus, ServiceCallCommands serviceCallCommands, SAPCustomPropertySets sapCustomPropertySets) {
+        super(serviceCallService, thesaurus, serviceCallCommands, sapCustomPropertySets);
     }
 
     @Override
