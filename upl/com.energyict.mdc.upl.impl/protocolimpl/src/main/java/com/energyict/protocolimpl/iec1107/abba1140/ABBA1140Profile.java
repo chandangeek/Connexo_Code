@@ -186,6 +186,7 @@ public class ABBA1140Profile {
         	getMeterEvents(rFactory.getInternalBatteryEventLog(),meterEvents);
         	getMeterEvents(rFactory.getEndOfBillingEventLog(),meterEvents);
         	getMeterEvents(rFactory.getMeterErrorEventLog(),meterEvents);
+        	getMeterEvents(rFactory.getSecurityEventLog(),meterEvents);
 
         	profileData.getMeterEvents().addAll(truncateMeterEvents(meterEvents,from));
        		//profileData.setMeterEvents(truncateMeterEvents(meterEvents,from));
