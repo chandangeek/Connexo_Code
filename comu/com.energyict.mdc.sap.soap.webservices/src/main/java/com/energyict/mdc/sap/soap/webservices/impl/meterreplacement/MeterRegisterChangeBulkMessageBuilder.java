@@ -94,6 +94,7 @@ public class MeterRegisterChangeBulkMessageBuilder {
         registerBuilder.setEndDate(calculateEndDate(reg));
         registerBuilder.setTimeZone(getTimeZone(reg));
         registerBuilder.setObis(getObis(reg));
+        registerBuilder.setRegisterId(getRegisterId(reg));
         registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
         registerBuilder.setDivisionCategory(getDivisionCategory(reg));
         return registerBuilder.build();
@@ -136,5 +137,13 @@ public class MeterRegisterChangeBulkMessageBuilder {
         return Optional.ofNullable(requestRegister.getUtilitiesDivisionCategoryCode())
                 .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                 .orElse(null);
+    }
+
+    private String getRegisterId(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
+//        return Optional.ofNullable(requestRegister.getUtilitiesDivisionCategoryCode())
+//                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+//                .orElse(null);
+
+        return "1";
     }
 }

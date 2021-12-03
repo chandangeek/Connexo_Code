@@ -35,6 +35,9 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         END_DATE("endDate", "END_DATE"),
         DIVISION_CATEGORY("divisionCategory", "DIVISION_CATEGORY"),
 
+        REGISTER_ID("registerId", "REGISTER_ID"),
+
+
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
         ERROR_MESSAGE("errorMessage", "ERROR_MESSAGE"),
@@ -80,6 +83,9 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String divisionCategory;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String registerId;
 
     private Instant startDate;
 
@@ -137,6 +143,14 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         this.divisionCategory = divisionCategory;
     }
 
+    public String getRegisterId() {
+        return registerId;
+    }
+
+    public void setRegisterId(String registerId) {
+        this.registerId = registerId;
+    }
+
     public Instant getStartDate() {
         return startDate;
     }
@@ -180,6 +194,7 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         this.setStartDate((Instant) propertyValues.getProperty(FieldNames.START_DATE.javaName()));
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
         this.setDivisionCategory((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY.javaName()));
+        this.setRegisterId((String) propertyValues.getProperty(FieldNames.REGISTER_ID.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -193,6 +208,7 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         propertySetValues.setProperty(FieldNames.START_DATE.javaName(), this.getStartDate());
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
         propertySetValues.setProperty(FieldNames.DIVISION_CATEGORY.javaName(), this.getDivisionCategory());
+        propertySetValues.setProperty(FieldNames.REGISTER_ID.javaName(), this.getRegisterId());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }

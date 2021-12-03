@@ -19,6 +19,8 @@ public class RegisterChangeMessage extends AbstractSapMessage {
     private String obis;
     private String recurrenceCode;
     private String divisionCategory;
+    private String registerId;
+
 
     private RegisterChangeMessage() {
     }
@@ -53,6 +55,10 @@ public class RegisterChangeMessage extends AbstractSapMessage {
 
     public String getDivisionCategory() {
         return divisionCategory;
+    }
+
+    public String getRegisterId() {
+        return registerId;
     }
 
     private void validate() {
@@ -99,6 +105,10 @@ public class RegisterChangeMessage extends AbstractSapMessage {
         public void setObis(String obis) {
             registerChangeMessage.obis = obis;
         }
+
+        public void setRegisterId(String registerId){
+            registerChangeMessage.registerId = registerId;
+        };
 
         public RegisterChangeMessage build() {
             registerChangeMessage.validate();

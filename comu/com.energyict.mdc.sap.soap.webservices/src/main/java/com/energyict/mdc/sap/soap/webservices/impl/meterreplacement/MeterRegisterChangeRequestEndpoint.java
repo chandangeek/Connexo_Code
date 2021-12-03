@@ -216,6 +216,7 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         childDomainExtension.setObis(message.getObis());
         childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());
         childDomainExtension.setDivisionCategory(message.getDivisionCategory());
+        childDomainExtension.setRegisterId(message.getRegisterId());
         childDomainExtension.setStartDate(message.getStartDate());
 
         ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)

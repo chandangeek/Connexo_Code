@@ -128,6 +128,11 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.javaName(), TranslationKeys.REGISTER_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -227,6 +232,11 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.DIVISION_CATEGORY.javaName())
                     .since(Version.version(10, 7, 2))
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
+                    .since(Version.version(10, 7, 20))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)
