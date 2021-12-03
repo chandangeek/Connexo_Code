@@ -314,14 +314,15 @@ class ActiveCustomPropertySet {
 
     @SuppressWarnings("unchecked")
     <T extends PersistentDomainExtension<D>, D> Optional<T> getValuesEntityFor(Condition condition, Supplier<String> errorMessageSupplier) {
-        List<T> extensions = this.getMapper().select(condition);
+        List<T> extensions = this.getMapper().select(condition, Order.descending(HardCodedFieldNames.MODIFICATION_TIME.databaseName()));
 
         if (extensions.isEmpty()) {
             return Optional.empty();
         }
+        /* CONM-2538: as DB consisted of multiple records for some devices causing the below condition to fail, this is handled by updating order by in query for above select method.
         else if (extensions.size() > 1) {
             throw new IllegalStateException(errorMessageSupplier.get());
-        }
+        } */
         else {
             return Optional.of(extensions.get(0));
         }
