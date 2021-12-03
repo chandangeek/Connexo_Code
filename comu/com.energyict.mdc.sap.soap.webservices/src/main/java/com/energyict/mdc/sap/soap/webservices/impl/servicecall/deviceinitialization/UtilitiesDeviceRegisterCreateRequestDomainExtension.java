@@ -32,6 +32,7 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         END_DATE("endDate", "END_DATE"),
         TIME_ZONE("timeZone", "TIME_ZONE"),
         DIVISION_CATEGORY("divisionCategory", "DIVISION_CATEGORY"),
+        REGISTER_ID("registerId", "REGISTER_ID"),
 
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
@@ -73,6 +74,9 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String divisionCategory;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String registerId;
 
     private Instant startDate;
     private Instant endDate;
@@ -154,6 +158,14 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.divisionCategory = divisionCategory;
     }
 
+    public String getRegisterId() {
+        return registerId;
+    }
+
+    public void setRegisterId(String registerId) {
+        this.registerId = registerId;
+    }
+
     public String getErrorCode() {
         return errorCode;
     }
@@ -186,6 +198,7 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
         this.setTimeZone((String) propertyValues.getProperty(FieldNames.TIME_ZONE.javaName()));
         this.setDivisionCategory((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY.javaName()));
+        this.setRegisterId((String) propertyValues.getProperty(FieldNames.REGISTER_ID.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -200,6 +213,7 @@ public class UtilitiesDeviceRegisterCreateRequestDomainExtension extends Abstrac
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
         propertySetValues.setProperty(FieldNames.TIME_ZONE.javaName(), this.getTimeZone());
         propertySetValues.setProperty(FieldNames.DIVISION_CATEGORY.javaName(), this.getDivisionCategory());
+        propertySetValues.setProperty(FieldNames.REGISTER_ID.javaName(), this.getRegisterId());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }

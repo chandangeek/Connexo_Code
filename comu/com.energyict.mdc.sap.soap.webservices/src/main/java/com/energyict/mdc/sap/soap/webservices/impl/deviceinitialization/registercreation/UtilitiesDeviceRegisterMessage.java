@@ -23,6 +23,7 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
     private Instant startDate;
     private Instant endDate;
     private String timeZone;
+    private String registerId;
 
     public String getObis() {
         return obis;
@@ -56,6 +57,10 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
         return timeZone;
     }
 
+    public String getRegisterId() {
+        return registerId;
+    }
+
     public class Builder {
 
         private Builder() {
@@ -70,6 +75,7 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
             setStartDate(requestMessage.getStartDate());
             setEndDate(requestMessage.getEndDate(), lrnEndInterval);
             setTimeZone(getTimeZone(requestMessage));
+            setRegisterId(getRegisterId(requestMessage));
 
             return this;
         }
@@ -83,6 +89,7 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
             setStartDate(requestMessage.getStartDate());
             setEndDate(requestMessage.getEndDate(), lrnEndInterval);
             setTimeZone(getTimeZone(requestMessage));
+            setRegisterId(getRegisterId(requestMessage));
 
             return this;
         }
@@ -120,6 +127,10 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
 
         private void setTimeZone(String timeZone) {
             UtilitiesDeviceRegisterMessage.this.timeZone = timeZone;
+        }
+
+        private void setRegisterId(String registerId) {
+            UtilitiesDeviceRegisterMessage.this.registerId = registerId;
         }
 
         private String getObis(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
@@ -184,6 +195,22 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
             return Optional.ofNullable(requestMessage.getTimeZoneCode())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
+        }
+
+        private String getRegisterId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+//            return Optional.ofNullable(requestMessage.getUtilitiesMeasurementTaskID())
+//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilitiesMeasurementTaskID::getValue)
+//                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+//                    .orElse(null);
+            return "01";
+        }
+
+        private String getRegisterId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+//            return Optional.ofNullable(requestMessage.getUtilitiesMeasurementTaskID())
+//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilitiesMeasurementTaskID::getValue)
+//                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+//                    .orElse(null);
+            return "01";
         }
     }
 }

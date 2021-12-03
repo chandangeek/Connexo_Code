@@ -92,6 +92,7 @@ public enum TranslationKeys implements TranslationKey {
     POD_ID("podId", "Point of delivery ID"),
     METER_READING_DATE_TIME("meterReadingDateTime", "Meter reading timestamp"),
     METER_READING_VALUE("meterReadingValue", "Meter reading value"),
+    REGISTER_ID("registerId", "Register id"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),

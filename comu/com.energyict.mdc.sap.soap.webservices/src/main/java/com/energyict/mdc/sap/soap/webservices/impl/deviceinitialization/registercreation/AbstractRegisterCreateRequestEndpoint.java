@@ -173,6 +173,7 @@ public abstract class AbstractRegisterCreateRequestEndpoint extends AbstractInbo
         childDomainExtension.setStartDate(bodyMessage.getStartDate());
         childDomainExtension.setEndDate(bodyMessage.getEndDate());
         childDomainExtension.setTimeZone(bodyMessage.getTimeZone());
+        childDomainExtension.setRegisterId(bodyMessage.getRegisterId());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);

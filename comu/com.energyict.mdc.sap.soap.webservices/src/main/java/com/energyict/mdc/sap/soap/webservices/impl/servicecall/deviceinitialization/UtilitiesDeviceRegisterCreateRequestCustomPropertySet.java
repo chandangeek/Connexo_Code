@@ -132,6 +132,11 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.javaName(), TranslationKeys.REGISTER_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -230,6 +235,11 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DIVISION_CATEGORY.javaName())
                     .since(Version.version(10, 7, 1))
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
+                    .since(Version.version(10, 7, 20))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)
