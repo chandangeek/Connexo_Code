@@ -6,8 +6,6 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 
 import javax.inject.Singleton;
@@ -18,24 +16,14 @@ import java.util.Optional;
         service = SapMeterReadingDocumentReasonProviderHelper.class, immediate = true)
 public class SapMeterReadingDocumentReasonProviderHelper {
 
-    //Check external system
-    public static final String EXTERNAL_SYSTEM = "com.elster.jupiter.sap.externalsystem";
-    public static final String EXTERNAL_SYSTEM_FEWA = "FEWA";
-    public static final String EXTERNAL_SYSTEM_EDA = "EDA";
-
-    private static String externalSystemName;
     private static MessageSeeds errorMessage;
 
-    @Activate
-    public void activate(BundleContext bundleContext) {
-        externalSystemName = Optional.ofNullable(bundleContext.getProperty(EXTERNAL_SYSTEM)).orElse(EXTERNAL_SYSTEM_FEWA);
-    }
 
     public static Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode, String dataSourceTypeCode) {
-        switch (externalSystemName) {
-            case EXTERNAL_SYSTEM_EDA:
+        switch (WebServiceActivator.getExternalSystemName()) {
+            case WebServiceActivator.EXTERNAL_SYSTEM_EDA:
                 return (dataSourceTypeCode != null) ? findReadingReasonProviderByDataSourceCode(readingReasonCode, dataSourceTypeCode) : dataSourceTypeCodeIsRequired();
-            case EXTERNAL_SYSTEM_FEWA:
+            case WebServiceActivator.EXTERNAL_SYSTEM_FEWA:
                 return findReadingReasonProviderByReasonCode(readingReasonCode);
             default:
                 return Optional.ofNullable(null);

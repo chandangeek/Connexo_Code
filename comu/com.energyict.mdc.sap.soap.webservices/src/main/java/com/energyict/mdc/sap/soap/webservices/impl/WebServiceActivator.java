@@ -242,6 +242,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final String CHECK_SCHEDULED_REQUEST_TASK_SCHEDULE = "0 0/60 * 1/1 * ? *";
     private static final int CHECK_SCHEDULED_REQUEST_TASK_RETRY_DELAY = 60;
 
+    //Check external system
+    public static final String EXTERNAL_SYSTEM = "com.elster.jupiter.sap.externalsystem";
+    public static final String EXTERNAL_SYSTEM_FEWA = "FEWA";
+    public static final String EXTERNAL_SYSTEM_EDA = "EDA";
+
     private static String exportTaskName;
     private static String exportTaskDeviceGroupName;
     private static List<String> listOfRoleCodes;
@@ -250,6 +255,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static RelativePeriod exportTaskUpdateWindow;
     private static String exportTaskNewDataEndpointName;
     private static String exportTaskUpdatedDataEndpointName;
+    private static String externalSystemName;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -343,6 +349,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public Integer getSapProperty(AdditionalProperties property) {
         return sapProperties.get(property);
+    }
+
+    public static String getExternalSystemName() {
+        return externalSystemName;
     }
 
     public String getMeteringSystemId() {
@@ -488,6 +498,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_UPDATE_WINDOW));
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
+
+        externalSystemName = Optional.ofNullable(bundleContext.getProperty(EXTERNAL_SYSTEM)).orElse(EXTERNAL_SYSTEM_FEWA);
 
         meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
 

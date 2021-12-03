@@ -158,7 +158,7 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setMaterialId(message.getMaterialId());
-        Optional.ofNullable(webServiceActivator.getDeviceTypesMap().get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
+        Optional.ofNullable((webServiceActivator.getExternalSystemName()== webServiceActivator.EXTERNAL_SYSTEM_EDA)?message.getManufacturerModel():webServiceActivator.getDeviceTypesMap().get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
         childDomainExtension.setShipmentDate(message.getShipmentDate());
         childDomainExtension.setManufacturer(message.getManufacturer());
         childDomainExtension.setManufacturerSerialId(message.getManufacturerSerialId());
