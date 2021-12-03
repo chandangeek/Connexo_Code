@@ -321,6 +321,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_REASON_CODE.javaName())
                     .notNull()
                     .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.javaName())
+                    .since(Version.version(10,7, 20))
+                    .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CHANNEL_ID.databaseName())
                     .number()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CHANNEL_ID.javaName())

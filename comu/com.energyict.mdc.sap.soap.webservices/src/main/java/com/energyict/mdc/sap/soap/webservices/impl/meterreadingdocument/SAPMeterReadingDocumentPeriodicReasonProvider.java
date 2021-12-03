@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
@@ -29,9 +29,11 @@ import java.util.Optional;
 public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterReadingDocumentReason {
     private static final String REASON_CODES_PERIODIC = "com.elster.jupiter.sap.reasoncodes.periodic";
     private static final String REASON_CODES_PERIODIC_DEFAULT_VALUE = "1";
+    private static final String DATA_SOURCE_TYPE_CODES_PERIODIC_DEFAULT_VALUE = "0";
     private static final String MRO_DATASOURCE_INTERVAL = "com.elster.jupiter.sap.mro.datasource.interval";
 
-    private static List<String> codes;
+    private static List<String> reasonCodeCodes;
+    private static List<String> dataSourceTypeCodeCodes;
     private static Pair<String, String> dataSourceInterval;
     private volatile WebServiceActivator webServiceActivator;
 
@@ -39,9 +41,9 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     public void activate(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_PERIODIC);
         if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
-            codes = Collections.singletonList(REASON_CODES_PERIODIC_DEFAULT_VALUE);
+            reasonCodeCodes = Collections.singletonList(REASON_CODES_PERIODIC_DEFAULT_VALUE);
         } else {
-            codes = Arrays.asList((valueCodes.split(",")));
+            reasonCodeCodes = Arrays.asList((valueCodes.split(",")));
         }
 
         String valueDataSourceInterval = bundleContext.getProperty(MRO_DATASOURCE_INTERVAL);
@@ -51,6 +53,7 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
             String[] intervals = valueDataSourceInterval.split(",");
             dataSourceInterval = Pair.of(intervals[0].trim(), intervals[1].trim());
         }
+        dataSourceTypeCodeCodes = Collections.singletonList(DATA_SOURCE_TYPE_CODES_PERIODIC_DEFAULT_VALUE);
     }
 
     @Reference
@@ -59,8 +62,13 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     }
 
     @Override
-    public List<String> getCodes() {
-        return codes;
+    public List<String> getReasonCodeCodes() {
+        return reasonCodeCodes;
+    }
+
+    @Override
+    public List<String> getDataSourceTypeCodeCodes() {
+        return dataSourceTypeCodeCodes;
     }
 
     @Override

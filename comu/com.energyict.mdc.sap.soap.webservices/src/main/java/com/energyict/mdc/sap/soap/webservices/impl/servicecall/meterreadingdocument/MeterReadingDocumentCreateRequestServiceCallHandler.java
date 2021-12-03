@@ -17,6 +17,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SapMeterReadingDocumentReasonProviderHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.service.component.annotations.Component;
@@ -77,9 +78,9 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
     private void processServiceCall(ServiceCall serviceCall) {
         MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterReadingDocumentCreateRequestCustomPropertySet()).get();
-        Optional<SAPMeterReadingDocumentReason> readingReasonProvider = WebServiceActivator.findReadingReasonProvider(extension.getReadingReasonCode());
+        Optional<SAPMeterReadingDocumentReason> readingReasonProvider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(extension.getReadingReasonCode(),extension.getDataSourceTypeCode());
         if (!readingReasonProvider.isPresent()) {
-            extension.setErrorMessage(MessageSeeds.UNSUPPORTED_REASON_CODE);
+            extension.setErrorMessage(SapMeterReadingDocumentReasonProviderHelper.getErrorMessage());
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
             return;

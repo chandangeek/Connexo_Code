@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.webservices.impl;
 
@@ -117,6 +117,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_METER_READING_DOCUMENT(6003, "NoMeterReadingDocument", "No meter reading document found with id ''{0}''."),
     METER_READING_DOCUMENT_IS_PROCESSED(6004, "MeterReadingDocumentIsProcessed", "Meter reading document is processed."),
     ERROR_CANCELLING_METER_READING_DOCUMENT(6005, "ErrorCancellingMeterReadingDocument", "Error while cancelling meter reading document: ''{0}''."),
+    UNSUPPORTED_DATA_SOURCE_TYPE_CODE(6006, "UnsupportedDataSourceTypeCode", "Unsupported data source type code"),
+    NO_REQUIRED_DATA_SOURCE_TYPE_CODE(6007, "NoRequiredDataSourceTypeCode", "Data source type code is required"),
+    REASON_CODE_DATA_CONTRADICTS_SOURCE_TYPE_CODE(6007, "ReasonCodeContradictsDataSourceTypeCode", "Reason code contradicts the data source type code"),
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
     PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile id ''{0}'' is already set for channel ''{1}''."),

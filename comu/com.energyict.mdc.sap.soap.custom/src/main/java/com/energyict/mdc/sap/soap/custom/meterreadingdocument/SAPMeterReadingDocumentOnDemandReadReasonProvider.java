@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.custom.meterreadingdocument;
 
@@ -44,11 +44,13 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     private static final Logger LOGGER = Logger.getLogger(SAPMeterReadingDocumentOnDemandReadReasonProvider.class.getName());
     private static final String REASON_CODES_ONDEMAND = "com.elster.jupiter.sap.reasoncodes.ondemand";
     private static final String REASON_CODES_ONDEMAND_DEFAULT_VALUE = "2";
+    private static final String DATA_SOURCE_TYPE_CODES_IMMEDIATELY_DEFAULT_VALUE = "1";
     private static final String SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND = "com.elster.jupiter.sap.sheduledmeterreadingdateshift.ondemand";
     private static final int SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE = 1;
     private static final String ONDEMAND_SKIP_COMMUNICATION = "com.elster.jupiter.sap.ondemand.skipcommunication";
 
-    private static List<String> codes;
+    private static List<String> reasonCodeCodes;
+    private static List<String> dataSourceTypeCodeCodes;
     private static int dateShift = SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE;
     private static List<CIMCodePattern> skipCommunicationPatterns;
 
@@ -60,13 +62,16 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
         initReasonCodes(bundleContext);
         initDateShift(bundleContext);
         initSkipCommunicationWaterMeters(bundleContext);
+        dataSourceTypeCodeCodes = Collections.singletonList(DATA_SOURCE_TYPE_CODES_IMMEDIATELY_DEFAULT_VALUE);
     }
 
     private void initReasonCodes(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_ONDEMAND);
-        codes = Checks.is(valueCodes).emptyOrOnlyWhiteSpace() ?
-                Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE) :
-                Arrays.asList(valueCodes.split(","));
+        if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
+            reasonCodeCodes = Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE);
+        } else {
+            reasonCodeCodes = Arrays.asList((valueCodes.split(",")));
+        }
     }
 
     private void initDateShift(BundleContext bundleContext) {
@@ -104,8 +109,13 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     }
 
     @Override
-    public List<String> getCodes() {
-        return codes;
+    public List<String> getReasonCodeCodes() {
+        return reasonCodeCodes;
+    }
+
+    @Override
+    public List<String> getDataSourceTypeCodeCodes() {
+        return dataSourceTypeCodeCodes;
     }
 
     @Override

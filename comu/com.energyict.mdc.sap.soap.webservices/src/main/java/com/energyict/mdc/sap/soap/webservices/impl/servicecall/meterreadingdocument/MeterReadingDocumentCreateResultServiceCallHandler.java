@@ -9,10 +9,12 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
-import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
+import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
+import com.energyict.mdc.sap.soap.webservices.impl.SapMeterReadingDocumentReasonProviderHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -114,12 +116,12 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
             serviceCall.log(LogLevel.SEVERE, "The channel/register isn't found");
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
-            Optional.of(domainExtension)
-                    .map(MeterReadingDocumentCreateResultDomainExtension::getReadingReasonCode)
-                    .map(WebServiceActivator::findReadingReasonProvider)
-                    .map(Optional::get)
-                    .orElseThrow(() -> new IllegalStateException("Unable to get reading reason provider for service call"))
-                    .process(createCollectionDataBuilder(serviceCall));
+            Optional<SAPMeterReadingDocumentReason> readingReasonProvider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(domainExtension.getReadingReasonCode(), domainExtension.getDataSourceTypeCode());
+            if (readingReasonProvider.isPresent()) {
+                readingReasonProvider.get().process(createCollectionDataBuilder(serviceCall));
+            } else {
+                throw new IllegalStateException("Unable to get reading reason provider for service call");
+            }
         }
     }
 

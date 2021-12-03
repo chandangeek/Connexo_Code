@@ -658,13 +658,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         searchService.unregister(sapAttributesSearchExtension);
     }
 
-    public static Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
-        return WebServiceActivator.METER_READING_REASONS
-                .stream()
-                .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
-                .findFirst();
-    }
-
     public List<UtilitiesDeviceRegisteredNotification> getUtilitiesDeviceRegisteredNotifications() {
         return Collections.unmodifiableList(UTILITIES_DEVICE_REGISTERED_NOTIFICATION);
     }
