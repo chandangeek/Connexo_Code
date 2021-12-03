@@ -60,6 +60,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7_2;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_8_24;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9_10;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9_13;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
@@ -371,6 +372,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
                         .put(version(10, 8, 24), UpgraderV10_8_24.class)
                         .put(version(10, 9), UpgraderV10_9.class)
+                        .put(version(10, 9, 10), UpgraderV10_9_10.class)
                         .put(version(10, 9, 13), UpgraderV10_9_13.class)
                         .build());
         setActualRecurrentTaskFrequency();
