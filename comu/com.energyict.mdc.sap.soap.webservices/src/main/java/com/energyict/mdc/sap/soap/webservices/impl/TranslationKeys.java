@@ -90,6 +90,8 @@ public enum TranslationKeys implements TranslationKey {
     AT_LEAST_ONE_OF("atLeastOneOf", "at least one of"),
     LOCATION_ID("locationId", "Location ID"),
     POD_ID("podId", "Point of delivery ID"),
+    METER_READING_DATE_TIME("meterReadingDateTime", "Meter reading timestamp"),
+    METER_READING_VALUE("meterReadingValue", "Meter reading value"),
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),

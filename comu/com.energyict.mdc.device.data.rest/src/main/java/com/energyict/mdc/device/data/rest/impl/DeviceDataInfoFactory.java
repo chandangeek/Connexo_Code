@@ -283,7 +283,7 @@ public class DeviceDataInfoFactory {
      * Returns the CIM code and full translation of all reading qualities on the given interval reading
      */
     private List<ReadingQualityInfo> createReadingQualitiesInfo(Reading reading) {
-        return reading.getValidationStatus().get().getReadingQualities().stream()
+        return reading.getActualReading().getReadingQualities().stream()
                 .map(ReadingQuality::getType)
                 .distinct()
                 .filter(type -> type.system().isPresent())

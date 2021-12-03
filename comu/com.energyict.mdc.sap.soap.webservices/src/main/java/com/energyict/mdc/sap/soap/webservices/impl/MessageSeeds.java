@@ -141,6 +141,13 @@ public enum MessageSeeds implements MessageSeed {
     DEVICE_ID_ATTRIBUTE_IS_NOT_SET(10102, "DeviceIdAttributeIsNotSet", "''Device identifier'' attribute isn''t set on Device SAP info CAS."),
     NO_LRN(10103, "NoLrn", "No LRN is available on current or future data sources on the device."),
     REQUEST_SENDING_HAS_FAILED(10104, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),
+
+    //Meter reading results
+    READING_TYPE_FOR_REGISTER_INCORRECT(10201, "ReadingTypeForRegisterIncorrect","Register supports only collected values, reading type is incorrect"),
+    READING_TYPE_INCORRECT(10202, "ReadingIncorrect","Reading type is incorrect, only 01 for collected values and 02 for calculated are allowed"),
+    READING_DATE_AFTER_DEVICE_SHIPMENT_DATE(10203, "ReadingDateAfterDeviceShipmentDate", "Date of reading must be after device shipment date"),
+    NO_DATA_SOURCE_FOUND_BY_LRN(10204, "NoDataSourceFoundByLrn", "No data source found with LRN ''{0}''."),
+    INVALID_READING_TIMESTAMP_FOR_CHANNEL(10205, "InvalidReadingTimestamp", "Impossible to save specified reading, because timestamp breaks the timeline of the channel"),
     ;
 
     private final int number;

@@ -57,6 +57,12 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestServiceCallHandler;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestServiceCallHandler;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestServiceCallHandler;
 
 import java.util.Optional;
 
@@ -169,7 +175,19 @@ public enum ServiceCallTypes {
             PodNotificationServiceCallHandler.VERSION,
             PodNotificationServiceCallHandler.APPLICATION,
             PodNotificationCustomPropertySet.class.getSimpleName(),
-            PodNotificationDomainExtension.class.getName())
+            PodNotificationDomainExtension.class.getName()),
+    MASTER_METER_READING_RESULT_CREATE_REQUEST(
+            MasterMeterReadingResultCreateRequestServiceCallHandler.NAME,
+            MasterMeterReadingResultCreateRequestServiceCallHandler.VERSION,
+            MasterMeterReadingResultCreateRequestServiceCallHandler.APPLICATION,
+            MasterMeterReadingResultCreateRequestCustomPropertySet.class.getSimpleName(),
+            MasterMeterReadingResultCreateRequestDomainExtension.class.getName()),
+    METER_READING_RESULT_CREATE_REQUEST(
+            MeterReadingResultCreateRequestServiceCallHandler.NAME,
+            MeterReadingResultCreateRequestServiceCallHandler.VERSION,
+            MeterReadingResultCreateRequestServiceCallHandler.APPLICATION,
+            MeterReadingResultCreateRequestCustomPropertySet.class.getSimpleName(),
+            MeterReadingResultCreateRequestDomainExtension.class.getName())
     ;
 
     private final String typeName;

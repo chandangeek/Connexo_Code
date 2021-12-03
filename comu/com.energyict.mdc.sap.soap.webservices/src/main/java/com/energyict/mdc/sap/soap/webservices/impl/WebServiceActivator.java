@@ -58,12 +58,12 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryAssignedNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryBulkAssignedNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationBulkNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationBulkNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryAssignedNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryBulkAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateEndpoint;
@@ -80,6 +80,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegiste
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.sap.soap.webservices.impl.search.SapAttributesDeviceSearchDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.sendmeterread.MeterReadingResultCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
@@ -116,6 +117,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
@@ -200,6 +205,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<MeterReadingDocumentCancellationConfirmation> METER_READING_DOCUMENT_CANCELLATION_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentBulkCancellationConfirmation> METER_READING_DOCUMENT_BULK_CANCELLATION_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final List<MeterRegisterChangeConfirmation> METER_REGISTER_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<MeterReadingResultCreateConfirmation> METER_READING_RESULT_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterRegisterBulkChangeConfirmation> METER_REGISTER_BULK_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final String EXPORT_TASK_NAME = "sap.soap.measurementtaskassignment.export.task";
     public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "sap.soap.measurementtaskassignment.device.group";
@@ -460,6 +466,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                         .put(version(10, 7, 3), UpgraderV10_7_3.class)
                         .put(version(10, 8), UpgraderV10_8.class)
                         .put(version(10, 9), UpgraderV10_9.class)
+                        .put(version(10, 9, 20), UpgraderV10_9_20.class)
                         .build());
 
         registerServices(bundleContext);
@@ -707,6 +714,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MasterPodNotificationCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(PodNotificationDomainExtension.class.getName(),
                 new PodNotificationCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterMeterReadingResultCreateRequestDomainExtension.class.getName(),
+                new MasterMeterReadingResultCreateRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MeterReadingResultCreateRequestDomainExtension.class.getName(),
+                new MeterReadingResultCreateRequestCustomPropertySet(thesaurus, propertySpecService));
 
         return customPropertySetsMap;
     }
@@ -772,6 +783,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(StatusChangeRequestBulkCreateEndpoint.class),
                 InboundServices.SAP_STATUS_CHANGE_REQUEST_BULK_CREATE.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(MeterReadingResultCreateEndpoint.class),
+                InboundServices.SAP_METER_READING_RESULT_CREATE_REQUEST.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -942,6 +956,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeMeterRegisterChangeConfirmation(MeterRegisterChangeConfirmation requestConfirmation) {
         METER_REGISTER_CHANGE_CONFIRMATIONS.remove(requestConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeterReadingResultCreateConfirmation(MeterReadingResultCreateConfirmation requestConfirmation) {
+        METER_READING_RESULT_CREATE_CONFIRMATIONS.add(requestConfirmation);
+    }
+
+    public void removeMeterReadingResultCreateConfirmation(MeterReadingResultCreateConfirmation requestConfirmation) {
+        METER_READING_RESULT_CREATE_CONFIRMATIONS.remove(requestConfirmation);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
