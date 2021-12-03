@@ -14,6 +14,7 @@ import com.energyict.dlms.axrdencoding.BitString;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
 import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.AssociationLN;
 import com.energyict.dlms.cosem.CapturedObject;
@@ -107,6 +108,7 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
     protected static final ObisCode MBUS_LOAD_PROFILE = ObisCode.fromString("0.x.24.3.0.255");
     protected static final ObisCode GAS_TIME_DURATION_FIVE_MINUTES = ObisCode.fromString("0.x.24.2.6.255");
     protected static final ObisCode GAS_TIME_DURATION_FIVE_MINUTES_OBIS_CODE = ObisCode.fromString("0.x.24.2.1.255");
+    public static final ObisCode MBUS_MANUFACTURER_ID = ObisCode.fromString("0.x.24.1.7.255");
 
     public Dsmr40RegisterFactory(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
@@ -420,6 +422,9 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
                 } else if (rObisCode.equalsIgnoreBChannel(MBUS_LOAD_PROFILE) ) {
                     this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.CAPTURE_PERIOD.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
                     dlmsAttributes.add(this.registerMap.get(register));
+                } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
+                    this.registerMap.put(register, new DLMSAttribute(adjustToMbusOC(rObisCode), MBusClientAttributes.MANUFACTURER_ID.getAttributeNumber(), DLMSClassId.MBUS_CLIENT.getClassId()));
+                    dlmsAttributes.add(this.registerMap.get(register));
                 }
             }
             ComposedCosemObject sRegisterList = super.constructComposedObjectFromRegisterList(registers, supportsBulkRequest);
@@ -528,9 +533,21 @@ public class Dsmr40RegisterFactory extends Dsmr23RegisterFactory {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L2 value: " + abstractDataType.longValue());
         } else if (rObisCode.equals(NR_OF_PV_VOLTAGE_SAG_L3)) {
             return new RegisterValue(register, new Quantity(abstractDataType.longValue(), Unit.get(BaseUnit.SECOND)), null, null, null, new Date(), 0, "PV_VOLTAGE_SAG_L3 value: " + abstractDataType.longValue());
+        } else if (rObisCode.equalsIgnoreBChannel(MBUS_MANUFACTURER_ID)) {
+            String manuf_id_string = convertShortIdManufacturerIDToStringView(abstractDataType.getUnsigned16());
+            return new RegisterValue(register, manuf_id_string);
         }
-
         return super.convertCustomAbstractObjectsToRegisterValues(register, abstractDataType);
+    }
+
+    private String convertShortIdManufacturerIDToStringView( Unsigned16 manufacturer )
+    {
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append((char) (((manufacturer.getValue() & 0x7D00) / 32 / 32) + 64));
+        strBuilder.append((char) (((manufacturer.getValue() & 0x03E0) / 32) + 64));
+        strBuilder.append((char) ((manufacturer.getValue() & 0x001F) + 64));
+
+        return strBuilder.toString();
     }
 
     private String composeObisCode(byte[] octetStr) {
