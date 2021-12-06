@@ -162,7 +162,7 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
             boolean notFirst = false;
             boolean nullRequested = false;
             for (CompletionCode completionCode : this.completionCodes) {
-                if (completionCode != null) {
+                if (completionCode != null  && completionCode.dbValue() != 12) {
                     if (notFirst) {
                         this.append(",");
                     } else {
