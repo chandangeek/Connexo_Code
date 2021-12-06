@@ -146,6 +146,9 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
             while (statusIterator.hasNext()) {
                 this.appendWhereClause(statusIterator.next());
                 if (statusIterator.hasNext()) {
+                    if (!this.connectionTasksIds.isEmpty()) {
+                        appendConnectionMethodFilter();
+                    }
                     this.unionAll();
                     this.append(sqlBuilder.getText());
                     this.appendJoinedTables();
@@ -153,12 +156,18 @@ class ConnectionTaskFilterSqlBuilder extends AbstractConnectionTaskFilterSqlBuil
             }
         }
         if (!this.connectionTasksIds.isEmpty()) {
-            this.appendWhereOrAnd();
-            this.append("ct.ID IN (" +
-                    " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
-                    connectionTasksIds.stream().map(Object::toString).collect(Collectors.joining(","))
-                    + ") )");
+            appendConnectionMethodFilter();
         }
+    }
+
+    private void appendConnectionMethodFilter() {
+        this.appendWhereOrAnd();
+        this.append("ct.ID IN (" +
+                " select id from DDC_CONNECTIONTASK where PARTIALCONNECTIONTASK in (" +
+                String.join(",", connectionTasksIds.toString()).replace("[", "")
+                        .replace("]", "")
+                        .replace(" ", "")
+                + ") )");
     }
 
     private boolean isNull(Interval interval) {
