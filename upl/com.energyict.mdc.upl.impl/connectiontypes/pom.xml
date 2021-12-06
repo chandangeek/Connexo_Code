@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>10.1.0-Kratos-SNAPSHOT</version>
+        <version>11.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <dependencies>
