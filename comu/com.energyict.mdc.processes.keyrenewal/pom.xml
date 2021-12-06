@@ -159,6 +159,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>pubsub</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>bpm</artifactId>
         </dependency>
         <!-- Testing -->
