@@ -357,7 +357,8 @@ Ext.define('Dxp.controller.Tasks', {
                     deviceGroup.setVisible(false);
                     exportPeriod.setVisible(false);
                     readingTypes.setVisible(false);
-                    setVisible.setVisible(false);
+                    //CONM-2455
+                    eventTypes.setVisible(false);
                     dataValidation.setVisible(false);
                     missingData.setVisible(false);
                     updatedData.setVisible(false);

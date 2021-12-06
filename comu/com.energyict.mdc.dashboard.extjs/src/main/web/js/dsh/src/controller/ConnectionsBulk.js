@@ -53,6 +53,13 @@ Ext.define('Dsh.controller.ConnectionsBulk', {
         var me = this,
             connectionTasksBufferedStore = me.getStore('Dsh.store.ConnectionTasksBuffered');
 
+        //CONM-2593
+        //Adding Filters to the dynamic API on scrolling.
+        connectionTasksBufferedStore.addListener('beforeprefetch', function () {
+            connectionTasksBufferedStore.filters.clear();
+            connectionTasksBufferedStore.addFilter(Ext.decode(me.getFilterObjectStringFromQueryString()), false);
+        }, this);
+
         this.getApplication().fireEvent('changecontentevent', Ext.widget('connections-bulk-browse', {
             router: me.getController('Uni.controller.history.Router')
         }));
