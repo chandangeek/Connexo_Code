@@ -142,7 +142,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
-            failedAttempt(extension, MessageSeeds.DEVICE_IS_NOT_FOUND);
+            failedAttempt(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID);
         }
     }
 

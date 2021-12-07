@@ -110,9 +110,10 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed",
             "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
     CHANNEL_REGISTER_IS_NOT_FOUND(5006, "ChannelRegisterIsNotFound", "The channel/register isn''t found."),
-    DEVICE_IS_NOT_FOUND(5007, "DeviceIsNotFound", "The device isn''t found."),
+    NO_DEVICE_FOUND_BY_NAME(5007, "DeviceIsNotFoundByName", "The device isn't found by name."),
     COM_TASK_COULD_NOT_BE_LOCATED(5008, "ComTaskCouldNotBeLocated", "A communication task to execute the device messages couldn''t be located"),
     READING_TYPE_IS_NOT_FOUND(5009, "ReadingTypeIsNotFound", "The reading type isn''t found."),
+    DEVICE_MISMATCH(5010, "DeviceMismatch", "The found by the specified device name device differs from the found by Sap identifier"),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid message format."),

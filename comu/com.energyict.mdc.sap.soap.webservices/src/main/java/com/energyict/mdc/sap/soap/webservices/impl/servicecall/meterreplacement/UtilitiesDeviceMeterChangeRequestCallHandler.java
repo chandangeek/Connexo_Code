@@ -13,6 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.impl.ServerDevice;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -90,16 +91,21 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
     private void processDeviceChanging(UtilitiesDeviceMeterChangeRequestDomainExtension extension) {
         String sapDeviceId = extension.getDeviceId();
         Device device = getDevice(extension);
-        if(device.equals(sapCustomPropertySets.getDevice(sapDeviceId))) {
-            sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
-            sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
-            sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
-            sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
-            sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
-            sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+        Optional<Device> sapDevice = sapCustomPropertySets.getDevice(sapDeviceId);
+        if (sapDevice.isPresent()) {
+            if (device.equals(sapCustomPropertySets.getDevice(sapDeviceId).get())) {
+                sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
+                sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
+                sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
+                sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
+                sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
+            } else {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_MISMATCH);
+            }
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_IS_NOT_FOUND);
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, sapDeviceId);
         }
+
     }
 
     private Device getDevice(UtilitiesDeviceMeterChangeRequestDomainExtension extension) {
@@ -114,7 +120,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
             }
         } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_IS_NOT_FOUND);
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_FOUND_BY_NAME);
         }
     }
 
