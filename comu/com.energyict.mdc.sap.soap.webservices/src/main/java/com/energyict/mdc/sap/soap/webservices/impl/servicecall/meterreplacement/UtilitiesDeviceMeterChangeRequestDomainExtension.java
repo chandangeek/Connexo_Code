@@ -12,11 +12,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
-import com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceSAPInfoDomainExtension;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.text.MessageFormat;
+import java.time.Instant;
 
 public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
     public enum FieldNames {
@@ -26,6 +26,7 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         // provided
         REQUEST_ID("requestId", "REQUEST_ID"),
         UUID("uuid", "UUID"),
+        SHIPMENT_DATE("shipmentDate", "SHIPMENT_DATE"),
         DEVICE_ID("deviceId", "DEVICE_ID"),
         SERIAL_ID("serialId", "SERIAL_ID"),
         DEVICE_TYPE("deviceType", "DEVICE_TYPE"),
@@ -35,7 +36,7 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         ACTIVATION_GROUP_AMI_FUNCTIONS("activationGroupAmiFunctions", "ACTIVATION_GROUP_AMI_FUNCTIONS"),
         METER_FUNCTION_GROUP("meterFunctionGroup", "METER_FUNCTION_GROUP"),
         ATTRIBUTE_MESSAGE("attributeMessage", "ATTRIBUTE_MESSAGE"),
-        CHARACTERISTICS_ID("characteristicsId","CHARACTERISTICS_ID"),
+        CHARACTERISTICS_ID("characteristicsId", "CHARACTERISTICS_ID"),
         CHARACTERISTICS_VALUE("characteristicsValue", "CHARACTERISTICS_VALUE"),
 
         //returned
@@ -101,6 +102,8 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String characteristicsValue;
+
+    private Instant shipmentDate;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorCode;
@@ -233,6 +236,14 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         setErrorMessage(MessageFormat.format(messageSeed.getDefaultFormat(), args));
     }
 
+    public Instant getShipmentDate() {
+        return shipmentDate;
+    }
+
+    public void setShipmentDate(Instant shipmentDate) {
+        this.shipmentDate = shipmentDate;
+    }
+
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -255,6 +266,8 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         this.setCharacteristicsValue((String) propertyValues.getProperty(FieldNames.CHARACTERISTICS_VALUE.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
+        this.setShipmentDate((Instant) propertyValues.getProperty(FieldNames.SHIPMENT_DATE.javaName()));
+
     }
 
     @Override
@@ -274,6 +287,7 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         propertySetValues.setProperty(FieldNames.CHARACTERISTICS_VALUE.javaName(), characteristicsValue);
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
+        propertySetValues.setProperty(FieldNames.SHIPMENT_DATE.javaName(), this.getShipmentDate());
     }
 
     @Override

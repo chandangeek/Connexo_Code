@@ -5,6 +5,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.meterchange
 
 import com.elster.jupiter.util.Checks;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public class MeterChangeMessage {
@@ -21,6 +22,7 @@ public class MeterChangeMessage {
     private String attributeMessage;
     private String characteristicsId;
     private String characteristicsValue;
+    private Instant shipmentDate;
 
 
     static MeterChangeMessage.Builder builder() {
@@ -83,6 +85,10 @@ public class MeterChangeMessage {
         return characteristicsValue;
     }
 
+    public Instant getShipmentDate() {
+        return shipmentDate;
+    }
+
     public class Builder {
 
         private Builder() {
@@ -104,6 +110,7 @@ public class MeterChangeMessage {
                         setAttributeMessage(getAttributeMessage(request));
                         setCharacteristicsId(getCharacteristicsId(request));
                         setCharacteristicsValue(getCharacteristicsValue(request));
+                        setShipmentDate(Instant.now());
                     });
             return this;
         }
@@ -162,6 +169,10 @@ public class MeterChangeMessage {
 
         private void setCharacteristicsValue(String characteristicsValue) {
             MeterChangeMessage.this.characteristicsValue = characteristicsValue;
+        }
+
+        private void setShipmentDate(Instant shipmentDate) {
+            MeterChangeMessage.this.shipmentDate = shipmentDate;
         }
 
 

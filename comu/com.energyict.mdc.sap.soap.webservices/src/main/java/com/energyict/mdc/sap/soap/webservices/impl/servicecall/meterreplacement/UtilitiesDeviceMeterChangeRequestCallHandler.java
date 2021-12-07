@@ -11,9 +11,9 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
+import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.device.data.impl.ServerDevice;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -23,6 +23,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.text.MessageFormat;
+import java.time.Instant;
 import java.util.Optional;
 
 @Component(name = UtilitiesDeviceMeterChangeRequestCallHandler.NAME, service = ServiceCallHandler.class,
@@ -88,6 +89,14 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
         }
     }
 
+    private void validateShipmentDate(Device device, Instant startDate) {
+        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
+        Instant shipmentDate = lifecycleDates.getReceivedDate().orElseGet(device::getCreateTime);
+        if (startDate.isBefore(shipmentDate)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
+        }
+    }
+
     private void processDeviceChanging(UtilitiesDeviceMeterChangeRequestDomainExtension extension) {
         String sapDeviceId = extension.getDeviceId();
         Device device = getDevice(extension);
@@ -99,6 +108,9 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                 sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
                 sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
                 sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
+
+                device.getLifecycleDates().setReceivedDate(extension.getShipmentDate());
+
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_MISMATCH);
             }

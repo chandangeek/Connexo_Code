@@ -9,8 +9,10 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.properties.InstantFactory;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -164,6 +166,11 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
                         .stringSpec()
                         .named(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.SHIPMENT_DATE.javaName(), TranslationKeys.SHIPMENT_DATE)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }
@@ -268,6 +275,13 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName())
                     .since(Version.version(10, 9, 20))
                     .add();
+            table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.SHIPMENT_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.SHIPMENT_DATE.javaName())
+                    .notNull()
+                    .since(Version.version(10, 9, 20))
+                    .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ERROR_CODE.javaName())
@@ -276,6 +290,7 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
                     .varChar(DESCRIPTION_LENGTH)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
                     .add();
+
         }
 
         @Override
