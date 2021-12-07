@@ -239,7 +239,7 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
             table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
-                    .since(Version.version(10, 7, 20))
+                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

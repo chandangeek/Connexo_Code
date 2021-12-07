@@ -331,6 +331,47 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
+    public void setActivationGroupAMIFunctions(Device device, String activationGroupAMIFunctions) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), activationGroupAMIFunctions);
+    }
+
+    @Override
+    public void setSmartMeterFunctionGroup(Device device, String smartMeterFunctionGroup) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName(), smartMeterFunctionGroup);
+    }
+
+    @Override
+    public void setAttributeMessage(Device device, String attributeMessage) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName(), attributeMessage);
+    }
+
+    @Override
+    public void setCharacteristicsId(Device device, String characteristicsId){
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName(), characteristicsId);
+    }
+
+    @Override
+    public void setCharacteristicsValue(Device device, String characteristicsValue){
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName(), characteristicsValue);
+    }
+
+
+    @Override
     public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Channel channel, Range<Instant> range) {
         return getLrn(channel.getDevice(), channel.getChannelSpec(), range);
     }

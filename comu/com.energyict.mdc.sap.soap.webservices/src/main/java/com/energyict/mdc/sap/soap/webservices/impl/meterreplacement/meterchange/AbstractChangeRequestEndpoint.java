@@ -1,7 +1,7 @@
 /*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation;
+package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.meterchange;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.CimAttributeNames;
@@ -16,15 +16,14 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
-import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterUtilitiesDeviceMeterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.UtilitiesDeviceMeterChangeRequestDomainExtension;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
@@ -36,7 +35,7 @@ import java.util.Optional;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
-public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
+public abstract class AbstractChangeRequestEndpoint extends AbstractInboundEndPoint implements ApplicationSpecific {
     private final Thesaurus thesaurus;
     private final ServiceCallCommands serviceCallCommands;
     private final EndPointConfigurationService endPointConfigurationService;
@@ -47,7 +46,7 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
 
 
     @Inject
-    public AbstractCreateRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
+    public AbstractChangeRequestEndpoint(ServiceCallCommands serviceCallCommands, EndPointConfigurationService endPointConfigurationService,
                                          Clock clock, WebServiceActivator webServiceActivator, DeviceService deviceService, ServiceCallService serviceCallService) {
         this.thesaurus = webServiceActivator.getThesaurus();
         this.serviceCallCommands = serviceCallCommands;
@@ -60,16 +59,16 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
 
     @Override
     public String getApplication() {
-        return ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName();
+        return WebServiceApplicationName.MULTISENSE.getName();
     }
 
     Thesaurus getThesaurus() {
         return thesaurus;
     }
 
-    void handleRequestMessage(UtilitiesDeviceCreateRequestMessage requestMessage) {
+    void handleRequestMessage(UtilitiesDeviceMeterChangeRequestMessage requestMessage) {
         SetMultimap<String, String> values = HashMultimap.create();
-        requestMessage.getUtilitiesDeviceCreateMessages().forEach(message -> {
+        requestMessage.getMeterChangeMessages().forEach(message -> {
             values.put(CimAttributeNames.SERIAL_ID.getAttributeName(), message.getSerialId());
             values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), message.getDeviceId());
         });
@@ -83,12 +82,12 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
 
     abstract void validateConfiguredEndpoints();
 
-    private void createServiceCallAndTransition(UtilitiesDeviceCreateRequestMessage message) {
+    private void createServiceCallAndTransition(UtilitiesDeviceMeterChangeRequestMessage message) {
         if (message.isValid()) {
             if (hasOpenUtilDeviceRequestServiceCall(message.getRequestID(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
-                serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST).ifPresent(serviceCallType -> {
+                serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_UTILITIES_DEVICE_METER_CHANGE_REQUEST).ifPresent(serviceCallType -> {
                     createServiceCall(serviceCallType, message);
                 });
             }
@@ -104,19 +103,18 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
                 .anyMatch(EndPointConfiguration::isActive);
     }
 
-    private void createServiceCall(ServiceCallType serviceCallType, UtilitiesDeviceCreateRequestMessage requestMessage) {
-        MasterUtilitiesDeviceCreateRequestDomainExtension masterUtilitiesDeviceCreateRequestDomainExtension =
-                new MasterUtilitiesDeviceCreateRequestDomainExtension();
-        masterUtilitiesDeviceCreateRequestDomainExtension.setRequestID(requestMessage.getRequestID());
-        masterUtilitiesDeviceCreateRequestDomainExtension.setUuid(requestMessage.getUuid());
-        masterUtilitiesDeviceCreateRequestDomainExtension.setBulk(requestMessage.isBulk());
+    private void createServiceCall(ServiceCallType serviceCallType, UtilitiesDeviceMeterChangeRequestMessage requestMessage) {
+        MasterUtilitiesDeviceMeterChangeRequestDomainExtension masterUtilitiesDeviceMeterChangeRequestDomainExtension =
+                new MasterUtilitiesDeviceMeterChangeRequestDomainExtension();
+        masterUtilitiesDeviceMeterChangeRequestDomainExtension.setRequestID(requestMessage.getRequestID());
+        masterUtilitiesDeviceMeterChangeRequestDomainExtension.setUuid(requestMessage.getUuid());
 
         ServiceCall serviceCall = serviceCallType.newServiceCall()
                 .origin(APPLICATION_NAME)
-                .extendedWith(masterUtilitiesDeviceCreateRequestDomainExtension)
+                .extendedWith(masterUtilitiesDeviceMeterChangeRequestDomainExtension)
                 .create();
 
-        requestMessage.getUtilitiesDeviceCreateMessages()
+        requestMessage.getMeterChangeMessages()
                 .forEach(bodyMessage -> {
                     if (bodyMessage.isValid()) {
                         createChildServiceCall(serviceCall, bodyMessage);
@@ -130,39 +128,38 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
         }
     }
 
-    private void sendProcessError(UtilitiesDeviceCreateRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
-        log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));
-        UtilitiesDeviceCreateConfirmationMessage confirmationMessage =
-                UtilitiesDeviceCreateConfirmationMessage.builder()
+    private void sendProcessError(UtilitiesDeviceMeterChangeRequestMessage message, MessageSeeds messageSeed, Object... messageSeedArgs) {
+        UtilitiesDeviceMeterChangeConfirmationMessage confirmationMessage =
+                UtilitiesDeviceMeterChangeConfirmationMessage.builder()
                         .from(message, messageSeed, webServiceActivator.getMeteringSystemId(), clock.instant(), messageSeedArgs)
                         .build();
-        sendMessage(confirmationMessage, message.isBulk());
+        sendMessage(confirmationMessage);
     }
 
-    private void sendMessage(UtilitiesDeviceCreateConfirmationMessage confirmationMessage, boolean bulk) {
-        if (bulk) {
-            WebServiceActivator.UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION
-                    .forEach(service -> service.call(confirmationMessage));
-        } else {
-            WebServiceActivator.UTILITIES_DEVICE_CREATE_CONFIRMATION
-                    .forEach(service -> service.call(confirmationMessage));
-        }
+    private void sendMessage(UtilitiesDeviceMeterChangeConfirmationMessage confirmationMessage) {
+        WebServiceActivator.UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION
+                .forEach(service -> service.call(confirmationMessage));
     }
 
-    private void createChildServiceCall(ServiceCall parent, UtilitiesDeviceCreateMessage message) {
-        ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_CREATE_REQUEST);
+    private void createChildServiceCall(ServiceCall parent, MeterChangeMessage message) {
+        ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_METER_CHANGE_REQUEST);
 
-        UtilitiesDeviceCreateRequestDomainExtension childDomainExtension = new UtilitiesDeviceCreateRequestDomainExtension();
+        UtilitiesDeviceMeterChangeRequestDomainExtension childDomainExtension = new UtilitiesDeviceMeterChangeRequestDomainExtension();
         childDomainExtension.setRequestId(message.getRequestId());
         childDomainExtension.setUuid(message.getUuid());
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setMaterialId(message.getMaterialId());
-        Optional.ofNullable((webServiceActivator.getExternalSystemName().equals(webServiceActivator.EXTERNAL_SYSTEM_EDA))?message.getManufacturer()+" "+message.getManufacturerModel():webServiceActivator.getDeviceTypesMap().get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
-        childDomainExtension.setShipmentDate(message.getShipmentDate());
+        Optional.ofNullable((webServiceActivator.getExternalSystemName()
+                .equals(webServiceActivator.EXTERNAL_SYSTEM_EDA)) ? message.getManufacturer() + " " + message.getManufacturerModel() : webServiceActivator.getDeviceTypesMap()
+                .get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
         childDomainExtension.setManufacturer(message.getManufacturer());
         childDomainExtension.setManufacturerSerialId(message.getManufacturerSerialId());
-
+        childDomainExtension.setActivationGroupAmiFunctions(message.getActivationGroupAMIFunctions());
+        childDomainExtension.setMeterFunctionGroup(message.getMeterFunctionGroup());
+        childDomainExtension.setAttributeMessage(message.getAttributeMessage());
+        childDomainExtension.setCharacteristicsId(message.getCharacteristicsId());
+        childDomainExtension.setCharacteristicsValue(message.getCharacteristicsValue());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
@@ -171,9 +168,9 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
     }
 
     private boolean hasOpenUtilDeviceRequestServiceCall(String id, String uuid) {
-        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_CREATE_REQUEST)
+        return findAvailableOpenServiceCalls(ServiceCallTypes.MASTER_UTILITIES_DEVICE_METER_CHANGE_REQUEST)
                 .stream()
-                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceCreateRequestDomainExtension.class))
+                .map(serviceCall -> serviceCall.getExtension(MasterUtilitiesDeviceMeterChangeRequestDomainExtension.class))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .anyMatch(domainExtension -> {

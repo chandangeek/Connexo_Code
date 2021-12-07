@@ -96,7 +96,9 @@ public enum MessageSeeds implements MessageSeed {
             "Error while processing meter pod notification: ''{0}''."),
     DIFFERENT_DEVICE_TYPE(4038, "DifferentDeviceType", "Existent device has different device type than the one mapped to material id ''{0}''." +
             " Please check ''com.elster.jupiter.sap.device.types.mapping'' property."),
-     NO_OBIS(4041, "NoObis", "UtilitiesObjectIdentificationSystemCodeText (reading type OBIS code) must be specified"),
+    NO_OBIS(4041, "NoObis", "UtilitiesObjectIdentificationSystemCodeText (reading type OBIS code) must be specified"),
+    OTHER_DEVICE_TYPE(4042, "OtherDeviceType", "Existent device has different device type than the one sent: ''{0}'' "),
+    ERROR_PROCESSING_METER_CHANGE_REQUEST(4043, "ErrorProcessingMeterChangeRequest", "Error while processing meter change request: ''{0}''."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -147,8 +149,8 @@ public enum MessageSeeds implements MessageSeed {
     REQUEST_SENDING_HAS_FAILED(10104, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),
 
     //Meter reading results
-    READING_TYPE_FOR_REGISTER_INCORRECT(10201, "ReadingTypeForRegisterIncorrect","Register supports only collected values, reading type is incorrect"),
-    READING_TYPE_INCORRECT(10202, "ReadingIncorrect","Reading type is incorrect, only 01 for collected values and 02 for calculated are allowed"),
+    READING_TYPE_FOR_REGISTER_INCORRECT(10201, "ReadingTypeForRegisterIncorrect", "Register supports only collected values, reading type is incorrect"),
+    READING_TYPE_INCORRECT(10202, "ReadingIncorrect", "Reading type is incorrect, only 01 for collected values and 02 for calculated are allowed"),
     READING_DATE_AFTER_DEVICE_SHIPMENT_DATE(10203, "ReadingDateAfterDeviceShipmentDate", "Date of reading must be after device shipment date"),
     NO_DATA_SOURCE_FOUND_BY_LRN(10204, "NoDataSourceFoundByLrn", "No data source found with LRN ''{0}''."),
     INVALID_READING_TIMESTAMP_FOR_CHANNEL(10205, "InvalidReadingTimestamp", "Impossible to save specified reading, because timestamp breaks the timeline of the channel"),

@@ -236,7 +236,7 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
-                    .since(Version.version(10, 7, 20))
+                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

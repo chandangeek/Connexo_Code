@@ -34,6 +34,17 @@ public enum TranslationKeys implements TranslationKey {
     CPS_DEVICE_CHANNEL_SAP_PROFILE_INFO("device.cps.properties.devicechannelsapprofileinfo", "Device channel SAP profile info"),
     CPS_PROFILE_ID("device.cps.properties.profileId", "Profile id"),
     REGISTERED("device.cps.properties.registered", "Registered"),
+    CPS_ACTIVATION_GROUP_AMI_FUNCTIONS("device.cps.properties.activationgroupamifunctions", "Activation Group AMI Functions"),
+    CPS_ACTIVATION_GROUP_AMI_FUNCTIONS_DESCRIPTION("device.cps.properties.activationgroupamifunctions.description", "Activation Group AMI Functions in SAP"),
+    CPS_METER_FUNCTION_GROUP("device.cps.properties.meterfunctiongroup", "Meter function group"),
+    CPS_METER_FUNCTION_GROUP_DESCRIPTION("device.cps.properties.meterfunctiongroup.description", "Meter function group in SAP"),
+    CPS_ATTRIBUTE_MESSAGE("device.cps.properties.attributemessage", "Attribute message"),
+    CPS_ATTRIBUTE_MESSAGE_DESCRIPTION("device.cps.properties.attributemessage.description", "Attribute message in SAP"),
+    CPS_CHARACTERISTICS_ID("device.cps.properties.characteristicsid", "Characteristics id"),
+    CPS_CHARACTERISTICS_ID_DESCRIPTION("device.cps.properties.characteristicsid.description", "Characteristics id in SAP"),
+    CPS_CHARACTERISTICS_VALUE("device.cps.properties.characteristicsvalue", "Characteristics value"),
+    CPS_CHARACTERISTICS_VALUE_DESCRIPTION("device.cps.properties.characteristicsvalue.description", "Characteristics value in SAP"),
+
     ;
 
     private final String key;

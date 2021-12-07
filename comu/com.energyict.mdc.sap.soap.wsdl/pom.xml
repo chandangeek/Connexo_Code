@@ -772,6 +772,40 @@
                         </configuration>
                     </execution>
                     <execution>
+                        <id>SmartMeterChangeRequest</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesDeviceERPSmartMeterChangeRequest_C_In.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterChangeRequest_C_In.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>SmartMeterChangeConfirmation</id>
+                        <goals>
+                            <goal>wsimport</goal>
+                        </goals>
+                        <configuration>
+                            <wsdlFiles>
+                                <wsdlFile>
+                                    sap/UtilitiesDeviceERPSmartMeterChangeConfirmation_C_Out.wsdl
+                                </wsdlFile>
+                            </wsdlFiles>
+                            <wsdlLocation>/wsdl/sap/UtilitiesDeviceERPSmartMeterChangeConfirmation_C_Out.wsdl</wsdlLocation>
+                            <packageName>
+                                com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangeconfirmation
+                            </packageName>
+                        </configuration>
+                    </execution>
+                    <execution>
                         <id>MeterRegisterChangeRequest</id>
                         <goals>
                             <goal>wsimport</goal>

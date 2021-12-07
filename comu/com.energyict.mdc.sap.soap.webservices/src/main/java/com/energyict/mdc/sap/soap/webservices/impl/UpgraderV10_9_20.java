@@ -36,7 +36,7 @@ public class UpgraderV10_9_20 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10, 7, 20));
+        dataModelUpgrader.upgrade(dataModel, version(10, 9, 20));
         createNewlyAddedServiceCallTypes();
     }
 

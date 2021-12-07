@@ -28,7 +28,13 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         DIVISION_CATEGORY_CODE("divisionCategoryCode", "DIVISION_CATEGORY_CODE"),
         REGISTERED("registered", "REGISTERED"),
         DEVICE_LOCATION_INFORMATION("deviceLocationInformation", "DEVICE_LOCATION_INFORMATION"),
-        MODIFICATION_INFORMATION("modificationInformation", "MODIFICATION_INFORMATION");
+        MODIFICATION_INFORMATION("modificationInformation", "MODIFICATION_INFORMATION"),
+        ACTIVATION_GROUP_AMI_FUNCTIONS("activationGroupAmiFunctions", "ACTIVATION_GROUP_AMI_FUNCTIONS"),
+        METER_FUNCTION_GROUP("meterFunctionGroup", "METER_FUNCTION_GROUP"),
+        ATTRIBUTE_MESSAGE("attributeMessage", "ATTRIBUTE_MESSAGE"),
+        CHARACTERISTICS_ID("characteristicsId","CHARACTERISTICS_ID"),
+        CHARACTERISTICS_VALUE("characteristicsValue", "CHARACTERISTICS_VALUE");
+
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -69,6 +75,21 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String modificationInformation;
 
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String activationGroupAmiFunctions;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String meterFunctionGroup;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String attributeMessage;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String characteristicsId;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String characteristicsValue;
+
     private boolean registered;
 
     @Override
@@ -88,7 +109,11 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         setDivisionCategoryCode((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY_CODE.javaName()));
         setDeviceLocationInformation((String) propertyValues.getProperty(FieldNames.DEVICE_LOCATION_INFORMATION.javaName()));
         setModificationInformation((String) propertyValues.getProperty(FieldNames.MODIFICATION_INFORMATION.javaName()));
-
+        setActivationGroupAmiFunctions((String) propertyValues.getProperty(FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName()));
+        setMeterFunctionGroup((String) propertyValues.getProperty(FieldNames.METER_FUNCTION_GROUP.javaName()));
+        setAttributeMessage((String) propertyValues.getProperty(FieldNames.ATTRIBUTE_MESSAGE.javaName()));
+        setCharacteristicsId((String) propertyValues.getProperty(FieldNames.CHARACTERISTICS_ID.javaName()));
+        setCharacteristicsValue((String) propertyValues.getProperty(FieldNames.CHARACTERISTICS_VALUE.javaName()));
     }
 
     @Override
@@ -101,6 +126,11 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         propertySetValues.setProperty(FieldNames.DIVISION_CATEGORY_CODE.javaName(), divisionCategoryCode);
         propertySetValues.setProperty(FieldNames.DEVICE_LOCATION_INFORMATION.javaName(), deviceLocationInformation);
         propertySetValues.setProperty(FieldNames.MODIFICATION_INFORMATION.javaName(), modificationInformation);
+        propertySetValues.setProperty(FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), activationGroupAmiFunctions);
+        propertySetValues.setProperty(FieldNames.METER_FUNCTION_GROUP.javaName(), meterFunctionGroup);
+        propertySetValues.setProperty(FieldNames.ATTRIBUTE_MESSAGE.javaName(), attributeMessage);
+        propertySetValues.setProperty(FieldNames.CHARACTERISTICS_ID.javaName(), characteristicsId);
+        propertySetValues.setProperty(FieldNames.CHARACTERISTICS_VALUE.javaName(), characteristicsValue);
     }
 
     @Override
@@ -176,5 +206,43 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return device.get();
     }
 
+    public String getActivationGroupAmiFunctions() {
+        return activationGroupAmiFunctions;
+    }
 
+    public void setActivationGroupAmiFunctions(String activationGroupAmiFunctions) {
+        this.activationGroupAmiFunctions = activationGroupAmiFunctions;
+    }
+
+    public String getMeterFunctionGroup() {
+        return meterFunctionGroup;
+    }
+
+    public void setMeterFunctionGroup(String meterFunctionGroup) {
+        this.meterFunctionGroup = meterFunctionGroup;
+    }
+
+    public String getAttributeMessage() {
+        return attributeMessage;
+    }
+
+    public void setAttributeMessage(String attributeMessage) {
+        this.attributeMessage = attributeMessage;
+    }
+
+    public String getCharacteristicsId() {
+        return characteristicsId;
+    }
+
+    public void setCharacteristicsId(String characteristicsId) {
+        this.characteristicsId = characteristicsId;
+    }
+
+    public String getCharacteristicsValue() {
+        return characteristicsValue;
+    }
+
+    public void setCharacteristicsValue(String characteristicsValue) {
+        this.characteristicsValue = characteristicsValue;
+    }
 }

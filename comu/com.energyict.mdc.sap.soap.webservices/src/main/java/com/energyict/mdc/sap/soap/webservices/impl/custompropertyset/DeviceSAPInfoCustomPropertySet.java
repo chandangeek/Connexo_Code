@@ -137,6 +137,36 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), TranslationKeys.CPS_ACTIVATION_GROUP_AMI_FUNCTIONS)
+                        .describedAs(TranslationKeys.CPS_ACTIVATION_GROUP_AMI_FUNCTIONS_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName(), TranslationKeys.CPS_METER_FUNCTION_GROUP)
+                        .describedAs(TranslationKeys.CPS_METER_FUNCTION_GROUP_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName(), TranslationKeys.CPS_ATTRIBUTE_MESSAGE)
+                        .describedAs(TranslationKeys.CPS_ATTRIBUTE_MESSAGE_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName(), TranslationKeys.CPS_CHARACTERISTICS_ID)
+                        .describedAs(TranslationKeys.CPS_CHARACTERISTICS_ID_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName(), TranslationKeys.CPS_CHARACTERISTICS_VALUE)
+                        .describedAs(TranslationKeys.CPS_CHARACTERISTICS_VALUE_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .booleanSpec()
                         .named(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), TranslationKeys.REGISTERED)
                         .fromThesaurus(thesaurus)
@@ -211,7 +241,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
             table.column(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName())
-                    .since(Version.version(10, 7, 20))
+                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
                     .varChar(NAME_LENGTH)
@@ -221,17 +251,42 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
             table.column(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName())
-                    .since(Version.version(10, 7, 20))
+                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.databaseName())
                     .varChar(MAX_STRING_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName())
-                    .since(Version.version(10, 7, 20))
+                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.databaseName())
                     .varChar(MAX_STRING_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName())
-                    .since(Version.version(10, 7, 20))
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName())
+                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.databaseName())
                     .bool()

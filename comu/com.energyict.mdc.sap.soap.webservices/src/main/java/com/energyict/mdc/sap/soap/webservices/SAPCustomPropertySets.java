@@ -85,6 +85,16 @@ public interface SAPCustomPropertySets {
 
     void setDivisionCategoryCode(Device device, String divisionCategoryCode);
 
+    void setActivationGroupAMIFunctions(Device device, String activationGroupAMIFunctions);
+
+    void setSmartMeterFunctionGroup(Device device, String smartMeterFunctionGroup);
+
+    void setAttributeMessage(Device device, String attributeMessage);
+
+    void setCharacteristicsId(Device device, String characteristicsId);
+
+    void setCharacteristicsValue(Device device, String characteristicsValue);
+
     Set<Pair<Long, ChannelSpec>> getChannelInfosAfterDate(String lrn, String profileId, Instant date);
 
     /**

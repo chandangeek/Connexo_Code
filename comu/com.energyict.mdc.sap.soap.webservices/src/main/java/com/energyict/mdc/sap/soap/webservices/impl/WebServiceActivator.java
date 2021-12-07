@@ -78,6 +78,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancella
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.meterchange.UtilitiesDeviceMeterChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.sap.soap.webservices.impl.search.SapAttributesDeviceSearchDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.sendmeterread.MeterReadingResultCreateEndpoint;
@@ -113,10 +114,14 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterUtilitiesDeviceMeterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterUtilitiesDeviceMeterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.UtilitiesDeviceMeterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.UtilitiesDeviceMeterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestCustomPropertySet;
@@ -206,6 +211,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<MeterReadingDocumentBulkCancellationConfirmation> METER_READING_DOCUMENT_BULK_CANCELLATION_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final List<MeterRegisterChangeConfirmation> METER_REGISTER_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingResultCreateConfirmation> METER_READING_RESULT_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceMeterChangeConfirmation> UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final List<MeterRegisterBulkChangeConfirmation> METER_REGISTER_BULK_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final String EXPORT_TASK_NAME = "sap.soap.measurementtaskassignment.export.task";
     public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "sap.soap.measurementtaskassignment.device.group";
@@ -723,6 +729,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MasterMeterReadingResultCreateRequestCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(MeterReadingResultCreateRequestDomainExtension.class.getName(),
                 new MeterReadingResultCreateRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterUtilitiesDeviceMeterChangeRequestDomainExtension.class.getName(),
+                new MasterUtilitiesDeviceMeterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(UtilitiesDeviceMeterChangeRequestDomainExtension.class.getName(),
+                new UtilitiesDeviceMeterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+
 
         return customPropertySetsMap;
     }
@@ -791,6 +802,9 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(MeterReadingResultCreateEndpoint.class),
                 InboundServices.SAP_METER_READING_RESULT_CREATE_REQUEST.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceMeterChangeRequestEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_CHANGE_REQUEST_C_IN.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -879,6 +893,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeUtilitiesDeviceCreateConfirmation(UtilitiesDeviceCreateConfirmation result) {
         UTILITIES_DEVICE_CREATE_CONFIRMATION.remove(result);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceMeterChangeConfirmation(UtilitiesDeviceMeterChangeConfirmation result) {
+        UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION.add(result);
+    }
+
+    public void removeUtilitiesDeviceMeterChangeConfirmation(UtilitiesDeviceMeterChangeConfirmation result) {
+        UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION.remove(result);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

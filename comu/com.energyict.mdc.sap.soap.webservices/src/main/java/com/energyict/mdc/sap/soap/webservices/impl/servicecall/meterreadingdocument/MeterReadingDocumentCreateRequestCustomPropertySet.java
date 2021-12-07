@@ -290,7 +290,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.javaName())
-                    .since(Version.version(10,7, 20))
+                    .since(Version.version(10,9, 20))
                     .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CHANNEL_ID.databaseName())
                     .number()
