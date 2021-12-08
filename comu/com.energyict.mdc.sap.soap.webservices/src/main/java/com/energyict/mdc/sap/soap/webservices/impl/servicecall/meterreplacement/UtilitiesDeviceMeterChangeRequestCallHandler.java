@@ -3,17 +3,22 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement;
 
+import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
+import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -24,7 +29,13 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component(name = UtilitiesDeviceMeterChangeRequestCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + UtilitiesDeviceMeterChangeRequestCallHandler.NAME, immediate = true)
@@ -37,6 +48,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile DeviceService deviceService;
     private volatile Thesaurus thesaurus;
+    private DeviceLifeCycleService deviceLifeCycleService;
 
     @Reference
     public void setSAPCustomPropertySets(SAPCustomPropertySets sapCustomPropertySets) {
@@ -52,6 +64,9 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
     public void setNlsService(NlsService nlsService) {
         thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SERVICE);
     }
+
+    @Reference
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) { this.deviceLifeCycleService = deviceLifeCycleService; }
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -89,14 +104,6 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
         }
     }
 
-    private void validateShipmentDate(Device device, Instant startDate) {
-        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-        Instant shipmentDate = lifecycleDates.getReceivedDate().orElseGet(device::getCreateTime);
-        if (startDate.isBefore(shipmentDate)) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
-        }
-    }
-
     private void processDeviceChanging(UtilitiesDeviceMeterChangeRequestDomainExtension extension) {
         String sapDeviceId = extension.getDeviceId();
         Device device = getDevice(extension);
@@ -109,7 +116,10 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                 sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
                 sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
 
-                device.getLifecycleDates().setReceivedDate(extension.getShipmentDate());
+
+                CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
+                setShipmentDate(device, extension, lifecycleDates);
+                setDeactivationDate(device, extension, lifecycleDates);
 
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_MISMATCH);
@@ -127,7 +137,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
         Optional<Device> device = deviceService.findDeviceByName(name);
         if (device.isPresent()) {
             if (device.get().getDeviceConfiguration().getDeviceType().getName().equals(deviceTypeName)) {
-                return device.get();
+                return deviceService.findAndLockDeviceByNameAndVersion(name, device.get().getVersion()).get();
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
             }
@@ -136,4 +146,98 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
         }
     }
 
-}
+    private void setShipmentDate(Device device, UtilitiesDeviceMeterChangeRequestDomainExtension extension, CIMLifecycleDates lifecycleDates) {
+        Optional<Instant> installationDate = device.getLifecycleDates().getInstalledDate();
+        if (extension.getShipmentDate() != null && States.SHIPMENT_DATE.isEditableForState(device.getState())) {
+            if (installationDate.isPresent()) {
+                if (extension.getShipmentDate().isBefore(installationDate.get())) {
+                    lifecycleDates.setReceivedDate(extension.getShipmentDate());
+                    lifecycleDates.save();
+                }
+            } else {
+                lifecycleDates.setReceivedDate(extension.getShipmentDate());
+                lifecycleDates.save();
+            }
+        }
+    }
+
+    private void setDeactivationDate(Device device, UtilitiesDeviceMeterChangeRequestDomainExtension extension, CIMLifecycleDates lifecycleDates) {
+        if (extension.getShipmentDate() != null && States.DEACTIVATION_DATE.isEditableForState(device.getState())) {
+            Optional<ExecutableAction> action = deviceLifeCycleService.getExecutableActions(device)
+                    .stream()
+                    .filter(candidate -> ((AuthorizedTransitionAction) candidate.getAction()).getStateTransition().getTo().getName().equals(com.elster.jupiter.metering.DefaultState.INACTIVE.getKey()))
+                    .findFirst();
+
+            action.get().execute(Instant.now().plusSeconds(3600 * 2), null);
+
+            lifecycleDates.setReceivedDate(extension.getShipmentDate());
+            lifecycleDates.save();
+        }
+    }
+
+    private void validateShipmentDate(Device device, Instant startDate) {
+        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
+        Instant shipmentDate = lifecycleDates.getReceivedDate().orElseGet(device::getCreateTime);
+        if (startDate.isBefore(shipmentDate)) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
+        }
+    }
+
+    public enum States {
+        SHIPMENT_DATE {
+            @Override
+            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
+                return Collections.singletonList(com.elster.jupiter.metering.DefaultState.IN_STOCK);
+            }
+        },
+        INSTALLATION_DATE {
+            @Override
+            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
+                return Arrays.asList(
+                        com.elster.jupiter.metering.DefaultState.COMMISSIONING,
+                        com.elster.jupiter.metering.DefaultState.ACTIVE,
+                        com.elster.jupiter.metering.DefaultState.INACTIVE
+                );
+            }
+        },
+        DEACTIVATION_DATE {
+            @Override
+            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
+                return Arrays.asList(com.elster.jupiter.metering.DefaultState.ACTIVE,
+                        com.elster.jupiter.metering.DefaultState.IN_STOCK,
+                        com.elster.jupiter.metering.DefaultState.COMMISSIONING);
+
+            }
+        },
+        DECOMMISSIONING_DATE {
+            @Override
+            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
+                return Collections.singletonList(com.elster.jupiter.metering.DefaultState.DECOMMISSIONED);
+            }
+
+        };
+
+        public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
+            return Arrays.asList(
+                    com.elster.jupiter.metering.DefaultState.IN_STOCK,
+                    com.elster.jupiter.metering.DefaultState.COMMISSIONING,
+                    com.elster.jupiter.metering.DefaultState.ACTIVE,
+                    com.elster.jupiter.metering.DefaultState.INACTIVE
+            );
+        }
+
+        public boolean isEditableForState(State state) {
+            if (this.attributeIsEditableForStates() != null) {
+                Optional<com.elster.jupiter.metering.DefaultState> correspondingDefaultState = com.elster.jupiter.metering.DefaultState.from(state);
+                if (correspondingDefaultState.isPresent()) {
+                    return correspondingDefaultState.isPresent()
+                            && this.attributeIsEditableForStates().contains(correspondingDefaultState.get());
+                }
+                return true;
+            }
+            return false;
+        }
+    }
+
+
+    }

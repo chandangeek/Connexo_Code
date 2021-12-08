@@ -39,7 +39,7 @@ public class UtilitiesDeviceMeterChangeRequestEndpoint extends AbstractChangeReq
         runInTransactionWithOccurrence(() -> {
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
-                                UtilitiesDeviceMeterChangeRequestMessage message = UtilitiesDeviceMeterChangeRequestMessage.builder()
+                                UtilitiesDeviceMeterChangeRequestMessage message = UtilitiesDeviceMeterChangeRequestMessage.builder(getThesaurus())
                                         .from(requestMessage)
                                         .build();
 

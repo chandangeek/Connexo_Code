@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.meterchange;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqMsg;
@@ -17,9 +18,11 @@ public class UtilitiesDeviceMeterChangeRequestMessage extends AbstractSapMessage
     private String uuid;
     private List<MeterChangeMessage> meterChangeMessages = new ArrayList<>();
 
-    private UtilitiesDeviceMeterChangeRequestMessage() {
-    }
+    private Thesaurus thesaurus;
 
+    private UtilitiesDeviceMeterChangeRequestMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
+    }
 
     public String getRequestID() {
         return requestID;
@@ -34,9 +37,10 @@ public class UtilitiesDeviceMeterChangeRequestMessage extends AbstractSapMessage
     }
 
 
-    static UtilitiesDeviceMeterChangeRequestMessage.Builder builder() {
-        return new UtilitiesDeviceMeterChangeRequestMessage().new Builder();
+    static UtilitiesDeviceMeterChangeRequestMessage.Builder builder(Thesaurus thesaurus) {
+        return new UtilitiesDeviceMeterChangeRequestMessage(thesaurus).new Builder();
     }
+
 
     public class Builder {
 
@@ -53,11 +57,18 @@ public class UtilitiesDeviceMeterChangeRequestMessage extends AbstractSapMessage
             meterChangeMessages.add(MeterChangeMessage
                     .builder()
                     .from(requestMessage)
-                    .build());
+                    .build(thesaurus));
             return this;
         }
 
         public UtilitiesDeviceMeterChangeRequestMessage build() {
+            if (requestID == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+            for (MeterChangeMessage message : meterChangeMessages) {
+                addMissingFields(message.getMissingFieldsSet());
+            }
+
             return UtilitiesDeviceMeterChangeRequestMessage.this;
         }
 

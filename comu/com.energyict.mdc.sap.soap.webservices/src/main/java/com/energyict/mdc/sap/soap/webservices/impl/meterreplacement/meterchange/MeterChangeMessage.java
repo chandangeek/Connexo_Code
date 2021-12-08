@@ -3,12 +3,20 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.meterchange;
 
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
 import java.time.Instant;
 import java.util.Optional;
 
-public class MeterChangeMessage {
+public class MeterChangeMessage extends AbstractSapMessage {
+
+    private static final String UTILITIES_DEVICE_ID_XML_NAME = "UtilitiesDeviceID";
+    private static final String SERIAL_ID_XML_NAME = "SerialID";
+    private static final String MANUFACTURER = "PartyInternalID";
+    private static final String MANUFACTURER_MODEL = "ManufacturerModelID";
+
     private String requestId;
     private String uuid;
     private String serialId;
@@ -115,7 +123,23 @@ public class MeterChangeMessage {
             return this;
         }
 
-        public MeterChangeMessage build() {
+        public MeterChangeMessage build(Thesaurus thesaurus) {
+            if (requestId == null && uuid == null) {
+                addAtLeastOneMissingField(thesaurus, REQUEST_ID_XML_NAME, UUID_XML_NAME);
+            }
+
+            if (deviceId == null) {
+                addMissingField(UTILITIES_DEVICE_ID_XML_NAME);
+            }
+            if (serialId == null) {
+                addMissingField(SERIAL_ID_XML_NAME);
+            }
+            if (manufacturer == null) {
+                addMissingField(MANUFACTURER);
+            }
+            if (manufacturerModel == null) {
+                addMissingField(MANUFACTURER_MODEL);
+            }
             return MeterChangeMessage.this;
         }
 
