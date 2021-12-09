@@ -8,7 +8,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -32,10 +31,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Component(name = UtilitiesDeviceMeterChangeRequestCallHandler.NAME, service = ServiceCallHandler.class,
         property = "name=" + UtilitiesDeviceMeterChangeRequestCallHandler.NAME, immediate = true)
@@ -66,7 +62,9 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
     }
 
     @Reference
-    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) { this.deviceLifeCycleService = deviceLifeCycleService; }
+    public void setDeviceLifeCycleService(DeviceLifeCycleService deviceLifeCycleService) {
+        this.deviceLifeCycleService = deviceLifeCycleService;
+    }
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -167,11 +165,10 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                     .stream()
                     .filter(candidate -> ((AuthorizedTransitionAction) candidate.getAction()).getStateTransition().getTo().getName().equals(com.elster.jupiter.metering.DefaultState.INACTIVE.getKey()))
                     .findFirst();
+            if (action.isPresent()) {
 
-            action.get().execute(Instant.now().plusSeconds(3600 * 2), null);
-
-            lifecycleDates.setReceivedDate(extension.getShipmentDate());
-            lifecycleDates.save();
+                action.get().execute(Instant.now().plusSeconds(3600 * 2), Collections.emptyList());
+            }
         }
     }
 
@@ -204,7 +201,6 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
             @Override
             public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
                 return Arrays.asList(com.elster.jupiter.metering.DefaultState.ACTIVE,
-                        com.elster.jupiter.metering.DefaultState.IN_STOCK,
                         com.elster.jupiter.metering.DefaultState.COMMISSIONING);
 
             }
@@ -240,4 +236,4 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
     }
 
 
-    }
+}
