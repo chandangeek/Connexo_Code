@@ -138,6 +138,31 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), TranslationKeys.ACTIVATION_GROUP_AMI_FUNCTIONS)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName(), TranslationKeys.METER_FUNCTION_GROUP)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName(), TranslationKeys.ATTRIBUTE_MESSAGE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName(), TranslationKeys.CHARACTERISTICS_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName(), TranslationKeys.CHARACTERISTICS_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -232,6 +257,31 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER_SERIAL_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER_SERIAL_ID.javaName())
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName())
+                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

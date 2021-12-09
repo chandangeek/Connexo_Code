@@ -115,6 +115,11 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
         sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+        sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
+        sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
+        sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
+        sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
+        sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
     }
 
     private void validateShipmentDate(Device device, Instant startDate) {

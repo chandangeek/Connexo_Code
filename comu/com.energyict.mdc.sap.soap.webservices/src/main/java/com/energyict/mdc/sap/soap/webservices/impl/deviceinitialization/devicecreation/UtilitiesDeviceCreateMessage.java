@@ -5,7 +5,6 @@ package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicec
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
-
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
 import java.time.Instant;
@@ -26,6 +25,11 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
     private String manufacturer;
     private String manufacturerModel;
     private String manufacturerSerialId;
+    private String activationGroupAMIFunctions;
+    private String meterFunctionGroup;
+    private String attributeMessage;
+    private String characteristicsId;
+    private String characteristicsValue;
 
     static UtilitiesDeviceCreateMessage.Builder builder() {
         return new UtilitiesDeviceCreateMessage().new Builder();
@@ -72,6 +76,26 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
         return manufacturerSerialId;
     }
 
+    public String getActivationGroupAMIFunctions() {
+        return activationGroupAMIFunctions;
+    }
+
+    public String getMeterFunctionGroup() {
+        return meterFunctionGroup;
+    }
+
+    public String getAttributeMessage() {
+        return attributeMessage;
+    }
+
+    public String getCharacteristicsId() {
+        return characteristicsId;
+    }
+
+    public String getCharacteristicsValue() {
+        return characteristicsValue;
+    }
+
     public class Builder {
 
         private Builder() {
@@ -90,6 +114,11 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
                         setManufacturer(getManufacturer(request));
                         setManufacturerModel(getManufacturerModel(request));
                         setManufacturerSerialId(getManufacturerSerialId(request));
+                        setActivationGroupAMIFunctions(getActivationGroupAMIFunctions(request));
+                        setMeterFunctionGroup(getMeterFunctionGroup(request));
+                        setAttributeMessage(getAttributeMessage(request));
+                        setCharacteristicsId(getCharacteristicsId(request));
+                        setCharacteristicsValue(getCharacteristicsValue(request));
                     });
             return this;
         }
@@ -164,6 +193,26 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
 
         private void setManufacturerSerialId(String manufacturerSerialId) {
             UtilitiesDeviceCreateMessage.this.manufacturerSerialId = manufacturerSerialId;
+        }
+
+        private void setActivationGroupAMIFunctions(String activationGroupAMIFunctions) {
+            UtilitiesDeviceCreateMessage.this.activationGroupAMIFunctions = activationGroupAMIFunctions;
+        }
+
+        private void setMeterFunctionGroup(String meterFunctionGroup) {
+            UtilitiesDeviceCreateMessage.this.meterFunctionGroup = meterFunctionGroup;
+        }
+
+        private void setAttributeMessage(String attributeMessage) {
+            UtilitiesDeviceCreateMessage.this.attributeMessage = attributeMessage;
+        }
+
+        private void setCharacteristicsId(String characteristicsId) {
+            UtilitiesDeviceCreateMessage.this.characteristicsId = characteristicsId;
+        }
+
+        private void setCharacteristicsValue(String characteristicsValue) {
+            UtilitiesDeviceCreateMessage.this.characteristicsValue = characteristicsValue;
         }
 
         private String getRequestId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.BusinessDocumentMessageHeader request) {
@@ -284,6 +333,26 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getSerialID)
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
+        }
+
+        private String getActivationGroupAMIFunctions(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            return "AmiFunctions" + Math.random();
+        }
+
+        private String getMeterFunctionGroup(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            return "FunctionGroup" + Math.random();
+        }
+
+        private String getAttributeMessage(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            return "AttributeMessage" + Math.random();
+        }
+
+        private String getCharacteristicsId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            return "CharacteristicsId" + Math.random();
+        }
+
+        private String getCharacteristicsValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            return "CharacteristicsValue" + Math.random();
         }
     }
 

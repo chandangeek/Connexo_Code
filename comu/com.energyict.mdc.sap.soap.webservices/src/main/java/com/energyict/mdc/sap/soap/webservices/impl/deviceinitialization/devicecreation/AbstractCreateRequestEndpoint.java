@@ -162,6 +162,11 @@ public abstract class AbstractCreateRequestEndpoint extends AbstractInboundEndPo
         childDomainExtension.setShipmentDate(message.getShipmentDate());
         childDomainExtension.setManufacturer(message.getManufacturer());
         childDomainExtension.setManufacturerSerialId(message.getManufacturerSerialId());
+        childDomainExtension.setActivationGroupAmiFunctions(message.getActivationGroupAMIFunctions());
+        childDomainExtension.setMeterFunctionGroup(message.getMeterFunctionGroup());
+        childDomainExtension.setAttributeMessage(message.getAttributeMessage());
+        childDomainExtension.setCharacteristicsId(message.getCharacteristicsId());
+        childDomainExtension.setCharacteristicsValue(message.getCharacteristicsValue());
 
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
