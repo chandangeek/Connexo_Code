@@ -4,12 +4,14 @@ import com.energyict.dlms.cosem.FrameCounterProvider;
 import com.energyict.dlms.protocolimplv2.SecurityProvider;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimplv2.dlms.common.properties.DlmsPropertiesFrameCounterSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
 
 import java.math.BigDecimal;
 
+import static com.energyict.dlms.common.DlmsProtocolProperties.MANUFACTURER;
 import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERTY;
 
 public class AS3000Properties extends DlmsPropertiesFrameCounterSupport {
@@ -68,5 +70,10 @@ public class AS3000Properties extends DlmsPropertiesFrameCounterSupport {
                 AS3000ConfigurationSupport.LIMIT_MAX_NR_OF_DAYS_PROPERTY,
                 BigDecimal.valueOf(30)
         ).intValue();
+    }
+
+    @ProtocolProperty
+    public String getManufacturer() {
+        return getProperties().getTypedProperty(MANUFACTURER, "ELS::AS3000");
     }
 }

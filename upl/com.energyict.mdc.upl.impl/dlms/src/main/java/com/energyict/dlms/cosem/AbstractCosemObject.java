@@ -1734,6 +1734,8 @@ public abstract class AbstractCosemObject {
             return getBufferRangeDescriptorSL7000(fromCalendar);
         } else if (this.protocolLink.getMeterConfig().isActarisPLCC()) {
             return getBufferRangeDescriptorActarisPLCC(fromCalendar, toCalendar);
+        } else if (this.protocolLink.getMeterConfig().isAS3000()) {
+            return getBufferRangeDescriptorAS3000(fromCalendar);
         } else {
             return getBufferRangeDescriptorDefault(fromCalendar, toCalendar);
         }
@@ -1749,6 +1751,8 @@ public abstract class AbstractCosemObject {
             return getBufferRangeDescriptorSL7000(fromCalendar);
         } else if (this.protocolLink.getMeterConfig().isActarisPLCC()) {
             return getBufferRangeDescriptorActarisPLCC(fromCalendar, toCalendar);
+        } else if (this.protocolLink.getMeterConfig().isAS3000()) {
+            return getBufferRangeDescriptorAS3000(fromCalendar, channels);
         } else {
             return getBufferRangeDescriptorDefault(fromCalendar, toCalendar, channels);
         }
@@ -2187,6 +2191,173 @@ public abstract class AbstractCosemObject {
             intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
         }
 
+        return intreq;
+    }
+
+    private byte[] getBufferRangeDescriptorAS3000(Calendar fromCalendar) {
+
+        byte[] intreq = {
+                (byte) 0x01, // range descriptor
+                (byte) 0x02, // structure
+                (byte) 0x04, // 4 items in structure
+                // capture object definition
+                (byte) 0x02, (byte) 0x04, (byte) 0x12, (byte) 0x00, (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00,
+                (byte) 0x00, (byte) 0xFF, (byte) 0x0F, (byte) 0x02, (byte) 0x12, (byte) 0x00,
+                (byte) 0x00,
+                // from value
+                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 11, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+                (byte) 0x80, (byte) 0x00, (byte) 0x00,
+                // to value
+                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 13, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+                (byte) 0x80, (byte) 0x00, (byte) 0x00,
+                // selected values
+                (byte) 0x01, (byte) 0x00};
+
+        int CAPTURE_FROM_OFFSET = 21;
+        int CAPTURE_TO_OFFSET = 35;
+
+        intreq[CAPTURE_FROM_OFFSET] = AxdrType.OCTET_STRING.getTag();
+        intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
+        intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
+        intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
+        intreq[CAPTURE_FROM_OFFSET + 4] = (byte) (fromCalendar.get(Calendar.MONTH) + 1);
+        intreq[CAPTURE_FROM_OFFSET + 5] = (byte) fromCalendar.get(Calendar.DAY_OF_MONTH);
+        intreq[CAPTURE_FROM_OFFSET + 6] = (byte) getDayOfWeek(fromCalendar);
+        intreq[CAPTURE_FROM_OFFSET + 7] = (byte) fromCalendar.get(Calendar.HOUR_OF_DAY);
+        intreq[CAPTURE_FROM_OFFSET + 8] = (byte) fromCalendar.get(Calendar.MINUTE);
+        intreq[CAPTURE_FROM_OFFSET + 9] = 0x01;
+
+        int minutesOffset = (protocolLink.getTimeZone().getRawOffset() + protocolLink.getTimeZone().getDSTSavings()) / (-1 * 1000 * 60);
+        byte[] offset = getBytesFromInt(minutesOffset, 2);
+
+        intreq[CAPTURE_FROM_OFFSET + 10] = 0x00;
+        intreq[CAPTURE_FROM_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
+        intreq[CAPTURE_FROM_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
+        intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0xFF;
+
+        if (!useWildcardClockStatus) {
+            if (fromCalendar.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
+                intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
+            } else {
+                intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
+            }
+        }
+
+        // The meter only accepts the request where TO_DATE is far in the future, otherwise gives access violated error
+        Calendar toCalendar = Calendar.getInstance();
+        // COMMUNICATION-3860: agreed on that fixed date
+        toCalendar.set(2089, Calendar.DECEMBER, 31, 23, 59, 59);
+
+        intreq[CAPTURE_TO_OFFSET] = AxdrType.OCTET_STRING.getTag();
+        intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
+        intreq[CAPTURE_TO_OFFSET + 2] = (byte) (toCalendar.get(Calendar.YEAR) >> 8);
+        intreq[CAPTURE_TO_OFFSET + 3] = (byte) toCalendar.get(Calendar.YEAR);
+        intreq[CAPTURE_TO_OFFSET + 4] = (byte) (toCalendar.get(Calendar.MONTH) + 1);
+        intreq[CAPTURE_TO_OFFSET + 5] = (byte) toCalendar.get(Calendar.DAY_OF_MONTH);
+        intreq[CAPTURE_TO_OFFSET + 6] = (byte) getDayOfWeek(toCalendar);
+        intreq[CAPTURE_TO_OFFSET + 7] = (byte) toCalendar.get(Calendar.HOUR_OF_DAY);
+        intreq[CAPTURE_TO_OFFSET + 8] = (byte) toCalendar.get(Calendar.MINUTE);
+        intreq[CAPTURE_TO_OFFSET + 9] = 0x00;
+        intreq[CAPTURE_TO_OFFSET + 10] = 0x00;
+        intreq[CAPTURE_TO_OFFSET + 11] = dsmr4SelectiveAccessFormat ? offset[0] : (byte) 0x80;
+        intreq[CAPTURE_TO_OFFSET + 12] = dsmr4SelectiveAccessFormat ? offset[1] : 0x00;
+        intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0xFF;
+
+        if (!useWildcardClockStatus) {
+            if (toCalendar.getTimeZone().inDaylightTime(toCalendar.getTime())) {
+                intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
+            } else {
+                intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
+            }
+        }
+        return intreq;
+    }
+
+
+
+    private byte[] getBufferRangeDescriptorAS3000(Calendar fromCalendar, List<CapturedObject> channels) {
+
+        byte[] selectedValues = new byte[]{(byte) 0x01, (byte) 0x00};        //Default is empty array, fetching all channels
+        if (channels != null && channels.size() != 0) {
+            Array array = new Array();
+            for (CapturedObject channel : channels) {
+                Structure structure = new Structure();
+                structure.addDataType(new Unsigned16(channel.getClassId()));
+                structure.addDataType(OctetString.fromByteArray(channel.getLogicalName().getObisCode().getLN()));
+                structure.addDataType(new Integer8(channel.getAttributeIndex()));
+                structure.addDataType(new Unsigned16(channel.getDataIndex()));
+                array.addDataType(structure);
+            }
+            selectedValues = array.getBEREncodedByteArray();
+        }
+
+        byte[] intreq = {
+                (byte) 0x01, // range descriptor
+                (byte) 0x02, // structure
+                (byte) 0x04, // 4 items in structure
+                // capture object definition
+                (byte) 0x02, (byte) 0x04, (byte) 0x12, (byte) 0x00, (byte) 0x08, (byte) 0x09, (byte) 0x06, (byte) 0x00, (byte) 0x00, (byte) 0x01, (byte) 0x00,
+                (byte) 0x00, (byte) 0xFF, (byte) 0x0F, (byte) 0x02, (byte) 0x12, (byte) 0x00,
+                (byte) 0x00,
+                // from value
+                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 11, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+                (byte) 0x80, (byte) 0x00, (byte) 0x00,
+                // to value
+                (byte) 0x09, (byte) 0x0C, (byte) 0x07, (byte) 0xD2, (byte) 0x05, (byte) 23, (byte) 0xFF, (byte) 13, (byte) 0x00, (byte) 0x00, (byte) 0xFF,
+                (byte) 0x80, (byte) 0x00, (byte) 0x00,
+        };
+
+        // selected values
+        intreq = ProtocolTools.concatByteArrays(intreq, selectedValues);
+
+        int CAPTURE_FROM_OFFSET = 21;
+        int CAPTURE_TO_OFFSET = 35;
+
+        intreq[CAPTURE_FROM_OFFSET] = AxdrType.OCTET_STRING.getTag();
+        intreq[CAPTURE_FROM_OFFSET + 1] = 12; // length
+        intreq[CAPTURE_FROM_OFFSET + 2] = (byte) (fromCalendar.get(Calendar.YEAR) >> 8);
+        intreq[CAPTURE_FROM_OFFSET + 3] = (byte) fromCalendar.get(Calendar.YEAR);
+        intreq[CAPTURE_FROM_OFFSET + 4] = (byte) (fromCalendar.get(Calendar.MONTH) + 1);
+        intreq[CAPTURE_FROM_OFFSET + 5] = (byte) fromCalendar.get(Calendar.DAY_OF_MONTH);
+        intreq[CAPTURE_FROM_OFFSET + 6] = (byte) 0xff;
+        intreq[CAPTURE_FROM_OFFSET + 7] = (byte) fromCalendar.get(Calendar.HOUR_OF_DAY);
+        intreq[CAPTURE_FROM_OFFSET + 8] = (byte) fromCalendar.get(Calendar.MINUTE);
+        intreq[CAPTURE_FROM_OFFSET + 9] = 0x01;
+
+        intreq[CAPTURE_FROM_OFFSET + 10] = (byte) 0xFF;
+        intreq[CAPTURE_FROM_OFFSET + 11] = (byte) 0x80;
+        intreq[CAPTURE_FROM_OFFSET + 12] = 0x00;
+
+        if (this.protocolLink.getTimeZone().inDaylightTime(fromCalendar.getTime())) {
+            intreq[CAPTURE_FROM_OFFSET + 13] = (byte) 0x80;
+        } else {
+            intreq[CAPTURE_FROM_OFFSET + 13] = 0x00;
+        }
+
+        // The meter only accepts the request where TO_DATE is far in the future, otherwise gives access violated error
+        Calendar toCalendar = Calendar.getInstance();
+        // COMMUNICATION-3860: agreed on that fixed date
+        toCalendar.set(2089, Calendar.DECEMBER, 31, 23, 59, 59);
+
+        intreq[CAPTURE_TO_OFFSET] = AxdrType.OCTET_STRING.getTag();
+        intreq[CAPTURE_TO_OFFSET + 1] = 12; // length
+        intreq[CAPTURE_TO_OFFSET + 2] = (byte) (toCalendar.get(Calendar.YEAR) >> 8);
+        intreq[CAPTURE_TO_OFFSET + 3] = (byte) toCalendar.get(Calendar.YEAR);
+        intreq[CAPTURE_TO_OFFSET + 4] = (byte) (toCalendar.get(Calendar.MONTH) + 1);
+        intreq[CAPTURE_TO_OFFSET + 5] = (byte) toCalendar.get(Calendar.DAY_OF_MONTH);
+        intreq[CAPTURE_TO_OFFSET + 6] = (byte) 0xFF;
+        intreq[CAPTURE_TO_OFFSET + 7] = (byte) toCalendar.get(Calendar.HOUR_OF_DAY);
+        intreq[CAPTURE_TO_OFFSET + 8] = (byte) toCalendar.get(Calendar.MINUTE);
+        intreq[CAPTURE_TO_OFFSET + 9] = 0x00;
+        intreq[CAPTURE_TO_OFFSET + 10] = (byte) 0xFF;
+        intreq[CAPTURE_TO_OFFSET + 11] = (byte) 0x80;
+        intreq[CAPTURE_TO_OFFSET + 12] = 0x00;
+
+        if (this.protocolLink.getTimeZone().inDaylightTime(toCalendar.getTime())) {
+            intreq[CAPTURE_TO_OFFSET + 13] = (byte) 0x80;
+        } else {
+            intreq[CAPTURE_TO_OFFSET + 13] = 0x00;
+        }
         return intreq;
     }
 
