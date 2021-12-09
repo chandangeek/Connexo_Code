@@ -27,6 +27,7 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         REQUEST_ID("requestId", "REQUEST_ID"),
         UUID("uuid", "UUID"),
         SHIPMENT_DATE("shipmentDate", "SHIPMENT_DATE"),
+        DEACTIVATION_DATE("deactivationDate", "DEACTIVATION_DATE"),
         DEVICE_ID("deviceId", "DEVICE_ID"),
         SERIAL_ID("serialId", "SERIAL_ID"),
         DEVICE_TYPE("deviceType", "DEVICE_TYPE"),
@@ -104,6 +105,8 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
     private String characteristicsValue;
 
     private Instant shipmentDate;
+
+    private Instant deactivationDate;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorCode;
@@ -244,6 +247,14 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         this.shipmentDate = shipmentDate;
     }
 
+    public Instant getDeactivationDate() {
+        return deactivationDate;
+    }
+
+    public void setDeactivationDate(Instant deactivationDate) {
+        this.deactivationDate = deactivationDate;
+    }
+
     public ServiceCall getServiceCall() {
         return serviceCall.get();
     }
@@ -267,6 +278,8 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
         this.setShipmentDate((Instant) propertyValues.getProperty(FieldNames.SHIPMENT_DATE.javaName()));
+        this.setDeactivationDate((Instant) propertyValues.getProperty(FieldNames.DEACTIVATION_DATE.javaName()));
+
 
     }
 
@@ -288,6 +301,7 @@ public class UtilitiesDeviceMeterChangeRequestDomainExtension extends AbstractPe
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
         propertySetValues.setProperty(FieldNames.SHIPMENT_DATE.javaName(), this.getShipmentDate());
+        propertySetValues.setProperty(FieldNames.DEACTIVATION_DATE.javaName(), this.getDeactivationDate());
     }
 
     @Override

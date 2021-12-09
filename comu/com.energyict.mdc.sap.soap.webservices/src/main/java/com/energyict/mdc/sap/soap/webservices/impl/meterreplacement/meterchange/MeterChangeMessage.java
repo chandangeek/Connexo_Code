@@ -31,6 +31,7 @@ public class MeterChangeMessage extends AbstractSapMessage {
     private String characteristicsId;
     private String characteristicsValue;
     private Instant shipmentDate;
+    private Instant deactivationDate;
 
 
     static MeterChangeMessage.Builder builder() {
@@ -97,6 +98,10 @@ public class MeterChangeMessage extends AbstractSapMessage {
         return shipmentDate;
     }
 
+    public Instant getDeactivationDate() {
+        return deactivationDate;
+    }
+
     public class Builder {
 
         private Builder() {
@@ -119,6 +124,7 @@ public class MeterChangeMessage extends AbstractSapMessage {
                         setCharacteristicsId(getCharacteristicsId(request));
                         setCharacteristicsValue(getCharacteristicsValue(request));
                         setShipmentDate(Instant.now());
+                        setDeactivationDate(Instant.now().plusSeconds(3600*2));
                     });
             return this;
         }
@@ -197,6 +203,10 @@ public class MeterChangeMessage extends AbstractSapMessage {
 
         private void setShipmentDate(Instant shipmentDate) {
             MeterChangeMessage.this.shipmentDate = shipmentDate;
+        }
+
+        private void setDeactivationDate(Instant deactivationDate) {
+            MeterChangeMessage.this.deactivationDate = deactivationDate;
         }
 
 

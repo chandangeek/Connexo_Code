@@ -161,6 +161,7 @@ public abstract class AbstractChangeRequestEndpoint extends AbstractInboundEndPo
         childDomainExtension.setCharacteristicsId(message.getCharacteristicsId());
         childDomainExtension.setCharacteristicsValue(message.getCharacteristicsValue());
         childDomainExtension.setShipmentDate(message.getShipmentDate());
+        childDomainExtension.setDeactivationDate(message.getDeactivationDate());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);

@@ -77,6 +77,7 @@ public enum TranslationKeys implements TranslationKey {
     EXPORTER_DESCRIPTION("exporterDescription", "Specifies the type of exporter to be used to select and export readings"),
     DEVICE_TYPE("deviceType", "Device type"),
     SHIPMENT_DATE("shipmentDate", "Shipment date"),
+    DEACTIVATION_DATE("deactivationDate", "Deactivation date"),
     MANUFACTURER("manufacturer", "Manufacturer"),
     MANUFACTURER_SERIAL_ID("manufacturerSerialId", "Manufacturer serial id"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),

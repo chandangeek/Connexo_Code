@@ -171,7 +171,13 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
                         .specForValuesOf(new InstantFactory())
                         .named(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.SHIPMENT_DATE.javaName(), TranslationKeys.SHIPMENT_DATE)
                         .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .specForValuesOf(new InstantFactory())
+                        .named(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.DEACTIVATION_DATE.javaName(), TranslationKeys.SHIPMENT_DATE)
+                        .fromThesaurus(thesaurus)
                         .finish()
+
         );
     }
 
@@ -279,7 +285,12 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.SHIPMENT_DATE.javaName())
-                    .notNull()
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.DEACTIVATION_DATE.databaseName())
+                    .number()
+                    .conversion(ColumnConversion.NUMBER2INSTANT)
+                    .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.DEACTIVATION_DATE.javaName())
                     .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())

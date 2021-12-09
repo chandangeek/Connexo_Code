@@ -21,6 +21,7 @@ import com.energyict.mdc.device.lifecycle.ExecutableAction;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.States;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.service.component.annotations.Component;
@@ -28,6 +29,8 @@ import org.osgi.service.component.annotations.Reference;
 
 import java.text.MessageFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -107,6 +110,11 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
         Device device = getDevice(extension);
         Optional<Device> sapDevice = sapCustomPropertySets.getDevice(sapDeviceId);
         if (sapDevice.isPresent()) {
+
+            CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
+            setShipmentDate(device, extension, lifecycleDates);
+            setDeactivationDate(device, extension, lifecycleDates);
+
             if (device.equals(sapCustomPropertySets.getDevice(sapDeviceId).get())) {
                 sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
                 sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
@@ -114,10 +122,6 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                 sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
                 sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
 
-
-                CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-                setShipmentDate(device, extension, lifecycleDates);
-                setDeactivationDate(device, extension, lifecycleDates);
 
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_MISMATCH);
@@ -146,28 +150,44 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
 
     private void setShipmentDate(Device device, UtilitiesDeviceMeterChangeRequestDomainExtension extension, CIMLifecycleDates lifecycleDates) {
         Optional<Instant> installationDate = device.getLifecycleDates().getInstalledDate();
-        if (extension.getShipmentDate() != null && States.SHIPMENT_DATE.isEditableForState(device.getState())) {
-            if (installationDate.isPresent()) {
-                if (extension.getShipmentDate().isBefore(installationDate.get())) {
+        if (extension.getShipmentDate() != null) {
+            if (States.SHIPMENT_DATE.isEditableForState(device.getState())) {
+                if (installationDate.isPresent()) {
+                    if (extension.getShipmentDate().isBefore(installationDate.get())) {
+                        lifecycleDates.setReceivedDate(extension.getShipmentDate());
+                        lifecycleDates.save();
+                    } else {
+                        throw new SAPWebServiceException(thesaurus, MessageSeeds.SHIPMENT_DATE_IS_AFTER_INSTALLATION_DATE);
+                    }
+                } else {
                     lifecycleDates.setReceivedDate(extension.getShipmentDate());
                     lifecycleDates.save();
                 }
             } else {
-                lifecycleDates.setReceivedDate(extension.getShipmentDate());
-                lifecycleDates.save();
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.SHIPMENT_DATE_IS_NOT_EDITABLE);
             }
         }
     }
 
     private void setDeactivationDate(Device device, UtilitiesDeviceMeterChangeRequestDomainExtension extension, CIMLifecycleDates lifecycleDates) {
-        if (extension.getShipmentDate() != null && States.DEACTIVATION_DATE.isEditableForState(device.getState())) {
-            Optional<ExecutableAction> action = deviceLifeCycleService.getExecutableActions(device)
-                    .stream()
-                    .filter(candidate -> ((AuthorizedTransitionAction) candidate.getAction()).getStateTransition().getTo().getName().equals(com.elster.jupiter.metering.DefaultState.INACTIVE.getKey()))
-                    .findFirst();
-            if (action.isPresent()) {
+        LocalDate date = extension.getDeactivationDate().atZone(ZoneId.systemDefault()).toLocalDate();
+        if (extension.getDeactivationDate() != null && date.getYear() != 9999) {
+            if (States.DEACTIVATION_DATE.isEditableForState(device.getState())) {
+                Optional<ExecutableAction> action = deviceLifeCycleService.getExecutableActions(device)
+                        .stream()
+                        .filter(candidate -> ((AuthorizedTransitionAction) candidate.getAction()).getStateTransition()
+                                .getTo()
+                                .getName()
+                                .equals(com.elster.jupiter.metering.DefaultState.INACTIVE.getKey()))
+                        .findFirst();
+                if (action.isPresent()) {
 
-                action.get().execute(Instant.now().plusSeconds(3600 * 2), Collections.emptyList());
+                    action.get().execute(extension.getDeactivationDate(), Collections.emptyList());
+                } else {
+                    throw new SAPWebServiceException(thesaurus, MessageSeeds.TRANSITION_IS_NOT_FOUND);
+                }
+            } else {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.DEACTIVATION_DATE_IS_NOT_EDITABLE);
             }
         }
     }
@@ -179,61 +199,5 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
             throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
         }
     }
-
-    public enum States {
-        SHIPMENT_DATE {
-            @Override
-            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
-                return Collections.singletonList(com.elster.jupiter.metering.DefaultState.IN_STOCK);
-            }
-        },
-        INSTALLATION_DATE {
-            @Override
-            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(
-                        com.elster.jupiter.metering.DefaultState.COMMISSIONING,
-                        com.elster.jupiter.metering.DefaultState.ACTIVE,
-                        com.elster.jupiter.metering.DefaultState.INACTIVE
-                );
-            }
-        },
-        DEACTIVATION_DATE {
-            @Override
-            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
-                return Arrays.asList(com.elster.jupiter.metering.DefaultState.ACTIVE,
-                        com.elster.jupiter.metering.DefaultState.COMMISSIONING);
-
-            }
-        },
-        DECOMMISSIONING_DATE {
-            @Override
-            public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
-                return Collections.singletonList(com.elster.jupiter.metering.DefaultState.DECOMMISSIONED);
-            }
-
-        };
-
-        public List<com.elster.jupiter.metering.DefaultState> attributeIsEditableForStates() {
-            return Arrays.asList(
-                    com.elster.jupiter.metering.DefaultState.IN_STOCK,
-                    com.elster.jupiter.metering.DefaultState.COMMISSIONING,
-                    com.elster.jupiter.metering.DefaultState.ACTIVE,
-                    com.elster.jupiter.metering.DefaultState.INACTIVE
-            );
-        }
-
-        public boolean isEditableForState(State state) {
-            if (this.attributeIsEditableForStates() != null) {
-                Optional<com.elster.jupiter.metering.DefaultState> correspondingDefaultState = com.elster.jupiter.metering.DefaultState.from(state);
-                if (correspondingDefaultState.isPresent()) {
-                    return correspondingDefaultState.isPresent()
-                            && this.attributeIsEditableForStates().contains(correspondingDefaultState.get());
-                }
-                return true;
-            }
-            return false;
-        }
-    }
-
 
 }

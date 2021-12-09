@@ -155,7 +155,14 @@ public enum MessageSeeds implements MessageSeed {
     READING_DATE_AFTER_DEVICE_SHIPMENT_DATE(10203, "ReadingDateAfterDeviceShipmentDate", "Date of reading must be after device shipment date"),
     NO_DATA_SOURCE_FOUND_BY_LRN(10204, "NoDataSourceFoundByLrn", "No data source found with LRN ''{0}''."),
     INVALID_READING_TIMESTAMP_FOR_CHANNEL(10205, "InvalidReadingTimestamp", "Impossible to save specified reading, because timestamp breaks the timeline of the channel"),
-    ;
+
+
+    //Meter change/create requests
+    SHIPMENT_DATE_IS_AFTER_INSTALLATION_DATE(10301, "InvalidShipmentDate", "The 'Start Date' should be after installation date"),
+    SHIPMENT_DATE_IS_NOT_EDITABLE(10302, "ShipmentDateIsNotEditable", "Shipment date can only be change if the device has 'In stock' state"),
+    DEACTIVATION_DATE_IS_NOT_EDITABLE(10302, "DeactivationDateIsNotEditable", "You can schedule a deactivation only for devices which have next states 'In stock','Commissioning','Active'"),
+    TRANSITION_IS_NOT_FOUND(10303, "TransitionIsNotFound", "Transition Needed for moving device to the 'Inactive' state is not found");
+
 
     private final int number;
     private final String key;
