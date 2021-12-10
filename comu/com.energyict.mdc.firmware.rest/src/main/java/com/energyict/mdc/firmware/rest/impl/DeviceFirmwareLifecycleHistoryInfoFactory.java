@@ -33,13 +33,7 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
     public List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfosListFromDevice(Device device) {
         FirmwareManagementDeviceUtils versionUtils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = getDeviceFirmwareHistoryInfos(versionUtils);
-        List<DeviceFirmwareLifecycleHistoryInfo> deviceFirmwareLifecycleHistoryInfos = sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
-        deviceFirmwareLifecycleHistoryInfos.stream().forEach(deviceFirmwareLifecycleHistoryInfo -> {
-            if(deviceFirmwareLifecycleHistoryInfo.getResult().equals("Pending")){
-                deviceFirmwareLifecycleHistoryInfo.setUploadedOn(null);
-                deviceFirmwareLifecycleHistoryInfo.setActivationDate(null);
-            }
-        });
+        List<DeviceFirmwareLifecycleHistoryInfo> deviceFirmwareLifecycleHistoryInfos = sortDescendingByUploadedDateTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
         return deviceFirmwareLifecycleHistoryInfos;
     }
 
@@ -52,9 +46,15 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
         return firmwareVersionList;
     }
 
-    private List<DeviceFirmwareLifecycleHistoryInfo> sortDescendingByUploadedOnTimestampDeviceFirmwareHistoryInfos(List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList) {
-        return firmwareVersionList.stream()
-                .sorted(Comparator.comparing(DeviceFirmwareLifecycleHistoryInfo::getUploadedOn).reversed())
-                .collect(Collectors.toList());
+    private List<DeviceFirmwareLifecycleHistoryInfo> sortDescendingByUploadedDateTimestampDeviceFirmwareHistoryInfos(List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList) {
+        if (firmwareVersionList.stream().noneMatch(deviceFirmwareLifecycleHistoryInfo -> deviceFirmwareLifecycleHistoryInfo.getUploadedDate() == null)) {
+            return firmwareVersionList.stream()
+                    .sorted(Comparator.comparing(DeviceFirmwareLifecycleHistoryInfo::getUploadedDate).reversed())
+                    .collect(Collectors.toList());
+        } else {
+            return firmwareVersionList.stream()
+                    .sorted(Comparator.comparing(DeviceFirmwareLifecycleHistoryInfo::getPlannedDate).reversed())
+                    .collect(Collectors.toList());
+        }
     }
 }

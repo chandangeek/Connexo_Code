@@ -38,12 +38,22 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('device.firmware.history.UploadedOn', 'FWC', 'Uploaded on'),
-                dataIndex: 'uploadedOn',
+                header: Uni.I18n.translate('device.firmware.history.PlannedDate', 'FWC', 'Planned uploaded date'),
+                dataIndex: 'plannedDate',
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : ''
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
+                }
+
+            },
+            {
+                header: Uni.I18n.translate('device.firmware.history.UploadedDate', 'FWC', 'Uploaded date'),
+                dataIndex: 'uploadedDate',
+                fixed: true,
+                flex: 3,
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
                 }
 
             },
