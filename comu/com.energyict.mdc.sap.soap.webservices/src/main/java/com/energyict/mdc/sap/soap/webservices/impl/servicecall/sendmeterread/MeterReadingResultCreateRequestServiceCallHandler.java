@@ -22,6 +22,7 @@ import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,6 +36,7 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
     public static final String APPLICATION = "MDC";
     public static final String COLLECTED_VALUE = "01";
     public static final String CALCULATED_VALUE = "02";
+    public static final String[] AVAILABLE_REASON_CODES = new String[]{"08", "21", "12", "22"};
 
     private volatile SAPCustomPropertySets sapCustomPropertySets;
 
@@ -70,38 +72,42 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
             if (device.get().getCreateTime().getEpochSecond() > extension.getMeterReadingDateTime().getEpochSecond()) {
                 failServiceCall(extension, MessageSeeds.READING_DATE_AFTER_DEVICE_SHIPMENT_DATE);
             } else {
-                channel = sapCustomPropertySets.getChannel(extension.getLrn(), Instant.now());
-                if (channel.isPresent()) {
-                    List<? extends ReadingType> readingTypeList = channel.get().getReadingTypes();
-                    String readingTypeMrid = "";
-                    switch (extension.getMeterReadingTypeCode()) {
-                        case CALCULATED_VALUE:
-                            if (readingTypeList.size() == 1) {
-                                failServiceCall(extension, MessageSeeds.READING_TYPE_FOR_REGISTER_INCORRECT);
-                            } else {
-                                readingTypeMrid = readingTypeList.get(0).getMRID();
-                            }
-                            break;
-                        case COLLECTED_VALUE:
-                            readingTypeMrid = readingTypeList.get(readingTypeList.size() - 1).getMRID();
-                            break;
-                        default:
-                            failServiceCall(extension, MessageSeeds.READING_TYPE_INCORRECT);
-                            break;
-                    }
-                    if (!readingTypeMrid.isEmpty()) {
-                        ReadingImpl reading = ReadingImpl.of(readingTypeMrid, extension.getMeterReadingValue(), extension.getMeterReadingDateTime());
-                        reading.addQuality(ReadingQualityType.of(QualityCodeSystem.EXTERNAL, QualityCodeIndex.CUSTOMEREAD).getCode());
-                        MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
-                        try {
-                            device.get().store(meterReading, null);
-                            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                        } catch (IllegalArgumentException e) {
-                            failServiceCall(extension, MessageSeeds.INVALID_READING_TIMESTAMP_FOR_CHANNEL);
-                        }
-                    }
+                if (Arrays.stream(AVAILABLE_REASON_CODES).noneMatch(e -> e.equals(extension.getReadingReasonCode()))) {
+                    failServiceCall(extension, MessageSeeds.UNSUPPORTED_REASON_CODE);
                 } else {
-                    failServiceCall(extension, MessageSeeds.NO_DATA_SOURCE_FOUND_BY_LRN, extension.getLrn());
+                    channel = sapCustomPropertySets.getChannel(extension.getLrn(), Instant.now());
+                    if (channel.isPresent()) {
+                        List<? extends ReadingType> readingTypeList = channel.get().getReadingTypes();
+                        String readingTypeMrid = "";
+                        switch (extension.getMeterReadingTypeCode()) {
+                            case CALCULATED_VALUE:
+                                if (readingTypeList.size() == 1) {
+                                    failServiceCall(extension, MessageSeeds.READING_TYPE_FOR_REGISTER_INCORRECT);
+                                } else {
+                                    readingTypeMrid = readingTypeList.get(0).getMRID();
+                                }
+                                break;
+                            case COLLECTED_VALUE:
+                                readingTypeMrid = readingTypeList.get(readingTypeList.size() - 1).getMRID();
+                                break;
+                            default:
+                                failServiceCall(extension, MessageSeeds.READING_TYPE_INCORRECT);
+                                break;
+                        }
+                        if (!readingTypeMrid.isEmpty()) {
+                            ReadingImpl reading = ReadingImpl.of(readingTypeMrid, extension.getMeterReadingValue(), extension.getMeterReadingDateTime());
+                            reading.addQuality(ReadingQualityType.of(QualityCodeSystem.EXTERNAL, QualityCodeIndex.CUSTOMEREAD).getCode());
+                            MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
+                            try {
+                                device.get().store(meterReading, null);
+                                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                            } catch (IllegalArgumentException e) {
+                                failServiceCall(extension, MessageSeeds.INVALID_READING_TIMESTAMP_FOR_CHANNEL);
+                            }
+                        }
+                    } else {
+                        failServiceCall(extension, MessageSeeds.NO_DATA_SOURCE_FOUND_BY_LRN, extension.getLrn());
+                    }
                 }
             }
         } else {
