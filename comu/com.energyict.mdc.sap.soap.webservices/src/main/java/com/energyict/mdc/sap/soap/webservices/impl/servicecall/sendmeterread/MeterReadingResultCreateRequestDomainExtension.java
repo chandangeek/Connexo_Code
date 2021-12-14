@@ -94,10 +94,14 @@ public class MeterReadingResultCreateRequestDomainExtension extends AbstractPers
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String readingReasonCode;
 
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant meterReadingDateTime;
-    private String meterReadingTypeCode;
-    private BigDecimal meterReadingValue;
 
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private String meterReadingTypeCode;
+
+    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    private BigDecimal meterReadingValue;
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorCode;

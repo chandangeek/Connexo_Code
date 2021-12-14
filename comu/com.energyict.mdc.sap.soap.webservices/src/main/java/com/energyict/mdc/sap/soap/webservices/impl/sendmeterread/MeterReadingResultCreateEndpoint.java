@@ -78,10 +78,10 @@ public class MeterReadingResultCreateEndpoint extends AbstractInboundEndPoint im
             Optional.ofNullable(request)
                     .ifPresent(requestMessage -> {
 
-                            MeterReadingResultCreateRequestMessage message = MeterReadingResultCreateRequestMessage
-                                    .builder(thesaurus)
-                                    .from(requestMessage)
-                                    .build();
+                        MeterReadingResultCreateRequestMessage message = MeterReadingResultCreateRequestMessage
+                                .builder(thesaurus)
+                                .from(requestMessage)
+                                .build();
                         SetMultimap<String, String> values = HashMultimap.create();
                         Optional.ofNullable(message.getMeterReadingResultCreateMessage().getLrn())
                                 .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));

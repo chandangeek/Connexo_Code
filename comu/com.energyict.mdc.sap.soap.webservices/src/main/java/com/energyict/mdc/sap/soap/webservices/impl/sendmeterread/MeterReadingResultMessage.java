@@ -17,6 +17,7 @@ public class MeterReadingResultMessage extends AbstractSapMessage {
     private static final String METER_READING_DATE_XML_NAME = "Result.MeterReadingDate";
     private static final String METER_READING_TIME_XML_NAME = "Result.MeterReadingTime";
     private static final String METER_READING_VALUE_XML_NAME = "Result.MeterReadingResultValue";
+    private static final String METER_READING_TYPE_CODE_XML_NAME = "Result.MeterReadingTypeCode";
 
     private Instant meterReadingDate;
     private LocalTime meterReadingTime;
@@ -122,6 +123,10 @@ public class MeterReadingResultMessage extends AbstractSapMessage {
             if (meterReadingResultValue == null) {
                 addMissingField(METER_READING_VALUE_XML_NAME);
             }
+            if (meterReadingTypeCode == null) {
+                addMissingField(METER_READING_TYPE_CODE_XML_NAME);
+            }
+
             return MeterReadingResultMessage.this;
         }
 

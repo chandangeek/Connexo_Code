@@ -318,7 +318,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setReadingReasonCode((String) propertyValues.getProperty(FieldNames.READING_REASON_CODE.javaName()));
         this.setScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.SCHEDULED_READING_DATE.javaName()));
-        this.setDataSource((String) propertyValues.getProperty(FieldNames.DATA_SOURCE.javaName()));
+        this.setDataSourceTypeCode((String) propertyValues.getProperty(FieldNames.DATA_SOURCE_TYPE_CODE.javaName()));
         this.setProcessingDate((Instant) propertyValues.getProperty(FieldNames.PROCESSING_DATE.javaName()));
         this.setNextReadingAttemptDate((Instant) propertyValues.getProperty(FieldNames.NEXT_READING_ATTEMPT_DATE.javaName()));
         this.setReadingAttempt((long) propertyValues.getProperty(FieldNames.READING_ATTEMPT.javaName()));
