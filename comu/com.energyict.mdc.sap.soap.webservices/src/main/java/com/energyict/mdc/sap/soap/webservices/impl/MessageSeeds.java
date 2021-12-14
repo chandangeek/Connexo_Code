@@ -99,6 +99,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_OBIS(4041, "NoObis", "UtilitiesObjectIdentificationSystemCodeText (reading type OBIS code) must be specified"),
     OTHER_DEVICE_TYPE(4042, "OtherDeviceType", "Existent device has different device type than the one sent: ''{0}'' "),
     ERROR_PROCESSING_METER_CHANGE_REQUEST(4043, "ErrorProcessingMeterChangeRequest", "Error while processing meter change request: ''{0}''."),
+    NO_DEVICE_TYPE(4044, "NoDeviceTypeSpecified", "No specified device type, please fill next fields in the request: PartyInternalId, ManufacturerModelId"),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
