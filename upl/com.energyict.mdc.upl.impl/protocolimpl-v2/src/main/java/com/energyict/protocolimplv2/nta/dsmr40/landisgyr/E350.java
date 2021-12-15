@@ -84,7 +84,7 @@ public class E350 extends AbstractSmartDSMR40NtaProtocol implements SerialNumber
 
     @Override
     public String getVersion() {
-        return "E350 protocol integration version 15.05.2020";
+        return "E350 protocol integration version 15.12.2021";
     }
 
     @Override
