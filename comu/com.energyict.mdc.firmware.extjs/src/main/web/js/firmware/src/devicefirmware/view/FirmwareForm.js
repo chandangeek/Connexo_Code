@@ -276,19 +276,17 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
             if (status === 'failedVerificationVersion') {
                 formFailed.setText(Uni.I18n.translate('device.firmware.activate.failedCheckVersionImage',
                     'FWC', 'Verification of version/image {0} failed', [
-                        record.get('firmwareVersion'),
-                        Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
+                        record.get('firmwareVersion')
                     ]));
             } else if (status === 'failedActivatingVersion') {
                 formFailed.setText(Uni.I18n.translate('device.firmware.install.failedActivatingVersionImage',
-                    'FWC', 'Activation to version/image {0} failed', [
+                    'FWC', 'Activation of version/image {0} failed', [
                         record.get('firmwareVersion')
                     ]));
             } else {
                 formFailed.setText(Uni.I18n.translate('device.firmware.activate.failedVersionImage',
                     'FWC', 'Upload and activation of version/image {0} failed', [
-                        record.get('firmwareVersion'),
-                        Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
+                        record.get('firmwareVersion')
                     ]));
             }
 
