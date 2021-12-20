@@ -48,7 +48,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
 
             },
             {
-                header: Uni.I18n.translate('device.firmware.history.uploadDate', 'FWC', 'Uploaded date'),
+                header: Uni.I18n.translate('device.firmware.history.uploadDate', 'FWC', 'Upload date'),
                 dataIndex: 'uploadDate',
                 fixed: true,
                 flex: 3,
