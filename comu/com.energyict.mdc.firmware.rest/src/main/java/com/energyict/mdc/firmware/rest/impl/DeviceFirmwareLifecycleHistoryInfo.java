@@ -20,7 +20,7 @@ public class DeviceFirmwareLifecycleHistoryInfo {
     private String firmwareVersion;
     private String imageIdentifier;
     private String triggeredBy;
-    private Instant uploadedDate;
+    private Instant uploadDate;
     private Instant plannedDate;
     private Instant activationDate;
     private String result;
@@ -55,12 +55,12 @@ public class DeviceFirmwareLifecycleHistoryInfo {
         this.triggeredBy = triggeredBy;
     }
 
-    public Instant getUploadedDate() {
-        return uploadedDate;
+    public Instant getUploadDate() {
+        return uploadDate;
     }
 
-    public void setUploadedDate(Instant uploadedDate) {
-        this.uploadedDate = uploadedDate;
+    public void setUploadDate(Instant uploadDate) {
+        this.uploadDate = uploadDate;
     }
 
     public Instant getPlannedDate() {
@@ -97,12 +97,18 @@ public class DeviceFirmwareLifecycleHistoryInfo {
 
     private void buildDeviceFirmwareHistoryInfosFrom(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
         this.setPlannedDate(deviceMessage.getReleaseDate());
-        this.setUploadedDate(deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING) ? null : deviceMessage.getModTime());
+        if (deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING) ||
+                deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING) ||
+                deviceMessage.getStatus().equals(DeviceMessageStatus.CANCELED)) {
+            this.setUploadDate(null);
+        } else {
+            this.setUploadDate(deviceMessage.getModTime());
+        }
         this.setResult(DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus));
         this.setTriggeredBy(deviceMessage.getUser());
         this.setFirmwareVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
         this.setImageIdentifier(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getImageIdentifier).orElse(null));
-        this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING) ? null : deviceMessage.getModTime()));
+        this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(getUploadDate()));
         this.setFirmwareTaskId(versionUtils.getFirmwareTask().get().getId());
     }
 }

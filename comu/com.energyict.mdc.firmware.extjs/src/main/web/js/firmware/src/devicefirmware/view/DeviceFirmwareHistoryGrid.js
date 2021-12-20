@@ -38,7 +38,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('device.firmware.history.PlannedDate', 'FWC', 'Planned uploaded date'),
+                header: Uni.I18n.translate('device.firmware.history.PlannedDate', 'FWC', 'Planned upload date'),
                 dataIndex: 'plannedDate',
                 fixed: true,
                 flex: 3,
@@ -48,8 +48,8 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
 
             },
             {
-                header: Uni.I18n.translate('device.firmware.history.UploadedDate', 'FWC', 'Uploaded date'),
-                dataIndex: 'uploadedDate',
+                header: Uni.I18n.translate('device.firmware.history.uploadDate', 'FWC', 'Uploaded date'),
+                dataIndex: 'uploadDate',
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {

@@ -69,7 +69,7 @@ public class DeviceFirmwareLifecycleHistoryInfoTest extends BaseFirmwareTest {
         assertThat(deviceFirmwareLifecycleHistoryInfo.getTriggeredBy()).isEqualTo(userName);
         assertThat(deviceFirmwareLifecycleHistoryInfo.getFirmwareVersion()).isEqualTo(firmwareVersion);
         assertThat(deviceFirmwareLifecycleHistoryInfo.getPlannedDate()).isEqualTo(plannedTimestamp);
-        assertThat(deviceFirmwareLifecycleHistoryInfo.getUploadedDate()).isEqualTo(currentTimestamp);
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getUploadDate()).isEqualTo(currentTimestamp);
         assertThat(deviceFirmwareLifecycleHistoryInfo.getActivationDate()).isEqualTo(activationTimestamp);
         assertThat(deviceFirmwareLifecycleHistoryInfo.getFirmwareTaskId()).isEqualTo(firmwareComTaskId);
         assertThat(deviceFirmwareLifecycleHistoryInfo.getResult()).isEqualTo(resultMessage);

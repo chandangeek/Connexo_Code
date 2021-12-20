@@ -11,7 +11,6 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -33,7 +32,7 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
     public List<DeviceFirmwareLifecycleHistoryInfo> getDeviceFirmwareHistoryInfosListFromDevice(Device device) {
         FirmwareManagementDeviceUtils versionUtils = firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList = getDeviceFirmwareHistoryInfos(versionUtils);
-        List<DeviceFirmwareLifecycleHistoryInfo> deviceFirmwareLifecycleHistoryInfos = sortDescendingByUploadedDateTimestampDeviceFirmwareHistoryInfos(firmwareVersionList);
+        List<DeviceFirmwareLifecycleHistoryInfo> deviceFirmwareLifecycleHistoryInfos = sortDeviceFirmwareHistoryInfosDescendingByUploadTimestamp(firmwareVersionList);
         return deviceFirmwareLifecycleHistoryInfos;
     }
 
@@ -46,10 +45,13 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
         return firmwareVersionList;
     }
 
-    private List<DeviceFirmwareLifecycleHistoryInfo> sortDescendingByUploadedDateTimestampDeviceFirmwareHistoryInfos(List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList) {
-        if (firmwareVersionList.stream().noneMatch(deviceFirmwareLifecycleHistoryInfo -> deviceFirmwareLifecycleHistoryInfo.getUploadedDate() == null)) {
+    private List<DeviceFirmwareLifecycleHistoryInfo> sortDeviceFirmwareHistoryInfosDescendingByUploadTimestamp(List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList) {
+
+        if (firmwareVersionList.stream().noneMatch(deviceFirmwareLifecycleHistoryInfo -> deviceFirmwareLifecycleHistoryInfo.getUploadDate() == null)) {
             return firmwareVersionList.stream()
-                    .sorted(Comparator.comparing(DeviceFirmwareLifecycleHistoryInfo::getUploadedDate).reversed())
+                    .sorted(Comparator.comparing(o -> {
+
+                            })
                     .collect(Collectors.toList());
         } else {
             return firmwareVersionList.stream()
