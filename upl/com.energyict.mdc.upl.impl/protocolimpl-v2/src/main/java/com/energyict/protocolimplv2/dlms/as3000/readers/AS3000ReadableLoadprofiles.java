@@ -29,19 +29,19 @@ public class AS3000ReadableLoadprofiles {
 
     public CollectedLoadProfileReader<AS3000> getCollectedLogBookReader(AS3000 dlmsProtocol) {
         List<LoadProfileReader<AS3000>> loadProfileReaders = new ArrayList<>();
-        loadProfileReaders.add(loadProfile());
-        loadProfileReaders.add(instrumentationProfile());
+        loadProfileReaders.add(loadProfile(dlmsProtocol));
+        loadProfileReaders.add(instrumentationProfile(dlmsProtocol));
         return new CollectedLoadProfileReader<>(loadProfileReaders, dlmsProtocol, collectedLoadProfileBuilder, issueFactory);
     }
 
-    private GenericLoadProfileReader<AS3000> loadProfile() {
+    private GenericLoadProfileReader<AS3000> loadProfile(AS3000 dlmsProtocol) {
         return new GenericLoadProfileReader<>(new ObisCodeMatcher(ObisCode.fromString("1.1.99.1.0.255")), issueFactory, collectedLoadProfileBuilder, new AS3000ChannelReader()
-                , new SelectiveBufferReader(limitMaxNrOfDays), new AS3000BufferParser());
+                , new SelectiveBufferReader(limitMaxNrOfDays), new AS3000BufferParser(dlmsProtocol));
     }
 
-    private GenericLoadProfileReader<AS3000> instrumentationProfile() {
+    private GenericLoadProfileReader<AS3000> instrumentationProfile(AS3000 dlmsProtocol) {
         return new GenericLoadProfileReader<>(new ObisCodeMatcher(ObisCode.fromString("1.1.99.2.0.255")), issueFactory, collectedLoadProfileBuilder, new AS3000ChannelReader()
-                , new SelectiveBufferReader(limitMaxNrOfDays), new AS3000BufferParser());
+                , new SelectiveBufferReader(limitMaxNrOfDays), new AS3000BufferParser(dlmsProtocol));
     }
 
 }
