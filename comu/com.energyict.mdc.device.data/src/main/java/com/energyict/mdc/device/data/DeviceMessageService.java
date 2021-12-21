@@ -30,6 +30,8 @@ public interface DeviceMessageService {
 
     Optional<DeviceMessage> findDeviceMessageByIdentifier(MessageIdentifier identifier);
 
+    Optional<DeviceMessage> findAndLockDeviceMessageById(long id);
+
     Optional<DeviceMessage> findAndLockDeviceMessageByIdAndVersion(long id, long version);
 
     Optional<DeviceMessage> findAndLockDeviceMessageById(long id);

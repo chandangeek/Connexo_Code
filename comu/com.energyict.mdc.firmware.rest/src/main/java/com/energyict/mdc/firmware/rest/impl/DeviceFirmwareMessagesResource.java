@@ -280,19 +280,21 @@ public class DeviceFirmwareMessagesResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response cancelFirmwareUpload(@PathParam("name") String name, @PathParam("msgId") long msgId, DeviceFirmwareVersionInfos info) {
+        System.out.println("Cancel Firmware Upload!");
         Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .supplier());
-        DeviceMessage upgradeMessage = device.getMessages().stream()
-                .filter(message -> message.getId() == msgId)
-                .findFirst()
+        System.out.println("Before lock: " + msgId);
+        DeviceMessage upgradeMessage = device.getLockedMessageById(msgId)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));
+        System.out.println("After lock: " + upgradeMessage.getId() + " " + upgradeMessage.getStatus());
         FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.firmwareUploadTaskIsBusy()) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
         }
         upgradeMessage.revoke();
+        System.out.println("After revoke: " + upgradeMessage.getId() + " " + upgradeMessage.getStatus());
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
         rescheduleFirmwareUpgradeTask(device);
         firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)

@@ -308,7 +308,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public List<DeviceMessage> getPendingFirmwareMessages() {
-        return getFirmwareMessages().stream().filter(message -> FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(message.getStatus())).collect(Collectors.toList());
+        return getDevice().getFirmwareMessages().stream().filter(message -> FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(message.getStatus())).collect(Collectors.toList());
     }
 
     @Override

@@ -58,13 +58,7 @@ import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.TimeZone;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -186,6 +180,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private void goOffline(OfflineDeviceContext context, Map<Device, List<Device>> deviceTopologies) {
         List<SecurityAccessor> slaveSecurityAccessors = new ArrayList<>();
 
+        System.out.println("Go Offline!");
         setLocation(device.getLocation().map(Object::toString).orElse(""));
         setUsagePoint(device.getUsagePoint().map(UsagePoint::getName).orElse(""));
         setId(device.getId());
@@ -254,7 +249,16 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
         PendingMessagesValidator validator = new PendingMessagesValidator(device);
         List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device, deviceTopologies);
-        pendingMessages
+        pendingMessages.stream().forEach(pendingMessage -> System.out.println("Before lock: " + pendingMessage.getId() + " " + pendingMessage.getStatus()));
+        List<DeviceMessage> lockedPendingMessages = pendingMessages.stream()
+                .map(pendingMessage -> device.getLockedMessageById(pendingMessage.getId()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(pendingMessage -> pendingMessage.getStatus().equals(DeviceMessageStatus.PENDING))
+                .sorted(Comparator.comparing(DeviceMessage::getId))
+                .collect(Collectors.toList());
+        lockedPendingMessages.stream().forEach(pendingMessage -> System.out.println("After lock: " + pendingMessage.getId() + " " + pendingMessage.getStatus()));
+        lockedPendingMessages
                 .forEach(deviceMessage -> {
                     if (validator.isStillValid(deviceMessage)) {
                         reallyPending.add(deviceMessage);

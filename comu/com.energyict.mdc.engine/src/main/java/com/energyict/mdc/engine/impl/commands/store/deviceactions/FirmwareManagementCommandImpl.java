@@ -9,6 +9,8 @@ import com.energyict.mdc.common.comserver.logging.PropertyDescriptionBuilder;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.FirmwareManagementTask;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandType;
 import com.energyict.mdc.engine.impl.commands.collect.ComCommandTypes;
 import com.energyict.mdc.engine.impl.commands.collect.FirmwareManagementCommand;
@@ -52,6 +54,9 @@ public class FirmwareManagementCommandImpl extends SimpleComCommand implements F
     @Override
     public void doExecute(DeviceProtocol deviceProtocol, ExecutionContext executionContext) {
         messagesCollectedData.add(deviceProtocol.updateSentMessages(Collections.emptyList())); // is required in order for old protocols to delegate to the protocol itself ...
+        if (this.firmwareDeviceMessages.isEmpty()) {
+            addIssue(getCommandRoot().getServiceProvider().issueService().newProblem(this, MessageSeeds.NOT_EXECUTED_DUE_TO_MISSING_FIRMWARE_MESSAGES), CompletionCode.NotExecuted);
+        }
         messagesCollectedData.add(deviceProtocol.executePendingMessages(this.firmwareDeviceMessages));
         messagesCollectedData.stream().forEach(collectedMessageList -> collectedMessageList.getCollectedMessages().forEach(collectedMessage -> collectedMessage.setDataCollectionConfiguration(comTaskExecution)));
         addListOfCollectedDataItems(messagesCollectedData);

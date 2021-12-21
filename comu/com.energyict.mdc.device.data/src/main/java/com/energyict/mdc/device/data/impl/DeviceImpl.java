@@ -1877,6 +1877,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public Optional<DeviceMessage> getLockedMessageById(long id) {
+        return deviceMessageService.findAndLockDeviceMessageById(id);
+    }
+
+    @Override
     public Optional<DeviceProtocolPluggableClass> getDeviceProtocolPluggableClass() {
         return getDeviceType().getDeviceProtocolPluggableClass();
     }
