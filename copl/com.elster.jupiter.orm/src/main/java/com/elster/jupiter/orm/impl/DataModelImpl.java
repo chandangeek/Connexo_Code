@@ -475,6 +475,7 @@ public class DataModelImpl implements DataModel {
         return ormService.getFileSystem();
     }
 
+    @Override
     public OrmServiceImpl getOrmService() {
         return ormService;
     }
