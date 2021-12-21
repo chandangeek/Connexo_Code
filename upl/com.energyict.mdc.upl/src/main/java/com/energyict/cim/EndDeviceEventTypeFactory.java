@@ -2315,4 +2315,8 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getPhaseFailureEndEventType() {
         return new EndDeviceEventType("1.26.25.37");
     }
+
+    public static EndDeviceEventType getBrokenCaseSwitch() {
+        return new EndDeviceEventType("4.2.29.13");
+    }
 }

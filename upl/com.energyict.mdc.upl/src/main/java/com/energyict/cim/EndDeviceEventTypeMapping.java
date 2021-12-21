@@ -469,6 +469,7 @@ public enum EndDeviceEventTypeMapping {
     SECURITY_KEYS_UPDATED(446, EndDeviceEventTypeFactory.getSecurityKeysUpdated()),
     INPUT_SIGNAL_DETECTION( 447, EndDeviceEventTypeFactory.getInputSignalDetection()),
     PHASE_FAILURE_END(448, EndDeviceEventTypeFactory.getPhaseFailureEndEventType()),
+    BROKEN_CASE_SWITCH(449, EndDeviceEventTypeFactory.getBrokenCaseSwitch()),
 
     SOFTWARE_RESTART_REQUEST( 10001, EndDeviceEventTypeFactory.getSoftwareRestartRequest()),
 
