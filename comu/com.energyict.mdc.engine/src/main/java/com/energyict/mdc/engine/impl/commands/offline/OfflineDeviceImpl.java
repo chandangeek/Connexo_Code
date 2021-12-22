@@ -259,9 +259,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         List<DeviceMessage> lockedPendingMessages = pendingMessages.stream()
                 .sorted(Comparator.comparing(DeviceMessage::getId))
                 .map(pendingMessage -> serviceProvider.deviceMessageService().findAndLockDeviceMessageById(pendingMessage.getId()))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .filter(pendingMessage -> ((Device) pendingMessage.getDevice()).getId() == device.getId())
+                .filter(Optional::isPresent).map(Optional::get)
                 .filter(pendingMessage -> pendingMessage.getStatus().equals(DeviceMessageStatus.PENDING))
                 .collect(Collectors.toList());
         lockedPendingMessages

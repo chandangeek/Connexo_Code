@@ -87,7 +87,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private void initFirmwareMessages() {
         Map<FirmwareType, List<DeviceMessage>> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
-        this.device.getDeviceMessages().stream().filter(candidate -> candidate.getSpecification() != null)
+        this.device.getMessages().stream().filter(candidate -> candidate.getSpecification() != null)
                 .filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
                 && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
             if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
@@ -308,7 +308,6 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public List<DeviceMessage> getPendingFirmwareMessages() {
-        initFirmwareMessages();
         return getFirmwareMessages().stream().filter(message -> FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(message.getStatus())).collect(Collectors.toList());
     }
 

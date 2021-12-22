@@ -1869,12 +1869,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         return Collections.unmodifiableList(this.deviceMessages);
     }
 
-    @Override
-    public List<DeviceMessage> getDeviceMessages() {
-        return deviceMessageService.findDeviceMessages(this);
-    }
-
-    }
 
     @Override
     public List<DeviceMessage> getMessagesByState(DeviceMessageStatus status) {

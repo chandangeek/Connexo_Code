@@ -78,8 +78,6 @@ public interface DeviceMessageService {
      */
     Finder<DeviceMessage> findDeviceMessagesByFilter(DeviceMessageQueryFilter deviceMessageQueryFilter);
 
-    List<DeviceMessage> findDeviceMessages(Device device);
-
     List<DeviceMessage> findDeviceFirmwareMessages(Device device);
 
     List<DeviceMessageId> findKeyRenewalMessages();

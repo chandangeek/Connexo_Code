@@ -328,15 +328,6 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
     }
 
     @Override
-    public List<DeviceMessage> findDeviceMessages(Device device) {
-        Condition condition = where(DeviceMessageImpl.Fields.DEVICE.fieldName()).isEqualTo(device);
-        return this.deviceDataModelService
-                .dataModel()
-                .query(DeviceMessage.class)
-                .select(condition);
-    }
-
-    @Override
     public List<DeviceMessage> findDeviceFirmwareMessages(Device device) {
         Condition condition = where(DeviceMessageImpl.Fields.DEVICE.fieldName()).isEqualTo(device)
                 .and(where(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).isGreaterThanOrEqual(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue()))
