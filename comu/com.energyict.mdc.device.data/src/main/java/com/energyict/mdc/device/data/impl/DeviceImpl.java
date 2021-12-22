@@ -1870,15 +1870,17 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     }
 
     @Override
+    public List<DeviceMessage> getDeviceMessages() {
+        return deviceMessageService.findDeviceMessages(this);
+    }
+
+    }
+
+    @Override
     public List<DeviceMessage> getMessagesByState(DeviceMessageStatus status) {
         return this.deviceMessages.stream()
                 .filter(deviceMessage -> deviceMessage.getStatus().equals(status))
                 .collect(toList());
-    }
-
-    @Override
-    public Optional<DeviceMessage> getLockedMessageById(long id) {
-        return deviceMessageService.findAndLockDeviceMessageById(id);
     }
 
     @Override

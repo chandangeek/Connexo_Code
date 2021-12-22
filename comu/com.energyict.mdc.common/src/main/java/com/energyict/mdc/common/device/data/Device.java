@@ -159,11 +159,11 @@ public interface Device extends com.energyict.mdc.upl.meterdata.Device, HasId, H
      */
     DeviceType getDeviceType();
 
-    Optional<DeviceMessage> getLockedMessageById(long id);
-
     void setDeviceType(DeviceType ignore);
 
     List<DeviceMessage> getMessages();
+
+    List<DeviceMessage> getDeviceMessages();
 
     /**
      * Gets the released pending messages for this device.

@@ -2287,6 +2287,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         public EventService eventService() {
             return serviceProvider.eventService();
         }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
+        }
+
     }
 
     @Override

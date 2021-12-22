@@ -22,6 +22,7 @@ import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
@@ -68,6 +69,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile MdcPropertyUtils mdcPropertyUtils;
     private volatile SecurityManagementService securityManagementService;
     private volatile FirmwareCampaignService firmwareCampaignService;
+    private volatile DeviceMessageService deviceMessageService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -123,6 +125,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(securityManagementService).to(SecurityManagementService.class);
             bind(SecurityAccessorInfoFactory.class).to(SecurityAccessorInfoFactory.class);
             bind(firmwareCampaignService).to(FirmwareCampaignService.class);
+            bind(deviceMessageService).to(DeviceMessageService.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
         }
     }
@@ -181,6 +184,11 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
+    }
+
+    @Reference
+    public void setDeviceMessageService(DeviceMessageService deviceMessageService) {
+        this.deviceMessageService = deviceMessageService;
     }
 
     @Reference

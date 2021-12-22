@@ -24,6 +24,7 @@ import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.security.Privileges;
@@ -78,6 +79,7 @@ public class DeviceFirmwareMessagesResource {
     private final ConcurrentModificationExceptionFactory conflictFactory;
     private final DeviceService deviceService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final DeviceMessageService deviceMessageService;
 
     @Inject
     public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper,
@@ -90,7 +92,8 @@ public class DeviceFirmwareMessagesResource {
                                           Thesaurus thesaurus,
                                           ConcurrentModificationExceptionFactory conflictFactory,
                                           DeviceService deviceService,
-                                          DeviceMessageSpecificationService deviceMessageSpecificationService) {
+                                          DeviceMessageSpecificationService deviceMessageSpecificationService,
+                                          DeviceMessageService deviceMessageService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
@@ -102,6 +105,7 @@ public class DeviceFirmwareMessagesResource {
         this.conflictFactory = conflictFactory;
         this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.deviceMessageService = deviceMessageService;
     }
 
     @GET
@@ -284,7 +288,8 @@ public class DeviceFirmwareMessagesResource {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .supplier());
-        DeviceMessage upgradeMessage = device.getLockedMessageById(msgId)
+        DeviceMessage upgradeMessage = deviceMessageService.findAndLockDeviceMessageById(msgId)
+                .filter(deviceMessage -> ((Device)deviceMessage.getDevice()).getId() == device.getId())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));
         FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.firmwareUploadTaskIsBusy()) {

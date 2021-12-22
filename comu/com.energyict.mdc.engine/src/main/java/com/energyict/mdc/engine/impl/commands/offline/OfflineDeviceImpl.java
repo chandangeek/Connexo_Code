@@ -20,6 +20,7 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
@@ -256,11 +257,12 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         PendingMessagesValidator validator = new PendingMessagesValidator(device);
         List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device, deviceTopologies);
         List<DeviceMessage> lockedPendingMessages = pendingMessages.stream()
-                .map(pendingMessage -> device.getLockedMessageById(pendingMessage.getId()))
+                .sorted(Comparator.comparing(DeviceMessage::getId))
+                .map(pendingMessage -> serviceProvider.deviceMessageService().findAndLockDeviceMessageById(pendingMessage.getId()))
                 .filter(Optional::isPresent)
                 .map(Optional::get)
+                .filter(pendingMessage -> ((Device) pendingMessage.getDevice()).getId() == device.getId())
                 .filter(pendingMessage -> pendingMessage.getStatus().equals(DeviceMessageStatus.PENDING))
-                .sorted(Comparator.comparing(DeviceMessage::getId))
                 .collect(Collectors.toList());
         lockedPendingMessages
                 .forEach(deviceMessage -> {
@@ -783,5 +785,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         FirmwareService firmwareService();
 
         EventService eventService();
+
+        DeviceMessageService deviceMessageService();
     }
 }
