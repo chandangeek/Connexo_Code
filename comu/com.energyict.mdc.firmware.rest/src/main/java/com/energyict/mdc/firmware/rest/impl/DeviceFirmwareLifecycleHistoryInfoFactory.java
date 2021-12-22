@@ -48,7 +48,7 @@ public class DeviceFirmwareLifecycleHistoryInfoFactory {
     }
 
     private List<DeviceFirmwareLifecycleHistoryInfo> sortDeviceFirmwareHistoryInfosDescendingByUploadTimestamp(List<DeviceFirmwareLifecycleHistoryInfo> firmwareVersionList) {
-        Comparator<DeviceFirmwareLifecycleHistoryInfo> comparator = Comparator.nullsLast(Comparator.comparing(DeviceFirmwareLifecycleHistoryInfo::getUploadDate));
+        Comparator<DeviceFirmwareLifecycleHistoryInfo> comparator = Comparator.comparing(DeviceFirmwareLifecycleHistoryInfo::getUploadDate, Comparator.nullsLast(Comparator.naturalOrder()));
         comparator = comparator.thenComparing(DeviceFirmwareLifecycleHistoryInfo::getPlannedDate).reversed();
         return firmwareVersionList.stream()
                 .sorted(comparator)
