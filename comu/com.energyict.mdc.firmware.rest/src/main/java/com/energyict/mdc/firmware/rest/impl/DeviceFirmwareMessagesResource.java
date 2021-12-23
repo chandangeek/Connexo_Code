@@ -291,18 +291,17 @@ public class DeviceFirmwareMessagesResource {
         DeviceMessage upgradeMessage = deviceMessageService.findAndLockDeviceMessageById(msgId)
                 .filter(deviceMessage -> deviceMessage.getDevice() instanceof Device && ((Device)deviceMessage.getDevice()).getId() == device.getId())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));
-        Optional.of(upgradeMessage)
-                .filter(deviceMessage -> !deviceMessage.getStatus().equals(DeviceMessageStatus.CANCELED))
-                .orElseThrow(conflictFactory.contextDependentConflictOn(upgradeMessage.getSpecification().getName()).
-                        withActualVersion(() -> deviceMessageService.findDeviceMessageById(upgradeMessage.getId()).map(DeviceMessage::getVersion).orElse(null))
-                        .supplier());
+        if (!upgradeMessage.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)) {
+           throw conflictFactory.contextDependentConflictOn(upgradeMessage.getSpecification().getName())
+                   .withActualVersion(upgradeMessage::getVersion).build();
+        }
         FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.firmwareUploadTaskIsBusy()) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
         }
         upgradeMessage.revoke();
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
-        rescheduleFirmwareUpgradeTask(device, upgradeMessage);
+        rescheduleFirmwareUpgradeTaskAfterCancellingMessage(device, upgradeMessage);
         firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
                 .ifPresent(deviceInFirmwareCampaign -> deviceInFirmwareCampaign.cancel(false));
         return Response.ok().build();
@@ -413,7 +412,7 @@ public class DeviceFirmwareMessagesResource {
         return firmwareComTaskExecution;
     }
 
-    private void rescheduleFirmwareUpgradeTask(Device device, DeviceMessage updateMessage) {
+    private void rescheduleFirmwareUpgradeTaskAfterCancellingMessage(Device device, DeviceMessage updateMessage) {
         FirmwareManagementDeviceUtils helper = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         Optional<Instant> earliestReleaseDate = helper.getPendingFirmwareMessages().stream()
                 .filter(deviceMessage -> deviceMessage.getId() != updateMessage.getId())
