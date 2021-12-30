@@ -99,6 +99,7 @@ public interface DLMSCOSEMGlobals {
 	byte[] USBSETUP = {0,0,(byte)128,0,28,(byte)255};
 	byte[] LTEMODEMSETUP = {0,1,25,4,0,(byte)255};
 	byte[] LTEMONITORING = {0,1,25,11,0,(byte)255};
+	byte[] NBIOTMODEMSETUP = {0,1,25,4,0,(byte)255};
 
 	//********************************************************************************************************
 	// Reserved SN logical name constants, should be filled in when requesting the object list first.

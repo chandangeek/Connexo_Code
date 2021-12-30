@@ -59,4 +59,6 @@ public interface G3Neighbor extends PLCNeighbor {
 
     int getLinkCost();
 
+    void merge(G3Neighbor g3Neighbor);
+
 }

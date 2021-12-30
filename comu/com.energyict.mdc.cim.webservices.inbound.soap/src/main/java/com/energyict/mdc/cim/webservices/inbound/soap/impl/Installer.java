@@ -25,5 +25,9 @@ public class Installer implements FullInstaller {
                 installer::createServiceCallTypes,
                 logger
         );
+        doTry("Add jupiter event subscibers",
+                installer::addJupiterEventSubscribers,
+                logger
+        );
     }
 }

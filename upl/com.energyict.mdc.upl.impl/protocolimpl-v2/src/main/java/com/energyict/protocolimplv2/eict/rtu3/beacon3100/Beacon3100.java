@@ -1,28 +1,25 @@
 package com.energyict.protocolimplv2.eict.rtu3.beacon3100;
 
-import com.energyict.cbo.ObservationDateProperty;
-import com.energyict.dlms.CipheringType;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.GeneralCipheringKeyType;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.cosem.FrameCounterProvider;
-import com.energyict.dlms.cosem.G3NetworkManagement;
-import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
-import com.energyict.dlms.cosem.SAPAssignmentItem;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.TLSConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.tasks.DeviceConnectionFunction;
 import com.energyict.mdc.tasks.GatewayTcpDeviceProtocolDialect;
 import com.energyict.mdc.tasks.MirrorTcpDeviceProtocolDialect;
-import com.energyict.mdc.upl.*;
+import com.energyict.mdc.upl.DeviceFunction;
+import com.energyict.mdc.upl.DeviceGroupExtractor;
+import com.energyict.mdc.upl.DeviceMasterDataExtractor;
+import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.ObjectMapperService;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.UPLConnectionFunction;
 import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.Issue;
@@ -34,7 +31,6 @@ import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -45,6 +41,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.migration.MigratePropertiesFromPreviousSecuritySet;
 import com.energyict.mdc.upl.nls.NlsService;
@@ -53,7 +50,25 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.security.*;
+import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityCapabilities;
+import com.energyict.mdc.upl.security.RequestSecurityLevel;
+import com.energyict.mdc.upl.security.ResponseSecurityLevel;
+import com.energyict.mdc.upl.security.SecuritySuite;
+
+import com.energyict.cbo.ObservationDateProperty;
+import com.energyict.dlms.CipheringType;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.GeneralCipheringKeyType;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.cosem.FrameCounterProvider;
+import com.energyict.dlms.cosem.G3NetworkManagement;
+import com.energyict.dlms.cosem.PLCOFDMType2MACSetup;
+import com.energyict.dlms.cosem.SAPAssignmentItem;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -77,8 +92,12 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Co
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100Properties;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100SecurityProvider;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.registers.Beacon3100RegisterFactory;
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.identifiers.DialHomeIdDeviceIdentifier;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.G3Neighbor;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.G3NeighborList;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.G3Node;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.enums.G3NodeNodeModulationScheme;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.enums.G3NodePhaseInfo;
+import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.enums.G3NodeTxModulation;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
@@ -94,8 +113,16 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
+
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.macAddress;
 
 /**
  * Copyrights EnergyICT
@@ -104,7 +131,6 @@ import java.util.logging.Level;
  * @since 18/06/2015 - 15:07
  */
 public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertiesFromPreviousSecuritySet, AdvancedDeviceProtocolSecurityCapabilities {
-
     // https://confluence.eict.vpdc/display/G3IntBeacon3100/DLMS+management
     // https://jira.eict.vpdc/browse/COMMUNICATION-1552
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
@@ -130,7 +156,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     private Set<String> topologySegments = new LinkedHashSet<>();
     private List<CollectedLoadProfileConfiguration> loadProfileConfigurations;
     private String logPrefix = "";
-
 
     public Beacon3100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, ObjectMapperService objectMapperService, DeviceMasterDataExtractor extractor, DeviceGroupExtractor deviceGroupExtractor, CertificateWrapperExtractor certificateWrapperExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor, DeviceExtractor deviceExtractor, DeviceMessageFileExtractor deviceMessageFileExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -185,8 +210,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
         this.offlineDevice = offlineDevice;
         getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-        getLogger().info("Start Beacon 3x00 protocol for " + offlineDevice.getSerialNumber());
-        getLogger().info("Beacon 3x200 protocol version: " + getVersion());
+        this.logPrefix = "[" + offlineDevice.getSerialNumber() + "] ";
+        logInfo(logPrefix + "Start Beacon 3200 protocol for " + offlineDevice.getSerialNumber() + "(" + getVersion() + ")");
         handleFrameCounter(comChannel);
         initDlmsSession(comChannel);
     }
@@ -204,7 +229,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      */
     protected void handleFrameCounter(ComChannel comChannel) {
         if (!frameCounterReadoutRequired()) {
-            getLogger().info("Skipping FC handling due to lower security level.");
+            logInfo("Skipping FC handling due to lower security level.");
             return; // there is no need to read-out the frame-counter
         }
 
@@ -256,17 +281,17 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * Additionally, the FC value can be validated with ValidateCachedFrameCounterAndFallback
      */
     private boolean getCachedFrameCounter(ComChannel comChannel, int clientId) {
-        getLogger().info("Will try to use a cached frame counter");
+        getLogger().info(logPrefix + "Will try to use a cached frame counter");
         boolean weHaveAFrameCounter = false;
         long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
         long initialFrameCounter = getDlmsSessionProperties().getInitialFrameCounter();
 
         if (initialFrameCounter > cachedFrameCounter) { //Note that this is also the case when the cachedFrameCounter is unavailable (value -1).
-            getLogger().info("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
+            logInfo("Using initial frame counter: " + initialFrameCounter + " because it has a higher value than the cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(initialFrameCounter);
             weHaveAFrameCounter = true;
         } else if (cachedFrameCounter > 0) {
-            getLogger().info("Using cached frame counter: " + cachedFrameCounter);
+            logInfo("Using cached frame counter: " + cachedFrameCounter);
             setTXFrameCounter(cachedFrameCounter + 1);
             weHaveAFrameCounter = true;
         }
@@ -275,12 +300,11 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
             if (getDlmsSessionProperties().validateCachedFrameCounter()) {
                 return testConnectionAndRetryWithFrameCounterIncrements(comChannel);
             } else {
-                getLogger().warning(" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
+                logInfo(" - cached frame counter will not be validated - if the communication fails please set the cache property back to {No}, so a fresh one will be read-out");
                 // do not validate, just use it and hope for the best
                 return true;
             }
         }
-
         return false;
     }
 
@@ -290,7 +314,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         int step = getDlmsSessionProperties().getFrameCounterRecoveryStep();
         boolean releaseOnce = true;
 
-        getLogger().info("Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
+        logInfo("Will test the frameCounter. Recovery mechanism: retries=" + retries + ", step=" + step);
         if (retries <= 0) {
             retries = 0;
             step = 0;
@@ -302,14 +326,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                 testDlmsSession.createAssociation();
                 if (testDlmsSession.getAso().getAssociationStatus() == ApplicationServiceObject.ASSOCIATION_CONNECTED) {
                     testDlmsSession.disconnect();
-                    getLogger().info("Cached FrameCounter is valid!");
+                    logInfo("Cached FrameCounter is valid!");
                     setTXFrameCounter(testDlmsSession.getAso().getSecurityContext().getFrameCounter());
                     return true;
                 }
             } catch (CommunicationException ex) {
                 if (isAssociationFailed(ex)) {
                     long frameCounter = testDlmsSession.getAso().getSecurityContext().getFrameCounter();
-                    getLogger().warning("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
+                    logWarn("Current frame counter [" + frameCounter + "] is not valid, received exception " + ex.getMessage() + ", increasing frame counter by " + step);
                     frameCounter += step;
                     setTXFrameCounter(frameCounter);
                     testDlmsSession.getAso().getSecurityContext().setFrameCounter(frameCounter);
@@ -332,7 +356,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         } while (retries > 0);
 
         testDlmsSession.disconnect();
-        getLogger().warning("Could not validate the frame counter, seems that it's out-of sync with the device. You'll have to read a fresh one.");
+        logWarn("Could not validate the frame counter, seems that it's out-of sync with the device. You'll have to read a fresh one.");
         return false;
     }
 
@@ -365,7 +389,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         if (client == null) {
             throw new IllegalArgumentException("No client with ID [" + clientId + "] defined for this device !");
         }
-
         return client.getFrameCounterOBIS();
     }
 
@@ -398,7 +421,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * For EVN we'll read the frame counter using the frame counter provider custom method in the beacon
      */
     protected void readFrameCounter(ComChannel comChannel) {
-        //TODO: uncoment this once we have sepparate FC for agreed, dedicated and global key. for now global FC is always used
+        //TODO: uncomment this once we have separate FC for agreed, dedicated and global key. for now global FC is always used
         /*
         if (this.usesSessionKey()) {
             //No need to read out the global FC if we're going to use a new session key in this AA.
@@ -428,7 +451,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
         if (this.getDlmsSessionProperties().isPublicClientPreEstablished() && this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
             if (this.getLogger().isLoggable(Level.WARNING)) {
-                this.getLogger().log(Level.WARNING, "Invalid configuration detected : cannot use a pre-established public client association in combination with and authenticated frame counter, overriding to non-pre-established.");
+                logWarn("Invalid configuration detected : cannot use a pre-established public client association in combination with and authenticated frame counter, overriding to non-pre-established.");
             }
         }
         final boolean preEstablished = sessionProperties.isPublicClientPreEstablished() && !this.getDlmsSessionProperties().getRequestAuthenticatedFrameCounter();
@@ -454,15 +477,15 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
             final ObisCode frameCounterObisCode = this.getFrameCounterObisCode(getDlmsSessionProperties().getClientMacAddress());
 
             if (getDlmsSessionProperties().getRequestAuthenticatedFrameCounter()) {
-                getLogger().finest("Requesting authenticated frame counter");
+                logInfo("Requesting authenticated frame counter");
                 try {
                     FrameCounterProvider frameCounterProvider = publicDlmsSession.getCosemObjectFactory().getFrameCounterProvider(frameCounterObisCode);
                     frameCounter = frameCounterProvider.getFrameCounter(publicDlmsSession.getProperties().getSecurityProvider().getAuthenticationKey());
                 } catch (IOException e) {
-                    getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
+                    getLogger().log(Level.SEVERE, logPrefix + e.getCause() + e.getMessage(), e);
                     throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
                 } catch (Exception e) {
-                    getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
+                    getLogger().log(Level.SEVERE, logPrefix + e.getCause() + e.getMessage(), e);
                     final ProtocolException protocolException = new ProtocolException(e, "Error while reading out the frame counter, cannot continue! " + e.getMessage());
                     throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
                 }
@@ -470,7 +493,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                 try {
                     frameCounter = publicDlmsSession.getCosemObjectFactory().getData(frameCounterObisCode).getValueAttr().longValue();
                 } catch (IOException e) {
-                    getLogger().log(Level.SEVERE, e.getCause() + e.getMessage(), e);
+                    getLogger().log(Level.SEVERE, logPrefix + e.getCause() + e.getMessage(), e);
                     throw DLMSIOExceptionHandler.handle(e, publicDlmsSession.getProperties().getRetries() + 1);
                 }
             }
@@ -488,7 +511,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
      * General ciphering (wrapped-key and agreed-key) are sessions keys
      */
     private boolean usesSessionKey() {
-        return getDlmsSessionProperties().getCipheringType().equals(CipheringType.GENERAL_CIPHERING) && getDlmsSessionProperties().getGeneralCipheringKeyType() != GeneralCipheringKeyType.IDENTIFIED_KEY;
+        return getDlmsSessionProperties().getCipheringType()
+                .equals(CipheringType.GENERAL_CIPHERING) && getDlmsSessionProperties().getGeneralCipheringKeyType() != GeneralCipheringKeyType.IDENTIFIED_KEY;
     }
 
     @Override
@@ -618,31 +642,125 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         DeviceIdentifier dcIdentifier = new DeviceIdentifierById(offlineDevice.getId());
         CollectedTopology deviceTopology = this.getCollectedDataFactory().createCollectedTopology(dcIdentifier);
 
-        String ipV6Prefix = "";
+        /* Step 1 - read IPv6 parameters */
         long macPANId = -1;
+        try {
+            macPANId = getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup().readPanId().longValue();
+            logInfo("PanID=0x" + String.format("%x", macPANId));
+        } catch (NotInObjectListException e) {
+            logWarn("Could not read PAN ID: NotInObjectListException");
+        } catch (Exception e) {
+            logWarn("IOException while reading PAN ID: " + e.getMessage());
+        }
 
+        String ipV6Prefix = "";
+        try {
+            ipV6Prefix = offlineDevice.getAllProperties().getProperty(Beacon3100ConfigurationSupport.IPV6_ADDRESS_AND_PREFIX_LENGTH).toString();
+            logInfo("IPv6Prefix: " + ipV6Prefix);
+        } catch (Exception ex) {
+            logWarn("Could not get IPv6Prefix");
+        }
+
+        /* Step 2 - read and parse the node-list (SAP assignment list), with simple slave information */
         List<SAPAssignmentItem> sapAssignmentList;      //List that contains the SAP id's and the MAC addresses of all logical devices (= gateway + slaves)
         final Array nodeList;
         try {
             sapAssignmentList = this.getDlmsSession().getCosemObjectFactory().getSAPAssignment().getSapAssignmentList();
             nodeList = getG3NetworkManagement().getNodeList();
+            logInfo("There are " + nodeList.nrOfDataTypes() + " nodes in the SAP assignment list");
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
-        final List<G3Topology.G3Node> g3Nodes = getDlmsSessionProperties().hasPre20Firmware() ?
-                G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone()) :
-                G3Topology.convertNodeListV2(nodeList, this.getDlmsSession().getTimeZone());
+        final List<G3Node> g3Nodes = getDlmsSessionProperties().hasPre20Firmware() ?
+                com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.G3Topology.convertNodeList(nodeList, this.getDlmsSession().getTimeZone()) :
+                com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.G3Topology.convertNodeListV2(nodeList, this.getDlmsSession().getTimeZone());
+
 
         final Optional<String> dcMacAddress = extractDCMacAddress(g3Nodes);
+        if (dcMacAddress.isPresent()) {
+            logInfo("Beacon's MAC address: " + dcMacAddress.get());
+        } else {
+            logInfo("Cannot determine Beacon's MAC address!");
+        }
 
+        /* Step 3 - get path to slaves and update neighbor table as we go (TTL < 1 min in beacon now!) */
+        G3NeighborList g3NeighborList = new G3NeighborList();
+
+        long start = System.currentTimeMillis();
+
+        if (!getDlmsSessionProperties().hasPre20Firmware() && dcMacAddress.isPresent()) {
+            int nodes = g3Nodes.size();
+            int current = 0;
+            for (G3Node g3Node : g3Nodes) {
+                boolean pathOk = false;
+
+                try {
+                    if (getDlmsSessionProperties().doPathRequestOnTopology()) {
+                        String progress = String.format("%.1f", 100.0 * current++ / nodes);
+                        logInfo("Requesting path to: " + g3Node.getMacAddressString() + " (" + progress + "%)");
+
+                        pathOk = pathRequest(g3Node, dcMacAddress.get()); //first try
+                    }
+
+                    if (!pathOk) {
+                        // error while requesting path, do a ROUTE request now then retry
+                        if (getDlmsSessionProperties().doRouteRequestsOnTopology()) {
+                            if (routeRequest(g3Node)) {
+                                pathOk = pathRequest(g3Node, dcMacAddress.get());
+                            }
+                        }
+                    }
+                } catch (Exception ex) {
+                    // do now allow ComServer to stop communication, we can experience various timeouts here
+                    logWarn("Cannot get path to " + g3Node.getMacAddressString() + ": " + ex.getMessage());
+                }
+
+                if (!pathOk) { // no luck getting the path (or not necessary), just link it directly to the Beacon
+                    addDirectLinkToBeacon(dcMacAddress.get(), g3Node);
+                }
+
+                // neighbor table TTL expires in 1 minute, there is a bug in the Beacon, refresh it asap
+                // TODO: remove this part after Beacon entry-TTL is fixed and we can read this only once
+                if ((System.currentTimeMillis() - start > 50 * 1000)
+                        && (getDlmsSessionProperties().doPathRequestOnTopology() || getDlmsSessionProperties().doRouteRequestsOnTopology())) {
+                    try {
+                        neighbourTable = null; // invalidate current table
+                        Optional<Array> tempNeighborTable = getNeighbourTable();
+                        if (tempNeighborTable.isPresent()) {
+                            g3NeighborList.update(getNeighbourTable().get());
+                            start = System.currentTimeMillis();
+
+                            logInfo("Refreshed " + getNeighbourTable().get().nrOfDataTypes() + " entries from the neighbor table.");
+                        }
+                    } catch (Exception ex) {
+                        // do now allow ComServer to stop communication, we can experience various timeouts here
+                        logWarn("Cannot refresh neighbor table: " + ex.getMessage());
+                    }
+                }
+            }
+        }
+
+        /* Step 4 - read neighbor table (after path is constructed, final round) */
+        try {
+            if (getNeighbourTable().isPresent()) {
+                g3NeighborList.update(getNeighbourTable().get());
+                logInfo("There are " + getNeighbourTable().get().nrOfDataTypes() + " entries in the neighbor table.");
+            } else {
+                logWarn("Neighbor table not available!");
+            }
+        } catch (Exception ex) {
+            // do now allow ComServer to stop communication
+            logWarn("Cannot refresh neighbor table: " + ex.getMessage());
+        }
+
+        /* Step 5 - parse information and populate topology */
         for (SAPAssignmentItem sapAssignmentItem : sapAssignmentList) {
-
             byte[] logicalDeviceNameBytes = sapAssignmentItem.getLogicalDeviceNameBytes();
             if (hasLogicalDevicePrefix(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX)) {
                 byte[] logicalNameMacBytes = ProtocolTools.getSubArray(logicalDeviceNameBytes, GATEWAY_LOGICAL_DEVICE_PREFIX.length(), GATEWAY_LOGICAL_DEVICE_PREFIX.length() + MAC_ADDRESS_LENGTH);
                 final String macAddress = ProtocolTools.getHexStringFromBytes(logicalNameMacBytes, "");
 
-                final G3Topology.G3Node g3Node = findG3Node(macAddress, g3Nodes);
+                final G3Node g3Node = findG3Node(macAddress, g3Nodes);
                 if (g3Node != null) {
                     //Always include the slave information if it is present in the SAP assignment list and the G3 node list.
                     //It is the ComServer framework that will then do a smart update in EIServer, taking the readout LastSeenDate into account.
@@ -664,11 +782,12 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     ObservationDateProperty observationTimestampProperty = new ObservationDateProperty(G3Properties.PROP_LASTSEENDATE, lastSeenDate);
                     deviceTopology.addSlaveDevice(slaveDeviceIdentifier, observationTimestampProperty);
 
-                    try{
-                        if (ipV6Prefix!=null && !ipV6Prefix.isEmpty()) {
+                    try {
+                        if (getDlmsSessionProperties().updateIpv6OnTopology()
+                                && ipV6Prefix != null && !ipV6Prefix.isEmpty() && macPANId > 0) {
                             String nodeIpv6Address = IPv6Utils.getNodeAddress(ipV6Prefix, (int) macPANId, g3Node.getShortAddress());
                             if (IPv6Utils.isValid(nodeIpv6Address)) {
-                                logInfo("Node "+g3Node.getMacAddressString()+" has IPv6 "+nodeIpv6Address);
+                                logInfo("Node " + g3Node.getMacAddressString() + " has IPv6 " + nodeIpv6Address);
 
                                 deviceTopology.addAdditionalCollectedDeviceInfo(
                                         this.getCollectedDataFactory().createCollectedDeviceProtocolProperty(
@@ -679,8 +798,8 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                                 );
                             }
                         }
-                    } catch (Exception ignored){
-                        logWarn("Cannot update IPv6 address for node "+g3Node.getMacAddressString()+": "+ignored.getMessage());
+                    } catch (Exception ignored) {
+                        logWarn("Cannot update IPv6 address for node " + g3Node.getMacAddressString() + ": " + ignored.getMessage());
                     }
 
                     if (!gatewayLogicalDeviceId.equals(persistedGatewayLogicalDeviceId)) {
@@ -713,17 +832,33 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
                     if (!getDlmsSessionProperties().hasPre20Firmware()) {
 
-                        if (dcMacAddress.isPresent()) {
-                            buildTopologySegments(dcMacAddress.get(), g3Node);
-                        } else {
-                            getLogger().warning("Concentrator MAC address could not be determined, skipping G3 network topology graph creation.");
-                        }
+                        logInfo("Processing " + g3Node.toString());
 
-                        if (getNeighbourTable().isPresent()) {
-                            Optional<AbstractDataType> neighbourOpt = getNeighbourTable().get().getAllDataTypes().stream().filter(
-                                    item -> item.isStructure() &&
-                                            ((Structure) item).getDataType(0).getUnsigned16().getValue() == g3Node.getShortAddress()
-                            ).findFirst();
+                            /* Init general information available from the node list */
+                        String nodeAddress = g3Node.getMacAddressString();
+                        int shortAddress = g3Node.getShortAddress();
+                        Date lastUpdate = g3Node.getLastSeenDate();
+                        ;
+                        Date lastPathRequest = g3Node.getLastPathRequest();
+                        int state = g3Node.getNodeState().getValue();
+                        long roundTrip = g3Node.getRoundTrip();
+                        int linkCost = g3Node.getLinkCost();
+
+                        int modulationSchema = g3Node.getModulationScheme() == null ? G3NodeNodeModulationScheme.UNKNOWN.getValue() : g3Node.getModulationScheme().getValue();
+                        int modulation = g3Node.getTxModulation() == null ? G3NodeTxModulation.UNKNOWN.getValue() : g3Node.getTxModulation().getValue();
+                        int lqi = g3Node.getLqi();
+                        int phaseDifferential = g3Node.getPhaseInfo() == null ? G3NodePhaseInfo.NOPHASEINFO.getValue() : g3Node.getPhaseInfo().getValue();
+
+                        /* Prepare additional information which is available only from the neighbor-table */
+                        long toneMap = 0;
+                        int txGain = 0;
+                        int txRes = 0;
+                        int txCoeff = 0;
+                        int tmrValidTime = 0;
+                        int neighbourValidTime = 0;
+
+                        if (g3NeighborList.available()) {
+                            Optional<G3Neighbor> neighbourOpt = g3NeighborList.findByShortAddress(g3Node.getShortAddress());
 
                             /*
                               Neighbour information for g3Node might not be available in a particular case:
@@ -736,48 +871,70 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                               eventually to the corresponding meter or because other interference (weak PLC signal).
                              */
                             if (neighbourOpt.isPresent()) {
-                                final Structure neighbourStruct = (Structure) neighbourOpt.get();
+                                G3Neighbor g3Neighbor = neighbourOpt.get();
 
-                                // build up the topologyNeighbour
-                                int modulationSchema = neighbourStruct.getDataType(1).getBooleanObject().intValue();
-                                long toneMap = neighbourStruct.getDataType(2).getBitString().longValue();
-                                int modulation = neighbourStruct.getDataType(3).getTypeEnum().getValue();
-                                int txGain = neighbourStruct.getDataType(4).getInteger8().getValue();
-                                int txRes = neighbourStruct.getDataType(5).getTypeEnum().getValue();
-                                int txCoeff = neighbourStruct.getDataType(6).getBitString().intValue();
-                                int lqi = neighbourStruct.getDataType(7).getUnsigned8().intValue();
-                                int phaseDifferential = neighbourStruct.getDataType(8).getInteger8().intValue();
-                                int tmrValidTime = neighbourStruct.getDataType(9).getUnsigned8().intValue();
-                                int neighbourValidTime = neighbourStruct.getDataType(10).getUnsigned8().intValue();
-                                try {
-                                    macPANId = getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup().readPanId().longValue();
-                                } catch (NotInObjectListException e) {
-                                    getLogger().warning("Could not read PAN ID: NotInObjectListException");
-                                } catch (IOException e) {
-                                    getLogger().warning("IOException while reading PAN ID");
-                                }
-                                // g3Node
-                                String nodeAddress = g3Node.getMacAddressString();
-                                int shortAddress = g3Node.getShortAddress();
-                                Date lastUpdate = g3Node.getLastSeenDate();
-                                Date lastPathRequest = g3Node.getLastPathRequest();
-                                int state = g3Node.getNodeState().getValue();
-                                long roundTrip = g3Node.getRoundTrip();
-                                int linkCost = g3Node.getLinkCost();
-
-                                deviceTopology.addTopologyNeighbour(
-                                        slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
-                                        txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, macPANId,
-                                        nodeAddress, shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost
-                                );
+                                modulationSchema = g3Neighbor.getModulationSchema().getValue();
+                                toneMap = g3Neighbor.getToneMap();
+                                modulation = g3Neighbor.getModulation().getValue();
+                                txGain = g3Neighbor.getTxGain();
+                                txRes = g3Neighbor.getTxRes();
+                                txCoeff = g3Neighbor.getTxCoeff();
+                                lqi = g3Neighbor.getLqi();
+                                phaseDifferential = g3Neighbor.getPhaseDifferential().getValue();
+                                tmrValidTime = g3Neighbor.getTmrValidTime();
+                                neighbourValidTime = g3Neighbor.getNeighbourValidTime();
                             } else {
-                                getLogger().warning("Received dangling meter from beacon, no neighbour information for node: " + g3Node.toString());
+                                logInfo("Node with shortAddress " + g3Node.getShortAddress() + " and MAC " + g3Node.getMacAddressString() + " is not a Beacon neighbor!");
                             }
                         }
 
-                    }
+                        // sanitise for null dates so we don't crash the comserver storage
+                        if (lastUpdate == null) {
+                            lastUpdate = new Date(0);
+                        }
+                        if (lastPathRequest == null) {
+                            lastPathRequest = new Date(0);
+                        }
 
+                        // TODO fix parsing in core for unknown modulation(255) in com.energyict.mdc.device.topology.ModulationScheme.fromId
+                        if (modulationSchema == 255) {
+                            modulationSchema = 0; // 255 is not known in ComServer :(
+                        }
+
+                        /* in this point we have the complete data about the node */
+                        deviceTopology.addTopologyNeighbour(slaveDeviceIdentifier, modulationSchema, toneMap, modulation, txGain, txRes,
+                                txCoeff, lqi, phaseDifferential, tmrValidTime, neighbourValidTime, macPANId,
+                                nodeAddress, shortAddress, lastUpdate, lastPathRequest, state, roundTrip, linkCost
+                        );
+
+                        StringBuilder sb = new StringBuilder();
+                        sb.append("Topology entry added:");
+                        sb.append(" shortAddress: ").append(Math.toIntExact(shortAddress));
+                        sb.append(", nodeAddress: ").append(nodeAddress);
+                        sb.append(", modulationSchema: ").append(modulationSchema);
+                        sb.append(", toneMap: ").append(toneMap);
+                        sb.append(", modulation: ").append(modulation);
+                        sb.append(", txGain: ").append(txGain);
+                        sb.append(", txRes: ").append(txRes);
+                        sb.append(", txCoeff: ").append(txCoeff);
+                        sb.append(", lqi: ").append(lqi);
+                        sb.append(", phaseDifferential: ").append(phaseDifferential);
+                        sb.append(", tmrValidTime: ").append(tmrValidTime);
+                        sb.append(", macPANId: ").append(macPANId);
+                        sb.append(", state: ").append(state);
+                        sb.append(", roundTrip: ").append(roundTrip);
+                        sb.append(", linkCost: ").append(linkCost);
+                        sb.append(", lastUpdate: ").append(lastUpdate);
+                        sb.append(", lastPathRequest: ").append(lastPathRequest);
+                        sb.append(", neighbourValidTime: ").append(neighbourValidTime);
+
+                        logInfo(sb.toString());
+                    } else {
+                        logWarn("No neighbor table for " + offlineDevice.getSerialNumber());
+                    }
                 }
+            } else {
+                logWarn("Cannot find G3 node for " + macAddress);
             }
         }
 
@@ -805,57 +962,97 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         }
 
         for (TopologyPathSegment tps : deviceTopology.getTopologyPathSegments()) {
-            journal("[TOPO] Topology segment " + tps.toString());
+            logInfo("Topology path segment " + tps.toString());
         }
 
+        logWarn("Added " +
+                deviceTopology.getTopologyNeighbours().size() + " topology nodes and " +
+                deviceTopology.getTopologyPathSegments().size() + " path segments");
         return deviceTopology;
     }
 
-    private void buildTopologySegments(String dcMacAddress, G3Topology.G3Node g3Node) {
-
-        if (dcMacAddress.equals(g3Node.getParentMacAddressString())) {
-            // 1st level neighbours
-            topologySegments.add(
-                    dcMacAddress.concat(";").concat(g3Node.getMacAddressString()).concat(";").concat(g3Node.getMacAddressString())
-            );
-        } else {
-            try {
-                // date:meterMac:mac1;mac2;mac3:mac1;mac2;mac3
-                final String requestPath = getG3NetworkManagement().requestPath(g3Node.getMacAddressString());
-
-                journal("[TOPO] Request Path for node " + g3Node.getMacAddressString() + " = " + requestPath);
-
-                List<String> pathTokens = Arrays.asList(requestPath.split(":"));
-                List<String> forwardPaths = Arrays.asList(pathTokens.get(2).split(";"));
-                List<String> reversePaths = Arrays.asList(pathTokens.get(3).split(";"));
-
-                List<String> completePath = new ArrayList<>(Lists.reverse(reversePaths));
-                completePath.addAll(forwardPaths.subList(1, forwardPaths.size()));
-
-                for (int i = 0; i < completePath.size(); i++) {
-                    final String source = completePath.get(i);
-
-                    for (int j = i + 1; j < completePath.size(); j++) {
-                        final String target = completePath.get(j);
-
-                        if (j - i == 1) {
-                            // no hop
-                            topologySegments.add(
-                                    source.concat(";").concat(target).concat(";").concat(target)
-                            );
-                        } else {
-                            final String hop = completePath.get(i + 1);
-                            topologySegments.add(
-                                    source.concat(";").concat(target).concat(";").concat(hop)
-                            );
-                        }
-                    }
-                }
-
-            } catch (IOException e) {
-                getLogger().severe("IOException while requesting G3 topology path: " + e.getMessage());
-            }
+    private void addDirectLinkToBeacon(String dcMacAddress, G3Node g3Node) {
+        if (dcMacAddress == null || dcMacAddress.isEmpty()) {
+            return;
         }
+        addPathSegment(
+                dcMacAddress.concat(";").concat(g3Node.getMacAddressString()).concat(";").concat(g3Node.getMacAddressString())
+        );
+    }
+
+    private void writeMacNeighbourTableEntryTTL(int ttl) throws IOException {
+        final PLCOFDMType2MACSetup plcMACSetup = this.getDlmsSession().getCosemObjectFactory().getPLCOFDMType2MACSetup();
+
+        plcMACSetup.writeNeighbourTableEntryTTL(ttl);
+    }
+
+    /**
+     * Asks for a route request towards a node. WARNING: this is a PLC-intensive tasks, use with caution!
+     */
+    private boolean routeRequest(G3Node g3Node) {
+        boolean result;
+
+        try {
+            result = getG3NetworkManagement().requestRoute(g3Node.getMacAddressString());
+
+            logInfo("Route request to " + g3Node.getMacAddressString() + " result: " + result);
+        } catch (Exception e) {
+            result = false;
+            logWarn("Error while requesting route to " + g3Node.getMacAddressString() + ": " + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * Will trigger a path-request for each node, even if it's reported as directly connected to the Beacon!
+     */
+    private boolean pathRequest(G3Node g3Node, String dcMacAddress) {
+        try {
+            // date:meterMac:mac1;mac2;mac3:mac1;mac2;mac3
+            final String requestPath = getG3NetworkManagement().requestPath(g3Node.getMacAddressString());
+
+            logInfo("Path to node " + g3Node.getMacAddressString() + " = " + requestPath);
+
+            List<String> pathTokens = Arrays.asList(requestPath.split(":"));
+            List<String> forwardPaths = Arrays.asList(pathTokens.get(2).split(";"));
+            List<String> reversePaths = Arrays.asList(pathTokens.get(3).split(";"));
+
+            List<String> completePath = new ArrayList<>(Lists.reverse(reversePaths));
+            completePath.addAll(forwardPaths.subList(1, forwardPaths.size()));
+
+            if (completePath.size() == 1) {
+                // direct connection to Beacon
+                addDirectLinkToBeacon(dcMacAddress, g3Node);
+            }
+
+            for (int i = 0; i < completePath.size(); i++) {
+                final String source = completePath.get(i);
+
+                for (int j = i + 1; j < completePath.size(); j++) {
+                    final String target = completePath.get(j);
+                    String segment;
+                    if (j - i == 1) {
+                        // no hop
+                        segment = source.concat(";").concat(target).concat(";").concat(target);
+
+                    } else {
+                        final String hop = completePath.get(i + 1);
+                        segment = source.concat(";").concat(target).concat(";").concat(hop);
+                    }
+
+                    addPathSegment(segment);
+                }
+            }
+        } catch (IOException e) {
+            getLogger().severe(logPrefix + "Cannot get G3 path to " + g3Node.getMacAddressString() + " : " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private void addPathSegment(String segment) {
+        logInfo("Adding path segment: " + segment);
+        topologySegments.add(segment);
     }
 
     private Optional<Array> getNeighbourTable() {
@@ -868,14 +1065,14 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                 return Optional.of(neighbourTable);
             }
         } catch (IOException e) {
-            getLogger().warning("Could not read neighbour table: " + e.getMessage());
+            logWarn("Could not read neighbour table: " + e.getMessage());
         }
         return Optional.empty();
     }
 
-    private Optional<String> extractDCMacAddress(List<G3Topology.G3Node> g3Nodes) {
+    private Optional<String> extractDCMacAddress(List<G3Node> g3Nodes) {
         Optional<String> result = Optional.empty();
-        for (final G3Topology.G3Node g3Node : g3Nodes) {
+        for (final G3Node g3Node : g3Nodes) {
             if (g3Nodes.stream().noneMatch(n -> n.getMacAddressString().equals(g3Node.getParentMacAddressString()))) {
                 return Optional.of(g3Node.getParentMacAddressString());
             }
@@ -905,9 +1102,10 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         return null;
     }
 
-    private G3Topology.G3Node findG3Node(final String macAddress, final List<G3Topology.G3Node> g3Nodes) {
+
+    private G3Node findG3Node(final String macAddress, final List<G3Node> g3Nodes) {
         if (macAddress != null && g3Nodes != null && !g3Nodes.isEmpty()) {
-            for (final G3Topology.G3Node g3Node : g3Nodes) {
+            for (final G3Node g3Node : g3Nodes) {
                 if (g3Node != null) {
                     final String nodeMac = ProtocolTools.getHexStringFromBytes(g3Node.getMacAddress(), "");
                     if (nodeMac.equalsIgnoreCase(macAddress)) {
@@ -942,13 +1140,25 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-01-11$";
+        return "$Date: 2021-06-16$";
     }
 
     @Override
     public void logOn() {
         getDlmsSession().connect();
         checkCacheObjects();
+    }
+
+    @Override
+    public void logOff() {
+        if (getDlmsSession() != null) {
+            try {
+                getDlmsSession().disconnect();
+            } catch (Exception ignored) {
+                // ignoring exception to be able to save collected data
+                getLogger().info(logPrefix + "Exception while disconnecting: " + ignored.getMessage());
+            }
+        }
     }
 
     protected void checkCacheObjects() {
@@ -1018,7 +1228,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                 result.setFailureInformation(ResultType.InCompatible, problem);
             }   //Else a communication exception is thrown
         }
-
         return result;
     }
 
@@ -1077,7 +1286,7 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
         /**
          * Create a new instance.
          *
-         * @param id               Client ID.
+         * @param id Client ID.
          * @param frameCounterOBIS Frame counter OBIS code.
          */
         ClientConfiguration(final int id, final ObisCode frameCounterOBIS, final ObisCode securitySetupOBIS, final ObisCode associationLNOBIS) {
@@ -1099,7 +1308,6 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
                     return client;
                 }
             }
-
             return null;
         }
 
@@ -1135,16 +1343,17 @@ public class Beacon3100 extends AbstractDlmsProtocol implements MigratePropertie
     }
 
     @Override
-    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
+    public boolean verifyFirmwareSignature(File firmwareFile, PublicKey pubKey) throws
+            NoSuchAlgorithmException, SignatureException, InvalidKeyException, IOException {
         return BeaconFirmwareSignatureCheck.verifyFirmwareSignature(firmwareFile, pubKey);
     }
 
     private void logInfo(String infoMessage) {
-        getLogger().info(logPrefix+infoMessage);
+        getLogger().info(logPrefix + infoMessage);
     }
 
 
     private void logWarn(String infoMessage) {
-        getLogger().warning(logPrefix+infoMessage);
+        getLogger().warning(logPrefix + infoMessage);
     }
 }

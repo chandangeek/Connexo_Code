@@ -723,7 +723,18 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.bigDecimalSpec(service, DeviceMessageConstants.networkAttachTimeout, DeviceMessageConstants.networkAttachTimeoutDefaultTranslation)
             );
         }
-    };
+    },
+    CHANGE_NBIOT_APN_CREDENTIALS(4084, "Change the NB-IOT APN credentials") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.apnAttributeName, DeviceMessageConstants.apnAttributeDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation),
+                    this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation)
+            );
+        }
+    }
+    ;
 
     private static BigDecimal[] getPushSetupNumbers() {
         int[] pushSetupNumbers = new int[] { 1, 2, 3, 4, 11, 12, 13, 14};

@@ -262,6 +262,7 @@ public abstract class EndPointConfigurationImpl implements EndPointConfiguration
     @Override
     public void save() {
         Save.action(getId()).save(dataModel, this);
+        dataModel.getOrmService().invalidateCache("FSM", "FSM_FINITE_STATE_MACHINE"); //to make sure obsolete endpoint is not in cache anymore. TODO: try to fix this on orm level
     }
 
     @Override

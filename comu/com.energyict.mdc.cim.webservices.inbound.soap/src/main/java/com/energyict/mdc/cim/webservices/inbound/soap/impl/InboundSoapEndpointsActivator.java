@@ -8,10 +8,12 @@ import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageCo
 import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvider;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
+import com.elster.jupiter.messaging.subscriber.MessageHandlerFactory;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.metering.config.MetrologyConfigurationService;
@@ -25,6 +27,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
@@ -42,6 +45,7 @@ import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
@@ -50,10 +54,14 @@ import com.energyict.mdc.cim.webservices.inbound.soap.InboundCIMWebServiceExtens
 import com.energyict.mdc.cim.webservices.inbound.soap.enddevicecontrols.ExecuteEndDeviceControlsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents.ExecuteEndDeviceEventsEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.getenddeviceevents.GetEndDeviceEventsEndpoint;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.eventhandler.ComTaskExecutionEventHandlerFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_6;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_7_2;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_8_24;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9_13;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.upgrade.UpgraderV10_9_9;
 import com.energyict.mdc.cim.webservices.inbound.soap.masterdatalinkageconfig.ExecuteMasterDataLinkageConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.ExecuteMeterConfigEndpoint;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.InboundCIMWebServiceExtensionFactory;
@@ -354,11 +362,19 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         dataModel = ormService.newDataModel(COMPONENT_NAME, "Multisense SOAP webservices");
         dataModel.register(getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", COMPONENT_NAME), dataModel, Installer.class,
-                ImmutableMap.of(version(10, 6), UpgraderV10_6.class,
-                        version(10, 7), UpgraderV10_7.class,
-                        version(10, 7, 2), UpgraderV10_7_2.class,
-                        version(10, 9), UpgraderV10_9.class));
+        upgradeService.register(
+                InstallIdentifier.identifier("MultiSense", COMPONENT_NAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(version(10, 6), UpgraderV10_6.class)
+                        .put(version(10, 7), UpgraderV10_7.class)
+                        .put(version(10, 7, 2), UpgraderV10_7_2.class)
+                        .put(version(10, 8, 24), UpgraderV10_8_24.class)
+                        .put(version(10, 9), UpgraderV10_9.class)
+                        .put(version(10, 9, 9), UpgraderV10_9_9.class)
+                        .put(version(10, 9, 13), UpgraderV10_9_13.class)
+                        .build());
         setActualRecurrentTaskFrequency();
         setActualRecurrentTaskReadOutDelay();
         setEndDeviceControlsTimeout();
@@ -367,6 +383,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         addConverter(new ObisCodePropertyValueConverter());
         registerHandlers();
         registerServices(bundleContext);
+        registerHandlerFactory(bundleContext);
         serviceRegistrations.add(bundleContext.registerService(Subscriber.class, dataModel.getInstance(MeterStatusHandler.class), new Hashtable<>()));
 
     }
@@ -494,6 +511,14 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                                                                      T provider, String serviceName) {
         Dictionary<String, Object> properties = new Hashtable<>(ImmutableMap.of("name", serviceName));
         serviceRegistrations.add(bundleContext.registerService(InboundSoapEndPointProvider.class, provider, properties));
+    }
+
+    private void registerHandlerFactory(BundleContext bundleContext) {
+        Dictionary<String, Object> properties = new Hashtable<>();
+        properties.put("name", "ComTaskExecutionEventHandlerFactory");
+        properties.put("subscriber", ComTaskExecutionEventHandlerFactory.SUBSCRIBER_NAME);
+        properties.put("destination", EventService.JUPITER_EVENTS);
+        serviceRegistrations.add(bundleContext.registerService(MessageHandlerFactory.class, new ComTaskExecutionEventHandlerFactory(jsonService, serviceCallService, communicationTaskService, clock), properties));
     }
 
     @Reference

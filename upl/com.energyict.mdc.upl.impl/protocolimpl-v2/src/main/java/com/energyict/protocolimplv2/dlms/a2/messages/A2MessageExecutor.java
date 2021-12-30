@@ -124,6 +124,8 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
             configureDST(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS)) {
             changeGPRSandAPNCredentials(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_NBIOT_APN_CREDENTIALS)) {
+            changeNBIOTandAPNCredentials(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_GPRS_IP_ADDRESS_AND_PORT)) {
             changeGprsIpAddressAndPort(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CONFIGURE_AUTO_CONNECT_A2)) {
@@ -342,6 +344,26 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         }
         if (apn != null) {
             getCosemObjectFactory().getGPRSModemSetup().writeAPN(apn);
+        }
+    }
+
+    private void changeNBIOTandAPNCredentials(OfflineDeviceMessage pendingMessage) throws IOException {
+        String userName = getDeviceMessageAttributeValue(pendingMessage, usernameAttributeName);
+        String password = getDeviceMessageAttributeValue(pendingMessage, passwordAttributeName);
+        String apn = getDeviceMessageAttributeValue(pendingMessage, apnAttributeName);
+        PPPSetup.PPPAuthenticationType pppat = getCosemObjectFactory().getPPPSetup(ObisCode.fromString("0.1.25.3.0.255")).new PPPAuthenticationType();
+        pppat.setAuthenticationType(PPPSetup.LCPOptionsType.AUTH_PAP);
+        if (userName != null) {
+            pppat.setUserName(userName);
+        }
+        if (password != null) {
+            pppat.setPassWord(password);
+        }
+        if ((userName != null) || (password != null)) {
+            getCosemObjectFactory().getPPPSetup().writePPPAuthenticationType(pppat);
+        }
+        if (apn != null) {
+            getCosemObjectFactory().getNbiotModemSetup().writeAPN(apn);
         }
     }
 

@@ -61,7 +61,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: Thursday Dec 6, 2018 $";
+        return "2021-11-11";
     }
 
     @Override
@@ -90,6 +90,7 @@ public class EIWebBulk implements ServletBasedInboundDeviceProtocol {
             } catch (RuntimeException e) {
                 this.responseWriter.failure();
                 throw e;
+
             }
         } catch (IOException e) {
             throw ConnectionCommunicationException.unexpectedIOException(e);

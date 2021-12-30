@@ -348,16 +348,16 @@ public class DataPushNotificationParser {
     }
 
     protected void addCollectedRegister(ObisCode obisCode, long value, ScalerUnit scalerUnit, Date eventTime, String text) {
-        CollectedRegister deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(
-                new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier())
-        );
-
+        CollectedRegister deviceRegister;
         if (text == null) {
+            deviceRegister = this.collectedDataFactory.createDefaultCollectedRegister(
+                    new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
             deviceRegister.setCollectedData(new Quantity(value, scalerUnit != null ? scalerUnit.getEisUnit() : Unit.getUndefined()));
         } else {
+            deviceRegister = this.collectedDataFactory.createTextCollectedRegister(
+                    new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier()));
             deviceRegister.setCollectedData(text);
         }
-
         deviceRegister.setCollectedTimeStamps(new Date(), null, new Date(), eventTime);
         getCollectedRegisters().addCollectedRegister(deviceRegister);
     }

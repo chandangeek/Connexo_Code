@@ -230,7 +230,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
                                 offlineDevice.getDeviceIdentifier()));
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(loadProfileReader.getStartReadingTime(), false);
-            deviceLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), convertToProperChannelInfos(profileData, loadProfileReader.getChannelInfos(), deviceLoadProfile));
+            deviceLoadProfile.setCollectedIntervalData(profileData.getIntervalDatas(), loadProfileReader.getChannelInfos());
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
         } catch (IOException e) {
             if (isTimeout(e)) {
@@ -250,30 +250,6 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         return collectedDataList;
     }
 
-    private List<ChannelInfo> convertToProperChannelInfos(ProfileData profileData, List<ChannelInfo> configuredChannelInfos, CollectedLoadProfile collectedLoadProfile) {
-        List<ChannelInfo> convertedChannelInfos = new ArrayList<>();
-        for (ChannelInfo ci : profileData.getChannelInfos()) {
-            ObisCode channelObisCode = new ObisCode(GENERIC_CHANNEL_OBISCODE, ci.getChannelId() + 1);
-            try {
-                ChannelInfo configuredChannelInfo = getChannelInfoFromConfiguredChannels(channelObisCode, configuredChannelInfos);
-                ChannelInfo convertedChannelInfo = new ChannelInfo(configuredChannelInfo.getId(), channelObisCode.toString(), ci.getUnit(), configuredChannelInfo.getMeterIdentifier(), configuredChannelInfo.getReadingTypeMRID());
-                convertedChannelInfo.setMultiplier(ci.getMultiplier());
-                convertedChannelInfo.setCumulativeWrapValue(ci.getCumulativeWrapValue());
-                if (ci.isCumulative()) {
-                    convertedChannelInfo.setCumulative();
-                }
-                convertedChannelInfos.add(convertedChannelInfo);
-            } catch (LoadProfileConfigurationException e) {
-                collectedLoadProfile.setFailureInformation(ResultType.ConfigurationMisMatch, getWarning(profileData, MessageSeeds.UNSUPPORTED_CHANNEL_INFO, ci));
-            }
-        }
-        return convertedChannelInfos;
-    }
-
-    protected ChannelInfo getChannelInfoFromConfiguredChannels(ObisCode obisCode, List<ChannelInfo> configuredChannelInfos) throws LoadProfileConfigurationException {
-        return configuredChannelInfos.stream().filter(channelInfo -> channelInfo.getChannelObisCode().equals(obisCode)).findFirst().orElseThrow(() -> new LoadProfileConfigurationException("Could not found a correct ChannelInfo with the obiscode " + obisCode));
-    }
-
     private List<CollectedData> getSingleProfileData(LoadProfileReader loadProfileReader, final LogBookReader logBookReader) {
         List<CollectedData> collectedDataList = new ArrayList<>(2);
         Date combinedLastReadingTime = loadProfileReader.getStartReadingTime().before(logBookReader.getLastLogBook()) ? loadProfileReader.getStartReadingTime() : logBookReader.getLastLogBook();
@@ -288,7 +264,7 @@ public class MeterProtocolLoadProfileAdapter implements DeviceLoadProfileSupport
         CollectedLogBook deviceLogBook = collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
         try {
             ProfileData profileData = this.meterProtocol.getProfileData(combinedLastReadingTime, true);
-            deviceLoadProfile.setCollectedIntervalData(getIntervalDatas(profileData.getIntervalDatas(), loadProfileReader.getStartReadingTime()), convertToProperChannelInfos(profileData, loadProfileReader.getChannelInfos(), deviceLoadProfile));
+            deviceLoadProfile.setCollectedIntervalData(getIntervalDatas(profileData.getIntervalDatas(), loadProfileReader.getStartReadingTime()), loadProfileReader.getChannelInfos());
             deviceLoadProfile.setDoStoreOlderValues(profileData.shouldStoreOlderValues());
             deviceLogBook.setCollectedMeterEvents(MeterEvent.mapMeterEventsToMeterProtocolEvents(profileData.getMeterEvents()));
         } catch (IOException e) {

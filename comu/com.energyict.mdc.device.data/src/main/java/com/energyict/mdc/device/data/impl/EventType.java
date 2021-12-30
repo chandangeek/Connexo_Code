@@ -107,8 +107,22 @@ public enum EventType {
         }
     },
     SCHEDULED_COMTASKEXECUTION_STARTED("scheduledcomtaskexecution/STARTED"),
-    SCHEDULED_COMTASKEXECUTION_COMPLETED("scheduledcomtaskexecution/COMPLETED"),
-    SCHEDULED_COMTASKEXECUTION_FAILED("scheduledcomtaskexecution/FAILED"),
+    SCHEDULED_COMTASKEXECUTION_COMPLETED("scheduledcomtaskexecution/COMPLETED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.shouldPublish();
+            return eventTypeBuilder;
+        }
+    },
+    SCHEDULED_COMTASKEXECUTION_FAILED("scheduledcomtaskexecution/FAILED"){
+        @Override
+        protected EventTypeBuilder addCustomProperties(EventTypeBuilder etb) {
+            EventTypeBuilder eventTypeBuilder = super.addCustomProperties(etb);
+            eventTypeBuilder.shouldPublish();
+            return eventTypeBuilder;
+        }
+    },
     ACTIVATED_BREAKER_STATUS_CREATED("activatedbreakerstatus/CREATED"),
     ACTIVATED_BREAKER_STATUS_UPDATED("activatedbreakerstatus/UPDATED"),
     ACTIVATED_BREAKER_STATUS_DELETED("activatedbreakerstatus/DELETED"),

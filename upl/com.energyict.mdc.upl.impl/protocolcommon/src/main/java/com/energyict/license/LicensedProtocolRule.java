@@ -408,6 +408,12 @@ public enum LicensedProtocolRule implements LicensedProtocol {
 
     AS3000G( 339, "com.energyict.protocolimplv2.dlms.idis.as3000g.AS3000G" ),
     ISKRA_AM550(340, "com.energyict.protocolimplv2.dlms.idis.iskra.am550.AM550"),
+    AEC3PHASE(341, "com.energyict.protocolimplv2.dlms.idis.aec3phase.AEC3Phase"),
+
+    HONEYWELL_HS330S_LTE_SP(342, "com.energyict.protocolimplv2.dlms.idis.hs330s.lte.sp.HS330SLteSP"),
+    HONEYWELL_HS330S_PLC_SP(343, "com.energyict.protocolimplv2.dlms.idis.hs330s.plc.sp.HS330SPlcSP"),
+    HONEYWELL_HS3300S_LTE_PP(344, "com.energyict.protocolimplv2.dlms.idis.hs3300s.lte.pp.HS3300SLtePP"),
+    HONEYWELL_HS3300S_PLC_PP(345, "com.energyict.protocolimplv2.dlms.idis.hs3300s.plc.pp.HS3300SPlcPP"),
 
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
@@ -449,7 +455,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     private Set<ProtocolFamily> families;
 
     LicensedProtocolRule(int code, String className, ProtocolFamily... families) {
-        this.name();
         this.code = code;
         this.className = className;
         this.families = new HashSet<>(Arrays.asList(families));

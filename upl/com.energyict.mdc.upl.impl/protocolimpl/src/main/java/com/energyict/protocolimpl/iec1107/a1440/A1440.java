@@ -1,13 +1,5 @@
 package com.energyict.protocolimpl.iec1107.a1440;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connections.IEC1107HHUConnection;
-import com.energyict.dialer.core.HalfDuplexController;
-import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.UnsupportedException;
@@ -26,6 +18,15 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecBuilderWizard;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Quantity;
+import com.energyict.cbo.Unit;
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connections.IEC1107HHUConnection;
+import com.energyict.dialer.core.HalfDuplexController;
+import com.energyict.dialer.core.SerialCommunicationChannel;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.HHUEnabler;
 import com.energyict.protocol.HalfDuplexEnabler;
@@ -72,7 +73,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.TimeZone;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -101,7 +101,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
     private static final String PROPERTY_DATE_FORMAT = "DateFormat";
     private static final String PROPERTY_BILLING_DATE_FORMAT = "BillingDateFormat";
     private static final String INVERT_BILLING_ORDER = "InvertBillingOrder";
-    private static final String DEFAULT_DATE_FORMAT = "yy/mm/dd";
+    private static final String DEFAULT_DATE_FORMAT = "ddMMyyHHmmss";
     private static final String USE_EQUIPMENT_IDENTIFIER_AS_SERIAL = "UseEquipmentIdentifierAsSerialNumber";
     private static final String READ_LOGBOOK_AND_LP_COMBINED = "ReadLogbookAndLoadProfilesCombined";
 
@@ -375,7 +375,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2020-10-07$";
+        return "$Date: 2021-12-03$";
     }
 
     @Override

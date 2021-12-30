@@ -40,6 +40,7 @@ import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileRead
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLogBookReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -51,7 +52,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
-                new ManufacturerInformation(Manufacturer.Elster), "13-10-2021", "AS3000"), new AS3000Properties());
+                new ManufacturerInformation(Manufacturer.Elster), "20-12-2021", "AS3000"), new AS3000Properties());
         this.nlsService = nlsService;
         this.converter = converter;
     }
@@ -86,7 +87,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-        return Collections.singletonList(DeviceProtocolCapabilities.PROTOCOL_SESSION);
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
     }
 
     @Override

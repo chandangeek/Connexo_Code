@@ -105,6 +105,7 @@ public class ABBA1140RegisterFactory {
 	private ABBA1140Register endOfBillingEventLog;
 	private ABBA1140Register meterErrorEventLog;
 	private ABBA1140Register internalBatteryEventLog;
+	private ABBA1140Register securityEventLog;
 
     public ABBA1140RegisterFactory() {
         initRegisters();
@@ -456,6 +457,8 @@ public class ABBA1140RegisterFactory {
         internalBatteryEventLog = cr("697", "InternalBatteryEventLog", ABBA1140RegisterData.ABBA_INTERNALBATTERYEVENTLOG,0,14, null);
         endOfBillingEventLog = cr("699", "EndOfBillingEventLog", ABBA1140RegisterData.ABBA_ENDOFBILLINGEVENTLOG,0,17, null);
         meterErrorEventLog = cr("701", "MeterErrorEventLog", ABBA1140RegisterData.ABBA_METERERROREVENTLOG,0,14, null);
+        securityEventLog = cr("680", "SecurityEventLog", ABBA1140RegisterData.ABBA_SECURITYLOG,0,53, null);
+
 
         loadProfile = cr("550", "LoadProfile", ABBA1140RegisterData.ABBA_BYTEARRAY,0,-1, null);
 
@@ -698,6 +701,10 @@ public class ABBA1140RegisterFactory {
 	public ABBA1140Register getMeterErrorEventLog() {
 		return meterErrorEventLog;
 	}
+
+	public ABBA1140Register getSecurityEventLog() {
+        return securityEventLog;
+    }
 
 	public ABBA1140Register getInternalBatteryEventLog() {
 		return internalBatteryEventLog;

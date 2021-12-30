@@ -8,13 +8,17 @@ import com.energyict.dlms.DataStructure;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.LoadProfileReader;
+import com.energyict.protocolimplv2.dlms.as3000.AS3000;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.loadprofile.data.BufferParser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 /**
  * This class should be used when you have timestamp (unix), status and value within buffer. No specific status mapping or other stuff.
@@ -22,12 +26,18 @@ import java.util.TimeZone;
 public class AS3000BufferParser implements BufferParser {
     private Date lastTimeStamp;
     private int loadProfileIntervalInSeconds;
+    private AS3000 protocol;
+
+    public AS3000BufferParser(AS3000 protocol) {
+        this.protocol = protocol;
+    }
 
     @Override
     public List<IntervalData> parse(DataContainer buffer, CollectedLoadProfileConfiguration collectedLoadProfileConfiguration, LoadProfileReader lpr) throws ProtocolException {
         List<IntervalData> intervalData = new ArrayList<>();
         Object[] loadProfileEntries;
         loadProfileEntries = buffer.getRoot().getElements();
+
 
         loadProfileIntervalInSeconds = collectedLoadProfileConfiguration.getProfileInterval();
         for (int index = 0; index < loadProfileEntries.length; index++) {
@@ -45,8 +55,21 @@ public class AS3000BufferParser implements BufferParser {
             for (int channel = 2; channel < structure.getNrOfElements(); channel++) {
                 values.add(new IntervalValue(structure.getBigDecimalValue(channel), status, status));
             }
-            intervalData.add(new IntervalData(timeStamp, 0, 0, 0, values));
+            IntervalData newIntervalData = new IntervalData(timeStamp, 0, 0, 0, values);
+
+            Calendar cal = Calendar.getInstance(TimeZone.getDefault());
+            cal.setTime(newIntervalData.getEndTime());
+            if ((cal.get(Calendar.MINUTE) == 30 || cal.get(Calendar.MINUTE) == 0)) {
+                intervalData.add(newIntervalData);
+            } else {
+                protocol.journal(Level.WARNING, "Removing the out-of-interval reading at " + newIntervalData.getEndTime() + " with reading qualities "
+                        + newIntervalData.getIntervalValues().stream().flatMap(iv -> iv.getReadingQualityTypes().stream()).collect(Collectors.toSet()));
+            }
+
         } catch (ClassCastException e) {
+            String ex = e.getMessage() + "; /n" +
+                    Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; /n"));
+            protocol.journal(Level.SEVERE, ex);
             // Not doing anything while likely this is a missing reading interval (meter not powered up)
             //throw new ProtocolException("Could not parse buffer, expecting different type on channels (0/timestamp or 1/status where we expect OctetString(timestamp in hex) and Integer(status) :" + e.getMessage());
         }

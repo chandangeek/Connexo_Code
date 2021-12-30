@@ -861,6 +861,21 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int COMMS_HUB_PRESENT = 434;
     public static final int COMMS_HUB_REMOVED = 435;
     public static final int CT_VT_RATIO_CHANGED = 436;
+    public static final int OVERCURRENT_L1 = 437;
+    public static final int OVERCURRENT_L2 = 438;
+    public static final int OVERCURRENT_L3 = 439;
+    public static final int OVERCURRENT_STOPPED_L1 = 440;
+    public static final int OVERCURRENT_STOPPED_L2 = 441;
+    public static final int OVERCURRENT_STOPPED_L3 = 442;
+    public static final int FACTOR_DEVIATION = 443;
+    public static final int FACTOR_DEVIATION_END = 444;
+
+    public static final int DECRYPTION_OR_AUTHENTICATION_FAILURE = 445;
+    public static final int SECURITY_KEYS_UPDATED = 446;
+    public static final int INPUT_SIGNAL_DETECTION = 447;
+    public static final int PHASE_FAILURE_END = 448;
+
+    public static final int BROKEN_CASE_SWITCH = 449;
 
     public static final int SOFTWARE_RESTART_REQUEST = 10001;
     /**

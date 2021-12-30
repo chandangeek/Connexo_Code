@@ -61,7 +61,7 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         return this;
     }
 
-    private void setAll(G3Neighbor original){
+    private void setAll(G3Neighbor original) {
         this.phaseInfo = original.getPhaseInfo();
         this.state = original.getState();
         this.lastPathRequest = original.getLastPathRequest();
@@ -69,7 +69,6 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
         this.linkCost = original.getLinkCost();
         this.linkQualityIndicator = original.getLinkQualityIndicator();
         this.macPANId = original.getMacPANId();
-        this.nodeAddress = original.getNodeAddress();
         this.phaseInfo = original.getPhaseInfo();
         this.nodeAddress = original.getNodeAddress();
         this.roundTrip = original.getRoundTrip();
@@ -224,6 +223,87 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
 
     void setLinkCost(int linkCost) {
         this.linkCost = linkCost;
+    }
+
+    /**
+     * Updates with the most relevant information
+     *
+     * @param g3Neighbor
+     * @return
+     */
+    @Override
+    public void merge(G3Neighbor g3Neighbor) {
+
+        if (g3Neighbor.getNodeAddress()!=null && !g3Neighbor.getNodeAddress().isEmpty()) {
+            this.setNodeAddress(g3Neighbor.getNodeAddress());
+        }
+
+        if (g3Neighbor.getShortAddress()>0) {
+            this.setShortAddress(g3Neighbor.getShortAddress());
+        }
+
+        if (!g3Neighbor.getState().equals(G3NodeState.UNKNOWN)) {
+            this.setState(g3Neighbor.getState());
+        }
+
+        if (!g3Neighbor.getModulation().equals(Modulation.UNKNOWN)) {
+            this.setModulation(g3Neighbor.getModulation());
+        }
+
+        if (!g3Neighbor.getPhaseInfo().equals(PhaseInfo.UNKNOWN)) {
+            this.setPhaseInfo(g3Neighbor.getPhaseInfo());
+        }
+
+        if (g3Neighbor.getLinkQualityIndicator()>0) {
+            this.setLinkQualityIndicator(g3Neighbor.getLinkQualityIndicator());
+        }
+
+        if (g3Neighbor.getLinkCost() > 0) {
+            this.setLinkCost(g3Neighbor.getLinkCost());
+        }
+
+        if (this.getLastPathRequest()==null) {
+            this.setLastPathRequest(g3Neighbor.getLastPathRequest());
+        } else {
+            if (g3Neighbor.getLastPathRequest() != null
+                    && g3Neighbor.getLastPathRequest().isAfter(this.getLastPathRequest())) {
+                this.setLastPathRequest(g3Neighbor.getLastPathRequest());
+            }
+        }
+
+        if (this.getLastUpdate()==null) {
+            this.setLastUpdate(g3Neighbor.getLastUpdate());
+        } else {
+            if (g3Neighbor.getLastUpdate() != null
+                    && g3Neighbor.getLastUpdate().isAfter(this.getLastUpdate())) {
+                this.setLastUpdate(g3Neighbor.getLastUpdate());
+            }
+        }
+
+        if (g3Neighbor.getToneMap() > 0) {
+            this.setToneMap(g3Neighbor.getToneMap());
+        }
+
+        if (g3Neighbor.getTxGain()>0) {
+            this.setTxGain(g3Neighbor.getTxGain());
+        }
+
+        if (g3Neighbor.getTxResolution()>0) {
+            this.setTxResolution(g3Neighbor.getTxResolution());
+        }
+
+        if (g3Neighbor.getTxCoefficient()>0) {
+            this.setTxCoefficient(g3Neighbor.getTxCoefficient());
+        }
+
+        if (g3Neighbor.getToneMapTimeToLive()!=null && !g3Neighbor.getToneMapTimeToLive().isZero()) {
+            this.setToneMapTimeToLiveFromSeconds(g3Neighbor.getToneMapTimeToLive().getSeconds());
+        }
+
+        if (g3Neighbor.getMacPANId()>0) {
+            this.setMacPANId(g3Neighbor.getMacPANId());
+        }
+
     }
 
 }

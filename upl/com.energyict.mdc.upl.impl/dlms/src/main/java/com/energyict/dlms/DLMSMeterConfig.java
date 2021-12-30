@@ -105,6 +105,17 @@ public class DLMSMeterConfig {
     }
 
     /**
+     * @return true if the Manufacturer is ELS::AS3000
+     */
+    public boolean isAS3000() {
+        if (manuf == null) {
+            return false;
+        } else {
+            return (("ELS".compareTo(manuf) == 0) && ("AS3000".compareTo(extra) == 0));
+        }
+    }
+
+    /**
      * @return true if the Manufacturer is SLB
      */
     public boolean isSLB() {
@@ -245,6 +256,10 @@ public class DLMSMeterConfig {
 
     public int getGPRSModemSetupSN() {
         return config.getGPRSModemSetupSN(IOL);
+    }
+
+    public int getNBIOTModemSetupSN() {
+        return config.getNBIOTModemSetupSN(IOL);
     }
 
     public int getLTEModemSetupSN() {

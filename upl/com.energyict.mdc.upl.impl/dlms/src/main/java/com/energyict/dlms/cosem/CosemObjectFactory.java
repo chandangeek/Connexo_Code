@@ -403,24 +403,24 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
     }
 
     /**
-     * Getter for the {@link com.energyict.dlms.cosem.MBusClient} object according to BlueBook version 9 or below
+     * Getter for the {@link MBusClient} object according to BlueBook version 9 or below
      *
      * @param obisCode the obisCode of the Object
      * @return a newly created MbusClient object
-     * @throws java.io.IOException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
-     * @deprecated use {@link #getMbusClient(com.energyict.obis.ObisCode, int)} instead
+     * @throws IOException if the {@link ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
+     * @deprecated use {@link #getMbusClient(ObisCode, int)} instead
 
     public MBusClient getMbusClient(ObisCode obisCode) throws NotInObjectListException {
         return getMbusClient(obisCode, MBusClient.VERSION.VERSION10);
     } */
 
     /**
-     * Getter for the {@link com.energyict.dlms.cosem.MBusClient} object (valid for any DLMS version)
+     * Getter for the {@link MBusClient} object (valid for any DLMS version)
      *
      * @param obisCode the obisCode of the Object
      * @param version  the version of the object (see {@link MBusClient.VERSION} for more details)
      * @return a newly created MbusClient object
-     * @throws NotInObjectListException if the {@link com.energyict.dlms.ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
+     * @throws NotInObjectListException if the {@link ProtocolLink#getReference()} != (ProtocolLink#LN_REFERENCE || ProtocolLink#SN_REFERENCE)
      */
     public MBusClient getMbusClient(ObisCode obisCode, MBusClient.VERSION version) throws NotInObjectListException {
         return new MBusClient(protocolLink, getObjectReference(obisCode), version);
@@ -756,7 +756,7 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
      * Returns the firewall setup object.
      *
      * @return The firewall setup object.
-     * @throws java.io.IOException If an IO error occurs while returning a reference;
+     * @throws IOException If an IO error occurs while returning a reference;
      */
     public final FirewallSetup getFirewallSetup() throws NotInObjectListException {
         return new FirewallSetup(this.protocolLink, this.getObjectReference(FirewallSetup.getDefaultObisCode()));
@@ -904,5 +904,9 @@ public class CosemObjectFactory implements DLMSCOSEMGlobals {
 
     public RenewGMKSingleActionScheduleIC getRenewGMKSingleActionScheduleIC() throws NotInObjectListException {
         return new RenewGMKSingleActionScheduleIC(this.protocolLink, this.getObjectReference(RenewGMKSingleActionScheduleIC.OBIS_CODE));
+    }
+
+    public NBIOTModemSetup getNbiotModemSetup() throws NotInObjectListException {
+        return new NBIOTModemSetup(protocolLink, getObjectReference(NBIOTMODEMSETUP, protocolLink.getMeterConfig().getNBIOTModemSetupSN()));
     }
 }

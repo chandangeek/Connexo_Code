@@ -6,7 +6,6 @@ import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
-import com.energyict.protocolimplv2.dlms.actaris.sl7000.ActarisSl7000;
 import com.energyict.protocolimplv2.dlms.as3000.AS3000;
 import com.energyict.protocolimplv2.dlms.common.obis.ObisReader;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.DlmsClassIdMatcher;
@@ -23,6 +22,7 @@ import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.Dyn
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.OctetStringMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.PerTypeMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.custom.OctetStringDateTimeMapper;
+import com.energyict.protocolimplv2.dlms.common.obis.readers.atribute.mapper.custom.OctetStringHexMapper;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedRegisterBuilder;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.DefaultExtendedRegister;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.DefaultRegister;
@@ -47,6 +47,7 @@ public class AS3000ReadableRegister {
     public CollectedRegisterReader<AS3000> getRegistryReader(AS3000 dlmsProtocol) {
         List<ObisReader<CollectedRegister, OfflineRegister, ObisCode, AS3000>> registers = new ArrayList<>();
         registers.add(dateTime());
+        registers.add(firmwareVersion());
         registers.add(specialDayActive());
         registers.add(specialDayPassive());
         registers.add(activityCalendar());
@@ -65,6 +66,11 @@ public class AS3000ReadableRegister {
     private AttributeReader<ObisCode, AS3000> dateTime() {
         ObisCodeMatcher obisCodeMatcher = new ObisCodeMatcher(ObisCode.fromString("1.1.0.9.2.255"));
         return new AttributeReader<>(obisCodeMatcher, collectedRegisterBuilder, new OctetStringDateTimeMapper(timeZone), 2);
+    }
+
+    private AttributeReader<ObisCode, AS3000> firmwareVersion() {
+        ObisCodeMatcher obisCodeMatcher = new ObisCodeMatcher(ObisCode.fromString("1.1.0.2.0.255"));
+        return new AttributeReader<>(obisCodeMatcher, collectedRegisterBuilder, new OctetStringHexMapper(), 2);
     }
 
     private AttributeReader<ObisCode, AS3000> specialDayActive() {

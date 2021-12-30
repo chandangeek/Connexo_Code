@@ -209,7 +209,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
 //    }
 
 
-    private Calendar getFromCalendar(LoadProfileReader loadProfileReader) {
+    protected Calendar getFromCalendar(LoadProfileReader loadProfileReader) {
         ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) getLimitMaxNrOfDays());
         Calendar fromCal = Calendar.getInstance(protocol.getTimeZone());
         fromCal.setTime(profileLimiter.getFromDate());
@@ -217,7 +217,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
         return fromCal;
     }
 
-    private Calendar getToCalendar(LoadProfileReader loadProfileReader) {
+    protected Calendar getToCalendar(LoadProfileReader loadProfileReader) {
         ProfileLimiter profileLimiter = new ProfileLimiter(loadProfileReader.getStartReadingTime(), loadProfileReader.getEndReadingTime(), (int) getLimitMaxNrOfDays());
         Calendar toCal = Calendar.getInstance(protocol.getTimeZone());
         toCal.setTime(profileLimiter.getToDate());
@@ -415,7 +415,7 @@ public class IDISProfileDataReader<T extends AbstractDlmsProtocol & IDISProtocol
         throw new ProtocolException("Unexpected captured_object in load profile '" + correctedLoadProfileObisCode + "': " + capturedObject.toString());
     }
 
-    private boolean isProfileStatus(ObisCode obisCode) {
+    protected boolean isProfileStatus(ObisCode obisCode) {
         return (obisCode.getA() == 0 && (obisCode.getB() >= 0 && obisCode.getB() <= 6) && obisCode.getC() == 96 && obisCode.getD() == 10 && (obisCode.getE() == 1 || obisCode.getE() == 2 || obisCode.getE() == 3) && obisCode.getF() == 255);
     }
 

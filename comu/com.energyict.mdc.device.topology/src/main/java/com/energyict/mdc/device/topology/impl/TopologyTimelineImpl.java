@@ -9,14 +9,7 @@ import com.energyict.mdc.device.topology.TopologyTimeline;
 import com.energyict.mdc.device.topology.TopologyTimeslice;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -86,8 +79,9 @@ public class TopologyTimelineImpl implements TopologyTimeline {
         return this.slices
                 .stream()
                 .filter(s -> this.contains(s, device))
-                .sorted((s1, s2) -> s2.getPeriod().lowerEndpoint().compareTo(s1.getPeriod().lowerEndpoint()))
-                .findFirst()
+                .filter(s->s.getPeriod().lowerEndpoint().isAfter(Instant.MIN))
+                .filter(s->s.getPeriod().lowerEndpoint().isBefore(Instant.MAX))
+                .min(Comparator.comparing(s -> s.getPeriod().lowerEndpoint()))
                 .map(s -> s.getPeriod().lowerEndpoint());
     }
 

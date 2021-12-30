@@ -14,6 +14,7 @@ import com.elster.jupiter.fsm.Stage;
 import com.elster.jupiter.fsm.StageSet;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.fsm.StateTransition;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
@@ -53,6 +54,7 @@ import java.util.stream.Collectors;
 
 public class DeviceLifeCycleStateResource {
     private final ExceptionFactory exceptionFactory;
+    private final ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory;
     private final DeviceLifeCycleStateFactory deviceLifeCycleStateFactory;
     private final AuthorizedActionInfoFactory authorizedActionInfoFactory;
     private final ResourceHelper resourceHelper;
@@ -62,12 +64,14 @@ public class DeviceLifeCycleStateResource {
     @Inject
     public DeviceLifeCycleStateResource(
             ExceptionFactory exceptionFactory,
+            ConcurrentModificationExceptionFactory concurrentModificationExceptionFactory,
             DeviceLifeCycleStateFactory deviceLifeCycleStateFactory,
             AuthorizedActionInfoFactory authorizedActionInfoFactory,
             ResourceHelper resourceHelper,
             BpmService bpmService,
             EndPointConfigurationService endPointConfigurationService) {
         this.exceptionFactory = exceptionFactory;
+        this.concurrentModificationExceptionFactory = concurrentModificationExceptionFactory;
         this.deviceLifeCycleStateFactory = deviceLifeCycleStateFactory;
         this.authorizedActionInfoFactory = authorizedActionInfoFactory;
         this.resourceHelper = resourceHelper;
@@ -199,7 +203,10 @@ public class DeviceLifeCycleStateResource {
     private EndPointConfiguration findEndPointConfiguration(TransitionEndPointConfigurationInfo endPointConfigurationInfo) {
         Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
                 .findAndLockEndPointConfigurationByIdAndVersion(endPointConfigurationInfo.id, endPointConfigurationInfo.version);
-        return endPointConfiguration.orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.STATE_CHANGE_ENDPOINT_CONFIGURATION_NOT_FOUND, endPointConfigurationInfo.id));
+        return endPointConfiguration.orElseThrow(concurrentModificationExceptionFactory
+                .contextDependentConflictOn(endPointConfigurationInfo.name)
+                .withActualVersion(() -> endPointConfigurationService.getEndPointConfiguration(endPointConfigurationInfo.id).map(EndPointConfiguration::getVersion).orElse(null))
+                .supplier());
     }
 
     private boolean isObsoleteEndPointConfigurations(List<TransitionEndPointConfigurationInfo> endPointConfigurationInfos, EndPointConfiguration endPointConfiguration) {

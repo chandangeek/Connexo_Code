@@ -411,7 +411,7 @@ public class ABBA1140 extends PluggableMeterProtocol implements ProtocolLink, HH
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2019-11-28$";
+        return "$Date: 2021-12-02$";
     }
 
     @Override

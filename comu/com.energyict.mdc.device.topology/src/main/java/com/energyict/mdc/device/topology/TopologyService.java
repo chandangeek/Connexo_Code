@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
+import java.util.function.Predicate;
 
 /**
  * Provides services that relate to the topology of {@link Device}s.
@@ -467,7 +468,7 @@ public interface TopologyService {
 
     List<Device> getSlaveDevices(Device device);
 
-    List<G3Neighbor> getSlaveDevices(Device gateway, long pageStart);
+    List<G3Neighbor> getSlaveDevices(Device gateway, Predicate<Device> filterPredicate);
 
     interface G3CommunicationPathSegmentBuilder {
 

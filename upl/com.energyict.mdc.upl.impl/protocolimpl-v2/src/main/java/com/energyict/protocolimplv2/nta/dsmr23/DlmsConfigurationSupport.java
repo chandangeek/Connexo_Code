@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.nta.dsmr23;
 
+import com.energyict.dlms.aso.ConformanceBlock;
+import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
@@ -9,9 +11,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.KeyAccessorType;
-
-import com.energyict.dlms.aso.ConformanceBlock;
-import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
@@ -166,7 +165,7 @@ public class DlmsConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec manufacturerPropertySpec() {
-        return this.stringWithDefaultSpec(MANUFACTURER, false, PropertyTranslationKeys.V2_ELSTER_MANUFACTURER, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000");
+        return this.stringWithDefaultSpec(MANUFACTURER, false, PropertyTranslationKeys.V2_ELSTER_MANUFACTURER, DEFAULT_MANUFACTURER, "WKP", "ISK", "LGZ", "SLB", "ActarisPLCC", "SLB::SL7000", "ELS::AS3000");
     }
 
     protected PropertySpec maxRecPduSizePropertySpec() {
