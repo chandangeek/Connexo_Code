@@ -748,6 +748,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 4, 10), UpgraderV10_4_10.class)
                         .put(version(10, 4, 21), V10_4_21SimpleUpgrader.class)
                         .put(version(10, 4, 24), V10_4_24SimpleUpgrader.class)
+                        .put(version(10, 4, 28), UpgraderV10_4_28.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 6, 1), UpgraderV10_6_1.class)
                         .put(version(10, 7), UpgraderV10_7.class)
