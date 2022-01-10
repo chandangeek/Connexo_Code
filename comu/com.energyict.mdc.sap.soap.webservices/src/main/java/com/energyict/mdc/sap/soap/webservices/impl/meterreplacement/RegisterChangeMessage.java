@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 public class RegisterChangeMessage extends AbstractSapMessage {
@@ -20,6 +21,8 @@ public class RegisterChangeMessage extends AbstractSapMessage {
     private String recurrenceCode;
     private String divisionCategory;
     private String registerId;
+    private BigDecimal totalDigitNumberValue;
+    private BigDecimal fractionDigitNumberValue;
 
 
     private RegisterChangeMessage() {
@@ -59,6 +62,14 @@ public class RegisterChangeMessage extends AbstractSapMessage {
 
     public String getRegisterId() {
         return registerId;
+    }
+
+    public BigDecimal getTotalDigitNumberValue() {
+        return totalDigitNumberValue;
+    }
+
+    public BigDecimal getFractionDigitNumberValue() {
+        return fractionDigitNumberValue;
     }
 
     private void validate() {
@@ -109,6 +120,18 @@ public class RegisterChangeMessage extends AbstractSapMessage {
         public void setRegisterId(String registerId){
             registerChangeMessage.registerId = registerId;
         };
+
+        public void setTotalDigitNumberValue(Integer totalDigitNumberValue) {
+            if (totalDigitNumberValue != null) {
+                registerChangeMessage.totalDigitNumberValue = BigDecimal.valueOf(totalDigitNumberValue);
+            }
+        }
+
+        public void setFractionDigitNumberValue(Integer fractionDigitNumberValue) {
+            if (fractionDigitNumberValue != null) {
+                registerChangeMessage.fractionDigitNumberValue = BigDecimal.valueOf(fractionDigitNumberValue);
+            }
+        }
 
         public RegisterChangeMessage build() {
             registerChangeMessage.validate();

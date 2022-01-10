@@ -30,6 +30,7 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
@@ -114,6 +115,9 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                 }
 
                 if (!subParentExtension.isCreateRequest()) {
+                    if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                        processDeviceRegisterChanging(extension, device.get());
+                    }
                     sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                     long deviceId = device.get().getId();
@@ -201,6 +205,35 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         }
     }
 
+    private void processDeviceRegisterChanging(MeterRegisterChangeRequestDomainExtension extension, Device device) {
+        String recurrence = extension.getRecurrenceCode();
+        if (recurrence == null) {
+            recurrence = "0";
+        }
+
+        Pair<MacroPeriod, TimeAttribute> period = webServiceActivator.getRecurrenceCodeMap().get(recurrence);
+        if (period == null) {
+            failServiceCall(extension, MessageSeeds.NO_UTILITIES_MEASUREMENT_RECURRENCE_CODE_MAPPING, recurrence,
+                    WebServiceActivator.REGISTER_RECURRENCE_CODE);
+            return;
+        }
+
+        if (period.getFirst() == MacroPeriod.NOTAPPLICABLE && period.getLast() == TimeAttribute.NOTAPPLICABLE) {
+            Optional<Register> register = device.getRegisterWithDeviceObisCode(ObisCode.fromString(extension.getObis()));
+            if (register.isPresent()) {
+                changeRegisterSpec(register.get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+            }
+
+        } else {
+            Set<Channel> channels = findChannelByObis(device, extension.getObis(), period);
+            if (!channels.isEmpty()) {
+                if (channels.size() == 1) {
+                    changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
+            }
+        }
+    }
+
     private void processChannel(Device device, ServiceCall serviceCall, String obis,
                                 Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         MeterRegisterChangeRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
@@ -211,6 +244,9 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         }
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
+                if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                    changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
@@ -238,6 +274,9 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
+                if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                    changeRegisterSpec(registers.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
@@ -278,6 +317,28 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
             failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS_OR_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
                     cimPattern.code(), obis);
         }
+    }
+
+    private void changeChannelSpec(Channel channel, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
+        Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
+        if (fractionDigitNumberValue != null) {
+            channelUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
+        }
+        if (totalDigitNumberValue != null) {
+            channelUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue())));
+        }
+        channelUpdater.update();
+    }
+
+    private void changeRegisterSpec(Register register, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
+        Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
+        if (totalDigitNumberValue != null) {
+            registerUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue()) - 1));
+        }
+        if (fractionDigitNumberValue != null) {
+            registerUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
+        }
+        registerUpdater.update();
     }
 
     private String convertPeriodToString(Pair<MacroPeriod, TimeAttribute> period) {

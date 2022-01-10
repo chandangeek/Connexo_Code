@@ -145,7 +145,6 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
                         .fromThesaurus(thesaurus)
                         .finish()
-
         );
     }
 
@@ -248,6 +247,16 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
                     .varChar(DESCRIPTION_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.databaseName())
+                    .number()
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.databaseName())
+                    .number()
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName())
+                    .since(Version.version(10, 9, 20))
                     .add();
         }
 

@@ -238,6 +238,16 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
                     .since(Version.version(10, 9, 20))
                     .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.databaseName())
+                    .number()
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.databaseName())
+                    .number()
+                    .map(MeterRegisterChangeRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.javaName())

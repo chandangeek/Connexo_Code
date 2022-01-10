@@ -97,6 +97,8 @@ public class MeterRegisterChangeMessageBuilder {
         registerBuilder.setRegisterId(getRegisterId(reg));
         registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
         registerBuilder.setDivisionCategory(getDivisionCategory(reg));
+        registerBuilder.setTotalDigitNumberValue(getTotalDigitNumberValue(reg));
+        registerBuilder.setFractionDigitNumberValue(getFractionDigitNumberValue(reg));
         return registerBuilder.build();
     }
 
@@ -144,6 +146,20 @@ public class MeterRegisterChangeMessageBuilder {
 //                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
 //                .orElse(null);
         return "1";
+    }
+
+    private Integer getTotalDigitNumberValue(UtilsDvceERPSmrtMtrRegChgReqReg requestMessage) {
+        return requestMessage.getSpecifications().stream().findFirst()
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqSpecs::getDecimalValuePrecision)
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.DecimalValuePrecision::getTotalDigitNumberValue)
+                .orElse(null);
+    }
+
+    private Integer getFractionDigitNumberValue(UtilsDvceERPSmrtMtrRegChgReqReg requestMessage) {
+        return requestMessage.getSpecifications().stream().findFirst()
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqSpecs::getDecimalValuePrecision)
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.DecimalValuePrecision::getFractionDigitNumberValue)
+                .orElse(null);
     }
 
 

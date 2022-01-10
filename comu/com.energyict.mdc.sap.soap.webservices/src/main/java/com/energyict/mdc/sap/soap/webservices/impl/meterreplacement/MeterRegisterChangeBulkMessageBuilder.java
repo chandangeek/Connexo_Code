@@ -7,11 +7,11 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.BusinessDocumentMessageID;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UUID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesDeviceID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesMeasurementRecurrenceCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilitiesMeasurementRecurrenceCode;
 
 import java.time.Instant;
 import java.util.List;
@@ -97,6 +97,8 @@ public class MeterRegisterChangeBulkMessageBuilder {
         registerBuilder.setRegisterId(getRegisterId(reg));
         registerBuilder.setRecurrenceCode(getRecurrenceCode(reg));
         registerBuilder.setDivisionCategory(getDivisionCategory(reg));
+        registerBuilder.setTotalDigitNumberValue(getTotalDigitNumberValue(reg));
+        registerBuilder.setFractionDigitNumberValue(getFractionDigitNumberValue(reg));
         return registerBuilder.build();
     }
 
@@ -145,5 +147,19 @@ public class MeterRegisterChangeBulkMessageBuilder {
 //                .orElse(null);
 
         return "1";
+    }
+
+    private Integer getTotalDigitNumberValue(UtilsDvceERPSmrtMtrRegChgReqReg requestMessage) {
+        return requestMessage.getSpecifications().stream().findFirst()
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqSpecs::getDecimalValuePrecision)
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.DecimalValuePrecision::getTotalDigitNumberValue)
+                .orElse(null);
+    }
+
+    private Integer getFractionDigitNumberValue(UtilsDvceERPSmrtMtrRegChgReqReg requestMessage) {
+        return requestMessage.getSpecifications().stream().findFirst()
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.UtilsDvceERPSmrtMtrRegChgReqSpecs::getDecimalValuePrecision)
+                .map(com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementbulkrequest.DecimalValuePrecision::getFractionDigitNumberValue)
+                .orElse(null);
     }
 }

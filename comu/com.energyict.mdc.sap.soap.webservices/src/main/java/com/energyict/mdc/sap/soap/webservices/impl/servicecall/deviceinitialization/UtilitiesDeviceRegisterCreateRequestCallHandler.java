@@ -15,13 +15,11 @@ import com.elster.jupiter.util.time.TimeUtils;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
-
 import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.CIMPattern;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.AbstractChildRetryServiceCallHandler;
 
@@ -30,6 +28,7 @@ import com.google.inject.Inject;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Optional;
@@ -153,10 +152,12 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
         }
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
+                if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                    changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
-
                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
             } else {
                 failServiceCallBySeveralDataSources(extension, period, cimPattern, obis);
@@ -181,6 +182,9 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
+                if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                    changeRegisterSpec(registers.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
@@ -268,6 +272,28 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                         && cimPattern.matches(register.getReadingType()))
                 .filter(register -> sapCustomPropertySets.doesRegisterHaveSapCPS(register))
                 .collect(Collectors.toSet());
+    }
+
+    private void changeChannelSpec(Channel channel, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
+        Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
+        if (fractionDigitNumberValue != null) {
+            channelUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
+        }
+        if (totalDigitNumberValue != null) {
+            channelUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue())));
+        }
+        channelUpdater.update();
+    }
+
+    private void changeRegisterSpec(Register register, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
+        Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
+        if (totalDigitNumberValue != null) {
+            registerUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue()) - 1));
+        }
+        if (fractionDigitNumberValue != null) {
+            registerUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
+        }
+        registerUpdater.update();
     }
 
     @Reference
