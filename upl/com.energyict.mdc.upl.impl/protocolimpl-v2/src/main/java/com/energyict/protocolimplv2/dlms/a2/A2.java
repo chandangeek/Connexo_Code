@@ -1,17 +1,5 @@
 package com.energyict.protocolimplv2.dlms.a2;
 
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -48,6 +36,20 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
+
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -62,6 +64,7 @@ import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2Properties;
 import com.energyict.protocolimplv2.dlms.a2.registers.A2RegisterFactory;
+import com.energyict.protocolimplv2.dlms.a2.registers.EIStoredValues;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
@@ -101,6 +104,8 @@ public class A2 extends AbstractDlmsProtocol {
     private final NlsService nlsService;
     private final DeviceMessageFileExtractor messageFileExtractor;
     private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+
+    protected EIStoredValues storedValues = null;
 
     public A2(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
               NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
@@ -341,7 +346,7 @@ public class A2 extends AbstractDlmsProtocol {
         return getProfileDataReader().getLoadProfileData(loadProfileReaders);
     }
 
-    protected A2ProfileDataReader getProfileDataReader() {
+    public A2ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
             profileDataReader = new A2ProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(), getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays());
         }
@@ -491,5 +496,12 @@ public class A2 extends AbstractDlmsProtocol {
     @Override
     public boolean useDsmr4SelectiveAccessFormat() {
         return true;
+    }
+
+    public StoredValues getStoredValues() {
+        if (storedValues == null) {
+            storedValues = new EIStoredValues(this);
+        }
+        return storedValues;
     }
 }

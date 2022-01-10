@@ -126,7 +126,7 @@ public class EI7 extends A2 {
     }
 
     @Override
-    protected A2ProfileDataReader getProfileDataReader() {
+    public A2ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
             profileDataReader = new EI7LoadProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(),
                     getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays(), EI7LoadProfileDataReader.getSupportedLoadProfiles());

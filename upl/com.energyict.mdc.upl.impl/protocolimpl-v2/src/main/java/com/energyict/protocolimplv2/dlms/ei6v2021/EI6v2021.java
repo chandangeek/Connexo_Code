@@ -35,7 +35,7 @@ public class EI6v2021 extends EI7 {
     }
 
     @Override
-    protected A2ProfileDataReader getProfileDataReader() {
+    public A2ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
             profileDataReader = new EI6v2021LoadProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(),
                     getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays(), EI6v2021LoadProfileDataReader.getSupportedLoadProfiles());

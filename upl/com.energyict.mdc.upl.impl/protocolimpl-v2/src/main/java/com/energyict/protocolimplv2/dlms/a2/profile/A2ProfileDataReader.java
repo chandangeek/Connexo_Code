@@ -1,25 +1,5 @@
 package com.energyict.protocolimplv2.dlms.a2.profile;
 
-import com.energyict.cbo.BaseUnit;
-import com.energyict.cbo.Unit;
-import com.energyict.dlms.DLMSAttribute;
-import com.energyict.dlms.DLMSUtils;
-import com.energyict.dlms.DataContainer;
-import com.energyict.dlms.DataStructure;
-import com.energyict.dlms.ScalerUnit;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
-import com.energyict.dlms.cosem.CapturedObject;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.ComposedCosemObject;
-import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.ProfileGeneric;
-import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
-import com.energyict.dlms.cosem.attributes.RegisterAttributes;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierById;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.Issue;
@@ -29,6 +9,29 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.offline.OfflineDevice;
+
+import com.energyict.cbo.BaseUnit;
+import com.energyict.cbo.Unit;
+import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.DLMSUtils;
+import com.energyict.dlms.DataContainer;
+import com.energyict.dlms.DataStructure;
+import com.energyict.dlms.ScalerUnit;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
+import com.energyict.dlms.cosem.CapturedObject;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.ComposedCosemObject;
+import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.ProfileGeneric;
+import com.energyict.dlms.cosem.attributes.DataAttributes;
+import com.energyict.dlms.cosem.attributes.DemandRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
+import com.energyict.dlms.cosem.attributes.RegisterAttributes;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -127,7 +130,11 @@ public class A2ProfileDataReader {
             ObisCode correctedLoadProfileObisCode = getCorrectedLoadProfileObisCode(loadProfileReader);
             if (isSupported(loadProfileReader) && (channelInfos != null)) {
                 try {
-                    FirmwareVersion firmwareVersion = new FirmwareVersion(protocol.getDlmsSession().getCosemObjectFactory().getData(ObisCode.fromString("7.1.0.2.1.255")).getValueAttr().getOctetString());
+                    FirmwareVersion firmwareVersion = new FirmwareVersion(protocol.getDlmsSession()
+                            .getCosemObjectFactory()
+                            .getData(ObisCode.fromString("7.1.0.2.1.255"))
+                            .getValueAttr()
+                            .getOctetString());
 
                     Calendar fromCalendar = getFromCalendar(loadProfileReader);
                     Calendar toCalendar = getToCalendar(loadProfileReader);
@@ -373,7 +380,7 @@ public class A2ProfileDataReader {
      *                              its interval (attribute 4) and cache it in the intervalMap
      * @param channelObisCodes      the ObisCodes of the channels that we should read out the units for
      */
-    private Map<ObisCode, Unit> readUnits(ObisCode loadProfileObisCode, List<ObisCode> channelObisCodes) throws ProtocolException {
+    public Map<ObisCode, Unit> readUnits(ObisCode loadProfileObisCode, List<ObisCode> channelObisCodes) throws ProtocolException {
         Map<ObisCode, Unit> result = new HashMap<>();
 
         Map<ObisCode, DLMSAttribute> attributes = new HashMap<>();
@@ -387,6 +394,10 @@ public class A2ProfileDataReader {
                     unitAttribute = new DLMSAttribute(channelObisCode, ExtendedRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
                 } else if (uo.getDLMSClassId() == DLMSClassId.DEMAND_REGISTER) {
                     unitAttribute = new DLMSAttribute(channelObisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
+                } else if (uo.getDLMSClassId() == DLMSClassId.DATA) {
+                    unitAttribute = new DLMSAttribute(channelObisCode, DataAttributes.VALUE.getAttributeNumber(), uo.getClassID());
+                } else if (uo.getDLMSClassId() == DLMSClassId.MANUFACTURER_SPECIFIC_8192) {
+                    unitAttribute = new DLMSAttribute(channelObisCode, 3, uo.getClassID());
                 } else {
                     throw new ProtocolException("Unexpected captured_object in load profile: " + uo.getDescription());
                 }
@@ -400,17 +411,24 @@ public class A2ProfileDataReader {
 
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(attributes.values()));
 
-        try {
-            AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
-            getIntervalMap().put(loadProfileObisCode, attribute.intValue());
-        } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
+        if (loadProfileObisCode != null) {
+            try {
+                AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
+                getIntervalMap().put(loadProfileObisCode, attribute.intValue());
+            } catch (IOException e) {
+                throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
+            }
         }
 
         for (ObisCode channelObisCode : channelObisCodes) {
             DLMSAttribute dlmsAttribute = attributes.get(channelObisCode);
             try {
-                result.put(channelObisCode, new ScalerUnit(composedCosemObject.getAttribute(dlmsAttribute)).getEisUnit());
+                if(channelObisCode.getValue().equals("7.0.96.5.1.255")){
+                    result.put(channelObisCode, Unit.getUndefined());
+                } else {
+                    Structure structure = composedCosemObject.getAttribute(dlmsAttribute).getStructure();
+                    result.put(channelObisCode, structure != null ? new ScalerUnit(structure).getEisUnit() : Unit.getUndefined());
+                }
             } catch (IOException e) {
                 if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                     throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);

@@ -1,5 +1,17 @@
 package com.energyict.protocolimplv2.dlms.a2.registers;
 
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
+import com.energyict.mdc.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.offline.OfflineRegister;
+import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
@@ -19,18 +31,9 @@ import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.GPRSStandardStatus;
 import com.energyict.dlms.cosem.GSMDiagnosticsIC;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
-import com.energyict.mdc.identifiers.RegisterIdentifierById;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.mdc.upl.offline.OfflineRegister;
-import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
@@ -81,10 +84,51 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
     public List<CollectedRegister> readRegisters(List<OfflineRegister> offlineRegisters) {
         List<CollectedRegister> result = new ArrayList<>();
         for (OfflineRegister offlineRegister : offlineRegisters) {
-            CollectedRegister collectedRegister = readRegister(offlineRegister);
+            CollectedRegister collectedRegister;
+            if (offlineRegister.getObisCode().getF() != 255) {
+                collectedRegister = readBillingRegister(offlineRegister);
+            } else {
+                collectedRegister = readRegister(offlineRegister);
+            }
             result.add(collectedRegister);
         }
         return result;
+    }
+
+    protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
+        try {
+
+            HistoricalValue historicalValue = protocol.getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
+            RegisterValue registerValue = new RegisterValue(
+                    offlineRegister.getObisCode(),
+                    historicalValue.getQuantityValue(),
+                    historicalValue.getEventTime(), // event time
+                    null, // from time
+                    historicalValue.getBillingDate(), // to time
+                    historicalValue.getCaptureTime(),  // read time
+                    0,
+                    null);
+
+            return createCollectedRegister(registerValue, offlineRegister);
+        } catch (NoSuchRegisterException e) {
+            return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported, e.getMessage());
+        } catch (NotInObjectListException e) {
+            return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
+        } catch (IOException e) {
+            return handleIOException(offlineRegister, e);
+        }
+    }
+
+    protected CollectedRegister handleIOException(OfflineRegister offlineRegister, IOException e) {
+        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries())) {
+            if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+                return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
+            } else {
+                return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
+            }
+        } else {
+            throw ConnectionCommunicationException.numberOfRetriesReached(e, protocol.getDlmsSession().getProperties().getRetries() + 1);
+        }
     }
 
     private CollectedRegister readRegister(OfflineRegister offlineRegister) {
