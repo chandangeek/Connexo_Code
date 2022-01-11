@@ -27,7 +27,7 @@ public class EI6v2021 extends EI7 {
 
     @Override
     public String getVersion() {
-        return "2021-11-08";
+        return "2022-01-11";
     }
 
     protected EI6v2021Messaging createMessaging() {
