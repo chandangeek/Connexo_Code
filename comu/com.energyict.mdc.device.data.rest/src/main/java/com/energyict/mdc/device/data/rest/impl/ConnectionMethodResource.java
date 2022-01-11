@@ -86,28 +86,11 @@ public class ConnectionMethodResource {
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response getConnectionMethods(@PathParam("name") String name, @Context UriInfo uriInfo, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
-        //CONM-2586
-        String isDefault = null;
-        List<PartialConnectionTask> tasks = device.getDeviceConfiguration().getPartialConnectionTasks();
-        for(PartialConnectionTask task : tasks){
-            if(task.isDefault()){
-                isDefault = task.getName();
-                break;
-            }
-        }
         Optional<String> fullTopologyBoolean = getParameterFromUriParams(uriInfo, "fullTopology");
         boolean fullTopology = fullTopologyBoolean.isPresent() ? Boolean.valueOf(fullTopologyBoolean.get()) : false;
         List<ConnectionTask<?, ?>> correspondingConnectionTasks = fullTopology ? topologyService.findAllConnectionTasksForTopology(device) : device.getConnectionTasks();
         List<ConnectionTask<?, ?>> connectionTasks = ListPager.of(correspondingConnectionTasks, new ConnectionTaskComparator()).from(queryParameters).find();
         List<ConnectionMethodInfo<?>> connectionMethodInfos = connectionMethodInfoFactory.asInfoList(connectionTasks, uriInfo);
-        //CONM-2586
-        for (ConnectionMethodInfo conn : connectionMethodInfos){
-            if(isDefault.equals(conn.name)) {
-                conn.isDefault = true;
-            }else{
-                conn.isDefault = false;
-            }
-        }
         return Response.ok(PagedInfoList.fromPagedList("connectionMethods", connectionMethodInfos, queryParameters)).build();
     }
 

@@ -177,37 +177,26 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     public List<ComTaskExecution> findComTaskExecutionsByFilter(ComTaskExecutionFilterSpecification filter, int pageStart, int pageSize) {
         ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.deviceDataModelService.clock(), this.deviceFromDeviceGroupQueryExecutor());
         DataMapper<ComTaskExecution> dataMapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
-        //CONM-2486
-        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize+5000),pageSize); // SQL is 1-based
+        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
+
     }
-    /*todo CONM-2486
-        need to improve query, data is going through another filteration which is resulting in less no. of tasks for that pagination.
-        As per Current fix we are additionally fetching 5000 more no. of tasks and getting the expected output.
-    */
-    private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder, int pageSize) {
+
+    private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder) {
         try (Fetcher<ComTaskExecution> fetcher = dataMapper.fetcher(sqlBuilder)) {
             Iterator<ComTaskExecution> comTaskExecutionIterator = fetcher.iterator();
             List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
             List<String> comTaskNameAndDevice = new ArrayList<>();
             int counter = 0;
             while (comTaskExecutionIterator.hasNext()) {
-                if(comTaskExecutions.size() == pageSize ){
-                    break;
-                }
                 ComTaskExecution comTaskExecutionObj = comTaskExecutionIterator.next();
                 String comTaskDevice = comTaskExecutionObj.getComTask().getName()+"|"+comTaskExecutionObj.getDevice().getName();
                 counter++;
-                LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: inside 2360 filter :: " + comTaskDevice + "  " + comTaskExecutionObj.getStatusDisplayName() + "latest counter value " + counter);
                 if (!comTaskNameAndDevice.contains(comTaskDevice)) {
-                    LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: before 2360 filter :: " + comTaskDevice + "  " + comTaskExecutionObj.getStatusDisplayName() + "latest counter value " + counter);
                     comTaskNameAndDevice.add(comTaskDevice);
                     comTaskExecutions.add(comTaskExecutionObj);
-                    LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: comTaskExecutions :: " + comTaskExecutions.size());
-                    LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: comTaskNameAndDevice :: " + comTaskNameAndDevice.size());
                 }
-                LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: after 2360 filter :: " + comTaskDevice + "  " + comTaskExecutionObj.getStatusDisplayName() + "latest counter value " + counter);
-                LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: after 2360 filter :: " + comTaskDevice + "  " + comTaskExecutionObj.getStatusDisplayName() + "latest counter value " + counter);
             }
+            LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: comTaskExecutions size :: " + comTaskExecutions.size());
             return comTaskExecutions;
         }
     }
