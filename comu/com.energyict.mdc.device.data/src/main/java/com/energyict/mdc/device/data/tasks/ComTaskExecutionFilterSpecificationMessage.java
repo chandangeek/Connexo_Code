@@ -19,9 +19,16 @@ public class ComTaskExecutionFilterSpecificationMessage {
     public Set<Long> comSchedules = new HashSet<>();
     public Set<Long> comTasks = new HashSet<>();
     public Set<Long> deviceTypes = new HashSet<>();
+    //CONM-2507
+    public Set<String> connectionMethods = new HashSet<>();
     public String device;
-    public Instant startIntervalFrom;
-    public Instant startIntervalTo;
-    public Instant finishIntervalFrom;
-    public Instant finishIntervalTo;
+    //CONM-2553
+    public String strtTo;
+    public String strtFrom;
+    public String finishTo;
+    public String finishFrom;
+    public Instant startIntervalFrom = (strtFrom != null) ? Instant.parse( strtFrom) : null;
+    public Instant startIntervalTo = (strtTo != null) ? Instant.parse(strtTo) : null;
+    public Instant finishIntervalFrom = (finishFrom != null) ? Instant.parse(finishFrom) : null;
+    public Instant finishIntervalTo = (finishTo != null) ? Instant.parse(finishTo) : null;
 }
