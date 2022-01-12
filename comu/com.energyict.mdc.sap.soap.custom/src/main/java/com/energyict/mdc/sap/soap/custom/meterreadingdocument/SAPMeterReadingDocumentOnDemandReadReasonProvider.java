@@ -67,11 +67,9 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     private void initReasonCodes(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_ONDEMAND);
-        if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
-            reasonCodeCodes = Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE);
-        } else {
-            reasonCodeCodes = Arrays.asList((valueCodes.split(",")));
-        }
+        reasonCodeCodes = Checks.is(valueCodes).emptyOrOnlyWhiteSpace() ?
+                Collections.singletonList(REASON_CODES_ONDEMAND_DEFAULT_VALUE) :
+                Arrays.asList(valueCodes.split(","));
     }
 
     private void initDateShift(BundleContext bundleContext) {

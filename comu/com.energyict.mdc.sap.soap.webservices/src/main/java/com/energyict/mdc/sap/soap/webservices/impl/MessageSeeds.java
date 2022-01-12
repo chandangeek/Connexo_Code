@@ -96,10 +96,10 @@ public enum MessageSeeds implements MessageSeed {
             "Error while processing meter pod notification: ''{0}''."),
     DIFFERENT_DEVICE_TYPE(4038, "DifferentDeviceType", "Existent device has different device type than the one mapped to material id ''{0}''." +
             " Please check ''com.elster.jupiter.sap.device.types.mapping'' property."),
-    NO_OBIS(4041, "NoObis", "UtilitiesObjectIdentificationSystemCodeText (reading type OBIS code) must be specified"),
-    OTHER_DEVICE_TYPE(4042, "OtherDeviceType", "Existent device has different device type than the one sent: ''{0}'' "),
+    NO_OBIS(4041, "NoObis", "Obis code must be specified."),
+    OTHER_DEVICE_TYPE(4042, "OtherDeviceType", "Existent device has different device type than the one sent: ''{0}''."),
     ERROR_PROCESSING_METER_CHANGE_REQUEST(4043, "ErrorProcessingMeterChangeRequest", "Error while processing meter change request: ''{0}''."),
-    NO_DEVICE_TYPE(4044, "NoDeviceTypeSpecified", "No specified device type, please fill next fields in the request: PartyInternalId, ManufacturerModelId"),
+    NO_DEVICE_TYPE(4044, "NoDeviceTypeSpecified", "No specified device type, please fill the next fields in the request: ''PartyInternalId'', ''ManufacturerModelId''."),
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -111,10 +111,10 @@ public enum MessageSeeds implements MessageSeed {
     ERROR_CANCELLING_STATUS_CHANGE_REQUEST_ALREADY_PROCESSED(5005, "ErrorCancellingStatusChangeRequestAlreadyProcessed",
             "Status change request with id ''{0}'' and category code ''{1}'' is already in final state."),
     CHANNEL_REGISTER_IS_NOT_FOUND(5006, "ChannelRegisterIsNotFound", "The channel/register isn''t found."),
-    NO_DEVICE_FOUND_BY_NAME(5007, "DeviceIsNotFoundByName", "The device isn't found by name."),
+    NO_DEVICE_FOUND_BY_NAME(5007, "DeviceIsNotFoundByName", "The device isn''t found by name."),
     COM_TASK_COULD_NOT_BE_LOCATED(5008, "ComTaskCouldNotBeLocated", "A communication task to execute the device messages couldn''t be located"),
     READING_TYPE_IS_NOT_FOUND(5009, "ReadingTypeIsNotFound", "The reading type isn''t found."),
-    DEVICE_MISMATCH(5010, "DeviceMismatch", "The found by the specified device name device differs from the found by Sap identifier"),
+    DEVICE_MISMATCH(5010, "DeviceMismatch", "The device found by the specified device name differs from the one found by Sap identifier"),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid message format."),
@@ -122,9 +122,9 @@ public enum MessageSeeds implements MessageSeed {
     NO_METER_READING_DOCUMENT(6003, "NoMeterReadingDocument", "No meter reading document found with id ''{0}''."),
     METER_READING_DOCUMENT_IS_PROCESSED(6004, "MeterReadingDocumentIsProcessed", "Meter reading document is processed."),
     ERROR_CANCELLING_METER_READING_DOCUMENT(6005, "ErrorCancellingMeterReadingDocument", "Error while cancelling meter reading document: ''{0}''."),
-    UNSUPPORTED_DATA_SOURCE_TYPE_CODE(6006, "UnsupportedDataSourceTypeCode", "Unsupported data source type code"),
-    NO_REQUIRED_DATA_SOURCE_TYPE_CODE(6007, "NoRequiredDataSourceTypeCode", "Data source type code is required"),
-    REASON_CODE_DATA_CONTRADICTS_SOURCE_TYPE_CODE(6007, "ReasonCodeContradictsDataSourceTypeCode", "Reason code contradicts the data source type code"),
+    UNSUPPORTED_DATA_SOURCE_TYPE_CODE(6006, "UnsupportedDataSourceTypeCode", "Unsupported data source type code."),
+    NO_REQUIRED_DATA_SOURCE_TYPE_CODE(6007, "NoRequiredDataSourceTypeCode", "Data source type code is required."),
+    REASON_CODE_DATA_CONTRADICTS_SOURCE_TYPE_CODE(6008, "ReasonCodeContradictsDataSourceTypeCode", "Reason code contradicts the data source type code."),
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
     PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile id ''{0}'' is already set for channel ''{1}''."),
@@ -151,18 +151,18 @@ public enum MessageSeeds implements MessageSeed {
     REQUEST_SENDING_HAS_FAILED(10104, "RequestSendingHasFailed", "The request sending has failed. See web service history for details."),
 
     //Meter reading results
-    READING_TYPE_FOR_REGISTER_INCORRECT(10201, "ReadingTypeForRegisterIncorrect", "Register supports only collected values, reading type is incorrect"),
-    READING_TYPE_INCORRECT(10202, "ReadingIncorrect", "Reading type is incorrect, only 01 for collected values and 02 for calculated are allowed"),
-    READING_DATE_AFTER_DEVICE_SHIPMENT_DATE(10203, "ReadingDateAfterDeviceShipmentDate", "Date of reading must be after device shipment date"),
+    READING_TYPE_FOR_REGISTER_INCORRECT(10201, "ReadingTypeForRegisterIncorrect", "Register supports only collected values, reading type is incorrect."),
+    READING_TYPE_INCORRECT(10202, "ReadingIncorrect", "Reading type is incorrect, only 01 for collected values and 02 for calculated are allowed."),
+    READING_DATE_AFTER_DEVICE_SHIPMENT_DATE(10203, "ReadingDateAfterDeviceShipmentDate", "Date of reading must be after device shipment date."),
     NO_DATA_SOURCE_FOUND_BY_LRN(10204, "NoDataSourceFoundByLrn", "No data source found with LRN ''{0}''."),
-    INVALID_READING_TIMESTAMP_FOR_CHANNEL(10205, "InvalidReadingTimestamp", "Impossible to save specified reading, because timestamp breaks the timeline of the channel"),
+    INVALID_READING_TIMESTAMP_FOR_CHANNEL(10205, "InvalidReadingTimestamp", "Impossible to save specified reading, because timestamp ''{0}'' breaks the timeline of the channel."),
 
 
     //Meter change/create requests
-    SHIPMENT_DATE_IS_AFTER_INSTALLATION_DATE(10301, "InvalidShipmentDate", "The 'Start Date' should be after installation date"),
-    SHIPMENT_DATE_IS_NOT_EDITABLE(10302, "ShipmentDateIsNotEditable", "Shipment date can only be change if the device has 'In stock' state"),
-    DEACTIVATION_DATE_IS_NOT_EDITABLE(10302, "DeactivationDateIsNotEditable", "You can schedule a deactivation only for devices which have next states 'In stock','Commissioning','Active'"),
-    TRANSITION_IS_NOT_FOUND(10303, "TransitionIsNotFound", "Transition Needed for moving device to the 'Inactive' state is not found");
+    SHIPMENT_DATE_IS_AFTER_INSTALLATION_DATE(10301, "InvalidShipmentDate", "The start date should be after the installation date."),
+    SHIPMENT_DATE_IS_NOT_EDITABLE(10302, "ShipmentDateIsNotEditable", "Shipment date can only be change if the device is in ''In stock'' state."),
+    DEACTIVATION_DATE_IS_NOT_EDITABLE(10302, "DeactivationDateIsNotEditable", "Deactivation can only be scheduled for devices that are in one of the states: ''In stock'', ''Commissioning'', ''Active''."),
+    TRANSITION_IS_NOT_FOUND(10303, "TransitionIsNotFound", "Couldn''t find transition to move device to the ''Inactive'' state.");
 
 
     private final int number;

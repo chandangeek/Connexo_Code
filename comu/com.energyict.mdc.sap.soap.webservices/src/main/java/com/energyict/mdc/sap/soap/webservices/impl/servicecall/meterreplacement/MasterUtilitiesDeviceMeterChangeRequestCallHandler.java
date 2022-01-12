@@ -75,7 +75,7 @@ public class MasterUtilitiesDeviceMeterChangeRequestCallHandler implements Servi
                 .builder()
                 .from(serviceCall, findChildren(serviceCall), webServiceActivator.getMeteringSystemId(), clock.instant())
                 .build();
-        WebServiceActivator.UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION.forEach(sender -> sender.call(resultMessage));
+        WebServiceActivator.UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION_PORTS.forEach(sender -> sender.call(resultMessage));
     }
 
     private void resultTransition(ServiceCall parent) {

@@ -123,8 +123,9 @@ public class MeterChangeMessage extends AbstractSapMessage {
                         setAttributeMessage(getAttributeMessage(request));
                         setCharacteristicsId(getCharacteristicsId(request));
                         setCharacteristicsValue(getCharacteristicsValue(request));
+                        // TODO use values from wsdl
                         setShipmentDate(Instant.now());
-                        setDeactivationDate(Instant.now().plusSeconds(3600*2));
+                        setDeactivationDate(Instant.now().plusSeconds(3600 * 2));
                     });
             return this;
         }
@@ -266,6 +267,7 @@ public class MeterChangeMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.PartyInternalID::getValue)
 //                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "A1800";
         }
 
@@ -279,6 +281,7 @@ public class MeterChangeMessage extends AbstractSapMessage {
 
 
         private String getActivationGroupAMIFunctions(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "AmiFunctions" + Math.random();
         }
 
@@ -287,14 +290,17 @@ public class MeterChangeMessage extends AbstractSapMessage {
         }
 
         private String getAttributeMessage(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "AttributeMessage" + Math.random();
         }
 
         private String getCharacteristicsId(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "CharacteristicsId" + Math.random();
         }
 
         private String getCharacteristicsValue(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "CharacteristicsValue" + Math.random();
         }
 

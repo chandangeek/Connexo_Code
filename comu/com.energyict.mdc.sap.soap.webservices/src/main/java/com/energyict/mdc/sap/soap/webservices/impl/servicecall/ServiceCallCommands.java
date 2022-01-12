@@ -25,6 +25,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.SapMeterReadingDocumentReasonProviderHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
@@ -283,14 +284,18 @@ public class ServiceCallCommands {
         childDomainExtension.setReferenceUuid(message.getHeaderUUID());
         childDomainExtension.setRequestedScheduledReadingDate(message.getScheduledMeterReadingDate());
 
-        Optional<SAPMeterReadingDocumentReason> provider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(childDomainExtension.getReadingReasonCode(), childDomainExtension.getDataSourceTypeCode());
-        if (provider.isPresent()) {
-            if (provider.get().shouldUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())) {
-                childDomainExtension.setScheduledReadingDate(clock.instant());
+        try {
+            Optional<SAPMeterReadingDocumentReason> provider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(childDomainExtension.getReadingReasonCode(), childDomainExtension.getDataSourceTypeCode());
+            if (provider.isPresent()) {
+                if (provider.get().shouldUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())) {
+                    childDomainExtension.setScheduledReadingDate(clock.instant());
+                } else {
+                    childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate().plusSeconds(provider.get().getShiftDate()));
+                }
             } else {
-                childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate().plusSeconds(provider.get().getShiftDate()));
+                childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
             }
-        } else {
+        } catch (SAPWebServiceException e){
             childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
         }
 

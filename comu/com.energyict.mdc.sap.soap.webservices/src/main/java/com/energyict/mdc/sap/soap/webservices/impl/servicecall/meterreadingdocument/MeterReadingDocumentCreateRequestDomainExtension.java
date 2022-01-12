@@ -33,7 +33,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         LRN("lrn", "lrnId"),
         READING_REASON_CODE("readingReasonCode", "readingReasonCode"),
         SCHEDULED_READING_DATE("scheduledReadingDate", "scheduledReadingDate"),
-        DATA_SOURCE_TYPE_CODE("dataSourceTypeCode", "dataSourceTypeCode"),
+        DATA_SOURCE_TYPE_CODE("dataSourceTypeCode", "DATA_SOURCE_TYPE_CODE"),
 
         // calculated
         DEVICE_NAME("deviceName", "deviceName"),

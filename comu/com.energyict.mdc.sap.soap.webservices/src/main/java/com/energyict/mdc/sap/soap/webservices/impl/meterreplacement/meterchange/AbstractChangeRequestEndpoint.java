@@ -137,7 +137,7 @@ public abstract class AbstractChangeRequestEndpoint extends AbstractInboundEndPo
     }
 
     private void sendMessage(UtilitiesDeviceMeterChangeConfirmationMessage confirmationMessage) {
-        WebServiceActivator.UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION
+        WebServiceActivator.UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION_PORTS
                 .forEach(service -> service.call(confirmationMessage));
     }
 
@@ -150,8 +150,7 @@ public abstract class AbstractChangeRequestEndpoint extends AbstractInboundEndPo
         childDomainExtension.setSerialId(message.getSerialId());
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setMaterialId(message.getMaterialId());
-        Optional.ofNullable((webServiceActivator.getExternalSystemName()
-                .equals(webServiceActivator.EXTERNAL_SYSTEM_EDA)) ? message.getManufacturer() + " " + message.getManufacturerModel() : webServiceActivator.getDeviceTypesMap()
+        Optional.ofNullable((webServiceActivator.getManufacturerModelAsDeviceType()) ? message.getManufacturer() + " " + message.getManufacturerModel() : webServiceActivator.getDeviceTypesMap()
                 .get(message.getMaterialId())).ifPresent(childDomainExtension::setDeviceType);
         childDomainExtension.setManufacturer(message.getManufacturer());
         childDomainExtension.setManufacturerSerialId(message.getManufacturerSerialId());

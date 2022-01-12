@@ -40,11 +40,9 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     @Activate
     public void activate(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_PERIODIC);
-        if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
-            reasonCodeCodes = Collections.singletonList(REASON_CODES_PERIODIC_DEFAULT_VALUE);
-        } else {
-            reasonCodeCodes = Arrays.asList((valueCodes.split(",")));
-        }
+        reasonCodeCodes = Checks.is(valueCodes).emptyOrOnlyWhiteSpace() ?
+                Collections.singletonList(REASON_CODES_PERIODIC_DEFAULT_VALUE) :
+                Arrays.asList(valueCodes.split(","));
 
         String valueDataSourceInterval = bundleContext.getProperty(MRO_DATASOURCE_INTERVAL);
         if (Checks.is(valueDataSourceInterval).emptyOrOnlyWhiteSpace()) {

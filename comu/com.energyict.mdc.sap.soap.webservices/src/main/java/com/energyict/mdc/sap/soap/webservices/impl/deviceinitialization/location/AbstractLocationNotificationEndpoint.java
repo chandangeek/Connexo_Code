@@ -37,14 +37,12 @@ public class AbstractLocationNotificationEndpoint extends AbstractInboundEndPoin
     private final ServiceCallService serviceCallService;
     private final Thesaurus thesaurus;
     private final ServiceCallCommands serviceCallCommands;
-    private volatile SAPCustomPropertySets sapCustomPropertySets;
 
     @Inject
-    public AbstractLocationNotificationEndpoint(ServiceCallService serviceCallService, Thesaurus thesaurus, ServiceCallCommands serviceCallCommands, SAPCustomPropertySets sapCustomPropertySets) {
+    public AbstractLocationNotificationEndpoint(ServiceCallService serviceCallService, Thesaurus thesaurus, ServiceCallCommands serviceCallCommands) {
         this.serviceCallService = serviceCallService;
         this.thesaurus = thesaurus;
         this.serviceCallCommands = serviceCallCommands;
-        this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
     @Override
@@ -109,26 +107,20 @@ public class AbstractLocationNotificationEndpoint extends AbstractInboundEndPoin
 
     private void createChildServiceCall(ServiceCall parent, LocationMessage locationMessage) {
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_LOCATION_NOTIFICATION);
-
-        Optional<Device> device = sapCustomPropertySets.getDevice(locationMessage.getDeviceId());
-        if (device.isPresent()) {
-            sapCustomPropertySets.setInstallationNumber(device.get(), locationMessage.getInstallationNumber());
-            sapCustomPropertySets.setPod(device.get(), locationMessage.getPod());
-            sapCustomPropertySets.setDivisionCategoryCode(device.get(), locationMessage.getDivisionCategoryCode());
-            sapCustomPropertySets.setLocationInformation(device.get(), locationMessage.getLocationIdInformation());
-            sapCustomPropertySets.setModificationInformation(device.get(), locationMessage.getModificationInformation());
-        }
-
         UtilitiesDeviceLocationNotificationDomainExtension childDomainExtension = new UtilitiesDeviceLocationNotificationDomainExtension();
         childDomainExtension.setDeviceId(locationMessage.getDeviceId());
         childDomainExtension.setLocationId(locationMessage.getLocationId());
+        childDomainExtension.setInstallationNumber(locationMessage.getInstallationNumber());
+        childDomainExtension.setPod(locationMessage.getPod());
+        childDomainExtension.setDivisionCategoryCode(locationMessage.getDivisionCategoryCode());
+        childDomainExtension.setLocationInformation(locationMessage.getLocationIdInformation());
+        childDomainExtension.setModificationInformationInformation(locationMessage.getModificationInformation());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);
 
         serviceCallBuilder.create();
     }
-
 
     private void logWarning(MessageSeeds messageSeed, Object... messageSeedArgs) {
         log(LogLevel.WARNING, thesaurus.getFormat(messageSeed).format(messageSeedArgs));

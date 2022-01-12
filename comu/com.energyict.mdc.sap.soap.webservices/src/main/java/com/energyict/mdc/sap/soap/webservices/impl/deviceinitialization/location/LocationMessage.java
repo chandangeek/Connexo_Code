@@ -146,6 +146,7 @@ public class LocationMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "InstallationNumber" + Math.random();
         }
 
@@ -155,6 +156,7 @@ public class LocationMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "PointOfDelivery" + Math.random();
         }
 
@@ -164,6 +166,7 @@ public class LocationMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "DivisionCategoryCode" + Math.random();
         }
 
@@ -206,6 +209,7 @@ public class LocationMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointID)
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationPointID::getValue)
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "InstallationNumber" + Math.random();
         }
 
@@ -215,6 +219,7 @@ public class LocationMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointID)
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationPointID::getValue)
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "PointOfDelivery" + Math.random();
         }
 
@@ -224,6 +229,7 @@ public class LocationMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "DivisionCategoryCode" + Math.random();
         }
 
@@ -240,7 +246,7 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getModificationInformation)
-                    .map(information -> String.format("Installation date =  %s ,Installation time =  %s ,Remove date = %s ,Remove time = %s ", information.getInstallationDate(), information.getInstallationTime(), information
+                    .map(information -> String.format("Installation date =  %s ,Installation time =  %s ,Removal date = %s ,Removal time = %s ", information.getInstallationDate(), information.getInstallationTime(), information
                             .getRemoveDate(), information.getRemoveTime()))
                     .orElse(null);
         }

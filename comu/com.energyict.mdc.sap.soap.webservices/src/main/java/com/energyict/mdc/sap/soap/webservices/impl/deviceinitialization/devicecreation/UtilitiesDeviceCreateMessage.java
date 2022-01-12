@@ -309,7 +309,8 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.PartyInternalID::getValue)
 //                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
 //                    .orElse(null);
-            return "Beacon";
+            //TODO use values from wsdl
+            return "A1800";
         }
 
         private String getManufacturerModel(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
@@ -318,7 +319,8 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.PartyInternalID::getValue)
 //                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
 //                    .orElse(null);
-            return "Beacon";
+            //TODO use values from wsdl
+            return "A1800";
         }
 
         private String getManufacturerSerialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
@@ -336,22 +338,27 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
         }
 
         private String getActivationGroupAMIFunctions(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "AmiFunctions" + Math.random();
         }
 
         private String getMeterFunctionGroup(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "FunctionGroup" + Math.random();
         }
 
         private String getAttributeMessage(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "AttributeMessage" + Math.random();
         }
 
         private String getCharacteristicsId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "CharacteristicsId" + Math.random();
         }
 
         private String getCharacteristicsValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
+            //TODO use values from wsdl
             return "CharacteristicsValue" + Math.random();
         }
     }

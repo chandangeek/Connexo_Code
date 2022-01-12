@@ -92,6 +92,7 @@ public enum TranslationKeys implements TranslationKey {
     REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "Requested scheduled reading date"),
     AT_LEAST_ONE_OF("atLeastOneOf", "at least one of"),
     LOCATION_ID("locationId", "Location ID"),
+    INSTALLATION_NUMBER("installationNumber", "Installation number"),
     POD_ID("podId", "Point of delivery ID"),
     METER_READING_DATE_TIME("meterReadingDateTime", "Meter reading timestamp"),
     METER_READING_VALUE("meterReadingValue", "Meter reading value"),
@@ -101,6 +102,7 @@ public enum TranslationKeys implements TranslationKey {
     ATTRIBUTE_MESSAGE("attributeMessage", "Attribute message"),
     CHARACTERISTICS_ID("characteristicsId", "Characteristics id"),
     CHARACTERISTICS_VALUE("characteristicsValue", "Characteristics value"),
+    DIVISION_CATEGORY_CODE("divisionCategoryCode", "Division category code"),
 
 
     // Tasks

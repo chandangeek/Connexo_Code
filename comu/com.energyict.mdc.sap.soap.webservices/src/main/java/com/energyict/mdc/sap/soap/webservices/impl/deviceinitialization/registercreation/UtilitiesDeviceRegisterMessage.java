@@ -230,6 +230,7 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilitiesMeasurementTaskID::getValue)
 //                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "01";
         }
 
@@ -238,6 +239,7 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
 //                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilitiesMeasurementTaskID::getValue)
 //                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
 //                    .orElse(null);
+            //TODO use values from wsdl
             return "01";
         }
 

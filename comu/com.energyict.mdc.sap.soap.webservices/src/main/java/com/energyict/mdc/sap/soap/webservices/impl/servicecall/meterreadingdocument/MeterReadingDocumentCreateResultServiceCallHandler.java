@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.SapMeterReadingDocumentReasonProviderHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.SAPMeterReadingDocumentCollectionDataBuilder;
@@ -116,10 +117,15 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
             serviceCall.log(LogLevel.SEVERE, "The channel/register isn't found");
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
-            Optional<SAPMeterReadingDocumentReason> readingReasonProvider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(domainExtension.getReadingReasonCode(), domainExtension.getDataSourceTypeCode());
-            if (readingReasonProvider.isPresent()) {
-                readingReasonProvider.get().process(createCollectionDataBuilder(serviceCall));
-            } else {
+            try {
+                Optional<SAPMeterReadingDocumentReason> readingReasonProvider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(domainExtension.getReadingReasonCode(), domainExtension
+                        .getDataSourceTypeCode());
+                if (readingReasonProvider.isPresent()) {
+                    readingReasonProvider.get().process(createCollectionDataBuilder(serviceCall));
+                } else {
+                    throw new IllegalStateException("Unable to get reading reason provider for service call");
+                }
+            } catch (SAPWebServiceException e) {
                 throw new IllegalStateException("Unable to get reading reason provider for service call");
             }
         }

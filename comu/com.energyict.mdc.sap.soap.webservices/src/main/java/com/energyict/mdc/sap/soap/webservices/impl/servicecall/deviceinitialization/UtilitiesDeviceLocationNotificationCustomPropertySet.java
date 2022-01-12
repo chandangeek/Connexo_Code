@@ -10,6 +10,7 @@ import com.elster.jupiter.cps.ViewPrivilege;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -24,6 +25,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
@@ -96,6 +98,24 @@ public class UtilitiesDeviceLocationNotificationCustomPropertySet implements Cus
                         .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.LOCATION_ID.javaName(), TranslationKeys.LOCATION_ID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName(), TranslationKeys.INSTALLATION_NUMBER)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), TranslationKeys.POD_ID)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName(), TranslationKeys.DIVISION_CATEGORY_CODE)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
@@ -150,6 +170,31 @@ public class UtilitiesDeviceLocationNotificationCustomPropertySet implements Cus
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.LOCATION_ID.javaName())
                     .notNull()
+                    .add();
+            table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.INSTALLATION_NUMBER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.LOCATION_INFORMATION.databaseName())
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.LOCATION_INFORMATION.javaName())
+                    .since(Version.version(10, 9, 20))
+                    .add();
+            table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.MODIFICATION_INFORMATION.databaseName())
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName())
+                    .since(Version.version(10, 9, 20))
                     .add();
         }
 

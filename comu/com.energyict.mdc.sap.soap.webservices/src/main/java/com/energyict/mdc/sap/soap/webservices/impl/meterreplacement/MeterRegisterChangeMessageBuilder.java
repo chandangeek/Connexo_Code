@@ -7,11 +7,11 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.BusinessDocumentMessageID;
+import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UUID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilitiesMeasurementRecurrenceCode;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UtilsDvceERPSmrtMtrRegChgReqReg;
-import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementrequest.UUID;
 
 import java.time.Instant;
 import java.util.List;
@@ -145,6 +145,7 @@ public class MeterRegisterChangeMessageBuilder {
 //        return Optional.ofNullable(requestRegister.getUtilitiesDivisionCategoryCode())
 //                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
 //                .orElse(null);
+        //TODO use values from wsdl
         return "1";
     }
 

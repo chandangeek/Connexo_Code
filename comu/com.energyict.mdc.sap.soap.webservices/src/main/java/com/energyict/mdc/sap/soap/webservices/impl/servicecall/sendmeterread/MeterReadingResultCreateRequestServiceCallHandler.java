@@ -96,13 +96,13 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
                         }
                         if (!readingTypeMrid.isEmpty()) {
                             ReadingImpl reading = ReadingImpl.of(readingTypeMrid, extension.getMeterReadingValue(), extension.getMeterReadingDateTime());
-                            reading.addQuality(ReadingQualityType.of(QualityCodeSystem.EXTERNAL, QualityCodeIndex.CUSTOMEREAD).getCode());
+                            reading.addQuality(ReadingQualityType.of(QualityCodeSystem.EXTERNAL, QualityCodeIndex.CUSTOMERREAD).getCode());
                             MeterReadingImpl meterReading = MeterReadingImpl.of(reading);
                             try {
                                 device.get().store(meterReading, null);
                                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                             } catch (IllegalArgumentException e) {
-                                failServiceCall(extension, MessageSeeds.INVALID_READING_TIMESTAMP_FOR_CHANNEL);
+                                failServiceCall(extension, MessageSeeds.INVALID_READING_TIMESTAMP_FOR_CHANNEL, extension.getMeterReadingDateTime());
                             }
                         }
                     } else {

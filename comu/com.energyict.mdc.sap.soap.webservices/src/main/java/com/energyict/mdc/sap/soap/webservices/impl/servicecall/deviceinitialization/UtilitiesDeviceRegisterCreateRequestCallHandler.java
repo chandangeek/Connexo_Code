@@ -110,7 +110,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                     failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
                     return;
                 }
-                if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                if (WebServiceActivator.getSearchOnlyByObis()) {
                     failServiceCall(extension, MessageSeeds.NO_OBIS);
                     return;
                 }
@@ -123,7 +123,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                 return;
             }
 
-            if (divisionCategory != null && !WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+            if (divisionCategory != null && !WebServiceActivator.getSearchOnlyByObis()) {
                 cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
                 if (cimPattern == null) {
                     failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
@@ -152,7 +152,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
         }
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
-                if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                if (WebServiceActivator.getNeedToChangeDigitsNumber()) {
                     changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
                 }
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
@@ -182,7 +182,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
-                if (WebServiceActivator.getExternalSystemName().equals(WebServiceActivator.EXTERNAL_SYSTEM_EDA)) {
+                if (WebServiceActivator.getNeedToChangeDigitsNumber()) {
                     changeRegisterSpec(registers.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
                 }
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),

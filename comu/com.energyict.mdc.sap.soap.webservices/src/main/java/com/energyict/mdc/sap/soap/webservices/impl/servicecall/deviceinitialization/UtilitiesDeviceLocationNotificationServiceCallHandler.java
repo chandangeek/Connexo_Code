@@ -63,6 +63,11 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
             serviceCall.setTargetObject(device.get());
             serviceCall.save();
             sapCustomPropertySets.setLocation(device.get(), extension.getLocationId());
+            sapCustomPropertySets.setInstallationNumber(device.get(),extension.getInstallationNumber());
+            sapCustomPropertySets.setPod(device.get(),extension.getPod());
+            sapCustomPropertySets.setDivisionCategoryCode(device.get(),extension.getDivisionCategoryCode());
+            sapCustomPropertySets.setLocationInformation(device.get(), extension.getLocationInformation());
+            sapCustomPropertySets.setModificationInformation(device.get(), extension.getModificationInformation());
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(serviceCall, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());

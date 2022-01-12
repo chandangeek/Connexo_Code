@@ -48,7 +48,7 @@ public enum TranslationKeys implements TranslationKey {
     CLOCKSETFORWARD("ReadingQualityClockSetForward", "Clock set forward"),
     CLOCKSETBACKWARD("ReadingQualityClockSetBackward", "Clock set backward"),
     FAILEDPROBEATTEMPT("ReadingQualityFailedProbeAttempt", "Failed probe attempt"),
-    CUSTOMEREAD("ReadingQualityCustomerRead", "Customer read"),
+    CUSTOMERREAD("ReadingQualityCustomerRead", "Customer read"),
     MANUALREAD("ReadingQualityManualRead", "Manual read"),
     DSTCHANGEOCCURED("ReadingQualityDstChangeOccurred", "DST change occurred"),
     CUSTOM_OTHER("ReadingQualityOther", "Other"),

@@ -29,7 +29,7 @@ public class MeterReadingDocumentCreateResultDomainExtension extends AbstractPer
         LRN("lrn", "lrnId"),
         READING_REASON_CODE("readingReasonCode", "readingReasonCode"),
         SCHEDULED_READING_DATE("scheduledReadingDate", "scheduledReadingDate"),
-        DATA_SOURCE_TYPE_CODE("dataSourceTypeCode", "dataSourceTypeCode"),
+        DATA_SOURCE_TYPE_CODE("dataSourceTypeCode", "DATA_SOURCE_TYPE_CODE"),
         CHANNEL_ID("channelId", "channelId"),
         DATA_SOURCE("dataSource", "dataSource"),
         EXTRA_DATA_SOURCE("extraDataSource", "EXTRA_DATA_SOURCE"),
