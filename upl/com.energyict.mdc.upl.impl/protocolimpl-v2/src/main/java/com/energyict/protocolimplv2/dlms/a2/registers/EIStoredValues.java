@@ -28,10 +28,12 @@ import com.energyict.protocolimplv2.dlms.idis.am500.registers.ExtendedRegisterCh
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Map;
 
@@ -90,23 +92,10 @@ public class EIStoredValues implements StoredValues {
         }
         Calendar calHistoricalDate = Calendar.getInstance(getProtocol().getTimeZone());
         calHistoricalDate.setTimeInMillis(intervalData.getEndTime().getTime());
-
-        // try to see if we have also event time (i.e. for extended registers)
-        Date eventTime = null;
-        if (channelIndex.getEventTimeIndex() > 0) {
-            IntervalValue capturedTime = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getEventTimeIndex() - 1);
-            if (capturedTime.getNumber() != null) {
-                Calendar calEventTime = Calendar.getInstance(getProtocol().getTimeZone());
-                calEventTime.setTimeInMillis(capturedTime.getNumber().longValue());
-                eventTime = calEventTime.getTime();
-            }
-        }
-
         HistoricalRegister cosemValue = new HistoricalRegister();
         cosemValue.setQuantityValue(BigDecimal.valueOf(value), getUnit(baseObisCode));
 
-
-        return new HistoricalValue(cosemValue, calHistoricalDate.getTime(), eventTime, 0);
+        return new HistoricalValue(cosemValue, calHistoricalDate.getTime(), null, 0);
     }
 
     protected int getReversedBillingPoint(int billingPoint) throws IOException {
@@ -128,7 +117,7 @@ public class EIStoredValues implements StoredValues {
             for (int channel = 0; channel < structure.getNrOfElements(); channel++) {
                 try {
                     if (channel == 0) {
-                        timeStamp = structure.getOctetString(0).toCalendar(getProtocol().getTimeZone());
+                        timeStamp = GregorianCalendar.from(Instant.ofEpochSecond(structure.getLong(0)).atZone(getProtocol().getTimeZone().toZoneId()));
                     } else {
                         if (structure.isInteger(channel)) {
                             value = new IntervalValue(structure.getInteger(channel), 0, 0);
