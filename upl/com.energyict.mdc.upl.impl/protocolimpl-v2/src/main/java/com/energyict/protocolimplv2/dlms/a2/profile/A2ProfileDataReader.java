@@ -63,7 +63,7 @@ public class A2ProfileDataReader {
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW      = ObisCode.fromString("7.0.43.45.0.255");
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW_TIME = ObisCode.fromString("7.0.43.45.5.255");
 
-    public static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
+    private static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
 
     private final A2 protocol;
     private final List<ObisCode> supportedLoadProfiles;
