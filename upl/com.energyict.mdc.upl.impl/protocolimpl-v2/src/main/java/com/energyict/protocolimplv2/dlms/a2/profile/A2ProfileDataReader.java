@@ -58,11 +58,12 @@ public class A2ProfileDataReader {
     private static final ObisCode HOURLY_LOAD_PROFILE  = ObisCode.fromString("7.0.99.99.2.255");
     private static final ObisCode DAILY_LOAD_PROFILE   = ObisCode.fromString("7.0.99.99.3.255");
     private static final ObisCode MONTHLY_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.4.255");
+    private static final ObisCode CURRENT_DIAGNOSTIC_OBISCODE = ObisCode.fromString( "7.0.96.5.1.255");
 
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW      = ObisCode.fromString("7.0.43.45.0.255");
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW_TIME = ObisCode.fromString("7.0.43.45.5.255");
 
-    private static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
+    public static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
 
     private final A2 protocol;
     private final List<ObisCode> supportedLoadProfiles;
@@ -423,7 +424,7 @@ public class A2ProfileDataReader {
         for (ObisCode channelObisCode : channelObisCodes) {
             DLMSAttribute dlmsAttribute = attributes.get(channelObisCode);
             try {
-                if(channelObisCode.getValue().equals("7.0.96.5.1.255")){
+                if(channelObisCode.equals(CURRENT_DIAGNOSTIC_OBISCODE)){
                     result.put(channelObisCode, Unit.getUndefined());
                 } else {
                     Structure structure = composedCosemObject.getAttribute(dlmsAttribute).getStructure();
