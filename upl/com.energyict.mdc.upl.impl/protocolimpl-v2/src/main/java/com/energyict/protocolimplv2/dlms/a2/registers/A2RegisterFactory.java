@@ -119,7 +119,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
     }
 
     protected CollectedRegister handleIOException(OfflineRegister offlineRegister, IOException e) {
-        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries())) {
+        if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {
             if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             } else {
