@@ -97,7 +97,6 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
 
     protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
         try {
-
             HistoricalValue historicalValue = protocol.getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
             RegisterValue registerValue = new RegisterValue(
                     offlineRegister.getObisCode(),

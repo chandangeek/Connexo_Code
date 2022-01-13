@@ -23,7 +23,6 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.A2;
-import com.energyict.protocolimplv2.dlms.idis.am500.AM500;
 import com.energyict.protocolimplv2.dlms.idis.am500.registers.ExtendedRegisterChannelIndex;
 
 import java.io.IOException;
@@ -71,7 +70,7 @@ public class EIStoredValues implements StoredValues {
 
     public HistoricalValue getHistoricalValue(ObisCode obisCode) throws IOException {
         ObisCode baseObisCode = ProtocolTools.setObisCodeField(obisCode, 5, (byte) 255);
-        if(obisCode.getValue().equals("7.0.43.45.5.0")){
+        if (obisCode.getValue().equals("7.0.43.45.5.0")) {
             baseObisCode = ProtocolTools.setObisCodeField(baseObisCode, 4, (byte) 0);
         }
         ExtendedRegisterChannelIndex channelIndex = new ExtendedRegisterChannelIndex(baseObisCode, getProfileGeneric().getCaptureObjects());
@@ -86,9 +85,9 @@ public class EIStoredValues implements StoredValues {
         // get the value
         IntervalValue intervalValue = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getValueIndex() - 1);
         int value = intervalValue.getNumber().intValue();
-        if(obisCode.getValue().equals("7.0.43.45.5.0")){
+        if (obisCode.getValue().equals("7.0.43.45.5.0")) {
             intervalValue = (IntervalValue) intervalData.getIntervalValues().get(channelIndex.getEventTimeIndex() - 1);
-            value = (int)(intervalValue.getNumber().longValue()/1000); //ms to sec
+            value = (int) (intervalValue.getNumber().longValue() / 1000); //ms to sec
         }
         Calendar calHistoricalDate = Calendar.getInstance(getProtocol().getTimeZone());
         calHistoricalDate.setTimeInMillis(intervalData.getEndTime().getTime());
@@ -127,8 +126,8 @@ public class EIStoredValues implements StoredValues {
                             if (structure.getOctetString(channel).getArray().length > 2) {
                                 Calendar cal = structure.getOctetString(channel).toCalendar(getProtocol().getTimeZone());
                                 value = new IntervalValue(cal.getTimeInMillis(), 0, 0);
-                            } else{
-                                value = new IntervalValue(0,0,0);
+                            } else {
+                                value = new IntervalValue(0, 0, 0);
                             }
                         } else {
                             value = new IntervalValue(null, 0, 0);
