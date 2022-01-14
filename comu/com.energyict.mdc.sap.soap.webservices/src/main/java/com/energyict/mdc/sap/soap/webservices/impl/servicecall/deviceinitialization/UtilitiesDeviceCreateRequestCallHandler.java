@@ -115,11 +115,21 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
         sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
-        sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
-        sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
-        sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
-        sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
-        sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
+        if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
+            sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
+        }
+        if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
+            sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
+        }
+        if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
+            sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
+        }
+        if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
+            sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
+        }
+        if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
+            sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
+        }
     }
 
     private void validateShipmentDate(Device device, Instant startDate) {

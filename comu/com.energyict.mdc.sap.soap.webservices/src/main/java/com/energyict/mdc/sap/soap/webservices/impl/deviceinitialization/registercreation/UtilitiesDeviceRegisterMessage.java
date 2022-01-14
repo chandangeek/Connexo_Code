@@ -226,21 +226,15 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
         }
 
         private String getRegisterId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
-//            return Optional.ofNullable(requestMessage.getUtilitiesMeasurementTaskID())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilitiesMeasurementTaskID::getValue)
-//                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "01";
+            return Optional.ofNullable(requestMessage.getRegisterID())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getRegisterId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
-//            return Optional.ofNullable(requestMessage.getUtilitiesMeasurementTaskID())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilitiesMeasurementTaskID::getValue)
-//                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "01";
+            return Optional.ofNullable(requestMessage.getRegisterID())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private Integer getTotalDigitNumberValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {

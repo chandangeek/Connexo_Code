@@ -36,7 +36,7 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
     }
 
     public boolean isValid() {
-        return (requestId!= null || uuid != null) && serialId != null && deviceId != null && shipmentDate != null;
+        return (requestId != null || uuid != null) && serialId != null && deviceId != null && shipmentDate != null;
 
     }
 
@@ -136,6 +136,12 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
                         setManufacturer(getManufacturer(request));
                         setManufacturerModel(getManufacturerModel(request));
                         setManufacturerSerialId(getManufacturerSerialId(request));
+                        setActivationGroupAMIFunctions(getActivationGroupAMIFunctions(request));
+                        setMeterFunctionGroup(getMeterFunctionGroup(request));
+                        setAttributeMessage(getAttributeMessage(request));
+                        setCharacteristicsId(getCharacteristicsId(request));
+                        setCharacteristicsValue(getCharacteristicsValue(request));
+
                     });
             return this;
         }
@@ -304,23 +310,17 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
         }
 
         private String getManufacturerModel(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
-//            return Optional.ofNullable(msg.getIndividualMaterialManufacturerInformation())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getPartyInternalID)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.PartyInternalID::getValue)
-//                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "A1800";
+            return Optional.ofNullable(msg.getIndividualMaterialManufacturerInformation())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getManufacturerModelID)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getManufacturerModel(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
-//            return Optional.ofNullable(requestMessage.getIndividualMaterialManufacturerInformation())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getPartyInternalID)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.PartyInternalID::getValue)
-//                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "A1800";
+            return Optional.ofNullable(requestMessage.getIndividualMaterialManufacturerInformation())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getManufacturerModelID)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getManufacturerSerialId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
@@ -338,29 +338,75 @@ public class UtilitiesDeviceCreateMessage extends AbstractSapMessage {
         }
 
         private String getActivationGroupAMIFunctions(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "AmiFunctions" + Math.random();
+            return Optional.ofNullable(msg.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqSmrtMtr::getActivationGroupAMIFunctions)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getActivationGroupAMIFunctions(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+            return Optional.ofNullable(requestMessage.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqSmrtMtr::getActivationGroupAMIFunctions)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getMeterFunctionGroup(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "FunctionGroup" + Math.random();
+            return Optional.ofNullable(msg.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqSmrtMtr::getSmartMeterFunctionGroup)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getMeterFunctionGroup(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+            return Optional.ofNullable(requestMessage.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqSmrtMtr::getSmartMeterFunctionGroup)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getAttributeMessage(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "AttributeMessage" + Math.random();
+            return Optional.ofNullable(msg.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqSmrtMtr::getAttributeMessage)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getAttributeMessage(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+            return Optional.ofNullable(requestMessage.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqSmrtMtr::getAttributeMessage)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getCharacteristicsId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "CharacteristicsId" + Math.random();
+            return Optional.ofNullable(msg.getDeviceCharacteristics())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrChgReqDvceChrctrstk::getUtilitiesDeviceCharacteristicsID)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getCharacteristicsId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+            return Optional.ofNullable(requestMessage.getDeviceCharacteristics())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrChgReqDvceChrctrstk::getUtilitiesDeviceCharacteristicsID)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getCharacteristicsValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "CharacteristicsValue" + Math.random();
+            return Optional.ofNullable(msg.getDeviceCharacteristics())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrChgReqDvceChrctrstk::getUtilitiesDeviceCharacteristicsValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
+
+        private String getCharacteristicsValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrCrteReqUtilsDvce requestMessage) {
+            return Optional.ofNullable(requestMessage.getDeviceCharacteristics())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicebulkcreaterequest.UtilsDvceERPSmrtMtrChgReqDvceChrctrstk::getUtilitiesDeviceCharacteristicsValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
     }
 
 }

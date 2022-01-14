@@ -142,11 +142,9 @@ public class MeterRegisterChangeMessageBuilder {
     }
 
     private String getRegisterId(UtilsDvceERPSmrtMtrRegChgReqReg requestRegister) {
-//        return Optional.ofNullable(requestRegister.getUtilitiesDivisionCategoryCode())
-//                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-//                .orElse(null);
-        //TODO use values from wsdl
-        return "1";
+        return Optional.ofNullable(requestRegister.getRegisterID())
+                .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                .orElse(null);
     }
 
     private Integer getTotalDigitNumberValue(UtilsDvceERPSmrtMtrRegChgReqReg requestMessage) {

@@ -123,9 +123,8 @@ public class MeterChangeMessage extends AbstractSapMessage {
                         setAttributeMessage(getAttributeMessage(request));
                         setCharacteristicsId(getCharacteristicsId(request));
                         setCharacteristicsValue(getCharacteristicsValue(request));
-                        // TODO use values from wsdl
-                        setShipmentDate(Instant.now());
-                        setDeactivationDate(Instant.now().plusSeconds(3600 * 2));
+                        setShipmentDate(request.getStartDate());
+                        setDeactivationDate(request.getEndDate());
                     });
             return this;
         }
@@ -262,13 +261,10 @@ public class MeterChangeMessage extends AbstractSapMessage {
 
 
         private String getManufacturerModel(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
-//            return Optional.ofNullable(msg.getIndividualMaterialManufacturerInformation())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo::getPartyInternalID)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicecreaterequest.PartyInternalID::getValue)
-//                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "A1800";
+            return Optional.ofNullable(msg.getIndividualMaterialManufacturerInformation())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqIndivMatlMfrInfo::getManufacturerModelID)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
 
@@ -281,27 +277,38 @@ public class MeterChangeMessage extends AbstractSapMessage {
 
 
         private String getActivationGroupAMIFunctions(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "AmiFunctions" + Math.random();
+            return Optional.ofNullable(msg.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqSmrtMtr::getActivationGroupAMIFunctions)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getMeterFunctionGroup(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
-            return "FunctionGroup" + Math.random();
+            return Optional.ofNullable(msg.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqSmrtMtr::getSmartMeterFunctionGroup)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getAttributeMessage(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "AttributeMessage" + Math.random();
+            return Optional.ofNullable(msg.getSmartMeter())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqSmrtMtr::getAttributeMessage)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getCharacteristicsId(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "CharacteristicsId" + Math.random();
+            return Optional.ofNullable(msg.getDeviceCharacteristics())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqDvceChrctrstk::getUtilitiesDeviceCharacteristicsID)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
         private String getCharacteristicsValue(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqUtilsDvce msg) {
-            //TODO use values from wsdl
-            return "CharacteristicsValue" + Math.random();
+            return Optional.ofNullable(msg.getDeviceCharacteristics())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.smartmeterchangerequest.UtilsDvceERPSmrtMtrChgReqDvceChrctrstk::getUtilitiesDeviceCharacteristicsValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
         }
 
     }

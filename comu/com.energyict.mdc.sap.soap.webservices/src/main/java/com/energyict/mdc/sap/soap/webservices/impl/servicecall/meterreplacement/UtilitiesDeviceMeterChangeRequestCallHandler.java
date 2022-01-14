@@ -112,17 +112,29 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
         if (sapDevice.isPresent()) {
 
             CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-            setShipmentDate(device, extension, lifecycleDates);
-            setDeactivationDate(device, extension, lifecycleDates);
+            if (extension.getShipmentDate() != null) {
+                setShipmentDate(device, extension, lifecycleDates);
+            }
+            if (extension.getDeactivationDate() != null) {
+                setDeactivationDate(device, extension, lifecycleDates);
+            }
 
             if (device.equals(sapCustomPropertySets.getDevice(sapDeviceId).get())) {
-                sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
-                sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
-                sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
-                sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
-                sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
-
-
+                if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
+                    sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
+                }
+                if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
+                    sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
+                }
+                if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
+                    sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
+                }
+                if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
+                    sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
+                }
+                if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
+                    sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
+                }
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_MISMATCH);
             }

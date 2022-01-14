@@ -21,7 +21,6 @@ import java.util.Optional;
         service = SapMeterReadingDocumentReasonProviderHelper.class, immediate = true)
 public class SapMeterReadingDocumentReasonProviderHelper {
 
-    private static MessageSeeds errorMessage;
     private static volatile Thesaurus thesaurus;
 
     @Reference
@@ -72,10 +71,5 @@ public class SapMeterReadingDocumentReasonProviderHelper {
 
     private static Optional<SAPMeterReadingDocumentReason> dataSourceTypeCodeIsRequired() {
         throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_DATA_SOURCE_TYPE_CODE);
-    }
-
-
-    public static MessageSeeds getErrorMessage() {
-        return errorMessage;
     }
 }

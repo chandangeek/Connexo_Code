@@ -141,33 +141,27 @@ public class LocationMessage extends AbstractSapMessage {
         }
 
         private String getInstallationNumber(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
-//            return Optional.ofNullable(utilitiesDevice.getLocation())
-//                    .flatMap(location -> location.stream().findFirst())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "InstallationNumber" + Math.random();
+            return Optional.ofNullable(utilitiesDevice.getLocation())
+                    .flatMap(location -> location.stream().findFirst())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationNumber::getValue)
+                    .orElse(null);
         }
 
         private String getPod(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
-//            return Optional.ofNullable(utilitiesDevice.getLocation())
-//                    .flatMap(location -> location.stream().findFirst())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "PointOfDelivery" + Math.random();
+            return Optional.ofNullable(utilitiesDevice.getLocation())
+                    .flatMap(location -> location.stream().findFirst())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getPointOfDelivery)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.PointOfDelivery::getValue)
+                    .orElse(null);
         }
 
         private String getDivisionCategoryCode(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
-//            return Optional.ofNullable(utilitiesDevice.getLocation())
-//                    .flatMap(location -> location.stream().findFirst())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "DivisionCategoryCode" + Math.random();
+            return Optional.ofNullable(utilitiesDevice.getLocation())
+                    .flatMap(location -> location.stream().findFirst())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getDivisionCategoryCode)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.DivisionCategoryCode::getValue)
+                    .orElse(null);
         }
 
         private String getLocationIdInformation(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
@@ -204,33 +198,27 @@ public class LocationMessage extends AbstractSapMessage {
         }
 
         private String getInstallationNumber(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
-//            return Optional.ofNullable(utilitiesDevice.getLocation())
-//                    .flatMap(location -> location.stream().findFirst())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointID)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationPointID::getValue)
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "InstallationNumber" + Math.random();
+            return Optional.ofNullable(utilitiesDevice.getLocation())
+                    .flatMap(location -> location.stream().findFirst())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationNumber::getValue)
+                    .orElse(null);
         }
 
         private String getPod(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
-//            return Optional.ofNullable(utilitiesDevice.getLocation())
-//                    .flatMap(location -> location.stream().findFirst())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointID)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationPointID::getValue)
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "PointOfDelivery" + Math.random();
+            return Optional.ofNullable(utilitiesDevice.getLocation())
+                    .flatMap(location -> location.stream().findFirst())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getPointOfDelivery)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.PointOfDelivery::getValue)
+                    .orElse(null);
         }
 
         private String getDivisionCategoryCode(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
-//            return Optional.ofNullable(utilitiesDevice.getLocation())
-//                    .flatMap(location -> location.stream().findFirst())
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
-//                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationPointID::getValue)
-//                    .orElse(null);
-            //TODO use values from wsdl
-            return "DivisionCategoryCode" + Math.random();
+            return Optional.ofNullable(utilitiesDevice.getLocation())
+                    .flatMap(location -> location.stream().findFirst())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getDivisionCategoryCode)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.DivisionCategoryCode::getValue)
+                    .orElse(null);
         }
 
         private String getLocationIdInformation(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifUtilsDvce utilitiesDevice) {
