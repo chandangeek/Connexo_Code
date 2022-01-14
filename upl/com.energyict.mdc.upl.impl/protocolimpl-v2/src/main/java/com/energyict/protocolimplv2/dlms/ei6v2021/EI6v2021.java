@@ -27,7 +27,7 @@ public class EI6v2021 extends EI7 {
 
     @Override
     public String getVersion() {
-        return "2021-11-08";
+        return "2022-01-11";
     }
 
     protected EI6v2021Messaging createMessaging() {
@@ -35,7 +35,7 @@ public class EI6v2021 extends EI7 {
     }
 
     @Override
-    protected A2ProfileDataReader getProfileDataReader() {
+    public A2ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
             profileDataReader = new EI6v2021LoadProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(),
                     getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays(), EI6v2021LoadProfileDataReader.getSupportedLoadProfiles());
