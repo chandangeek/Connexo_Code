@@ -48,7 +48,7 @@ public class CreateConfirmationMessageFactory {
         confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestID(), extension.getUuid(), senderBusinessSystemId, now));
 
         if (serviceCall.getState().equals(DefaultState.CANCELLED)) {
-            confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(null)));
+            confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_CANCELLED.getDefaultFormat(new Object[0])));
         } else if (serviceCall.getState().equals(DefaultState.SUCCESSFUL)) {
             confirmationMessage.setLog(createSuccessfulLog());
         } else if (serviceCall.getState().equals(DefaultState.FAILED)) {

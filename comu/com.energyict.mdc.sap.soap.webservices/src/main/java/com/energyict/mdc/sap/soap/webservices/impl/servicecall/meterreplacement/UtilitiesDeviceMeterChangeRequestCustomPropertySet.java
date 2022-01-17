@@ -19,9 +19,11 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceCreateRequestDomainExtension;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +65,7 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
 
     @Override
     public PersistenceSupport<ServiceCall, UtilitiesDeviceMeterChangeRequestDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -174,7 +176,7 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
                         .finish(),
                 this.propertySpecService
                         .specForValuesOf(new InstantFactory())
-                        .named(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.DEACTIVATION_DATE.javaName(), TranslationKeys.SHIPMENT_DATE)
+                        .named(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.DEACTIVATION_DATE.javaName(), TranslationKeys.DEACTIVATION_DATE)
                         .fromThesaurus(thesaurus)
                         .finish()
 
@@ -184,6 +186,12 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, UtilitiesDeviceMeterChangeRequestDomainExtension> {
         private final String TABLE_NAME = "SAP_LR7_CR_SC_CPS";
         private final String FK = "FK_SAP_LR7_CR_SC_CPS";
+
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus){
+            this.thesaurus = thesaurus;
+        }
 
         @Override
         public String componentName() {
@@ -212,7 +220,13 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -259,39 +273,32 @@ public class UtilitiesDeviceMeterChangeRequestCustomPropertySet implements Custo
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName())
-                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName())
-                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName())
-                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName())
-                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName())
-                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.SHIPMENT_DATE.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.SHIPMENT_DATE.javaName())
-                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.DEACTIVATION_DATE.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
                     .map(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.DEACTIVATION_DATE.javaName())
-                    .since(Version.version(10, 9, 20))
                     .add();
             table.column(UtilitiesDeviceMeterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

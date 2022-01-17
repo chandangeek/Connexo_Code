@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement;
 
-import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
@@ -31,9 +30,7 @@ import java.text.MessageFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Component(name = UtilitiesDeviceMeterChangeRequestCallHandler.NAME, service = ServiceCallHandler.class,
@@ -61,7 +58,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SERVICE);
+        thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
     }
 
     @Reference
@@ -107,33 +104,36 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
 
     private void processDeviceChanging(UtilitiesDeviceMeterChangeRequestDomainExtension extension) {
         String sapDeviceId = extension.getDeviceId();
-        Device device = getDevice(extension);
-        Optional<Device> sapDevice = sapCustomPropertySets.getDevice(sapDeviceId);
-        if (sapDevice.isPresent()) {
+        Optional<Device> device = sapCustomPropertySets.getDevice(sapDeviceId);
+        if (device.isPresent()) {
+            if (device.get().getName().equals(extension.getSerialId())) {
+                if (device.get().getDeviceType().getName().equals(extension.getDeviceType())) {
 
-            CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-            if (extension.getShipmentDate() != null) {
-                setShipmentDate(device, extension, lifecycleDates);
-            }
-            if (extension.getDeactivationDate() != null) {
-                setDeactivationDate(device, extension, lifecycleDates);
-            }
+                    CIMLifecycleDates lifecycleDates = device.get().getLifecycleDates();
+                    if (extension.getShipmentDate() != null) {
+                        setShipmentDate(device.get(), extension, lifecycleDates);
+                    }
+                    if (extension.getDeactivationDate() != null) {
+                        setDeactivationDate(device.get(), extension, lifecycleDates);
+                    }
 
-            if (device.equals(sapCustomPropertySets.getDevice(sapDeviceId).get())) {
-                if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
-                    sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
-                }
-                if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
-                    sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
-                }
-                if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
-                    sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
-                }
-                if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
-                    sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
-                }
-                if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
-                    sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
+                    if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
+                        sapCustomPropertySets.setActivationGroupAMIFunctions(device.get(), extension.getActivationGroupAmiFunctions());
+                    }
+                    if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
+                        sapCustomPropertySets.setSmartMeterFunctionGroup(device.get(), extension.getMeterFunctionGroup());
+                    }
+                    if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
+                        sapCustomPropertySets.setAttributeMessage(device.get(), extension.getAttributeMessage());
+                    }
+                    if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
+                        sapCustomPropertySets.setCharacteristicsId(device.get(), extension.getCharacteristicsId());
+                    }
+                    if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
+                        sapCustomPropertySets.setCharacteristicsValue(device.get(), extension.getCharacteristicsValue());
+                    }
+                } else {
+                    throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
                 }
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_MISMATCH);
@@ -144,21 +144,6 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
 
     }
 
-    private Device getDevice(UtilitiesDeviceMeterChangeRequestDomainExtension extension) {
-        String name = extension.getSerialId();
-
-        String deviceTypeName = extension.getDeviceType();
-        Optional<Device> device = deviceService.findDeviceByName(name);
-        if (device.isPresent()) {
-            if (device.get().getDeviceConfiguration().getDeviceType().getName().equals(deviceTypeName)) {
-                return deviceService.findAndLockDeviceByNameAndVersion(name, device.get().getVersion()).get();
-            } else {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
-            }
-        } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_FOUND_BY_NAME);
-        }
-    }
 
     private void setShipmentDate(Device device, UtilitiesDeviceMeterChangeRequestDomainExtension extension, CIMLifecycleDates lifecycleDates) {
         Optional<Instant> installationDate = device.getLifecycleDates().getInstalledDate();
@@ -201,14 +186,6 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.DEACTIVATION_DATE_IS_NOT_EDITABLE);
             }
-        }
-    }
-
-    private void validateShipmentDate(Device device, Instant startDate) {
-        CIMLifecycleDates lifecycleDates = device.getLifecycleDates();
-        Instant shipmentDate = lifecycleDates.getReceivedDate().orElseGet(device::getCreateTime);
-        if (startDate.isBefore(shipmentDate)) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
         }
     }
 
