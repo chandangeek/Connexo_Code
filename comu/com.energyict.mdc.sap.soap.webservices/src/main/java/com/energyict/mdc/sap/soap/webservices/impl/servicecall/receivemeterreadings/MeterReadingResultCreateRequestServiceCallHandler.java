@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread;
+package com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings;
 
 import com.elster.jupiter.cbo.QualityCodeIndex;
 import com.elster.jupiter.cbo.QualityCodeSystem;
@@ -21,7 +21,7 @@ import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import java.time.Instant;
+import java.time.Clock;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +39,7 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
     public static final String[] AVAILABLE_REASON_CODES = new String[]{"08", "21", "12", "22"};
 
     private volatile SAPCustomPropertySets sapCustomPropertySets;
+    private volatile Clock clock;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -70,12 +71,12 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
         Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
         if (device.isPresent()) {
             if (device.get().getCreateTime().getEpochSecond() > extension.getMeterReadingDateTime().getEpochSecond()) {
-                failServiceCall(extension, MessageSeeds.READING_DATE_AFTER_DEVICE_SHIPMENT_DATE);
+                failServiceCall(extension, MessageSeeds.READING_DATE_AFTER_DEVICE_CREATION_DATETIME);
             } else {
-                if (Arrays.stream(AVAILABLE_REASON_CODES).noneMatch(e -> e.equals(extension.getReadingReasonCode()))) {
+                if (Arrays.stream(ReasonCodes.values()).noneMatch(e -> e.getValue().equals(extension.getReadingReasonCode()))) {
                     failServiceCall(extension, MessageSeeds.UNSUPPORTED_REASON_CODE);
                 } else {
-                    channel = sapCustomPropertySets.getChannel(extension.getLrn(), Instant.now());
+                    channel = sapCustomPropertySets.getChannel(extension.getLrn(), clock.instant());
                     if (channel.isPresent()) {
                         List<? extends ReadingType> readingTypeList = channel.get().getReadingTypes();
                         String readingTypeMrid = "";
@@ -103,6 +104,8 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
                                 serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                             } catch (IllegalArgumentException e) {
                                 failServiceCall(extension, MessageSeeds.INVALID_READING_TIMESTAMP_FOR_CHANNEL, extension.getMeterReadingDateTime());
+                            } catch (Exception e) {
+                                failServiceCall(extension, MessageSeeds.ERROR_PROCESSING_RESULT_CREATE_REQUEST, e.getLocalizedMessage());
                             }
                         }
                     } else {
@@ -122,5 +125,31 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
         extension.setError(messageSeed, args);
         serviceCall.update(extension);
         serviceCall.requestTransition(DefaultState.FAILED);
+    }
+
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+
+    enum ReasonCodes {
+        FULL_INSTALLATION1("08"),
+        FULL_INSTALLATION2("21"),
+        FULL_REMOVAL1("12"),
+        FULL_REMOVAL2("22"),
+        ;
+
+        ReasonCodes(String value) {
+            this.value = value;
+
+        }
+
+        private final String value;
+
+        public String getValue() {
+            return value;
+        }
+
     }
 }

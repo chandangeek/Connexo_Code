@@ -48,12 +48,12 @@ public class MeterReadingResultCreateRequestMessage extends AbstractSapMessage {
                         setId(getId(messageHeader));
                         setUuid(getUuid(messageHeader));
                     });
-            MeterReadingResultCreateMessage message = MeterReadingResultCreateMessage
+            meterReadingResultCreateMessage = MeterReadingResultCreateMessage
                     .builder()
                     .from(requestMessage.getMeterReadingDocument())
                     .build();
-            meterReadingResultCreateMessage = message;
-            addMissingFields(message.getMissingFieldsSet());
+            ;
+            addMissingFields(meterReadingResultCreateMessage.getMissingFieldsSet());
             return this;
         }
 

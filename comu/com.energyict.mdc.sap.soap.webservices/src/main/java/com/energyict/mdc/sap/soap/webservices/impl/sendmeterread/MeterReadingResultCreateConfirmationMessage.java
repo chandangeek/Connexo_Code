@@ -10,10 +10,10 @@ import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
 import com.energyict.mdc.sap.soap.webservices.impl.SeverityCode;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestCustomPropertySet;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestCustomPropertySet;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MasterMeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MasterMeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MeterReadingResultCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingresultcreateconfirmation.BusinessDocumentMessageHeader;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingresultcreateconfirmation.BusinessDocumentMessageID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingresultcreateconfirmation.Log;
@@ -56,13 +56,6 @@ public class MeterReadingResultCreateConfirmationMessage {
             ServiceCall child = parent.findChildren().stream().findFirst().orElseThrow(() -> new IllegalStateException("Unable to get child service call"));
             confirmationMessage = objectFactory.createSmrtMtrMtrRdngDocERPRsltCrteConfMsg();
             confirmationMessage.setMessageHeader(createMessageHeader(extension.getRequestId(), extension.getUuid(), senderBusinessSystemId, now));
-
-            if (parent.getState().equals(DefaultState.SUCCESSFUL)) {
-                confirmationMessage.setLog(createSuccessfulLog());
-            } else {
-                confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_WAS_FAILED.getDefaultFormat()));
-            }
-
             createBody(confirmationMessage, child, senderBusinessSystemId, now);
             return this;
         }
@@ -81,7 +74,7 @@ public class MeterReadingResultCreateConfirmationMessage {
 
         private void createBody(SmrtMtrMtrRdngDocERPRsltCrteConfMsg confirmationMessage, ServiceCall child, String senderBusinessSystemId, Instant now) {
             MeterReadingResultCreateRequestDomainExtension extension = child.getExtensionFor(new MeterReadingResultCreateRequestCustomPropertySet())
-                    .orElseThrow(() -> new IllegalStateException("Can not find domain extension for service call"));
+                    .orElseThrow(() -> new IllegalStateException("Couldn't find domain extension for service call " + child.getNumber()));
 
             confirmationMessage.setMeterReadingDocument(createChildBody(extension.getMeterReadingDocumentId()));
             if (child.getState() == DefaultState.SUCCESSFUL) {

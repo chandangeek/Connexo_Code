@@ -66,8 +66,12 @@ public class MeterReadingResultMessage extends AbstractSapMessage {
         public MeterReadingResultMessage.Builder from(SmrtMtrMtrRdngDocERPRsltCrteReqRslt requestMessage) {
             Optional.ofNullable(requestMessage)
                     .ifPresent(singleRequestMessage -> {
-                        setValues(requestMessage.getMeterReadingDate(), requestMessage.getMeterReadingTime(), requestMessage.getActualMeterReadingDate(), requestMessage.getActualMeterReadingTime(), getReadingTypeCode(requestMessage), requestMessage
-                                .getMeterReadingResultValue());
+                        setMeterReadingDate(requestMessage.getMeterReadingDate());
+                        setMeterReadingTime(requestMessage.getMeterReadingTime());
+                        setActualMeterReadingDate(requestMessage.getActualMeterReadingDate());
+                        setActualMeterReadingTime(requestMessage.getActualMeterReadingTime());
+                        setReadingTypeCode(getReadingTypeCode(requestMessage));
+                        setReadingResultValue(requestMessage.getMeterReadingResultValue());
                     });
             return this;
         }
@@ -102,16 +106,6 @@ public class MeterReadingResultMessage extends AbstractSapMessage {
             MeterReadingResultMessage.this.meterReadingResultValue = meterReadingResultValue;
             return this;
         }
-
-        public void setValues(Instant meterReadingDate, LocalTime meterReadingTime, Instant actualMeterReadingDate, LocalTime actualMeterReadingTime, String meterReadingTypeCode, BigDecimal meterReadingResultValue) {
-            setMeterReadingDate(meterReadingDate);
-            setMeterReadingTime(meterReadingTime);
-            setActualMeterReadingDate(actualMeterReadingDate);
-            setActualMeterReadingTime(actualMeterReadingTime);
-            setReadingTypeCode(meterReadingTypeCode);
-            setReadingResultValue(meterReadingResultValue);
-        }
-
 
         public MeterReadingResultMessage build() {
             if (meterReadingDate == null) {

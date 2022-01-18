@@ -100,6 +100,8 @@ public enum MessageSeeds implements MessageSeed {
     OTHER_DEVICE_TYPE(4042, "OtherDeviceType", "Existent device has different device type than the one sent: ''{0}''."),
     ERROR_PROCESSING_METER_CHANGE_REQUEST(4043, "ErrorProcessingMeterChangeRequest", "Error while processing meter change request: ''{0}''."),
     NO_DEVICE_TYPE(4044, "NoDeviceTypeSpecified", "No specified device type, please fill the next fields in the request: ''PartyInternalId'', ''ManufacturerModelId''."),
+    ERROR_PROCESSING_RESULT_CREATE_REQUEST(4045, "ErrorProcessingResultCreateRequest", "Error while processing result create request: ''{0}''."),
+
 
     // Status change request
     INVALID_CATEGORY_CODE(5001, "InvalidCategoryCode", "Invalid category code for device with id ''{0}''"),
@@ -153,7 +155,7 @@ public enum MessageSeeds implements MessageSeed {
     //Meter reading results
     READING_TYPE_FOR_REGISTER_INCORRECT(10201, "ReadingTypeForRegisterIncorrect", "Register supports only collected values, reading type is incorrect."),
     READING_TYPE_INCORRECT(10202, "ReadingIncorrect", "Reading type is incorrect, only 01 for collected values and 02 for calculated are allowed."),
-    READING_DATE_AFTER_DEVICE_SHIPMENT_DATE(10203, "ReadingDateAfterDeviceShipmentDate", "Date of reading must be after device shipment date."),
+    READING_DATE_AFTER_DEVICE_CREATION_DATETIME(10203, "ReadingDateAfterDeviceCreationDatetime", "Date of reading must be after device creation date."),
     NO_DATA_SOURCE_FOUND_BY_LRN(10204, "NoDataSourceFoundByLrn", "No data source found with LRN ''{0}''."),
     INVALID_READING_TIMESTAMP_FOR_CHANNEL(10205, "InvalidReadingTimestamp", "Impossible to save specified reading, because timestamp ''{0}'' breaks the timeline of the channel."),
 

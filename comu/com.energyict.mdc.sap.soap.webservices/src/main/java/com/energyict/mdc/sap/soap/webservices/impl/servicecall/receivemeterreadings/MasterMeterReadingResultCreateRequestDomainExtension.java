@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread;
+package com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;

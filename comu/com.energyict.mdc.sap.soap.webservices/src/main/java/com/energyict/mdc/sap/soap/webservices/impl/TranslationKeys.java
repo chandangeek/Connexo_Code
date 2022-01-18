@@ -97,6 +97,8 @@ public enum TranslationKeys implements TranslationKey {
     METER_READING_DATE_TIME("meterReadingDateTime", "Meter reading timestamp"),
     METER_READING_VALUE("meterReadingValue", "Meter reading value"),
     REGISTER_ID("registerId", "Register id"),
+    TOTAL_DIGIT_NUMBER_VALUE("totalDigitNumberValue", "Total digit number value"),
+    FRACTION_DIGIT_NUMBER_VALUE("fractionDigitNumberValue", "Fraction digit number value"),
     ACTIVATION_GROUP_AMI_FUNCTIONS("activationGroupAMIFunctions", "Activation Group AMI Functions"),
     METER_FUNCTION_GROUP("meterFunctionGroup", "Meter function group"),
     ATTRIBUTE_MESSAGE("attributeMessage", "Attribute message"),

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread;
+package com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
@@ -22,26 +22,9 @@ import java.time.Instant;
 import java.util.Optional;
 
 public class MeterReadingResultCreateRequestDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall> {
-    public String getDeviceId() {
-        return deviceId;
-    }
-
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
-
-    public String getMeterReadingDocumentId() {
-        return meterReadingDocumentId;
-    }
-
-    public void setMeterReadingDocumentId(String meterReadingDocumentId) {
-        this.meterReadingDocumentId = meterReadingDocumentId;
-    }
-
     public enum FieldNames {
         // general
         DOMAIN("serviceCall", "SERVICE_CALL"),
-        PARENT_SERVICE_CALL("parentServiceCallId", "PARENT_SERVICE_CALL"),
 
         // provided
         DEVICE_ID("deviceId", "DEVICE_ID"),
@@ -78,12 +61,11 @@ public class MeterReadingResultCreateRequestDomainExtension extends AbstractPers
     private Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    private BigDecimal parentServiceCallId;
-
-    @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceId;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meterReadingDocumentId;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
@@ -91,13 +73,14 @@ public class MeterReadingResultCreateRequestDomainExtension extends AbstractPers
     private String lrn;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
-    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String readingReasonCode;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant meterReadingDateTime;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meterReadingTypeCode;
 
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
@@ -109,12 +92,20 @@ public class MeterReadingResultCreateRequestDomainExtension extends AbstractPers
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
 
-    public BigDecimal getParentServiceCallId() {
-        return parentServiceCallId;
+    public String getDeviceId() {
+        return deviceId;
     }
 
-    public void setParentServiceCallId(BigDecimal parentServiceCallId) {
-        this.parentServiceCallId = parentServiceCallId;
+    public void setDeviceId(String deviceId) {
+        this.deviceId = deviceId;
+    }
+
+    public String getMeterReadingDocumentId() {
+        return meterReadingDocumentId;
+    }
+
+    public void setMeterReadingDocumentId(String meterReadingDocumentId) {
+        this.meterReadingDocumentId = meterReadingDocumentId;
     }
 
     public String getLrn() {
@@ -186,8 +177,6 @@ public class MeterReadingResultCreateRequestDomainExtension extends AbstractPers
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
-        this.setParentServiceCallId(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.PARENT_SERVICE_CALL.javaName()))
-                .orElse(BigDecimal.ZERO).toString()));
         this.setDeviceId((String) propertyValues.getProperty(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DEVICE_ID.javaName()));
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setReadingReasonCode((String) propertyValues.getProperty(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.READING_REASON_CODE.javaName()));
@@ -202,7 +191,6 @@ public class MeterReadingResultCreateRequestDomainExtension extends AbstractPers
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
-        propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());
         propertySetValues.setProperty(FieldNames.DEVICE_ID.javaName(), this.getDeviceId());
         propertySetValues.setProperty(FieldNames.READING_REASON_CODE.javaName(), this.getReadingReasonCode());
         propertySetValues.setProperty(FieldNames.METER_READING_DOCUMENT_ID.javaName(), this.getMeterReadingDocumentId());

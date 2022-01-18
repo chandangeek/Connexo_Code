@@ -25,8 +25,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MasterMeterReadingResultCreateRequestDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread.MeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MasterMeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MeterReadingResultCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingresultcreaterequest.SmartMeterMeterReadingDocumentERPResultCreateRequestCIn;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingresultcreaterequest.SmrtMtrMtrRdngDocERPRsltCrteReqMsg;
 
@@ -87,6 +87,8 @@ public class MeterReadingResultCreateEndpoint extends AbstractInboundEndPoint im
                                 .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_MEASUREMENT_TASK_ID.getAttributeName(), value));
                         Optional.ofNullable(message.getMeterReadingResultCreateMessage().getDeviceId())
                                 .ifPresent(value -> values.put(SapAttributeNames.SAP_UTILITIES_DEVICE_ID.getAttributeName(), value));
+                        Optional.ofNullable(message.getMeterReadingResultCreateMessage().getId())
+                                .ifPresent(value -> values.put(SapAttributeNames.SAP_METER_READING_DOCUMENT_ID.getAttributeName(), value));
                         saveRelatedAttributes(values);
                         if (!isAnyActiveEndpoint(MeterReadingResultCreateConfirmation.NAME)) {
                             throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_REQUIRED_OUTBOUND_END_POINT,
@@ -103,9 +105,13 @@ public class MeterReadingResultCreateEndpoint extends AbstractInboundEndPoint im
             if (hasOpenMeterReadingResultCreateServiceCall(message.getId(), message.getUuid())) {
                 sendProcessError(message, MessageSeeds.MESSAGE_ALREADY_EXISTS);
             } else {
-                serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_METER_READING_RESULT_CREATE_REQUEST).ifPresent(serviceCallType -> {
-                    createServiceCall(serviceCallType, message);
-                });
+                Optional<ServiceCallType> serviceCallType = serviceCallCommands.getServiceCallType(ServiceCallTypes.MASTER_METER_READING_RESULT_CREATE_REQUEST);
+                if (serviceCallType.isPresent()) {
+                    createServiceCall(serviceCallType.get(), message);
+                } else {
+                    sendProcessError(message, MessageSeeds.COULD_NOT_FIND_SERVICE_CALL_TYPE, ServiceCallTypes.MASTER_METER_READING_RESULT_CREATE_REQUEST.getTypeName(), ServiceCallTypes.MASTER_METER_READING_RESULT_CREATE_REQUEST
+                            .getTypeVersion());
+                }
             }
         } else {
             sendProcessError(message, MessageSeeds.INVALID_MESSAGE_FORMAT, message.getMissingFields());

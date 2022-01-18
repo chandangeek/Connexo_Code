@@ -138,6 +138,16 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .longSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.TOTAL_DIGIT_NUMBER_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .longSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.FRACTION_DIGIT_NUMBER_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .stringSpec()
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)

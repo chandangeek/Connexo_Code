@@ -134,6 +134,16 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .longSpec()
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.TOTAL_DIGIT_NUMBER_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .longSpec()
+                        .named(MeterRegisterChangeRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.FRACTION_DIGIT_NUMBER_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .stringSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
@@ -152,7 +162,7 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
 
         private Thesaurus thesaurus;
 
-        private CustomPropertyPersistenceSupport(Thesaurus thesaurus){
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
             this.thesaurus = thesaurus;
         }
 

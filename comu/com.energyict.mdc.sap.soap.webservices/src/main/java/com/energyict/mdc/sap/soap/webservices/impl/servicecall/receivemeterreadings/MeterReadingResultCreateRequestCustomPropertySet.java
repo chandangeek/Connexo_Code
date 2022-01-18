@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.webservices.impl.servicecall.sendmeterread;
+package com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -139,8 +139,8 @@ public class MeterReadingResultCreateRequestCustomPropertySet implements CustomP
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, MeterReadingResultCreateRequestDomainExtension> {
-        private final String TABLE_NAME = "SAP_LR5_CR_SC_CPS";
-        private final String FK = "FK_SAP_LR5_CR_SC_CPS";
+        private final String TABLE_NAME = "SAP_LR5_RECMR_SC_CPS";
+        private final String FK = "FK_SAP_LR5_RECMR_SC_CPS";
 
         private Thesaurus thesaurus;
 
