@@ -248,12 +248,14 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final String CHECK_SCHEDULED_REQUEST_TASK_SCHEDULE = "0 0/60 * 1/1 * ? *";
     private static final int CHECK_SCHEDULED_REQUEST_TASK_RETRY_DELAY = 60;
 
-    public static final String NEED_TO_CHANGE_DIGITS_NUMBER = "com.elster.jupiter.sap.needtochangedigitsnumber";
+    public static final String SUPPORT_UPDATE_OF_DIGIT_NUMBERS = "com.elster.jupiter.sap.supportUpdateOfChannelDigitNumbers";
     public static final String SEARCH_ONLY_BY_OBIS = "com.elster.jupiter.sap.searchonlybyobis";
-    public static final String MANUFACTURER_MODEL_AS_DEVICE_TYPE = "com.elster.jupiter.sap.manufacturermodelasdevicetype";
-    public static final String READINGS_STRATEGY = "com.elster.jupiter.sap.readingsstrategy";
+    public static final String DEVICE_TYPE_NAME_STRATEGY = "com.elster.jupiter.sap.deviceTypeNameStrategy";
+    public static final String READINGS_STRATEGY_SELECTOR = "com.elster.jupiter.sap.readingStrategySelector";
     public static final String DATA_SOURCE_TYPE_CODE_STRATEGY = "DATASOURCETYPECODE";
     public static final String REASON_CODE_STRATEGY = "REASONCODE";
+    public static final String MANUFACTURER_MODEL_STRATEGY = "MANUFACTURER_MODEL";
+    public static final String MATERIAL_ID_STRATEGY = "MATERIAL_ID";
 
     private static String exportTaskName;
     private static String exportTaskDeviceGroupName;
@@ -264,10 +266,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static String exportTaskNewDataEndpointName;
     private static String exportTaskUpdatedDataEndpointName;
 
-    private static boolean needToChangeDigitsNumber;
+    private static boolean supportUpdateOfDigitNumbers;
     private static boolean searchOnlyByObis;
-    private static boolean manufacturerModelAsDeviceType;
-    private static String readingsStrategy;
+    private static String deviceTypeNameStrategy;
+    private static String readingsStrategySelector;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -363,20 +365,20 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return sapProperties.get(property);
     }
 
-    public static boolean getNeedToChangeDigitsNumber() {
-        return needToChangeDigitsNumber;
+    public static boolean isChannelDigitNumberUpdateSupported() {
+        return supportUpdateOfDigitNumbers;
     }
 
-    public static boolean getSearchOnlyByObis() {
+    public static boolean shouldSearchOnlyByObis() {
         return searchOnlyByObis;
     }
 
-    public static boolean getManufacturerModelAsDeviceType() {
-        return manufacturerModelAsDeviceType;
+    public static String getDeviceTypeNameStrategy() {
+        return deviceTypeNameStrategy;
     }
 
-    public static String getReadingsStrategy() {
-        return readingsStrategy;
+    public static String getReadingsStrategySelector() {
+        return readingsStrategySelector;
     }
 
     public String getMeteringSystemId() {
@@ -523,10 +525,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
 
-        needToChangeDigitsNumber = Boolean.valueOf(bundleContext.getProperty(NEED_TO_CHANGE_DIGITS_NUMBER));
-        searchOnlyByObis = Boolean.valueOf(bundleContext.getProperty(SEARCH_ONLY_BY_OBIS));
-        manufacturerModelAsDeviceType = Boolean.valueOf(bundleContext.getProperty(MANUFACTURER_MODEL_AS_DEVICE_TYPE));
-        readingsStrategy = Optional.ofNullable(bundleContext.getProperty(READINGS_STRATEGY)).orElse(REASON_CODE_STRATEGY);
+        supportUpdateOfDigitNumbers = Boolean.parseBoolean(bundleContext.getProperty(SUPPORT_UPDATE_OF_DIGIT_NUMBERS));
+        searchOnlyByObis = Boolean.parseBoolean(bundleContext.getProperty(SEARCH_ONLY_BY_OBIS));
+        deviceTypeNameStrategy = Optional.ofNullable(bundleContext.getProperty(DEVICE_TYPE_NAME_STRATEGY)).orElse(MATERIAL_ID_STRATEGY);
+        readingsStrategySelector = Optional.ofNullable(bundleContext.getProperty(READINGS_STRATEGY_SELECTOR)).orElse(REASON_CODE_STRATEGY);
 
         meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
 

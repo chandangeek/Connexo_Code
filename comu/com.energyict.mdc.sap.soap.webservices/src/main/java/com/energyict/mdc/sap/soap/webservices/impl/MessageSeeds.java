@@ -116,7 +116,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_DEVICE_FOUND_BY_NAME(5007, "DeviceIsNotFoundByName", "The device isn''t found by name."),
     COM_TASK_COULD_NOT_BE_LOCATED(5008, "ComTaskCouldNotBeLocated", "A communication task to execute the device messages couldn''t be located"),
     READING_TYPE_IS_NOT_FOUND(5009, "ReadingTypeIsNotFound", "The reading type isn''t found."),
-    DEVICE_MISMATCH(5010, "DeviceMismatch", "The device found by the specified device name differs from the one found by Sap identifier"),
+    DEVICE_MISMATCH(5010, "DeviceMismatch", "The device found by the specified device name differs from the one found by Sap identifier."),
 
     // Meter reading request
     INVALID_METER_READING_DOCUMENT(6001, "InvalidMeterReadingDocument", "[MeterReadingDocumentId: {0}] Invalid message format."),
@@ -127,6 +127,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_DATA_SOURCE_TYPE_CODE(6006, "UnsupportedDataSourceTypeCode", "Unsupported data source type code."),
     NO_REQUIRED_DATA_SOURCE_TYPE_CODE(6007, "NoRequiredDataSourceTypeCode", "Data source type code is required."),
     REASON_CODE_DATA_CONTRADICTS_SOURCE_TYPE_CODE(6008, "ReasonCodeContradictsDataSourceTypeCode", "Reason code contradicts the data source type code."),
+    READING_REASON_PROVIDER_NOT_FOUND(6009, "ReadingReasonProviderNotFound", "Couldn''t find needed reading reason provider."),
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
     PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile id ''{0}'' is already set for channel ''{1}''."),
@@ -162,7 +163,7 @@ public enum MessageSeeds implements MessageSeed {
 
     //Meter change/create requests
     SHIPMENT_DATE_IS_AFTER_INSTALLATION_DATE(10301, "InvalidShipmentDate", "The start date should be after the installation date."),
-    SHIPMENT_DATE_IS_NOT_EDITABLE(10302, "ShipmentDateIsNotEditable", "Shipment date can only be change if the device is in ''In stock'' state."),
+    SHIPMENT_DATE_IS_NOT_EDITABLE(10302, "ShipmentDateIsNotEditable", "Shipment date can only be changed if the device is in ''In stock'' state."),
     DEACTIVATION_DATE_IS_NOT_EDITABLE(10302, "DeactivationDateIsNotEditable", "Deactivation can only be scheduled for devices that are in one of the states: ''In stock'', ''Commissioning'', ''Active''."),
     TRANSITION_IS_NOT_FOUND(10303, "TransitionIsNotFound", "Couldn''t find transition to move device to the ''Inactive'' state.");
 

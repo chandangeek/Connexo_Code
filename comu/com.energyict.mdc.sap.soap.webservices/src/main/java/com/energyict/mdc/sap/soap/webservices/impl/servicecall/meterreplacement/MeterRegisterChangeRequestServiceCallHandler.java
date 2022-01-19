@@ -111,28 +111,30 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                 Instant shipmentDate = lifecycleDates.getReceivedDate().orElse(device.get().getCreateTime());
                 if (extension.getStartDate().isBefore(shipmentDate)) {
                     failServiceCall(extension, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
-                    return;
-                }
 
-                if (!subParentExtension.isCreateRequest()) {
-                    if (WebServiceActivator.getNeedToChangeDigitsNumber()) {
-                        processDeviceRegisterChanging(extension, device.get());
-                    }
-                    sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
-                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                    long deviceId = device.get().getId();
-                    if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
-                        serviceCall.log(LogLevel.INFO, "All profiles are closed, removing shared com schedules from device " + device.get().getName());
-                        deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
-                    }
                 } else {
-                    processDeviceRegisterCreation(extension, device.get());
+
+                    if (!subParentExtension.isCreateRequest()) {
+                        if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
+                            processDeviceRegisterChanging(extension, device.get());
+                        }
+                        sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
+                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                        long deviceId = device.get().getId();
+                        if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
+                            serviceCall.log(LogLevel.INFO, "All profiles are closed, removing shared com schedules from device " + device.get().getName());
+                            deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
+                        }
+                    } else {
+                        processDeviceRegisterCreation(extension, device.get());
+                    }
                 }
             } catch (SAPWebServiceException sapEx) {
                 failServiceCallWithException(extension, sapEx);
             } catch (Exception e) {
                 failServiceCallWithException(extension, new SAPWebServiceException(thesaurus, MessageSeeds.ERROR_PROCESSING_METER_REPLACEMENT_REQUEST, e.getLocalizedMessage()));
             }
+
         } else {
             failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, subParentExtension.getDeviceId());
         }
@@ -176,7 +178,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                 failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
                 return;
             }
-            if (WebServiceActivator.getSearchOnlyByObis()) {
+            if (WebServiceActivator.shouldSearchOnlyByObis()) {
                 failServiceCall(extension, MessageSeeds.NO_OBIS);
                 return;
             }
@@ -189,7 +191,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
             return;
         }
 
-        if (divisionCategory != null && !WebServiceActivator.getSearchOnlyByObis()) {
+        if (divisionCategory != null && !WebServiceActivator.shouldSearchOnlyByObis()) {
             cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
             if (cimPattern == null) {
                 failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
@@ -244,7 +246,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         }
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
-                if (WebServiceActivator.getNeedToChangeDigitsNumber()) {
+                if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
                     changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
                 }
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
@@ -274,7 +276,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
-                if (WebServiceActivator.getNeedToChangeDigitsNumber()) {
+                if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
                     changeRegisterSpec(registers.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
                 }
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
@@ -325,7 +327,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
             channelUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
         }
         if (totalDigitNumberValue != null) {
-            channelUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue())));
+            channelUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue() - fractionDigitNumberValue.intValue()) - Math.pow(10, -fractionDigitNumberValue.intValue())));
         }
         channelUpdater.update();
     }
@@ -333,7 +335,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
     private void changeRegisterSpec(Register register, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
         Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
         if (totalDigitNumberValue != null) {
-            registerUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue()) - 1));
+            registerUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue() - fractionDigitNumberValue.intValue()) - Math.pow(10, -fractionDigitNumberValue.intValue())));
         }
         if (fractionDigitNumberValue != null) {
             registerUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());

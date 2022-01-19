@@ -105,19 +105,26 @@ public class UtilitiesDeviceLocationNotificationCustomPropertySet implements Cus
                         .stringSpec()
                         .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName(), TranslationKeys.INSTALLATION_NUMBER)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), TranslationKeys.POD_ID)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
                         .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName(), TranslationKeys.DIVISION_CATEGORY_CODE)
                         .fromThesaurus(thesaurus)
-                        .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.LOCATION_INFORMATION.javaName(), TranslationKeys.LOCATION_INFORMATION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName(), TranslationKeys.MODIFICATION_INFORMATION)
+                        .fromThesaurus(thesaurus)
                         .finish()
         );
     }

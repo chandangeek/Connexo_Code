@@ -155,7 +155,7 @@ public class MeterReadingResultCreateEndpoint extends AbstractInboundEndPoint im
         LocalDate localDate = message.getMeterReadingResultMessage().getMeterReadingDate().atZone(ZoneId.systemDefault()).toLocalDate();
         LocalDateTime localDateTime = message.getMeterReadingResultMessage().getMeterReadingTime().atDate(localDate);
 
-        childDomainExtension.setMeterReadingDateTime(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+        childDomainExtension.setMeterReadingDateTime(localDateTime.atZone(ZoneId.of("UTC")).toInstant());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);

@@ -105,6 +105,8 @@ public enum TranslationKeys implements TranslationKey {
     CHARACTERISTICS_ID("characteristicsId", "Characteristics id"),
     CHARACTERISTICS_VALUE("characteristicsValue", "Characteristics value"),
     DIVISION_CATEGORY_CODE("divisionCategoryCode", "Division category code"),
+    LOCATION_INFORMATION("locationInformation", "Location information"),
+    MODIFICATION_INFORMATION("modificationInformation", "Modification information"),
 
 
     // Tasks

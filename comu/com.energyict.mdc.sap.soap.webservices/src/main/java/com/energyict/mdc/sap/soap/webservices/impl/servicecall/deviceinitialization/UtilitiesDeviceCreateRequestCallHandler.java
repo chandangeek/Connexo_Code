@@ -153,7 +153,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
 
         String deviceTypeName = extension.getDeviceType();
         if (deviceTypeName == null) {
-            if(WebServiceActivator.getManufacturerModelAsDeviceType()){
+            if (WebServiceActivator.getDeviceTypeNameStrategy().equals(WebServiceActivator.MANUFACTURER_MODEL_STRATEGY)) {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE);
             } else {
                 throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_TYPE_IS_NOT_MAPPED, extension.getMaterialId());
@@ -164,7 +164,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
             if (device.get().getDeviceConfiguration().getDeviceType().getName().equals(deviceTypeName)) {
                 return device.get();
             } else {
-                if(WebServiceActivator.getManufacturerModelAsDeviceType()){
+                if (WebServiceActivator.getDeviceTypeNameStrategy().equals(WebServiceActivator.MANUFACTURER_MODEL_STRATEGY)) {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
                 } else {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.DIFFERENT_DEVICE_TYPE, extension.getMaterialId());

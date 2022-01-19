@@ -12,6 +12,7 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHelper;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
+import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.SapMeterReadingDocumentReasonProviderHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -117,16 +118,13 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
             serviceCall.log(LogLevel.SEVERE, "The channel/register isn't found");
             serviceCall.transitionWithLockIfPossible(DefaultState.WAITING);
         } else {
-            try {
-                Optional<SAPMeterReadingDocumentReason> readingReasonProvider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(domainExtension.getReadingReasonCode(), domainExtension
-                        .getDataSourceTypeCode());
-                if (readingReasonProvider.isPresent()) {
-                    readingReasonProvider.get().process(createCollectionDataBuilder(serviceCall));
-                } else {
-                    throw new IllegalStateException("Unable to get reading reason provider for service call");
-                }
-            } catch (SAPWebServiceException e) {
-                throw new IllegalStateException("Unable to get reading reason provider for service call");
+            SapMeterReadingDocumentReasonProviderHelper helper = new SapMeterReadingDocumentReasonProviderHelper(webServiceActivator.getThesaurus());
+            Optional<SAPMeterReadingDocumentReason> readingReasonProvider = helper.findReadingReasonProvider(domainExtension.getReadingReasonCode(), domainExtension
+                    .getDataSourceTypeCode());
+            if (readingReasonProvider.isPresent()) {
+                readingReasonProvider.get().process(createCollectionDataBuilder(serviceCall));
+            } else {
+                throw new SAPWebServiceException(webServiceActivator.getThesaurus(), MessageSeeds.READING_REASON_PROVIDER_NOT_FOUND);
             }
         }
     }

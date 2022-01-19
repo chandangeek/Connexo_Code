@@ -6,6 +6,9 @@ package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocu
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -43,6 +46,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile ServiceCallService serviceCallService;
     private volatile WebServiceActivator webServiceActivator;
+    private volatile Thesaurus thesaurus;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -80,7 +84,8 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     private void processServiceCall(ServiceCall serviceCall) {
         MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterReadingDocumentCreateRequestCustomPropertySet()).get();
         try {
-            Optional<SAPMeterReadingDocumentReason> readingReasonProvider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(extension.getReadingReasonCode(), extension.getDataSourceTypeCode());
+            SapMeterReadingDocumentReasonProviderHelper helper = new SapMeterReadingDocumentReasonProviderHelper(thesaurus);
+            Optional<SAPMeterReadingDocumentReason> readingReasonProvider = helper.findReadingReasonProvider(extension.getReadingReasonCode(), extension.getDataSourceTypeCode());
 
             Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
             Optional<Channel> channel;
@@ -142,10 +147,9 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
             }
 
         } catch (SAPWebServiceException e) {
-            extension.setErrorMessage(e.getMessageSeed());
+            extension.setErrorMessage(e.getMessageSeed(), new Object[0]);
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
-            return;
         }
     }
 
@@ -186,5 +190,10 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     @Reference
     public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SERVICE);
     }
 }

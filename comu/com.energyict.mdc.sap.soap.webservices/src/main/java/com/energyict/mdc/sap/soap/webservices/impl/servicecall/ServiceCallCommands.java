@@ -285,7 +285,8 @@ public class ServiceCallCommands {
         childDomainExtension.setRequestedScheduledReadingDate(message.getScheduledMeterReadingDate());
 
         try {
-            Optional<SAPMeterReadingDocumentReason> provider = SapMeterReadingDocumentReasonProviderHelper.findReadingReasonProvider(childDomainExtension.getReadingReasonCode(), childDomainExtension.getDataSourceTypeCode());
+            SapMeterReadingDocumentReasonProviderHelper helper = new SapMeterReadingDocumentReasonProviderHelper(webServiceActivator.getThesaurus());
+            Optional<SAPMeterReadingDocumentReason> provider = helper.findReadingReasonProvider(childDomainExtension.getReadingReasonCode(), childDomainExtension.getDataSourceTypeCode());
             if (provider.isPresent()) {
                 if (provider.get().shouldUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())) {
                     childDomainExtension.setScheduledReadingDate(clock.instant());
@@ -295,7 +296,7 @@ public class ServiceCallCommands {
             } else {
                 childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
             }
-        } catch (SAPWebServiceException e){
+        } catch (SAPWebServiceException e) {
             childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
         }
 

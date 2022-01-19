@@ -110,7 +110,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                     failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
                     return;
                 }
-                if (WebServiceActivator.getSearchOnlyByObis()) {
+                if (WebServiceActivator.shouldSearchOnlyByObis()) {
                     failServiceCall(extension, MessageSeeds.NO_OBIS);
                     return;
                 }
@@ -123,7 +123,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                 return;
             }
 
-            if (divisionCategory != null && !WebServiceActivator.getSearchOnlyByObis()) {
+            if (divisionCategory != null && !WebServiceActivator.shouldSearchOnlyByObis()) {
                 cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
                 if (cimPattern == null) {
                     failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
@@ -152,7 +152,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
         }
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
-                if (WebServiceActivator.getNeedToChangeDigitsNumber()) {
+                if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
                     changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
                 }
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
@@ -182,7 +182,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
-                if (WebServiceActivator.getNeedToChangeDigitsNumber()) {
+                if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
                     changeRegisterSpec(registers.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
                 }
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
@@ -280,7 +280,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
             channelUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
         }
         if (totalDigitNumberValue != null) {
-            channelUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue())));
+            channelUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue() - fractionDigitNumberValue.intValue()) - Math.pow(10, -fractionDigitNumberValue.intValue())));
         }
         channelUpdater.update();
     }
@@ -288,7 +288,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
     private void changeRegisterSpec(Register register, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
         Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
         if (totalDigitNumberValue != null) {
-            registerUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue()) - 1));
+            registerUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue() - fractionDigitNumberValue.intValue()) - Math.pow(10, -fractionDigitNumberValue.intValue())));
         }
         if (fractionDigitNumberValue != null) {
             registerUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
