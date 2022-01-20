@@ -413,7 +413,7 @@
      <xsd:documentation xml:lang="EN">
       <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
      </xsd:documentation>
-    </xsd:annotation>f
+    </xsd:annotation>
     <xsd:restriction base="xsd:token">
      <xsd:maxLength value="32"/>
      <xsd:minLength value="1"/>

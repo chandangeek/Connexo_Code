@@ -144,7 +144,7 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.InstallationNumber::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
@@ -152,7 +152,7 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getPointOfDelivery)
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.PointOfDelivery::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
@@ -160,7 +160,7 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getDivisionCategoryCode)
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.DivisionCategoryCode::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
@@ -201,7 +201,7 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationNumber)
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.InstallationNumber::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
@@ -209,7 +209,7 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getPointOfDelivery)
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.PointOfDelivery::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 
@@ -217,7 +217,7 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getDivisionCategoryCode)
-                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.DivisionCategoryCode::getValue)
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }
 

@@ -375,102 +375,21 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="InstallationNumber">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:simpleContent>
-     <xsd:extension base="InstallationNumber.Content">
-      <xsd:attribute name="schemeID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="schemeAgencyID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-     </xsd:extension>
-    </xsd:simpleContent>
-   </xsd:complexType>
-   <xsd:simpleType name="InstallationNumber.Content">
+   <xsd:simpleType name="InstallationNumber">
     <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="40"/>
+     <xsd:maxLength value="60"/>
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="PointOfDelivery">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:simpleContent>
-     <xsd:extension base="PointOfDelivery.Content">
-      <xsd:attribute name="schemeID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="schemeAgencyID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-     </xsd:extension>
-    </xsd:simpleContent>
-   </xsd:complexType>
-   <xsd:simpleType name="PointOfDelivery.Content">
+   <xsd:simpleType name="PointOfDelivery">
     <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="40"/>
+     <xsd:maxLength value="60"/>
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
-   <xsd:complexType name="DivisionCategoryCode">
-    <xsd:annotation>
-     <xsd:documentation xml:lang="EN">
-      <ccts:RepresentationTerm>Code</ccts:RepresentationTerm>
-     </xsd:documentation>
-    </xsd:annotation>
-    <xsd:simpleContent>
-     <xsd:extension base="DivisionCategoryCode.Content">
-      <xsd:attribute name="schemeID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-      <xsd:attribute name="schemeAgencyID">
-       <xsd:simpleType>
-        <xsd:restriction base="xsd:token">
-         <xsd:maxLength value="60"/>
-         <xsd:minLength value="1"/>
-        </xsd:restriction>
-       </xsd:simpleType>
-      </xsd:attribute>
-     </xsd:extension>
-    </xsd:simpleContent>
-   </xsd:complexType>
-   <xsd:simpleType name="DivisionCategoryCode.Content">
+   <xsd:simpleType name="DivisionCategoryCode">
     <xsd:restriction base="xsd:token">
-     <xsd:maxLength value="40"/>
+     <xsd:maxLength value="60"/>
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
