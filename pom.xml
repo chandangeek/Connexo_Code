@@ -60,7 +60,7 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-dependencies-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -71,7 +71,7 @@
         <repository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-dependencies-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexosnapshot-maven-stable-local/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -82,7 +82,7 @@
         <repository>
             <id>eict-third-party</id>
             <name>EnergyICT public releases repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-dependencies-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-third-party-maven-stable-local/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -97,7 +97,7 @@
         <pluginRepository>
             <id>eict-plugins</id>
             <name>EnergyICT plugin repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-dependencies-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -108,7 +108,7 @@
         <pluginRepository>
             <id>eict-plugins-snapshots</id>
             <name>EnergyICT plugin repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-dependencies-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexosnapshot-maven-stable-local/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -157,14 +157,14 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-dependencies-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
         </repository>
 
         <!--  TODO:  This should be replaced with Artifactory  -->
         <snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-dependencies-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexosnapshot-maven-stable-local/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
