@@ -25,7 +25,7 @@ import java.util.Date;
 
 public abstract class AbstractRegisterClass<T, K extends  AbstractDlmsProtocol> extends AbstractObisReader<CollectedRegister, OfflineRegister, T, K> {
 
-    private final CollectedRegisterBuilder collectedRegisterBuilder;
+    protected final CollectedRegisterBuilder collectedRegisterBuilder;
     private final boolean readCaptureTime;
 
     public AbstractRegisterClass(Matcher<T> matcher, CollectedRegisterBuilder collectedRegisterBuilder) {
@@ -70,7 +70,7 @@ public abstract class AbstractRegisterClass<T, K extends  AbstractDlmsProtocol> 
         return captureTime;
     }
 
-    private Unit getUnit(ComposedRegister composedRegister, ComposedCosemObject composedCosemObject) throws IOException {
+    protected Unit getUnit(ComposedRegister composedRegister, ComposedCosemObject composedCosemObject) throws IOException {
         Unit unit = Unit.get(BaseUnit.UNITLESS);
         if (composedRegister.getRegisterUnitAttribute() != null) {
             unit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute())).getEisUnit();
