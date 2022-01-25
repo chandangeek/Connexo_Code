@@ -37,7 +37,6 @@ public class AS3000BillingRegister<T, K extends AbstractDlmsProtocol> extends De
     public CollectedRegister read(K protocol, OfflineRegister offlineRegister) {
         try {
             ObisCode deviceObisCode = offlineRegister.getObisCode();
-            // ObisCode  = super.map(cxoObisCode);
             UniversalObject universalObject = protocol.getDlmsSession().getMeterConfig().findObject(deviceObisCode);
             ComposedRegister composedRegister = getComposedRegister(universalObject, deviceObisCode);
             ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSession().getProperties().isBulkRequest(), composedRegister.getAllAttributes());
