@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.dlms.landisAndGyr.properties;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.mdc.protocol.LegacyProtocolProperties;
 import com.energyict.mdc.upl.nls.TranslationKey;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -9,12 +8,8 @@ import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.nls.PropertyTranslationKeys;
-import com.energyict.protocolimpl.dlms.idis.IDIS;
-import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
-import com.energyict.protocolimplv2.nta.dsmr50.elster.am540.Dsmr50Properties;
 
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -22,21 +17,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.ADDRESSING_MODE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.BULK_REQUEST;
 import static com.energyict.dlms.common.DlmsProtocolProperties.CONNECTION_MODE;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_BULK_REQUEST;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_CONNECTION_MODE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_FORCED_DELAY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_MAX_REC_PDU_SIZE;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
+import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEOUT;
 import static com.energyict.dlms.common.DlmsProtocolProperties.FORCED_DELAY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.HDLC_STR;
-import static com.energyict.dlms.common.DlmsProtocolProperties.MASTER_KEY;
 import static com.energyict.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.SERVER_UPPER_MAC_ADDRESS;
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 import static com.energyict.dlms.common.DlmsProtocolProperties.WRAPPER_STR;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_RETRIES;
-import static com.energyict.dlms.common.DlmsProtocolProperties.DEFAULT_TIMEOUT;
 
 /**
  * A collection of general DLMS properties that are relevant for the EDP DLMS meters.
@@ -67,11 +59,16 @@ public class ZMYDlmsConfigurationSupport implements HasDynamicProperties {
                 this.getAddressingMode(),
                 this.forcedDelayPropertySpec(),
                 this.retriesPropertySpec(),
+                this.readCachePropertySpec(),
                 this.timeoutPropertySpec());
     }
 
     protected PropertySpec retriesPropertySpec() {
         return this.bigDecimalSpec(DlmsProtocolProperties.RETRIES, DEFAULT_RETRIES, PropertyTranslationKeys.V2_ELSTER_RETRIES);
+    }
+
+    protected PropertySpec readCachePropertySpec() {
+        return this.booleanSpec(DlmsProtocolProperties.READCACHE_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_READCACHE);
     }
 
     protected PropertySpec timeoutPropertySpec() {
@@ -143,6 +140,13 @@ public class ZMYDlmsConfigurationSupport implements HasDynamicProperties {
     private PropertySpec durationSpec(String name, Duration defaultValue, TranslationKey translationKey) {
         return UPLPropertySpecFactory
                 .specBuilder(name, false, translationKey, getPropertySpecService()::durationSpec)
+                .setDefaultValue(defaultValue)
+                .finish();
+    }
+
+    private PropertySpec booleanSpec(String name, boolean defaultValue, TranslationKey translationKey) {
+        return UPLPropertySpecFactory
+                .specBuilder(name, false, translationKey, this.propertySpecService::booleanSpec)
                 .setDefaultValue(defaultValue)
                 .finish();
     }
