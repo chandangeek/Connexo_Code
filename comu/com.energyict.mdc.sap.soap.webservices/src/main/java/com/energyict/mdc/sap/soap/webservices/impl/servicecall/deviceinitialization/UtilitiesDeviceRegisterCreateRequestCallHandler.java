@@ -110,7 +110,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                     failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
                     return;
                 }
-                if (WebServiceActivator.shouldSearchOnlyByObis()) {
+                if (WebServiceActivator.getDivisionCategoryCodeMap().isEmpty()) {
                     failServiceCall(extension, MessageSeeds.NO_OBIS);
                     return;
                 }
@@ -123,7 +123,7 @@ public class UtilitiesDeviceRegisterCreateRequestCallHandler extends AbstractChi
                 return;
             }
 
-            if (divisionCategory != null && !WebServiceActivator.shouldSearchOnlyByObis()) {
+            if (divisionCategory != null && !WebServiceActivator.getDivisionCategoryCodeMap().isEmpty()) {
                 cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
                 if (cimPattern == null) {
                     failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,

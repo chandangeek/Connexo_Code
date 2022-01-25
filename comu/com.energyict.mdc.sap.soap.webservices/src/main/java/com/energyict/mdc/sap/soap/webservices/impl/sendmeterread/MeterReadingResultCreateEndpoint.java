@@ -152,7 +152,7 @@ public class MeterReadingResultCreateEndpoint extends AbstractInboundEndPoint im
         childDomainExtension.setMeterReadingTypeCode(message.getMeterReadingResultMessage().getMeterReadingTypeCode());
         childDomainExtension.setMeterReadingValue(message.getMeterReadingResultMessage().getMeterReadingResultValue());
 
-        LocalDate localDate = message.getMeterReadingResultMessage().getMeterReadingDate().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate = message.getMeterReadingResultMessage().getMeterReadingDate().atZone(ZoneId.of("UTC")).toLocalDate();
         LocalDateTime localDateTime = message.getMeterReadingResultMessage().getMeterReadingTime().atDate(localDate);
 
         childDomainExtension.setMeterReadingDateTime(localDateTime.atZone(ZoneId.of("UTC")).toInstant());

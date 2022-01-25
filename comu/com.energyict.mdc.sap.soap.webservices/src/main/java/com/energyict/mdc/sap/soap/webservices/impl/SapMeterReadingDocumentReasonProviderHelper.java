@@ -7,14 +7,8 @@ package com.energyict.mdc.sap.soap.webservices.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 
-import org.osgi.service.component.annotations.Component;
-
-import javax.inject.Singleton;
 import java.util.Optional;
 
-@Singleton
-@Component(name = "com.energyict.mdc.sap.meterreadingdocument.provider.helper",
-        service = SapMeterReadingDocumentReasonProviderHelper.class, immediate = true)
 public class SapMeterReadingDocumentReasonProviderHelper {
 
     private Thesaurus thesaurus;

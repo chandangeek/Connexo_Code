@@ -124,7 +124,7 @@ public class MeterReadingDocumentCreateResultServiceCallHandler implements Servi
             if (readingReasonProvider.isPresent()) {
                 readingReasonProvider.get().process(createCollectionDataBuilder(serviceCall));
             } else {
-                throw new SAPWebServiceException(webServiceActivator.getThesaurus(), MessageSeeds.READING_REASON_PROVIDER_NOT_FOUND);
+                throw new SAPWebServiceException(webServiceActivator.getThesaurus(), MessageSeeds.READING_REASON_PROVIDER_NOT_FOUND, domainExtension.getReadingReasonCode(), domainExtension.getDataSourceTypeCode());
             }
         }
     }

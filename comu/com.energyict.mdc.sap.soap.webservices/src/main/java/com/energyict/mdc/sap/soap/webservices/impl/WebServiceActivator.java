@@ -267,7 +267,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static String exportTaskUpdatedDataEndpointName;
 
     private static boolean supportUpdateOfDigitNumbers;
-    private static boolean searchOnlyByObis;
     private static String deviceTypeNameStrategy;
     private static String readingsStrategySelector;
 
@@ -308,7 +307,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private Map<String, String> deviceTypesMap;
     private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
-    private Map<String, CIMPattern> divisionCategoryCodeMap;
+    private static Map<String, CIMPattern> divisionCategoryCodeMap;
     private String meteringSystemId;
     private List<String> uudSuccessfulErrorCodes = new ArrayList<>();
     private SearchDomainExtension sapAttributesSearchExtension;
@@ -353,7 +352,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return recurrenceCodeMap;
     }
 
-    public Map<String, CIMPattern> getDivisionCategoryCodeMap() {
+    public static Map<String, CIMPattern> getDivisionCategoryCodeMap() {
         return divisionCategoryCodeMap;
     }
 
@@ -367,10 +366,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public static boolean isChannelDigitNumberUpdateSupported() {
         return supportUpdateOfDigitNumbers;
-    }
-
-    public static boolean shouldSearchOnlyByObis() {
-        return searchOnlyByObis;
     }
 
     public static String getDeviceTypeNameStrategy() {
@@ -526,7 +521,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
 
         supportUpdateOfDigitNumbers = Boolean.parseBoolean(bundleContext.getProperty(SUPPORT_UPDATE_OF_DIGIT_NUMBERS));
-        searchOnlyByObis = Boolean.parseBoolean(bundleContext.getProperty(SEARCH_ONLY_BY_OBIS));
         deviceTypeNameStrategy = Optional.ofNullable(bundleContext.getProperty(DEVICE_TYPE_NAME_STRATEGY)).orElse(MATERIAL_ID_STRATEGY);
         readingsStrategySelector = Optional.ofNullable(bundleContext.getProperty(READINGS_STRATEGY_SELECTOR)).orElse(REASON_CODE_STRATEGY);
 

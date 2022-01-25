@@ -36,7 +36,6 @@ public class MeterReadingResultCreateRequestServiceCallHandler implements Servic
     public static final String APPLICATION = "MDC";
     public static final String COLLECTED_VALUE = "01";
     public static final String CALCULATED_VALUE = "02";
-    public static final String[] AVAILABLE_REASON_CODES = new String[]{"08", "21", "12", "22"};
 
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile Clock clock;

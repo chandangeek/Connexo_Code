@@ -763,10 +763,10 @@
      <xsd:element name="StartDate" type="Date"/>
      <xsd:element name="EndDate" type="Date"/>
      <xsd:element name="InstallationPointID" type="InstallationPointID"/>
-     <xsd:element name="InstallationNumber" type="InstallationNumber"/>
-     <xsd:element name="PointOfDelivery" type="PointOfDelivery"/>
-     <xsd:element name="DivisionCategoryCode" type="DivisionCategoryCode"/>
-     <xsd:element name="InstallationPointAddressInformation" type="UtilsDvceERPSmrtMtrLocNotifInstPtAddrInfo"/>
+     <xsd:element name="InstallationNumber" minOccurs="0" type="InstallationNumber"/>
+     <xsd:element name="PointOfDelivery" minOccurs="0" type="PointOfDelivery"/>
+     <xsd:element name="DivisionCategoryCode" minOccurs="0" type="DivisionCategoryCode"/>
+     <xsd:element name="InstallationPointAddressInformation"  minOccurs="0" type="UtilsDvceERPSmrtMtrLocNotifInstPtAddrInfo"/>
      <xsd:element name="InstallationPointHierarchyRelationship" type="UtilsDvceERPSmrtMtrLocNotifInstPtHierRelshp"/>
      <xsd:element name="ModificationInformation" minOccurs="0" type="UtilsDvceERPSmrtMtrLocNotifModifInfo"/>
     </xsd:sequence>

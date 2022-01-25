@@ -147,7 +147,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
             }
 
         } catch (SAPWebServiceException e) {
-            extension.setErrorMessage(e.getMessageSeed(), new Object[0]);
+            extension.setErrorMessage(e.getMessageSeed(), e.getMessageArgs());
             serviceCall.update(extension);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
@@ -194,6 +194,6 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
     @Reference
     public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SERVICE);
+        this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
     }
 }

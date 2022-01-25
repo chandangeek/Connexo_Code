@@ -85,6 +85,8 @@ public class MeterReadingResultCreateConfirmationMessage {
                 } else {
                     confirmationMessage.setLog(createFailedLog(MessageSeeds.REQUEST_WAS_FAILED.getDefaultFormat()));
                 }
+            } else {
+                confirmationMessage.setLog(createFailedLog(MessageSeeds.UNEXPECTED_SERVICE_CALL_STATE.getDefaultFormat(child.getState())));
             }
         }
 

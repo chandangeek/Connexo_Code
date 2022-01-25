@@ -29,6 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     DATA_EXPORT_TASK_WAS_INTERRUPTED(16, "DataExportTaskWasInterrupted", "Data export task was interrupted while waiting for data export confirmation."),
     SEVERITY_CODE_AND_ERROR_MESSAGE(17, "SeverityCodeAndErrorMessage", "Severity code {0}: {1}."),
     NO_SEVERITY_CODE_AND_ERROR_MESSAGE(18, "NoSeverityCodeAndErrorMessage", "No severity code: {0}."),
+    UNEXPECTED_SERVICE_CALL_STATE(19,"UnexpectedServiceCallState","Unexpected service call state: {0}."),
 
     // Custom property set
     CAN_NOT_BE_EMPTY(1001, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
@@ -127,7 +128,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_DATA_SOURCE_TYPE_CODE(6006, "UnsupportedDataSourceTypeCode", "Unsupported data source type code."),
     NO_REQUIRED_DATA_SOURCE_TYPE_CODE(6007, "NoRequiredDataSourceTypeCode", "Data source type code is required."),
     REASON_CODE_DATA_CONTRADICTS_SOURCE_TYPE_CODE(6008, "ReasonCodeContradictsDataSourceTypeCode", "Reason code contradicts the data source type code."),
-    READING_REASON_PROVIDER_NOT_FOUND(6009, "ReadingReasonProviderNotFound", "Couldn''t find needed reading reason provider."),
+    READING_REASON_PROVIDER_NOT_FOUND(6009, "ReadingReasonProviderNotFound", "Couldn''t find needed reading reason provider, reason code = {0}, data source type code = {1}."),
 
     CHANNEL_IS_NOT_FOUND(7000, "ChannelIsNotFound", "Couldn''t find channel with LRN ''{0}''."),
     PROFILE_ID_IS_ALREADY_SET(7001, "ProfileIdIsAlreadySet", "Profile id ''{0}'' is already set for channel ''{1}''."),

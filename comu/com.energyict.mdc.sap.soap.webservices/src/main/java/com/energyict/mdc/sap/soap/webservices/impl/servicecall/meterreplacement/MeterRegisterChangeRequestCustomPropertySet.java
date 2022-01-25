@@ -134,12 +134,12 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .longSpec()
+                        .bigDecimalSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.TOTAL_DIGIT_NUMBER_VALUE)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
-                        .longSpec()
+                        .bigDecimalSpec()
                         .named(MeterRegisterChangeRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.FRACTION_DIGIT_NUMBER_VALUE)
                         .fromThesaurus(thesaurus)
                         .finish(),
