@@ -72,15 +72,11 @@ public class AS3000ReadableRegister {
     }
 
     private AS3000BillingRegister<ObisCode, AS3000> billingActiveEnergyImport() {
-        List<Integer> except = new ArrayList<>();
-        except.add(255);
-        return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.1.8.0.1"), ObisChannel.F, except), collectedRegisterBuilder);
+        return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.1.8.0.1"), ObisChannel.F, 255), collectedRegisterBuilder);
     }
 
     private AS3000BillingRegister<ObisCode, AS3000> billingActiveEnergyExport() {
-        List<Integer> except = new ArrayList<>();
-        except.add(255);
-        return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.2.8.0.1"), ObisChannel.F, except), collectedRegisterBuilder);
+        return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.2.8.0.1"), ObisChannel.F, 255), collectedRegisterBuilder);
     }
 
     private AttributeReader<ObisCode, AS3000> firmwareVersion() {

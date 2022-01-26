@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AS3000BillingRegister<T, K extends AbstractDlmsProtocol> extends DefaultRegister<T, K> {
+public class AS3000BillingRegister<T, AS3000 extends AbstractDlmsProtocol> extends DefaultRegister<T, AS3000> {
     private static String DATE = "1.1.0.1.2.*";
     private static String TIME = "1.1.0.1.3.*";
 
@@ -34,7 +34,7 @@ public class AS3000BillingRegister<T, K extends AbstractDlmsProtocol> extends De
     }
 
     @Override
-    public CollectedRegister read(K protocol, OfflineRegister offlineRegister) {
+    public CollectedRegister read(AS3000 protocol, OfflineRegister offlineRegister) {
         try {
             ObisCode deviceObisCode = offlineRegister.getObisCode();
             UniversalObject universalObject = protocol.getDlmsSession().getMeterConfig().findObject(deviceObisCode);
@@ -49,18 +49,9 @@ public class AS3000BillingRegister<T, K extends AbstractDlmsProtocol> extends De
         }
     }
 
-    private Date readDate(K protocol, String f) throws IOException {
-        Date date;
-        ObisCode dateObisCode = ObisCode.fromString(DATE.replace("*", f));
-        ObisCode timeObisCode = ObisCode.fromString(TIME.replace("*", f));
-        UniversalObject universalObjectDate = protocol.getDlmsSession().getMeterConfig().findObject(dateObisCode);
-        UniversalObject universalObjectTime = protocol.getDlmsSession().getMeterConfig().findObject(timeObisCode);
-        ComposedRegister composedRegisterDate = getComposedRegister(universalObjectDate, dateObisCode);
-        ComposedRegister composedRegisterTime = getComposedRegister(universalObjectTime, timeObisCode);
-        ComposedCosemObject composedCosemObjectDate = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSession().getProperties().isBulkRequest(), composedRegisterDate.getAllAttributes());
-        ComposedCosemObject composedCosemObjectTime = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSession().getProperties().isBulkRequest(), composedRegisterTime.getAllAttributes());
-        AbstractDataType attributeValueDate = composedCosemObjectDate.getAttribute(composedRegisterDate.getRegisterValueAttribute());
-        AbstractDataType attributeValueTime = composedCosemObjectTime.getAttribute(composedRegisterTime.getRegisterValueAttribute());
+    private Date readDate(AS3000 protocol, String f) throws IOException {
+        AbstractDataType attributeValueDate = getAttributeValue(protocol, ObisCode.fromString(DATE.replace("*", f)));
+        AbstractDataType attributeValueTime = getAttributeValue(protocol, ObisCode.fromString(TIME.replace("*", f)));
         Calendar calendar = Calendar.getInstance(protocol.getTimeZone());
         byte[] dateArray = attributeValueDate.getContentByteArray();
         byte[] timeArray = attributeValueTime.getContentByteArray();
@@ -71,7 +62,13 @@ public class AS3000BillingRegister<T, K extends AbstractDlmsProtocol> extends De
                 timeArray[1],
                 0);
         calendar.set(Calendar.MILLISECOND, 0);
-        date = calendar.getTime();
-        return date;
+        return calendar.getTime();
+    }
+
+    private AbstractDataType getAttributeValue(AS3000 protocol, ObisCode obisCode) throws IOException {
+        UniversalObject universalObject = protocol.getDlmsSession().getMeterConfig().findObject(obisCode);
+        ComposedRegister composedRegister = getComposedRegister(universalObject, obisCode);
+        ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSession().getProperties().isBulkRequest(), composedRegister.getAllAttributes());
+        return composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
     }
 }

@@ -4,6 +4,7 @@ package com.energyict.protocolimplv2.dlms.common.obis.matchers;
 import com.energyict.obis.ObisCode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class IgnoreChannelMatcher implements Matcher<ObisCode> {
@@ -18,10 +19,10 @@ public class IgnoreChannelMatcher implements Matcher<ObisCode> {
         this.exceptionValues = new ArrayList<>();
     }
 
-    public IgnoreChannelMatcher(ObisCode obisCode, ObisChannel ignoredObisChannel, List<Integer> exceptionValues) {
+    public IgnoreChannelMatcher(ObisCode obisCode, ObisChannel ignoredObisChannel, Integer... exceptionValues) {
         this.obisCode = obisCode;
         this.ignoredObisChannel = ignoredObisChannel;
-        this.exceptionValues = exceptionValues;
+        this.exceptionValues = Arrays.asList(exceptionValues);
     }
 
     @Override
