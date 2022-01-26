@@ -305,12 +305,11 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 
 
 		int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue());
-		if (hour < 0||hour > 23)
-		{
+		if (hour < 0||hour > 23) {
 			throw new IOException("Failed to parse the message content. " + hour + " is not a valid hour. Message will fail.");
 		}
 
-		byte[] dsDateTimeByteArray = new byte[]{
+		byte[] dsDateTimeByteArray = new byte[] {
 				(byte) 0xFF,
 				(byte) 0xFF,
 				(byte) month,
