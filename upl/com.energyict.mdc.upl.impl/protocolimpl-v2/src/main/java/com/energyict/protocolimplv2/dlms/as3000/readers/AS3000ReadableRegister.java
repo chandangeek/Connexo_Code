@@ -7,6 +7,7 @@ import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.as3000.AS3000;
+import com.energyict.protocolimplv2.dlms.as3000.readers.register.AS3000BillingRegister;
 import com.energyict.protocolimplv2.dlms.common.obis.ObisReader;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.DlmsClassIdMatcher;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.GenricMatcher;
@@ -54,6 +55,8 @@ public class AS3000ReadableRegister {
         registers.add(disconnectUnit());
         registers.add(optionBoardRelay1());
         registers.add(optionBoardRelay2());
+        registers.add(billingActiveEnergyExport());
+        registers.add(billingActiveEnergyImport());
         ReaderRegistry<CollectedRegister, OfflineRegister, ObisCode, AS3000> readableRegisters = new ReaderRegistry<>(registers);
         List<ObisReader<CollectedRegister, OfflineRegister, DLMSClassId, AS3000>> dataClassRegisters = new ArrayList<>();
         dataClassRegisters.add(class1Readers());
@@ -66,6 +69,14 @@ public class AS3000ReadableRegister {
     private AttributeReader<ObisCode, AS3000> dateTime() {
         ObisCodeMatcher obisCodeMatcher = new ObisCodeMatcher(ObisCode.fromString("1.1.0.9.2.255"));
         return new AttributeReader<>(obisCodeMatcher, collectedRegisterBuilder, new OctetStringDateTimeMapper(timeZone), 2);
+    }
+
+    private AS3000BillingRegister<ObisCode> billingActiveEnergyImport() {
+        return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.1.8.0.1"), ObisChannel.F, 255), collectedRegisterBuilder);
+    }
+
+    private AS3000BillingRegister<ObisCode> billingActiveEnergyExport() {
+        return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.2.8.0.1"), ObisChannel.F, 255), collectedRegisterBuilder);
     }
 
     private AttributeReader<ObisCode, AS3000> firmwareVersion() {
