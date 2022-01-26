@@ -71,11 +71,11 @@ public class AS3000ReadableRegister {
         return new AttributeReader<>(obisCodeMatcher, collectedRegisterBuilder, new OctetStringDateTimeMapper(timeZone), 2);
     }
 
-    private AS3000BillingRegister<ObisCode, AS3000> billingActiveEnergyImport() {
+    private AS3000BillingRegister<ObisCode> billingActiveEnergyImport() {
         return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.1.8.0.1"), ObisChannel.F, 255), collectedRegisterBuilder);
     }
 
-    private AS3000BillingRegister<ObisCode, AS3000> billingActiveEnergyExport() {
+    private AS3000BillingRegister<ObisCode> billingActiveEnergyExport() {
         return new AS3000BillingRegister<>(new IgnoreChannelMatcher(ObisCode.fromString("1.1.2.8.0.1"), ObisChannel.F, 255), collectedRegisterBuilder);
     }
 
