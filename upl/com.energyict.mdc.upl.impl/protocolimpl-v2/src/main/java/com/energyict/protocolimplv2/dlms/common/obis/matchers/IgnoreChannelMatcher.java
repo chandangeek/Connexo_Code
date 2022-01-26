@@ -27,15 +27,18 @@ public class IgnoreChannelMatcher implements Matcher<ObisCode> {
 
     @Override
     public boolean matches(ObisCode o) {
-        boolean equals = true;
         for (ObisChannel obisChannel : ObisChannel.values()) {
             if (obisChannel != ignoredObisChannel) {
-                equals &= obisChannel.equals(obisCode, o);
+                if(!obisChannel.equals(obisCode, o)){
+                    return false;
+                }
             } else {
-                equals &= !exceptionValues.contains(obisChannel.getValue(o)) || obisChannel.equals(obisCode, o);
+                if (exceptionValues.contains(obisChannel.getValue(o))){
+                    return false;
+                }
             }
         }
-        return equals;
+        return true;
     }
 
     @Override
