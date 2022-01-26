@@ -58,7 +58,7 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 				try {
 					profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
 				} catch (NotInObjectListException e) {
-					collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+					collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, String.format("Logbook with OBIS code %s was not found it meter object list", logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString(), e.getMessage()));
 				}
 				if (profileGeneric != null) {
 					Calendar fromDate = getCalendar();
