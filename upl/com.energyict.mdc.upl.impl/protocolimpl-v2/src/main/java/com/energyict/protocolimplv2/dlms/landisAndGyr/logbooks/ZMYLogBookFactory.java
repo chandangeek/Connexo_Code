@@ -68,15 +68,15 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 						dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
 						collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
 					} catch (NotInObjectListException e) {
-						collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, "logBookXissue", logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+						collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, String.format("Logbook with OBIS code '%s'' was not found it meter object list", logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString(), e.getMessage()));
 					} catch (IOException e) {
 						if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {
-							collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+							collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, String.format("IOException while reading logbook with OBIS code '%s'' ", logBookReader.getLogBookObisCode().toString()) + e.getMessage()));
 						}
 					}
 				}
 			} else {
-				collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, "logBookXnotsupported", logBookReader.getLogBookObisCode().toString()));
+				collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, String.format("Logbook with OBIS code '%s'' is not supported by the protocol", logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString()));
 			}
 			result.add(collectedLogBook);
 		}
