@@ -349,8 +349,12 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
         public PropInfo(String key, Object value) {
             this.key = key;
-            this.value = value instanceof String ? (String) value : value instanceof Boolean ? Boolean.toString((Boolean) value) : value instanceof Long ? Long.toString((Long) value) : value != null ? Integer
-                    .toString((Integer) value) : "";
+            this.value = value instanceof String ?(String) value :
+                    value instanceof Boolean ? Boolean.toString((Boolean) value)
+                            : value instanceof Long ? Long.toString((Long) value)
+                            : value instanceof Integer ? Integer.toString((Integer) value)
+                            : value != null ? value.toString()
+                            : "";
         }
     }
 
