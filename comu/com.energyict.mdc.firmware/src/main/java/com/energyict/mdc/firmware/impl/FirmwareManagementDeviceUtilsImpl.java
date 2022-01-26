@@ -99,8 +99,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private void initFirmwareMessages() {
         Map<FirmwareType, List<DeviceMessage>> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
-        // only firmware upgrade, no revoked messages and only one message for each firmware type
-        this.device.getFirmwareMessages().stream().filter(candidate -> !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
+        this.device.getFirmwareMessages().stream().forEach(candidate -> {
             if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
                 gatherAllUploadMessages(uploadMessages, candidate);
             } else {
