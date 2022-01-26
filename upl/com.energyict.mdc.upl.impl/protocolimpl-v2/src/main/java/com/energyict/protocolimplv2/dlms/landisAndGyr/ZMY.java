@@ -55,7 +55,6 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERT
 
 public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 
-	/// TODO: Unique services must be singletons !!!
 	private NlsService nlsService;
 	private Converter converter;
 
