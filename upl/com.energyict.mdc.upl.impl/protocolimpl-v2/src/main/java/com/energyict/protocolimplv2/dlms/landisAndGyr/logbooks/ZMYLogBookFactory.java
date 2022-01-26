@@ -39,8 +39,7 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 		doInit(protocol, protocol.getCollectedDataFactory(), protocol.getIssueFactory());
 	}
 
-	protected void doInit(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory)
-	{
+	protected void doInit(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
 		this.protocol               = protocol;
 		this.collectedDataFactory   = collectedDataFactory;
 		this.issueFactory           = issueFactory;
