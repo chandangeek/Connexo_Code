@@ -35,11 +35,11 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 	private CollectedDataFactory    collectedDataFactory;
 	private IssueFactory            issueFactory;
 
-	public ZMYLogBookFactory (AbstractDlmsProtocol protocol) {
+	public ZMYLogBookFactory(AbstractDlmsProtocol protocol) {
 		doInit(protocol, protocol.getCollectedDataFactory(), protocol.getIssueFactory());
 	}
 
-	protected void doInit (AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory)
+	protected void doInit(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory)
 	{
 		this.protocol               = protocol;
 		this.collectedDataFactory   = collectedDataFactory;
@@ -49,14 +49,15 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 	}
 
 	@Override
-	public List<CollectedLogBook> getLogBookData (List<LogBookReader> logBooks) {
+	public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
 		List<CollectedLogBook> result = new ArrayList<>();
 		for (LogBookReader logBookReader : logBooks) {
 			CollectedLogBook collectedLogBook = this.collectedDataFactory.createCollectedLogBook(logBookReader.getLogBookIdentifier());
 			if (isSupported(logBookReader)) {
 				ProfileGeneric profileGeneric = null;
 				try {
-					profileGeneric = protocol.getDlmsSession().getCosemObjectFactory().getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
+					profileGeneric = protocol.getDlmsSession().getCosemObjectFactory()
+							.getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
 				} catch (NotInObjectListException e) {
 					collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, String.format("Logbook with OBIS code %s was not found it meter object list", logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString(), e.getMessage()));
 				}
@@ -83,7 +84,7 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 		return result;
 	}
 
-	protected List<MeterProtocolEvent> parseEvents (DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
+	protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
 		List<MeterEvent> meterEvents;
 		try {
 			if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
@@ -97,7 +98,7 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 		return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
 	}
 
-	private boolean isSupported (LogBookReader logBookReader) {
+	private boolean isSupported(LogBookReader logBookReader) {
 		for (ObisCode supportedLogBookObisCode:supportedLogBooks) {
 			if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()))) {
 				return true;
@@ -106,11 +107,11 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 		return false;
 	}
 
-	private DLMSMeterConfig getMeterConfig () {
+	private DLMSMeterConfig getMeterConfig() {
 		return this.protocol.getDlmsSession().getMeterConfig();
 	}
 
-	private Calendar getCalendar () {
+	private Calendar getCalendar() {
 		return ProtocolUtils.getCalendar(protocol.getTimeZone());
 	}
 }
