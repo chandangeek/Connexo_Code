@@ -9,6 +9,7 @@ import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
 import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.Manufacturer;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.SerialNumberSupport;
 import com.energyict.mdc.upl.io.ConnectionType;
@@ -54,19 +55,16 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERT
 
 public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 
-	/// TODO: The services should not be a part of data classes!!!
+	/// TODO: Unique services must be singletons !!!
 	private NlsService nlsService;
 	private Converter converter;
 
-    //////////////////////////////////////////////////////////////
 	private HasDynamicProperties zmyConfSupport     = new ZMYDlmsConfigurationSupport(getPropertySpecService());
 	private DlmsProperties zmyProperties            = new ZMYProperties();
 	private DeviceRegisterSupport registerFactory   = new ZMYRegisterFactory(this);
 	private LoadProfileBuilder loadProfileBuilder   = new ZMYLoadProfileBuilder(this);
 	private DeviceLogBookSupport logBookFactory     = new ZMYLogBookFactory(this);
 	private ZMYMessaging zmyMessaging               = new ZMYMessaging(new ZMYMessageExecutor(this), converter, nlsService, this.getPropertySpecService());
-
-
 
 	public ZMY(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
 		super(propertySpecService, collectedDataFactory, issueFactory);
@@ -88,12 +86,12 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 
 	@Override
 	public DeviceFunction getDeviceFunction() {
-		return null;
+		return DeviceFunction.NONE;
 	}
 
 	@Override
 	public ManufacturerInformation getManufacturerInformation() {
-		return null;
+		return new ManufacturerInformation(Manufacturer.Eict);
 	}
 
 	@Override
@@ -163,17 +161,6 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 	@Override
 	public String getVersion() {
 		return "$Date: 2022-01-13 19:00:00 +0300 (Thu, 13 Jan 2022)$";
-	}
-
-	/**
-	 * Checks if the given MessageEntry contains the corresponding MessageTag
-	 *
-	 * @param messageEntry the given messageEntry
-	 * @param messageTag   the tag to check
-	 * @return true if this is the message, false otherwise
-	 */
-	protected boolean isItThisMessage(MessageEntry messageEntry, String messageTag) {
-		return messageEntry.getContent().indexOf(messageTag) >= 0;
 	}
 
 	@Override

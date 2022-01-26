@@ -5,11 +5,8 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERTY;
 
 /**
- * Wrapper class that holds the EDP DLMS protocol properties, parses them and returns the proper values.
- * This reuses the general DlmsProperties functionality and adds a few things.
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/01/22
+ * Copyrights Honeywell
+ * Date: 26/01/22
  * Time: 15:00
  * Author: db
  */

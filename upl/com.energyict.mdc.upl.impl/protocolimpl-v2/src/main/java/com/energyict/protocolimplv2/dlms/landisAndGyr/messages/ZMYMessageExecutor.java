@@ -11,14 +11,15 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.messaging.LegacyLoadProfileRegisterMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -42,7 +43,6 @@ import org.xml.sax.SAXException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -58,10 +58,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enabl
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.fromDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.loadProfileAttributeName;
 
-/**
- * @author sva
- * @since 29/11/13 - 16:04
- */
 public class ZMYMessageExecutor extends AbstractMessageExecutor {
 
 	public static final String SEPARATOR = ";";
@@ -133,7 +129,6 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			AbstractDataType abstractDataType = composeObject.getAttribute(dlmsAttribute);
 			collectedMessage.setDeviceProtocolInformation(abstractDataType.toString());
 		} catch (IOException e) {
-			e.printStackTrace();
 			collectedMessage.setDeviceProtocolInformation(e.toString());
 		}
 
@@ -297,7 +292,7 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			} else if (dayOfMonth < -2 || dayOfMonth > 31) {
 				throw new IOException("Failed to parse the message content. " + dayOfMonth + " is not a valid Day of month. Message will fail.");
 			}
-		} catch (NumberFormatException e) {
+		} catch (ProtocolException e) {
 		}
 
 		int dayOfWeek = 0xFF;
@@ -306,11 +301,11 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			if (dayOfWeek < 1 || dayOfWeek > 7) {
 				throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. Message will fail.");
 			}
-		} catch (NumberFormatException e) {	}
+		} catch (ProtocolException e) {	}
 
 
 		int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue());
-		if(hour< 0||hour >23)
+		if (hour < 0||hour > 23)
 		{
 			throw new IOException("Failed to parse the message content. " + hour + " is not a valid hour. Message will fail.");
 		}

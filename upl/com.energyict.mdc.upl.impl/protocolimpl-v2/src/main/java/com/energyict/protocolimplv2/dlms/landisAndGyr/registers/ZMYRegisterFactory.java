@@ -13,6 +13,7 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.dlms.cosem.DLMSClassId;
+import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.attributes.ActivityCalendarAttributes;
 import com.energyict.dlms.cosem.attributes.ClockAttributes;
 import com.energyict.dlms.cosem.attributes.DataAttributes;
@@ -22,6 +23,8 @@ import com.energyict.dlms.cosem.attributes.ExtendedRegisterAttributes;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.RegisterIdentifierById;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.NotInObjectListException;
 import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.ResultType;
@@ -30,7 +33,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
-import com.energyict.protocol.exceptions.ConnectionCommunicationException;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.idis.registers.AlarmBitsRegister;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedActivityCalendar;
@@ -40,6 +43,7 @@ import com.energyict.protocolimplv2.common.composedobjects.ComposedDisconnectCon
 import com.energyict.protocolimplv2.common.composedobjects.ComposedObject;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.idis.am130.AM130;
 import com.energyict.protocolimplv2.dlms.idis.am130.registers.AlarmBitsRegister2;
 
 import java.io.IOException;
@@ -53,10 +57,10 @@ import java.util.Map;
 import java.util.TimeZone;
 
 /**
- * Copyrights EnergyICT
+ * Copyrights Honeywell
  *
- * @author khe
- * @since 5/01/2015 - 11:13
+ * @author db
+ * @since 26/01/2022 - 12:13
  */
 public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
@@ -69,10 +73,10 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	private static final String ACTIVE_FIRMWARE_SIGNATURE_1 = "1.1.0.2.8.255";
 	private static final String ACTIVE_FIRMWARE_SIGNATURE_2 = "1.2.0.2.8.255";
 
-	private final AbstractDlmsProtocol mProtocol;
+	private final AbstractDlmsProtocol Protocol;
 
 	public ZMYRegisterFactory(AbstractDlmsProtocol protocol) {
-		this.mProtocol = protocol;
+		this.Protocol = protocol;
 	}
 
 	@Override
@@ -110,7 +114,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
 
 		int count = createComposedObjectMap(registers, composedObjectMap, dlmsAttributes);
-		ComposedCosemObject composedCosemObject = new ComposedCosemObject(mProtocol.getDlmsSession(), getMeterProtocol().getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
+		ComposedCosemObject composedCosemObject = new ComposedCosemObject(Protocol.getDlmsSession(), getMeterProtocol().getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
 		return createCollectedRegisterListFromComposedCosemObject(registers.subList(0, count), composedObjectMap, composedCosemObject);
 	}
 
@@ -146,10 +150,10 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
 		ObisCode obisCode = register.getObisCode();
 		if (isMBusValueChannel(register.getObisCode())) {
-			obisCode = mProtocol.getPhysicalAddressCorrectedObisCode(obisCode, register.getSerialNumber());
+			obisCode = Protocol.getPhysicalAddressCorrectedObisCode(obisCode, register.getSerialNumber());
 		}
 
-		final UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(mProtocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
+		final UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(Protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
 		if (uo != null) {
 			if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
 				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID());
@@ -233,7 +237,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	protected CollectedRegister createCollectedRegisterFor(OfflineRegister offlineRegister, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
 		ObisCode obisCode = offlineRegister.getObisCode();
 		if (isMBusValueChannel(offlineRegister.getObisCode())) {
-			obisCode = mProtocol.getPhysicalAddressCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
+			obisCode = Protocol.getPhysicalAddressCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
 		}
 		ComposedObject composedObject = composedObjectMap.get(obisCode);
 		if (composedObject == null) {
@@ -285,7 +289,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Encountered unexpected ComposedObject - data cannot be parsed."); // Should never occur
 				}
 			} catch (IOException e) {
-				if (DLMSIOExceptionHandler.isUnexpectedResponse(e, mProtocol.getDlmsSession().getProperties().getRetries())) {
+				if (DLMSIOExceptionHandler.isUnexpectedResponse(e, Protocol.getDlmsSession().getProperties().getRetries())) {
 					if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
 						return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
 					} else if (DLMSIOExceptionHandler.isTemporaryFailure(e)) {
@@ -318,7 +322,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		Issue timeZoneIssue = null;
 		if (composedRegister.getRegisterCaptureTime() != null) {
 			AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
-			TimeZone configuredTimeZone = mProtocol.getDlmsSession().getTimeZone();
+			TimeZone configuredTimeZone = Protocol.getDlmsSession().getTimeZone();
 			DateTimeOctetString dlmsDateTime = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
 
 			captureTime = dlmsDateTime.getValue().getTime();
@@ -415,7 +419,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		Iterator<OfflineRegister> it = offlineRegisters.iterator();
 		while (it.hasNext()) {
 			OfflineRegister register = it.next();
-			if (mProtocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
+			if (Protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
 				invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
 				it.remove();
 			}
@@ -434,9 +438,40 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	}
 
 	protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
-		return null;
+		try {
+			HistoricalValue historicalValue = ((AM130) getMeterProtocol()).getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
+			RegisterValue registerValue = new RegisterValue(
+					offlineRegister.getObisCode(),
+					historicalValue.getQuantityValue(),
+					historicalValue.getEventTime(), // event time
+					null, // from time
+					historicalValue.getBillingDate(), // to time
+					historicalValue.getCaptureTime(),  // read time
+					0,
+					null);
+
+			return createCollectedRegister(registerValue, offlineRegister);
+		} catch (NoSuchRegisterException e) {
+			return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported, e.getMessage());
+		} catch (NotInObjectListException e) {
+			return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
+		} catch (IOException e) {
+			return handleIOException(offlineRegister, e);
+		}
 	}
 
+	@SuppressWarnings("Duplicates")
+	private CollectedRegister handleIOException(OfflineRegister offlineRegister, IOException e) {
+		if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getMeterProtocol().getDlmsSession().getProperties().getRetries())) {
+			if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
+				return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
+			} else {
+				return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, e.getMessage());
+			}
+		} else {
+			throw ConnectionCommunicationException.numberOfRetriesReached(e, getMeterProtocol().getDlmsSession().getProperties().getRetries() + 1);
+		}
+	}
 	/**
 	 * Create a collected register that indicates no data is available at this time for the particular register.
 	 *
@@ -482,7 +517,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	}
 
 	public AbstractDlmsProtocol getMeterProtocol() {
-		return mProtocol;
+		return Protocol;
 	}
 
 	private enum DisconnectControlState {
