@@ -14,7 +14,7 @@ import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.ComposedCosemObject;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.common.composedobjects.ComposedRegister;
-import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
+import com.energyict.protocolimplv2.dlms.as3000.AS3000;
 import com.energyict.protocolimplv2.dlms.common.obis.matchers.Matcher;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.CollectedRegisterBuilder;
 import com.energyict.protocolimplv2.dlms.common.obis.readers.register.DefaultRegister;
@@ -25,7 +25,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 
-public class AS3000BillingRegister<T, AS3000 extends AbstractDlmsProtocol> extends DefaultRegister<T, AS3000> {
+public class AS3000BillingRegister<T> extends DefaultRegister<T, AS3000> {
     private static String DATE = "1.1.0.1.2.*";
     private static String TIME = "1.1.0.1.3.*";
 
