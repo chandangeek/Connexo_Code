@@ -336,25 +336,29 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                 return (FirmwareVersion) propInfos.stream()
                         .filter(property -> property.key.equals(firmwareVersionPropertySpec.get().getName()))
                         .findFirst()
-                        .map(property -> firmwareVersionPropertySpec.get().getValueFactory().fromStringValue(property.value))
+                        .map(property -> firmwareVersionPropertySpec.get().getValueFactory().fromStringValue(property.getValueAsString()))
                         .orElse(null);
             }
         }
         return null;
     }
 
-    class PropInfo {
-        String key;
-        String value;
+    static class PropInfo {
+        private final String key;
+        private final Object value;
 
         public PropInfo(String key, Object value) {
             this.key = key;
-            this.value = value instanceof String ?(String) value :
-                    value instanceof Boolean ? Boolean.toString((Boolean) value)
-                            : value instanceof Long ? Long.toString((Long) value)
-                            : value instanceof Integer ? Integer.toString((Integer) value)
-                            : value != null ? value.toString()
-                            : "";
+            this.value = value;
+        }
+
+        public String getValueAsString() {
+            return value instanceof String ? (String) value
+                    : value instanceof Boolean ? Boolean.toString((Boolean) value)
+                    : value instanceof Long ? Long.toString((Long) value)
+                    : value instanceof Integer ? Integer.toString((Integer) value)
+                    : value != null ? value.toString()
+                    : "";
         }
     }
 
