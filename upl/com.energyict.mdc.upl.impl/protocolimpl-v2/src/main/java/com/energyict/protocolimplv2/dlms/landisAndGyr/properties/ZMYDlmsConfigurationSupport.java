@@ -67,14 +67,17 @@ public class ZMYDlmsConfigurationSupport implements HasDynamicProperties {
     }
 
     protected PropertySpec timeoutPropertySpec() {
-        return this.durationSpec(DlmsProtocolProperties.TIMEOUT, Duration.ofMillis(DEFAULT_TIMEOUT.intValue()), PropertyTranslationKeys.V2_ELSTER_TIMEOUT);
+        return this.durationSpec(DlmsProtocolProperties.TIMEOUT, Duration.ofMillis(DEFAULT_TIMEOUT.intValue()),
+                PropertyTranslationKeys.V2_ELSTER_TIMEOUT);
     }
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException { }
 
-    protected PropertySpec bigDecimalSpec(String name, boolean required, TranslationKey translationKey, BigDecimal defaultValue, BigDecimal... validValues) {
-        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey, getPropertySpecService()::bigDecimalSpec);
+    protected PropertySpec bigDecimalSpec(String name, boolean required, TranslationKey translationKey, BigDecimal defaultValue,
+                                          BigDecimal... validValues) {
+        PropertySpecBuilder<BigDecimal> specBuilder = UPLPropertySpecFactory.specBuilder(name, required, translationKey,
+                getPropertySpecService()::bigDecimalSpec);
         specBuilder.setDefaultValue(defaultValue);
         specBuilder.addValues(validValues);
         if (validValues.length > 0) {
@@ -93,7 +96,8 @@ public class ZMYDlmsConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec getConnectionMode() {
         return UPLPropertySpecFactory
-                .specBuilder(CONNECTION_MODE, false, PropertyTranslationKeys.V2_DLMS_CONNECTION_MODE, this.propertySpecService::stringSpec)
+                .specBuilder(CONNECTION_MODE, false, PropertyTranslationKeys.V2_DLMS_CONNECTION_MODE,
+                        this.propertySpecService::stringSpec)
                 .setDefaultValue(DEFAULT_CONNECTION_MODE)
                 .addValues(
                         WRAPPER_STR,
@@ -104,7 +108,8 @@ public class ZMYDlmsConfigurationSupport implements HasDynamicProperties {
 
     protected PropertySpec getAddressingMode() {
         return UPLPropertySpecFactory
-                .specBuilder(ADDRESSING_MODE, true, com.energyict.protocolimpl.nls.PropertyTranslationKeys.EICT_ADDRESSING_MODE, this.propertySpecService::bigDecimalSpec)
+                .specBuilder(ADDRESSING_MODE, true, com.energyict.protocolimpl.nls.PropertyTranslationKeys.EICT_ADDRESSING_MODE,
+                        this.propertySpecService::bigDecimalSpec)
                 .finish();
     }
 

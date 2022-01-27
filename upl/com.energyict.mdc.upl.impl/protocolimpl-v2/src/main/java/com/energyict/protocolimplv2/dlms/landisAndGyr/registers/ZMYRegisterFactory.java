@@ -109,15 +109,18 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
 
 		int count = createComposedObjectMap(registers, composedObjectMap, dlmsAttributes);
-		ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), getMeterProtocol().getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
-		return createCollectedRegisterListFromComposedCosemObject(registers.subList(0, count), composedObjectMap, composedCosemObject);
+		ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), getMeterProtocol().
+				getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
+		return createCollectedRegisterListFromComposedCosemObject(registers.subList(0, count), composedObjectMap,
+				composedCosemObject);
 	}
 
 	/**
 	 * Create a map of ComposedObjects for as much registers as possible.
 	 * Return the number of registers from the given list that will be read out.
 	 */
-	protected int createComposedObjectMap(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes) {
+	protected int createComposedObjectMap(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap,
+	                                      List<DLMSAttribute> dlmsAttributes) {
 		int count = 0;
 
 		for (OfflineRegister register : registers) {
@@ -140,7 +143,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	 * Return false if the register is not supported by the protocol implementation or the meter.
 	 * Return null if no attribute(s) were added to the list, because the attribute(s) for the given register could no longer be added to the bulk request (meter limit of 16)
 	 */
-	protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap, List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
+	protected Boolean addComposedObjectToComposedRegisterMap(Map<ObisCode, ComposedObject> composedObjectMap,
+	                                                         List<DLMSAttribute> dlmsAttributes, OfflineRegister register) {
 		ComposedObject composedObject = null;
 
 		ObisCode obisCode = register.getObisCode();
@@ -148,14 +152,19 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 			obisCode = protocol.getPhysicalAddressCorrectedObisCode(obisCode, register.getSerialNumber());
 		}
 
-		final UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
+		final UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession().getMeterConfig().
+				getInstantiatedObjectList(), obisCode);
 		if (uo != null) {
-			if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID());
-				DLMSAttribute unitAttribute = new DLMSAttribute(obisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(), uo.getClassID());
+			if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.
+					getClassId()) {
+				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, RegisterAttributes.VALUE.getAttributeNumber(),
+						uo.getClassID());
+				DLMSAttribute unitAttribute = new DLMSAttribute(obisCode, RegisterAttributes.SCALER_UNIT.getAttributeNumber(),
+						uo.getClassID());
 				DLMSAttribute captureTimeAttribute = null;  //Optional attribute
 				if (uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
-					captureTimeAttribute = new DLMSAttribute(obisCode, ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), uo.getClassID());
+					captureTimeAttribute = new DLMSAttribute(obisCode, ExtendedRegisterAttributes.CAPTURE_TIME.getAttributeNumber(),
+							uo.getClassID());
 				}
 				if ((dlmsAttributes.size() + (captureTimeAttribute == null ? 2 : 3)) > BULK_REQUEST_ATTRIBUTE_LIMIT) {
 					return null; //Don't add the new attributes, no more room
@@ -172,9 +181,12 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					return null; //Don't add the new attributes, no more room
 				}
 
-				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CURRENT_AVG_VALUE.getAttributeNumber(), uo.getClassID());
-				DLMSAttribute unitAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(), uo.getClassID());
-				DLMSAttribute captureTimeAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CAPTURE_TIME.getAttributeNumber(), uo.getClassID());
+				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CURRENT_AVG_VALUE.
+						getAttributeNumber(), uo.getClassID());
+				DLMSAttribute unitAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.UNIT.getAttributeNumber(),
+						uo.getClassID());
+				DLMSAttribute captureTimeAttribute = new DLMSAttribute(obisCode, DemandRegisterAttributes.CAPTURE_TIME.
+						getAttributeNumber(), uo.getClassID());
 
 				composedObject = new ComposedRegister(valueAttribute, unitAttribute, captureTimeAttribute);
 				dlmsAttributes.add(((ComposedRegister) composedObject).getRegisterValueAttribute());
@@ -185,7 +197,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					return null; //Don't add the new attributes, no more room
 				}
 
-				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, DataAttributes.VALUE.getAttributeNumber(), uo.getClassID());
+				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, DataAttributes.VALUE.getAttributeNumber(),
+						uo.getClassID());
 				composedObject = new ComposedData(valueAttribute);
 				dlmsAttributes.add(((ComposedData) composedObject).getDataValueAttribute());
 			} else if (uo.getClassID() == DLMSClassId.DISCONNECT_CONTROL.getClassId()) {
@@ -193,7 +206,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					return null; //Don't add the new attributes, no more room
 				}
 
-				DLMSAttribute controlStateAttribute = new DLMSAttribute(obisCode, DisconnectControlAttribute.CONTROL_STATE.getAttributeNumber(), uo.getClassID());
+				DLMSAttribute controlStateAttribute = new DLMSAttribute(obisCode, DisconnectControlAttribute.CONTROL_STATE.
+						getAttributeNumber(), uo.getClassID());
 				composedObject = new ComposedDisconnectControl(null, controlStateAttribute, null);
 				dlmsAttributes.add(((ComposedDisconnectControl) composedObject).getControlStateAttribute());
 			} else if (uo.getClassID() == DLMSClassId.CLOCK.getClassId()) {
@@ -201,7 +215,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					return null; //Don't add the new attributes, no more room
 				}
 
-				DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ClockAttributes.TIME.getAttributeNumber(), uo.getClassID());
+				DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ClockAttributes.TIME.getAttributeNumber(),
+						uo.getClassID());
 				composedObject = new ComposedClock(timeAttribute);
 				dlmsAttributes.add(((ComposedClock) composedObject).getTimeAttribute());
 			} else if (uo.getClassID() == DLMSClassId.ACTIVITY_CALENDAR.getClassId()) {
@@ -209,7 +224,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					return null; //Don't add the new attributes, no more room
 				}
 
-				DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE.getAttributeNumber(), uo.getClassID());
+				DLMSAttribute timeAttribute = new DLMSAttribute(obisCode, ActivityCalendarAttributes.CALENDAR_NAME_ACTIVE.
+						getAttributeNumber(), uo.getClassID());
 				composedObject = new ComposedActivityCalendar(timeAttribute);
 				dlmsAttributes.add(((ComposedActivityCalendar) composedObject).getCalendarNameActiveAttribute());
 			}
@@ -221,7 +237,9 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		return false;
 	}
 
-	protected List<CollectedRegister> createCollectedRegisterListFromComposedCosemObject(List<OfflineRegister> registers, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
+	protected List<CollectedRegister> createCollectedRegisterListFromComposedCosemObject(List<OfflineRegister> registers,
+	                                                                                     Map<ObisCode, ComposedObject> composedObjectMap,
+	                                                                                     ComposedCosemObject composedCosemObject) {
 		List<CollectedRegister> collectedRegisters = new ArrayList<>();
 		for (OfflineRegister offlineRegister : registers) {
 			collectedRegisters.add(createCollectedRegisterFor(offlineRegister, composedObjectMap, composedCosemObject));
@@ -229,7 +247,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		return collectedRegisters;
 	}
 
-	protected CollectedRegister createCollectedRegisterFor(OfflineRegister offlineRegister, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
+	protected CollectedRegister createCollectedRegisterFor(OfflineRegister offlineRegister, Map<ObisCode, ComposedObject> composedObjectMap,
+	                                                       ComposedCosemObject composedCosemObject) {
 		ObisCode obisCode = offlineRegister.getObisCode();
 		if (isMBusValueChannel(offlineRegister.getObisCode())) {
 			obisCode = protocol.getPhysicalAddressCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
@@ -248,40 +267,50 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					RegisterValue registerValue;
 					if (dataValue.getOctetString() != null) {
 						registerValue = containsActiveFirmwareSignature(composedData)
-								? new RegisterValue(offlineRegister, "0x" + ProtocolTools.getHexStringFromBytes(dataValue.getOctetString().getOctetStr(), ""))
+								? new RegisterValue(offlineRegister, "0x" + ProtocolTools.
+								getHexStringFromBytes(dataValue.getOctetString().getOctetStr(), ""))
 								: new RegisterValue(offlineRegister, dataValue.getOctetString().stringValue().trim());
 					} else if (dataValue.getBooleanObject() != null) {
-						registerValue = new RegisterValue(offlineRegister, String.valueOf(dataValue.getBooleanObject().getState()));
+						registerValue = new RegisterValue(offlineRegister, String.valueOf(dataValue.getBooleanObject().
+								getState()));
 					} else if (dataValue.getTypeEnum() != null) {
-						registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getTypeEnum().getValue(), Unit.getUndefined()));
+						registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getTypeEnum().getValue(),
+								Unit.getUndefined()));
 					} else if (dataValue.getUnsigned32() != null) {
-						registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getUnsigned32().getValue(), Unit.getUndefined()));
+						registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.getUnsigned32().getValue(),
+								Unit.getUndefined()));
 					} else {
 						registerValue = getRegisterValueForAlarms(offlineRegister, dataValue);
 					}
 					return createCollectedRegister(registerValue, offlineRegister);
 				} else if (composedObject instanceof ComposedDisconnectControl) {
 					ComposedDisconnectControl composedDisconnectControl = (ComposedDisconnectControl) composedObject;
-					AbstractDataType controlState = composedCosemObject.getAttribute(composedDisconnectControl.getControlStateAttribute());
+					AbstractDataType controlState = composedCosemObject.getAttribute(composedDisconnectControl.
+							getControlStateAttribute());
 
-					RegisterValue registerValue = new RegisterValue(offlineRegister, DisconnectControlState.fromState(controlState.intValue()).name());
+					RegisterValue registerValue = new RegisterValue(offlineRegister, DisconnectControlState.
+							fromState(controlState.intValue()).name());
 					registerValue.setQuantity(new Quantity(controlState.intValue(), Unit.get(BaseUnit.UNITLESS)));
 					return createCollectedRegister(registerValue, offlineRegister);
 				} else if (composedObject instanceof ComposedClock) {
 					ComposedClock composedClock = (ComposedClock) composedObject;
 					AbstractDataType timeAttribute = composedCosemObject.getAttribute(composedClock.getTimeAttribute());
-					Calendar calendar = new AXDRDateTime(timeAttribute.getOctetString(), AXDRDateTimeDeviationType.Negative).getValue();
+					Calendar calendar = new AXDRDateTime(timeAttribute.getOctetString(), AXDRDateTimeDeviationType.Negative).
+							getValue();
 
 					RegisterValue registerValue = new RegisterValue(offlineRegister, calendar.getTime());
 					registerValue.setQuantity(new Quantity(calendar.getTimeInMillis() / 1000, Unit.get(BaseUnit.SECOND)));
 					return createCollectedRegister(registerValue, offlineRegister);
 				} else if (composedObject instanceof ComposedActivityCalendar) {
 					ComposedActivityCalendar composedActivityCalendar = (ComposedActivityCalendar) composedObject;
-					AbstractDataType calendarNameValue = composedCosemObject.getAttribute(composedActivityCalendar.getCalendarNameActiveAttribute());
-					RegisterValue registerValue = new RegisterValue(offlineRegister, calendarNameValue.getOctetString().stringValue().trim());
+					AbstractDataType calendarNameValue = composedCosemObject.getAttribute(composedActivityCalendar.
+							getCalendarNameActiveAttribute());
+					RegisterValue registerValue = new RegisterValue(offlineRegister, calendarNameValue.getOctetString().
+							stringValue().trim());
 					return createCollectedRegister(registerValue, offlineRegister);
 				} else {
-					return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Encountered unexpected ComposedObject - data cannot be parsed."); // Should never occur
+					return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible,
+							"Encountered unexpected ComposedObject - data cannot be parsed."); // Should never occur
 				}
 			} catch (IOException e) {
 				if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries())) {
@@ -298,19 +327,23 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		}
 	}
 
-	protected CollectedRegister getCollectedRegisterForComposedObject(ComposedObject composedObject, OfflineRegister offlineRegister, ComposedCosemObject composedCosemObject) throws IOException {
+	protected CollectedRegister getCollectedRegisterForComposedObject(ComposedObject composedObject,
+	                                                                  OfflineRegister offlineRegister,
+	                                                                  ComposedCosemObject composedCosemObject) throws IOException {
 		ComposedRegister composedRegister = ((ComposedRegister) composedObject);
 		Unit unit = Unit.get(BaseUnit.UNITLESS);
 		Issue scalerUnitIssue = null;
 		if (composedRegister.getRegisterUnitAttribute() != null &&
-				composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()).getStructure().getDataType(1) != null) {
+				composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()).getStructure().
+						getDataType(1) != null) {
 			ScalerUnit scalerUnit = null;
 			try {
 				scalerUnit = new ScalerUnit(composedCosemObject.getAttribute(composedRegister.getRegisterUnitAttribute()));
 				unit = scalerUnit.getEisUnit();
 			} catch (Exception e) {
-				scalerUnitIssue =  getMeterProtocol().getIssueFactory().createProblem(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
-						"Unable to resolve the unit code value: " + scalerUnit.getUnitCode());
+				scalerUnitIssue =  getMeterProtocol().getIssueFactory().createProblem(offlineRegister.getObisCode(),
+						"registerXissue", offlineRegister.getObisCode(), "Unable to resolve the unit " +
+								"code value: " + scalerUnit.getUnitCode());
 			}
 		}
 		Date captureTime = null;
@@ -332,10 +365,11 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
 			int configuredTimeZoneOffset = offsetAtCaptureTime / (-1*60*1000);
 			if (dlmsDateTime.getDeviation() != configuredTimeZoneOffset){
-				timeZoneIssue = getMeterProtocol().getIssueFactory().createWarning(offlineRegister.getObisCode(), "registerXissue", offlineRegister.getObisCode(),
-						"Time zone offset reported by the meter ["+dlmsDateTime.getDeviation()+"] "+
-								(dlmsDateTime.isDST()?" (in DST) ":"") +
-								"differs from the time zone configured in HES ["+configuredTimeZone.getID()+"] = ["+configuredTimeZoneOffset+"]");
+				timeZoneIssue = getMeterProtocol().getIssueFactory().createWarning(offlineRegister.getObisCode(),
+						"registerXissue", offlineRegister.getObisCode(), "Time zone offset reported by the meter [" +
+								dlmsDateTime.getDeviation()+"] "+ (dlmsDateTime.isDST()?" (in DST) ":"") +
+								"differs from the time zone configured in HES ["+configuredTimeZone.getID() + "] = [" +
+								configuredTimeZoneOffset+"]");
 			}
 
 		}
@@ -344,7 +378,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
 		// let each sub-protocol to create it's own flavour of time-stamp combination
 		// AM540 when reading mirror will change this
-		RegisterValue registerValue  = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit );
+		RegisterValue registerValue  = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue,
+				unit );
 
 		CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
 		if (timeZoneIssue != null) {
@@ -364,7 +399,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	 * This is overridden in AM540 to handle mirror devices!
 	 *
 	 */
-	protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime, AbstractDataType attributeValue, Unit unit) {
+	protected RegisterValue getRegisterValueForComposedRegister(OfflineRegister offlineRegister, Date captureTime,
+	                                                            AbstractDataType attributeValue, Unit unit) {
 		if (attributeValue.isOctetString()) {
 			return new RegisterValue(offlineRegister, attributeValue.getOctetString().stringValue());
 		} else {
@@ -377,11 +413,14 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
 	protected RegisterValue getRegisterValueForAlarms(OfflineRegister offlineRegister, AbstractDataType dataValue) {
 		RegisterValue registerValue;
-		if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER1)) || offlineRegister.getObisCode().equals(ObisCode.fromString(ERROR_REGISTER))) {
-			AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(offlineRegister.getObisCode(), dataValue.longValue());
+		if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER1)) ||
+				offlineRegister.getObisCode().equals(ObisCode.fromString(ERROR_REGISTER))) {
+			AlarmBitsRegister alarmBitsRegister = new AlarmBitsRegister(offlineRegister.getObisCode(),
+					dataValue.longValue());
 			registerValue = alarmBitsRegister.getRegisterValue();
 		} else if (offlineRegister.getObisCode().equals(ObisCode.fromString(ALARM_REGISTER2))) {
-			AlarmBitsRegister2 alarmBitsRegister2 = new AlarmBitsRegister2(offlineRegister.getObisCode(), dataValue.longValue());
+			AlarmBitsRegister2 alarmBitsRegister2 = new AlarmBitsRegister2(offlineRegister.getObisCode(),
+					dataValue.longValue());
 			registerValue = alarmBitsRegister2.getRegisterValue();
 		} else {
 			registerValue = new RegisterValue(offlineRegister, new Quantity(dataValue.toBigDecimal(), Unit.getUndefined()));
@@ -415,7 +454,9 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		while (it.hasNext()) {
 			OfflineRegister register = it.next();
 			if (protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
-				invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
+				invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible,
+						"Register " + register + " is not supported because MbusDevice " +
+								register.getSerialNumber() + " is not installed on the physical device."));
 				it.remove();
 			}
 		}
@@ -434,7 +475,8 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
 	protected CollectedRegister readBillingRegister(OfflineRegister offlineRegister) {
 		try {
-			HistoricalValue historicalValue = ((AM130) getMeterProtocol()).getStoredValues().getHistoricalValue(offlineRegister.getObisCode());
+			HistoricalValue historicalValue = ((AM130) getMeterProtocol()).getStoredValues().
+					getHistoricalValue(offlineRegister.getObisCode());
 			RegisterValue registerValue = new RegisterValue(
 					offlineRegister.getObisCode(),
 					historicalValue.getQuantityValue(),
@@ -475,39 +517,53 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	 * @return		The corresponding {@link CollectedRegister}.
 	 */
 	protected final CollectedRegister dataNotAvailable(final OfflineRegister offlineRegister) {
-		final CollectedRegister collectedRegister = getMeterProtocol().getCollectedDataFactory().createDefaultCollectedRegister(this.getRegisterIdentifier(offlineRegister));
-		@SuppressWarnings("unchecked") final Issue issue = getMeterProtocol().getIssueFactory().createWarning(offlineRegister.getObisCode(), "noDataFound", new Object[0]);
+		final CollectedRegister collectedRegister = getMeterProtocol().getCollectedDataFactory().
+				createDefaultCollectedRegister(this.getRegisterIdentifier(offlineRegister));
+		@SuppressWarnings("unchecked") final Issue issue = getMeterProtocol().getIssueFactory().
+				createWarning(offlineRegister.getObisCode(), "noDataFound", new Object[0]);
 		collectedRegister.setFailureInformation(ResultType.DataIncomplete, issue);
 
 		return collectedRegister;
 	}
 
 	private boolean isMBusValueChannel(ObisCode obisCode) {
-		return ((obisCode.getA() == 0) && (obisCode.getC() == 24) && (obisCode.getD() == 2) && (obisCode.getE() > 0 && obisCode.getE() < 5) && obisCode.getF() == 255);
+		return ((obisCode.getA() == 0) && (obisCode.getC() == 24) && (obisCode.getD() == 2) &&
+				(obisCode.getE() > 0 && obisCode.getE() < 5) && obisCode.getF() == 255);
 	}
 
 	protected RegisterIdentifier getRegisterIdentifier(OfflineRegister offlineRtuRegister) {
-		return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode(), offlineRtuRegister.getDeviceIdentifier());
+		return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode(),
+				offlineRtuRegister.getDeviceIdentifier());
 	}
 
 	protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
-		CollectedRegister collectedRegister = getMeterProtocol().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
+		CollectedRegister collectedRegister = getMeterProtocol().getCollectedDataFactory().
+				createDefaultCollectedRegister(getRegisterIdentifier(register));
 		if (resultType == ResultType.InCompatible) {
-			collectedRegister.setFailureInformation(ResultType.InCompatible, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), String.format("Register with OBIS code %s is incompatible", register.getObisCode().toString()), register.getObisCode(), errorMessage[0]));
+			collectedRegister.setFailureInformation(ResultType.InCompatible, getMeterProtocol().getIssueFactory().
+					createWarning(register.getObisCode(), String.format("Register with OBIS code %s is incompatible",
+							register.getObisCode().toString()), register.getObisCode(), errorMessage[0]));
 		} else {
 			if (errorMessage.length == 0) {
-				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), String.format("Register with OBIS code %s not incompatible but not supported", register.getObisCode().toString()), register.getObisCode()));
+				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().
+						createWarning(register.getObisCode(), String.format("Register with OBIS code %s not incompatible " +
+								"but not supported", register.getObisCode().toString()), register.getObisCode()));
 			} else {
-				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), String.format("Register with OBIS code %s not supported because %s", register.getObisCode().toString(), errorMessage[0].toString()), register.getObisCode(), errorMessage[0]));
+				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().
+						createWarning(register.getObisCode(), String.format("Register with OBIS code %s not supported " +
+								"because %s", register.getObisCode().toString(), errorMessage[0].toString()),
+								register.getObisCode(), errorMessage[0]));
 			}
 		}
 		return collectedRegister;
 	}
 
 	protected CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
-		CollectedRegister deviceRegister = getMeterProtocol().getCollectedDataFactory().createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
+		CollectedRegister deviceRegister = getMeterProtocol().getCollectedDataFactory().
+				createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
 		deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
-		deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
+		deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(),
+				registerValue.getToTime(), registerValue.getEventTime());
 		return deviceRegister;
 	}
 

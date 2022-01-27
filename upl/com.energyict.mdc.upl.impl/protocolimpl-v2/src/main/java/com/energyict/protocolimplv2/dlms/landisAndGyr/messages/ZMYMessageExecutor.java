@@ -11,6 +11,7 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -89,9 +90,9 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 				} else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SetEndOfDST)) {
 					doSetDSTTime(pendingMessage, false);
 				} else if (pendingMessage.getSpecification().equals(PowerConfigurationDeviceMessage.SetVoltageRatioNumerator)) {
-					SetVoltageRatioEnumerator(pendingMessage);
+					setVoltageRatioEnumerator(pendingMessage);
 				} else if (pendingMessage.getSpecification().equals(PowerConfigurationDeviceMessage.SetCurrentRatioNumerator)) {
-					SetCurrentRatioEnumerator(pendingMessage);
+					setCurrentRatioEnumerator(pendingMessage);
 				} else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
 					activityCalendarWithActivationDate(pendingMessage);
 				} else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ReadDLMSAttribute)) {
@@ -143,7 +144,8 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 	protected LoadProfileReader constructDateTimeCorrectdLoadProfileReader(final LoadProfileReader loadProfileReader) {
 		Date from = new Date(loadProfileReader.getStartReadingTime().getTime() - 5000);
 		Date to = new Date(loadProfileReader.getEndReadingTime().getTime() + 5000);
-		return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(), loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
+		return new LoadProfileReader(loadProfileReader.getProfileObisCode(), from, to, loadProfileReader.getLoadProfileId(),
+				loadProfileReader.getMeterSerialNumber(), loadProfileReader.getChannelInfos());
 	}
 
 	protected CollectedMessage loadProfileRegisterRequest(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -158,22 +160,28 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 		Date fromDate = new Date(Long.valueOf(fromDateEpoch));
 		try {
 			LegacyLoadProfileRegisterMessageBuilder builder = new LegacyLoadProfileRegisterMessageBuilder();
-			builder = (LegacyLoadProfileRegisterMessageBuilder) builder.fromXml(fullLoadProfileContent);
+			builder = builder.fromXml(fullLoadProfileContent);
 			if (builder.getRegisters() == null || builder.getRegisters().isEmpty()) {
 				CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
 				collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-				collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message, there are no channels attached under LoadProfile " + builder.getProfileObisCode() + "!"));
+				collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage,
+						"Unable to execute the message, there are no channels attached under LoadProfile " +
+								builder.getProfileObisCode() + "!"));
 			}
 
-			LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()), builder.getMeterSerialNumber());
-			LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(), lpr.getMeterSerialNumber(), lpr.getChannelInfos());
+			LoadProfileReader lpr = checkLoadProfileReader(constructDateTimeCorrectdLoadProfileReader(builder.getLoadProfileReader()),
+					builder.getMeterSerialNumber());
+			LoadProfileReader fullLpr = new LoadProfileReader(lpr.getProfileObisCode(), fromDate, new Date(), lpr.getLoadProfileId(),
+					lpr.getMeterSerialNumber(), lpr.getChannelInfos());
 
-			List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
+			List<CollectedLoadProfileConfiguration> collectedLoadProfileConfigurations = getProtocol().
+					fetchLoadProfileConfiguration(Arrays.asList(fullLpr));
 			for (CollectedLoadProfileConfiguration config : collectedLoadProfileConfigurations) {
 				if (!config.isSupportedByMeter()) {   //LP not supported
 					CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
 					collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-					collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage, "Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
+					collectedMessage.setFailureInformation(ResultType.NotSupported, createMessageFailedIssue(pendingMessage,
+							"Load profile with obiscode " + config.getObisCode() + " is not supported by the device"));
 					return collectedMessage;
 				}
 			}
@@ -191,7 +199,8 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			if (intervalDatas == null) {
 				CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
 				collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-				collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage, "Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")"));
+				collectedMessage.setFailureInformation(ResultType.DataIncomplete, createMessageFailedIssue(pendingMessage,
+						"Didn't receive data for requested interval (" + builder.getStartReadingTime() + ")"));
 				return collectedMessage;
 			}
 
@@ -203,9 +212,11 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 				}
 				for (int i = 0; i < collectedLoadProfile.getChannelInfo().size(); i++) {
 					final ChannelInfo channel = collectedLoadProfile.getChannelInfo().get(i);
-					if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.getSerialNumber().equals(channel.getMeterIdentifier())) {
-						final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i), channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(), new Date(), register
-								.getRtuRegisterId());
+					if (register.getObisCode().equalsIgnoreBChannel(ObisCode.fromString(channel.getName())) && register.
+							getSerialNumber().equals(channel.getMeterIdentifier())) {
+						final RegisterValue registerValue = new RegisterValue(register, new Quantity(intervalDatas.get(i),
+								channel.getUnit()), intervalDatas.getEndTime(), null, intervalDatas.getEndTime(),
+								new Date(), register.getRtuRegisterId());
 						collectedRegisters.add(createCollectedRegister(registerValue, pendingMessage));
 					}
 				}
@@ -219,7 +230,10 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
 			collectedMessage.setFailureInformation(ResultType.Other, createMessageFailedIssue(pendingMessage, e));
 			return collectedMessage;
+		} catch (IndexOutOfBoundsException  e) {
+			throw new ProtocolException("Unable to get load profile data at index 0");
 		}
+
 	}
 
 	private DateFormat getDefaultDateFormatter() {
@@ -228,7 +242,8 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 
 	private LoadProfileReader checkLoadProfileReader(final LoadProfileReader lpr, String serialNumber) {
 		if (lpr.getProfileObisCode().equalsIgnoreBChannel(ObisCode.fromString("0.x.24.3.0.255"))) {
-			return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(), lpr.getLoadProfileId(), serialNumber, lpr.getChannelInfos());
+			return new LoadProfileReader(lpr.getProfileObisCode(), lpr.getStartReadingTime(), lpr.getEndReadingTime(),
+					lpr.getLoadProfileId(), serialNumber, lpr.getChannelInfos());
 		} else {
 			return lpr;
 		}
@@ -254,7 +269,8 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			calendarName = calendarName.substring(0, 8);
 		}
 
-		ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+		ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(),
+				getProtocol().getDlmsSession().getTimeZone(), false);
 		activityCalendarController.parseContent(activityCalendarContents);
 		activityCalendarController.writeCalendarName(calendarName);
 		activityCalendarController.writeCalendar(); //Does not activate it yet
@@ -282,7 +298,8 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 
 		int dayOfMonth = 0xFF;
 		try {
-			dayOfMonth = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfMonth).getValue());
+			dayOfMonth = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
+					DeviceMessageConstants.dayOfMonth).getValue());
 
 			if (dayOfMonth == -1) {
 				dayOfMonth = 0xFD;
@@ -296,15 +313,19 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 
 		int dayOfWeek = 0xFF;
 		try {
-			dayOfWeek = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfWeek).getValue());
+			dayOfWeek = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
+					DeviceMessageConstants.dayOfWeek).getValue());
 			if (dayOfWeek < 1 || dayOfWeek > 7) {
-				throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. Message will fail.");
+				throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. " +
+						"Message will fail.");
 			}
 		} catch (NumberFormatException e) {} // if parsing fails, just set value to initial state
 
-		int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue());
+		int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
+				DeviceMessageConstants.hour).getValue());
 		if (hour < 0||hour > 23) {
-			throw new IOException("Failed to parse the message content. " + hour + " is not a valid hour. Message will fail.");
+			throw new IOException("Failed to parse the message content. " + hour + " is not a valid hour. " +
+					"Message will fail.");
 		}
 
 		byte[] dsDateTimeByteArray = new byte[] {
@@ -330,13 +351,17 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 		}
 	}
 
-	private void SetCurrentRatioEnumerator(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-		int cr_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, CurrentRatioNumeratorAttributeName).getValue()).intValue();
-		getCosemObjectFactory().writeObject(CTNumerator,  DLMSClassId.REGISTER.getClassId(), RegisterAttributes.VALUE.getAttributeNumber(), new Unsigned16(cr_numerator).getBEREncodedByteArray());
+	private void setCurrentRatioEnumerator(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+		int cr_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
+				CurrentRatioNumeratorAttributeName).getValue()).intValue();
+		getCosemObjectFactory().writeObject(CTNumerator,  DLMSClassId.REGISTER.getClassId(), RegisterAttributes.
+				VALUE.getAttributeNumber(), new Unsigned16(cr_numerator).getBEREncodedByteArray());
 	}
 
-	private void SetVoltageRatioEnumerator(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
-		int vt_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, VoltageRatioNumeratorAttributeName).getValue()).intValue();
-		getCosemObjectFactory().writeObject(VTNumerator,  DLMSClassId.REGISTER.getClassId(), RegisterAttributes.VALUE.getAttributeNumber(), new Unsigned16(vt_numerator).getBEREncodedByteArray());
+	private void setVoltageRatioEnumerator(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
+		int vt_numerator = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage,
+				VoltageRatioNumeratorAttributeName).getValue()).intValue();
+		getCosemObjectFactory().writeObject(VTNumerator,  DLMSClassId.REGISTER.getClassId(), RegisterAttributes.
+				VALUE.getAttributeNumber(), new Unsigned16(vt_numerator).getBEREncodedByteArray());
 	}
 }

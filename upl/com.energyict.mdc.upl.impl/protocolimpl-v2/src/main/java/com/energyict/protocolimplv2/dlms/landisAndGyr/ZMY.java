@@ -62,9 +62,11 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 	private DeviceRegisterSupport registerFactory   = new ZMYRegisterFactory(this);
 	private LoadProfileBuilder loadProfileBuilder   = new ZMYLoadProfileBuilder(this);
 	private DeviceLogBookSupport logBookFactory     = new ZMYLogBookFactory(this);
-	private ZMYMessaging zmyMessaging               = new ZMYMessaging(new ZMYMessageExecutor(this), converter, nlsService, this.getPropertySpecService());
+	private ZMYMessaging zmyMessaging               = new ZMYMessaging(new ZMYMessageExecutor(this), converter,
+			nlsService, this.getPropertySpecService());
 
-	public ZMY(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
+	public ZMY(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+	           NlsService nlsService, Converter converter) {
 		super(propertySpecService, collectedDataFactory, issueFactory);
 		this.nlsService = nlsService;
 		this.converter = converter;
@@ -139,7 +141,8 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 	}
 
 	@Override
-	public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+	public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec,
+	                     Object messageAttribute) {
 		return zmyMessaging.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
 	}
 

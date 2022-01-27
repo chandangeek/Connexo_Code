@@ -52,9 +52,13 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 				ProfileGeneric profileGeneric = null;
 				try {
 					profileGeneric = protocol.getDlmsSession().getCosemObjectFactory()
-							.getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()));
+							.getProfileGeneric(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(),
+									logBookReader.getMeterSerialNumber()));
 				} catch (NotInObjectListException e) {
-					collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, String.format("Logbook with OBIS code %s was not found it meter object list", logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+					collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader,
+							String.format("Logbook with OBIS code %s was not found it meter object list",
+									logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString(),
+							e.getMessage()));
 				}
 				if (profileGeneric != null) {
 					Calendar fromDate = getCalendar();
@@ -64,15 +68,26 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 						dataContainer = profileGeneric.getBuffer(fromDate, getCalendar());
 						collectedLogBook.setCollectedMeterEvents(parseEvents(dataContainer, logBookReader.getLogBookObisCode()));
 					} catch (NotInObjectListException e) {
-						collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(logBookReader, String.format("Logbook with OBIS code %s was not found it meter object list", logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString(), e.getMessage()));
+						collectedLogBook.setFailureInformation(ResultType.InCompatible, this.issueFactory.
+								createWarning(logBookReader,
+										String.format("Logbook with OBIS code %s was not found it meter object list",
+											logBookReader.getLogBookObisCode().toString()),
+										logBookReader.getLogBookObisCode().toString(), e.getMessage()));
 					} catch (IOException e) {
-						if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {
-							collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, String.format("IOException while reading logbook with OBIS code %s ", logBookReader.getLogBookObisCode().toString()) + e.getMessage()));
+						if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().
+								getRetries() + 1)) {
+							collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.
+									createWarning(logBookReader,
+											String.format("IOException while reading logbook with OBIS code %s ",
+													logBookReader.getLogBookObisCode().toString()) + e.getMessage()));
 						}
 					}
 				}
 			} else {
-				collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader, String.format("Logbook with OBIS code %s is not supported by the protocol", logBookReader.getLogBookObisCode().toString()), logBookReader.getLogBookObisCode().toString()));
+				collectedLogBook.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(logBookReader,
+						String.format("Logbook with OBIS code %s is not supported by the protocol",
+								logBookReader.getLogBookObisCode().toString()),
+						logBookReader.getLogBookObisCode().toString()));
 			}
 			result.add(collectedLogBook);
 		}
@@ -91,7 +106,8 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 
 	private boolean isSupported(LogBookReader logBookReader) {
 		for (ObisCode supportedLogBookObisCode:supportedLogBooks) {
-			if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(), logBookReader.getMeterSerialNumber()))) {
+			if (supportedLogBookObisCode.equals(protocol.getPhysicalAddressCorrectedObisCode(logBookReader.getLogBookObisCode(),
+					logBookReader.getMeterSerialNumber()))) {
 				return true;
 			}
 		}

@@ -35,7 +35,8 @@ public class ZMYMessaging extends AbstractDlmsMessaging implements DeviceMessage
 	private final NlsService nlsService;
 	private final PropertySpecService propertySpecService;
 
-	public ZMYMessaging(AbstractMessageExecutor messageExecutor, Converter converter, NlsService nlsService, PropertySpecService propertySpecService) {
+	public ZMYMessaging(AbstractMessageExecutor messageExecutor, Converter converter, NlsService nlsService,
+	                    PropertySpecService propertySpecService) {
 		super(messageExecutor.getProtocol());
 		this.messageExecutor = messageExecutor;
 		this.converter = converter;
@@ -53,8 +54,10 @@ public class ZMYMessaging extends AbstractDlmsMessaging implements DeviceMessage
 
 		supportedMessages.add(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME.get(this.propertySpecService, this.nlsService, this.converter));
 
-		supportedMessages.add(PowerConfigurationDeviceMessage.SetVoltageRatioNumerator.get(this.propertySpecService, this.nlsService, this.converter));
-		supportedMessages.add(PowerConfigurationDeviceMessage.SetCurrentRatioNumerator.get(this.propertySpecService, this.nlsService, this.converter));
+		supportedMessages.add(PowerConfigurationDeviceMessage.SetVoltageRatioNumerator.get(this.propertySpecService,
+				this.nlsService, this.converter));
+		supportedMessages.add(PowerConfigurationDeviceMessage.SetCurrentRatioNumerator.get(this.propertySpecService,
+				this.nlsService, this.converter));
 
 		supportedMessages.add(DeviceActionMessage.ReadDLMSAttribute.get(this.propertySpecService, this.nlsService, this.converter));
 
@@ -62,7 +65,8 @@ public class ZMYMessaging extends AbstractDlmsMessaging implements DeviceMessage
 	}
 
 	@Override
-	public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
+	public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec,
+	                     Object messageAttribute) {
 		switch (propertySpec.getName()) {
 			case DeviceMessageConstants.ConfigurationChangeDate:
 				return dateFormat.format((Date) messageAttribute);
