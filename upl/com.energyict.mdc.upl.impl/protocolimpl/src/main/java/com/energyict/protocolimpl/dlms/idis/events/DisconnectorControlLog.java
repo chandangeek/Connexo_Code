@@ -71,6 +71,9 @@ public class DisconnectorControlLog extends AbstractEvent {
             case 75:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.SUPERVISION_3_OK, eventId, "Supervision monitor 3 threshold ok"));
                 break;
+            case 238:
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.STATUS_CHANGED, eventId, "Disconnector physical connect"));
+                break;
             case 255:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.EVENT_LOG_CLEARED, eventId, "Disconnector control event log cleared"));
                 break;

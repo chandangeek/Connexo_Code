@@ -34,7 +34,7 @@ public class AM550 extends Mx382 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-10-26$";
+        return "$Date: 2022-01-27$";
     }
 
 }
