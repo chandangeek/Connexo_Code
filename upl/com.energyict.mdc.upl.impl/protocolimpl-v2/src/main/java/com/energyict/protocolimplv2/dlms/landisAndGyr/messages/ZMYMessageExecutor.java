@@ -11,7 +11,6 @@ import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.dlms.cosem.ScriptTable;
 import com.energyict.dlms.cosem.attributes.RegisterAttributes;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -281,26 +280,19 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			throw new IOException("Failed to parse the message content. " + month + " is not a valid month. Message will fail.");
 		}
 
-		int dayOfMonth = 0xFF;
-		try {
-			dayOfMonth = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfMonth).getValue());
-			if (dayOfMonth == -1) {
-				dayOfMonth = 0xFD;
-			} else if (dayOfMonth == -2) {
-				dayOfMonth = 0xFE;
-			} else if (dayOfMonth < -2 || dayOfMonth > 31) {
-				throw new IOException("Failed to parse the message content. " + dayOfMonth + " is not a valid Day of month. Message will fail.");
-			}
-		} catch (NumberFormatException e) {
+		int dayOfMonth = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfMonth).getValue());
+		if (dayOfMonth == -1) {
+			dayOfMonth = 0xFD;
+		} else if (dayOfMonth == -2) {
+			dayOfMonth = 0xFE;
+		} else if (dayOfMonth < -2 || dayOfMonth > 31) {
+			throw new IOException("Failed to parse the message content. " + dayOfMonth + " is not a valid Day of month. Message will fail.");
 		}
 
-		int dayOfWeek = 0xFF;
-		try {
-			dayOfWeek = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfWeek).getValue());
-			if (dayOfWeek < 1 || dayOfWeek > 7) {
-				throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. Message will fail.");
-			}
-		} catch (NumberFormatException e) {	}
+		int dayOfWeek = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.dayOfWeek).getValue());
+		if (dayOfWeek < 1 || dayOfWeek > 7) {
+			throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. Message will fail.");
+		}
 
 		int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue());
 		if (hour < 0||hour > 23) {
