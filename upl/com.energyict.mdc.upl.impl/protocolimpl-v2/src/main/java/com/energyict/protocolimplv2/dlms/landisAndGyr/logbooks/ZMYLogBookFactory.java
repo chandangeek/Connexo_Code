@@ -86,7 +86,7 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 		} else {
 			return new ArrayList<>();
 		}
-	return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+		return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
 	}
 
 	private boolean isSupported(LogBookReader logBookReader) {
