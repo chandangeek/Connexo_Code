@@ -34,11 +34,6 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.WRAPPER_STR;
  * A collection of general DLMS properties that are relevant for the EDP DLMS meters.
  * These properties are not related to the security or the protocol dialects.
  * The parsing and the usage of the property values is done in implementations of {@link com.energyict.dlms.protocolimplv2.DlmsSessionProperties}
- * <p/>
- * Copyrights EnergyICT
- * Date: 19/01/22
- * Time: 15:00
- * Author: db
  */
 public class ZMYDlmsConfigurationSupport implements HasDynamicProperties {
 

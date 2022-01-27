@@ -36,13 +36,9 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 	private IssueFactory            issueFactory;
 
 	public ZMYLogBookFactory(AbstractDlmsProtocol protocol) {
-		doInit(protocol, protocol.getCollectedDataFactory(), protocol.getIssueFactory());
-	}
-
-	protected void doInit(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
 		this.protocol               = protocol;
-		this.collectedDataFactory   = collectedDataFactory;
-		this.issueFactory           = issueFactory;
+		this.collectedDataFactory   = protocol.getCollectedDataFactory();
+		this.issueFactory           = protocol.getIssueFactory();
 
 		supportedLogBooks.add(STANDARD_EVENT_LOG);
 	}
@@ -85,16 +81,12 @@ public class ZMYLogBookFactory implements DeviceLogBookSupport {
 
 	protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) throws ProtocolException {
 		List<MeterEvent> meterEvents;
-		try {
-			if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
-				meterEvents = new ZMYStandardEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
-			} else {
-				return new ArrayList<>();
-			}
-		} catch (NotInObjectListException e){
+		if (logBookObisCode.equals(getMeterConfig().getEventLogObject().getObisCode())) {
+			meterEvents = new ZMYStandardEventLog(protocol.getTimeZone(), dataContainer).getMeterEvents();
+		} else {
 			return new ArrayList<>();
 		}
-		return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
+	return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
 	}
 
 	private boolean isSupported(LogBookReader logBookReader) {

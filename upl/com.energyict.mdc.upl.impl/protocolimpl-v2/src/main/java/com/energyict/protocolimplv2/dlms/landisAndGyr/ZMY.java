@@ -17,7 +17,6 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -90,7 +89,7 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 
 	@Override
 	public ManufacturerInformation getManufacturerInformation() {
-		return new ManufacturerInformation(Manufacturer.Eict);
+		return new ManufacturerInformation(Manufacturer.LandisAndGyr);
 	}
 
 	@Override
@@ -134,7 +133,6 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 		return zmyMessaging.updateSentMessages(sentMessages);
 	}
 
-
 	@Override
 	public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
 		return Optional.empty();
@@ -159,7 +157,7 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 
 	@Override
 	public String getVersion() {
-		return "$Date: 2022-01-13 19:00:00 +0300 (Thu, 13 Jan 2022)$";
+		return "$Date: 2022-01-27 13:00:00 +0300 (Thu, 27 Jan 2022)$";
 	}
 
 	@Override

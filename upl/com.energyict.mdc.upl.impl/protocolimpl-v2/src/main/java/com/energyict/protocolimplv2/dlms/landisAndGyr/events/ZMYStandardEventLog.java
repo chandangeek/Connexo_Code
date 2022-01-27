@@ -8,12 +8,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
 
-/**
- * Copyrights EnergyICT
- *
- * @author db
- * @since 20/01/2022 - 12:57
- */
 public class ZMYStandardEventLog extends StandardEventLog {
 
     public ZMYStandardEventLog(TimeZone timeZone, DataContainer dc) {

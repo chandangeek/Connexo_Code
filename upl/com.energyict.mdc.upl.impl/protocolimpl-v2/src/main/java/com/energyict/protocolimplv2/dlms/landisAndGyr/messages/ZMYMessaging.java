@@ -25,17 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Class that:
- * - Formats the device message attributes from objects to proper string values
- * - Executes a given message
- * - Has a list of all supported device message specs
- * <p/>
- * Copyrights EnergyICT
- * Date: 22/11/13
- * Time: 11:32
- * Author: khe
- */
 public class ZMYMessaging extends AbstractDlmsMessaging implements DeviceMessageSupport {
 
 	private final AbstractMessageExecutor messageExecutor;

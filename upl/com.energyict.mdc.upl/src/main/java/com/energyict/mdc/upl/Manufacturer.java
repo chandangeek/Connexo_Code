@@ -22,10 +22,11 @@ public enum Manufacturer {
     },
     Actaris {
         @Override
-        public Set<ActarisModel> getModels() {
-            return EnumSet.allOf(ActarisModel.class);
-
-        }
+        public Set<ActarisModel> getModels() { return EnumSet.allOf(ActarisModel.class); }
+    },
+    LandisAndGyr {
+        @Override
+        public Set<LandisAndGyrModel> getModels() { return EnumSet.allOf(LandisAndGyrModel.class); }
     };
 
     abstract public Set<? extends Model> getModels();

@@ -56,12 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-/**
- * Copyrights Honeywell
- *
- * @author db
- * @since 26/01/2022 - 12:13
- */
+
 public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
 	protected static final int BULK_REQUEST_ATTRIBUTE_LIMIT = 16;  //The number of attributes in a bulk request should be smaller than 16.
@@ -73,10 +68,10 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	private static final String ACTIVE_FIRMWARE_SIGNATURE_1 = "1.1.0.2.8.255";
 	private static final String ACTIVE_FIRMWARE_SIGNATURE_2 = "1.2.0.2.8.255";
 
-	private final AbstractDlmsProtocol Protocol;
+	private final AbstractDlmsProtocol protocol;
 
 	public ZMYRegisterFactory(AbstractDlmsProtocol protocol) {
-		this.Protocol = protocol;
+		this.protocol = protocol;
 	}
 
 	@Override
@@ -114,7 +109,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
 
 		int count = createComposedObjectMap(registers, composedObjectMap, dlmsAttributes);
-		ComposedCosemObject composedCosemObject = new ComposedCosemObject(Protocol.getDlmsSession(), getMeterProtocol().getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
+		ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), getMeterProtocol().getDlmsSessionProperties().isBulkRequest(), dlmsAttributes);
 		return createCollectedRegisterListFromComposedCosemObject(registers.subList(0, count), composedObjectMap, composedCosemObject);
 	}
 
@@ -150,10 +145,10 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 
 		ObisCode obisCode = register.getObisCode();
 		if (isMBusValueChannel(register.getObisCode())) {
-			obisCode = Protocol.getPhysicalAddressCorrectedObisCode(obisCode, register.getSerialNumber());
+			obisCode = protocol.getPhysicalAddressCorrectedObisCode(obisCode, register.getSerialNumber());
 		}
 
-		final UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(Protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
+		final UniversalObject uo = DLMSUtils.findCosemObjectInObjectList(protocol.getDlmsSession().getMeterConfig().getInstantiatedObjectList(), obisCode);
 		if (uo != null) {
 			if (uo.getClassID() == DLMSClassId.REGISTER.getClassId() || uo.getClassID() == DLMSClassId.EXTENDED_REGISTER.getClassId()) {
 				DLMSAttribute valueAttribute = new DLMSAttribute(obisCode, RegisterAttributes.VALUE.getAttributeNumber(), uo.getClassID());
@@ -237,7 +232,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	protected CollectedRegister createCollectedRegisterFor(OfflineRegister offlineRegister, Map<ObisCode, ComposedObject> composedObjectMap, ComposedCosemObject composedCosemObject) {
 		ObisCode obisCode = offlineRegister.getObisCode();
 		if (isMBusValueChannel(offlineRegister.getObisCode())) {
-			obisCode = Protocol.getPhysicalAddressCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
+			obisCode = protocol.getPhysicalAddressCorrectedObisCode(obisCode, offlineRegister.getSerialNumber());
 		}
 		ComposedObject composedObject = composedObjectMap.get(obisCode);
 		if (composedObject == null) {
@@ -289,7 +284,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 					return createFailureCollectedRegister(offlineRegister, ResultType.InCompatible, "Encountered unexpected ComposedObject - data cannot be parsed."); // Should never occur
 				}
 			} catch (IOException e) {
-				if (DLMSIOExceptionHandler.isUnexpectedResponse(e, Protocol.getDlmsSession().getProperties().getRetries())) {
+				if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries())) {
 					if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
 						return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
 					} else if (DLMSIOExceptionHandler.isTemporaryFailure(e)) {
@@ -322,7 +317,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		Issue timeZoneIssue = null;
 		if (composedRegister.getRegisterCaptureTime() != null) {
 			AbstractDataType captureTimeOctetString = composedCosemObject.getAttribute(composedRegister.getRegisterCaptureTime());
-			TimeZone configuredTimeZone = Protocol.getDlmsSession().getTimeZone();
+			TimeZone configuredTimeZone = protocol.getDlmsSession().getTimeZone();
 			DateTimeOctetString dlmsDateTime = captureTimeOctetString.getOctetString().getDateTime(configuredTimeZone);
 
 			captureTime = dlmsDateTime.getValue().getTime();
@@ -352,10 +347,10 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		RegisterValue registerValue  = getRegisterValueForComposedRegister(offlineRegister, captureTime, attributeValue, unit );
 
 		CollectedRegister collectedRegister = createCollectedRegister(registerValue, offlineRegister);
-		if (timeZoneIssue!=null) {
+		if (timeZoneIssue != null) {
 			collectedRegister.setFailureInformation(ResultType.ConfigurationError, timeZoneIssue);
 		}
-		if(scalerUnitIssue != null) {
+		if (scalerUnitIssue != null) {
 			collectedRegister.setFailureInformation(ResultType.DataIncomplete, scalerUnitIssue);
 		}
 
@@ -419,7 +414,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 		Iterator<OfflineRegister> it = offlineRegisters.iterator();
 		while (it.hasNext()) {
 			OfflineRegister register = it.next();
-			if (Protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
+			if (protocol.getPhysicalAddressFromSerialNumber(register.getSerialNumber()) == -1) {
 				invalidRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, "Register " + register + " is not supported because MbusDevice " + register.getSerialNumber() + " is not installed on the physical device."));
 				it.remove();
 			}
@@ -498,12 +493,12 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
 		CollectedRegister collectedRegister = getMeterProtocol().getCollectedDataFactory().createDefaultCollectedRegister(getRegisterIdentifier(register));
 		if (resultType == ResultType.InCompatible) {
-			collectedRegister.setFailureInformation(ResultType.InCompatible, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), "registerXissue", register.getObisCode(), errorMessage[0]));
+			collectedRegister.setFailureInformation(ResultType.InCompatible, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), String.format("Register with OBIS code %s is incompatible", register.getObisCode().toString()), register.getObisCode(), errorMessage[0]));
 		} else {
 			if (errorMessage.length == 0) {
-				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupported", register.getObisCode()));
+				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), String.format("Register with OBIS code %s not incompatible but not supported", register.getObisCode().toString()), register.getObisCode()));
 			} else {
-				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), "registerXnotsupportedBecause", register.getObisCode(), errorMessage[0]));
+				collectedRegister.setFailureInformation(ResultType.NotSupported, getMeterProtocol().getIssueFactory().createWarning(register.getObisCode(), String.format("Register with OBIS code %s not supported because %s", register.getObisCode().toString(), errorMessage[0].toString()), register.getObisCode(), errorMessage[0]));
 			}
 		}
 		return collectedRegister;
@@ -517,7 +512,7 @@ public class ZMYRegisterFactory implements DeviceRegisterSupport {
 	}
 
 	public AbstractDlmsProtocol getMeterProtocol() {
-		return Protocol;
+		return protocol;
 	}
 
 	private enum DisconnectControlState {

@@ -240,7 +240,6 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 		demandResetScriptTable.execute(1);
 	}
 
-
 	private void doEnableDST(OfflineDeviceMessage offlineDeviceMessage) throws IOException {
 		int mode = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, enableDSTAttributeName).getValue());
 
@@ -292,7 +291,7 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			} else if (dayOfMonth < -2 || dayOfMonth > 31) {
 				throw new IOException("Failed to parse the message content. " + dayOfMonth + " is not a valid Day of month. Message will fail.");
 			}
-		} catch (ProtocolException e) {
+		} catch (NumberFormatException e) {
 		}
 
 		int dayOfWeek = 0xFF;
@@ -301,8 +300,7 @@ public class ZMYMessageExecutor extends AbstractMessageExecutor {
 			if (dayOfWeek < 1 || dayOfWeek > 7) {
 				throw new IOException("Failed to parse the message content. " + dayOfWeek + " is not a valid Day of week. Message will fail.");
 			}
-		} catch (ProtocolException e) {	}
-
+		} catch (NumberFormatException e) {	}
 
 		int hour = Integer.parseInt(MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.hour).getValue());
 		if (hour < 0||hour > 23) {
