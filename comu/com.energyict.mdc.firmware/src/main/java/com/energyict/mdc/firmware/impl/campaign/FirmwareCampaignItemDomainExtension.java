@@ -15,6 +15,7 @@ import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.ComWindow;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.data.Device;
@@ -38,6 +39,7 @@ import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.tasks.TaskService;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
@@ -85,6 +87,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private final Clock clock;
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel ddcDataModel;
+    private final DeviceMessageService deviceMessageService;
 
     private final Reference<ServiceCall> serviceCall = Reference.empty();
 
@@ -101,6 +104,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         this.dataModel = firmwareService.getDataModel();
         this.ddcDataModel = firmwareService.getOrmService().getDataModel(DeviceDataServices.COMPONENT_NAME).get();
         this.thesaurus = thesaurus;
+        this.deviceMessageService = dataModel.getInstance(DeviceMessageService.class);
         this.serviceCallService = dataModel.getInstance(ServiceCallService.class);
         this.taskService = dataModel.getInstance(TaskService.class);
         this.clock = clock;
@@ -123,15 +127,20 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
-    public ServiceCall cancel(boolean initFromCampaign) {
+    public ServiceCall cancel(boolean initFromCampaign) throws RuntimeException{
         ServiceCall serviceCall = getServiceCall();
-        // TODO: will need to be returned
-//        if (serviceCall.getState().equals(DefaultState.ONGOING)) {
-//            if (!initFromCampaign) {
-//                throw new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_IS_NOT_PENDING_STATE);
-//            }
-//        } else
-        serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
+
+        Optional<DeviceMessage> deviceMessage = this.getDeviceMessage();
+        if (deviceMessage.isPresent()) {
+            FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor((Device) serviceCall.getTargetObject().get());
+            if (deviceMessage.get().getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
+                System.out.println("CONM-2426 | FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED");
+            } else {
+                System.out.println("CONM-2426 | FIRMWARE_UPLOAD_CANCELED");
+                deviceMessageService.findAndLockDeviceMessageById(deviceMessage.get().getId()).ifPresent(DeviceMessage::revoke);
+                serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
+            }
+        }
         return serviceCallService.getServiceCall(serviceCall.getId()).get();
     }
 

@@ -29,6 +29,7 @@ import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
@@ -49,6 +50,7 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -351,15 +353,27 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
         FirmwareCampaignServiceImpl firmwareCampaignService = firmwareService.getFirmwareCampaignService();
-        List<? extends DeviceInFirmwareCampaign> items = firmwareCampaignService.streamDevicesInCampaigns()
-                .filter(Where.where("parent").isEqualTo(serviceCall))
-                .select();
-        if (items.isEmpty()) {
-            if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                serviceCall.requestTransition(DefaultState.CANCELLED);
+        try (QueryStream<? extends DeviceInFirmwareCampaign> streamItems = firmwareCampaignService.streamDevicesInCampaigns()) {
+            List<? extends DeviceInFirmwareCampaign> items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
+                    .select();
+            if (items.isEmpty()) {
+                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+                    serviceCall.requestTransition(DefaultState.CANCELLED);
+                }
+            } else {
+                Map<DeviceInFirmwareCampaign, DeviceMessage> deviceMessageServiceCallMap = items.stream()
+                        .collect(Collectors.toMap(deviceInFirmwareCampaign -> deviceInFirmwareCampaign, deviceInFirmwareCampaign -> {
+                            if (deviceInFirmwareCampaign.getDeviceMessage().isPresent()) {
+                                return deviceInFirmwareCampaign.getDeviceMessage().get();
+                            } else {
+                                return null;
+                            }
+                        }));
+
+                Comparator<DeviceMessage> comparator = Comparator.comparing(DeviceMessage::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+                deviceMessageServiceCallMap.values().stream().sorted(comparator).close();
+                deviceMessageServiceCallMap.keySet().forEach(item -> item.cancel(true));
             }
-        } else {
-            items.forEach(item -> item.cancel(true));
         }
     }
 
