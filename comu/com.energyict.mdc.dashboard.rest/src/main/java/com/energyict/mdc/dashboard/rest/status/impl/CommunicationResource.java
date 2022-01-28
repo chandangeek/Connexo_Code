@@ -37,6 +37,8 @@ import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
 import javax.ws.rs.BeanParam;
@@ -47,8 +49,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -211,11 +216,15 @@ public class CommunicationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runCommunicationTask(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
+    public Response runCommunicationTask(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, @Context SecurityContext securityContext) throws Exception {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow");
+        String user ="";
+        if(null != securityContext) {
+           user = securityContext.getUserPrincipal().getName();
+        }
+        return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow", user);
     }
 
     @PUT
@@ -224,15 +233,26 @@ public class CommunicationResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response runCommunicationTaskNow(CommunicationsBulkRequestInfo communicationsBulkRequestInfo) throws Exception {
+    public Response runCommunicationTaskNow(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, @Context SecurityContext securityContext) throws Exception {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        return queueCommunicationBulkAction(communicationsBulkRequestInfo, "runNow");
+        String user ="";
+        if(null != securityContext) {
+            user = securityContext.getUserPrincipal().getName();
+        }
+        return queueCommunicationBulkAction(communicationsBulkRequestInfo, "runNow", user);
     }
 
-    private Response queueCommunicationBulkAction(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, String action) throws Exception {
+    private Response queueCommunicationBulkAction(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, String action, String user) throws Exception {
         if (communicationsBulkRequestInfo != null && communicationsBulkRequestInfo.filter != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.writeValueAsString(communicationsBulkRequestInfo.filter);
+            try {
+                LOGGER.log(Level.INFO, "CommunicationResource:: Bulk Action Filter by user::"+ user +" " + new ObjectMapper().writeValueAsString(communicationsBulkRequestInfo.filter));
+            } catch (Exception e) {
+                //ignore if any failure
+            }
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
                 return processMessagePost(new ItemizeCommunicationsFilterQueueMessage(substituteRestToDomainEnums(communicationsBulkRequestInfo.filter), action), destinationSpec.get());
