@@ -16,20 +16,20 @@ public class ActionInfo {
     private final List<IssueShortInfo> success;
     private final Map<String, ActionFailInfo> fails;
 
-    public ActionInfo(){
+    public ActionInfo() {
         success = new ArrayList<>();
         fails = new HashMap<>();
     }
 
-    public void addSuccess(long id){
+    public void addSuccess(long id) {
         success.add(new IssueShortInfo(id));
     }
 
-    public void addSuccess(long id, String title){
+    public void addSuccess(long id, String title) {
         success.add(new IssueShortInfo(id, title));
     }
 
-    public void addFail(String reason, long id, String title){
+    public void addFail(String reason, long id, String title) {
         if (reason != null) {
             ActionFailInfo failsWithSameReason = fails.get(reason);
             if (failsWithSameReason == null) {
