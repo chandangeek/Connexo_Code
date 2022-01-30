@@ -127,18 +127,25 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
-    public ServiceCall cancel(boolean initFromCampaign) throws RuntimeException{
+    public ServiceCall cancel(boolean initFromCampaign){
         ServiceCall serviceCall = getServiceCall();
 
         Optional<DeviceMessage> deviceMessage = this.getDeviceMessage();
         if (deviceMessage.isPresent()) {
-            FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor((Device) serviceCall.getTargetObject().get());
-            if (deviceMessage.get().getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
+            FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(getDevice());
+            Optional<DeviceMessage> updateMessage = deviceMessageService.findAndLockDeviceMessageById(deviceMessage.get().getId());
+            if(updateMessage.isPresent()){
+            if (deviceMessage.get().getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)) {
+                System.out.println("CONM-2426 | WRONG_PREDECESSOR");
+            } else if (deviceMessage.get().getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
                 System.out.println("CONM-2426 | FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED");
-            } else {
-                System.out.println("CONM-2426 | FIRMWARE_UPLOAD_CANCELED");
-                deviceMessageService.findAndLockDeviceMessageById(deviceMessage.get().getId()).ifPresent(DeviceMessage::revoke);
-                serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
+            }
+            else{
+                    System.out.println("CONM-2426 | FIRMWARE_UPLOAD_CANCELED");
+                    updateMessage.get().revoke();
+                    serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
+            }
+
             }
         }
         return serviceCallService.getServiceCall(serviceCall.getId()).get();

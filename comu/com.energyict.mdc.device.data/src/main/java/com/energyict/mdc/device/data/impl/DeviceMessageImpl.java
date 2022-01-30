@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -435,6 +436,22 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                                     flatMap(category -> category.getMessageSpecifications().stream()).
                                     anyMatch(dms -> dms.getId().dbValue() == deviceMessageId))
                             .anyMatch(cte -> cte.isExecuting() && cte.getConnectionTask().isPresent() && executingConnectionTasks.contains(cte.getConnectionTask().get().getId()));
+        }
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof DeviceMessageImpl)) {
+                return false;
+            }
+            DeviceMessageImpl that = (DeviceMessageImpl) o;
+            return getId() == that.getId();
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getId());
         }
     }
 

@@ -361,18 +361,18 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
             } else {
-                Map<DeviceInFirmwareCampaign, DeviceMessage> deviceMessageServiceCallMap = items.stream()
-                        .collect(Collectors.toMap(deviceInFirmwareCampaign -> deviceInFirmwareCampaign, deviceInFirmwareCampaign -> {
+                Map<DeviceMessage, DeviceInFirmwareCampaign> deviceMessageServiceCallMap = items.stream()
+                        .collect(Collectors.toMap(deviceInFirmwareCampaign -> {
                             if (deviceInFirmwareCampaign.getDeviceMessage().isPresent()) {
                                 return deviceInFirmwareCampaign.getDeviceMessage().get();
                             } else {
                                 return null;
                             }
-                        }));
+                        }, deviceInFirmwareCampaign -> deviceInFirmwareCampaign));
 
                 Comparator<DeviceMessage> comparator = Comparator.comparing(DeviceMessage::getId, Comparator.nullsLast(Comparator.naturalOrder()));
-                deviceMessageServiceCallMap.values().stream().sorted(comparator).close();
-                deviceMessageServiceCallMap.keySet().forEach(item -> item.cancel(true));
+                deviceMessageServiceCallMap.keySet().stream().sorted(comparator).close();
+                deviceMessageServiceCallMap.values().forEach(item -> item.cancel(true));
             }
         }
     }
