@@ -23,6 +23,7 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.properties.PropertySpecService;
@@ -33,6 +34,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
@@ -750,13 +752,14 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                     InstallIdentifier.identifier("MultiSense", FirmwareService.COMPONENTNAME),
                     dataModel,
                     Installer.class,
-                    ImmutableMap.of(
-                            version(10, 2), UpgraderV10_2.class,
-                            version(10, 4), V10_4SimpleUpgrader.class,
-                            version(10, 4, 1), V10_4_1SimpleUpgrader.class,
-                            version(10, 6), UpgraderV10_6.class,
-                            version(10, 7), UpgraderV10_7.class
-                    ));
+                    ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                            .put(version(10, 2), UpgraderV10_2.class)
+                            .put(version(10, 4), V10_4SimpleUpgrader.class)
+                            .put(version(10, 4, 1), V10_4_1SimpleUpgrader.class)
+                            .put(version(10, 4, 24), UpgraderV10_4_24.class)
+                            .put(version(10, 6), UpgraderV10_6.class)
+                            .put(version(10, 7), UpgraderV10_7.class)
+                            .build());
             addFirmwareCheck(dataModel.getInstance(StatusOfTargetFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(MinimumLevelFirmwareCheck.class));

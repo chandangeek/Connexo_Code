@@ -9,9 +9,9 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
-import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.tasks.TaskService;
@@ -28,8 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 import static com.elster.jupiter.orm.Version.version;
 
@@ -39,10 +38,9 @@ public class UpgraderV10_7 implements Upgrader {
     private final FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller;
     private final EventService eventService;
     private final DeviceConfigurationService deviceConfigurationService;
-    private final Logger logger = Logger.getLogger(UpgraderV10_7.class.getName());
-    private Map<Long, Pair> campaignIdAndCreationTimeByOldIds = new HashMap<>();
-    private Map<Long, Long> campaignStates = new HashMap<>();
-    private Map<Long, Long> deviceStates = new HashMap<>();
+    private final Map<Long, Pair<Long, Long>> campaignIdAndCreationTimeByOldIds = new HashMap<>();
+    private final Map<Long, Long> campaignStates = new HashMap<>();
+    private final Map<Long, Long> deviceStates = new HashMap<>();
     private long currentId;
     private long startId;
     private long campaignServiceCallTypeId;
@@ -53,7 +51,7 @@ public class UpgraderV10_7 implements Upgrader {
 
     @Inject
     UpgraderV10_7(DataModel dataModel, FirmwareCampaignServiceCallLifeCycleInstaller firmwareCampaignServiceCallLifeCycleInstaller,
-                  EventService eventService,DeviceConfigurationService deviceConfigurationService) {
+                  EventService eventService, DeviceConfigurationService deviceConfigurationService) {
         this.dataModel = dataModel;
         this.firmwareCampaignServiceCallLifeCycleInstaller = firmwareCampaignServiceCallLifeCycleInstaller;
         this.eventService = eventService;
@@ -62,41 +60,42 @@ public class UpgraderV10_7 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        try (Connection connection = dataModel.getConnection(true);
-             Statement statement = connection.createStatement()) {
-            firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
-            execute(statement, "DELETE FROM EVT_EVENTTYPE WHERE COMPONENT = 'FWC'");
-            for (EventType eventType : EventType.values()) {
-                try {
+        // avoid double upgrade of firmware campaigns if it's already done in 10.4.24
+        if (!dataModel.wasUpgradedTo(Version.version(10, 4, 24))) {
+            try (Connection connection = dataModel.getConnection(true);
+                 Statement statement = connection.createStatement()) {
+                firmwareCampaignServiceCallLifeCycleInstaller.createServiceCallTypes();
+                execute(statement, "DELETE FROM EVT_EVENTTYPE WHERE COMPONENT = 'FWC'");
+                for (EventType eventType : EventType.values()) {
                     eventType.createIfNotExists(eventService);
-                } catch (Exception e) {
-                    this.logger.log(Level.SEVERE, e.getMessage(), e);
                 }
+                initVariables(statement);
+                executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN", this::makeCampaignAndSC);
+                executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_DEVICES", this::makeDeviceAndSC);
+                if (startId != currentId) {
+                    execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY " + (currentId - startId));
+                    execute(statement, "SELECT SCS_SERVICE_CALLID.NEXTVAL FROM DUAL");
+                    execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY 1");
+                }
+                execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX");
+                try { // due to different behavior during the upgrade from 10.6 to 10.7 and 10.5 and older to 10.7
+                    execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
+                } catch (Exception ignored) {
+                }
+                executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);
+                execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
+                dataModelUpgrader.upgrade(dataModel, version(10, 7));
+                execute(statement, "UPDATE FWC_CAMPAIGN_PROPS SET CPS_ID = " + campaignRegisteredCPSId);
+                execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS MODIFY CPS_ID NUMBER NOT NULL");
+                execute(statement, "DROP TABLE FWC_CAMPAIGN_STATUS");
+                execute(statement, "DROP TABLE FWC_CAMPAIGN_DEVICES");
+                execute(statement, "DROP TABLE FWC_CAMPAIGN");
+                execute(statement, "DROP TABLE FWC_CAMPAIGNJRNL");
+                execute(statement, "DROP TABLE FWC_CAMPAIGN_PROPSJRNL");
+                execute(dataModel, "UPDATE FWC_FIRMWAREVERSION SET TYPE = 3 WHERE TYPE = 2");
+            } catch (SQLException e) {
+                throw new UnderlyingSQLFailedException(e);
             }
-            initVariables(statement);
-            executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN", this::makeCampaignAndSC);
-            executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_DEVICES", this::makeDeviceAndSC);
-            if (startId != currentId) {
-                execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY " + (currentId - startId));
-                execute(statement, "SELECT SCS_SERVICE_CALLID.NEXTVAL FROM DUAL");
-                execute(statement, "ALTER SEQUENCE SCS_SERVICE_CALLID INCREMENT BY 1");
-            }
-            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT PK_FWC_CAMPAIGN_PROPS DROP INDEX");
-            try { // due to different behavior during the upgrade from 10.6 to 10.7 and 10.5 and older to 10.7
-                execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS DROP CONSTRAINT FK_FWC_PROPS_TO_CAMPAIGN DROP INDEX");
-            } catch (Exception ignored) {
-            }
-            executeQuery(statement, "SELECT * FROM FWC_CAMPAIGN_PROPS", this::updateProps);
-            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS ADD CONSTRAINT PK_FWC_CAMPAIGN_PROPS PRIMARY KEY (CAMPAIGN, KEY) USING INDEX");
-            dataModelUpgrader.upgrade(dataModel, version(10, 7));
-            execute(statement, "UPDATE FWC_CAMPAIGN_PROPS SET CPS_ID = " + campaignRegisteredCPSId);
-            execute(statement, "ALTER TABLE FWC_CAMPAIGN_PROPS MODIFY CPS_ID NUMBER NOT NULL");
-            execute(statement, "DROP TABLE FWC_CAMPAIGN_STATUS");
-            execute(statement, "DROP TABLE FWC_CAMPAIGN_DEVICES");
-            execute(statement, "DROP TABLE FWC_CAMPAIGN");
-            execute(dataModel, "UPDATE FWC_FIRMWAREVERSION SET TYPE = 3 WHERE TYPE = 2");
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
         }
     }
 
@@ -247,7 +246,7 @@ public class UpgraderV10_7 implements Upgrader {
     private ServiceCallInfo makeDeviceSC(ResultSet resultSet) throws SQLException {
         ServiceCallInfo serviceCallInfo = new ServiceCallInfo();
         serviceCallInfo.id = currentId;
-        serviceCallInfo.parent = (Long) campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getFirst();
+        serviceCallInfo.parent = campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getFirst();
         serviceCallInfo.lastCompletedTime = null;
         serviceCallInfo.state = deviceStates.get(resultSet.getLong("STATUS"));
         serviceCallInfo.origin = null;
@@ -259,7 +258,7 @@ public class UpgraderV10_7 implements Upgrader {
         serviceCallInfo.targetId = deviceId;
         serviceCallInfo.serviceCallType = itemServiceCallTypeId;
         serviceCallInfo.versionCount = 1L;
-        serviceCallInfo.createTime = resultSet.getLong("STARTED_ON") == 0 ? (Long) campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getLast() : resultSet.getLong("STARTED_ON");
+        serviceCallInfo.createTime = resultSet.getLong("STARTED_ON") == 0 ? campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getLast() : resultSet.getLong("STARTED_ON");
         serviceCallInfo.modTime = resultSet.getLong("FINISHED_ON");
         serviceCallInfo.username = "batch executor";
         return serviceCallInfo;
@@ -290,28 +289,26 @@ public class UpgraderV10_7 implements Upgrader {
         firmwareCampaignInfo.validationTimeoutUnit = resultSet.getLong("VALIDATION_TIMEOUT_UNIT");
 
         firmwareCampaignInfo.firmwareUploadComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
-                .map(deviceType -> deviceType.getConfigurations().stream()
+                .flatMap(deviceType -> deviceType.getConfigurations().stream()
                         .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                         .filter(cte -> cte.getComTask().getName().equals(TaskService.FIRMWARE_COMTASK_NAME) && !cte.isSuspended())
                         .findAny()
-                        .map(cte -> cte.getComTask().getId())
-                        .orElse(null))
+                        .map(cte -> cte.getComTask().getId()))
                 .orElse(null);
 
         firmwareCampaignInfo.validationComTaskId = deviceConfigurationService.findDeviceType(firmwareCampaignInfo.deviceType)
-                .map(deviceType -> deviceType.getConfigurations().stream()
+                .flatMap(deviceType -> deviceType.getConfigurations().stream()
                         .flatMap(cnf -> cnf.getComTaskEnablements().stream())
                         .flatMap(cte -> {
                             if (!cte.isSuspended()) {
                                 return cte.getComTask().getProtocolTasks().stream();
                             } else {
-                                return new ArrayList<ProtocolTask>().stream();
+                                return Stream.empty();
                             }
                         })
                         .filter(protocolTask -> protocolTask instanceof StatusInformationTask)
                         .findAny()
-                        .map(cte -> cte.getComTask().getId())
-                        .orElse(null))
+                        .map(cte -> cte.getComTask().getId()))
                 .orElse(null);
 
         return firmwareCampaignInfo;
@@ -325,7 +322,7 @@ public class UpgraderV10_7 implements Upgrader {
         firmwareCampaignItemInfo.createTime = resultSet.getLong("STARTED_ON");
         firmwareCampaignItemInfo.modTime = resultSet.getLong("FINISHED_ON");
         firmwareCampaignItemInfo.username = "batch executor";
-        firmwareCampaignItemInfo.parent = (Long) campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getFirst();
+        firmwareCampaignItemInfo.parent = campaignIdAndCreationTimeByOldIds.get(resultSet.getLong("CAMPAIGN")).getFirst();
         firmwareCampaignItemInfo.device = resultSet.getLong("DEVICE");
         firmwareCampaignItemInfo.deviceMessage = resultSet.getObject("MESSAGE_ID", Long.class);
         return firmwareCampaignItemInfo;
@@ -339,7 +336,7 @@ public class UpgraderV10_7 implements Upgrader {
         }
     }
 
-    private class ValueBuilder {
+    private static class ValueBuilder {
         private String values = "(";
 
         private ValueBuilder add(String value) {
@@ -365,7 +362,7 @@ public class UpgraderV10_7 implements Upgrader {
         }
     }
 
-    private class FirmwareCampaignInfo {
+    private static class FirmwareCampaignInfo {
         Long serviceCall;
         Long cps;
         Long versionCount;
@@ -386,7 +383,7 @@ public class UpgraderV10_7 implements Upgrader {
         Long validationComTaskId;
     }
 
-    private class ServiceCallInfo {
+    private static class ServiceCallInfo {
         Long id;
         Long parent;
         Long lastCompletedTime;
@@ -404,7 +401,7 @@ public class UpgraderV10_7 implements Upgrader {
         String username;
     }
 
-    private class FirmwareCampaignItemInfo {
+    private static class FirmwareCampaignItemInfo {
         Long serviceCall;
         Long cps;
         Long versionCount;
