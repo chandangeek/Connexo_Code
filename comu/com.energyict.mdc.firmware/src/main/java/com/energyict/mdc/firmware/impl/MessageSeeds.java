@@ -81,6 +81,7 @@ public enum MessageSeeds implements MessageSeed {
     CAMPAIGN_WITH_DEVICE_CANCELLED(4021, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),
     CONNECTION_METHOD_MISSING_ON_COMTASK(4022, "ConnectionMissingOnComTask", "Communication task ''{0}'' doesn''t refer to any connection method.", Level.WARNING),
     TASK_FOR_VALIDATION_LOST_ACTION(4023, "TaskForValidationLostAction", "Task for validation has been changed and doesn''t have the necessary action.", Level.WARNING),
+    FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED(4024, "FirmwareUploadHasBeenStartedCannotBeCancelled", "Firmware upload has been started and can''t be cancelled.", Level.SEVERE)
     ;
 
 

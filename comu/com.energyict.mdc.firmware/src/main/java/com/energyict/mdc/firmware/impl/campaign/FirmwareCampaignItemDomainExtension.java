@@ -47,7 +47,6 @@ import java.time.Clock;
 import java.time.Instant;
 import java.util.Calendar;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
@@ -97,23 +96,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private final Reference<ServiceCall> parent = Reference.empty();
     private final Reference<DeviceMessage> deviceMessage = Reference.empty();
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        FirmwareCampaignItemDomainExtension that = (FirmwareCampaignItemDomainExtension) o;
-        return Objects.equals(getDeviceMessageId(), that.getDeviceMessageId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(deviceMessage);
-    }
-
     @Inject
     public FirmwareCampaignItemDomainExtension(FirmwareServiceImpl firmwareService, Thesaurus thesaurus, Clock clock) {
         super();
@@ -134,15 +116,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
-    public Long getDeviceMessageId() {
-        Optional<DeviceMessage> deviceMessage = this.getDeviceMessage();
-        if(deviceMessage.isPresent()){
-            return  deviceMessage.get().getId();
-        }
-        return null;
-    }
-
-    @Override
     public Optional<DeviceMessage> getDeviceMessage() {
         return deviceMessage.getOptional();
     }
@@ -154,20 +127,25 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     @Override
     public ServiceCall cancel(boolean initFromCampaign) {
-        ServiceCall serviceCall = getServiceCall();
-        Optional<DeviceMessage> deviceMessage = this.getDeviceMessage();
-            deviceMessage.ifPresent(dm-> {
-                        if(dm.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)){
-                            Optional<DeviceMessage> updateMessage = deviceMessageService.findAndLockDeviceMessageById(dm.getId());
-                            System.out.println("CONM-2426 | FIRMWARE_UPLOAD_CANCELED");
-                            updateMessage.get().revoke();
+        getDeviceMessage().ifPresent(dm -> {
+                    if (dm.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)) {
+                        DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
+                                .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
+                        if (message.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)) {
+                            message.revoke();
+                        } else {
+                            throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
                         }
+                    } else {
+                        throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
                     }
-            );
+                }
+        );
 
+        ServiceCall serviceCall = getServiceCall();
         serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
-
-        return serviceCallService.getServiceCall(serviceCall.getId()).get();
+        return serviceCallService.getServiceCall(serviceCall.getId())
+                .orElseThrow(() -> new IllegalStateException("Service call with id " + serviceCall.getId() + " disappeared."));
     }
 
     @Override

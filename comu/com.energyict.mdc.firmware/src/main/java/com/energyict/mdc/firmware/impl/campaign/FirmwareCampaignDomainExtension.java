@@ -29,6 +29,7 @@ import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
@@ -54,6 +55,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -79,8 +82,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
         FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "FIRMWARE_UPLOAD_CONSTRATEGY"),
         MANUALLY_CANCELLED("manuallyCancelled", "MANUALLY_CANCELLED"),
-        WITH_UNIQUE_FIRMWARE_VERSION("withUniqueFirmwareVersion", "WITH_UNIQUE_FIRMWARE_VERSION"),
-        ;
+        WITH_UNIQUE_FIRMWARE_VERSION("withUniqueFirmwareVersion", "WITH_UNIQUE_FIRMWARE_VERSION");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -100,6 +102,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     public static final int SECONDS_IN_DAY = 86400;
+    private static final Logger LOGGER = Logger.getLogger(FirmwareCampaignDomainExtension.class.getName());
     private final DataModel dataModel;
     private final DataModel cpsDataModel;
     private final Thesaurus thesaurus;
@@ -360,9 +363,16 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
             } else {
-                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(DeviceInFirmwareCampaign::getDeviceMessageId, Comparator.nullsFirst(Comparator.naturalOrder()));
+                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(item -> item.getDeviceMessage().map(DeviceMessage::getId).orElse(null),
+                        Comparator.nullsFirst(Comparator.naturalOrder()));
                 items.sort(comparator);
-                items.forEach(item -> item.cancel(true));
+                items.forEach(item -> {
+                    try {
+                        item.cancel(true);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, "Couldn't cancel firmware campaign item " + item.getId() + ": " + e.getMessage(), e);
+                    }
+                });
             }
         }
     }

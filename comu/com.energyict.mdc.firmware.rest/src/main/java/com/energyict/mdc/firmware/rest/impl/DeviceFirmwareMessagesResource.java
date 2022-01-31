@@ -13,6 +13,7 @@ import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
+import com.elster.jupiter.servicecall.DefaultState;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -28,6 +29,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.exceptions.NoStatusInformationTaskException;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
@@ -303,7 +305,8 @@ public class DeviceFirmwareMessagesResource {
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade
         rescheduleFirmwareUpgradeTaskAfterCancellingMessage(device, upgradeMessage);
         firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
-                .ifPresent(deviceInFirmwareCampaign -> deviceInFirmwareCampaign.cancel(false));
+                .map(DeviceInFirmwareCampaign::getServiceCall)
+                .ifPresent(serviceCall -> serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED));
         return Response.ok().build();
     }
 
