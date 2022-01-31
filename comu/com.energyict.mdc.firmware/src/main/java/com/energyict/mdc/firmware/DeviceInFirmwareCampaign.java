@@ -20,6 +20,8 @@ public interface DeviceInFirmwareCampaign {
 
     Device getDevice();
 
+    Long getDeviceMessageId();
+
     Optional<DeviceMessage> getDeviceMessage();
 
     ServiceCall getServiceCall();

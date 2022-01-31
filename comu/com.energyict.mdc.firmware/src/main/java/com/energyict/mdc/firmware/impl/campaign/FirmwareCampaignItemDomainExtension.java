@@ -106,7 +106,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             return false;
         }
         FirmwareCampaignItemDomainExtension that = (FirmwareCampaignItemDomainExtension) o;
-        return Objects.equals(getId(), that.getId());
+        return Objects.equals(getDeviceMessageId(), that.getDeviceMessageId());
     }
 
     @Override
@@ -134,6 +134,15 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
+    public Long getDeviceMessageId() {
+        Optional<DeviceMessage> deviceMessage = this.getDeviceMessage();
+        if(deviceMessage.isPresent()){
+            return  deviceMessage.get().getId();
+        }
+        return null;
+    }
+
+    @Override
     public Optional<DeviceMessage> getDeviceMessage() {
         return deviceMessage.getOptional();
     }
@@ -147,15 +156,15 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
         Optional<DeviceMessage> deviceMessage = this.getDeviceMessage();
-        if (deviceMessage.isPresent()) {
-            if (deviceMessage.get().getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)) {
-                Optional<DeviceMessage> updateMessage = deviceMessageService.findAndLockDeviceMessageById(deviceMessage.get().getId());
-                System.out.println("CONM-2426 | FIRMWARE_UPLOAD_CANCELED");
-                updateMessage.get().revoke();
-            } else {
-                System.out.println("CONM-2426 | FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED");
-            }
-        }
+            deviceMessage.ifPresent(dm-> {
+                        if(dm.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)){
+                            Optional<DeviceMessage> updateMessage = deviceMessageService.findAndLockDeviceMessageById(dm.getId());
+                            System.out.println("CONM-2426 | FIRMWARE_UPLOAD_CANCELED");
+                            updateMessage.get().revoke();
+                        }
+                    }
+            );
+
         serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
 
         return serviceCallService.getServiceCall(serviceCall.getId()).get();

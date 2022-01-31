@@ -360,7 +360,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
             } else {
-                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(DeviceInFirmwareCampaign::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(DeviceInFirmwareCampaign::getDeviceMessageId, Comparator.nullsFirst(Comparator.naturalOrder()));
                 items.sort(comparator);
                 items.forEach(item -> item.cancel(true));
             }
