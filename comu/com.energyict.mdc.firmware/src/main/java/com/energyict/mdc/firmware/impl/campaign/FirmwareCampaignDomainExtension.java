@@ -29,7 +29,6 @@ import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
-import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
@@ -361,18 +360,9 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                     serviceCall.requestTransition(DefaultState.CANCELLED);
                 }
             } else {
-                Map<DeviceMessage, DeviceInFirmwareCampaign> deviceMessageServiceCallMap = items.stream()
-                        .collect(Collectors.toMap(deviceInFirmwareCampaign -> {
-                            if (deviceInFirmwareCampaign.getDeviceMessage().isPresent()) {
-                                return deviceInFirmwareCampaign.getDeviceMessage().get();
-                            } else {
-                                return null;
-                            }
-                        }, deviceInFirmwareCampaign -> deviceInFirmwareCampaign));
-
-                Comparator<DeviceMessage> comparator = Comparator.comparing(DeviceMessage::getId, Comparator.nullsLast(Comparator.naturalOrder()));
-                deviceMessageServiceCallMap.keySet().stream().sorted(comparator).close();
-                deviceMessageServiceCallMap.values().forEach(item -> item.cancel(true));
+                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(DeviceInFirmwareCampaign::getId, Comparator.nullsLast(Comparator.naturalOrder()));
+                items.sort(comparator);
+                items.forEach(item -> item.cancel(true));
             }
         }
     }
