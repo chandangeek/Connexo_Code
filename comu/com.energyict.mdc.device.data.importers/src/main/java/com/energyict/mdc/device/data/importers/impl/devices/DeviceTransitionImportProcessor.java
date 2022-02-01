@@ -6,12 +6,12 @@ package com.energyict.mdc.device.data.importers.impl.devices;
 
 import com.elster.jupiter.fileimport.csvimport.exceptions.ProcessorException;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.properties.InvalidValueException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.device.config.GatewayType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.elster.jupiter.metering.DefaultState;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
@@ -70,7 +70,11 @@ public abstract class DeviceTransitionImportProcessor<T extends DeviceTransition
         ExecutableAction executableAction = getExecutableAction(device, data);
 
         List<DefaultState> sourceStates = getSourceStates(data);
-        if (!sourceStates.stream().anyMatch(state -> state.getKey().equals(device.getState().getName()))) {
+        // It's a temporary hotfix for CONM-2793,  TODO: implement well-designed solution for custom States
+        String deviceState = device.getState().getName();
+        if (!(sourceStates.stream().anyMatch(state -> state.getKey().equals(deviceState))
+                || this.getClass().getName().toLowerCase().contains("installation")
+                && (deviceState.equals("Auf Lager") || deviceState.equals("In Wartung")))) {
             throw new ProcessorException(
                     MessageSeeds.DEVICE_CAN_NOT_BE_MOVED_TO_STATE_BY_IMPORTER,
                     data.getLineNumber(),
