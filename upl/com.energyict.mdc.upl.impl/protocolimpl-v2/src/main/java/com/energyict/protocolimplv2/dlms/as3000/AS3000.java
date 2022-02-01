@@ -11,8 +11,11 @@ import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.Device;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
@@ -21,6 +24,10 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
 
 import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractFacadeDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.DeviceInformation;
@@ -40,6 +47,7 @@ import com.energyict.protocolimplv2.dlms.common.readers.CollectedLoadProfileRead
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedLogBookReader;
 import com.energyict.protocolimplv2.dlms.common.readers.CollectedRegisterReader;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +60,7 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
 
     public AS3000(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, NlsService nlsService, Converter converter) {
         super(propertySpecService, collectedDataFactory, issueFactory, new DeviceInformation(DeviceFunction.METER,
-                new ManufacturerInformation(Manufacturer.Elster), "24-01-2022", "AS3000"), new AS3000Properties());
+                new ManufacturerInformation(Manufacturer.Elster), "01-02-2022", "AS3000"), new AS3000Properties());
         this.nlsService = nlsService;
         this.converter = converter;
     }
@@ -169,4 +177,36 @@ public class AS3000 extends AbstractFacadeDlmsProtocol<FrameCounterCache> {
         return new FrameCounterCache();
     }
 
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        CollectedBreakerStatus result = super.getBreakerStatus();
+        if (hasBreaker()) {
+            try {
+                Disconnector disconnector = getDlmsSession().getCosemObjectFactory().getDisconnector();
+                TypeEnum controlState = disconnector.doReadControlState();
+                switch (controlState.getValue()) {
+                    case 0:
+                        result.setBreakerStatus(BreakerStatus.DISCONNECTED);
+                        break;
+                    case 1:
+                        result.setBreakerStatus(BreakerStatus.CONNECTED);
+                        break;
+                    case 2:
+                        result.setBreakerStatus(BreakerStatus.ARMED);
+                        break;
+                    default:
+                        ObisCode source = Disconnector.getDefaultObisCode();
+                        result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory()
+                                .createProblem(source, "issue.protocol.readingOfBreakerStateFailed", "received value '" + controlState.getValue() + "', expected either 0, 1 or 2."));
+                        break;
+                }
+            } catch (IOException e) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                    ObisCode source = Disconnector.getDefaultObisCode();
+                    result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory().createProblem(source, "issue.protocol.readingOfBreakerStateFailed", e.toString()));
+                }
+            }
+        }
+        return result;
+    }
 }
