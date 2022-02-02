@@ -28,17 +28,15 @@ Ext.onReady(function () {
                         conn.token = data.responseText;
                     }
                 });
-                if(options.headers &&
-                    options.headers['Content-type'] === 'multipart/form-data' && options.url ){
+                if (options.headers &&
+                    options.headers['Content-type'] === 'multipart/form-data' && options.url) {
 
                     options.url = options.url.indexOf('X-CSRF-TOKEN') > 0 ? options.url :
-                       options.url + '?X-CSRF-TOKEN=' + conn.token;
+                        options.url + '?X-CSRF-TOKEN=' + conn.token;
                 }
                 conn.defaultHeaders['X-CSRF-TOKEN'] = unescape(conn.token);
             }
             conn.defaultHeaders.Authorization = xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ") + 1)) : xAuthToken;
-
-
         });
         Ext.Ajax.on("requestcomplete", function (conn, response) {
             localStorage.setItem('X-AUTH-TOKEN', response.getResponseHeader('X-AUTH-TOKEN'));
@@ -73,7 +71,6 @@ Ext.onReady(function () {
         });
     };
 
-
     Ext.Ajax.request({
         url: '/api/yfn/user/url',
         method: 'GET',
@@ -87,5 +84,13 @@ Ext.onReady(function () {
         }
     });
 
+    Ext.Ajax.request({
+        url: '/api/sys/fields/timeout',
+        method: 'GET',
+
+        success: function (response) {
+            Ext.Ajax.timeout = parseInt(response.responseText);
+        }
+    });
 });
 

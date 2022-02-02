@@ -30,6 +30,7 @@ import com.elster.jupiter.systemadmin.rest.imp.response.ApplicationInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.BundleTypeInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.ConnexoConfigPropertiesFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.LicenseInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.SystemInfoFactory;
 import com.elster.jupiter.tasks.TaskService;
@@ -37,7 +38,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
@@ -200,6 +200,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
             bind(ComponentInfoFactory.class).to(ComponentInfoFactory.class);
             bind(BundleTypeInfoFactory.class).to(BundleTypeInfoFactory.class);
             bind(ComponentStatusInfoFactory.class).to(ComponentStatusInfoFactory.class);
+            bind(ConnexoConfigPropertiesFactory.class).to(ConnexoConfigPropertiesFactory.class);
             bind(subsystemService).to(SubsystemService.class);
             bind(bundleContext).to(BundleContext.class);
             bind(lastStartedTime).to(Long.class).named("LAST_STARTED_TIME");

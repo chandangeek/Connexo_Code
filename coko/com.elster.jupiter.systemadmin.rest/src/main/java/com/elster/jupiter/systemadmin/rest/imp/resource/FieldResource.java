@@ -16,6 +16,7 @@ import com.elster.jupiter.systemadmin.rest.imp.response.BundleTypeInfo;
 import com.elster.jupiter.systemadmin.rest.imp.response.BundleTypeInfoFactory;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfo;
 import com.elster.jupiter.systemadmin.rest.imp.response.ComponentStatusInfoFactory;
+import com.elster.jupiter.systemadmin.rest.imp.response.ConnexoConfigPropertiesFactory;
 
 import javax.annotation.security.RolesAllowed;
 import javax.inject.Inject;
@@ -24,6 +25,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -35,13 +37,15 @@ public class FieldResource {
     private BundleTypeInfoFactory bundleTypeInfoFactory;
     private ComponentStatusInfoFactory componentStatusInfoFactory;
     private SubsystemService subsystemService;
+    private final ConnexoConfigPropertiesFactory connexoConfigPropertiesFactory;
 
     @Inject
-    public FieldResource(ApplicationInfoFactory applicationInfoFactory, BundleTypeInfoFactory bundleTypeInfoFactory, ComponentStatusInfoFactory componentStatusInfoFactory, SubsystemService subsystemService) {
+    public FieldResource(ApplicationInfoFactory applicationInfoFactory, BundleTypeInfoFactory bundleTypeInfoFactory, ComponentStatusInfoFactory componentStatusInfoFactory, SubsystemService subsystemService, ConnexoConfigPropertiesFactory connexoConfigPropertiesFactory) {
         this.applicationInfoFactory = applicationInfoFactory;
         this.bundleTypeInfoFactory = bundleTypeInfoFactory;
         this.componentStatusInfoFactory = componentStatusInfoFactory;
         this.subsystemService = subsystemService;
+        this.connexoConfigPropertiesFactory = connexoConfigPropertiesFactory;
     }
 
     @GET
@@ -50,6 +54,13 @@ public class FieldResource {
     public PagedInfoList getSystemInformation(@BeanParam JsonQueryParameters queryParams) {
         List<ApplicationInfo> infos = subsystemService.getSubsystems().stream().map(applicationInfoFactory::asInfo).sorted((o1, o2) -> o1.name.compareTo(o2.name)).collect(Collectors.toList());
         return PagedInfoList.fromPagedList("applications", infos, queryParams);
+    }
+
+    @GET
+    @Path("/timeout")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    public Response getTimeout() {
+        return Response.ok(connexoConfigPropertiesFactory.getTimeoutFromConfigProperties()).build();
     }
 
     @GET
