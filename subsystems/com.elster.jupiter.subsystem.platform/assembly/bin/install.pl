@@ -1208,6 +1208,21 @@ sub activate_sso_filters{
                 print "    $JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar\n";
                 copy("$JBOSS_BASE/flow/lib/nimbus-jose-jwt-3.10.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/nimbus-jose-jwt-3.10.jar");
             }
+            if (-e "$JBOSS_BASE/flow/log/log4j-1.2-api-2.17.1.jar") {
+                print "    $JBOSS_BASE/flow/log/log4j-1.2-api-2.17.1.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-1.2-api-2.17.1.jar\n";
+                unlink("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-over-slf4j-1.7.26.jar.jar");
+                copy("$JBOSS_BASE/flow/log/log4j-1.2-api-2.17.1.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-1.2-api-2.17.1.jar");
+            }
+            if (-e "$JBOSS_BASE/flow/log/log4j-api-2.17.1.jar") {
+                print "    $JBOSS_BASE/flow/log/log4j-api-2.17.1.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-api-2.17.1.jar\n";
+                unlink("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-api-2.11.1.jar");
+                copy("$JBOSS_BASE/flow/log/log4j-api-2.17.1.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-api-2.17.1.jar");
+            }
+            if (-e "$JBOSS_BASE/flow/log/log4j-core-2.17.1.jar") {
+                print "    $JBOSS_BASE/flow/log/log4j-core-2.17.1.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-core-2.17.1.jar\n";
+                unlink("$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-core-2.11.1.jar");
+                copy("$JBOSS_BASE/flow/log/log4j-core-2.17.1.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/business-central.war/WEB-INF/lib/log4j-core-2.17.1.jar");
+            }
 
             if ("$OS" eq "linux") {
                 system("chown -R -f jboss-eap:jboss-eap \"$STANDALONE_BASE\"");
