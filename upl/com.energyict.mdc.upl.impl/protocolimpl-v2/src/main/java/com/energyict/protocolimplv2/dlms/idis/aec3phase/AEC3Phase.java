@@ -46,7 +46,7 @@ public class AEC3Phase extends AEC {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-11-30$";
+        return "$Date: 2022-02-01$";
     }
 
     @Override
