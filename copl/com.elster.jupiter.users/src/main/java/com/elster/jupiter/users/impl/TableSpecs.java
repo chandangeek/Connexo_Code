@@ -191,9 +191,9 @@ public enum TableSpecs {
             table.column("LANGUAGETAG").varChar().map("languageTag").add();
             Column userDirColumn = table.column("USER_DIRECTORY").number().notNull().add();
             table.column("Active").type("char(1)").conversion(CHAR2BOOLEAN).map("status").add();
-            table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").notAudited().add();
-            table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").notAudited().add();
-            table.column("UNSUCCESSFULLOGINCOUNT").number().conversion(NUMBER2INT).map("unSuccessfulLoginCount").notAudited().since(version(10, 4, 9)).installValue("0").add();
+            table.column("LASTSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastSuccessfulLogin").notAudited().notRequiringAutoUpdate().add();
+            table.column("LASTUNSUCCESSFULOGIN").number().conversion(NUMBER2INSTANT).map("lastUnSuccessfulLogin").notAudited().notRequiringAutoUpdate().add();
+            table.column("UNSUCCESSFULLOGINCOUNT").number().conversion(NUMBER2INT).map("unSuccessfulLoginCount").notAudited().notRequiringAutoUpdate().since(version(10, 4, 9)).installValue("0").add();
             table.addAuditColumns().get(3).since(version(10, 2));
             table.column("ISROLEMODIFIED").type("char(1)").conversion(CHAR2BOOLEAN).map("isRoleModified").installValue("'N'").add();
             table.primaryKey("USR_PK_USER").on(idColumn).add();

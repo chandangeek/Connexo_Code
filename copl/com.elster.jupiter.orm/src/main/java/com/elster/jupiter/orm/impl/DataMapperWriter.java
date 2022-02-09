@@ -237,12 +237,7 @@ public class DataMapperWriter<T> {
         ColumnImpl[] versionCountColumns = getTable().getVersionColumns();
         List<Pair<ColumnImpl, Long>> versionCounts = new ArrayList<>(versionCountColumns.length);
         try (Connection connection = getConnection(true)) {
-            String sql;
-            if (columns.size() == 0 || doJournal(columns)) {
-                sql = getSqlGenerator().updateSql(columns);
-            } else {
-                sql = getSqlGenerator().updateSqlWithoutVersionIncrease(columns);
-            }
+            String sql = getSqlGenerator().updateSql(columns, columns.isEmpty() || doJournal(columns), columns.isEmpty() || doRequiredAutoUpdate(columns));
             List<IOResource> resources = new ArrayList<>();
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 int index = 1;
@@ -257,8 +252,10 @@ public class DataMapperWriter<T> {
                         column.setObject(statement, index++, object).ifPresent(resources::add);
                     }
                 }
-                for (ColumnImpl column : getTable().getAutoUpdateColumns()) {
-                    column.setObject(statement, index++, object).ifPresent(resources::add);
+                if (columns.isEmpty() || doRequiredAutoUpdate(columns)) {
+                    for (ColumnImpl column : getTable().getAutoUpdateColumns()) {
+                        column.setObject(statement, index++, object).ifPresent(resources::add);
+                    }
                 }
                 index = bindPrimaryKey(statement, index, object);
                 if (columns.size() == 0 || doJournal(columns)) {
@@ -300,6 +297,10 @@ public class DataMapperWriter<T> {
 
     private boolean doJournal(List<ColumnImpl> columns) {
         return columns.stream().anyMatch(ColumnImpl::alwaysJournal);
+    }
+
+    private boolean doRequiredAutoUpdate(List<ColumnImpl> columns) {
+        return columns.stream().anyMatch(ColumnImpl::requireAutoUpdate);
     }
 
     void update(List<T> objects, List<ColumnImpl> columns) throws SQLException {

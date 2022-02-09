@@ -66,6 +66,7 @@ public class ColumnImpl implements Column {
     private boolean skipOnUpdate;
     private String formula;
     private boolean alwaysJournal = true;
+    private boolean requireAutoUpdate = true;
     private transient RangeSet<Version> versions = TreeRangeSet.<Version>create().complement();
     private transient RangeSet<Version> versionsIntersectedWithTable;
     private transient ColumnImpl predecessor;
@@ -209,6 +210,10 @@ public class ColumnImpl implements Column {
 
     public boolean alwaysJournal() {
         return alwaysJournal;
+    }
+
+    public boolean requireAutoUpdate() {
+        return requireAutoUpdate;
     }
 
     @Override
@@ -599,6 +604,12 @@ public class ColumnImpl implements Column {
         @Override
         public Builder audited() {
             column.alwaysJournal = true;
+            return this;
+        }
+
+        @Override
+        public Builder notRequiringAutoUpdate() {
+            column.requireAutoUpdate = false;
             return this;
         }
 

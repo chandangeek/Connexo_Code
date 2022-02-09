@@ -235,6 +235,54 @@ public class TableSqlGenerator {
 		return sb.toString();
 	}
 
+	String updateSql(List<ColumnImpl> columns, boolean doVersion, boolean doAutoUpdate) {
+		StringBuilder sb = new StringBuilder("update ");
+		sb.append(table.getQualifiedName());
+		sb.append(" set ");
+		String separator = "";
+		for (Column each : columns) {
+			sb.append(separator);
+			sb.append(each.getName());
+			sb.append(" = ?");
+			separator = ", ";
+		}
+		if (doAutoUpdate) {
+			for (Column each : table.getAutoUpdateColumns()) {
+				sb.append(separator);
+				sb.append(each.getName());
+				sb.append("=  ?");
+				separator = ", ";
+			}
+		}
+		for (Column each : table.getUpdateValueColumns()) {
+			sb.append(separator);
+			sb.append(each.getName());
+			sb.append(" = ");
+			sb.append(each.getUpdateValue());
+			separator = ", ";
+		}
+		if (doVersion) {
+			for (Column each : table.getVersionColumns()) {
+				sb.append(separator);
+				sb.append(each.getName());
+				sb.append(" = ");
+				sb.append(each.getName());
+				sb.append(" + 1");
+				separator = ", ";
+			}
+		}
+		sb.append(" where ");
+		addPrimaryKey(sb);
+		if (doVersion) {
+			for (Column each : table.getVersionColumns()) {
+				sb.append(" and ");
+				sb.append(each.getName());
+				sb.append(" = ?");
+			}
+		}
+		return sb.toString();
+	}
+
 	String updateSqlWithoutVersionIncrease(List<ColumnImpl> columns) {
 		StringBuilder sb = new StringBuilder("update ");
 		sb.append(table.getQualifiedName());
