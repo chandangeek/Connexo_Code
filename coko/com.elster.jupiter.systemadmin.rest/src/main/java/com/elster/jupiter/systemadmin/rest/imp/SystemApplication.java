@@ -75,6 +75,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
     private volatile JsonService jsonService;
     private volatile SubsystemService subsystemService;
     private volatile Clock clock;
+    private volatile ConnexoConfigPropertiesFactory connexoConfigPropertiesFactory;
 
     private BundleContext bundleContext;
     private Long lastStartedTime;
@@ -147,6 +148,11 @@ public class SystemApplication extends Application implements MessageSeedProvide
         this.clock = clock;
     }
 
+    @Reference
+    public void setConnexoConfigPropertiesFactory(ConnexoConfigPropertiesFactory connexoConfigPropertiesFactory) {
+        this.connexoConfigPropertiesFactory = connexoConfigPropertiesFactory;
+    }
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> hashSet = new HashSet<>();
@@ -200,7 +206,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
             bind(ComponentInfoFactory.class).to(ComponentInfoFactory.class);
             bind(BundleTypeInfoFactory.class).to(BundleTypeInfoFactory.class);
             bind(ComponentStatusInfoFactory.class).to(ComponentStatusInfoFactory.class);
-            bind(ConnexoConfigPropertiesFactory.class).to(ConnexoConfigPropertiesFactory.class);
+            bind(connexoConfigPropertiesFactory).to(ConnexoConfigPropertiesFactory.class);
             bind(subsystemService).to(SubsystemService.class);
             bind(bundleContext).to(BundleContext.class);
             bind(lastStartedTime).to(Long.class).named("LAST_STARTED_TIME");
