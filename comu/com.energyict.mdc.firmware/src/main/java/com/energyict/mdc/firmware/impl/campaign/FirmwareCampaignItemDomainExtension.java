@@ -235,23 +235,24 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     private boolean checksFailed(DeviceMessageId firmwareMessageId) {
         boolean failed = false;
+        ServiceCall serviceCall = getServiceCall();
         if (!doesDeviceTypeAllowFirmwareManagement()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT)
                     .format(getDevice().getName(), getDevice().getDeviceType().getName()));
             failed = true;
         }
         if (!doesDeviceConfigurationSupportFirmwareManagement()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT)
                     .format(getDevice().getName(), getDevice().getDeviceConfiguration().getName()));
             failed = true;
         }
         if (!cancelPendingFirmwareUpdates()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_CURRENTLY_ONGOING)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_CURRENTLY_ONGOING)
                     .format(getDevice().getName()));
             failed = true;
         }
         if (firmwareMessageId == null) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE)
                     .format(getDevice().getName(), getDevice().getDeviceType().getName()));
             failed = true;
         }
@@ -264,22 +265,22 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                 ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
                 if (!(connectionTask.isActive() && (!campaign.getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign
                         .getFirmwareUploadConnectionStrategy().get()))) {
-                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                            .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExecution.getComTask()
-                                    .getName()));
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(
+                            thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(),
+                            firmwareComTaskExecution.getComTask().getName()));
                     failed = true;
                 }
             } else {
-                getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
                         .format(firmwareComTaskExecution.getComTask().getName()));
                 failed = true;
             }
         } else {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             failed = true;
         }
         if (!doesConnectionWindowOverlap()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY)
                     .format(getDevice().getName()));
             failed = true;
         }
@@ -292,18 +293,18 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
                     if (!(connectionTask.isActive() && (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign
                             .getValidationConnectionStrategy().get()))) {
-                        getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                                .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(), verificationComTaskExecution.getComTask()
-                                        .getName()));
+                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(
+                                thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(),
+                                verificationComTaskExecution.getComTask().getName()));
                         failed = true;
                     }
                 } else {
-                    getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
                             .format(verificationComTaskExecution.getComTask().getName()));
                     failed = true;
                 }
             } else {
-                getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
                 failed = true;
             }
         }
