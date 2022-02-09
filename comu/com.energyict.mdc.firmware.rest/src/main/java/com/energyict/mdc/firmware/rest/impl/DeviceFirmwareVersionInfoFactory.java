@@ -137,7 +137,7 @@ public class DeviceFirmwareVersionInfoFactory {
                         .filter(upgradeState -> {
                             if (upgradeState instanceof FailedFirmwareUploadState) {
                                 Optional<DeviceFirmwareVersionInfo> currentFirmware = info.firmwares.stream().findFirst();
-                                long lastCheckedData = currentFirmware.isPresent() ? currentFirmware.get().activeVersion.lastCheckedDate : 0;
+                                long lastCheckedData = currentFirmware.map(cf -> cf.activeVersion).map(activeInfo -> activeInfo.lastCheckedDate).orElse(0L);
                                 long lastReleaseDate = message.getReleaseDate().toEpochMilli();
                                 return lastCheckedData <= lastReleaseDate;
                             }
