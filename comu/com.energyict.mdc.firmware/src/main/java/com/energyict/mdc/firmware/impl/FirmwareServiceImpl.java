@@ -340,6 +340,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Override
     public Optional<com.energyict.mdc.common.protocol.DeviceMessageSpec> defaultFirmwareVersionSpec() {
+        // TODO: check usages of this method and get rid of ones that use this insecurely, i.e. find the exact message spec for every case instead of basing on the default one.
         return deviceMessageSpecificationService.findMessageSpecById(DeviceMessageId.FIRMWARE_UPGRADE_WITH_USER_FILE_ACTIVATE_IMMEDIATE.dbValue());
     }
 

@@ -324,42 +324,22 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     @Override
     public FirmwareVersion getFirmwareVersion(Map<String, Object> properties) {
         Optional<DeviceMessageSpec> firmwareMessageSpec = firmwareService.defaultFirmwareVersionSpec();
-        List<PropInfo> propInfos = new ArrayList<>();
-        properties.forEach((key, value) -> propInfos.add(new PropInfo(key, value)));
         if (firmwareMessageSpec.isPresent()) {
             Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.get()
                     .getPropertySpecs()
                     .stream()
-                    .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
+                    .filter(propertySpec -> BaseFirmwareVersion.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))
                     .findAny();
             if (firmwareVersionPropertySpec.isPresent()) {
-                return (FirmwareVersion) propInfos.stream()
-                        .filter(property -> property.key.equals(firmwareVersionPropertySpec.get().getName()))
-                        .findFirst()
-                        .map(property -> firmwareVersionPropertySpec.get().getValueFactory().fromStringValue(property.getValueAsString()))
-                        .orElse(null);
+                Object value = properties.get(firmwareVersionPropertySpec.get().getName());
+                if (value != null) {
+                    Object firmwareVersion = firmwareVersionPropertySpec.get().getValueFactory().fromStringValue(String.valueOf(value));
+                    if (firmwareVersion instanceof FirmwareVersion) {
+                        return (FirmwareVersion) firmwareVersion;
+                    }
+                }
             }
         }
         return null;
     }
-
-    static class PropInfo {
-        private final String key;
-        private final Object value;
-
-        public PropInfo(String key, Object value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String getValueAsString() {
-            return value instanceof String ? (String) value
-                    : value instanceof Boolean ? Boolean.toString((Boolean) value)
-                    : value instanceof Long ? Long.toString((Long) value)
-                    : value instanceof Integer ? Integer.toString((Integer) value)
-                    : value != null ? value.toString()
-                    : "";
-        }
-    }
-
 }

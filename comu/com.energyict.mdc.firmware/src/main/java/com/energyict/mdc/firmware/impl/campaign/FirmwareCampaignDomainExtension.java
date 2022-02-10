@@ -378,14 +378,17 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
             Optional<PropertySpec> firmwareVersionPropertySpec = firmwareMessageSpec.get()
                     .getPropertySpecs()
                     .stream()
-                    .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
+                    .filter(propertySpec -> BaseFirmwareVersion.class.isAssignableFrom(propertySpec.getValueFactory().getValueType()))
                     .findAny();
             if (firmwareVersionPropertySpec.isPresent()) {
-                return (FirmwareVersion) properties.stream()
+                Object firmwareVersion = properties.stream()
                         .filter(property -> property.getKey().equals(firmwareVersionPropertySpec.get().getName()))
                         .findFirst()
                         .map(property -> firmwareVersionPropertySpec.get().getValueFactory().fromStringValue(property.getValue()))
                         .orElse(null);
+                if (firmwareVersion instanceof FirmwareVersion) {
+                    return (FirmwareVersion) firmwareVersion;
+                }
             }
         }
         return null;
