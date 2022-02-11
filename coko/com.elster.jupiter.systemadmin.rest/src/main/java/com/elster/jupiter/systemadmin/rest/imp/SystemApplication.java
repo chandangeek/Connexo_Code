@@ -39,6 +39,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.Singleton;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.osgi.framework.BundleContext;
@@ -200,7 +201,7 @@ public class SystemApplication extends Application implements MessageSeedProvide
             bind(ComponentInfoFactory.class).to(ComponentInfoFactory.class);
             bind(BundleTypeInfoFactory.class).to(BundleTypeInfoFactory.class);
             bind(ComponentStatusInfoFactory.class).to(ComponentStatusInfoFactory.class);
-            bind(ConnexoConfigPropertiesFactory.class).to(ConnexoConfigPropertiesFactory.class);
+            bind(ConnexoConfigPropertiesFactory.class).to(ConnexoConfigPropertiesFactory.class).in(Singleton.class);
             bind(subsystemService).to(SubsystemService.class);
             bind(bundleContext).to(BundleContext.class);
             bind(lastStartedTime).to(Long.class).named("LAST_STARTED_TIME");
