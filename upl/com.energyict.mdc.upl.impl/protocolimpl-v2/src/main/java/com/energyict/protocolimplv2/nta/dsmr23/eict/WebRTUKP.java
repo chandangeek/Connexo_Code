@@ -53,8 +53,9 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
-import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.WebRTUKPDsmr23MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.WebRTUKPDsmr23Messaging;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.Dsmr23LogBookFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.nta.dsmr23.registers.Dsmr23RegisterFactory;
@@ -85,13 +86,13 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     private Dsmr23LogBookFactory logBookFactory;
     private LoadProfileBuilder loadProfileBuilder;
     private Dsmr23RegisterFactory registerFactory;
-    private final Converter converter;
-    private final NlsService nlsService;
-    private final DeviceMessageFileExtractor messageFileExtractor;
-    private final TariffCalendarExtractor calendarExtractor;
-    private final NumberLookupExtractor numberLookupExtractor;
-    private final LoadProfileExtractor loadProfileExtractor;
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final Converter converter;
+    protected final NlsService nlsService;
+    protected final DeviceMessageFileExtractor messageFileExtractor;
+    protected final TariffCalendarExtractor calendarExtractor;
+    protected final NumberLookupExtractor numberLookupExtractor;
+    protected final LoadProfileExtractor loadProfileExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     public WebRTUKP(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, collectedDataFactory, issueFactory);
@@ -213,8 +214,8 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
     protected Dsmr23Messaging getDsmr23Messaging() {
         if (dsmr23Messaging == null) {
             dsmr23Messaging =
-                    new Dsmr23Messaging(
-                            new Dsmr23MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), keyAccessorTypeExtractor),
+                    new WebRTUKPDsmr23Messaging(
+                            new WebRTUKPDsmr23MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), keyAccessorTypeExtractor),
                             this.getPropertySpecService(), this.nlsService, this.converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
         }
         return dsmr23Messaging;
@@ -316,7 +317,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-04-15$";
+        return "$Date: 2022-01-11$";
     }
 
     @Override
