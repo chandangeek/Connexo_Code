@@ -1,5 +1,14 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -11,24 +20,22 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.dlms.cosem.NbiotPushSetup;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.messages.A2MessageExecutor;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
+import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.google.common.base.Strings;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;
 import java.util.Calendar;
 
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.obisCode;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.threshold;
 
 public class EI7MessageExecutor extends A2MessageExecutor {
@@ -51,8 +58,11 @@ public class EI7MessageExecutor extends A2MessageExecutor {
 
     private static final ObisCode ORPHAN_STATE = ObisCode.fromString("0.0.94.39.10.255");
 
-    public EI7MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+
+    public EI7MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory);
+        this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
@@ -65,6 +75,8 @@ public class EI7MessageExecutor extends A2MessageExecutor {
                 writeOrphanStateThreshold(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_NETWORK_TIMEOUT)) {
                 writeNetworkTimeout(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL_EI6_7)) {
+                renewKey(pendingMessage);
             } else {
                 super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -188,5 +200,19 @@ public class EI7MessageExecutor extends A2MessageExecutor {
     private void writeOrphanStateThreshold(OfflineDeviceMessage pendingMessage) throws IOException {
         int numberOfDays = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, threshold));
         getCosemObjectFactory().getNbiotOrphanState(ORPHAN_STATE).writeThresholds(numberOfDays);
+    }
+
+    protected void renewKey(OfflineDeviceMessage pendingMessage) throws IOException {
+        String newAuthenticationKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, newAuthenticationKeyAttributeName).getValue();
+        String newEncryptionKey = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, newEncryptionKeyAttributeName).getValue();
+        String obis = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, obisCode).getValue();
+        if (newAuthenticationKey == null || newEncryptionKey == null) {
+            throw new ProtocolException("The security accessor corresponding to the provided keyAccessorType does not have a valid passive value.");
+        }
+        if (!newAuthenticationKey.equals(newEncryptionKey)) {
+            throw new ProtocolException("The authentication key must match the encryption key.");
+        }
+        byte[] akWrappedKey = DatatypeConverter.parseHexBinary(newAuthenticationKey);
+        getProtocol().getDlmsSession().getCosemObjectFactory().getAssociationLN(ObisCode.fromString(obis)).changeHLSSecret(akWrappedKey);
     }
 }
