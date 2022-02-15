@@ -128,10 +128,11 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     @Override
     public ServiceCall cancel(boolean initFromCampaign) {
         getDeviceMessage().ifPresent(dm -> {
-                    if (dm.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)) {
+                    FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor((Device) dm.getDevice());
+                    if (dm.getStatus().equals(DeviceMessageStatus.WAITING) && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
                         DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
                                 .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
-                        if (message.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED)) {
+                        if (message.getStatus().equals(DeviceMessageStatus.WAITING) && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
                             message.revoke();
                         } else {
                             throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
