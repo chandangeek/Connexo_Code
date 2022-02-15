@@ -1,15 +1,15 @@
 {
-  "compatVersion" : "10.9.13",
+  "compatVersion" : "10.9.14",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.fileimport.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.13",
-    "com.elster.jupiter.time.extjs@10.9.13"
+    "com.elster.jupiter.unifyingjs@10.9.14",
+    "com.elster.jupiter.time.extjs@10.9.14"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.13"
+  "version" : "10.9.14"
 }
