@@ -5,7 +5,7 @@
 package com.energyict.protocolimplv2.messages.enums;
 
 
-public enum EI67KeyExchangeObjects {
+public enum EI67KeyExchangeObject {
 
     MANAGEMENT(1, "0.0.40.0.1.255"),
     INSTALLER(2, "0.0.40.0.3.255");
@@ -13,13 +13,13 @@ public enum EI67KeyExchangeObjects {
     private final int attributeNumber;
     private final String obis;
 
-    private EI67KeyExchangeObjects(int attributeNumber, String obis) {
+    EI67KeyExchangeObject(int attributeNumber, String obis) {
         this.attributeNumber = attributeNumber;
         this.obis = obis;
     }
 
-    public static int fromObject(String description) {
-        for (EI67KeyExchangeObjects roles : values()) {
+    public static int getAttributeNumberByObject(String description) {
+        for (EI67KeyExchangeObject roles : values()) {
             if (roles.getObis().equals(description)) {
                 return roles.getAttributeNumber();
             }

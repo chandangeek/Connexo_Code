@@ -11,7 +11,7 @@ import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.protocolimplv2.messages.enums.ClientSecuritySetup;
 import com.energyict.protocolimplv2.messages.enums.DlmsAuthenticationLevelMessageValues;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
-import com.energyict.protocolimplv2.messages.enums.EI67KeyExchangeObjects;
+import com.energyict.protocolimplv2.messages.enums.EI67KeyExchangeObject;
 import com.energyict.protocolimplv2.messages.enums.UserNames;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -727,7 +727,7 @@ public enum SecurityMessage implements DeviceMessageSpecSupplier {
             return Arrays.asList(
                     keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newAuthenticationKeyAttributeName, DeviceMessageConstants.newAuthenticationKeyAttributeDefaultTranslation),
                     keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.newEncryptionKeyAttributeName, DeviceMessageConstants.newEncryptionKeyAttributeDefaultTranslation),
-                    stringSpec(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation, EI67KeyExchangeObjects.getAllObjects()));
+                    stringSpec(service, DeviceMessageConstants.obisCode, DeviceMessageConstants.obisCodeDefaultTranslation, EI67KeyExchangeObject.getAllObjects()));
         }
     };
 
