@@ -1,17 +1,5 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
-import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.offline.OfflineLoadProfile;
-
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
@@ -27,6 +15,17 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -34,6 +33,9 @@ import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2Properties;
+import com.energyict.protocolimplv2.dlms.ei7.frames.CommunicationType;
+import com.energyict.protocolimplv2.dlms.ei7.frames.DailyReadings;
+import com.energyict.protocolimplv2.dlms.ei7.frames.Frame30;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.io.IOException;
@@ -45,9 +47,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader.getEiServerStatus;
+import static com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport.COMMUNICATION_TYPE_STR;
 
 public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
+    private static byte COMPACT_FRAME_30 = (byte) 0x1E;
     private static byte COMPACT_FRAME_40 = (byte) 0x28;
     private static byte COMPACT_FRAME_47 = (byte) 0x2F;
     private static byte COMPACT_FRAME_48 = (byte) 0x30;
@@ -142,7 +146,9 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         if (dataType instanceof OctetString) {
             byte[] compactFrame = ((OctetString) dataType).getOctetStr();
             byte compactFrameTag = compactFrame[0];
-            if (compactFrameTag == COMPACT_FRAME_40) {
+            if ( compactFrameTag == COMPACT_FRAME_30 ) {
+                readCompactFrame30(compactFrame);
+            } else if (compactFrameTag == COMPACT_FRAME_40) {
                 readCompactFrame40(compactFrame);
             } else if (compactFrameTag == COMPACT_FRAME_47) {
                 readCompactFrame47(compactFrame);
@@ -176,6 +182,17 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             readLoadProfile(HALF_HOUR_LOAD_PROFILE, compactFrame, 51);
         } catch (IOException e) {
             throw DataParseException.ioException(e);
+        }
+    }
+
+    private void readCompactFrame30(byte[] compactFrame) {
+        try {
+            boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR).equals(CommunicationType.GPRS.getName());
+            Frame30.deserialize(compactFrame).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
         }
     }
 
@@ -270,6 +287,13 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         return calendar.getTime();
     }
 
+    private Date getDateTime(long unixTime) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(getDeviceTimeZone());
+        calendar.setTimeInMillis(unixTime * 1000);
+        return calendar.getTime();
+    }
+
     private void readManagementFcOnline(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 managementFcOnline = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
         addCollectedRegister(MANAGEMENT_FRAME_COUNTER_ONLINE, managementFcOnline.getValue(), null, dateTime, null);
@@ -344,6 +368,32 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         addCollectedRegister(CONVERTED_UNDER_ALARM_VOLUME_INDEX, alarmVolumeIndex.longValue(), null, dateTime, null);
     }
 
+    private void readLoadProfile(ObisCode loadProfileToRead, DailyReadings[] dailyReadings) {
+        DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
+        OfflineDevice offlineDevice = inboundDAO.getOfflineDevice(deviceIdentifier, offlineContext);
+        List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();
+        Optional<OfflineLoadProfile> offlineLoadProfile = allOfflineLoadProfiles.stream().filter(olp -> olp.getObisCode().equals(loadProfileToRead)).findAny();
+        if (offlineLoadProfile.isPresent()) {
+            log("Reading load profile " + loadProfileToRead.toString());
+            try {
+                List<ChannelInfo> channelInfos = getDeviceChannelInfo(offlineLoadProfile.get());
+                LoadProfileIdentifierByObisCodeAndDevice loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(loadProfileToRead, deviceIdentifier);
+                CollectedLoadProfile collectedLoadProfile = getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
+                List<IntervalData> collectedIntervalData = new ArrayList<>();
+                for (DailyReadings dr : dailyReadings) {
+                    collectedIntervalData.add(createCollectedIntervalData(dr.unixTime, dr.dailyDiagnostic, dr.currentIndexOfConvertedVolume,
+                            dr.currentIndexOfConvertedVolumeUnderAlarm, new Unsigned8(0)));
+                }
+                collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
+                collectedLoadProfile.setDoStoreOlderValues(true);
+                getCollectedLoadProfiles().add(collectedLoadProfile);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     private void readLoadProfile(ObisCode loadProfileToRead, byte[] compactFrame, int offset) throws IOException {
         DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
         OfflineDevice offlineDevice = inboundDAO.getOfflineDevice(deviceIdentifier, offlineContext);
@@ -401,23 +451,23 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, offset + 10, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             if (offlineLoadProfile.getObisCode().equals(HALF_HOUR_LOAD_PROFILE)) {
                 Unsigned8 currentActiveTariff = new Unsigned8(getByteArray(compactFrame, offset + 14, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
-                createCollectedIntervalData(collectedIntervalData, unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
-                        currentIndexOfConvertedVolumeUnderAlarm, currentActiveTariff);
+                collectedIntervalData.add( createCollectedIntervalData(unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
+                        currentIndexOfConvertedVolumeUnderAlarm, currentActiveTariff));
                 offset += 15;
             } else {
-                createCollectedIntervalData(collectedIntervalData, unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
-                        currentIndexOfConvertedVolumeUnderAlarm, new Unsigned8(0));
+                collectedIntervalData.add(createCollectedIntervalData(unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
+                        currentIndexOfConvertedVolumeUnderAlarm, new Unsigned8(0)));
                 offset += 14;
             }
         }
         return collectedIntervalData;
     }
 
-    private void createCollectedIntervalData(List<IntervalData> collectedIntervalData,
-                                             Unsigned32 unixTime, Unsigned16 dailyDiagnostic,
+    private IntervalData createCollectedIntervalData( Unsigned32 unixTime, Unsigned16 dailyDiagnostic,
                                              Unsigned32 currentIndexOfConvertedVolume,
                                              Unsigned32 currentIndexOfConvertedVolumeUnderAlarm,
                                              Unsigned8 currentActiveTariff) {
+        IntervalData collectedIntervalData = new IntervalData();
         Calendar dateTime = Calendar.getInstance(getDeviceTimeZone());
         dateTime.setTimeInMillis(unixTime.longValue() * 1000);
         // set seconds and milliseconds to 0 just in case
@@ -427,8 +477,10 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolume.intValue(), 0, getEiServerStatus(0)));
         intervalValues.add(new IntervalValue(currentIndexOfConvertedVolumeUnderAlarm.intValue(), 0, getEiServerStatus(0)));
 
-        collectedIntervalData.add(new IntervalData(dateTime.getTime(), getEiServerStatus(dailyDiagnostic.intValue()),
-                dailyDiagnostic.intValue(), currentActiveTariff.intValue(), intervalValues));
+        collectedIntervalData = new IntervalData(dateTime.getTime(), getEiServerStatus(dailyDiagnostic.intValue()),
+                dailyDiagnostic.intValue(), currentActiveTariff.intValue(), intervalValues);
+
+        return collectedIntervalData;
     }
 
     private List<ChannelInfo> getDeviceChannelInfo(OfflineLoadProfile offlineLoadProfile) throws ProtocolException {
