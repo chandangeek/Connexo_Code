@@ -4,28 +4,18 @@
         <!-- NOTE : No need to change these usernames or passwords -->
         <server>
             <id>eict-releases</id>
-            <username>e841294</username>
-            <password>AKCp8jQwgzHuhi3uSJoKZcWPtJYifFXe6dsrXwpK57F27N8ZR7xSzvA29zr7gHhQXUfQHgA9T</password>
+            <username>cxo_artifactory</username>
+            <password>APAUcihyRUdguiihvcgfaWbFQNQ</password>
         </server>
         <server>
             <id>eict-snapshots</id>
-            <username>e841294</username>
-            <password>AKCp8jQwgzHuhi3uSJoKZcWPtJYifFXe6dsrXwpK57F27N8ZR7xSzvA29zr7gHhQXUfQHgA9T</password>
-        </server>
-        <server>
-            <id>nexus</id>
-            <username>e841294</username>
-            <password>AKCp8jQwgzHuhi3uSJoKZcWPtJYifFXe6dsrXwpK57F27N8ZR7xSzvA29zr7gHhQXUfQHgA9T</password>
-        </server>
-        <server>
-            <id>nexus-mirror</id>
-            <username>e841294</username>
-            <password>AKCp8jQwgzHuhi3uSJoKZcWPtJYifFXe6dsrXwpK57F27N8ZR7xSzvA29zr7gHhQXUfQHgA9T</password>
+            <username>cxo_artifactory</username>
+            <password>APAUcihyRUdguiihvcgfaWbFQNQ</password>
         </server>
         <server>
             <id>eict-third-party</id>
-            <username>e841294</username>
-            <password>AKCp8jQwgzHuhi3uSJoKZcWPtJYifFXe6dsrXwpK57F27N8ZR7xSzvA29zr7gHhQXUfQHgA9T</password>
+            <username>cxo_artifactory</username>
+            <password>APAUcihyRUdguiihvcgfaWbFQNQ</password>
         </server>
 
     </servers>
