@@ -795,7 +795,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+        ActivityCalendarController activityCalendarController = newActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet
@@ -845,10 +845,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void writeSpecialDays(String calendarXml) throws IOException {
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+    protected void writeSpecialDays(String calendarXml) throws IOException {
+        ActivityCalendarController activityCalendarController = newActivityCalendarController();
         activityCalendarController.parseContent(calendarXml);
         activityCalendarController.writeSpecialDaysTable();
+    }
+
+    protected ActivityCalendarController newActivityCalendarController() {
+        return new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
     }
 
     protected void activityCalendarWithActivationDate(String calendarName, String epoch, String activityCalendarContents) throws IOException {
@@ -856,7 +860,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+        ActivityCalendarController activityCalendarController = newActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
         getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);

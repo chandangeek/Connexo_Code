@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.nta.elster;
 
+import com.energyict.dlms.DLMSCache;
 import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
 import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.upl.io.ConnectionType;
@@ -14,12 +15,11 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.DLMSCache;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
 
 import java.util.List;
-import java.util.logging.Level;
 
 /**
  * The AM100 implementation of the NTA spec
@@ -72,6 +72,16 @@ public final class AM100 extends WebRTUKP {
             dlmsProperties = new AM100DlmsProperties();
         }
         return dlmsProperties;
+    }
+
+    protected Dsmr23Messaging getDsmr23Messaging() {
+        if (dsmr23Messaging == null) {
+            dsmr23Messaging =
+                    new Dsmr23Messaging(
+                            new Dsmr23MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), keyAccessorTypeExtractor),
+                            this.getPropertySpecService(), this.nlsService, this.converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
+        }
+        return dsmr23Messaging;
     }
 
     @Override
