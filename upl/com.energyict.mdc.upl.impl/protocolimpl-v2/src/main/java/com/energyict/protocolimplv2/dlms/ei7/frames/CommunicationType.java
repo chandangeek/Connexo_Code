@@ -7,7 +7,7 @@ public enum CommunicationType
 
 	private final String name;
 
-	private CommunicationType(String name) {
+	CommunicationType(String name) {
 		this.name = name;
 	}
 

@@ -41,10 +41,13 @@ import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader.getEiServerStatus;
 import static com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport.COMMUNICATION_TYPE_STR;
@@ -85,9 +88,12 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode HALF_HOUR_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.1.255");
     private static final ObisCode SNAPSHOT_PERIOD_DATA_LOAD_PROFILE = ObisCode.fromString("7.0.98.11.0.255");
 
-    private static final ObisCode[] supportedLoadProfiles = new ObisCode[] {
-            HALF_HOUR_LOAD_PROFILE, DAILY_LOAD_PROFILE, SNAPSHOT_PERIOD_DATA_LOAD_PROFILE
-    };
+    private static final Set<ObisCode> supportedLoadProfiles = new TreeSet<>(
+            Arrays.asList(HALF_HOUR_LOAD_PROFILE,
+                    DAILY_LOAD_PROFILE,
+                    SNAPSHOT_PERIOD_DATA_LOAD_PROFILE,
+                    Frame30.ObisConst.READINGS,
+                    Frame30.ObisConst.INTERVAL_DATA));
 
     private Unit loadProfileUnitScalar;
     private List<CollectedLoadProfile> collectedLoadProfiles;

@@ -8,8 +8,6 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimplv2.dlms.a2.A2Inbound;
-import com.energyict.protocolimplv2.dlms.ei7.frames.CommunicationType;
-import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7InboundConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7InboundDlmsProperties;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
@@ -22,8 +20,6 @@ public class EI7Inbound extends A2Inbound {
     private boolean pushingCompactFrames;
     private DlmsProperties dlmsProperties;
     private EI7DataPushNotificationParser parser;
-    CommunicationType communicationType;
-
 
     public EI7Inbound(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -39,7 +35,7 @@ public class EI7Inbound extends A2Inbound {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-11-25$";
+        return "$Date: 2022-02-16$";
     }
 
     public boolean isPushingCompactFrames() {
@@ -80,7 +76,6 @@ public class EI7Inbound extends A2Inbound {
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
         pushingCompactFrames = properties.getTypedProperty(EI7InboundConfigurationSupport.PUSHING_COMPACT_FRAMES, false);
-        communicationType = properties.getTypedProperty(EI7ConfigurationSupport.COMMUNICATION_TYPE_STR, CommunicationType.GPRS);
     }
 
     public EI7InboundDlmsProperties getDlmsProperties() {
