@@ -196,9 +196,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR).equals(CommunicationType.GPRS.getName());
             Frame30.deserialize(compactFrame).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
         }
-        catch (Exception e)
-        {
-            e.printStackTrace();
+        catch (Exception e) {
+            log("Error while reading compact frame 30:\n" + e.getMessage());
         }
     }
 
@@ -395,7 +394,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                 getCollectedLoadProfiles().add(collectedLoadProfile);
             }
             catch (IOException e) {
-                e.printStackTrace();
+                log("Error while reading load profile " + loadProfileToRead.toString() + "\n" + e.getMessage());
             }
         }
     }

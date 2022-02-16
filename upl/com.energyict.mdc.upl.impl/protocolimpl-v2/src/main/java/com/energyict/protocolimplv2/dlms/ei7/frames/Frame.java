@@ -13,8 +13,7 @@ import java.util.logging.Logger;
 
 public class Frame implements Serializable {
 
-	static class TimeoutGPRS
-	{
+	static class TimeoutGPRS {
 		Unsigned32 sessionMaxDuration;
 		Unsigned32 inactivityTimeout;
 		Unsigned32 networkAttachTimeout;

@@ -1,7 +1,6 @@
 package com.energyict.protocolimplv2.dlms.ei7.frames;
 
-public enum CommunicationType
-{
+public enum CommunicationType {
 	GPRS("GPRS"),
 	NB_IoT("NB-IoT");
 
