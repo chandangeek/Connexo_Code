@@ -1,4 +1,18 @@
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.a2.messages;
+
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.OctetString;
@@ -13,15 +27,6 @@ import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.ResultType;
-import com.energyict.mdc.upl.tasks.support.DeviceClockSupport;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -40,10 +45,12 @@ import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExec
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.EndOfDSTAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.StartOfDSTAttributeName;
@@ -70,12 +77,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usern
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.windowAttributeName;
 
 
-/**
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
- *
- * @author H236365
- * @since 12/11/2018
- */
 public class A2MessageExecutor extends AbstractMessageExecutor {
 
     private static final ObisCode DISCONNECT_CONTROL_SINGLE_ACTION_SCHEDULE = ObisCode.fromString("0.0.15.0.1.255");
@@ -389,8 +390,9 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
 
     private void configureDST(OfflineDeviceMessage pendingMessage) throws IOException {
         boolean enable = Boolean.parseBoolean(getDeviceMessageAttributeValue(pendingMessage, enableDSTAttributeName));
-        Date startDateDST = new Date(Long.valueOf(getDeviceMessageAttributeValue(pendingMessage, StartOfDSTAttributeName)));
-        Date endDateDST = new Date(Long.valueOf(getDeviceMessageAttributeValue(pendingMessage, EndOfDSTAttributeName)));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE MMM dd HH:mm:ss z yyyy", Locale.ENGLISH);
+        Date startDateDST = Date.from(Instant.from(formatter.parse(getDeviceMessageAttributeValue(pendingMessage, StartOfDSTAttributeName))));
+        Date endDateDST = Date.from(Instant.from(formatter.parse(getDeviceMessageAttributeValue(pendingMessage, EndOfDSTAttributeName))));
         Clock clock = getProtocol().getDlmsSession().getCosemObjectFactory().getClock();
         clock.setDsDateTimeBegin(convertDateToBEREncodedByteArray(startDateDST));
         clock.setDsDateTimeEnd(convertDateToBEREncodedByteArray(endDateDST));
