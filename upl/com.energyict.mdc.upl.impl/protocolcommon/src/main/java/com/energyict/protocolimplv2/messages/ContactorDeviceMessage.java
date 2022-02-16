@@ -196,7 +196,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
             );
         }
     },
-    CONTACTOR_CLOSE_AND_CLOSE_INVOICING_PERIOD_WITH_ACTIVATION_DATE(1020, "Contractor close and close invoicing period with activation date") {
+    CONTACTOR_CLOSE_AND_CLOSE_INVOICING_PERIOD_WITH_ACTIVATION_DATE(1020, "Contactor close with simultaneous closure of the invoicing period, with activation date") {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
