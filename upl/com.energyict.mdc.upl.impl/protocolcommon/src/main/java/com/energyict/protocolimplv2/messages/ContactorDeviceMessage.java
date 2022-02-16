@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.messages;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -28,7 +32,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.scrip
 /**
  * Provides a summary of all <i>Contactor</i> related messages
  * <p/>
- * Copyrights EnergyICT
  * Date: 28/02/13
  * Time: 9:00
  */
