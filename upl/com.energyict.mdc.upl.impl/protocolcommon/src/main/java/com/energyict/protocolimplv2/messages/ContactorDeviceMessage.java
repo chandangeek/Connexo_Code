@@ -22,6 +22,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.conta
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorModeAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorValveEnablePassword;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorValveEnablePasswordDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeDefaultTranslation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.digitalOutputAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.relayNumberAttributeDefaultTranslation;
@@ -208,7 +209,7 @@ public enum ContactorDeviceMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.bigDecimalSpec(service, contactorValveEnablePassword, contactorActivationDateAttributeDefaultTranslation)
+                    this.bigDecimalSpec(service, contactorValveEnablePassword, contactorValveEnablePasswordDefaultTranslation)
             );
         }
     };

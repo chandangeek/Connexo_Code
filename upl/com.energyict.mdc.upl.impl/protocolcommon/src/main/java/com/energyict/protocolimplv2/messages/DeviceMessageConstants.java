@@ -22,7 +22,7 @@ public final class DeviceMessageConstants {
     public static final String relayOperatingModeAttributeName = "ContactorDeviceMessage.relayoperatingmode";
     public static final String relayOperatingModeAttributeDefaultTranslation = "Relay operating mode";
     public static final String contactorValveEnablePassword = "ContactorDeviceMessage.valveEnablePassword";
-
+    public static final String contactorValveEnablePasswordDefaultTranslation = "Valve enable password";
 
     public static final String broadcastLogicalDeviceIdAttributeName = "FirmwareDeviceMessage.broadcast.logicaldeviceid";
     public static final String broadcastLogicalDeviceIdAttributeDefaultTranslation = "Broadcast logical device ID";
