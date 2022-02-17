@@ -127,6 +127,8 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     @Override
     public ServiceCall cancel(boolean initFromCampaign) {
+        ServiceCall serviceCall = getServiceCall();
+        serviceCallService.lockServiceCall(serviceCall.getId());
         getDeviceMessage().ifPresent(dm -> {
                     FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor((Device) dm.getDevice());
                     if (dm.getStatus().equals(DeviceMessageStatus.WAITING) && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
@@ -142,9 +144,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                     }
                 }
         );
-
-        ServiceCall serviceCall = getServiceCall();
-        serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
+        serviceCall.requestTransition(DefaultState.CANCELLED);
         return serviceCallService.getServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call with id " + serviceCall.getId() + " disappeared."));
     }
