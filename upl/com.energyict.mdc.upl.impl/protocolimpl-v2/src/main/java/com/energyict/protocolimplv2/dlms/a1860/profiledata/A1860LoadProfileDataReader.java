@@ -84,11 +84,8 @@ public class A1860LoadProfileDataReader {
                     List<IntervalData> intervalDatas = profileHelper.getIntervalData(selectiveHistoricRead);
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
-                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties()
-                            .getRetries() + 1)) {
-                        Issue problem = issueFactory
-                                .createProblem(loadProfileReader, "loadProfileXBlockingIssue", loadProfileReader.getProfileObisCode(), e
-                                        .getMessage());
+                    if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
+                        Issue problem = issueFactory.createProblem(loadProfileReader, e.getMessage(), loadProfileReader.getProfileObisCode());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }

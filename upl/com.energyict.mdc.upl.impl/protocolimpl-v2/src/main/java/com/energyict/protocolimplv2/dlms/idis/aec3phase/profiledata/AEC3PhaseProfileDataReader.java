@@ -158,7 +158,7 @@ public class AEC3PhaseProfileDataReader <T extends AEC3Phase> extends AECProfile
                             cal.set(Calendar.MILLISECOND, 0);
                             timeStamp = cal.getTime();
                         } else {
-                            Issue problem = getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be the first captured object of type OctetString or NullData");
+                            Issue problem = getIssueFactory().createProblem(loadProfileReader, "Invalid interval data, timestamp should be the first captured object of type OctetString or NullData", correctedLoadProfileObisCode);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             break;  //Stop parsing, move on
                         }
@@ -190,7 +190,7 @@ public class AEC3PhaseProfileDataReader <T extends AEC3Phase> extends AECProfile
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        Issue problem = getIssueFactory().createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, e.getMessage());
+                        Issue problem = getIssueFactory().createProblem(loadProfileReader, e.getMessage(), correctedLoadProfileObisCode);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }

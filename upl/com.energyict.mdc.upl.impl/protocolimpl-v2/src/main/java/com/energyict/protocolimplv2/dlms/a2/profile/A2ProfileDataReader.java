@@ -175,7 +175,7 @@ public class A2ProfileDataReader {
                     }
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        Issue problem = issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, e.getMessage());
+                        Issue problem = issueFactory.createProblem(loadProfileReader, e.getMessage(), correctedLoadProfileObisCode);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }
