@@ -2,13 +2,13 @@ package com.energyict.protocolimplv2.dlms.ei7.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.ei7.frames.CommunicationType;
 
 import java.util.List;
-
 
 public class EI7ConfigurationSupport extends A2ConfigurationSupport {
 
@@ -23,7 +23,7 @@ public class EI7ConfigurationSupport extends A2ConfigurationSupport {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(backFillOnInboundCommunication());
-        propertySpecs.add(GPRSorNBIoTPropertySpec());
+        propertySpecs.add(getGPRSorNBIoTPropertySpec());
         return propertySpecs;
     }
 
@@ -31,10 +31,12 @@ public class EI7ConfigurationSupport extends A2ConfigurationSupport {
         return UPLPropertySpecFactory.specBuilder(BACK_FILL_ON_INBOUND, false, PropertyTranslationKeys.V2_DLMS_BACK_FILL_ON_INBOUND, getPropertySpecService()::booleanSpec).finish();
     }
 
-    protected PropertySpec GPRSorNBIoTPropertySpec() {
+    protected PropertySpec getGPRSorNBIoTPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(COMMUNICATION_TYPE_STR, false, PropertyTranslationKeys.V2_COMMUNICATION_TYPE,
                 getPropertySpecService()::stringSpec)
                 .addValues(CommunicationType.GPRS.getName(),CommunicationType.NB_IoT.getName())
-                .setDefaultValue(CommunicationType.GPRS.getName()).finish();
+                .setDefaultValue(CommunicationType.GPRS.getName())
+                .markExhaustive()
+                .finish();
     }
 }
