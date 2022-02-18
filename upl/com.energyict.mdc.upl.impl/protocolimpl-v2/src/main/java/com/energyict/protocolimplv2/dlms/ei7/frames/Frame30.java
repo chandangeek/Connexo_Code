@@ -16,11 +16,7 @@ import java.util.Date;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-
-
-
 public class Frame30 extends Frame {
-
 	private Unsigned32 unixTime;                // UNIX time
 	private TimeoutGPRS gprsTimeout;            // GPRS/NB-IoT time out structure
 	private BooleanObject disconnectControlB;   // Disconnect control
@@ -38,8 +34,7 @@ public class Frame30 extends Frame {
 	private DailyReadings[] readings;           // Readings
 	private DailyReadings[] intervalData;       // Interval data
 
-	public static class ObisConst
-	{
+	public static class ObisConst {
 		public static final ObisCode GPRS_TIMEOUT                  = ObisCode.fromString("0.0.94.39.52.255");
 		public static final ObisCode NBIoT_TIMEOUT                 = ObisCode.fromString("0.1.94.39.52.255");
 		public static final ObisCode DISCONNECT_CONTROL_BOOL       = ObisCode.fromString("0.0.96.3.10.255");
@@ -107,8 +102,7 @@ public class Frame30 extends Frame {
 		return newFrame;
 	}
 
-	public final void save(FiveConsumer<ObisCode, Long, ScalerUnit, Date, String> saveRegisterFunc, BiConsumer<ObisCode, DailyReadings[]> saveLoadProfileFunc, Function<Unsigned32, Date> getDateTime, boolean isGPRS)
-	{
+	public final void save(FiveConsumer<ObisCode, Long, ScalerUnit, Date, String> saveRegisterFunc, BiConsumer<ObisCode, DailyReadings[]> saveLoadProfileFunc, Function<Unsigned32, Date> getDateTime, boolean isGPRS) {
 		Date dateTime = getDateTime.apply(unixTime);
 
 		ObisCode timeoutObisCode = isGPRS ? ObisConst.GPRS_TIMEOUT : ObisConst.NBIoT_TIMEOUT;
