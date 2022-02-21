@@ -102,7 +102,7 @@ public class AS300NProfileDataReader {
                             cal.add(Calendar.SECOND, getIntervalMap().get(correctedLoadProfileObisCode));
                             timeStamp = cal.getTime();
                         } else {
-                            Issue problem = issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, "Invalid interval data, timestamp should be the first captured object of type OctetString or NullData");
+                            Issue problem = issueFactory.createProblem(loadProfileReader, "Invalid interval data, timestamp should be the first captured object of type OctetString or NullData", correctedLoadProfileObisCode);
                             collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                             break;  //Stop parsing, move on
                         }
@@ -134,7 +134,7 @@ public class AS300NProfileDataReader {
                     collectedLoadProfile.setCollectedIntervalData(intervalDatas, channelInfos);
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        Issue problem = this.issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", correctedLoadProfileObisCode, e.getMessage());
+                        Issue problem = this.issueFactory.createProblem(loadProfileReader, e.getMessage(), correctedLoadProfileObisCode);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }

@@ -57,12 +57,12 @@ public class GenericLoadProfileReader<T extends AbstractDlmsProtocol> extends Ab
             // this can happen when the load profile is read twice in the same time window (day for daily lp), than the data block is not accessible. It could also happen when the load profile is not configured properly.
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
                 String message = String.join(" ", "Load profile was probably already read today, try modifying the 'last reading' date in the load profile properties.", e.getMessage());
-                Issue problem = issueFactory.createWarning(loadProfileReader, "loadProfileXBlockingIssue", lpObisCode, message);
+                Issue problem = issueFactory.createWarning(loadProfileReader, message, lpObisCode);
                 collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
             }
         } catch (IOException e) {
             if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                Issue problem = issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", lpObisCode, e.getMessage());
+                Issue problem = issueFactory.createProblem(loadProfileReader, e.getMessage(), lpObisCode);
                 collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
             }
         }
