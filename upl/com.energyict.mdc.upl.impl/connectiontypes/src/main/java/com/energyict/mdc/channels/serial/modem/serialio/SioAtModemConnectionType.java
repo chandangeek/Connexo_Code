@@ -41,9 +41,13 @@ public class SioAtModemConnectionType extends SioSerialConnectionType {
         SerialPortComChannel comChannel = super.connect();
         try {
             getModemComponent().connect(getComPortName(getAllProperties()), comChannel);
-        } catch (ModemException e) {
-            comChannel.close(); // need to properly close the comChannel, otherwise the port will always be busy
-            throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedModemException, e);
+        } catch (Throwable e) {
+            comChannel.close(); // need to properly close the comChannel, otherwise the port will always be occupied
+            if (e instanceof ModemException) {
+                throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.NestedModemException, e);
+            } else {
+                throw e;
+            }
         }
         return comChannel;
     }
