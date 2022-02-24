@@ -88,7 +88,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode HALF_HOUR_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.1.255");
     private static final ObisCode SNAPSHOT_PERIOD_DATA_LOAD_PROFILE = ObisCode.fromString("7.0.98.11.0.255");
 
-    final static Set<ObisCode> supportedLoadProfiles =
+    static final Set<ObisCode> supportedLoadProfiles =
             ImmutableSet.of(HALF_HOUR_LOAD_PROFILE,
                             DAILY_LOAD_PROFILE,
                             SNAPSHOT_PERIOD_DATA_LOAD_PROFILE,

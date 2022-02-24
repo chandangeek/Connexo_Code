@@ -23,7 +23,7 @@ public class EI7ConfigurationSupport extends A2ConfigurationSupport {
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = super.getUPLPropertySpecs();
         propertySpecs.add(backFillOnInboundCommunication());
-        propertySpecs.add(getGPRSorNBIoTPropertySpec());
+        propertySpecs.add(gprsOrNbiotPropertySpec());
         return propertySpecs;
     }
 
@@ -31,7 +31,7 @@ public class EI7ConfigurationSupport extends A2ConfigurationSupport {
         return UPLPropertySpecFactory.specBuilder(BACK_FILL_ON_INBOUND, false, PropertyTranslationKeys.V2_DLMS_BACK_FILL_ON_INBOUND, getPropertySpecService()::booleanSpec).finish();
     }
 
-    protected PropertySpec getGPRSorNBIoTPropertySpec() {
+    protected PropertySpec gprsOrNbiotPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(COMMUNICATION_TYPE_STR, false, PropertyTranslationKeys.V2_COMMUNICATION_TYPE,
                 getPropertySpecService()::stringSpec)
                 .addValues(CommunicationType.GPRS.getName(),CommunicationType.NB_IoT.getName())

@@ -35,22 +35,22 @@ public class Frame30 extends Frame {
 	private DailyReadings[] intervalData;       // Interval data
 
 	public static class ObisConst {
-		public static final ObisCode GPRS_TIMEOUT                  = ObisCode.fromString("0.0.94.39.52.255");
-		public static final ObisCode NBIoT_TIMEOUT                 = ObisCode.fromString("0.1.94.39.52.255");
-		public static final ObisCode DISCONNECT_CONTROL_BOOL       = ObisCode.fromString("0.0.96.3.10.255");
-		public static final ObisCode DISCONNECT_CONTROL_ENUM       = ObisCode.fromString("0.1.96.3.10.255");
-		public static final ObisCode MANAGEMENT_FRAMECOUNTER_ON_LINE    = ObisCode.fromString("0.0.43.1.1.255");
-		public static final ObisCode METROLOGICAL_EVENT_COUNTER    = ObisCode.fromString("0.0.96.15.1.255");
-		public static final ObisCode EVENT_COUNTER                 = ObisCode.fromString("0.0.96.15.2.255");
-		public static final ObisCode CURRENT_DIAGNOSTIC            = ObisCode.fromString("7.0.96.5.1.255");
-		public static final ObisCode BATTERIES_IN_USE              = ObisCode.fromString("0.0.94.39.14.255");
-		public static final ObisCode BATTERIES_PRESENT             = ObisCode.fromString("0.1.94.39.14.255");
-		public static final ObisCode PERCENTAGE_OF_PRIMARY_BATTERY_RESIDUAL_CAPACITY    = ObisCode.fromString("0.0.96.6.6.255");
-		public static final ObisCode PERCENTAGE_OF_SECONDARY_BATTERY_RESIDUAL_CAPACITY    = ObisCode.fromString("0.1.96.6.6.255");
-		public static final ObisCode VOLUME_UNITS_AND_SCALAR       = ObisCode.fromString("7.0.13.2.0.255");
-		public static final ObisCode TEMPERATURE_UNITS_AND_SCALAR  = ObisCode.fromString("7.0.41.3.0.255");
-		public static final ObisCode READINGS                      = ObisCode.fromString("7.0.99.99.3.255");
-		public static final ObisCode INTERVAL_DATA                 = ObisCode.fromString("7.0.99.99.2.255");
+		public static final ObisCode GPRS_TIMEOUT                                      = ObisCode.fromString("0.0.94.39.52.255");
+		public static final ObisCode NBIoT_TIMEOUT                                     = ObisCode.fromString("0.1.94.39.52.255");
+		public static final ObisCode DISCONNECT_CONTROL_BOOL                           = ObisCode.fromString("0.0.96.3.10.255");
+		public static final ObisCode DISCONNECT_CONTROL_ENUM                           = ObisCode.fromString("0.1.96.3.10.255");
+		public static final ObisCode MANAGEMENT_FRAMECOUNTER_ON_LINE                   = ObisCode.fromString("0.0.43.1.1.255");
+		public static final ObisCode METROLOGICAL_EVENT_COUNTER                        = ObisCode.fromString("0.0.96.15.1.255");
+		public static final ObisCode EVENT_COUNTER                                     = ObisCode.fromString("0.0.96.15.2.255");
+		public static final ObisCode CURRENT_DIAGNOSTIC                                = ObisCode.fromString("7.0.96.5.1.255");
+		public static final ObisCode BATTERIES_IN_USE                                  = ObisCode.fromString("0.0.94.39.14.255");
+		public static final ObisCode BATTERIES_PRESENT                                 = ObisCode.fromString("0.1.94.39.14.255");
+		public static final ObisCode PERCENTAGE_OF_PRIMARY_BATTERY_RESIDUAL_CAPACITY   = ObisCode.fromString("0.0.96.6.6.255");
+		public static final ObisCode PERCENTAGE_OF_SECONDARY_BATTERY_RESIDUAL_CAPACITY = ObisCode.fromString("0.1.96.6.6.255");
+		public static final ObisCode VOLUME_UNITS_AND_SCALAR                           = ObisCode.fromString("7.0.13.2.0.255");
+		public static final ObisCode TEMPERATURE_UNITS_AND_SCALAR                      = ObisCode.fromString("7.0.41.3.0.255");
+		public static final ObisCode READINGS                                          = ObisCode.fromString("7.0.99.99.3.255");
+		public static final ObisCode INTERVAL_DATA                                     = ObisCode.fromString("7.0.99.99.2.255");
 	}
 
 	public static Frame30 deserialize(byte[] data) throws IOException, ClassNotFoundException {
@@ -120,7 +120,7 @@ public class Frame30 extends Frame {
 		saveRegisterFunc.accept(ObisConst.BATTERIES_PRESENT, batteriesPresent.longValue(),null, dateTime, null);
 		saveRegisterFunc.accept(ObisConst.PERCENTAGE_OF_PRIMARY_BATTERY_RESIDUAL_CAPACITY, percentageOf1Battery.longValue(),null, dateTime, null);
 		saveRegisterFunc.accept(ObisConst.PERCENTAGE_OF_SECONDARY_BATTERY_RESIDUAL_CAPACITY, percentageOf2Battery.longValue(),null, dateTime, null);
-		saveRegisterFunc.accept(ObisConst.VOLUME_UNITS_AND_SCALAR, new Long(0),null, dateTime, volumeUnitsAndScalar);
+		saveRegisterFunc.accept(ObisConst.VOLUME_UNITS_AND_SCALAR, new Long(0), null, dateTime, volumeUnitsAndScalar);
 		saveRegisterFunc.accept(ObisConst.TEMPERATURE_UNITS_AND_SCALAR, new Long(0), null, dateTime, tempUnitsAndScalar);
 
 		saveLoadProfileFunc.accept(ObisConst.READINGS, readings);
