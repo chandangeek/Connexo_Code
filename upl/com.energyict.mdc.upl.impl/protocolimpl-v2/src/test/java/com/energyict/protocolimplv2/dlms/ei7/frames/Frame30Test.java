@@ -8,7 +8,7 @@ import java.io.IOException;
 public class Frame30Test extends TestCase {
 
 	@Test
-	public void testDeserialize() throws ClassNotFoundException {
+	public void testDeserialize() throws ClassNotFoundException, IOException {
 		int[] data = {
 				0x1E, 0x62, 0x04, 0xD5, 0x53, 0x00, 0x00, 0x00, 0x78, 0x00, 0x00, 0x00, 0x1E, 0x00, 0x00, 0x02, 0x58,
 				0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x1F, 0x5E, 0x19, 0x00, 0x80, 0x01, 0x01, 0x5D, 0x00, 0xFD,
@@ -41,12 +41,6 @@ public class Frame30Test extends TestCase {
 			byte_data[i] = (byte) (data[i] & 0xFF);
 		}
 
-		try {
-			Frame30 a_frame = Frame30.deserialize(byte_data);
-		}
-		catch (IOException e)
-		{
-			Frame.LOGGER.warning(e.getMessage());
-		}
+		Frame30.deserialize(byte_data);
 	}
 }

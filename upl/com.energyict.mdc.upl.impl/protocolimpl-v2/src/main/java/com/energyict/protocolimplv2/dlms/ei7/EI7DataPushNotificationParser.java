@@ -1,5 +1,17 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
+import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDevice;
+import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
@@ -15,17 +27,6 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
-import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.inbound.g3.EventPushNotificationParser;
-import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
-import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
-import com.energyict.mdc.upl.offline.OfflineDevice;
-import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -37,17 +38,16 @@ import com.energyict.protocolimplv2.dlms.ei7.frames.CommunicationType;
 import com.energyict.protocolimplv2.dlms.ei7.frames.DailyReadings;
 import com.energyict.protocolimplv2.dlms.ei7.frames.Frame30;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
+import com.google.common.collect.ImmutableSet;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 
 import static com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader.getEiServerStatus;
 import static com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport.COMMUNICATION_TYPE_STR;
@@ -88,12 +88,12 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode HALF_HOUR_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.1.255");
     private static final ObisCode SNAPSHOT_PERIOD_DATA_LOAD_PROFILE = ObisCode.fromString("7.0.98.11.0.255");
 
-    private static final Set<ObisCode> supportedLoadProfiles = new TreeSet<>(
-            Arrays.asList(HALF_HOUR_LOAD_PROFILE,
-                    DAILY_LOAD_PROFILE,
-                    SNAPSHOT_PERIOD_DATA_LOAD_PROFILE,
-                    Frame30.ObisConst.READINGS,
-                    Frame30.ObisConst.INTERVAL_DATA));
+    static final Set<ObisCode> supportedLoadProfiles =
+            ImmutableSet.of(HALF_HOUR_LOAD_PROFILE,
+                            DAILY_LOAD_PROFILE,
+                            SNAPSHOT_PERIOD_DATA_LOAD_PROFILE,
+                            Frame30.ObisConst.READINGS,
+                            Frame30.ObisConst.INTERVAL_DATA);
 
     private Unit loadProfileUnitScalar;
     private List<CollectedLoadProfile> collectedLoadProfiles;
@@ -195,8 +195,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         try {
             boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR).equals(CommunicationType.GPRS.getName());
             Frame30.deserialize(compactFrame).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             log("Error while reading compact frame 30:\n" + e.getMessage());
         }
     }
