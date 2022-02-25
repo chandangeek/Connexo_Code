@@ -195,27 +195,27 @@ public class UtilitiesDeviceLocationNotificationCustomPropertySet implements Cus
             table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.INSTALLATION_NUMBER.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.LOCATION_INFORMATION.databaseName())
                     .varChar(MAX_STRING_LENGTH)
                     .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.LOCATION_INFORMATION.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.MODIFICATION_INFORMATION.databaseName())
                     .varChar(MAX_STRING_LENGTH)
                     .map(UtilitiesDeviceLocationNotificationDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
         }
 

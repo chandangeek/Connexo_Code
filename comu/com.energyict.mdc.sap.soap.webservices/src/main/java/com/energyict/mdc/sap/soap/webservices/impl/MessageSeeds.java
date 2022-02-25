@@ -156,7 +156,7 @@ public enum MessageSeeds implements MessageSeed {
 
     //Meter reading results
     READING_TYPE_FOR_REGISTER_INCORRECT(10201, "ReadingTypeForRegisterIncorrect", "Register supports only collected values, reading type is incorrect."),
-    READING_TYPE_INCORRECT(10202, "ReadingIncorrect", "Reading type is incorrect, only 01 for collected values and 02 for calculated are allowed."),
+    READING_TYPE_INCORRECT(10202, "ReadingIncorrect", "Reading type code is incorrect, only 01 for collected values and 02 for calculated are allowed."),
     READING_DATE_AFTER_DEVICE_CREATION_DATETIME(10203, "ReadingDateAfterDeviceCreationDatetime", "Date of reading must be after device creation date."),
     NO_DATA_SOURCE_FOUND_BY_LRN(10204, "NoDataSourceFoundByLrn", "No data source found with LRN ''{0}''."),
     INVALID_READING_TIMESTAMP_FOR_CHANNEL(10205, "InvalidReadingTimestamp", "Impossible to save specified reading, because timestamp ''{0}'' breaks the timeline of the channel."),

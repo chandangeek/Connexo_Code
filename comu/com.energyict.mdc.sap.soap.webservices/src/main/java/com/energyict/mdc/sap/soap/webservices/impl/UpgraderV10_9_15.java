@@ -22,13 +22,13 @@ import static com.elster.jupiter.orm.Version.version;
 
 
 //version of Upgrader will be change to correct later
-public class UpgraderV10_9_20 implements Upgrader {
+public class UpgraderV10_9_15 implements Upgrader {
     private final DataModel dataModel;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
 
     @Inject
-    public UpgraderV10_9_20(DataModel dataModel, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
+    public UpgraderV10_9_15(DataModel dataModel, ServiceCallService serviceCallService, CustomPropertySetService customPropertySetService) {
         this.dataModel = dataModel;
         this.serviceCallService = serviceCallService;
         this.customPropertySetService = customPropertySetService;
@@ -36,7 +36,7 @@ public class UpgraderV10_9_20 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        dataModelUpgrader.upgrade(dataModel, version(10, 9, 20));
+        dataModelUpgrader.upgrade(dataModel, version(10, 9, 15));
         createNewlyAddedServiceCallTypes();
     }
 

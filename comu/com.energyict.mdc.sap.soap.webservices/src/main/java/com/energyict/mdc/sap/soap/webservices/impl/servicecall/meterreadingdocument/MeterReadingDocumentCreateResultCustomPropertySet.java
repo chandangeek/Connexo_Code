@@ -338,7 +338,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.databaseName())
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.javaName())
-                    .since(Version.version(10,9, 20))
+                    .since(Version.version(10,9, 15))
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CHANNEL_ID.databaseName())
                     .number()

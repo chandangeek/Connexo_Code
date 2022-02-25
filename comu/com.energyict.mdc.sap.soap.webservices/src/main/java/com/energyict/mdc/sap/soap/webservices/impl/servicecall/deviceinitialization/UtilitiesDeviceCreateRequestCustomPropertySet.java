@@ -275,27 +275,27 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

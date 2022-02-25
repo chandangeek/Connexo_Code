@@ -260,17 +260,17 @@ public class MeterRegisterChangeRequestCustomPropertySet implements CustomProper
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.databaseName())
                     .number()
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.databaseName())
                     .number()
                     .map(MeterRegisterChangeRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName())
-                    .since(Version.version(10, 9, 20))
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(MeterRegisterChangeRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)
