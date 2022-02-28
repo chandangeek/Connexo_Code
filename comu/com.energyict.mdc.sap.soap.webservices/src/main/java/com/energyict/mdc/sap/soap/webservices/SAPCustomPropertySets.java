@@ -35,6 +35,8 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getRegisteredSapDeviceId(EndDevice endDevice);
 
+    void setSapDeviceCPSPProperty(Device device, DeviceSAPInfo deviceSAPInfo);
+
     /**
      * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
      */
@@ -73,27 +75,7 @@ public interface SAPCustomPropertySets {
 
     Optional<Channel> getChannel(String lrn, Instant when);
 
-    void setLocation(Device device, String locationId);
-
-    void setLocationInformation(Device device, String locationIdInformation);
-
-    void setModificationInformation(Device device, String modificationInformation);
-
-    void setInstallationNumber(Device device, String installationNumber);
-
     void setPod(Device device, String podId);
-
-    void setDivisionCategoryCode(Device device, String divisionCategoryCode);
-
-    void setActivationGroupAMIFunctions(Device device, String activationGroupAMIFunctions);
-
-    void setSmartMeterFunctionGroup(Device device, String smartMeterFunctionGroup);
-
-    void setAttributeMessage(Device device, String attributeMessage);
-
-    void setCharacteristicsId(Device device, String characteristicsId);
-
-    void setCharacteristicsValue(Device device, String characteristicsValue);
 
     Set<Pair<Long, ChannelSpec>> getChannelInfosAfterDate(String lrn, String profileId, Instant date);
 

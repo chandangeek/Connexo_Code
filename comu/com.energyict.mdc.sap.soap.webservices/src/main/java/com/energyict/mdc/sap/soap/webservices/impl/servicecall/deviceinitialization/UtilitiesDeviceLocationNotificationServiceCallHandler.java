@@ -7,12 +7,11 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
-
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
-import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.AbstractChildRetryServiceCallHandler;
 
@@ -62,18 +61,20 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
         if (device.isPresent()) {
             serviceCall.setTargetObject(device.get());
             serviceCall.save();
-            sapCustomPropertySets.setLocation(device.get(), extension.getLocationId());
+            DeviceSAPInfo deviceSAPInfo = new DeviceSAPInfo();
+            deviceSAPInfo.setDeviceLocation(extension.getLocationId());
             if (extension.getInstallationNumber() != null && !extension.getInstallationNumber().isEmpty()) {
-                sapCustomPropertySets.setInstallationNumber(device.get(), extension.getInstallationNumber());
+                deviceSAPInfo.setInstallationNumber(extension.getInstallationNumber());
             }
             if (extension.getPod() != null && !extension.getPod().isEmpty()) {
-                sapCustomPropertySets.setPod(device.get(), extension.getPod());
+                deviceSAPInfo.setPointOfDelivery(extension.getPod());
             }
             if (extension.getDivisionCategoryCode() != null && !extension.getDivisionCategoryCode().isEmpty()) {
-                sapCustomPropertySets.setDivisionCategoryCode(device.get(), extension.getDivisionCategoryCode());
+                deviceSAPInfo.setDivisionCategoryCode(extension.getDivisionCategoryCode());
             }
-            sapCustomPropertySets.setLocationInformation(device.get(), extension.getLocationInformation());
-            sapCustomPropertySets.setModificationInformation(device.get(), extension.getModificationInformation());
+            deviceSAPInfo.setDeviceLocationInformation(extension.getLocationInformation());
+            deviceSAPInfo.setModificationInformation(extension.getModificationInformation());
+            sapCustomPropertySets.setSapDeviceCPSPProperty(device.get(), deviceSAPInfo);
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(serviceCall, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());

@@ -6,12 +6,14 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 import com.elster.jupiter.metering.ReadingType;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.collections.ImmutableDiffList;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
+import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -29,11 +31,10 @@ import java.util.Optional;
 public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterReadingDocumentReason {
     private static final String REASON_CODES_PERIODIC = "com.elster.jupiter.sap.reasoncodes.periodic";
     private static final String REASON_CODES_PERIODIC_DEFAULT_VALUE = "1";
-    private static final String DATA_SOURCE_TYPE_CODES_PERIODIC_DEFAULT_VALUE = "0";
     private static final String MRO_DATASOURCE_INTERVAL = "com.elster.jupiter.sap.mro.datasource.interval";
+    private static final List<String> DATA_SOURCE_TYPE_CODES = ImmutableList.of("0");
 
     private static List<String> reasonCodeCodes;
-    private static List<String> dataSourceTypeCodeCodes;
     private static Pair<String, String> dataSourceInterval;
     private volatile WebServiceActivator webServiceActivator;
 
@@ -51,7 +52,6 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
             String[] intervals = valueDataSourceInterval.split(",");
             dataSourceInterval = Pair.of(intervals[0].trim(), intervals[1].trim());
         }
-        dataSourceTypeCodeCodes = Collections.singletonList(DATA_SOURCE_TYPE_CODES_PERIODIC_DEFAULT_VALUE);
     }
 
     @Reference
@@ -66,7 +66,7 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
 
     @Override
     public List<String> getDataSourceTypeCodeCodes() {
-        return dataSourceTypeCodeCodes;
+        return DATA_SOURCE_TYPE_CODES;
     }
 
     @Override

@@ -54,6 +54,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
+import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
@@ -243,12 +244,80 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public void setSapDeviceId(Device device, String sapDeviceId) {
+    public void setSapDeviceCPSPProperty(Device device, DeviceSAPInfo deviceSAPInfo) {
         lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
 
+        String cpsId = deviceInfo.getId();
+        if (!getRegisteredCustomPropertySet(lockedDevice, cpsId).isEditableByCurrentUser()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
+        }
+
+        CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(deviceInfo, lockedDevice);
+        if (deviceSAPInfo.getDeviceId() != null) {
+            if (!getSapDeviceId(device).isPresent()) {
+                setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), deviceSAPInfo.getDeviceId());
+            } else {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getName());
+            }
+
+        }
+        if (deviceSAPInfo.getDeviceLocation() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), deviceSAPInfo.getDeviceLocation());
+        }
+        if (deviceSAPInfo.getDeviceLocationInformation() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName(), deviceSAPInfo.getDeviceLocationInformation());
+
+        }
+        if (deviceSAPInfo.getModificationInformation() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName(), deviceSAPInfo.getModificationInformation());
+        }
+        if (deviceSAPInfo.getInstallationNumber() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName(), deviceSAPInfo.getInstallationNumber());
+
+        }
+        if (deviceSAPInfo.getPointOfDelivery() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), deviceSAPInfo.getPointOfDelivery());
+
+        }
+        if (deviceSAPInfo.getDivisionCategoryCode() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName(), deviceSAPInfo.getDivisionCategoryCode());
+
+        }
+        if (deviceSAPInfo.getActivationGroupAmiFunctions() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), deviceSAPInfo.getActivationGroupAmiFunctions());
+
+        }
+        if (deviceSAPInfo.getMeterFunctionGroup() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName(), deviceSAPInfo.getMeterFunctionGroup());
+
+        }
+        if (deviceSAPInfo.getAttributeMessage() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName(), deviceSAPInfo.getAttributeMessage());
+
+        }
+        if (deviceSAPInfo.getCharacteristicsId() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName(), deviceSAPInfo.getCharacteristicsId());
+
+        }
+        if (deviceSAPInfo.getCharacteristicsValue() != null) {
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName(), deviceSAPInfo.getCharacteristicsValue());
+
+        }
+
+        lockedDevice.touchDevice();
+
+    }
+
+    @Override
+    public void setSapDeviceId(Device device, String sapDeviceId) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+        CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(deviceInfo, lockedDevice);
+
         if (!getSapDeviceId(device).isPresent()) {
-            setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_IDENTIFIER.javaName(), sapDeviceId);
+            lockedDevice.touchDevice();
         } else {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.getName());
         }
@@ -283,93 +352,13 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public void setLocation(Device device, String locationId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), locationId);
-    }
-
-    @Override
-    public void setLocationInformation(Device device, String locationIdInformation) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName(), locationIdInformation);
-    }
-
-    @Override
-    public void setModificationInformation(Device device, String modificationInformation) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName(), modificationInformation);
-    }
-
-    @Override
-    public void setInstallationNumber(Device device, String installationNumber) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName(), installationNumber);
-    }
-
-    @Override
     public void setPod(Device device, String podId) {
         lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
+        CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(deviceInfo, lockedDevice);
+        setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), podId);
+        lockedDevice.touchDevice();
     }
-
-    @Override
-    public void setDivisionCategoryCode(Device device, String divisionCategoryCode) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName(), divisionCategoryCode);
-    }
-
-    @Override
-    public void setActivationGroupAMIFunctions(Device device, String activationGroupAMIFunctions) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), activationGroupAMIFunctions);
-    }
-
-    @Override
-    public void setSmartMeterFunctionGroup(Device device, String smartMeterFunctionGroup) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName(), smartMeterFunctionGroup);
-    }
-
-    @Override
-    public void setAttributeMessage(Device device, String attributeMessage) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName(), attributeMessage);
-    }
-
-    @Override
-    public void setCharacteristicsId(Device device, String characteristicsId){
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName(), characteristicsId);
-    }
-
-    @Override
-    public void setCharacteristicsValue(Device device, String characteristicsValue){
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName(), characteristicsValue);
-    }
-
 
     @Override
     public Map<String, RangeSet<Instant>> getLrn(com.energyict.mdc.common.device.data.Channel channel, Range<Instant> range) {
@@ -896,16 +885,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .orElseThrow(() -> new SAPWebServiceException(thesaurus, MessageSeeds.NO_CHANNEL_SPEC_FOUND, channelSpec.getReadingType().getFullAliasName()));
     }
 
-    private void setDeviceCPSProperty(Device device, String property, Object value) {
-        String cpsId = deviceInfo.getId();
-        if (!getRegisteredCustomPropertySet(device, cpsId).isEditableByCurrentUser()) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
-        }
-
-        CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(deviceInfo, device);
+    private void setDeviceCPSProperty(CustomPropertySetValues customPropertySetValues, Device device, String property, Object value) {
         customPropertySetValues.setProperty(property, value);
         customPropertySetService.setValuesFor(deviceInfo, device, customPropertySetValues);
-        device.touchDevice();
     }
 
     private void addRegisterCustomPropertySetVersioned(RegisterSpec registerSpec, long deviceId, String property, String value, Range<Instant> range) {
@@ -1127,8 +1109,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         if (device.isPresent()) {
             lockDeviceTypeOrThrowException(device.get().getDeviceType());
             Device lockedDevice = lockDeviceOrThrowException(device.get().getId());
-
-            setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
+            CustomPropertySetValues customPropertySetValues = customPropertySetService.getUniqueValuesFor(deviceInfo, lockedDevice);
+            setDeviceCPSProperty(customPropertySetValues, lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
+            lockedDevice.touchDevice();
         }
     }
 

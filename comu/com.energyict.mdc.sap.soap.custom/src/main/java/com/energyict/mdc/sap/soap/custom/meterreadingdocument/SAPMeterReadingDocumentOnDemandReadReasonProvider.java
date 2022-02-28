@@ -21,6 +21,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingComTaskExecutionHel
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 
+import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -44,13 +45,12 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
     private static final Logger LOGGER = Logger.getLogger(SAPMeterReadingDocumentOnDemandReadReasonProvider.class.getName());
     private static final String REASON_CODES_ONDEMAND = "com.elster.jupiter.sap.reasoncodes.ondemand";
     private static final String REASON_CODES_ONDEMAND_DEFAULT_VALUE = "2";
-    private static final String DATA_SOURCE_TYPE_CODES_IMMEDIATELY_DEFAULT_VALUE = "1";
     private static final String SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND = "com.elster.jupiter.sap.sheduledmeterreadingdateshift.ondemand";
     private static final int SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE = 1;
     private static final String ONDEMAND_SKIP_COMMUNICATION = "com.elster.jupiter.sap.ondemand.skipcommunication";
+    private static final List<String> DATA_SOURCE_TYPE_CODES = ImmutableList.of("1");
 
     private static List<String> reasonCodeCodes;
-    private static List<String> dataSourceTypeCodeCodes;
     private static int dateShift = SCHEDULED_METER_READING_DATE_SHIFT_ONDEMAND_DEFAULT_VALUE;
     private static List<CIMCodePattern> skipCommunicationPatterns;
 
@@ -62,7 +62,6 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
         initReasonCodes(bundleContext);
         initDateShift(bundleContext);
         initSkipCommunicationWaterMeters(bundleContext);
-        dataSourceTypeCodeCodes = Collections.singletonList(DATA_SOURCE_TYPE_CODES_IMMEDIATELY_DEFAULT_VALUE);
     }
 
     private void initReasonCodes(BundleContext bundleContext) {
@@ -113,7 +112,7 @@ public class SAPMeterReadingDocumentOnDemandReadReasonProvider implements SAPMet
 
     @Override
     public List<String> getDataSourceTypeCodeCodes() {
-        return dataSourceTypeCodeCodes;
+        return DATA_SOURCE_TYPE_CODES;
     }
 
     @Override

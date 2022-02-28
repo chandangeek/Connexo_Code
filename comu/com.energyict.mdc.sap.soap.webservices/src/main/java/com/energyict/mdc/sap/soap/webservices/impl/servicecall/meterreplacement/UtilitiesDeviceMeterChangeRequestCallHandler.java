@@ -17,6 +17,7 @@ import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionActi
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -117,21 +118,24 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                         setDeactivationDate(device.get(), extension, lifecycleDates);
                     }
 
+                    DeviceSAPInfo deviceSAPInfo = new DeviceSAPInfo();
+
                     if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
-                        sapCustomPropertySets.setActivationGroupAMIFunctions(device.get(), extension.getActivationGroupAmiFunctions());
+                        deviceSAPInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
                     }
                     if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
-                        sapCustomPropertySets.setSmartMeterFunctionGroup(device.get(), extension.getMeterFunctionGroup());
+                        deviceSAPInfo.setMeterFunctionGroup(extension.getMeterFunctionGroup());
                     }
                     if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
-                        sapCustomPropertySets.setAttributeMessage(device.get(), extension.getAttributeMessage());
+                        deviceSAPInfo.setAttributeMessage(extension.getAttributeMessage());
                     }
                     if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
-                        sapCustomPropertySets.setCharacteristicsId(device.get(), extension.getCharacteristicsId());
+                        deviceSAPInfo.setCharacteristicsId(extension.getCharacteristicsId());
                     }
                     if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
-                        sapCustomPropertySets.setCharacteristicsValue(device.get(), extension.getCharacteristicsValue());
+                        deviceSAPInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
                     }
+                    sapCustomPropertySets.setSapDeviceCPSPProperty(device.get(), deviceSAPInfo);
                 } else {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
                 }

@@ -17,6 +17,7 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
@@ -114,22 +115,24 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         validateSapDeviceIdUniqueness(sapDeviceId, serialId);
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
-        sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+        DeviceSAPInfo deviceSAPInfo = new DeviceSAPInfo();
+        deviceSAPInfo.setDeviceId(sapDeviceId);
         if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
-            sapCustomPropertySets.setActivationGroupAMIFunctions(device, extension.getActivationGroupAmiFunctions());
+            deviceSAPInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
         }
         if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
-            sapCustomPropertySets.setSmartMeterFunctionGroup(device, extension.getMeterFunctionGroup());
+            deviceSAPInfo.setMeterFunctionGroup(extension.getMeterFunctionGroup());
         }
         if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
-            sapCustomPropertySets.setAttributeMessage(device, extension.getAttributeMessage());
+            deviceSAPInfo.setAttributeMessage(extension.getAttributeMessage());
         }
         if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
-            sapCustomPropertySets.setCharacteristicsId(device, extension.getCharacteristicsId());
+            deviceSAPInfo.setCharacteristicsId(extension.getCharacteristicsId());
         }
         if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
-            sapCustomPropertySets.setCharacteristicsValue(device, extension.getCharacteristicsValue());
+            deviceSAPInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
         }
+        sapCustomPropertySets.setSapDeviceCPSPProperty(device, deviceSAPInfo);
     }
 
     private void validateShipmentDate(Device device, Instant startDate) {
