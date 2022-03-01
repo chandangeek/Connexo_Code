@@ -12,6 +12,7 @@ import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.MeterErrorEventLog;
 import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.PhaseFailureEventLog;
 import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.PowerFailEventLog;
 import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.ReverserunEventLog;
+import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.SecurityEventLog;
 import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.TerminalCoverEventLog;
 import com.energyict.protocolimpl.iec1107.abba1140.eventlogs.TransientEventLog;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
@@ -61,6 +62,7 @@ abstract public class ABBA1140RegisterData {
     public final static int ABBA_METERERROREVENTLOG=36;
     public final static int ABBA_INTERNALBATTERYEVENTLOG = 37;
     public final static int ABBA_NET_CONSUMPTION = 38;
+    public final static int ABBA_SECURITYLOG = 39;
 
     abstract protected Unit getUnit();
     abstract protected int getType();
@@ -264,6 +266,12 @@ abstract public class ABBA1140RegisterData {
                 	ReverserunEventLog o = new ReverserunEventLog(getProtocolLink().getTimeZone());
                 	o.parse(data);
                 	return o;
+                }
+
+                case ABBA_SECURITYLOG: {
+                    SecurityEventLog o = new SecurityEventLog(getProtocolLink().getTimeZone());
+                    o.parse(data);
+                    return o;
                 }
 
                 case ABBA_POWEREFAILEVENTLOG: {

@@ -49,6 +49,13 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
         var me = this,
             communicationsTasksBufferedStore = me.getStore('Dsh.store.CommunicationTasksBuffered');
 
+        //CONM-2593
+        //Adding Filters to the dynamic API on scrolling.
+        communicationsTasksBufferedStore.addListener('beforeprefetch', function () {
+            communicationsTasksBufferedStore.filters.clear();
+            communicationsTasksBufferedStore.addFilter(Ext.decode(me.getFilterObjectStringFromQueryString()), false);
+        }, this);
+
         this.getApplication().fireEvent('changecontentevent', Ext.widget('communications-bulk-browse', {
             router: me.getController('Uni.controller.history.Router')
         }));
@@ -85,6 +92,16 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
                 if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)
                     && dataIndex != 'limit' && dataIndex != 'start'
                     && dataIndex != 'startInterval' && dataIndex != 'finishInterval') {
+                    //CONM-2553
+                    if(dataIndex == 'startIntervalFrom'){
+                        dataIndex = 'strtFrom'
+                    }else if(dataIndex == 'startIntervalTo'){
+                        dataIndex = 'strtTo'
+                    }else if(dataIndex == 'finishIntervalTo'){
+                        dataIndex = 'finishTo'
+                    }else if(dataIndex == 'finishIntervalFrom'){
+                        dataIndex = 'finishFrom'
+                    }
                     data.filter[dataIndex] = value;
                 }
             }
@@ -268,7 +285,8 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             }
         });
 
-        Ext.Array.each(['currentStates', 'latestResults'], function(prop) {
+        //CONM-2507
+        Ext.Array.each(['currentStates', 'latestResults', 'connectionMethods'], function(prop) {
             if (filterObject.hasOwnProperty(prop)) {
                 if (!Ext.isArray(filterObject[prop])) {
                     filterObject[prop] = [filterObject[prop]];

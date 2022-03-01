@@ -875,6 +875,8 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
     public static final int INPUT_SIGNAL_DETECTION = 447;
     public static final int PHASE_FAILURE_END = 448;
 
+    public static final int BROKEN_CASE_SWITCH = 449;
+
     public static final int SOFTWARE_RESTART_REQUEST = 10001;
     /**
      * Start of Beacon3100 custom codes

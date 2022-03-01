@@ -178,15 +178,25 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
         ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.deviceDataModelService.clock(), this.deviceFromDeviceGroupQueryExecutor());
         DataMapper<ComTaskExecution> dataMapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
         return this.fetchComTaskExecutions(dataMapper, sqlBuilder.build(dataMapper, pageStart + 1, pageSize)); // SQL is 1-based
+
     }
 
     private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder) {
         try (Fetcher<ComTaskExecution> fetcher = dataMapper.fetcher(sqlBuilder)) {
             Iterator<ComTaskExecution> comTaskExecutionIterator = fetcher.iterator();
             List<ComTaskExecution> comTaskExecutions = new ArrayList<>();
+            List<String> comTaskNameAndDevice = new ArrayList<>();
+            int counter = 0;
             while (comTaskExecutionIterator.hasNext()) {
-                comTaskExecutions.add(comTaskExecutionIterator.next());
+                ComTaskExecution comTaskExecutionObj = comTaskExecutionIterator.next();
+                String comTaskDevice = comTaskExecutionObj.getComTask().getName()+"|"+comTaskExecutionObj.getDevice().getName();
+                counter++;
+                if (!comTaskNameAndDevice.contains(comTaskDevice)) {
+                    comTaskNameAndDevice.add(comTaskDevice);
+                    comTaskExecutions.add(comTaskExecutionObj);
+                }
             }
+            LOGGER.log(Level.INFO, "CommunicationTaskServiceImpl:: fetchComTaskExecutions:: comTaskExecutions size :: " + comTaskExecutions.size());
             return comTaskExecutions;
         }
     }

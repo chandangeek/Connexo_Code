@@ -39,6 +39,13 @@ public abstract class BaseComTaskExecutionInfoFactory<T extends BaseComTaskExecu
                 info.comScheduleFrequency = TemporalExpressionInfo.from(comSchedule.getTemporalExpression());
             }
         }
+        else {
+            comTaskExecution.getDevice().getComTaskExecutions()
+                    .stream()
+                    .filter(comtask -> comtask.getComSchedule().isPresent() && comtask.getComTask().getId() == comTaskExecution.getComTask().getId())
+                    .forEach(comtask -> info.comScheduleName = comtask.getComSchedule().get().getName()); //To fetch shared schedule name for comtask from device in scope of CONM-2657
+        }
+
         info.urgency = comTaskExecution.getExecutionPriority();
         TaskStatusTranslationKeys taskStatusTranslationKey = TaskStatusTranslationKeys.from(comTaskExecution.getStatus());
         info.currentState = new TaskStatusInfo(taskStatusTranslationKey.getKey(), thesaurus.getFormat(taskStatusTranslationKey).format());

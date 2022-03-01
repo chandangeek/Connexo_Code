@@ -22,6 +22,9 @@ public class ObisCodeTest {
         assertTrue(ObisCode.fromString("1.x.1.8.0.255").equalsIgnoreBChannel(obisCode));
         assertTrue(ObisCode.fromString("1.255.1.8.0.255").equalsIgnoreBChannel(obisCode));
         assertFalse(ObisCode.fromString("1.x.2.8.0.255").equalsIgnoreBChannel(obisCode));
+
+        assertTrue(obisCode.nextB().equals(ObisCode.fromString("1.1.1.8.0.255")));
+        assertTrue(ObisCode.fromString("1.1.1.8.0.255").setB(0).equals(obisCode));
     }
 
 }

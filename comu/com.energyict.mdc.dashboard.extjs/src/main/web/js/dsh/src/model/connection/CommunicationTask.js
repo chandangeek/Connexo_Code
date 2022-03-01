@@ -26,6 +26,9 @@ Ext.define('Dsh.model.connection.CommunicationTask', {
             name: 'title',
             persist: false,
             mapping: function (data) {
+                if(data.currentState.displayValue === "-" ||data.currentState.displayValue === " "){
+                    data.currentState.displayValue = "Never Completed"
+                }
                 return data.comTask.name + ' on ' + data.device.name;
             }
         },

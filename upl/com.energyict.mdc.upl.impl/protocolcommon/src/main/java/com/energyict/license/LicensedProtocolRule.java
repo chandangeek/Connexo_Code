@@ -410,6 +410,18 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     ISKRA_AM550(340, "com.energyict.protocolimplv2.dlms.idis.iskra.am550.AM550"),
     AEC3PHASE(341, "com.energyict.protocolimplv2.dlms.idis.aec3phase.AEC3Phase"),
 
+    HONEYWELL_HS330S_LTE_SP(342, "com.energyict.protocolimplv2.dlms.idis.hs330s.lte.sp.HS330SLteSP"),
+    HONEYWELL_HS330S_PLC_SP(343, "com.energyict.protocolimplv2.dlms.idis.hs330s.plc.sp.HS330SPlcSP"),
+    HONEYWELL_HS3300S_LTE_PP(344, "com.energyict.protocolimplv2.dlms.idis.hs3300s.lte.pp.HS3300SLtePP"),
+    HONEYWELL_HS3300S_PLC_PP(345, "com.energyict.protocolimplv2.dlms.idis.hs3300s.plc.pp.HS3300SPlcPP"),
+
+    ZMY(346, "com.energyict.protocolimplv2.dlms.landisAndGyr.ZMY"),
+
+    HONEYWELL_HS340_LTE_SP(347, "com.energyict.protocolimplv2.dlms.idis.hs340.lte.sp.HS340LteSP"),
+    HONEYWELL_HS340_PLC_SP(348, "com.energyict.protocolimplv2.dlms.idis.hs340.plc.sp.HS340PlcSP"),
+    HONEYWELL_HS3400_LTE_PP(349, "com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.HS3400LtePP"),
+    HONEYWELL_HS3400_PLC_PP(350, "com.energyict.protocolimplv2.dlms.idis.hs3400.plc.pp.HS3400PlcPP"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
@@ -450,7 +462,6 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     private Set<ProtocolFamily> families;
 
     LicensedProtocolRule(int code, String className, ProtocolFamily... families) {
-        this.name();
         this.code = code;
         this.className = className;
         this.families = new HashSet<>(Arrays.asList(families));

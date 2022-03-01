@@ -9,7 +9,7 @@
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>11.0.0-Kratos-SNAPSHOT</version>
+    <version>11.1.0-Kratos-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -42,8 +42,8 @@
         <target.version>1.8</target.version>
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <baseline>10.0.0-Kratos</baseline>
-        <commercial.version>10.9.13</commercial.version>
+        <baseline>11.0.0-Kratos</baseline>
+        <commercial.version>10.9.14</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
         <mockito.version>1.10.19</mockito.version>
@@ -60,7 +60,7 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -71,7 +71,7 @@
         <repository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexosnapshot-maven-stable-local/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -82,7 +82,7 @@
         <repository>
             <id>eict-third-party</id>
             <name>EnergyICT public releases repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-third-party-maven-stable-local/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -97,7 +97,7 @@
         <pluginRepository>
             <id>eict-plugins</id>
             <name>EnergyICT plugin repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -108,7 +108,7 @@
         <pluginRepository>
             <id>eict-plugins-snapshots</id>
             <name>EnergyICT plugin repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/groups/public</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexosnapshot-maven-stable-local/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -138,7 +138,7 @@
                 <enabled>true</enabled>
             </snapshots>
         </pluginRepository>
-        <pluginRepository>
+        <!--<pluginRepository>
             <id>checkstyle-config</id>
             <name>Checkstyle Configuration</name>
             <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
@@ -148,7 +148,7 @@
             <snapshots>
                 <enabled>false</enabled>
             </snapshots>
-        </pluginRepository>
+        </pluginRepository>-->
     </pluginRepositories>
 
     <!-- Distribution management. -->
@@ -157,14 +157,14 @@
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/releases</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
         </repository>
 
         <!--  TODO:  This should be replaced with Artifactory  -->
         <snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
-            <url>http://ehc001157.ehc.honeywell.com:8081/nexus/content/repositories/snapshots</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexosnapshot-maven-stable-local/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>

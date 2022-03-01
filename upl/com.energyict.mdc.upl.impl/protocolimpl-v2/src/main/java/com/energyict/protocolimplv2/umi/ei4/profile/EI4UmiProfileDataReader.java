@@ -146,8 +146,7 @@ public class EI4UmiProfileDataReader {
                     } else {
                         String message = "Start time mismatch. No readings can be collected. Profile control correction is required.";
                         getProtocol().journal(Level.WARNING, message);
-                        Issue problem = issueFactory.createWarning(loadProfileReader, "loadProfileXBlockingIssue",
-                                loadProfileReader.getProfileObisCode(), message);
+                        Issue problem = issueFactory.createWarning(loadProfileReader, message, loadProfileReader.getProfileObisCode());
                         collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
                     }
 
@@ -156,8 +155,7 @@ public class EI4UmiProfileDataReader {
                     sendProfileControl(dateToSet);
 
                 } catch (Exception e) {
-                    Issue problem = issueFactory.createWarning(loadProfileReader, "loadProfileXBlockingIssue",
-                            loadProfileReader.getProfileObisCode(), e.getMessage());
+                    Issue problem = issueFactory.createWarning(loadProfileReader, e.getMessage(), loadProfileReader.getProfileObisCode());
                     collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
                 }
             } else {

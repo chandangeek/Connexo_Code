@@ -263,6 +263,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_NTA_READCACHE_DESCRIPTION("upl.property.v2.nta.readCache.description", "Read cache"),
     V2_PUSHING_COMPACT_FRAMES("upl.property.v2.nta.compactFrames", "Compact Frames"),
     V2_PUSHING_COMPACT_FRAMES_DESCRIPTION("upl.property.v2.nta.compactFrames.description", "Pushing compact frames of data"),
+    V2_COMMUNICATION_TYPE("upl.property.v2.nta.CommunicationType", "Communication type (GPRS/NB-IoT)"),
+    V2_COMMUNICATION_TYPE_DESCRIPTION("upl.property.v2.nta.CommunicationType.description", "Communication type (GPRS/NB-IoT)"),
     V2_NTA_CUMULATIVE_CAPTURE_TIME_CHANNEL("upl.property.v2.nta.cumulativeCaptureTimeChannel", "Cumulative capture time channel"),
     V2_NTA_CUMULATIVE_CAPTURE_TIME_CHANNEL_DESCRIPTION("upl.property.v2.nta.cumulativeCaptureTimeChannel.description", "Cumulative capture time channel"),
     V2_NTA_VALIDATE_INVOKE_ID("upl.property.v2.nta.validateInvokeId", "Validate invoke id"),

@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.processes.keyrenewal.api.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.messaging.MessageService;
@@ -30,6 +31,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.rest.ExceptionLogger;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.processes.keyrenewal.api.Installer;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.OperationHandler;
@@ -81,6 +83,8 @@ public class KeyRenewalApplication extends Application implements TranslationKey
     private volatile KeyRenewalCustomPropertySet keyRenewalCustomPropertySet;
     private volatile SecurityManagementService securityManagementService;
     private volatile CaService caService;
+    private volatile BpmService bpmService;
+    private volatile CommunicationTaskService communicationTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -102,6 +106,16 @@ public class KeyRenewalApplication extends Application implements TranslationKey
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST);
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setBpmService(BpmService bpmService) {
+        this.bpmService = bpmService;
     }
 
     @Reference
@@ -190,6 +204,8 @@ public class KeyRenewalApplication extends Application implements TranslationKey
                 bind(KeyRenewalCustomPropertySet.class).toInstance(keyRenewalCustomPropertySet);
                 bind(SecurityManagementService.class).toInstance(securityManagementService);
                 bind(CaService.class).toInstance(caService);
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(BpmService.class).toInstance(bpmService);
             }
         });
         upgradeService.register(InstallIdentifier.identifier(KeyRenewalChecklist.APPLICATION_NAME, COMPONENT_NAME), dataModel, Installer.class,
@@ -248,6 +264,8 @@ public class KeyRenewalApplication extends Application implements TranslationKey
             bind(DataModel.class).to(DataModel.class);
             bind(securityManagementService).to(SecurityManagementService.class);
             bind(caService).to(CaService.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(bpmService).to(BpmService.class);
 
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);

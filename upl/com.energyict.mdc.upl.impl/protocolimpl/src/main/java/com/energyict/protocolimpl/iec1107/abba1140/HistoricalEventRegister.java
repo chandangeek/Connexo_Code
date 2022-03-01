@@ -87,7 +87,7 @@ public class HistoricalEventRegister {
             String userName = new String( ProtocolUtils.getSubArray2( data, 62+(12*i), 12 )  ).trim();
             int prSrc = ProtocolUtils.getIntLE(data, 59+(1*i), 1 );
             String dscr = "Configuration change user: " + userName;
-            dscr += (prSrc==0) ? ", optical cummunications port" : ", remote communications port";
+            dscr += (prSrc==0) ? ", optical communications port" : ", remote communications port";
             MeterEvent me = new MeterEvent(date, MeterEvent.CONFIGURATIONCHANGE, dscr);
             events.add(me);
         }

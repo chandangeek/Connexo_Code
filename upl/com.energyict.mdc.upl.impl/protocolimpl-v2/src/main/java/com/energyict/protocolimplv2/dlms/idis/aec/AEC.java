@@ -11,7 +11,10 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
@@ -23,6 +26,8 @@ import com.energyict.cim.EndDeviceType;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSAttribute;
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.Disconnector;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
@@ -153,10 +158,10 @@ public class AEC extends AM540 {
 
     @Override
     public AECDlmsProperties getDlmsSessionProperties() {
-        if(dlmsProperties == null) {
+        if (dlmsProperties == null) {
             dlmsProperties = new AECDlmsProperties(getPropertySpecService(), getNlsService());
         }
-        return (AECDlmsProperties)dlmsProperties;
+        return (AECDlmsProperties) dlmsProperties;
     }
 
     /**
@@ -214,6 +219,39 @@ public class AEC extends AM540 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-11-24$";
+        return "$Date: 2022-02-01$";
+    }
+
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        CollectedBreakerStatus result = super.getBreakerStatus();
+        if (hasBreaker()) {
+            try {
+                Disconnector disconnector = getDlmsSession().getCosemObjectFactory().getDisconnector();
+                TypeEnum controlState = disconnector.doReadControlState();
+                switch (controlState.getValue()) {
+                    case 0:
+                        result.setBreakerStatus(BreakerStatus.DISCONNECTED);
+                        break;
+                    case 1:
+                        result.setBreakerStatus(BreakerStatus.CONNECTED);
+                        break;
+                    case 2:
+                        result.setBreakerStatus(BreakerStatus.ARMED);
+                        break;
+                    default:
+                        ObisCode source = Disconnector.getDefaultObisCode();
+                        result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory()
+                                .createProblem(source, "issue.protocol.readingOfBreakerStateFailed", "received value '" + controlState.getValue() + "', expected either 0, 1 or 2."));
+                        break;
+                }
+            } catch (IOException e) {
+                if (DLMSIOExceptionHandler.isUnexpectedResponse(e, getDlmsSessionProperties().getRetries())) {
+                    ObisCode source = Disconnector.getDefaultObisCode();
+                    result.setFailureInformation(ResultType.InCompatible, this.getIssueFactory().createProblem(source, "issue.protocol.readingOfBreakerStateFailed", e.toString()));
+                }
+            }
+        }
+        return result;
     }
 }

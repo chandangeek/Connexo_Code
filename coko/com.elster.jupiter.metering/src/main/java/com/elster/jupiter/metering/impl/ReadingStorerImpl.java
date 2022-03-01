@@ -353,9 +353,9 @@ class ReadingStorerImpl implements ReadingStorer {
                     int index = derivation.getIndex();
                     if (values[index + slotOffset + 1] instanceof BigDecimal) {
                         if (DerivationRule.MULTIPLIED.equals(derivation.getDerivationRule())) {
-                            if (values[index + slotOffset + 1] != storer.doNotUpdateMarker()) {
+                            if (values[index + slotOffset] != storer.doNotUpdateMarker()) {
                                 BigDecimal multiplier = getMultiplier(channelContract, instant, readingTypes.get(index + 1), readingTypes.get(index));
-                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset + 1]).multiply(multiplier);
+                                values[index + slotOffset] = ((BigDecimal) values[index + slotOffset]).multiply(multiplier);
                             }
                         } else if (DerivationRule.MULTIPLIED_DELTA.equals(derivation.getDerivationRule())) {
                             if (values[index + slotOffset] != storer.doNotUpdateMarker()) {

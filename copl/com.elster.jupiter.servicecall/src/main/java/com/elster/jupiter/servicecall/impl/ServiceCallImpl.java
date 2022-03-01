@@ -45,15 +45,12 @@ import static java.util.Arrays.fill;
 public class ServiceCallImpl implements ServiceCall {
     static final int ZEROFILL_SIZE = 8;
     private static final NumberFormat NUMBER_PREFIX = createFormat();
+
     private final Thesaurus thesaurus;
-
-    private static NumberFormat createFormat() {
-        char[] zeroFillChars = new char[ZEROFILL_SIZE];
-        fill(zeroFillChars, '0');
-        return new DecimalFormat("SC_" + new String(zeroFillChars));
-    }
-
     private final IServiceCallService serviceCallService;
+    private final DataModel dataModel;
+    private final Clock clock;
+    private final CustomPropertySetService customPropertySetService;
 
     private long id;
     private Instant lastCompletedTime;
@@ -72,11 +69,6 @@ public class ServiceCallImpl implements ServiceCall {
     private String userName;
     @SuppressWarnings("unused")
     private long version;
-
-
-    private final DataModel dataModel;
-    private final Clock clock;
-    private final CustomPropertySetService customPropertySetService;
 
     enum Fields {
         lastCompletedTime("lastCompletedTime"),
@@ -117,6 +109,12 @@ public class ServiceCallImpl implements ServiceCall {
 
     static ServiceCallImpl from(DataModel dataModel, ServiceCall parent, IServiceCallType type) {
         return dataModel.getInstance(ServiceCallImpl.class).init(parent, type);
+    }
+
+    private static NumberFormat createFormat() {
+        char[] zeroFillChars = new char[ZEROFILL_SIZE];
+        fill(zeroFillChars, '0');
+        return new DecimalFormat("SC_" + new String(zeroFillChars));
     }
 
     private ServiceCallImpl init(ServiceCall parent, IServiceCallType type) {

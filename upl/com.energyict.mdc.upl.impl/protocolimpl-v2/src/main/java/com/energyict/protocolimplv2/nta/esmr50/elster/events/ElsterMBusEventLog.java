@@ -40,7 +40,7 @@ enum ElsterEventEnum implements EventEnum
     EVENT_HLC_DAMAGE                          (121, HLC_DAMAGE,         "HLC damage"),
     EVENT_PERMANENT_LOG_FILLED_UP_90_PERSENT  (122, PERMANENT_LOG_FILLED_UP_90_PERSENT, "Permanent Log filled up to 90%"),
     EVENT_DEVICE_ABOUT_HIBERNATION_MODE       (123, DEVICE_ABOUT_HIBERNATION_MODE, "Device is about to enter hibernation mode"),
-    EVENT_ELSTER_RESERVED_1                   (124, OTHER,              "Elster reserved 1"),
+    EVENT_BROKEN_CASE_SWITCH                  (124, BROKEN_CASE_SWITCH, "Broken case switch"),
     EVENT_ELSTER_RESERVED_2                   (125, OTHER,              "Elster reserved 2"),
     EVENT_ELSTER_RESERVED_3                   (126, OTHER,              "Elster reserved 3"),
     EVENT_ELSTER_RESERVED_4                   (127, OTHER,              "Elster reserved 4"),

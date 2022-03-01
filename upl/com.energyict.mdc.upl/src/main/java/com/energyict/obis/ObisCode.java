@@ -257,7 +257,7 @@ public class ObisCode implements Serializable, Comparable<ObisCode> {
     }
 
     public ObisCode setB(int b) {
-        return new ObisCode(this.a, this.b, this.c, this.d, this.e, this.f, this.relativeBillingPeriod, false);
+        return new ObisCode(this.a, b, this.c, this.d, this.e, this.f, this.relativeBillingPeriod, false);
     }
 
     public String toString() {

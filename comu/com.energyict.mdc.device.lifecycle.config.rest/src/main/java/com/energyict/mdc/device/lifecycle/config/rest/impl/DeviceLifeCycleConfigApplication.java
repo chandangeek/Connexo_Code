@@ -17,6 +17,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueConverter;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -225,6 +226,7 @@ public class DeviceLifeCycleConfigApplication extends Application implements Tra
             bind(ConstraintViolationInfo.class).to(ConstraintViolationInfo.class);
             bind(ResourceHelper.class).to(ResourceHelper.class);
             bind(ExceptionFactory.class).to(ExceptionFactory.class);
+            bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
             bind(AuthorizedActionInfoFactory.class).to(AuthorizedActionInfoFactory.class);
             bind(DeviceLifeCycleStateFactory.class).to(DeviceLifeCycleStateFactory.class);
             bind(DeviceLifeCyclePrivilegeFactory.class).to(DeviceLifeCyclePrivilegeFactory.class);

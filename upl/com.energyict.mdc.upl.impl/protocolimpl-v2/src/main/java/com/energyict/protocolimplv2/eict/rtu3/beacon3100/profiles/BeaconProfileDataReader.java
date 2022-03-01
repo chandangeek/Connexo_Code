@@ -123,7 +123,7 @@ public class BeaconProfileDataReader {
                     collectedLoadProfile.setFailureInformation(ResultType.NotSupported, problem);
                 }  catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        Issue problem = this.issueFactory.createProblem(loadProfileReader, "loadProfileXBlockingIssue", profileObisCode, e.getMessage());
+                        Issue problem = this.issueFactory.createProblem(loadProfileReader, e.getMessage(), profileObisCode);
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }

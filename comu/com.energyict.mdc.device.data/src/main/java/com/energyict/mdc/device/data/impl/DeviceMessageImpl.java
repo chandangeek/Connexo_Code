@@ -42,6 +42,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,6 +53,8 @@ import java.util.stream.Stream;
 @UserHasTheMessagePrivilege(groups = {Save.Create.class, Save.Update.class})
 @HasValidDeviceMessageAttributes(groups = {Save.Create.class, Save.Update.class})
 public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> implements ServerDeviceMessage {
+
+    private static final Logger LOGGER = Logger.getLogger(DeviceMessageImpl.class.getName());
 
     public enum Fields {
         DEVICE("device"),
@@ -293,7 +296,9 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     @Override
     public void moveTo(DeviceMessageStatus status) {
-        if (!getStatus().isPredecessorOf(status)) {
+        if (getStatus().equals(status)) {
+            LOGGER.info("Duplicate status transition attempt: " + getStatus() + " --> " + status);
+        } else if (!getStatus().isPredecessorOf(status)) {
             throw new InvalidDeviceMessageStatusMove(this.deviceMessageStatus, status, getThesaurus(), MessageSeeds.DEVICE_MESSAGE_STATUS_INVALID_MOVE);
         }
         this.oldDeviceMessageStatus = getStatus().dbValue();

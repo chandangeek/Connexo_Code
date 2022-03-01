@@ -122,11 +122,11 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-11-08$";
+        return "$Date: 2022-02-21$";
     }
 
     @Override
-    protected A2ProfileDataReader getProfileDataReader() {
+    public A2ProfileDataReader getProfileDataReader() {
         if (profileDataReader == null) {
             profileDataReader = new EI7LoadProfileDataReader(this, getCollectedDataFactory(), getIssueFactory(),
                     getOfflineDevice(), getDlmsSessionProperties().getLimitMaxNrOfDays(), EI7LoadProfileDataReader.getSupportedLoadProfiles());

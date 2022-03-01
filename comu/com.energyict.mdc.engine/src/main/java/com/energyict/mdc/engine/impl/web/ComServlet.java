@@ -57,17 +57,17 @@ public class ComServlet extends HttpServlet {
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
 
     private AtomicReference<Statistics> statistics;
-    private AtomicReference<InboundCommunicationHandler> communicationHandler;
+    private DeviceCommandExecutor deviceCommandExecutor;
     private ServletBasedInboundComPort comPort;
     private ComServerDAO comServerDAO;
 
     public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
-        this.communicationHandler = new AtomicReference<>(new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, serviceProvider));
         this.statistics = new AtomicReference<>(new Statistics());
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.serviceProvider = serviceProvider;
+        this.deviceCommandExecutor = deviceCommandExecutor;
     }
 
     @Override
@@ -82,6 +82,10 @@ public class ComServlet extends HttpServlet {
         this.statistics.get().printWith(responseWriter);
         responseWriter.println("</TABLE></BODY></HTML>");
         responseWriter.close();
+    }
+
+    private InboundCommunicationHandler getInboundCommunicationHandler() {
+        return new InboundCommunicationHandler(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
     @Override
@@ -109,8 +113,9 @@ public class ComServlet extends HttpServlet {
         InboundDiscoveryContextImpl context = this.newInboundDiscoveryContext(request, response);
         inboundDeviceProtocol.initializeDiscoveryContext(context);
         inboundDeviceProtocol.init(request, response);
-        this.communicationHandler.get().handle(inboundDeviceProtocol, context);
-        this.checkForConfigurationError(this.communicationHandler.get().getResponseType());
+        InboundCommunicationHandler inboundCommunicationHandler = getInboundCommunicationHandler();
+        inboundCommunicationHandler.handle(inboundDeviceProtocol, context);
+        this.checkForConfigurationError(inboundCommunicationHandler.getResponseType());
     }
 
     private void checkForConfigurationError(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
