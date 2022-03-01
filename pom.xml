@@ -9,7 +9,7 @@
 
     <groupId>com.elster.jupiter</groupId>
     <artifactId>parent</artifactId>
-    <version>12.0.0-Kratos-SNAPSHOT</version>
+    <version>12.0.1-Kratos-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>[Jupiter] com.elster.jupiter.parent</name>
 
@@ -42,8 +42,8 @@
         <target.version>1.8</target.version>
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <baseline>11.0.0-Kratos</baseline>
-        <commercial.version>10.9.14</commercial.version>
+        <baseline>12.0.0-Kratos</baseline>
+        <commercial.version>10.9.15</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
         <mockito.version>1.10.19</mockito.version>
