@@ -36,7 +36,7 @@ public class DeviceSAPInfoCustomPropertySetTest extends AbstractCustomPropertySe
     @Before
     public void setup() {
         super.setup();
-        cps = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, sapCustomPropertySets);
+        cps = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, sapCustomPropertySets, null);
         persistenceSupport = cps.getPersistenceSupport();
     }
 

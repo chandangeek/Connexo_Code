@@ -1,7 +1,8 @@
 package com.energyict.mdc.sap.soap.webservices;
 
-import com.elster.jupiter.cps.CustomPropertySetValues;
+import aQute.bnd.annotation.ProviderType;
 
+@ProviderType
 public interface DeviceSAPInfo {
 
 
@@ -29,5 +30,5 @@ public interface DeviceSAPInfo {
 
     void setCharacteristicsValue(String characteristicsValue);
 
-    CustomPropertySetValues getCustomPropertySetValue();
+    void saveExtension();
 }

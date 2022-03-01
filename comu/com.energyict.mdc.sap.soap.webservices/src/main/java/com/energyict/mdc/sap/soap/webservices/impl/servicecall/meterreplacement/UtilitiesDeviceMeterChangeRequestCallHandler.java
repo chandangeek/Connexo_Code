@@ -135,7 +135,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                     if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
                         deviceSAPInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
                     }
-                    sapCustomPropertySets.setSapDeviceCPSPProperties(device.get(), deviceSAPInfo.getCustomPropertySetValue());
+                    deviceSAPInfo.saveExtension();
                 } else {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
                 }

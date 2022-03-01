@@ -5,6 +5,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.custompropertyset;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
@@ -39,11 +40,13 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private final SAPCustomPropertySets sapCustomPropertySets;
+    private final CustomPropertySetService customPropertySetService;
 
-    DeviceSAPInfoCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus, SAPCustomPropertySets sapCustomPropertySets) {
+    DeviceSAPInfoCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus, SAPCustomPropertySets sapCustomPropertySets, CustomPropertySetService customPropertySetService) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
         this.sapCustomPropertySets = sapCustomPropertySets;
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -211,6 +214,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                 @Override
                 protected void configure() {
                     bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
+                    bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 }
             });
         }

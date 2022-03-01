@@ -74,7 +74,7 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
             }
             deviceSAPInfo.setDeviceLocationInformation(extension.getLocationInformation());
             deviceSAPInfo.setModificationInformation(extension.getModificationInformation());
-            sapCustomPropertySets.setSapDeviceCPSPProperties(device.get(), deviceSAPInfo.getCustomPropertySetValue());
+            deviceSAPInfo.saveExtension();
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(serviceCall, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());

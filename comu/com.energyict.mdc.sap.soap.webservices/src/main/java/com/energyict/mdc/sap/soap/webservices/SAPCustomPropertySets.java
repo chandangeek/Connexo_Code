@@ -3,7 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
-import com.elster.jupiter.cps.CustomPropertySetValues;
+import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -14,6 +14,7 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
+import com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceSAPInfoDomainExtension;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -30,6 +31,8 @@ public interface SAPCustomPropertySets {
 
     Thesaurus getThesaurus();
 
+    CustomPropertySet<Device, DeviceSAPInfoDomainExtension> getDeviceInfo();
+
     Optional<String> getSapDeviceId(Device device);
 
     Optional<String> getSapDeviceId(EndDevice endDevice);
@@ -37,8 +40,6 @@ public interface SAPCustomPropertySets {
     Optional<String> getRegisteredSapDeviceId(EndDevice endDevice);
 
     Optional<DeviceSAPInfo> findDeviceSAPInfo(Device device);
-
-    void setSapDeviceCPSPProperties(Device device, CustomPropertySetValues customPropertySetValues);
 
     /**
      * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.

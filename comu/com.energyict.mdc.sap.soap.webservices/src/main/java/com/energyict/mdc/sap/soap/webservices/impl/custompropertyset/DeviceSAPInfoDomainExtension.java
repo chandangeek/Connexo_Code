@@ -5,6 +5,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.custompropertyset;
 
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -13,7 +14,10 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
+import javax.inject.Inject;
 import javax.validation.constraints.Size;
 import java.util.Optional;
 
@@ -54,6 +58,12 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         }
     }
 
+    @Inject
+    public DeviceSAPInfoDomainExtension(SAPCustomPropertySets sapCustomPropertySets, CustomPropertySetService customPropertySetService) {
+        this.sapCustomPropertySets = sapCustomPropertySets;
+        this.customPropertySetService = customPropertySetService;
+    }
+
     private Reference<Device> device = Reference.empty();
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceIdentifier;
@@ -92,6 +102,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     private String characteristicsValue;
 
     private boolean registered;
+    private SAPCustomPropertySets sapCustomPropertySets;
+    private CustomPropertySetService customPropertySetService;
 
     @Override
     public RegisteredCustomPropertySet getRegisteredCustomPropertySet() {
@@ -260,9 +272,19 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public CustomPropertySetValues getCustomPropertySetValue() {
+    public void saveExtension() {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         this.copyTo(values);
-        return values;
+        if (!sapCustomPropertySets.getSapDeviceId(device.get()).isPresent()) {
+
+            String cpsId = sapCustomPropertySets.getDeviceInfo().getId();
+            if (!getRegisteredCustomPropertySet().isEditableByCurrentUser()) {
+                throw new SAPWebServiceException(sapCustomPropertySets.getThesaurus(), MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
+            }
+            customPropertySetService.setValuesFor(sapCustomPropertySets.getDeviceInfo(), device.get(), values);
+            device.get().touchDevice();
+        } else {
+            throw new SAPWebServiceException(sapCustomPropertySets.getThesaurus(), MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.get().getName());
+        }
     }
 }
