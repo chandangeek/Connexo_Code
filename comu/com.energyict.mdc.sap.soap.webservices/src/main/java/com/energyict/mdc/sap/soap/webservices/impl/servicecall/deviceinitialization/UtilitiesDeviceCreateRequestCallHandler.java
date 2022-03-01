@@ -115,8 +115,8 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         validateSapDeviceIdUniqueness(sapDeviceId, serialId);
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
-        DeviceSAPInfo deviceSAPInfo = new DeviceSAPInfo();
-        deviceSAPInfo.setDeviceId(sapDeviceId);
+        DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device).get();
+        sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
         if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
             deviceSAPInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
         }
@@ -132,7 +132,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
             deviceSAPInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
         }
-        sapCustomPropertySets.setSapDeviceCPSPProperty(device, deviceSAPInfo);
+        sapCustomPropertySets.setSapDeviceCPSPProperties(device, deviceSAPInfo.getCustomPropertySetValue());
     }
 
     private void validateShipmentDate(Device device, Instant startDate) {

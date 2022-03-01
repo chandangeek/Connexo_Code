@@ -1,119 +1,33 @@
-/*
- * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
- */
-
 package com.energyict.mdc.sap.soap.webservices;
 
-public class DeviceSAPInfo {
-    String deviceId;
-    String deviceLocation;
-    String installationNumber;
-    String pointOfDelivery;
-    String divisionCategoryCode;
-    String deviceLocationInformation;
-    String modificationInformation;
-    String activationGroupAmiFunctions;
-    String meterFunctionGroup;
-    String attributeMessage;
-    String characteristicsId;
-    String characteristicsValue;
+import com.elster.jupiter.cps.CustomPropertySetValues;
 
-    public DeviceSAPInfo() {
-    }
+public interface DeviceSAPInfo {
 
-    public String getDeviceLocation() {
-        return deviceLocation;
-    }
 
-    public String getInstallationNumber() {
-        return installationNumber;
-    }
+    void setDeviceIdentifier(String deviceId);
 
-    public String getPointOfDelivery() {
-        return pointOfDelivery;
-    }
+    void setDeviceLocation(String deviceLocation);
 
-    public String getDivisionCategoryCode() {
-        return divisionCategoryCode;
-    }
+    void setInstallationNumber(String installationNumber);
 
-    public String getDeviceLocationInformation() {
-        return deviceLocationInformation;
-    }
+    void setPointOfDelivery(String pointOfDelivery);
 
-    public String getModificationInformation() {
-        return modificationInformation;
-    }
+    void setDivisionCategoryCode(String divisionCategoryCode);
 
-    public String getActivationGroupAmiFunctions() {
-        return activationGroupAmiFunctions;
-    }
+    void setDeviceLocationInformation(String deviceLocationInformation);
 
-    public String getMeterFunctionGroup() {
-        return meterFunctionGroup;
-    }
+    void setModificationInformation(String modificationInformation);
 
-    public String getAttributeMessage() {
-        return attributeMessage;
-    }
+    void setActivationGroupAmiFunctions(String activationGroupAmiFunctions);
 
-    public String getCharacteristicsId() {
-        return characteristicsId;
-    }
+    void setMeterFunctionGroup(String meterFunctionGroup);
 
-    public String getCharacteristicsValue() {
-        return characteristicsValue;
-    }
+    void setAttributeMessage(String attributeMessage);
 
-    public String getDeviceId() {
-        return deviceId;
-    }
+    void setCharacteristicsId(String characteristicsId);
 
-    public void setDeviceId(String deviceId) {
-        this.deviceId = deviceId;
-    }
+    void setCharacteristicsValue(String characteristicsValue);
 
-    public void setDeviceLocation(String deviceLocation) {
-        this.deviceLocation = deviceLocation;
-    }
-
-    public void setInstallationNumber(String installationNumber) {
-        this.installationNumber = installationNumber;
-    }
-
-    public void setPointOfDelivery(String pointOfDelivery) {
-        this.pointOfDelivery = pointOfDelivery;
-    }
-
-    public void setDivisionCategoryCode(String divisionCategoryCode) {
-        this.divisionCategoryCode = divisionCategoryCode;
-    }
-
-    public void setDeviceLocationInformation(String deviceLocationInformation) {
-        this.deviceLocationInformation = deviceLocationInformation;
-    }
-
-    public void setModificationInformation(String modificationInformation) {
-        this.modificationInformation = modificationInformation;
-    }
-
-    public void setActivationGroupAmiFunctions(String activationGroupAmiFunctions) {
-        this.activationGroupAmiFunctions = activationGroupAmiFunctions;
-    }
-
-    public void setMeterFunctionGroup(String meterFunctionGroup) {
-        this.meterFunctionGroup = meterFunctionGroup;
-    }
-
-    public void setAttributeMessage(String attributeMessage) {
-        this.attributeMessage = attributeMessage;
-    }
-
-    public void setCharacteristicsId(String characteristicsId) {
-        this.characteristicsId = characteristicsId;
-    }
-
-    public void setCharacteristicsValue(String characteristicsValue) {
-        this.characteristicsValue = characteristicsValue;
-    }
+    CustomPropertySetValues getCustomPropertySetValue();
 }

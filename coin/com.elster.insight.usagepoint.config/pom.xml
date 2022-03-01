@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>12.0.1-Kratos-SNAPSHOT</version>
+        <version>13.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdm.usagepoint.config</artifactId>

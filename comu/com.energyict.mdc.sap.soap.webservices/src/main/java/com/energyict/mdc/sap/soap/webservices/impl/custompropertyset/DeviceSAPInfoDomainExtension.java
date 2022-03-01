@@ -12,12 +12,13 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 
 import javax.validation.constraints.Size;
 import java.util.Optional;
 
 @UniqueDeviceIdentifier(groups = {Save.Create.class, Save.Update.class})
-public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<Device> {
+public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<Device>, DeviceSAPInfo {
 
     public enum FieldNames {
         DOMAIN("device", "DEVICE"),
@@ -32,7 +33,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         ACTIVATION_GROUP_AMI_FUNCTIONS("activationGroupAmiFunctions", "ACTIVATION_GROUP_AMI_FUNCTIONS"),
         METER_FUNCTION_GROUP("meterFunctionGroup", "METER_FUNCTION_GROUP"),
         ATTRIBUTE_MESSAGE("attributeMessage", "ATTRIBUTE_MESSAGE"),
-        CHARACTERISTICS_ID("characteristicsId","CHARACTERISTICS_ID"),
+        CHARACTERISTICS_ID("characteristicsId", "CHARACTERISTICS_ID"),
         CHARACTERISTICS_VALUE("characteristicsValue", "CHARACTERISTICS_VALUE");
 
 
@@ -166,30 +167,37 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return modificationInformation;
     }
 
+    @Override
     public void setDeviceIdentifier(String deviceIdentifier) {
         this.deviceIdentifier = deviceIdentifier;
     }
 
+    @Override
     public void setDeviceLocation(String deviceLocation) {
         this.deviceLocation = deviceLocation;
     }
 
+    @Override
     public void setInstallationNumber(String installationNumber) {
         this.installationNumber = installationNumber;
     }
 
+    @Override
     public void setPointOfDelivery(String pointOfDelivery) {
         this.pointOfDelivery = pointOfDelivery;
     }
 
+    @Override
     public void setDivisionCategoryCode(String divisionCategoryCode) {
         this.divisionCategoryCode = divisionCategoryCode;
     }
 
+    @Override
     public void setDeviceLocationInformation(String deviceLocationInformation) {
         this.deviceLocationInformation = deviceLocationInformation;
     }
 
+    @Override
     public void setModificationInformation(String modificationInformation) {
         this.modificationInformation = modificationInformation;
     }
@@ -210,6 +218,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return activationGroupAmiFunctions;
     }
 
+    @Override
     public void setActivationGroupAmiFunctions(String activationGroupAmiFunctions) {
         this.activationGroupAmiFunctions = activationGroupAmiFunctions;
     }
@@ -218,6 +227,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return meterFunctionGroup;
     }
 
+    @Override
     public void setMeterFunctionGroup(String meterFunctionGroup) {
         this.meterFunctionGroup = meterFunctionGroup;
     }
@@ -226,6 +236,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return attributeMessage;
     }
 
+    @Override
     public void setAttributeMessage(String attributeMessage) {
         this.attributeMessage = attributeMessage;
     }
@@ -234,6 +245,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return characteristicsId;
     }
 
+    @Override
     public void setCharacteristicsId(String characteristicsId) {
         this.characteristicsId = characteristicsId;
     }
@@ -242,7 +254,15 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return characteristicsValue;
     }
 
+    @Override
     public void setCharacteristicsValue(String characteristicsValue) {
         this.characteristicsValue = characteristicsValue;
+    }
+
+    @Override
+    public CustomPropertySetValues getCustomPropertySetValue() {
+        CustomPropertySetValues values = CustomPropertySetValues.empty();
+        this.copyTo(values);
+        return values;
     }
 }

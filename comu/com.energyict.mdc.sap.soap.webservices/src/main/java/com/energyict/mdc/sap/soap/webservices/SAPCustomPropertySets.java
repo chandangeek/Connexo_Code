@@ -3,6 +3,7 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
+import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -35,7 +36,9 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getRegisteredSapDeviceId(EndDevice endDevice);
 
-    void setSapDeviceCPSPProperty(Device device, DeviceSAPInfo deviceSAPInfo);
+    Optional<DeviceSAPInfo> findDeviceSAPInfo(Device device);
+
+    void setSapDeviceCPSPProperties(Device device, CustomPropertySetValues customPropertySetValues);
 
     /**
      * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
@@ -67,7 +70,7 @@ public interface SAPCustomPropertySets {
     void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime);
 
     /**
-     *  Is there at least one LRN at the current time or in the future.
+     * Is there at least one LRN at the current time or in the future.
      */
     boolean isAnyLrnPresent(long deviceId, Instant currentTime);
 
