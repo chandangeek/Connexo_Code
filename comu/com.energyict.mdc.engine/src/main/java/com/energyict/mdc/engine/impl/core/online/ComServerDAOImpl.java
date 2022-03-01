@@ -44,7 +44,6 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
-
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.InboundConnectionTask;
@@ -160,7 +159,9 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
@@ -1268,14 +1269,16 @@ public class ComServerDAOImpl implements ComServerDAO {
 
                 if (optionalOfflineLoadProfile.isPresent() && originalLastConsecutiveReadingOptional.isPresent()
                         && collectedIntervalRange.hasLowerBound() && collectedIntervalRange.hasUpperBound()) {
-                    Instant nextToLastConsecutiveReading = originalLastConsecutiveReadingOptional.get().toInstant().plus(optionalOfflineLoadProfile.get().getInterval());
+                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(originalLastConsecutiveReadingOptional.get().toInstant(), loadProfileOptional.get().getDevice().getZone());
+                    Instant nextToLastConsecutiveReading = zonedDateTime.plus(optionalOfflineLoadProfile.get().getInterval()).toInstant();
+
                     // the following condition is an alternative to Range.contains() with the lowerBound included into comparison
                     if(!nextToLastConsecutiveReading.isBefore(collectedIntervalRange.lowerEndpoint()) && !nextToLastConsecutiveReading.isAfter(collectedIntervalRange.upperEndpoint())) {
                         findLoadProfile(loadProfileIdentifier).ifPresent(lp -> {
                             Instant lastConsecutiveReading = Instant.ofEpochSecond(collectedIntervalRange.upperEndpoint().getEpochSecond());
                             if (originalLastReading.isPresent() && lastConsecutiveReading.isBefore(originalLastReading.get())) {
                                 lastConsecutiveReading = promoteLastConsecutiveReading(lp.getChannelData(Range.openClosed(lastConsecutiveReading, originalLastReading.get())),
-                                        lastConsecutiveReading, optionalOfflineLoadProfile.get().getInterval());
+                                        lastConsecutiveReading, optionalOfflineLoadProfile.get().getInterval(), loadProfileOptional.get().getDevice().getZone());
                             }
                             lp.getUpdater().setLastConsecutiveReadingIfLater(lastConsecutiveReading).update();
                         });
@@ -1293,7 +1296,7 @@ public class ComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private Instant promoteLastConsecutiveReading(List<LoadProfileReading> loadProfileReadingList, Instant initial, TemporalAmount interval) {
+    private Instant promoteLastConsecutiveReading(List<LoadProfileReading> loadProfileReadingList, Instant initial, TemporalAmount interval, ZoneId deviceZoneId) {
         // the list is in a latest-readings-first order. Reverse it.
         Collections.reverse(loadProfileReadingList);
         // the list contains stub-readings with readingTime = null for all missing readings
@@ -1301,7 +1304,7 @@ public class ComServerDAOImpl implements ComServerDAO {
             if (reading.getReadingTime() == null) {
                 return initial;
             } else {
-                initial = initial.plus(interval);
+                initial =  ZonedDateTime.ofInstant(initial, deviceZoneId).plus(interval).toInstant();
             }
         }
         return initial;
