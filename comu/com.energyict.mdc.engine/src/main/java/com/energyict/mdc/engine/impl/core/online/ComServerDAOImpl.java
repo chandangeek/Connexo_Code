@@ -44,7 +44,6 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
-
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.InboundConnectionTask;
@@ -1270,8 +1269,7 @@ public class ComServerDAOImpl implements ComServerDAO {
 
                 if (optionalOfflineLoadProfile.isPresent() && originalLastConsecutiveReadingOptional.isPresent()
                         && collectedIntervalRange.hasLowerBound() && collectedIntervalRange.hasUpperBound()) {
-                    Device device = this.findDevice(optionalOfflineLoadProfile.get().getDeviceIdentifier());
-                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(originalLastConsecutiveReadingOptional.get().toInstant(), device.getZone());
+                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(originalLastConsecutiveReadingOptional.get().toInstant(), loadProfileOptional.get().getDevice().getZone());
                     Instant nextToLastConsecutiveReading = zonedDateTime.plus(optionalOfflineLoadProfile.get().getInterval()).toInstant();
 
                     // the following condition is an alternative to Range.contains() with the lowerBound included into comparison
@@ -1280,7 +1278,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                             Instant lastConsecutiveReading = Instant.ofEpochSecond(collectedIntervalRange.upperEndpoint().getEpochSecond());
                             if (originalLastReading.isPresent() && lastConsecutiveReading.isBefore(originalLastReading.get())) {
                                 lastConsecutiveReading = promoteLastConsecutiveReading(lp.getChannelData(Range.openClosed(lastConsecutiveReading, originalLastReading.get())),
-                                        lastConsecutiveReading, optionalOfflineLoadProfile.get().getInterval(), device.getZone());
+                                        lastConsecutiveReading, optionalOfflineLoadProfile.get().getInterval(), loadProfileOptional.get().getDevice().getZone());
                             }
                             lp.getUpdater().setLastConsecutiveReadingIfLater(lastConsecutiveReading).update();
                         });
