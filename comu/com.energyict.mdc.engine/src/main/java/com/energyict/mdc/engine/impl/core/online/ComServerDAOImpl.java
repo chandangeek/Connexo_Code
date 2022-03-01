@@ -149,7 +149,6 @@ import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
 import sun.security.x509.X509CertImpl;
-import sun.util.calendar.ZoneInfo;
 
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
@@ -192,7 +191,6 @@ import static com.energyict.mdc.upl.DeviceProtocolDialect.Property.DEVICE_PROTOC
 public class ComServerDAOImpl implements ComServerDAO {
 
     private static final Logger LOGGER = Logger.getLogger(ComServerDAOImpl.class.getName());
-    private static final String TIME_ZONE_PROPERTY_NAME = "TimeZone";
     private final ServiceProvider serviceProvider;
     private final User comServerUser;
     private ServerProcessStatus status = ServerProcessStatus.STARTING;
@@ -1273,9 +1271,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                 if (optionalOfflineLoadProfile.isPresent() && originalLastConsecutiveReadingOptional.isPresent()
                         && collectedIntervalRange.hasLowerBound() && collectedIntervalRange.hasUpperBound()) {
                     Device device = this.findDevice(optionalOfflineLoadProfile.get().getDeviceIdentifier());
-                    ZoneInfo zoneInfo = (ZoneInfo) device.getDeviceConfiguration().getDeviceProtocolProperties().getProperty(TIME_ZONE_PROPERTY_NAME);
-                    ZoneId deviceZoneId = getZoneIdByDeviceZoneInfo(device, zoneInfo);
-                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(originalLastConsecutiveReadingOptional.get().toInstant(), deviceZoneId);
+                    ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(originalLastConsecutiveReadingOptional.get().toInstant(), device.getZone());
                     Instant nextToLastConsecutiveReading = zonedDateTime.plus(optionalOfflineLoadProfile.get().getInterval()).toInstant();
 
                     // the following condition is an alternative to Range.contains() with the lowerBound included into comparison
@@ -1284,7 +1280,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                             Instant lastConsecutiveReading = Instant.ofEpochSecond(collectedIntervalRange.upperEndpoint().getEpochSecond());
                             if (originalLastReading.isPresent() && lastConsecutiveReading.isBefore(originalLastReading.get())) {
                                 lastConsecutiveReading = promoteLastConsecutiveReading(lp.getChannelData(Range.openClosed(lastConsecutiveReading, originalLastReading.get())),
-                                        lastConsecutiveReading, optionalOfflineLoadProfile.get().getInterval(), deviceZoneId);
+                                        lastConsecutiveReading, optionalOfflineLoadProfile.get().getInterval(), device.getZone());
                             }
                             lp.getUpdater().setLastConsecutiveReadingIfLater(lastConsecutiveReading).update();
                         });
@@ -1314,10 +1310,6 @@ public class ComServerDAOImpl implements ComServerDAO {
             }
         }
         return initial;
-    }
-
-    private ZoneId getZoneIdByDeviceZoneInfo (Device device, ZoneInfo zoneInfo) {
-        return zoneInfo != null ? ZoneId.of(zoneInfo.getID()) : device.getZone();
     }
 
     private Pair<DeviceIdentifier, LoadProfileIdentifier> getIdentifiers(PreStoreLoadProfile.PreStoredLoadProfile preStoredLoadProfile, LoadProfileIdentifier loadProfileIdentifier, CollectedLoadProfile collectedLoadProfile) {
