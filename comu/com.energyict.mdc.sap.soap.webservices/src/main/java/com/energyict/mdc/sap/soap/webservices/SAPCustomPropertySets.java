@@ -3,7 +3,6 @@
  */
 package com.energyict.mdc.sap.soap.webservices;
 
-import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.ReadingContainer;
@@ -14,7 +13,6 @@ import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.ChannelSpec;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
-import com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.DeviceSAPInfoDomainExtension;
 
 import aQute.bnd.annotation.ProviderType;
 import com.google.common.collect.Range;
@@ -30,8 +28,6 @@ import java.util.Set;
 public interface SAPCustomPropertySets {
 
     Thesaurus getThesaurus();
-
-    CustomPropertySet<Device, DeviceSAPInfoDomainExtension> getDeviceInfo();
 
     Optional<String> getSapDeviceId(Device device);
 
@@ -119,4 +115,6 @@ public interface SAPCustomPropertySets {
     boolean isRegistered(EndDevice endDevice);
 
     void setRegistered(String sapDeviceId, boolean registered);
+
+    DeviceSAPInfo getDeviceSapInfoNewInstance(Device device);
 }

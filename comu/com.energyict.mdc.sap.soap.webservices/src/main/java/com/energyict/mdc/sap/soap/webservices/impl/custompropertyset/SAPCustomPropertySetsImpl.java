@@ -62,6 +62,7 @@ import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
+import com.google.inject.Injector;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -119,7 +120,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Inject
     public SAPCustomPropertySetsImpl(DeviceService deviceService, CustomPropertySetService customPropertySetService,
                                      PropertySpecService propertySpecService, OrmService ormService,
-                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService) {
+                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService, Injector injector) {
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
         setPropertySpecService(propertySpecService);
@@ -204,8 +205,11 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public CustomPropertySet<Device, DeviceSAPInfoDomainExtension> getDeviceInfo() {
-        return deviceInfo;
+    public DeviceSAPInfo getDeviceSapInfoNewInstance(Device device) {
+        DeviceSAPInfo deviceSAPInfo = getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME).getInstance(DeviceSAPInfoDomainExtension.class);
+        deviceSAPInfo.setDevice(device);
+        deviceSAPInfo.setRegisteredCustomPropertySet(getRegisteredCustomPropertySet(device, deviceInfo.getId()));
+        return deviceSAPInfo;
     }
 
     @Override
@@ -253,7 +257,8 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
         return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))
-                .findAny().map(deviceSAPInfoDomainExtension -> deviceSAPInfoDomainExtension);
+                .findAny()
+                .map(DeviceSAPInfo.class::cast);
     }
 
     @Override

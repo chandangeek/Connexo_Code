@@ -9,6 +9,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.StatusChangeRequestCreateConfirmation;
@@ -52,6 +53,11 @@ public class StatusChangeRequestCreateConfirmationProvider extends AbstractOutbo
             SmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationCOut port,
             Map<String, Object> properties) {
         super.doAddEndpoint(port, properties);
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService){
+        // No action, just for binding WebServicesService
     }
 
     public void removeSmartMeterUtilitiesConnectionStatusChangeRequestERPCreateConfirmationEOut(

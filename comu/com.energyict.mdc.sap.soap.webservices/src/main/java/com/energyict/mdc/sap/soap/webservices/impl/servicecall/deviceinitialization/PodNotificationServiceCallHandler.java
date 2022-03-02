@@ -10,6 +10,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
@@ -64,7 +65,9 @@ public class PodNotificationServiceCallHandler extends AbstractChildRetryService
         if (device.isPresent()) {
             serviceCall.setTargetObject(device.get());
             serviceCall.save();
-            sapCustomPropertySets.setPod(device.get(), extension.getPodId());
+            DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).orElse(sapCustomPropertySets.getDeviceSapInfoNewInstance(device.get()));
+            deviceSAPInfo.setPointOfDelivery(extension.getPodId());
+            deviceSAPInfo.save();
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(serviceCall, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());

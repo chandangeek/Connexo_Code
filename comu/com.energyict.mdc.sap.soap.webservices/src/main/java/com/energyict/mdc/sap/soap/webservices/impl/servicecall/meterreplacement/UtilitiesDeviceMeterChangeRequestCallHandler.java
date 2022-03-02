@@ -118,7 +118,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                         setDeactivationDate(device.get(), extension, lifecycleDates);
                     }
 
-                    DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).get();
+                    DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).orElse(sapCustomPropertySets.getDeviceSapInfoNewInstance(device.get()));
 
                     if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
                         deviceSAPInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
@@ -135,7 +135,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                     if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
                         deviceSAPInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
                     }
-                    deviceSAPInfo.saveExtension();
+                    deviceSAPInfo.save();
                 } else {
                     throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
                 }

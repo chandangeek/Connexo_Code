@@ -61,7 +61,7 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
         if (device.isPresent()) {
             serviceCall.setTargetObject(device.get());
             serviceCall.save();
-            DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).get();
+            DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).orElse(sapCustomPropertySets.getDeviceSapInfoNewInstance(device.get()));
             deviceSAPInfo.setDeviceLocation(extension.getLocationId());
             if (extension.getInstallationNumber() != null && !extension.getInstallationNumber().isEmpty()) {
                 deviceSAPInfo.setInstallationNumber(extension.getInstallationNumber());
@@ -74,7 +74,7 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
             }
             deviceSAPInfo.setDeviceLocationInformation(extension.getLocationInformation());
             deviceSAPInfo.setModificationInformation(extension.getModificationInformation());
-            deviceSAPInfo.saveExtension();
+            deviceSAPInfo.save();
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(serviceCall, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());

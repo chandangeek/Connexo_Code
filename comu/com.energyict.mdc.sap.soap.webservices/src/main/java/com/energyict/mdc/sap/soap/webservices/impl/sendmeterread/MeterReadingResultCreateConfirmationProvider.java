@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.sendmeterread;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingResultCreateConfirmation;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingresultcreateconfirmation.SmartMeterMeterReadingDocumentERPResultCreateConfirmationCOut;
 import com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingresultcreateconfirmation.SmartMeterMeterReadingDocumentERPResultCreateConfirmationCOutService;
@@ -29,6 +30,10 @@ public class MeterReadingResultCreateConfirmationProvider extends AbstractOutbou
         // for OSGI purposes
     }
 
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService){
+        // No action, just for binding WebServicesService
+    }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addRequestConfirmationPort(SmartMeterMeterReadingDocumentERPResultCreateConfirmationCOut port,

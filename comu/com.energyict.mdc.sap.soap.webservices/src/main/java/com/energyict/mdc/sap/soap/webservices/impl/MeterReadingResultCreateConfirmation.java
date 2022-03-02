@@ -8,7 +8,6 @@ import com.energyict.mdc.sap.soap.webservices.impl.sendmeterread.MeterReadingRes
 
 import aQute.bnd.annotation.ProviderType;
 
-@ProviderType
 public interface MeterReadingResultCreateConfirmation {
     String NAME = "SAP SmartMeterReadingResultCreateConfirmation";
 

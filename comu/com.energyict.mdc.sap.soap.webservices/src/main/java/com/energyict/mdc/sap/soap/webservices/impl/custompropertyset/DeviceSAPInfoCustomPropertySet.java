@@ -215,6 +215,7 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                 protected void configure() {
                     bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
                     bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                    bind(Thesaurus.class).toInstance(thesaurus);
                 }
             });
         }

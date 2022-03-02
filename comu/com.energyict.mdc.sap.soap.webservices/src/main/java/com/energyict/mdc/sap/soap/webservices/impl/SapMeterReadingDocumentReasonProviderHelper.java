@@ -25,7 +25,7 @@ public class SapMeterReadingDocumentReasonProviderHelper {
             case WebServiceActivator.REASON_CODE_STRATEGY:
                 return findReadingReasonProviderByReasonCode(readingReasonCode);
             default:
-                return Optional.ofNullable(null);
+                return Optional.empty();
         }
     }
 

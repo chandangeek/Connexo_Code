@@ -220,9 +220,9 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
         this.setDivisionCategory((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY.javaName()));
         this.setRegisterId((String) propertyValues.getProperty(FieldNames.REGISTER_ID.javaName()));
-        this.setTotalDigitNumberValue(propertyValues.getProperty(FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName()) == null ? null : (BigDecimal) propertyValues.getProperty(FieldNames.TOTAL_DIGIT_NUMBER_VALUE
+        this.setTotalDigitNumberValue((BigDecimal) propertyValues.getProperty(FieldNames.TOTAL_DIGIT_NUMBER_VALUE
                 .javaName()));
-        this.setFractionDigitNumberValue((propertyValues.getProperty(FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName()) == null) ? null : (BigDecimal) propertyValues.getProperty(FieldNames.FRACTION_DIGIT_NUMBER_VALUE
+        this.setFractionDigitNumberValue((BigDecimal) propertyValues.getProperty(FieldNames.FRACTION_DIGIT_NUMBER_VALUE
                 .javaName()));
 
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));

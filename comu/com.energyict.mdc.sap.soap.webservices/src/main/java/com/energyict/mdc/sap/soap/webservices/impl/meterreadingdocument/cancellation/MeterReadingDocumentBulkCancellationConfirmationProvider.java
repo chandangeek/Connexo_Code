@@ -3,6 +3,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancell
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterReadingDocumentBulkCancellationConfirmation;
@@ -39,6 +40,11 @@ public class MeterReadingDocumentBulkCancellationConfirmationProvider extends Ab
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         // No action, just for binding WebServiceActivator
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService){
+        // No action, just for binding WebServicesService
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
