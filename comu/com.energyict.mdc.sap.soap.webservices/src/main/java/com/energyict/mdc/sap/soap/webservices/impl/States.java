@@ -56,8 +56,7 @@ public enum States {
         if (this.attributeIsEditableForStates() != null) {
             Optional<DefaultState> correspondingDefaultState = com.elster.jupiter.metering.DefaultState.from(state);
             if (correspondingDefaultState.isPresent()) {
-                return correspondingDefaultState.isPresent()
-                        && this.attributeIsEditableForStates().contains(correspondingDefaultState.get());
+                return this.attributeIsEditableForStates().contains(correspondingDefaultState.get());
             }
             return true;
         }
