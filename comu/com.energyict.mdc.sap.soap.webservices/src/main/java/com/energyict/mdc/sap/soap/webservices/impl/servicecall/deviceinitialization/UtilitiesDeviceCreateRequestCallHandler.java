@@ -116,7 +116,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
         DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device).get();
-        deviceSAPInfo.setDeviceIdentifier(sapDeviceId);
+        sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
         if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
             deviceSAPInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
         }

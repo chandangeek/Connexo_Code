@@ -35,10 +35,10 @@ import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.PR
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.SUCCESSFUL_PROCESSING_TYPE_ID;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.UNSUCCESSFUL_PROCESSING_ERROR_TYPE_ID;
 
-public class CreateConfirmationMessageFactory {
+public class MeterChangeConfirmationMessageFactory {
     private static final ObjectFactory objectFactory = new ObjectFactory();
 
-    public CreateConfirmationMessageFactory() {
+    public MeterChangeConfirmationMessageFactory() {
     }
 
     public UtilsDvceERPSmrtMtrChgConfMsg createMessage(ServiceCall parent, ServiceCall serviceCall, String senderBusinessSystemId, Instant now) {

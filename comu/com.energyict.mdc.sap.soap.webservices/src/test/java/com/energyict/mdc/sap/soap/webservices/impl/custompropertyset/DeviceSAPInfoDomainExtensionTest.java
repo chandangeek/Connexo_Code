@@ -31,7 +31,7 @@ public class DeviceSAPInfoDomainExtensionTest {
     @Before
     public void setup() {
         cpsValues = CustomPropertySetValues.empty();
-        domainExtension = new DeviceSAPInfoDomainExtension();
+        domainExtension = new DeviceSAPInfoDomainExtension(null, null);
     }
 
     @Test

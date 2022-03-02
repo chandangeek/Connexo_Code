@@ -275,16 +275,13 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     public void saveExtension() {
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         this.copyTo(values);
-        if (!sapCustomPropertySets.getSapDeviceId(device.get()).isPresent()) {
 
-            String cpsId = sapCustomPropertySets.getDeviceInfo().getId();
-            if (!getRegisteredCustomPropertySet().isEditableByCurrentUser()) {
-                throw new SAPWebServiceException(sapCustomPropertySets.getThesaurus(), MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
-            }
-            customPropertySetService.setValuesFor(sapCustomPropertySets.getDeviceInfo(), device.get(), values);
-            device.get().touchDevice();
-        } else {
-            throw new SAPWebServiceException(sapCustomPropertySets.getThesaurus(), MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.get().getName());
+        String cpsId = sapCustomPropertySets.getDeviceInfo().getId();
+        if (!getRegisteredCustomPropertySet().isEditableByCurrentUser()) {
+            throw new SAPWebServiceException(sapCustomPropertySets.getThesaurus(), MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
         }
+        customPropertySetService.setValuesFor(sapCustomPropertySets.getDeviceInfo(), device.get(), values);
+        device.get().touchDevice();
+
     }
 }

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class UtilitiesDeviceMeterChangeConfirmationMessage {
 
-    private static final CreateConfirmationMessageFactory SINGLE_MESSAGE_FACTORY = new CreateConfirmationMessageFactory();
+    private static final MeterChangeConfirmationMessageFactory SINGLE_MESSAGE_FACTORY = new MeterChangeConfirmationMessageFactory();
 
     private UtilsDvceERPSmrtMtrChgConfMsg confirmationMessage;
 
