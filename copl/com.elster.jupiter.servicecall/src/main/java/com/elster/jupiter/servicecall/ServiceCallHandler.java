@@ -38,4 +38,8 @@ public interface ServiceCallHandler {
     }
 
     void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState);
+
+    default void onCancel(ServiceCall serviceCall) {
+
+    }
 }

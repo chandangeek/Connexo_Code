@@ -41,6 +41,8 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.EventType;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
 import com.energyict.mdc.tasks.TaskService;
 
@@ -50,12 +52,15 @@ import org.osgi.framework.ServiceRegistration;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
@@ -70,6 +75,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final RegisteredCustomPropertySet registeredCustomPropertySet;
     private final EventService eventService;
     private final TaskService taskService;
+    private static final Logger LOGGER = Logger.getLogger(FirmwareCampaignDomainExtension.class.getName());
 
     @Inject
     public FirmwareCampaignServiceImpl(FirmwareServiceImpl firmwareService, DeviceService deviceService,
@@ -86,6 +92,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         this.meteringGroupsService = meteringGroupsService;
         this.eventService = eventService;
         this.taskService = taskService;
+
     }
 
     public ServiceCall createServiceCallAndTransition(FirmwareCampaignDomainExtension campaign) {
@@ -277,6 +284,40 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     @Override
     public List<DeviceInFirmwareCampaign> findFirmwareCampaignItems(Device device) {
         return streamDevicesInCampaigns().filter(Where.where("device").isEqualTo(device)).collect(Collectors.toList());
+    }
+
+    @Override
+    public void cancelServiceCall(ServiceCall serviceCall) {
+        try (QueryStream<? extends DeviceInFirmwareCampaign> streamItems = streamDevicesInCampaigns()) {
+
+            List<? extends DeviceInFirmwareCampaign> items;
+
+            if (serviceCall.getParent().isPresent()) {
+                items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall.getParent().get()))
+                        .select();
+            } else {
+                items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
+                        .select();
+            }
+            if (items.isEmpty()) {
+                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
+                    serviceCall.requestTransition(DefaultState.CANCELLED);
+                }
+            } else {
+                items.forEach(item -> item.cancel(true));
+                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(item -> item.getDeviceMessage().map(DeviceMessage::getId).orElse(null),
+                        Comparator.nullsFirst(Comparator.naturalOrder()));
+                items.sort(comparator);
+                items.forEach(item -> {
+                    try {
+                        item.cancel(true);
+                    } catch (Exception e) {
+                        LOGGER.log(Level.WARNING, "Couldn't cancel firmware campaign item " + item.getId() + ": " + e.getMessage(), e);
+                    }
+                });
+            }
+        }
+
     }
 
     public DataModel getDataModel() {

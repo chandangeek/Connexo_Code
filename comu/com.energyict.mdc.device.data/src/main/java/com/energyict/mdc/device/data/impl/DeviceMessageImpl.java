@@ -57,6 +57,23 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     private static final Logger LOGGER = Logger.getLogger(DeviceMessageImpl.class.getName());
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        DeviceMessageImpl that = (DeviceMessageImpl) o;
+        return getId() == that.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
     public enum Fields {
         DEVICE("device"),
         DEVICEMESSAGEID("deviceMessageId"),

@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.orm.QueryStream;
+import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
@@ -45,4 +46,5 @@ public interface FirmwareCampaignService {
 
     FirmwareVersion getFirmwareVersion(Map<String, Object> properties);
 
+    void cancelServiceCall(ServiceCall serviceCall);
 }

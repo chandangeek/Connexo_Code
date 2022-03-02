@@ -226,10 +226,10 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Stream.of(TranslationKeys.values()),
-                Stream.of(DefaultState.values()),
-                Stream.of(LogLevel.values()),
-                Stream.of(Privileges.values()))
+                        Stream.of(TranslationKeys.values()),
+                        Stream.of(DefaultState.values()),
+                        Stream.of(LogLevel.values()),
+                        Stream.of(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
