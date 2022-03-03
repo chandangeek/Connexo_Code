@@ -140,7 +140,7 @@ public enum TranslationKeys implements TranslationKey {
     POD_NOTIFICATION_CPS("servicecall.cps.pod.notification",
             PodNotificationCustomPropertySet.class.getSimpleName()),
     MASTER_UTILITIES_DEVICE_METER_CHANGE_CPS("servicecall.cps.master.utilities.device.meter.change.request", MasterUtilitiesDeviceMeterChangeRequestCustomPropertySet.class.getSimpleName()),
-    UTILITIES_DEVICE_METER_CHANGE_CPS("servicecall.cps.master.utilities.device.meter.change.request", UtilitiesDeviceMeterChangeRequestCustomPropertySet.class.getSimpleName()),
+    UTILITIES_DEVICE_METER_CHANGE_CPS("servicecall.cps.utilities.device.meter.change.request", UtilitiesDeviceMeterChangeRequestCustomPropertySet.class.getSimpleName()),
 
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),

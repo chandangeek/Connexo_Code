@@ -165,8 +165,8 @@ public enum MessageSeeds implements MessageSeed {
     //Meter change/create requests
     SHIPMENT_DATE_IS_AFTER_INSTALLATION_DATE(10301, "InvalidShipmentDate", "The start date should be after the installation date."),
     SHIPMENT_DATE_IS_NOT_EDITABLE(10302, "ShipmentDateIsNotEditable", "Shipment date can only be changed if the device is in ''In stock'' state."),
-    DEACTIVATION_DATE_IS_NOT_EDITABLE(10302, "DeactivationDateIsNotEditable", "Deactivation can only be scheduled for devices that are in one of the states: ''In stock'', ''Commissioning'', ''Active''."),
-    TRANSITION_IS_NOT_FOUND(10303, "TransitionIsNotFound", "Couldn''t find transition to move device to the ''Inactive'' state.");
+    DEACTIVATION_DATE_IS_NOT_EDITABLE(10303, "DeactivationDateIsNotEditable", "Deactivation can only be scheduled for devices that are in one of the states: ''In stock'', ''Commissioning'', ''Active''."),
+    TRANSITION_IS_NOT_FOUND(10304, "TransitionIsNotFound", "Couldn''t find transition to move device to the ''Inactive'' state.");
 
 
     private final int number;
