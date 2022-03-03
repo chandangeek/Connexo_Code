@@ -4,9 +4,7 @@ import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.Connection;
 import com.energyict.dlms.protocolimplv2.CommunicationSessionProperties;
-
 import com.energyict.mdc.upl.ProtocolException;
-
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.IOException;
@@ -200,16 +198,16 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
      * This is the first HDLC frame that is sent in a communication session and it negotiates the communication parameters (field size, etc)
      */
     protected void generateSNRMFrames() {
-        byte[] macSNRM_part1 =
-                new byte[]{
-                        (byte) (SNRM | HDLC_FRAME_CONTROL_PF_BIT),
-                        0x00,
-                        0x00, // Header CRC
-                        (byte) 0x81,
-                        (byte) 0x80,
-                        (byte) (useDefaultParameterLength ? 0x0E : 0x12)};
-
         if (infoFieldRequired) {
+            byte[] macSNRM_part1 = new byte[] {
+                    (byte) (SNRM | HDLC_FRAME_CONTROL_PF_BIT),
+                    0x00,
+                    0x00, // Header CRC
+                    (byte) 0x81,
+                    (byte) 0x80,
+                    (byte) (useDefaultParameterLength ? 0x0E : 0x12)
+            };
+
             byte[] macSNRM_part2 = useDefaultParameterLength ? new byte[]{0x07, 0x01, 0x01, 0x08, 0x01, 0x01, 0x00, 0x00} : new byte[]{0x07, 0x04, 0x00, 0x00, 0x00, 0x01, 0x08, 0x04, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00};
             byte[] infoFieldBytes = new byte[useDefaultParameterLength ? 8 : 6];
             int index = 0;
@@ -230,6 +228,13 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             System.arraycopy(infoFieldBytes, 0, macSNRMFrame, macSNRM_part1.length, infoFieldBytes.length);
             System.arraycopy(macSNRM_part2, 0, macSNRMFrame, macSNRM_part1.length + infoFieldBytes.length, macSNRM_part2.length);
         } else {
+            // A frame with no information field has no Header check sequence (HCS) field
+            byte[] macSNRM_part1 = new byte[] {
+                    (byte) (SNRM | HDLC_FRAME_CONTROL_PF_BIT),
+                    (byte) 0x80,
+                    (byte) (useDefaultParameterLength ? 0x0E : 0x12)
+            };
+
             macSNRMFrame = new byte[macSNRM_part1.length];
             System.arraycopy(macSNRM_part1, 0, macSNRMFrame, 0, macSNRM_part1.length);
         }
@@ -332,7 +337,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
 
         sMaxRXIFSize = 0x00F8;
         sMaxTXIFSize = 0x00F8;
-        calcCRC(macFrame);
+        calcCRC(macFrame, infoFieldRequired);
         for (int i = 0; i <= iMaxRetries; i++) {
             startWriting();
             sendFrame(macFrame);
@@ -362,7 +367,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
 
         if (boolHDLCConnected) {
             byte[] macFrame = buildFrame(macDISCFrame);
-            calcCRC(macFrame);
+            calcCRC(macFrame, true);
             for (int i = 0; i < iMaxRetries; i++) {
                 startWriting();
                 sendFrame(macFrame);
@@ -587,7 +592,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             case HDLC_FLAG:
                 // Check CRC
                 int[] CRC = getCRC(byteReceiveBuffer);
-                int[] calcCRC = calcCRC(byteReceiveBuffer);
+                int[] calcCRC = calcCRC(byteReceiveBuffer, true);
                 if ((CRC[0] == calcCRC[0]) && (CRC[1] == calcCRC[1])) {
                     return HDLC_RX_OK;
                 } else {
@@ -704,7 +709,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
             txFrame[protocolParameters[frameFormatLSB]] = lowByte(sFrameFormat);
             txFrame = buildAddressingScheme(txFrame);
             txFrame[protocolParameters[frameControl]] = (byte) (I | (NR << 5) | (NS << 1) | HDLC_FRAME_CONTROL_PF_BIT);
-            calcCRC(txFrame);
+            calcCRC(txFrame, true);
             if (sendOutFrame) {
                 startWriting();
                 sendFrame(txFrame);
@@ -854,7 +859,7 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         txFrame[protocolParameters[frameFormatLSB]] = lowByte(sFrameFormat);
         txFrame = buildAddressingScheme(txFrame);
         txFrame[protocolParameters[frameControl]] = (byte) (RR | (NR << 5) | HDLC_FRAME_CONTROL_PF_BIT);
-        calcCRC(txFrame);
+        calcCRC(txFrame, true);
         sendFrame(txFrame);
     }
 
@@ -897,11 +902,11 @@ public class HDLC2Connection extends Connection implements DLMSConnection {
         return (byte) (in & 0xFF);
     }
 
-    private int[] calcCRC(byte[] byteBuffer) {
+    private int[] calcCRC(byte[] byteBuffer, boolean shouldContainHcs) {
         int iCRCHeader;
 
         int iLength = getLength(byteBuffer);
-        if (protocolParameters[headerSize] <= iLength) {
+        if (protocolParameters[headerSize] <= iLength && shouldContainHcs) {
             iCRCHeader = writeCRC(byteBuffer, protocolParameters[headerSize]);
         } else {
             iCRCHeader = -1;
