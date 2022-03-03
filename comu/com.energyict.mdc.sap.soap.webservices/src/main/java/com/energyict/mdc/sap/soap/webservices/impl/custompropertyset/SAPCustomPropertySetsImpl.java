@@ -54,15 +54,14 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
-import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapDeviceInfo;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import com.google.common.collect.ImmutableRangeSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.RangeSet;
 import com.google.common.collect.TreeRangeSet;
-import com.google.inject.Injector;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
@@ -120,7 +119,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Inject
     public SAPCustomPropertySetsImpl(DeviceService deviceService, CustomPropertySetService customPropertySetService,
                                      PropertySpecService propertySpecService, OrmService ormService,
-                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService, Injector injector) {
+                                     NlsService nlsService, DeviceConfigurationService deviceConfigurationService) {
         setDeviceService(deviceService);
         setCustomPropertySetService(customPropertySetService);
         setPropertySpecService(propertySpecService);
@@ -205,10 +204,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public DeviceSAPInfo getDeviceSapInfoNewInstance(Device device) {
-        DeviceSAPInfo deviceSAPInfo = getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME).getInstance(DeviceSAPInfoDomainExtension.class);
-        deviceSAPInfo.setDevice(device);
-        deviceSAPInfo.setRegisteredCustomPropertySet(getRegisteredCustomPropertySet(device, deviceInfo.getId()));
+    public SapDeviceInfo newDeviceSapInfoInstance(Device device) {
+        DeviceSAPInfoDomainExtension deviceSAPInfo = getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME).getInstance(DeviceSAPInfoDomainExtension.class);
+        deviceSAPInfo.init(device, getRegisteredCustomPropertySet(device, deviceInfo.getId()));
         return deviceSAPInfo;
     }
 
@@ -253,12 +251,12 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<DeviceSAPInfo> findDeviceSAPInfo(Device device) {
+    public Optional<SapDeviceInfo> findDeviceSAPInfo(Device device) {
         return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))
                 .findAny()
-                .map(DeviceSAPInfo.class::cast);
+                .map(SapDeviceInfo.class::cast);
     }
 
     @Override

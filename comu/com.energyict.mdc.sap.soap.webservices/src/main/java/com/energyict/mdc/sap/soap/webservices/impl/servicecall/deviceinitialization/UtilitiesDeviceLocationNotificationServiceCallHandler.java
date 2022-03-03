@@ -8,8 +8,8 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapDeviceInfo;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.RetrySearchDataSourceDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -61,20 +61,20 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
         if (device.isPresent()) {
             serviceCall.setTargetObject(device.get());
             serviceCall.save();
-            DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).orElse(sapCustomPropertySets.getDeviceSapInfoNewInstance(device.get()));
-            deviceSAPInfo.setDeviceLocation(extension.getLocationId());
+            SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).orElseGet(() -> sapCustomPropertySets.newDeviceSapInfoInstance(device.get()));
+            sapDeviceInfo.setDeviceLocation(extension.getLocationId());
             if (extension.getInstallationNumber() != null && !extension.getInstallationNumber().isEmpty()) {
-                deviceSAPInfo.setInstallationNumber(extension.getInstallationNumber());
+                sapDeviceInfo.setInstallationNumber(extension.getInstallationNumber());
             }
             if (extension.getPod() != null && !extension.getPod().isEmpty()) {
-                deviceSAPInfo.setPointOfDelivery(extension.getPod());
+                sapDeviceInfo.setPointOfDelivery(extension.getPod());
             }
             if (extension.getDivisionCategoryCode() != null && !extension.getDivisionCategoryCode().isEmpty()) {
-                deviceSAPInfo.setDivisionCategoryCode(extension.getDivisionCategoryCode());
+                sapDeviceInfo.setDivisionCategoryCode(extension.getDivisionCategoryCode());
             }
-            deviceSAPInfo.setDeviceLocationInformation(extension.getLocationInformation());
-            deviceSAPInfo.setModificationInformation(extension.getModificationInformation());
-            deviceSAPInfo.save();
+            sapDeviceInfo.setDeviceLocationInformation(extension.getLocationInformation());
+            sapDeviceInfo.setModificationInformation(extension.getModificationInformation());
+            sapDeviceInfo.save();
             serviceCall.requestTransition(DefaultState.SUCCESSFUL);
         } else {
             failedAttempt(serviceCall, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, extension.getDeviceId());

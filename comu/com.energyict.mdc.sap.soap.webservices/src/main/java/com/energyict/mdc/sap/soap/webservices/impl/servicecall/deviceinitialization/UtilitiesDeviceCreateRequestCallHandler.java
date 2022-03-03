@@ -17,8 +17,8 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
-import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapDeviceInfo;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -115,25 +115,25 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         validateSapDeviceIdUniqueness(sapDeviceId, serialId);
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
-        DeviceSAPInfo deviceSAPInfo = sapCustomPropertySets.findDeviceSAPInfo(device).orElse(sapCustomPropertySets.getDeviceSapInfoNewInstance(device));
+        SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findDeviceSAPInfo(device).orElseGet(() -> sapCustomPropertySets.newDeviceSapInfoInstance(device));
 
-        deviceSAPInfo.setDeviceIdentifier(sapDeviceId);
+        sapDeviceInfo.setDeviceIdentifier(sapDeviceId);
         if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
-            deviceSAPInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
+            sapDeviceInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
         }
         if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
-            deviceSAPInfo.setMeterFunctionGroup(extension.getMeterFunctionGroup());
+            sapDeviceInfo.setMeterFunctionGroup(extension.getMeterFunctionGroup());
         }
         if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
-            deviceSAPInfo.setAttributeMessage(extension.getAttributeMessage());
+            sapDeviceInfo.setAttributeMessage(extension.getAttributeMessage());
         }
         if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
-            deviceSAPInfo.setCharacteristicsId(extension.getCharacteristicsId());
+            sapDeviceInfo.setCharacteristicsId(extension.getCharacteristicsId());
         }
         if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
-            deviceSAPInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
+            sapDeviceInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
         }
-        deviceSAPInfo.save();
+        sapDeviceInfo.save();
     }
 
     private void validateShipmentDate(Device device, Instant startDate) {

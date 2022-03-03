@@ -4,10 +4,8 @@
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
 import com.elster.jupiter.metering.ReadingType;
-import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.Pair;
-import com.elster.jupiter.util.collections.ImmutableDiffList;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentCollectionData;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
@@ -58,11 +56,6 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     @Reference
     public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
-    }
-
-    @Reference
-    public void setWebServicesService(WebServicesService webServicesService){
-        // No action, just for binding WebServicesService
     }
 
     @Override

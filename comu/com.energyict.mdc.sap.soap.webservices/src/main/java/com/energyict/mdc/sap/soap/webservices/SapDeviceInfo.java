@@ -1,66 +1,59 @@
 package com.energyict.mdc.sap.soap.webservices;
 
-import com.elster.jupiter.cps.RegisteredCustomPropertySet;
-import com.energyict.mdc.common.device.data.Device;
-
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.Optional;
 
 @ProviderType
-public interface DeviceSAPInfo {
+public interface SapDeviceInfo {
 
     Optional<String> getDeviceIdentifier();
 
     void setDeviceIdentifier(String deviceId);
 
-    String getDeviceLocation();
+    Optional<String> getDeviceLocation();
 
     void setDeviceLocation(String deviceLocation);
 
-    String getInstallationNumber();
+    Optional<String> getInstallationNumber();
 
     void setInstallationNumber(String installationNumber);
 
-    String getPointOfDelivery();
+    Optional<String> getPointOfDelivery();
 
     void setPointOfDelivery(String pointOfDelivery);
 
-    String getDivisionCategoryCode();
+    Optional<String> getDivisionCategoryCode();
 
     void setDivisionCategoryCode(String divisionCategoryCode);
 
-    String getDeviceLocationInformation();
+    Optional<String> getDeviceLocationInformation();
 
     void setDeviceLocationInformation(String deviceLocationInformation);
 
-    String getModificationInformation();
+    Optional<String> getModificationInformation();
 
     void setModificationInformation(String modificationInformation);
 
-    String getActivationGroupAmiFunctions();
+    Optional<String> getActivationGroupAmiFunctions();
 
     void setActivationGroupAmiFunctions(String activationGroupAmiFunctions);
 
-    String getMeterFunctionGroup();
+    Optional<String> getMeterFunctionGroup();
 
     void setMeterFunctionGroup(String meterFunctionGroup);
 
-    String getAttributeMessage();
+    Optional<String> getAttributeMessage();
 
     void setAttributeMessage(String attributeMessage);
 
-    String getCharacteristicsId();
+    Optional<String> getCharacteristicsId();
 
     void setCharacteristicsId(String characteristicsId);
 
-    String getCharacteristicsValue();
+    Optional<String> getCharacteristicsValue();
 
     void setCharacteristicsValue(String characteristicsValue);
-
-    void setRegisteredCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet);
-
-    void setDevice(Device device);
 
     void save();
 }

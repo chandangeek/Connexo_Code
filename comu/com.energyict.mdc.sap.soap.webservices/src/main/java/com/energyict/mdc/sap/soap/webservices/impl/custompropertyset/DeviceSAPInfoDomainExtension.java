@@ -14,8 +14,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.sap.soap.webservices.DeviceSAPInfo;
-import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapDeviceInfo;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import javax.inject.Inject;
@@ -23,7 +22,7 @@ import javax.validation.constraints.Size;
 import java.util.Optional;
 
 @UniqueDeviceIdentifier(groups = {Save.Create.class, Save.Update.class})
-public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<Device>, DeviceSAPInfo {
+public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<Device>, SapDeviceInfo {
 
     public enum FieldNames {
         DOMAIN("device", "DEVICE"),
@@ -97,13 +96,11 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     private String characteristicsValue;
 
     private boolean registered;
-    private SAPCustomPropertySets sapCustomPropertySets;
     private CustomPropertySetService customPropertySetService;
     private Thesaurus thesaurus;
 
     @Inject
-    public DeviceSAPInfoDomainExtension(SAPCustomPropertySets sapCustomPropertySets, CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
-        this.sapCustomPropertySets = sapCustomPropertySets;
+    public DeviceSAPInfoDomainExtension(CustomPropertySetService customPropertySetService, Thesaurus thesaurus) {
         this.customPropertySetService = customPropertySetService;
         this.thesaurus = thesaurus;
     }
@@ -113,13 +110,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return super.getRegisteredCustomPropertySet();
     }
 
-    @Override
-    public void setDevice(Device device) {
+    public void init(Device device, RegisteredCustomPropertySet registeredCustomPropertySet) {
         this.device.set(device);
-    }
-
-    @Override
-    public void setRegisteredCustomPropertySet(RegisteredCustomPropertySet registeredCustomPropertySet) {
         super.setRegisteredCustomPropertySet(registeredCustomPropertySet);
     }
 
@@ -170,38 +162,67 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public String getDeviceLocation() {
-        return deviceLocation;
+    public Optional<String> getDeviceLocation() {
+        return Optional.ofNullable(deviceLocation);
     }
 
     @Override
-    public String getInstallationNumber() {
-        return installationNumber;
+    public Optional<String> getInstallationNumber() {
+        return Optional.ofNullable(installationNumber);
     }
 
     @Override
-    public String getPointOfDelivery() {
-        return pointOfDelivery;
+    public Optional<String> getPointOfDelivery() {
+        return Optional.ofNullable(pointOfDelivery);
     }
 
     @Override
-    public String getDivisionCategoryCode() {
-        return divisionCategoryCode;
+    public Optional<String> getDivisionCategoryCode() {
+        return Optional.ofNullable(divisionCategoryCode);
     }
 
     @Override
-    public String getDeviceLocationInformation() {
-        return deviceLocationInformation;
+    public Optional<String> getDeviceLocationInformation() {
+        return Optional.ofNullable(deviceLocationInformation);
     }
 
     @Override
-    public String getModificationInformation() {
-        return modificationInformation;
+    public Optional<String> getModificationInformation() {
+        return Optional.ofNullable(modificationInformation);
+    }
+
+    @Override
+    public Optional<String> getActivationGroupAmiFunctions() {
+        return Optional.ofNullable(activationGroupAmiFunctions);
+    }
+
+    @Override
+    public Optional<String> getMeterFunctionGroup() {
+        return Optional.ofNullable(meterFunctionGroup);
+    }
+
+    @Override
+    public Optional<String> getAttributeMessage() {
+        return Optional.ofNullable(attributeMessage);
+    }
+
+    @Override
+    public Optional<String> getCharacteristicsValue() {
+        return Optional.ofNullable(characteristicsValue);
+    }
+
+    @Override
+    public Optional<String> getCharacteristicsId() {
+        return Optional.ofNullable(characteristicsId);
     }
 
     @Override
     public void setDeviceIdentifier(String deviceIdentifier) {
-        this.deviceIdentifier = deviceIdentifier;
+        if (this.deviceIdentifier == null && this.deviceIdentifier.equals(deviceIdentifier)) {
+            this.deviceIdentifier = deviceIdentifier;
+        } else {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.get().getName());
+        }
     }
 
     @Override
@@ -247,18 +268,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public String getActivationGroupAmiFunctions() {
-        return activationGroupAmiFunctions;
-    }
-
-    @Override
     public void setActivationGroupAmiFunctions(String activationGroupAmiFunctions) {
         this.activationGroupAmiFunctions = activationGroupAmiFunctions;
-    }
-
-    @Override
-    public String getMeterFunctionGroup() {
-        return meterFunctionGroup;
     }
 
     @Override
@@ -267,28 +278,13 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     }
 
     @Override
-    public String getAttributeMessage() {
-        return attributeMessage;
-    }
-
-    @Override
     public void setAttributeMessage(String attributeMessage) {
         this.attributeMessage = attributeMessage;
     }
 
     @Override
-    public String getCharacteristicsId() {
-        return characteristicsId;
-    }
-
-    @Override
     public void setCharacteristicsId(String characteristicsId) {
         this.characteristicsId = characteristicsId;
-    }
-
-    @Override
-    public String getCharacteristicsValue() {
-        return characteristicsValue;
     }
 
     @Override
@@ -301,18 +297,11 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         CustomPropertySetValues values = CustomPropertySetValues.empty();
         this.copyTo(values);
 
-        if (!sapCustomPropertySets.getSapDeviceId(device.get()).isPresent() || sapCustomPropertySets.getSapDeviceId(device.get())
-                .get()
-                .equals(values.getProperty(FieldNames.DEVICE_IDENTIFIER.javaName()))) {
-            String cpsId = getRegisteredCustomPropertySet().getCustomPropertySet().getId();
-            if (!getRegisteredCustomPropertySet().isEditableByCurrentUser()) {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
-            }
-            customPropertySetService.setValuesFor(getRegisteredCustomPropertySet().getCustomPropertySet(), device.get(), values);
-            device.get().touchDevice();
-        } else {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.get().getName());
+        String cpsId = getRegisteredCustomPropertySet().getCustomPropertySet().getId();
+        if (!getRegisteredCustomPropertySet().isEditableByCurrentUser()) {
+            throw new SAPWebServiceException(thesaurus, MessageSeeds.CUSTOM_PROPERTY_SET_IS_NOT_EDITABLE_BY_USER, cpsId);
         }
-
+        customPropertySetService.setValuesFor(getRegisteredCustomPropertySet().getCustomPropertySet(), device.get(), values);
+        device.get().touchDevice();
     }
 }

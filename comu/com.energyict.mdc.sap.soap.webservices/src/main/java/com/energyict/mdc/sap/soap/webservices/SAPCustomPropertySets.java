@@ -35,7 +35,7 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getRegisteredSapDeviceId(EndDevice endDevice);
 
-    Optional<DeviceSAPInfo> findDeviceSAPInfo(Device device);
+    Optional<SapDeviceInfo> findDeviceSAPInfo(Device device);
 
     /**
      * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
@@ -116,5 +116,5 @@ public interface SAPCustomPropertySets {
 
     void setRegistered(String sapDeviceId, boolean registered);
 
-    DeviceSAPInfo getDeviceSapInfoNewInstance(Device device);
+    SapDeviceInfo newDeviceSapInfoInstance(Device device);
 }
