@@ -27,6 +27,7 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -46,6 +47,7 @@ import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Calendar;
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -53,7 +55,7 @@ import java.util.TimeZone;
 import java.util.function.Predicate;
 
 public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, DeviceInFirmwareCampaign {
-
+    public static final Set<TaskStatus> BUSY_TASK_STATUSES = EnumSet.of(TaskStatus.Busy, TaskStatus.Retrying);
     private static final String PROPERTY_NAME_RESUME = "FirmwareDeviceMessage.upgrade.resume";
 
     public enum FieldNames {
@@ -127,14 +129,12 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     @Override
     public ServiceCall cancel(boolean initFromCampaign) {
-        ServiceCall serviceCall = getServiceCall();
-        serviceCallService.lockServiceCall(serviceCall.getId());
+        ServiceCall serviceCall = serviceCallService.lockServiceCall(getServiceCall().getId()).get();
         getDeviceMessage().ifPresent(dm -> {
-                    FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor((Device) dm.getDevice());
-                    if (dm.getStatus().equals(DeviceMessageStatus.WAITING) && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
+                    if (dm.getStatus().equals(DeviceMessageStatus.WAITING)|| dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
                         DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
                                 .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
-                        if (message.getStatus().equals(DeviceMessageStatus.WAITING) && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
+                        if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus().equals(DeviceMessageStatus.PENDING)) && isFirmwareUploadTaskBusy((Device) dm.getDevice())) {
                             message.revoke();
                         } else {
                             throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
@@ -147,6 +147,14 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         serviceCall.requestTransition(DefaultState.CANCELLED);
         return serviceCallService.getServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call with id " + serviceCall.getId() + " disappeared."));
+    }
+
+    boolean isFirmwareUploadTaskBusy(Device device) {
+        ComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecution(device);
+        return Optional.of(firmwareComTaskExecution)
+                .map(ComTaskExecution::getStatus)
+                .map(BUSY_TASK_STATUSES::contains)
+                .orElse(false);
     }
 
     @Override

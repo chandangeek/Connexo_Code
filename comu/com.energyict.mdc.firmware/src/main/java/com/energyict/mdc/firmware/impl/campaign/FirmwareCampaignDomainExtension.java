@@ -369,6 +369,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 items.sort(comparator);
                 items.forEach(item -> {
                     try {
+                        //лочить вначале все sc потом все dm
                         item.cancel(true);
                     } catch (Exception e) {
                         LOGGER.log(Level.WARNING, "Couldn't cancel firmware campaign item " + item.getId() + ": " + e.getMessage(), e);
