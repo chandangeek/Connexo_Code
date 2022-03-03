@@ -204,7 +204,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public SapDeviceInfo newDeviceSapInfoInstance(Device device) {
+    public SapDeviceInfo newSapDeviceInfoInstance(Device device) {
         DeviceSAPInfoDomainExtension deviceSAPInfo = getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME).getInstance(DeviceSAPInfoDomainExtension.class);
         deviceSAPInfo.init(device, getRegisteredCustomPropertySet(device, deviceInfo.getId()));
         return deviceSAPInfo;
@@ -251,7 +251,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
-    public Optional<SapDeviceInfo> findDeviceSAPInfo(Device device) {
+    public Optional<SapDeviceInfo> findSapDeviceInfo(Device device) {
         return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
                 .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))

@@ -61,7 +61,7 @@ public class UtilitiesDeviceLocationNotificationServiceCallHandler extends Abstr
         if (device.isPresent()) {
             serviceCall.setTargetObject(device.get());
             serviceCall.save();
-            SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).orElseGet(() -> sapCustomPropertySets.newDeviceSapInfoInstance(device.get()));
+            SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findSapDeviceInfo(device.get()).orElseGet(() -> sapCustomPropertySets.newSapDeviceInfoInstance(device.get()));
             sapDeviceInfo.setDeviceLocation(extension.getLocationId());
             if (extension.getInstallationNumber() != null && !extension.getInstallationNumber().isEmpty()) {
                 sapDeviceInfo.setInstallationNumber(extension.getInstallationNumber());

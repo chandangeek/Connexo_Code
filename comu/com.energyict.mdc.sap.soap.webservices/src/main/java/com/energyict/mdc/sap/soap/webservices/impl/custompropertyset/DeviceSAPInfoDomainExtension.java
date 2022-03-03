@@ -110,7 +110,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         return super.getRegisteredCustomPropertySet();
     }
 
-    public void init(Device device, RegisteredCustomPropertySet registeredCustomPropertySet) {
+    void init(Device device, RegisteredCustomPropertySet registeredCustomPropertySet) {
         this.device.set(device);
         super.setRegisteredCustomPropertySet(registeredCustomPropertySet);
     }
@@ -218,7 +218,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
 
     @Override
     public void setDeviceIdentifier(String deviceIdentifier) {
-        if (this.deviceIdentifier == null && this.deviceIdentifier.equals(deviceIdentifier)) {
+        if (this.deviceIdentifier == null || this.deviceIdentifier.equals(deviceIdentifier)) {
             this.deviceIdentifier = deviceIdentifier;
         } else {
             throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_ALREADY_HAS_SAP_IDENTIFIER, device.get().getName());

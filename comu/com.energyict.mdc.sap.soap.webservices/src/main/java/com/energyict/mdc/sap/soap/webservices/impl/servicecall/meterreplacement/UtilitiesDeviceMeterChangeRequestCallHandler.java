@@ -118,7 +118,7 @@ public class UtilitiesDeviceMeterChangeRequestCallHandler implements ServiceCall
                         setDeactivationDate(device.get(), extension, lifecycleDates);
                     }
 
-                    SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findDeviceSAPInfo(device.get()).orElseGet(() -> sapCustomPropertySets.newDeviceSapInfoInstance(device.get()));
+                    SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findSapDeviceInfo(device.get()).orElseGet(() -> sapCustomPropertySets.newSapDeviceInfoInstance(device.get()));
 
                     if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
                         sapDeviceInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());

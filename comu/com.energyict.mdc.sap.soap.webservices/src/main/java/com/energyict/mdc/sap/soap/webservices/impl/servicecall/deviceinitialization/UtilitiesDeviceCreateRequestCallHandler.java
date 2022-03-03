@@ -115,7 +115,7 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         validateSapDeviceIdUniqueness(sapDeviceId, serialId);
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
-        SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findDeviceSAPInfo(device).orElseGet(() -> sapCustomPropertySets.newDeviceSapInfoInstance(device));
+        SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findSapDeviceInfo(device).orElseGet(() -> sapCustomPropertySets.newSapDeviceInfoInstance(device));
 
         sapDeviceInfo.setDeviceIdentifier(sapDeviceId);
         if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
