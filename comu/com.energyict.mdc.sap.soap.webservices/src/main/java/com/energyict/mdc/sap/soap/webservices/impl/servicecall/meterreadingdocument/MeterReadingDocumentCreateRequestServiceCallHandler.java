@@ -6,6 +6,9 @@ package com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocu
 
 import com.elster.jupiter.metering.Channel;
 import com.elster.jupiter.metering.ReadingType;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
@@ -17,6 +20,8 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.SapMeterReadingDocumentReasonProviderHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
 import org.osgi.service.component.annotations.Component;
@@ -41,6 +46,7 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     private volatile SAPCustomPropertySets sapCustomPropertySets;
     private volatile ServiceCallService serviceCallService;
     private volatile WebServiceActivator webServiceActivator;
+    private volatile Thesaurus thesaurus;
 
     @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
@@ -77,71 +83,73 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
 
     private void processServiceCall(ServiceCall serviceCall) {
         MeterReadingDocumentCreateRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterReadingDocumentCreateRequestCustomPropertySet()).get();
-        Optional<SAPMeterReadingDocumentReason> readingReasonProvider = WebServiceActivator.findReadingReasonProvider(extension.getReadingReasonCode());
-        if (!readingReasonProvider.isPresent()) {
-            extension.setErrorMessage(MessageSeeds.UNSUPPORTED_REASON_CODE);
-            serviceCall.update(extension);
-            serviceCall.requestTransition(DefaultState.FAILED);
-            return;
-        }
+        try {
+            SapMeterReadingDocumentReasonProviderHelper helper = new SapMeterReadingDocumentReasonProviderHelper(thesaurus);
+            Optional<SAPMeterReadingDocumentReason> readingReasonProvider = helper.findReadingReasonProvider(extension.getReadingReasonCode(), extension.getDataSourceTypeCode());
 
-        Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
-        Optional<Channel> channel;
-        Optional<? extends ReadingType> dataSource;
-        if (device.isPresent()) {
-            extension.setDeviceName(device.get().getName());
-            channel = sapCustomPropertySets.getChannel(extension.getLrn(), extension.getScheduledReadingDate());
-            if (channel.isPresent()) {
-                extension.setChannelId(new BigDecimal(channel.get().getId()));
-                dataSource = channel.get().getReadingTypes()
-                        .stream()
-                        .reduce((a, b) -> b); // we need the collected reading type from the channel, it should be the last
-                if (dataSource.isPresent()) {
-                    extension.setDataSource(dataSource.get().getMRID());
+            Optional<Device> device = sapCustomPropertySets.getDevice(extension.getDeviceId());
+            Optional<Channel> channel;
+            Optional<? extends ReadingType> dataSource;
+            if (device.isPresent()) {
+                extension.setDeviceName(device.get().getName());
+                channel = sapCustomPropertySets.getChannel(extension.getLrn(), extension.getScheduledReadingDate());
+                if (channel.isPresent()) {
+                    extension.setChannelId(new BigDecimal(channel.get().getId()));
+                    dataSource = channel.get().getReadingTypes()
+                            .stream()
+                            .reduce((a, b) -> b); // we need the collected reading type from the channel, it should be the last
+                    if (dataSource.isPresent()) {
+                        extension.setDataSource(dataSource.get().getMRID());
+                    } else {
+                        failedAttempt(extension, MessageSeeds.READING_TYPE_IS_NOT_FOUND);
+                        return;
+                    }
                 } else {
-                    failedAttempt(extension, MessageSeeds.READING_TYPE_IS_NOT_FOUND);
+                    failedAttempt(extension, MessageSeeds.CHANNEL_REGISTER_IS_NOT_FOUND);
                     return;
                 }
-            } else {
-                failedAttempt(extension, MessageSeeds.CHANNEL_REGISTER_IS_NOT_FOUND);
-                return;
-            }
 
-            if (!readingReasonProvider.get().validateComTaskExecutionIfNeeded(device.get(), channel.get().isRegular(), dataSource.get())) {
-                extension.setErrorMessage(MessageSeeds.COM_TASK_COULD_NOT_BE_LOCATED);
-                serviceCall.update(extension);
-                serviceCall.requestTransition(DefaultState.FAILED);
-                return;
-            }
-
-            Instant plannedReadingCollectionDate = readingReasonProvider.get().hasCollectionInterval()
-                    ? extension.getScheduledReadingDate().plusSeconds(webServiceActivator.getSapProperty(AdditionalProperties.READING_COLLECTION_INTERVAL) * 60)
-                    : extension.getScheduledReadingDate();
-
-            boolean futureCase = clock.instant().isBefore(plannedReadingCollectionDate);
-            extension.setFutureCase(futureCase);
-            if (futureCase) {
-                extension.setProcessingDate(plannedReadingCollectionDate);
-            }
-
-            if (!channel.get().isRegular()) {
-                Optional<Pair<String, String>> dataSourceInterval = readingReasonProvider.get().getExtraDataSourceMacroAndMeasuringCodes();
-                if (dataSourceInterval.isPresent() && !dataSourceInterval.get().equals(Pair.of("0", "0"))) {
-                    String extraDataSource = dataSourceInterval.get().getFirst()
-                            + extension.getDataSource().substring(1, 4)
-                            + dataSourceInterval.get().getLast()
-                            + extension.getDataSource().substring(5);
-
-                    device.get().getChannels().stream().filter(c -> c.getReadingType().getMRID().equals(extraDataSource))
-                            .findFirst()
-                            .ifPresent(readingType -> extension.setExtraDataSource(extraDataSource));
+                if (!readingReasonProvider.get().validateComTaskExecutionIfNeeded(device.get(), channel.get().isRegular(), dataSource.get())) {
+                    extension.setErrorMessage(MessageSeeds.COM_TASK_COULD_NOT_BE_LOCATED);
+                    serviceCall.update(extension);
+                    serviceCall.requestTransition(DefaultState.FAILED);
+                    return;
                 }
+
+                Instant plannedReadingCollectionDate = readingReasonProvider.get().hasCollectionInterval()
+                        ? extension.getScheduledReadingDate().plusSeconds(webServiceActivator.getSapProperty(AdditionalProperties.READING_COLLECTION_INTERVAL) * 60)
+                        : extension.getScheduledReadingDate();
+
+                boolean futureCase = clock.instant().isBefore(plannedReadingCollectionDate);
+                extension.setFutureCase(futureCase);
+                if (futureCase) {
+                    extension.setProcessingDate(plannedReadingCollectionDate);
+                }
+
+                if (!channel.get().isRegular()) {
+                    Optional<Pair<String, String>> dataSourceInterval = readingReasonProvider.get().getExtraDataSourceMacroAndMeasuringCodes();
+                    if (dataSourceInterval.isPresent() && !dataSourceInterval.get().equals(Pair.of("0", "0"))) {
+                        String extraDataSource = dataSourceInterval.get().getFirst()
+                                + extension.getDataSource().substring(1, 4)
+                                + dataSourceInterval.get().getLast()
+                                + extension.getDataSource().substring(5);
+
+                        device.get().getChannels().stream().filter(c -> c.getReadingType().getMRID().equals(extraDataSource))
+                                .findFirst()
+                                .ifPresent(readingType -> extension.setExtraDataSource(extraDataSource));
+                    }
+                }
+
+                serviceCall.update(extension);
+                serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+            } else {
+                failedAttempt(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID);
             }
 
+        } catch (SAPWebServiceException e) {
+            extension.setErrorMessage(e.getMessageSeed(), e.getMessageArgs());
             serviceCall.update(extension);
-            serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-        } else {
-            failedAttempt(extension, MessageSeeds.DEVICE_IS_NOT_FOUND);
+            serviceCall.requestTransition(DefaultState.FAILED);
         }
     }
 
@@ -182,5 +190,10 @@ public class MeterReadingDocumentCreateRequestServiceCallHandler implements Serv
     @Reference
     public final void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         this.webServiceActivator = webServiceActivator;
+    }
+
+    @Reference
+    public void setNlsService(NlsService nlsService) {
+        this.thesaurus = nlsService.getThesaurus(WebServiceActivator.COMPONENT_NAME, Layer.SOAP);
     }
 }

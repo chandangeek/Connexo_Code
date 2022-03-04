@@ -33,6 +33,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         LRN("lrn", "lrnId"),
         READING_REASON_CODE("readingReasonCode", "readingReasonCode"),
         SCHEDULED_READING_DATE("scheduledReadingDate", "scheduledReadingDate"),
+        DATA_SOURCE_TYPE_CODE("dataSourceTypeCode", "DATA_SOURCE_TYPE_CODE"),
 
         // calculated
         DEVICE_NAME("deviceName", "deviceName"),
@@ -92,6 +93,9 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
     private String readingReasonCode;
     @NotNull(message = "{" + MessageSeeds.Keys.THIS_FIELD_IS_REQUIRED + "}")
     private Instant scheduledReadingDate;
+
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String dataSourceTypeCode;
 
     private BigDecimal channelId;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
@@ -173,6 +177,14 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
 
     public void setScheduledReadingDate(Instant scheduledReadingDate) {
         this.scheduledReadingDate = scheduledReadingDate;
+    }
+
+    public String getDataSourceTypeCode(){
+        return dataSourceTypeCode;
+    }
+
+    public void setDataSourceTypeCode(String dataSourceTypeCode) {
+        this.dataSourceTypeCode = dataSourceTypeCode;
     }
 
     public BigDecimal getChannelId() {
@@ -283,6 +295,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         this.setLrn((String) propertyValues.getProperty(FieldNames.LRN.javaName()));
         this.setReadingReasonCode((String) propertyValues.getProperty(FieldNames.READING_REASON_CODE.javaName()));
         this.setScheduledReadingDate((Instant) propertyValues.getProperty(FieldNames.SCHEDULED_READING_DATE.javaName()));
+        this.setDataSourceTypeCode((String) propertyValues.getProperty(FieldNames.DATA_SOURCE_TYPE_CODE.javaName()));
         this.setFutureCase((Boolean) propertyValues.getProperty(FieldNames.FUTURE_CASE.javaName()));
         this.setProcessingDate((Instant) propertyValues.getProperty(FieldNames.PROCESSING_DATE.javaName()));
         this.setDataSource((String) propertyValues.getProperty(FieldNames.DATA_SOURCE.javaName()));
@@ -304,6 +317,7 @@ public class MeterReadingDocumentCreateRequestDomainExtension extends AbstractPe
         propertySetValues.setProperty(FieldNames.LRN.javaName(), this.getLrn());
         propertySetValues.setProperty(FieldNames.READING_REASON_CODE.javaName(), this.getReadingReasonCode());
         propertySetValues.setProperty(FieldNames.SCHEDULED_READING_DATE.javaName(), this.getScheduledReadingDate());
+        propertySetValues.setProperty(FieldNames.DATA_SOURCE_TYPE_CODE.javaName(), this.getDataSourceTypeCode());
         propertySetValues.setProperty(FieldNames.FUTURE_CASE.javaName(), this.isFutureCase());
         propertySetValues.setProperty(FieldNames.PROCESSING_DATE.javaName(), this.getProcessingDate());
         propertySetValues.setProperty(FieldNames.DATA_SOURCE.javaName(), this.getDataSource());

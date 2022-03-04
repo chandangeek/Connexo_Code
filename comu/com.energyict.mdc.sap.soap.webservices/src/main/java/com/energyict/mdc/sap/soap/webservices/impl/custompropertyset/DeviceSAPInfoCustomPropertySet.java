@@ -5,6 +5,7 @@
 package com.energyict.mdc.sap.soap.webservices.impl.custompropertyset;
 
 import com.elster.jupiter.cps.CustomPropertySet;
+import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.EditPrivilege;
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.cps.ViewPrivilege;
@@ -27,6 +28,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Table.MAX_STRING_LENGTH;
 import static com.elster.jupiter.orm.Table.NAME_LENGTH;
 import static com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator.APPLICATION_NAME;
 
@@ -38,11 +40,13 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
     private final PropertySpecService propertySpecService;
     private final Thesaurus thesaurus;
     private final SAPCustomPropertySets sapCustomPropertySets;
+    private final CustomPropertySetService customPropertySetService;
 
-    DeviceSAPInfoCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus, SAPCustomPropertySets sapCustomPropertySets) {
+    DeviceSAPInfoCustomPropertySet(PropertySpecService propertySpecService, Thesaurus thesaurus, SAPCustomPropertySets sapCustomPropertySets, CustomPropertySetService customPropertySetService) {
         this.propertySpecService = propertySpecService;
         this.thesaurus = thesaurus;
         this.sapCustomPropertySets = sapCustomPropertySets;
+        this.customPropertySetService = customPropertySetService;
     }
 
     @Override
@@ -107,8 +111,62 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName(), TranslationKeys.CPS_INSTALLATION_NUMBER)
+                        .describedAs(TranslationKeys.CPS_INSTALLATION_NUMBER_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), TranslationKeys.CPS_POINT_OF_DELIVERY)
                         .describedAs(TranslationKeys.CPS_POINT_OF_DELIVERY_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName(), TranslationKeys.CPS_DIVISION_CATEGORY_CODE)
+                        .describedAs(TranslationKeys.CPS_DIVISION_CATEGORY_CODE_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName(), TranslationKeys.CPS_DEVICE_LOCATION_INFORMATION)
+                        .describedAs(TranslationKeys.CPS_DEVICE_LOCATION_INFORMATION_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName(), TranslationKeys.CPS_MODIFICATION_INFORMATION)
+                        .describedAs(TranslationKeys.CPS_MODIFICATION_INFORMATION_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), TranslationKeys.CPS_ACTIVATION_GROUP_AMI_FUNCTIONS)
+                        .describedAs(TranslationKeys.CPS_ACTIVATION_GROUP_AMI_FUNCTIONS_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName(), TranslationKeys.CPS_METER_FUNCTION_GROUP)
+                        .describedAs(TranslationKeys.CPS_METER_FUNCTION_GROUP_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName(), TranslationKeys.CPS_ATTRIBUTE_MESSAGE)
+                        .describedAs(TranslationKeys.CPS_ATTRIBUTE_MESSAGE_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName(), TranslationKeys.CPS_CHARACTERISTICS_ID)
+                        .describedAs(TranslationKeys.CPS_CHARACTERISTICS_ID_DESCRIPTION)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName(), TranslationKeys.CPS_CHARACTERISTICS_VALUE)
+                        .describedAs(TranslationKeys.CPS_CHARACTERISTICS_VALUE_DESCRIPTION)
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
@@ -156,6 +214,8 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                 @Override
                 protected void configure() {
                     bind(SAPCustomPropertySets.class).toInstance(sapCustomPropertySets);
+                    bind(CustomPropertySetService.class).toInstance(customPropertySetService);
+                    bind(Thesaurus.class).toInstance(thesaurus);
                 }
             });
         }
@@ -183,10 +243,55 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                     .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName())
                     .since(Version.version(10, 7))
                     .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.INSTALLATION_NUMBER.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName())
                     .since(Version.version(10, 7))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DIVISION_CATEGORY_CODE.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.databaseName())
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION_INFORMATION.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.databaseName())
+                    .varChar(MAX_STRING_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.MODIFICATION_INFORMATION.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName())
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.databaseName())
                     .bool()

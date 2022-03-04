@@ -18,9 +18,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +64,7 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
 
     @Override
     public PersistenceSupport<ServiceCall, UtilitiesDeviceCreateRequestDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -138,6 +140,31 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), TranslationKeys.ACTIVATION_GROUP_AMI_FUNCTIONS)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName(), TranslationKeys.METER_FUNCTION_GROUP)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName(), TranslationKeys.ATTRIBUTE_MESSAGE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName(), TranslationKeys.CHARACTERISTICS_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName(), TranslationKeys.CHARACTERISTICS_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -152,6 +179,12 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, UtilitiesDeviceCreateRequestDomainExtension> {
         private final String TABLE_NAME = "SAP_UD4_CR_SC_CPS";
         private final String FK = "FK_SAP_UD4_CR_SC_CPS";
+
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
 
         @Override
         public String componentName() {
@@ -180,7 +213,13 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -232,6 +271,31 @@ public class UtilitiesDeviceCreateRequestCustomPropertySet implements CustomProp
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER_SERIAL_ID.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.MANUFACTURER_SERIAL_ID.javaName())
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.METER_FUNCTION_GROUP.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ATTRIBUTE_MESSAGE.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_ID.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.CHARACTERISTICS_VALUE.javaName())
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)

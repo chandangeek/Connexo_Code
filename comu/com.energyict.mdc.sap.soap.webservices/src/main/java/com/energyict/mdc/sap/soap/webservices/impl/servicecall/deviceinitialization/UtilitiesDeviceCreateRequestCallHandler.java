@@ -18,6 +18,7 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceBuilder;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapDeviceInfo;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -114,7 +115,25 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
         validateSapDeviceIdUniqueness(sapDeviceId, serialId);
         Device device = getOrCreateDevice(extension);
         validateShipmentDate(device, extension.getShipmentDate());
-        sapCustomPropertySets.setSapDeviceId(device, sapDeviceId);
+        SapDeviceInfo sapDeviceInfo = sapCustomPropertySets.findSapDeviceInfo(device).orElseGet(() -> sapCustomPropertySets.newSapDeviceInfoInstance(device));
+
+        sapDeviceInfo.setDeviceIdentifier(sapDeviceId);
+        if (extension.getActivationGroupAmiFunctions() != null && !extension.getActivationGroupAmiFunctions().isEmpty()) {
+            sapDeviceInfo.setActivationGroupAmiFunctions(extension.getActivationGroupAmiFunctions());
+        }
+        if (extension.getMeterFunctionGroup() != null && !extension.getMeterFunctionGroup().isEmpty()) {
+            sapDeviceInfo.setMeterFunctionGroup(extension.getMeterFunctionGroup());
+        }
+        if (extension.getAttributeMessage() != null && !extension.getAttributeMessage().isEmpty()) {
+            sapDeviceInfo.setAttributeMessage(extension.getAttributeMessage());
+        }
+        if (extension.getCharacteristicsId() != null && !extension.getCharacteristicsId().isEmpty()) {
+            sapDeviceInfo.setCharacteristicsId(extension.getCharacteristicsId());
+        }
+        if (extension.getCharacteristicsValue() != null && !extension.getCharacteristicsValue().isEmpty()) {
+            sapDeviceInfo.setCharacteristicsValue(extension.getCharacteristicsValue());
+        }
+        sapDeviceInfo.save();
     }
 
     private void validateShipmentDate(Device device, Instant startDate) {
@@ -138,14 +157,22 @@ public class UtilitiesDeviceCreateRequestCallHandler implements ServiceCallHandl
 
         String deviceTypeName = extension.getDeviceType();
         if (deviceTypeName == null) {
-            throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_TYPE_IS_NOT_MAPPED, extension.getMaterialId());
+            if (WebServiceActivator.getDeviceTypeNameStrategy().equals(WebServiceActivator.MANUFACTURER_MODEL_STRATEGY)) {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.NO_DEVICE_TYPE);
+            } else {
+                throw new SAPWebServiceException(thesaurus, MessageSeeds.DEVICE_TYPE_IS_NOT_MAPPED, extension.getMaterialId());
+            }
         }
         Optional<Device> device = deviceService.findDeviceByName(name);
         if (device.isPresent()) {
             if (device.get().getDeviceConfiguration().getDeviceType().getName().equals(deviceTypeName)) {
                 return device.get();
             } else {
-                throw new SAPWebServiceException(thesaurus, MessageSeeds.DIFFERENT_DEVICE_TYPE, extension.getMaterialId());
+                if (WebServiceActivator.getDeviceTypeNameStrategy().equals(WebServiceActivator.MANUFACTURER_MODEL_STRATEGY)) {
+                    throw new SAPWebServiceException(thesaurus, MessageSeeds.OTHER_DEVICE_TYPE, extension.getDeviceType());
+                } else {
+                    throw new SAPWebServiceException(thesaurus, MessageSeeds.DIFFERENT_DEVICE_TYPE, extension.getMaterialId());
+                }
             }
         } else {
             return createDevice(extension, deviceTypeName);

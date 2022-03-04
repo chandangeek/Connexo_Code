@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.UtilitiesDeviceMeterChangeRequestDomainExtension;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -33,6 +34,11 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         SHIPMENT_DATE("shipmentDate", "SHIPMENT_DATE"),
         MANUFACTURER("manufacturer", "MANUFACTURER"),
         MANUFACTURER_SERIAL_ID("manufacturerSerialId", "MODEL_NUMBER"),
+        ACTIVATION_GROUP_AMI_FUNCTIONS("activationGroupAmiFunctions", "ACTIVATION_GROUP_AMI_FUNCTIONS"),
+        METER_FUNCTION_GROUP("meterFunctionGroup", "METER_FUNCTION_GROUP"),
+        ATTRIBUTE_MESSAGE("attributeMessage", "ATTRIBUTE_MESSAGE"),
+        CHARACTERISTICS_ID("characteristicsId","CHARACTERISTICS_ID"),
+        CHARACTERISTICS_VALUE("characteristicsValue", "CHARACTERISTICS_VALUE"),
 
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
@@ -91,6 +97,21 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
 
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String errorMessage;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String activationGroupAmiFunctions;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String meterFunctionGroup;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String attributeMessage;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String characteristicsId;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + com.energyict.mdc.sap.soap.webservices.impl.custompropertyset.MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String characteristicsValue;
 
     public String getRequestId() {
         return requestId;
@@ -164,6 +185,46 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.manufacturerSerialId = manufacturerSerialId;
     }
 
+    public String getActivationGroupAmiFunctions() {
+        return activationGroupAmiFunctions;
+    }
+
+    public void setActivationGroupAmiFunctions(String activationGroupAmiFunctions) {
+        this.activationGroupAmiFunctions = activationGroupAmiFunctions;
+    }
+
+    public String getMeterFunctionGroup() {
+        return meterFunctionGroup;
+    }
+
+    public void setMeterFunctionGroup(String meterFunctionGroup) {
+        this.meterFunctionGroup = meterFunctionGroup;
+    }
+
+    public String getAttributeMessage() {
+        return attributeMessage;
+    }
+
+    public void setAttributeMessage(String attributeMessage) {
+        this.attributeMessage = attributeMessage;
+    }
+
+    public String getCharacteristicsId() {
+        return characteristicsId;
+    }
+
+    public void setCharacteristicsId(String characteristicsId) {
+        this.characteristicsId = characteristicsId;
+    }
+
+    public String getCharacteristicsValue() {
+        return characteristicsValue;
+    }
+
+    public void setCharacteristicsValue(String characteristicsValue) {
+        this.characteristicsValue = characteristicsValue;
+    }
+
     public String getErrorCode() {
         return errorCode;
     }
@@ -201,6 +262,11 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         this.setShipmentDate((Instant) propertyValues.getProperty(FieldNames.SHIPMENT_DATE.javaName()));
         this.setManufacturer((String) propertyValues.getProperty(FieldNames.MANUFACTURER.javaName()));
         this.setManufacturerSerialId((String) propertyValues.getProperty(FieldNames.MANUFACTURER_SERIAL_ID.javaName()));
+        this.setActivationGroupAmiFunctions((String) propertyValues.getProperty(FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName()));
+        this.setMeterFunctionGroup((String) propertyValues.getProperty(FieldNames.METER_FUNCTION_GROUP.javaName()));
+        this.setAttributeMessage((String) propertyValues.getProperty(FieldNames.ATTRIBUTE_MESSAGE.javaName()));
+        this.setCharacteristicsId((String) propertyValues.getProperty(FieldNames.CHARACTERISTICS_ID.javaName()));
+        this.setCharacteristicsValue((String) propertyValues.getProperty(FieldNames.CHARACTERISTICS_VALUE.javaName()));
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -216,6 +282,11 @@ public class UtilitiesDeviceCreateRequestDomainExtension extends AbstractPersist
         propertySetValues.setProperty(FieldNames.SHIPMENT_DATE.javaName(), this.getShipmentDate());
         propertySetValues.setProperty(FieldNames.MANUFACTURER.javaName(), this.getManufacturer());
         propertySetValues.setProperty(FieldNames.MANUFACTURER_SERIAL_ID.javaName(), this.getManufacturerSerialId());
+        propertySetValues.setProperty(FieldNames.ACTIVATION_GROUP_AMI_FUNCTIONS.javaName(), activationGroupAmiFunctions);
+        propertySetValues.setProperty(FieldNames.METER_FUNCTION_GROUP.javaName(), meterFunctionGroup);
+        propertySetValues.setProperty(FieldNames.ATTRIBUTE_MESSAGE.javaName(), attributeMessage);
+        propertySetValues.setProperty(FieldNames.CHARACTERISTICS_ID.javaName(), characteristicsId);
+        propertySetValues.setProperty(FieldNames.CHARACTERISTICS_VALUE.javaName(), characteristicsValue);
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }

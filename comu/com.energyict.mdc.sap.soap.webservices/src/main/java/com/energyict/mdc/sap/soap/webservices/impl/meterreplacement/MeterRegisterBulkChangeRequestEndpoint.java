@@ -232,6 +232,7 @@ public class MeterRegisterBulkChangeRequestEndpoint extends AbstractInboundEndPo
         childDomainExtension.setObis(message.getObis());
         childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());
         childDomainExtension.setDivisionCategory(message.getDivisionCategory());
+        childDomainExtension.setRegisterId(message.getRegisterId());
         childDomainExtension.setStartDate(message.getStartDate());
 
         ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)

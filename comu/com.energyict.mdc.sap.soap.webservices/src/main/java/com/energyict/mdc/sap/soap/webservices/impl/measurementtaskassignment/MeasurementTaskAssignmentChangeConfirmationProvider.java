@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeasurementTaskAssignmentChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -54,6 +55,11 @@ public class MeasurementTaskAssignmentChangeConfirmationProvider extends Abstrac
     @Reference
     public void setThesaurus(WebServiceActivator webServiceActivator) {
         this.thesaurus = webServiceActivator.getThesaurus();
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService){
+        // No action, just for binding WebServicesService
     }
 
     @Reference

@@ -19,11 +19,11 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
+import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
-import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallHelper;
@@ -216,7 +216,10 @@ public class MeterRegisterChangeRequestEndpoint extends AbstractInboundEndPoint 
         childDomainExtension.setObis(message.getObis());
         childDomainExtension.setRecurrenceCode(message.getRecurrenceCode());
         childDomainExtension.setDivisionCategory(message.getDivisionCategory());
+        childDomainExtension.setRegisterId(message.getRegisterId());
         childDomainExtension.setStartDate(message.getStartDate());
+        childDomainExtension.setFractionDigitNumberValue(message.getFractionDigitNumberValue());
+        childDomainExtension.setTotalDigitNumberValue(message.getTotalDigitNumberValue());
 
         ServiceCallBuilder serviceCallBuilder = subParent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);

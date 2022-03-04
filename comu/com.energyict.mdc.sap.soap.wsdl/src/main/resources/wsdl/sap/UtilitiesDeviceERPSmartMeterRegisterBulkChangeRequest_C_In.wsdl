@@ -728,6 +728,17 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
+   <xsd:simpleType name="RegisterID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="60"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
    <xsd:complexType name="UtilitiesMeasurementTaskID">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
@@ -863,6 +874,7 @@
     <xsd:sequence>
      <xsd:element name="StartDate" type="Date"/>
      <xsd:element name="EndDate" type="Date"/>
+     <xsd:element name="RegisterID" minOccurs="0" type="RegisterID"/>
      <xsd:element name="UtilitiesMeasurementTaskID" type="UtilitiesMeasurementTaskID"/>
      <xsd:element name="UtilitiesObjectIdentificationSystemCodeText" minOccurs="0" type="UtilitiesObjectIdentificationSystemCodeText"/>
      <xsd:element name="UtiltiesMeasurementTaskCategoryCode" minOccurs="0" type="UtilitiesMeasurementTaskCategoryCode"/>

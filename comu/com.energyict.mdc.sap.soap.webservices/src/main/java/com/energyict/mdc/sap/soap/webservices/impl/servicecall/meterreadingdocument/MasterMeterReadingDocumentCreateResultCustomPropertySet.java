@@ -19,9 +19,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +63,7 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
 
     @Override
     public PersistenceSupport<ServiceCall, MasterMeterReadingDocumentCreateResultDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -123,6 +125,12 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
         private final String TABLE_NAME = "SAP_CPS_MR3";
         private final String FK = "FK_SAP_CPS_MR3";
 
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return "MR3";
@@ -150,7 +158,13 @@ public class MasterMeterReadingDocumentCreateResultCustomPropertySet implements 
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
