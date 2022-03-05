@@ -12,7 +12,6 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -28,7 +27,7 @@ import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
-import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
@@ -51,12 +50,10 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -65,6 +62,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @UniqueName(groups = {Save.Create.class, Save.Update.class})
 
 public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, FirmwareCampaign, HasUniqueName, PersistenceAware {
+
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
@@ -111,7 +109,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private final EventService eventService;
     private final FirmwareServiceImpl firmwareService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
-
+    private final DeviceMessageService deviceMessageService;
     private final Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
@@ -150,6 +148,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.firmwareService = firmwareService;
         this.deviceMessageSpecificationService = dataModel.getInstance(DeviceMessageSpecificationService.class);
         this.cpsDataModel = dataModel.getInstance(OrmService.class).getDataModel(FirmwareCampaignPersistenceSupport.COMPONENT_NAME).get();
+        this.deviceMessageService = dataModel.getInstance(DeviceMessageService.class);
     }
 
     @Override
@@ -356,27 +355,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
         FirmwareCampaignServiceImpl firmwareCampaignService = firmwareService.getFirmwareCampaignService();
-        try (QueryStream<? extends DeviceInFirmwareCampaign> streamItems = firmwareCampaignService.streamDevicesInCampaigns()) {
-            List<? extends DeviceInFirmwareCampaign> items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
-                    .select();
-            if (items.isEmpty()) {
-                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                    serviceCall.requestTransition(DefaultState.CANCELLED);
-                }
-            } else {
-                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(item -> item.getDeviceMessage().map(DeviceMessage::getId).orElse(null),
-                        Comparator.nullsFirst(Comparator.naturalOrder()));
-                items.sort(comparator);
-                items.forEach(item -> {
-                    try {
-                        //лочить вначале все sc потом все dm
-                        item.cancel(true);
-                    } catch (Exception e) {
-                        LOGGER.log(Level.WARNING, "Couldn't cancel firmware campaign item " + item.getId() + ": " + e.getMessage(), e);
-                    }
-                });
-            }
-        }
+        firmwareCampaignService.cancelServiceCall(serviceCall);
+        firmwareCampaignService.cancelDeviceMessage(serviceCall);
     }
 
     @Override

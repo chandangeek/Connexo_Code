@@ -110,6 +110,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     @Override
     public void onCancel(ServiceCall serviceCall){
         firmwareCampaignService.cancelServiceCall(serviceCall);
+        firmwareCampaignService.cancelDeviceMessage(serviceCall);
     }
 
 }

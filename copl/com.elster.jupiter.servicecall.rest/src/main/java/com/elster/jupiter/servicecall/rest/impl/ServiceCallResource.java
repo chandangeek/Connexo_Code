@@ -34,9 +34,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Path("/servicecalls")
 public class ServiceCallResource {
@@ -92,16 +90,6 @@ public class ServiceCallResource {
     @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
     public Response cancelServiceCall(@PathParam("id") long id, ServiceCallInfo info) {
         if (info.state.id.equals("sclc.default.cancelled")) {
-            //                List<ServiceCall> childServiceCalls = serviceCall.findChildren().stream().filter(Objects::nonNull).collect(Collectors.toList());
-            //                if (childServiceCalls.isEmpty()) {
-            //                    serviceCallService.lockServiceCall(id);
-            //                    serviceCall.cancel();
-            //                } else {
-            //                    childServiceCalls.forEach(sc -> {
-            //                        serviceCallService.lockServiceCall(sc.getId());
-            //                        sc.cancel();
-            //                    });
-            //                }
             serviceCallService.getServiceCall(id).ifPresent(ServiceCall::cancel);
             return Response.status(Response.Status.ACCEPTED).build();
         }

@@ -47,4 +47,6 @@ public interface FirmwareCampaignService {
     FirmwareVersion getFirmwareVersion(Map<String, Object> properties);
 
     void cancelServiceCall(ServiceCall serviceCall);
+
+    void cancelDeviceMessage(ServiceCall serviceCall);
 }

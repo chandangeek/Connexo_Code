@@ -129,32 +129,33 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     @Override
     public ServiceCall cancel(boolean initFromCampaign) {
-        ServiceCall serviceCall = serviceCallService.lockServiceCall(getServiceCall().getId()).get();
-        getDeviceMessage().ifPresent(dm -> {
-                    if (dm.getStatus().equals(DeviceMessageStatus.WAITING)|| dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
-                        DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
-                                .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
-                        if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus().equals(DeviceMessageStatus.PENDING)) && isFirmwareUploadTaskBusy((Device) dm.getDevice())) {
-                            message.revoke();
+        ServiceCall serviceCall = getServiceCall();
+        if (getServiceCall().canTransitionTo(DefaultState.CANCELLED)) {
+            serviceCallService.lockServiceCall(getServiceCall().getId()).ifPresent(sc -> sc.requestTransition(DefaultState.CANCELLED));
+            getDeviceMessage().ifPresent(dm -> {
+                        if (dm.getStatus().equals(DeviceMessageStatus.WAITING) || dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
+                            DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
+                                    .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
+                            Optional<ComTaskExecution> comTaskExecution = this.findOrCreateFirmwareComTaskExecution();
+                            if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
+                                    .equals(DeviceMessageStatus.PENDING)) && !comTaskExecution
+                                    .map(ComTaskExecution::getStatus)
+                                    .map(BUSY_TASK_STATUSES::contains)
+                                    .orElse(false)) {
+                                message.revoke();
+                            } else {
+                                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                            }
                         } else {
                             throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
                         }
-                    } else {
-                        throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
                     }
-                }
-        );
-        serviceCall.requestTransition(DefaultState.CANCELLED);
+            );
+        } else {
+            serviceCall.requestTransition(DefaultState.CANCELLED);
+        }
         return serviceCallService.getServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call with id " + serviceCall.getId() + " disappeared."));
-    }
-
-    boolean isFirmwareUploadTaskBusy(Device device) {
-        ComTaskExecution firmwareComTaskExecution = createFirmwareComTaskExecution(device);
-        return Optional.of(firmwareComTaskExecution)
-                .map(ComTaskExecution::getStatus)
-                .map(BUSY_TASK_STATUSES::contains)
-                .orElse(false);
     }
 
     @Override
