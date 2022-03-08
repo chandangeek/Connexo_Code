@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
@@ -27,6 +27,7 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
     private String lrn;
     private String readingReasonCode;
     private Instant scheduledMeterReadingDate;
+    private String dataSourceTypeCode;
 
     private MeterReadingDocumentCreateMessage() {
     }
@@ -51,6 +52,10 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
         return scheduledMeterReadingDate;
     }
 
+    public String getDataSourceTypeCode() {
+        return dataSourceTypeCode;
+    }
+
     public String getHeaderId() {
         return headerId;
     }
@@ -72,7 +77,8 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
             Optional.ofNullable(requestMessage)
                     .ifPresent(bulkRequestMessage -> setValues(getId(bulkRequestMessage.getMeterReadingDocument()),
                             getDeviceId(bulkRequestMessage.getMeterReadingDocument()), getLrn(bulkRequestMessage.getMeterReadingDocument()),
-                            getReadingReasonCode(bulkRequestMessage.getMeterReadingDocument()), bulkRequestMessage.getMeterReadingDocument().getScheduledMeterReadingDate(),
+                            getReadingReasonCode(bulkRequestMessage.getMeterReadingDocument()), getDataSourceTypeCode(bulkRequestMessage.getMeterReadingDocument()), bulkRequestMessage.getMeterReadingDocument()
+                                    .getScheduledMeterReadingDate(),
                             getHeaderId(bulkRequestMessage.getMessageHeader()),
                             getHeaderUUID(bulkRequestMessage.getMessageHeader())));
             return this;
@@ -82,7 +88,7 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
             Optional.ofNullable(requestMessage)
                     .ifPresent(singleRequestMessage -> {
                         setValues(getId(singleRequestMessage), getDeviceId(singleRequestMessage),
-                                getLrn(singleRequestMessage), getReadingReasonCode(singleRequestMessage),
+                                getLrn(singleRequestMessage), getReadingReasonCode(singleRequestMessage), getDataSourceTypeCode(singleRequestMessage),
                                 singleRequestMessage.getScheduledMeterReadingDate());
                     });
             return this;
@@ -124,6 +130,12 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
             return this;
         }
 
+        public Builder setDataSourceTypeCode(String dataSourceTypeCode) {
+            MeterReadingDocumentCreateMessage.this.dataSourceTypeCode = dataSourceTypeCode;
+            return this;
+        }
+
+
         public MeterReadingDocumentCreateMessage build() {
             if (id == null) {
                 addMissingField(ID_XML_NAME);
@@ -143,21 +155,23 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
             return MeterReadingDocumentCreateMessage.this;
         }
 
-        void setValues(String id, String deviceId, String lrn, String code,
+        void setValues(String id, String deviceId, String lrn, String code, String dataSourceTypeCode,
                        Instant date) {
             setId(id);
             setDeviceId(deviceId);
             setLrn(lrn);
             setReadingReasonCode(code);
+            setDataSourceTypeCode(dataSourceTypeCode);
             setScheduledMeterReadingDate(date);
         }
 
-        void setValues(String id, String deviceId, String lrn, String code,
+        void setValues(String id, String deviceId, String lrn, String code, String dataSourceTypeCode,
                        Instant date, String headerId, String headerUUID) {
             setId(id);
             setDeviceId(deviceId);
             setLrn(lrn);
             setReadingReasonCode(code);
+            setDataSourceTypeCode(dataSourceTypeCode);
             setScheduledMeterReadingDate(date);
             setHeaderId(headerId);
             setHeaderUUID(headerUUID);
@@ -219,6 +233,18 @@ public class MeterReadingDocumentCreateMessage extends AbstractSapMessage {
 
         private String getReadingReasonCode(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc meterReadingDocument) {
             return Optional.ofNullable(meterReadingDocument.getMeterReadingReasonCode())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getDataSourceTypeCode(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc meterReadingDocument) {
+            return Optional.ofNullable(meterReadingDocument.getUtilitiesAdvancedMeteringDataSourceTypeCode())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getDataSourceTypeCode(com.energyict.mdc.sap.soap.wsdl.webservices.smartmetermeterreadingbulkcreaterequest.SmrtMtrMtrRdngDocERPCrteReqMtrRdngDoc meterReadingDocument) {
+            return Optional.ofNullable(meterReadingDocument.getUtilitiesAdvancedMeteringDataSourceTypeCode())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
                     .orElse(null);
         }

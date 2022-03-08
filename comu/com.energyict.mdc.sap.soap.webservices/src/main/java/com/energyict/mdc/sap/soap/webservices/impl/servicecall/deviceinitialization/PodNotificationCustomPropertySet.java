@@ -16,9 +16,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -60,7 +62,7 @@ public class PodNotificationCustomPropertySet implements CustomPropertySet<Servi
 
     @Override
     public PersistenceSupport<ServiceCall, PodNotificationDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -105,6 +107,12 @@ public class PodNotificationCustomPropertySet implements CustomPropertySet<Servi
         private final String TABLE_NAME = "SAP_UD8_PN_SC_CPS";
         private final String FK = "FK_SAP_UD8_PN_SC_CPS";
 
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return "UD8";
@@ -132,7 +140,13 @@ public class PodNotificationCustomPropertySet implements CustomPropertySet<Servi
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override

@@ -18,9 +18,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -62,7 +64,7 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
 
     @Override
     public PersistenceSupport<ServiceCall, UtilitiesDeviceRegisterCreateRequestDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -132,6 +134,21 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.javaName(), TranslationKeys.REGISTER_ID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.TOTAL_DIGIT_NUMBER_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .bigDecimalSpec()
+                        .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName(), TranslationKeys.FRACTION_DIGIT_NUMBER_VALUE)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName(), TranslationKeys.ERROR_CODE)
                         .fromThesaurus(thesaurus)
                         .finish(),
@@ -140,13 +157,18 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                         .named(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName(), TranslationKeys.ERROR_MESSAGE)
                         .fromThesaurus(thesaurus)
                         .finish()
-
         );
     }
 
     private class CustomPropertyPersistenceSupport implements PersistenceSupport<ServiceCall, UtilitiesDeviceRegisterCreateRequestDomainExtension> {
         private final String TABLE_NAME = "SAP_UD1_RCR_SC_CPS";
         private final String FK = "FK_SAP_UD1_RCR_SC_CPS";
+
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
 
         @Override
         public String componentName() {
@@ -175,7 +197,13 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -231,6 +259,11 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
                     .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.DIVISION_CATEGORY.javaName())
                     .since(Version.version(10, 7, 1))
                     .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.databaseName())
+                    .varChar(NAME_LENGTH)
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.REGISTER_ID.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.databaseName())
                     .varChar(NAME_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_CODE.javaName())
@@ -238,6 +271,16 @@ public class UtilitiesDeviceRegisterCreateRequestCustomPropertySet implements Cu
             table.column(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.databaseName())
                     .varChar(DESCRIPTION_LENGTH)
                     .map(UtilitiesDeviceCreateRequestDomainExtension.FieldNames.ERROR_MESSAGE.javaName())
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.databaseName())
+                    .number()
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName())
+                    .since(Version.version(10, 9, 15))
+                    .add();
+            table.column(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.databaseName())
+                    .number()
+                    .map(UtilitiesDeviceRegisterCreateRequestDomainExtension.FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName())
+                    .since(Version.version(10, 9, 15))
                     .add();
         }
 

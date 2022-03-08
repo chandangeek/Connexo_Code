@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument;
 
@@ -12,6 +12,7 @@ import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.AdditionalProperties;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 
+import com.google.common.collect.ImmutableList;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
@@ -30,19 +31,18 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     private static final String REASON_CODES_PERIODIC = "com.elster.jupiter.sap.reasoncodes.periodic";
     private static final String REASON_CODES_PERIODIC_DEFAULT_VALUE = "1";
     private static final String MRO_DATASOURCE_INTERVAL = "com.elster.jupiter.sap.mro.datasource.interval";
+    private static final List<String> DATA_SOURCE_TYPE_CODES = ImmutableList.of("0");
 
-    private static List<String> codes;
+    private static List<String> reasonCodeCodes;
     private static Pair<String, String> dataSourceInterval;
     private volatile WebServiceActivator webServiceActivator;
 
     @Activate
     public void activate(BundleContext bundleContext) {
         String valueCodes = bundleContext.getProperty(REASON_CODES_PERIODIC);
-        if (Checks.is(valueCodes).emptyOrOnlyWhiteSpace()) {
-            codes = Collections.singletonList(REASON_CODES_PERIODIC_DEFAULT_VALUE);
-        } else {
-            codes = Arrays.asList((valueCodes.split(",")));
-        }
+        reasonCodeCodes = Checks.is(valueCodes).emptyOrOnlyWhiteSpace() ?
+                Collections.singletonList(REASON_CODES_PERIODIC_DEFAULT_VALUE) :
+                Arrays.asList(valueCodes.split(","));
 
         String valueDataSourceInterval = bundleContext.getProperty(MRO_DATASOURCE_INTERVAL);
         if (Checks.is(valueDataSourceInterval).emptyOrOnlyWhiteSpace()) {
@@ -59,8 +59,13 @@ public class SAPMeterReadingDocumentPeriodicReasonProvider implements SAPMeterRe
     }
 
     @Override
-    public List<String> getCodes() {
-        return codes;
+    public List<String> getReasonCodeCodes() {
+        return reasonCodeCodes;
+    }
+
+    @Override
+    public List<String> getDataSourceTypeCodeCodes() {
+        return DATA_SOURCE_TYPE_CODES;
     }
 
     @Override

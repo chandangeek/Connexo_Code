@@ -55,6 +55,7 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
+import com.energyict.mdc.sap.soap.webservices.SapDeviceInfo;
 import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
 
 import com.google.common.collect.ImmutableRangeSet;
@@ -130,7 +131,7 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
     @Activate
     public void activate() {
-        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, this));
+        customPropertySetService.addCustomPropertySet(deviceInfo = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, this, customPropertySetService));
         customPropertySetService.addCustomPropertySet(channelInfo = new DeviceChannelSAPInfoCustomPropertySet(propertySpecService, thesaurus));
         customPropertySetService.addCustomPropertySet(registerInfo = new DeviceRegisterSAPInfoCustomPropertySet(propertySpecService, thesaurus));
     }
@@ -203,6 +204,13 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
+    public SapDeviceInfo newSapDeviceInfoInstance(Device device) {
+        DeviceSAPInfoDomainExtension deviceSAPInfo = getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME).getInstance(DeviceSAPInfoDomainExtension.class);
+        deviceSAPInfo.init(device, getRegisteredCustomPropertySet(device, deviceInfo.getId()));
+        return deviceSAPInfo;
+    }
+
+    @Override
     public Optional<String> getSapDeviceId(Device device) {
         return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
                 .stream(DeviceSAPInfoDomainExtension.class)
@@ -243,6 +251,15 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     }
 
     @Override
+    public Optional<SapDeviceInfo> findSapDeviceInfo(Device device) {
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .filter(Where.where(DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName()).isEqualTo(device))
+                .findAny()
+                .map(SapDeviceInfo.class::cast);
+    }
+
+    @Override
     public void setSapDeviceId(Device device, String sapDeviceId) {
         lockDeviceTypeOrThrowException(device.getDeviceType());
         Device lockedDevice = lockDeviceOrThrowException(device.getId());
@@ -280,14 +297,6 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
                 .flatMap(deviceService::findDeviceByMeterId)
                 .map(device -> getProfileId(device, channel, range))
                 .orElseGet(Collections::emptyMap);
-    }
-
-    @Override
-    public void setLocation(Device device, String locationId) {
-        lockDeviceTypeOrThrowException(device.getDeviceType());
-        Device lockedDevice = lockDeviceOrThrowException(device.getId());
-
-        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), locationId);
     }
 
     @Override

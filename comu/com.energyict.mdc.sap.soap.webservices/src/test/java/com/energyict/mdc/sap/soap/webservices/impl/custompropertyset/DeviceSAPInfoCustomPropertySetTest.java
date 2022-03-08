@@ -36,7 +36,7 @@ public class DeviceSAPInfoCustomPropertySetTest extends AbstractCustomPropertySe
     @Before
     public void setup() {
         super.setup();
-        cps = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, sapCustomPropertySets);
+        cps = new DeviceSAPInfoCustomPropertySet(propertySpecService, thesaurus, sapCustomPropertySets, null);
         persistenceSupport = cps.getPersistenceSupport();
     }
 
@@ -117,7 +117,7 @@ public class DeviceSAPInfoCustomPropertySetTest extends AbstractCustomPropertySe
         Table table = mock(Table.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS));
         persistenceSupport.addCustomPropertyColumnsTo(table, null);
 
-        verify(table, times(4)).column(anyString());
+        verify(table, times(13)).column(anyString());
     }
 
     @Test

@@ -17,6 +17,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitializat
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.ConnectionStatusChangeCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.enddeviceconnection.MasterConnectionStatusChangeCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterUtilitiesDeviceMeterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.UtilitiesDeviceMeterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
@@ -75,6 +77,7 @@ public enum TranslationKeys implements TranslationKey {
     EXPORTER_DESCRIPTION("exporterDescription", "Specifies the type of exporter to be used to select and export readings"),
     DEVICE_TYPE("deviceType", "Device type"),
     SHIPMENT_DATE("shipmentDate", "Shipment date"),
+    DEACTIVATION_DATE("deactivationDate", "Deactivation date"),
     MANUFACTURER("manufacturer", "Manufacturer"),
     MANUFACTURER_SERIAL_ID("manufacturerSerialId", "Manufacturer serial id"),
     CHANNEL_OR_REGISTER_ID("channelOrRegisterId", "Channel/register id"),
@@ -89,7 +92,22 @@ public enum TranslationKeys implements TranslationKey {
     REQUESTED_SCHEDULED_READING_DATE("requestedScheduledReadingDate", "Requested scheduled reading date"),
     AT_LEAST_ONE_OF("atLeastOneOf", "at least one of"),
     LOCATION_ID("locationId", "Location ID"),
+    INSTALLATION_NUMBER("installationNumber", "Installation number"),
     POD_ID("podId", "Point of delivery ID"),
+    METER_READING_DATE_TIME("meterReadingDateTime", "Meter reading timestamp"),
+    METER_READING_VALUE("meterReadingValue", "Meter reading value"),
+    REGISTER_ID("registerId", "Register id"),
+    TOTAL_DIGIT_NUMBER_VALUE("totalDigitNumberValue", "Total digit number value"),
+    FRACTION_DIGIT_NUMBER_VALUE("fractionDigitNumberValue", "Fraction digit number value"),
+    ACTIVATION_GROUP_AMI_FUNCTIONS("activationGroupAMIFunctions", "Activation Group AMI Functions"),
+    METER_FUNCTION_GROUP("meterFunctionGroup", "Meter function group"),
+    ATTRIBUTE_MESSAGE("attributeMessage", "Attribute message"),
+    CHARACTERISTICS_ID("characteristicsId", "Characteristics id"),
+    CHARACTERISTICS_VALUE("characteristicsValue", "Characteristics value"),
+    DIVISION_CATEGORY_CODE("divisionCategoryCode", "Division category code"),
+    LOCATION_INFORMATION("locationInformation", "Location information"),
+    MODIFICATION_INFORMATION("modificationInformation", "Modification information"),
+
 
     // Tasks
     SEARCH_DATA_SOURCE_SUBSCRIBER_NAME(SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_SUBSCRIBER, SearchDataSourceHandlerFactory.SEARCH_DATA_SOURCE_TASK_DISPLAYNAME),
@@ -121,14 +139,15 @@ public enum TranslationKeys implements TranslationKey {
             MasterPodNotificationCustomPropertySet.class.getSimpleName()),
     POD_NOTIFICATION_CPS("servicecall.cps.pod.notification",
             PodNotificationCustomPropertySet.class.getSimpleName()),
+    MASTER_UTILITIES_DEVICE_METER_CHANGE_CPS("servicecall.cps.master.utilities.device.meter.change.request", MasterUtilitiesDeviceMeterChangeRequestCustomPropertySet.class.getSimpleName()),
+    UTILITIES_DEVICE_METER_CHANGE_CPS("servicecall.cps.utilities.device.meter.change.request", UtilitiesDeviceMeterChangeRequestCustomPropertySet.class.getSimpleName()),
 
     //Micro checks
     COMMUNICATION("sap.microchecks.category.maintenance", "Communication"),
     AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
     AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one Logical Register Number was set on the device"),
 
-    SAPREGISTEREDNOTIFICATION_SUBSCRIBER(SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_SUBSCRIBER, SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DISPLAYNAME)
-    ;
+    SAPREGISTEREDNOTIFICATION_SUBSCRIBER(SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_SUBSCRIBER, SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DISPLAYNAME);
 
     private final String key;
     private final String defaultFormat;

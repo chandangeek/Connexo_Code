@@ -7,6 +7,7 @@ import com.elster.jupiter.util.Checks;
 
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Optional;
 
@@ -23,6 +24,10 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
     private Instant startDate;
     private Instant endDate;
     private String timeZone;
+    private String registerId;
+    private BigDecimal totalDigitNumberValue;
+    private BigDecimal fractionDigitNumberValue;
+
 
     public String getObis() {
         return obis;
@@ -56,6 +61,18 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
         return timeZone;
     }
 
+    public String getRegisterId() {
+        return registerId;
+    }
+
+    public BigDecimal getTotalDigitNumberValue() {
+        return totalDigitNumberValue;
+    }
+
+    public BigDecimal getFractionDigitNumberValue() {
+        return fractionDigitNumberValue;
+    }
+
     public class Builder {
 
         private Builder() {
@@ -70,6 +87,9 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
             setStartDate(requestMessage.getStartDate());
             setEndDate(requestMessage.getEndDate(), lrnEndInterval);
             setTimeZone(getTimeZone(requestMessage));
+            setRegisterId(getRegisterId(requestMessage));
+            setTotalDigitNumberValue(getTotalDigitNumberValue(requestMessage));
+            setFractionDigitNumberValue(getFractionDigitNumberValue(requestMessage));
 
             return this;
         }
@@ -83,6 +103,9 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
             setStartDate(requestMessage.getStartDate());
             setEndDate(requestMessage.getEndDate(), lrnEndInterval);
             setTimeZone(getTimeZone(requestMessage));
+            setRegisterId(getRegisterId(requestMessage));
+            setTotalDigitNumberValue(getTotalDigitNumberValue(requestMessage));
+            setFractionDigitNumberValue(getFractionDigitNumberValue(requestMessage));
 
             return this;
         }
@@ -120,6 +143,22 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
 
         private void setTimeZone(String timeZone) {
             UtilitiesDeviceRegisterMessage.this.timeZone = timeZone;
+        }
+
+        private void setRegisterId(String registerId) {
+            UtilitiesDeviceRegisterMessage.this.registerId = registerId;
+        }
+
+        private void setTotalDigitNumberValue(Integer totalDigitNumberValue) {
+            if (totalDigitNumberValue != null) {
+                UtilitiesDeviceRegisterMessage.this.totalDigitNumberValue = BigDecimal.valueOf(totalDigitNumberValue);
+            }
+        }
+
+        private void setFractionDigitNumberValue(Integer fractionDigitNumberValue) {
+            if (fractionDigitNumberValue != null) {
+                UtilitiesDeviceRegisterMessage.this.fractionDigitNumberValue = BigDecimal.valueOf(fractionDigitNumberValue);
+            }
         }
 
         private String getObis(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
@@ -183,6 +222,46 @@ public class UtilitiesDeviceRegisterMessage extends AbstractSapMessage {
         private String getTimeZone(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
             return Optional.ofNullable(requestMessage.getTimeZoneCode())
                     .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getRegisterId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+            return Optional.ofNullable(requestMessage.getRegisterID())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private String getRegisterId(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+            return Optional.ofNullable(requestMessage.getRegisterID())
+                    .filter(id -> !Checks.is(id).emptyOrOnlyWhiteSpace())
+                    .orElse(null);
+        }
+
+        private Integer getTotalDigitNumberValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+            return Optional.ofNullable(requestMessage.getSpecifications())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqSpecs::getDecimalValuePrecision)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.DecimalValuePrecision::getTotalDigitNumberValue)
+                    .orElse(null);
+        }
+
+        private Integer getFractionDigitNumberValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+            return Optional.ofNullable(requestMessage.getSpecifications())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.UtilsDvceERPSmrtMtrRegCrteReqSpecs::getDecimalValuePrecision)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregistercreaterequest.DecimalValuePrecision::getFractionDigitNumberValue)
+                    .orElse(null);
+        }
+
+        private Integer getTotalDigitNumberValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+            return Optional.ofNullable(requestMessage.getSpecifications())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqSpecs::getDecimalValuePrecision)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.DecimalValuePrecision::getTotalDigitNumberValue)
+                    .orElse(null);
+        }
+
+        private Integer getFractionDigitNumberValue(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqReg requestMessage) {
+            return Optional.ofNullable(requestMessage.getSpecifications())
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.UtilsDvceERPSmrtMtrRegCrteReqSpecs::getDecimalValuePrecision)
+                    .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdeviceregisterbulkcreaterequest.DecimalValuePrecision::getFractionDigitNumberValue)
                     .orElse(null);
         }
     }

@@ -12,9 +12,11 @@ import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.UtilitiesDeviceRegisterCreateRequestDomainExtension;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.math.BigDecimal;
 import java.text.MessageFormat;
 import java.time.Instant;
 
@@ -34,6 +36,11 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         START_DATE("startDate", "START_DATE"),
         END_DATE("endDate", "END_DATE"),
         DIVISION_CATEGORY("divisionCategory", "DIVISION_CATEGORY"),
+
+        REGISTER_ID("registerId", "REGISTER_ID"),
+        TOTAL_DIGIT_NUMBER_VALUE("totalDigitNumberValue", "TOTAL_DIGIT_NUMBER_VALUE"),
+        FRACTION_DIGIT_NUMBER_VALUE("fractionDigitNumberValue", "FRACTION_DIGIT_NUMBER_VALUE"),
+
 
         //returned
         ERROR_CODE("errorCode", "ERROR_CODE"),
@@ -80,6 +87,12 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
 
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String divisionCategory;
+
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String registerId;
+
+    private BigDecimal totalDigitNumberValue;
+    private BigDecimal fractionDigitNumberValue;
 
     private Instant startDate;
 
@@ -137,6 +150,14 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         this.divisionCategory = divisionCategory;
     }
 
+    public String getRegisterId() {
+        return registerId;
+    }
+
+    public void setRegisterId(String registerId) {
+        this.registerId = registerId;
+    }
+
     public Instant getStartDate() {
         return startDate;
     }
@@ -144,6 +165,24 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
     public void setStartDate(Instant startDate) {
         this.startDate = startDate;
     }
+
+
+    public BigDecimal getTotalDigitNumberValue() {
+        return totalDigitNumberValue;
+    }
+
+    public void setTotalDigitNumberValue(BigDecimal totalDigitNumberValue) {
+        this.totalDigitNumberValue = totalDigitNumberValue;
+    }
+
+    public BigDecimal getFractionDigitNumberValue() {
+        return fractionDigitNumberValue;
+    }
+
+    public void setFractionDigitNumberValue(BigDecimal fractionDigitNumberValue) {
+        this.fractionDigitNumberValue = fractionDigitNumberValue;
+    }
+
 
     public String getErrorCode() {
         return errorCode;
@@ -180,6 +219,12 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         this.setStartDate((Instant) propertyValues.getProperty(FieldNames.START_DATE.javaName()));
         this.setEndDate((Instant) propertyValues.getProperty(FieldNames.END_DATE.javaName()));
         this.setDivisionCategory((String) propertyValues.getProperty(FieldNames.DIVISION_CATEGORY.javaName()));
+        this.setRegisterId((String) propertyValues.getProperty(FieldNames.REGISTER_ID.javaName()));
+        this.setTotalDigitNumberValue((BigDecimal) propertyValues.getProperty(FieldNames.TOTAL_DIGIT_NUMBER_VALUE
+                .javaName()));
+        this.setFractionDigitNumberValue((BigDecimal) propertyValues.getProperty(FieldNames.FRACTION_DIGIT_NUMBER_VALUE
+                .javaName()));
+
         this.setErrorCode((String) propertyValues.getProperty(FieldNames.ERROR_CODE.javaName()));
         this.setErrorMessage((String) propertyValues.getProperty(FieldNames.ERROR_MESSAGE.javaName()));
     }
@@ -193,6 +238,9 @@ public class MeterRegisterChangeRequestDomainExtension extends AbstractPersisten
         propertySetValues.setProperty(FieldNames.START_DATE.javaName(), this.getStartDate());
         propertySetValues.setProperty(FieldNames.END_DATE.javaName(), this.getEndDate());
         propertySetValues.setProperty(FieldNames.DIVISION_CATEGORY.javaName(), this.getDivisionCategory());
+        propertySetValues.setProperty(FieldNames.REGISTER_ID.javaName(), this.getRegisterId());
+        propertySetValues.setProperty(FieldNames.TOTAL_DIGIT_NUMBER_VALUE.javaName(), this.getTotalDigitNumberValue());
+        propertySetValues.setProperty(FieldNames.FRACTION_DIGIT_NUMBER_VALUE.javaName(), this.getFractionDigitNumberValue());
         propertySetValues.setProperty(FieldNames.ERROR_CODE.javaName(), this.getErrorCode());
         propertySetValues.setProperty(FieldNames.ERROR_MESSAGE.javaName(), this.getErrorMessage());
     }

@@ -20,9 +20,11 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
 import com.google.common.collect.Range;
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +65,7 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
 
     @Override
     public PersistenceSupport<ServiceCall, MeterReadingDocumentCreateResultDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -217,6 +219,12 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
         private final String TABLE_NAME = "SAP_CPS_MR4";
         private final String FK = "FK_SAP_CPS_MR4";
 
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return MODEL_NAME;
@@ -244,7 +252,13 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -320,6 +334,11 @@ public class MeterReadingDocumentCreateResultCustomPropertySet implements Custom
                     .varChar()
                     .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.READING_REASON_CODE.javaName())
                     .notNull()
+                    .add();
+            table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateResultDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.javaName())
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(MeterReadingDocumentCreateResultDomainExtension.FieldNames.CHANNEL_ID.databaseName())
                     .number()
