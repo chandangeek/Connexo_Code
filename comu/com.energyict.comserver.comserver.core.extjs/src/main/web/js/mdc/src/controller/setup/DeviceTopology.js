@@ -51,6 +51,8 @@ Ext.define('Mdc.controller.setup.DeviceTopology', {
             topologyDeviceTypesStore = me.getStore('Mdc.store.filter.topology.DeviceTypes'),
             widget;
 
+        deviceTopologyStore.clearData();
+
         Ext.ModelManager.getModel('Mdc.model.Device').load(deviceId, {
             success: function (record) {
                 var gatewayType = record.get('gatewayType');
