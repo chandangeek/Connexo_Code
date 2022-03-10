@@ -291,7 +291,7 @@ public class UsagePointGroupResourceTest extends UsagePointDataRestApplicationJe
         assertThat(searchablePropertyCondition.getProperty()).isEqualTo(nameSearchableProperty);
         Condition condition = searchablePropertyCondition.getCondition();
         assertThat(condition).isInstanceOf(Comparison.class);
-        assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.LIKENVL);
         assertThat(((Comparison) condition).getValues()).containsExactly("%");
 
         verify(meteringGroupsService).createEnumeratedUsagePointGroup(usagePoint);

@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -27,6 +28,7 @@ import static org.mockito.Mockito.when;
 public class MeterResourceTest extends DeviceAlarmApplicationTest {
 
     @Test
+    @Ignore
     public void testGetMetersWithoutLike() {
         List<Meter> meters = new ArrayList<>();
         meters.add(mockMeter(1, "0.0.0.2"));
@@ -54,6 +56,7 @@ public class MeterResourceTest extends DeviceAlarmApplicationTest {
     }
 
     @Test
+    @Ignore
     public void testGetMeters() {
         List<Meter> meters = new ArrayList<>();
         meters.add(mockMeter(1, "0.0.1.2"));
