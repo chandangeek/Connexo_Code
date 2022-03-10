@@ -131,26 +131,46 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     public ServiceCall cancel(boolean initFromCampaign) {
         ServiceCall serviceCall = getServiceCall();
         if (getServiceCall().canTransitionTo(DefaultState.CANCELLED)) {
-            serviceCallService.lockServiceCall(getServiceCall().getId()).ifPresent(sc -> sc.requestTransition(DefaultState.CANCELLED));
+            Optional<ServiceCall> lockedServiceCall = serviceCallService.lockServiceCall(getServiceCall().getId());
             getDeviceMessage().ifPresent(dm -> {
                         if (dm.getStatus().equals(DeviceMessageStatus.WAITING) || dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
                             DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
                                     .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
-                            Optional<ComTaskExecution> comTaskExecution = this.findOrCreateFirmwareComTaskExecution();
-                            if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
-                                    .equals(DeviceMessageStatus.PENDING)) && !comTaskExecution
-                                    .map(ComTaskExecution::getStatus)
-                                    .map(BUSY_TASK_STATUSES::contains)
-                                    .orElse(false)) {
-                                message.revoke();
+                            Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
+                            if (firmwareComTask.isPresent()) {
+                                Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.get().getId();
+                                Optional<ComTaskExecution> comTaskExecution = getDevice().getComTaskExecutions().stream()
+                                        .filter(executionContainsFirmwareComTask)
+                                        .findFirst();
+                                if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
+                                        .equals(DeviceMessageStatus.PENDING)) && !comTaskExecution
+                                        .map(ComTaskExecution::getStatus)
+                                        .map(BUSY_TASK_STATUSES::contains)
+                                        .orElse(false)) {
+                                    message.revoke();
+                                } else {
+                                    throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                                }
                             } else {
-                                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                                if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
+                                        .equals(DeviceMessageStatus.PENDING))) {
+                                    message.revoke();
+                                } else {
+                                    throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                                }
                             }
+
                         } else {
                             throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
                         }
                     }
             );
+            lockedServiceCall.ifPresent(sc -> {
+                if (sc.canTransitionTo(DefaultState.CANCELLED)) {
+                    sc.requestTransition(DefaultState.CANCELLED);
+                }
+            });
+
         } else {
             serviceCall.requestTransition(DefaultState.CANCELLED);
         }

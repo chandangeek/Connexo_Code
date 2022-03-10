@@ -46,10 +46,12 @@ import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
+import com.energyict.mdc.tasks.ComTask;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.google.common.collect.ImmutableMap;
+import org.checkerframework.checker.units.qual.C;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -64,6 +66,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -82,6 +85,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final DeviceMessageService deviceMessageService;
     private static final Logger LOGGER = Logger.getLogger(FirmwareCampaignDomainExtension.class.getName());
     public static final Set<TaskStatus> BUSY_TASK_STATUSES = EnumSet.of(TaskStatus.Busy, TaskStatus.Retrying);
+
     @Inject
     public FirmwareCampaignServiceImpl(FirmwareServiceImpl firmwareService, DeviceService deviceService,
                                        ServiceCallService serviceCallService, EventService eventService,
@@ -298,51 +302,60 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                     .select();
             List<ServiceCall> serviceCalls = items.stream().map(DeviceInFirmwareCampaign::getServiceCall).collect(Collectors.toList());
             if (!items.isEmpty()) {
-                Comparator<ServiceCall> serviceCallComparator = Comparator.comparing(ServiceCall::getId,
+                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(item -> item.getDeviceMessage().map(DeviceMessage::getId).orElse(null),
                         Comparator.nullsFirst(Comparator.naturalOrder()));
+                items.sort(comparator);
+                Comparator<ServiceCall> serviceCallComparator = Comparator.comparing(ServiceCall::getId);
                 serviceCalls.sort(serviceCallComparator);
-                serviceCalls.forEach(sc -> {
+                List<ServiceCall> lockedServiceCalls = serviceCalls.stream().map(sc -> {
                     if (sc.canTransitionTo(DefaultState.CANCELLED)) {
-                        serviceCallService.lockServiceCall(sc.getId()).ifPresent(lockedServiceCall -> lockedServiceCall.requestTransition(DefaultState.CANCELLED));
+                        return serviceCallService.lockServiceCall(sc.getId()).get();
                     } else {
-                        serviceCall.requestTransition(DefaultState.CANCELLED);
+                        return sc;
+                    }
+                }).collect(Collectors.toList());
+
+                items.forEach(item -> item.getDeviceMessage().ifPresent(dm -> {
+                    if (dm.getStatus().equals(DeviceMessageStatus.WAITING) || dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
+                        DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
+                                .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
+
+                        Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
+                        if (firmwareComTask.isPresent()) {
+                            Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.get().getId();
+                            Optional<ComTaskExecution> comTaskExecution = ((Device) dm.getDevice()).getComTaskExecutions().stream()
+                                    .filter(executionContainsFirmwareComTask)
+                                    .findFirst();
+                            if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
+                                    .equals(DeviceMessageStatus.PENDING)) && !comTaskExecution
+                                    .map(ComTaskExecution::getStatus)
+                                    .map(BUSY_TASK_STATUSES::contains)
+                                    .orElse(false)) {
+                                message.revoke();
+                            } else {
+                                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                            }
+                        } else {
+                            if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
+                                    .equals(DeviceMessageStatus.PENDING))) {
+                                message.revoke();
+                            } else {
+                                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                            }
+                        }
+                    } else {
+                        throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                    }
+                }));
+                lockedServiceCalls.forEach(sc -> {
+                    if (sc.canTransitionTo(DefaultState.CANCELLED)) {
+                        sc.requestTransition(DefaultState.CANCELLED);
                     }
                 });
             }
         }
     }
 
-    @Override
-    public void cancelDeviceMessage(ServiceCall serviceCall) {
-        try (QueryStream<? extends DeviceInFirmwareCampaign> streamItems = streamDevicesInCampaigns()) {
-            List<? extends DeviceInFirmwareCampaign> items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
-                    .select();
-            if (!items.isEmpty()) {
-                Comparator<DeviceInFirmwareCampaign> comparator = Comparator.comparing(item -> item.getDeviceMessage().map(DeviceMessage::getId).orElse(null),
-                        Comparator.nullsFirst(Comparator.naturalOrder()));
-                items.sort(comparator);
-                items.forEach(item -> item.getDeviceMessage().ifPresent(dm -> {
-                            if (dm.getStatus().equals(DeviceMessageStatus.WAITING) || dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
-                                DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
-                                        .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
-                                Optional<ComTaskExecution> comTaskExecution = item.findOrCreateFirmwareComTaskExecution();
-                                if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
-                                        .equals(DeviceMessageStatus.PENDING)) && !comTaskExecution
-                                        .map(ComTaskExecution::getStatus)
-                                        .map(BUSY_TASK_STATUSES::contains)
-                                        .orElse(false)) {
-                                    message.revoke();
-                                } else {
-                                    throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
-                                }
-                            } else {
-                                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
-                            }
-                        }
-                ));
-            }
-        }
-    }
 
     public DataModel getDataModel() {
         return dataModel;

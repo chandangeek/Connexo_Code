@@ -301,9 +301,7 @@ public class DeviceFirmwareMessagesResource {
         firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
                 .map(DeviceInFirmwareCampaign::getServiceCall)
                 .ifPresent(serviceCall -> {
-                    if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
                         serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
-                    }
                 });
         FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {

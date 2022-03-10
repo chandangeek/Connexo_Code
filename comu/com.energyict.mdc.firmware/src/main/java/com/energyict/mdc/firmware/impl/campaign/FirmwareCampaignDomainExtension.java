@@ -356,7 +356,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
         FirmwareCampaignServiceImpl firmwareCampaignService = firmwareService.getFirmwareCampaignService();
         firmwareCampaignService.cancelServiceCall(serviceCall);
-        firmwareCampaignService.cancelDeviceMessage(serviceCall);
     }
 
     @Override
