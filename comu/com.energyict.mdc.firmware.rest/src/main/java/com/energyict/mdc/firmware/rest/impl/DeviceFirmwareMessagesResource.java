@@ -14,6 +14,8 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.servicecall.DefaultState;
+import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -82,6 +84,7 @@ public class DeviceFirmwareMessagesResource {
     private final DeviceService deviceService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageService deviceMessageService;
+    private final ServiceCallService serviceCallService;
 
     @Inject
     public DeviceFirmwareMessagesResource(ResourceHelper resourceHelper,
@@ -95,7 +98,8 @@ public class DeviceFirmwareMessagesResource {
                                           ConcurrentModificationExceptionFactory conflictFactory,
                                           DeviceService deviceService,
                                           DeviceMessageSpecificationService deviceMessageSpecificationService,
-                                          DeviceMessageService deviceMessageService) {
+                                          DeviceMessageService deviceMessageService,
+                                          ServiceCallService serviceCallService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.firmwareService = firmwareService;
@@ -108,6 +112,7 @@ public class DeviceFirmwareMessagesResource {
         this.deviceService = deviceService;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.deviceMessageService = deviceMessageService;
+        this.serviceCallService = serviceCallService;
     }
 
     @GET
@@ -290,6 +295,17 @@ public class DeviceFirmwareMessagesResource {
                 .orElseThrow(conflictFactory.contextDependentConflictOn(name)
                         .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
                         .supplier());
+        firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
+                .map(DeviceInFirmwareCampaign::getServiceCall)
+                .ifPresent(serviceCall -> {
+
+                });
+        Optional<ServiceCall> lockedServiceCall = Optional.empty();
+        Optional<DeviceInFirmwareCampaign> activeFirmwareItemByDevice = firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device);
+        if (activeFirmwareItemByDevice.isPresent()) {
+            ServiceCall serviceCall = activeFirmwareItemByDevice.get().getServiceCall();
+            lockedServiceCall = serviceCallService.lockServiceCall(serviceCall.getId());
+        }
         DeviceMessage upgradeMessage = deviceMessageService.findAndLockDeviceMessageById(msgId)
                 .filter(deviceMessage -> deviceMessage.getDevice() instanceof Device && ((Device) deviceMessage.getDevice()).getId() == device.getId())
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.FIRMWARE_UPLOAD_NOT_FOUND, msgId));
@@ -297,15 +313,16 @@ public class DeviceFirmwareMessagesResource {
             throw conflictFactory.contextDependentConflictOn(upgradeMessage.getSpecification().getName())
                     .withActualVersion(upgradeMessage::getVersion).build();
         }
-
-        firmwareService.getFirmwareCampaignService().findActiveFirmwareItemByDevice(device)
-                .map(DeviceInFirmwareCampaign::getServiceCall)
-                .ifPresent(serviceCall -> {
-                        serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
-                });
         FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
         if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+        }
+        if (lockedServiceCall.isPresent()) {
+            if (lockedServiceCall.get().canTransitionTo(DefaultState.CANCELLED)) {
+                lockedServiceCall.get().requestTransition(DefaultState.CANCELLED);
+            }
+        } else {
+            throw new IllegalStateException("Service call disappeared.");
         }
         upgradeMessage.revoke();
         // if we have the pending message that means we need to reschedule comTaskExecution for firmware upgrade

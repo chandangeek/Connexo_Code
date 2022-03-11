@@ -51,7 +51,7 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import com.google.common.collect.ImmutableMap;
-import org.checkerframework.checker.units.qual.C;
+import com.google.common.collect.ImmutableSet;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 
@@ -59,16 +59,17 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Dictionary;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final FirmwareServiceImpl firmwareService;
@@ -84,7 +85,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final TaskService taskService;
     private final DeviceMessageService deviceMessageService;
     private static final Logger LOGGER = Logger.getLogger(FirmwareCampaignDomainExtension.class.getName());
-    public static final Set<TaskStatus> BUSY_TASK_STATUSES = EnumSet.of(TaskStatus.Busy, TaskStatus.Retrying);
+    public static final Set<TaskStatus> BUSY_TASK_STATUSES = ImmutableSet.of(TaskStatus.Busy, TaskStatus.Retrying);
 
     @Inject
     public FirmwareCampaignServiceImpl(FirmwareServiceImpl firmwareService, DeviceService deviceService,
@@ -309,11 +310,10 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                 serviceCalls.sort(serviceCallComparator);
                 List<ServiceCall> lockedServiceCalls = serviceCalls.stream().map(sc -> {
                     if (sc.canTransitionTo(DefaultState.CANCELLED)) {
-                        return serviceCallService.lockServiceCall(sc.getId()).get();
-                    } else {
-                        return sc;
+                        return serviceCallService.lockServiceCall(sc.getId()).orElseThrow(() -> new IllegalStateException("Service call disappeared."));
                     }
-                }).collect(Collectors.toList());
+                    return null;
+                }).filter(Objects::nonNull).collect(Collectors.toList());
 
                 items.forEach(item -> item.getDeviceMessage().ifPresent(dm -> {
                     if (dm.getStatus().equals(DeviceMessageStatus.WAITING) || dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
@@ -322,15 +322,13 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
                         Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
                         if (firmwareComTask.isPresent()) {
-                            Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.get().getId();
-                            Optional<ComTaskExecution> comTaskExecution = ((Device) dm.getDevice()).getComTaskExecutions().stream()
-                                    .filter(executionContainsFirmwareComTask)
-                                    .findFirst();
                             if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
-                                    .equals(DeviceMessageStatus.PENDING)) && !comTaskExecution
+                                    .equals(DeviceMessageStatus.PENDING)) && firmwareComTask.map(ct -> ((Device) dm.getDevice()).getComTaskExecutions()
+                                            .stream()
+                                            .filter(cte -> cte.getComTask().getId() == ct.getId()))
+                                    .orElseGet(Stream::empty)
                                     .map(ComTaskExecution::getStatus)
-                                    .map(BUSY_TASK_STATUSES::contains)
-                                    .orElse(false)) {
+                                    .noneMatch(BUSY_TASK_STATUSES::contains)) {
                                 message.revoke();
                             } else {
                                 throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);

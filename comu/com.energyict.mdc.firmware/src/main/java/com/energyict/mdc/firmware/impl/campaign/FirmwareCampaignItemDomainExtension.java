@@ -43,19 +43,21 @@ import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
+import com.google.common.collect.ImmutableSet;
+
 import javax.inject.Inject;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Calendar;
-import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, DeviceInFirmwareCampaign {
-    public static final Set<TaskStatus> BUSY_TASK_STATUSES = EnumSet.of(TaskStatus.Busy, TaskStatus.Retrying);
+    public static final Set<TaskStatus> BUSY_TASK_STATUSES = ImmutableSet.of(TaskStatus.Busy, TaskStatus.Retrying);
     private static final String PROPERTY_NAME_RESUME = "FirmwareDeviceMessage.upgrade.resume";
 
     public enum FieldNames {
@@ -138,15 +140,11 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                                     .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
                             Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
                             if (firmwareComTask.isPresent()) {
-                                Predicate<ComTaskExecution> executionContainsFirmwareComTask = exec -> exec.getComTask().getId() == firmwareComTask.get().getId();
-                                Optional<ComTaskExecution> comTaskExecution = getDevice().getComTaskExecutions().stream()
-                                        .filter(executionContainsFirmwareComTask)
-                                        .findFirst();
-                                if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
-                                        .equals(DeviceMessageStatus.PENDING)) && !comTaskExecution
+                                if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus().equals(DeviceMessageStatus.PENDING))
+                                        && firmwareComTask.map(ct -> getDevice().getComTaskExecutions().stream().filter(cte -> cte.getComTask().getId() == ct.getId()))
+                                        .orElseGet(Stream::empty)
                                         .map(ComTaskExecution::getStatus)
-                                        .map(BUSY_TASK_STATUSES::contains)
-                                        .orElse(false)) {
+                                        .noneMatch(BUSY_TASK_STATUSES::contains)) {
                                     message.revoke();
                                 } else {
                                     throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
@@ -165,14 +163,13 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                         }
                     }
             );
-            lockedServiceCall.ifPresent(sc -> {
-                if (sc.canTransitionTo(DefaultState.CANCELLED)) {
-                    sc.requestTransition(DefaultState.CANCELLED);
+            if (lockedServiceCall.isPresent()) {
+                if (lockedServiceCall.get().canTransitionTo(DefaultState.CANCELLED)) {
+                    lockedServiceCall.get().requestTransition(DefaultState.CANCELLED);
                 }
-            });
-
-        } else {
-            serviceCall.requestTransition(DefaultState.CANCELLED);
+            } else {
+                throw new IllegalStateException("Service call disappeared.");
+            }
         }
         return serviceCallService.getServiceCall(serviceCall.getId())
                 .orElseThrow(() -> new IllegalStateException("Service call with id " + serviceCall.getId() + " disappeared."));
