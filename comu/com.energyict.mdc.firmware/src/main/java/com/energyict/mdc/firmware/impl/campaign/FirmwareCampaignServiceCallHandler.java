@@ -107,9 +107,5 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
                         .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
     }
 
-    @Override
-    public void onCancel(ServiceCall serviceCall){
-        firmwareCampaignService.cancelServiceCall(serviceCall);
-    }
 
 }

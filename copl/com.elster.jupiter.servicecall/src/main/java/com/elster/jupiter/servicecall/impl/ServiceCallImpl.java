@@ -25,7 +25,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
 import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
-import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Where;
@@ -201,8 +200,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void cancel() {
-        ServiceCallHandler serviceCallHandler = getType().getServiceCallHandler();
-        serviceCallHandler.onCancel(this);
+        requestTransition(DefaultState.CANCELLED);
     }
 
     @Override
