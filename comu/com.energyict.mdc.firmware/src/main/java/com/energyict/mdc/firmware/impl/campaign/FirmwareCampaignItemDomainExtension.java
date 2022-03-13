@@ -140,11 +140,11 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                                     .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
                             Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
                             if (firmwareComTask.isPresent()) {
-                                if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus().equals(DeviceMessageStatus.PENDING))
+                                if (message.getStatus().equals(DeviceMessageStatus.WAITING) || (message.getStatus().equals(DeviceMessageStatus.PENDING)
                                         && firmwareComTask.map(ct -> getDevice().getComTaskExecutions().stream().filter(cte -> cte.getComTask().getId() == ct.getId()))
                                         .orElseGet(Stream::empty)
                                         .map(ComTaskExecution::getStatus)
-                                        .noneMatch(BUSY_TASK_STATUSES::contains)) {
+                                        .noneMatch(BUSY_TASK_STATUSES::contains))) {
                                     message.revoke();
                                 } else {
                                     throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
