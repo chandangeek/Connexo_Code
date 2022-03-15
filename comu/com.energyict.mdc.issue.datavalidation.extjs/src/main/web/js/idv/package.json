@@ -1,17 +1,17 @@
 {
-  "compatVersion" : "10.9.15",
+  "compatVersion" : "10.9.16",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.energyict.mdc.issue.datavalidation.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.15",
-    "com.elster.jupiter.issue.extjs@10.9.15",
-    "com.energyict.mdc.device.data.validation.extjs@10.9.15",
-    "com.energyict.comserver.comserver.core.extjs@10.9.15"
+    "com.elster.jupiter.unifyingjs@10.9.16",
+    "com.elster.jupiter.issue.extjs@10.9.16",
+    "com.energyict.mdc.device.data.validation.extjs@10.9.16",
+    "com.energyict.comserver.comserver.core.extjs@10.9.16"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.15"
+  "version" : "10.9.16"
 }
