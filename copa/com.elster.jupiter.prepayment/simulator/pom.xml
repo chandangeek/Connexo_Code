@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.energyict</groupId>
 		<artifactId>prepayment</artifactId>
-        <version>13.0.0-Kratos-SNAPSHOT</version>
+        <version>13.0.1-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>prepayment.simulator</artifactId>
