@@ -5,12 +5,17 @@
 Ext.define('Dsh.controller.CommunicationsBulk', {
     extend: 'Ext.app.Controller',
 
+    statics: {
+        totalCount: 0
+    },
+
     stores: [
-        'Dsh.store.CommunicationTasksBuffered'
+        'Dsh.store.CommunicationTasksBuffered',
     ],
 
     views: [
-        'Dsh.view.communicationsbulk.Browse'
+        'Dsh.view.communicationsbulk.Browse',
+        'Uni.view.grid.SelectionGrid'
     ],
 
     stores: [
@@ -54,6 +59,30 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
         communicationsTasksBufferedStore.addListener('beforeprefetch', function () {
             communicationsTasksBufferedStore.filters.clear();
             communicationsTasksBufferedStore.addFilter(Ext.decode(me.getFilterObjectStringFromQueryString()), false);
+        }, this);
+        Ext.Ajax.request({
+            url: '/api/dsr/communications/count',
+            method: 'GET',
+            params: {
+                filter: me.getFilterObjectStringFromQueryString()
+            },
+            success: function (response) {
+                var selectionGrid = me.getWizard().down('bulk-selection-grid');
+                selectionGrid.totalCount = response.responseText;
+                Dsh.controller.CommunicationsBulk.totalCount = response.responseText;
+            }
+        });
+
+        communicationsTasksBufferedStore.addListener('prefetch', function (self, records, successful, operation, eOpts) {
+            var wizard = me.getWizard(),
+                selectionGrid = wizard.down('bulk-selection-grid');
+            var a = wizard.down('bulk-selection-grid').down('#checkAllButton').isDisabled();
+            selectionGrid.getDockedItems()[0].items.items[0].setBoxLabel("<b>All communications</b>  &nbsp &nbsp Count of communication tasks: " + selectionGrid.totalCount);
+
+            if(a) {
+                selectionGrid.getSelectionModel().select(records, true, true);
+                selectionGrid.down('#selectionCounter').setText(selectionGrid.counterTextFn([selectionGrid.getSelectionModel().getSelection().length, me.totalCount]));
+            }
         }, this);
 
         this.getApplication().fireEvent('changecontentevent', Ext.widget('communications-bulk-browse', {
@@ -202,8 +231,15 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             backBtn = buttons.down('[action=step-back]'),
             confirmBtn = buttons.down('[action=confirm-action]'),
             finishBtn = buttons.down('[action=finish]'),
-            cancelBtn = buttons.down('[action=cancel]');
-
+            cancelBtn = buttons.down('[action=cancel]'),
+            step1View = wizard.down('#cmbw-step1'),
+            selectionGrid = step1View.down('bulk-selection-grid'),
+            selectedCount;
+        if(selectionGrid.isAllSelected()){
+            selectedCount = Dsh.controller.CommunicationsBulk.totalCount
+        } else {
+            selectedCount = selectionGrid.getSelectedItems().length
+        }
         switch (stepNumber) {
             case 1:
                 nextBtn.show();
@@ -222,7 +258,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
                 cancelBtn.show();
                 break;
             case 3:
-                wizard.down('#cmbw-step3').setConfirmationMessage(wizard.down('#communications-bulk-action-radiogroup').getValue().action);
+                wizard.down('#cmbw-step3').setConfirmationMessage(wizard.down('#communications-bulk-action-radiogroup').getValue().action, selectedCount);
                 nextBtn.hide();
                 backBtn.show();
                 backBtn.enable();

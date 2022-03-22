@@ -5,5 +5,5 @@
 Ext.define('Dsh.store.CommunicationTasksBuffered', {
     extend: 'Dsh.store.CommunicationTasks',
     buffered: true,
-    pageSize: 200
+    pageSize: 1000
 });

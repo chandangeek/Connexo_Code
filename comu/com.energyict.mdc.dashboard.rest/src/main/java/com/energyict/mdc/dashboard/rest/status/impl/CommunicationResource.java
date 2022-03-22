@@ -139,6 +139,17 @@ public class CommunicationResource {
         return this.comTaskExecutionInfoFactory.from(comTaskExecution, lastComTaskExecutionSession);
     }
 
+    @GET
+    @Transactional
+    @Consumes("application/json")
+    @Path("/count")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
+    public Response getCommunicationsCount(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
+        ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
+        return Response.ok(communicationTaskService.getCommunicationTasksCount(filter)).build();
+    }
+
     @PUT
     @Transactional
     @Path("/{comTaskExecId}/run")
