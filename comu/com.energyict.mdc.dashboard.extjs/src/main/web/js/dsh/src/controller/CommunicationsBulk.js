@@ -81,7 +81,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
 
             if(a) {
                 selectionGrid.getSelectionModel().select(records, true, true);
-                selectionGrid.down('#selectionCounter').setText(selectionGrid.counterTextFn([selectionGrid.getSelectionModel().getSelection().length, me.totalCount]));
+                selectionGrid.down('#selectionCounter').setText(selectionGrid.counterTextFn([selectionGrid.getSelectionModel().getSelection().length, selectionGrid.totalCount]));
             }
         }, this);
 
