@@ -61,6 +61,8 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.streams.Functions.asStream;
@@ -70,6 +72,9 @@ import static java.util.stream.Collectors.toSet;
 @Path("/communications")
 public class CommunicationResource {
     private static final int MAX_RECORDS_PER_PAGE = 1000;
+
+    private static final Logger LOGGER = Logger.getLogger(CommunicationResource.class.getName());
+
 
     private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
