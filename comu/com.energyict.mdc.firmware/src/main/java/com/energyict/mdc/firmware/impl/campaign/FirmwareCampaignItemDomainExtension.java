@@ -212,96 +212,103 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     public void startFirmwareProcess(boolean retry) {
         ServiceCall serviceCall = getServiceCall();
-        Optional<DeviceMessageId> firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId();
+        DeviceMessageId firmwareMessageId = getFirmwareCampaign().getFirmwareMessageId()
+                .orElse(null);
+        Device device = getDevice();
+        // TODO: avoid initalization of FirmwareManagementDeviceUtils several times in same startFirmwareProcess if possible:
+        // inside checksFailed -> cancelPendingFirmwareUpdates, doesAnyFirmwareRankingCheckFail, inside prepareCommunicationTask
+        // TODO: avoid cancelling previous messages several times: inside checksFailed -> cancelPendingFirmwareUpdates, inside firmwareService.cancelFirmwareUploadForDevice
         if (checksFailed(firmwareMessageId)) {
             serviceCall.requestTransition(DefaultState.REJECTED);
         } else {
             try {
-                prepareCommunicationTask(getDevice());
+                prepareCommunicationTask(device);
             } catch (FirmwareCheck.FirmwareCheckException e) {
                 serviceCall.log(LogLevel.WARNING, e.getLocalizedMessage());
                 serviceCall.requestTransition(DefaultState.REJECTED);
             }
-            firmwareService.cancelFirmwareUploadForDevice(getDevice());
-            createFirmwareMessage(firmwareMessageId.get(), retry);
+            firmwareService.cancelFirmwareUploadForDevice(device);
+            createFirmwareMessage(firmwareMessageId, retry);
             scheduleFirmwareTask();
         }
     }
 
-    private boolean checksFailed(Optional<DeviceMessageId> firmwareMessageId) {
+    private boolean checksFailed(DeviceMessageId firmwareMessageId) {
         boolean failed = false;
+        ServiceCall serviceCall = getServiceCall();
         if (!doesDeviceTypeAllowFirmwareManagement()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT)
                     .format(getDevice().getName(), getDevice().getDeviceType().getName()));
             failed = true;
         }
         if (!doesDeviceConfigurationSupportFirmwareManagement()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT)
                     .format(getDevice().getName(), getDevice().getDeviceConfiguration().getName()));
             failed = true;
         }
         if (!cancelPendingFirmwareUpdates()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_CURRENTLY_ONGOING)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_CURRENTLY_ONGOING)
                     .format(getDevice().getName()));
             failed = true;
         }
-        if (!firmwareMessageId.isPresent()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE)
+        if (firmwareMessageId == null) {
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.PROTOCOL_DOES_NOT_SUPPORT_UPLOADING_FIRMWARE)
                     .format(getDevice().getName(), getDevice().getDeviceType().getName()));
             failed = true;
         }
         Optional<ComTaskExecution> firmwareComTaskExecutionOptional = findOrCreateFirmwareComTaskExecution();
+        FirmwareCampaignDomainExtension campaign = getFirmwareCampaign();
         if (firmwareComTaskExecutionOptional.isPresent()) {
             ComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionOptional.get();
             if (firmwareComTaskExecution.getConnectionTask().isPresent()) {
                 ConnectionTask connectionTask = firmwareComTaskExecution.getConnectionTask().get();
                 ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
-                FirmwareCampaignDomainExtension campaign = getFirmwareCampaign();
                 if (!(connectionTask.isActive() && (!campaign.getFirmwareUploadConnectionStrategy().isPresent() || connectionStrategy == campaign
                         .getFirmwareUploadConnectionStrategy().get()))) {
-                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                            .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExecution.getComTask()
-                                    .getName()));
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(
+                            thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(),
+                            firmwareComTaskExecution.getComTask().getName()));
                     failed = true;
                 }
             } else {
-                getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
                         .format(firmwareComTaskExecution.getComTask().getName()));
                 failed = true;
             }
         } else {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
+            serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             failed = true;
         }
         if (!doesConnectionWindowOverlap()) {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY)
+            serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_WINDOW_OUTSIDE_OF_CAMPAIGN_TIME_BOUNDARY)
                     .format(getDevice().getName()));
             failed = true;
         }
-        Optional<ComTaskExecution> verificationComTaskExecutionOptional = findOrCreateVerificationComTaskExecution();
-        if (verificationComTaskExecutionOptional.isPresent()) {
-            ComTaskExecution verificationComTaskExecution = verificationComTaskExecutionOptional.get();
-            if (verificationComTaskExecution.getConnectionTask().isPresent()) {
-                ConnectionTask connectionTask = verificationComTaskExecution.getConnectionTask().get();
-                ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
-                FirmwareCampaignDomainExtension campaign = getFirmwareCampaign();
-                if (!(connectionTask.isActive() && (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign
-                        .getValidationConnectionStrategy().get()))) {
-                    getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
-                            .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(), verificationComTaskExecution.getComTask()
-                                    .getName()));
+        if (campaign.isWithVerification()) {
+            Optional<ComTaskExecution> verificationComTaskExecutionOptional = findOrCreateVerificationComTaskExecution();
+            if (verificationComTaskExecutionOptional.isPresent()) {
+                ComTaskExecution verificationComTaskExecution = verificationComTaskExecutionOptional.get();
+                if (verificationComTaskExecution.getConnectionTask().isPresent()) {
+                    ConnectionTask connectionTask = verificationComTaskExecution.getConnectionTask().get();
+                    ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) connectionTask).getConnectionStrategy();
+                    if (!(connectionTask.isActive() && (!campaign.getValidationConnectionStrategy().isPresent() || connectionStrategy == campaign
+                            .getValidationConnectionStrategy().get()))) {
+                        serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT).format(
+                                thesaurus.getFormat(TranslationKeys.valueOf(campaign.getValidationConnectionStrategy().get().name())).format(),
+                                verificationComTaskExecution.getComTask().getName()));
+                        failed = true;
+                    }
+                } else {
+                    serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
+                            .format(verificationComTaskExecution.getComTask().getName()));
                     failed = true;
                 }
             } else {
-                getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.CONNECTION_METHOD_MISSING_ON_COMTASK)
-                        .format(verificationComTaskExecution.getComTask().getName()));
+                serviceCall.log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
                 failed = true;
             }
-        } else {
-            getServiceCall().log(LogLevel.WARNING, thesaurus.getSimpleFormat(MessageSeeds.TASK_FOR_VALIDATION_IS_MISSING).format());
-            failed = true;
         }
-        if (doesAnyFirmwareRankingCheckFail(getFirmwareCampaign(), getDevice())) {
+        if (doesAnyFirmwareRankingCheckFail(campaign, getDevice())) {
             failed = true;
         }
         return failed;
