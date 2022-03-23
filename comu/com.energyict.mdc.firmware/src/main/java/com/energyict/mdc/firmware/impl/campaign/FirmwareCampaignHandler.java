@@ -91,7 +91,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 break;
             case DEVICE_BEFORE_DELETE:
                 Device device = (Device) event.getSource();
-                firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(item -> item.cancel(true));
+                firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(item -> {
+                    item.getServiceCall().log(LogLevel.WARNING, "The device is being removed. Cancelling the firmware campaign item...");
+                    item.cancel();
+                });
                 firmwareCampaignService.findFirmwareCampaignItems(device).forEach(DeviceInFirmwareCampaign::delete);
                 break;
             default:
@@ -171,7 +174,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                                     serviceCallService.lockServiceCall(serviceCall.getId());
                                     serviceCall.requestTransition(DefaultState.SUCCESSFUL);
                                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_COMPLETED).format());
-                                    firmwareCampaignService.getFirmwareService().cancelFirmwareUploadForDevice(deviceInFirmwareCampaign.getDevice());
+                                    firmwareCampaignService.getFirmwareService().cancelFirmwareUploadForDevice(deviceInFirmwareCampaign.getDevice()); // TODO: why here?
                                 } else {
                                     serviceCallService.lockServiceCall(serviceCall.getId());
                                     serviceCall.requestTransition(DefaultState.FAILED);
@@ -198,20 +201,15 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 Device device = comTaskExecution.getDevice();
                 DeviceInFirmwareCampaign firmwareItem = firmwareCampaignService.findActiveFirmwareItemByDevice(device).get();
                 ServiceCall serviceCall = firmwareItem.getServiceCall();
-                if (device.getMessages().stream().filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
+                if (device.getMessages().stream()
+                        .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
                         .filter(deviceMessage -> deviceMessage.getAttributes().stream()
                                 .map(DeviceMessageAttribute::getValue)
                                 .filter(Objects::nonNull)
                                 .anyMatch(val -> val.equals(firmwareCampaignOptional.get().getFirmwareVersion())))
-                        .anyMatch(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
-                                || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING))) {
-                    serviceCallService.lockServiceCall(serviceCall.getId());
-                    if (serviceCall.canTransitionTo(DefaultState.ONGOING)) {
-                        serviceCall.requestTransition(DefaultState.ONGOING);
-                    }
+                        .anyMatch(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING))) {
+                    serviceCall.transitionWithLockIfPossible(DefaultState.ONGOING);
                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_STARTED).format());
-                } else {
-                    firmwareItem.cancel(false);
                 }
             }
         }

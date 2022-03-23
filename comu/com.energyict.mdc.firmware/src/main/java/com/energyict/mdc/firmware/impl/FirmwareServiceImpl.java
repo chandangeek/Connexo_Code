@@ -27,8 +27,6 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.properties.PropertySpecService;
-import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionService;
@@ -58,6 +56,7 @@ import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceFirmwareHistory;
@@ -95,6 +94,7 @@ import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
 import com.google.inject.Scopes;
@@ -134,8 +134,9 @@ import static com.elster.jupiter.util.conditions.Where.where;
 /**
  * Provides an implementation for the {@link FirmwareService} interface.
  */
-@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, MessageSeedProvider.class, TranslationKeyProvider.class, ServiceCallCancellationHandler.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
-public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider, ServiceCallCancellationHandler {
+@Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, MessageSeedProvider.class, TranslationKeyProvider.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
+public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider {
+    public static final Set<TaskStatus> BUSY_TASK_STATUSES = ImmutableSet.of(TaskStatus.Busy, TaskStatus.Retrying);
     /*
      * {@link com.energyict.protocolimplv2.messages.DeviceMessageCategories#FIRMWARE}
      */
@@ -166,7 +167,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     private final List<CustomPropertySet> customPropertySets = new ArrayList<>();
     private final List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
-
+    private ComTask firmwareTask;
 
     // For OSGI
     public FirmwareServiceImpl() {
@@ -774,10 +775,10 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     @Deactivate
     public final void deactivate() {
+        firmwareCampaignService.deactivate();
+        firmwareChecks.clear();
         customPropertySets.forEach(customPropertySetService::removeCustomPropertySet);
         customPropertySets.clear();
-        firmwareChecks.clear();
-        firmwareCampaignService.deactivate();
     }
 
     @Reference
@@ -948,24 +949,22 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     }
 
     @Override
-    public List<ServiceCallType> getTypes() {
-        return Arrays.asList(serviceCallService.findServiceCallType(FirmwareCampaignServiceCallHandler.NAME, FirmwareCampaignServiceCallHandler.VERSION)
-                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")),
-                serviceCallService.findServiceCallType(FirmwareCampaignItemServiceCallHandler.NAME, FirmwareCampaignItemServiceCallHandler.VERSION)
-                        .orElseThrow(() -> new IllegalStateException("Service call type not found.")));
-    }
-
-    @Override
-    public void cancel(ServiceCall serviceCall) {
-        if (serviceCall.getParent().isPresent()) {
-            serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().cancel(false);
-        } else {
-            serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get().cancel();
-        }
-    }
-
-    @Override
     public String getLocalizedFirmwareStatus(FirmwareStatus firmwareStatus) {
         return FirmwareStatusTranslationKeys.translationFor(firmwareStatus, thesaurus);
+    }
+
+    public boolean hasRunningFirmwareTask(Device device) {
+        return getFirmwareComTask()
+                .map(ct -> device.getComTaskExecutions().stream().filter(cte -> cte.getComTask().equals(ct)))
+                .orElseGet(Stream::empty)
+                .map(ComTaskExecution::getStatus)
+                .anyMatch(BUSY_TASK_STATUSES::contains);
+    }
+
+    public Optional<ComTask> getFirmwareComTask() {
+        if (firmwareTask == null) {
+            firmwareTask = taskService.findFirmwareComTask().orElse(null);
+        }
+        return Optional.ofNullable(firmwareTask);
     }
 }

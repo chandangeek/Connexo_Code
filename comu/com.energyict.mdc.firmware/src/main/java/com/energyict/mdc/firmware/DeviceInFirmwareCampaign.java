@@ -24,7 +24,7 @@ public interface DeviceInFirmwareCampaign {
 
     ServiceCall getServiceCall();
 
-    ServiceCall cancel(boolean initFromCampaign);
+    void cancel();
 
     ServiceCall retry();
 

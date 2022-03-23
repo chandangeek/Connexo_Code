@@ -14,6 +14,7 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
+import com.elster.jupiter.util.concurrent.LockUtils;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
@@ -54,7 +55,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
 
 public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, DeviceInFirmwareCampaign {
     public static final Set<TaskStatus> BUSY_TASK_STATUSES = ImmutableSet.of(TaskStatus.Busy, TaskStatus.Retrying);
@@ -130,49 +130,35 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     @Override
-    public ServiceCall cancel(boolean initFromCampaign) {
-        ServiceCall serviceCall = getServiceCall();
-        if (getServiceCall().canTransitionTo(DefaultState.CANCELLED)) {
-            Optional<ServiceCall> lockedServiceCall = serviceCallService.lockServiceCall(getServiceCall().getId());
-            getDeviceMessage().ifPresent(dm -> {
-                        if (dm.getStatus().equals(DeviceMessageStatus.WAITING) || dm.getStatus().equals(DeviceMessageStatus.PENDING)) {
-                            DeviceMessage message = deviceMessageService.findAndLockDeviceMessageById(dm.getId())
-                                    .orElseThrow(() -> new IllegalStateException("Device message with id " + dm.getId() + " disappeared."));
-                            Optional<ComTask> firmwareComTask = taskService.findFirmwareComTask();
-                            if (firmwareComTask.isPresent()) {
-                                if (message.getStatus().equals(DeviceMessageStatus.WAITING) || (message.getStatus().equals(DeviceMessageStatus.PENDING)
-                                        && firmwareComTask.map(ct -> getDevice().getComTaskExecutions().stream().filter(cte -> cte.getComTask().getId() == ct.getId()))
-                                        .orElseGet(Stream::empty)
-                                        .map(ComTaskExecution::getStatus)
-                                        .noneMatch(BUSY_TASK_STATUSES::contains))) {
-                                    message.revoke();
-                                } else {
-                                    throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
-                                }
-                            } else {
-                                if ((message.getStatus().equals(DeviceMessageStatus.WAITING) || message.getStatus()
-                                        .equals(DeviceMessageStatus.PENDING))) {
-                                    message.revoke();
-                                } else {
-                                    throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
-                                }
-                            }
+    public void cancel() {
+        getServiceCall().cancel();
+    }
 
-                        } else {
-                            throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
-                        }
-                    }
-            );
-            if (lockedServiceCall.isPresent()) {
-                if (lockedServiceCall.get().canTransitionTo(DefaultState.CANCELLED)) {
-                    lockedServiceCall.get().requestTransition(DefaultState.CANCELLED);
-                }
-            } else {
-                throw new IllegalStateException("Service call disappeared.");
-            }
-        }
-        return serviceCallService.getServiceCall(serviceCall.getId())
-                .orElseThrow(() -> new IllegalStateException("Service call with id " + serviceCall.getId() + " disappeared."));
+    void beforeCancelling() {
+        ServiceCall serviceCall = getServiceCall();
+        LockUtils.forceLockWithDoubleCheck(serviceCall,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(DefaultState.CANCELLED),
+                sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
+        getDeviceMessage()
+                .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED)
+                .ifPresent(message -> LockUtils.forceLockWithDoubleCheck(message,
+                                deviceMessageService::findAndLockDeviceMessageById,
+                                dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING, // pre-check
+                                dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING // post-check
+                                        && !firmwareService.hasRunningFirmwareTask(getDevice()),
+                                dm -> cantCancelDeviceMessageException())
+                        .revoke()
+                );
+    }
+
+    private FirmwareCampaignException cantCancelServiceCallException(String serviceCallNumber, ServiceCall serviceCall) {
+        return new FirmwareCampaignException(thesaurus, MessageSeeds.CANT_CANCEL_SERVICE_CALL,
+                serviceCallNumber, serviceCall == null ? "no state" : serviceCall.getState().getDisplayName(thesaurus));
+    }
+
+    private FirmwareCampaignException cantCancelDeviceMessageException() {
+        return new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
     }
 
     @Override

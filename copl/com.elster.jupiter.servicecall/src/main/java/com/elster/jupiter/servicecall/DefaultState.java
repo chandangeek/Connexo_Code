@@ -8,7 +8,11 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 
+import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -87,5 +91,18 @@ public enum DefaultState implements TranslationKey {
 
     public boolean isOpen() {
         return ordinal() < PARTIAL_SUCCESS.ordinal();
+    }
+
+    public static EnumSet<DefaultState> openStates() {
+        return Arrays.stream(values())
+                .filter(DefaultState::isOpen)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(DefaultState.class)));
+    }
+
+    public static Set<String> openStateKeys() {
+        return Arrays.stream(values())
+                .filter(DefaultState::isOpen)
+                .map(DefaultState::getKey)
+                .collect(Collectors.toSet());
     }
 }

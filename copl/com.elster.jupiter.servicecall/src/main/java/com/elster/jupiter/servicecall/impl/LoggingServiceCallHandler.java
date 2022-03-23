@@ -56,6 +56,16 @@ class LoggingServiceCallHandler implements ServiceCallHandler {
     }
 
     @Override
+    public void beforeCancelling(ServiceCall serviceCall, DefaultState oldState) {
+        try {
+            delegate.beforeCancelling(serviceCall, oldState);
+        } catch (RuntimeException e) {
+            logException(serviceCall, e);
+            throw e;
+        }
+    }
+
+    @Override
     public String getDisplayName() {
         return delegate.getDisplayName();
     }

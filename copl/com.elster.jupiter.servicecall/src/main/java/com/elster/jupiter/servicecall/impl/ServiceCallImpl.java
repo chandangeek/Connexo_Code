@@ -28,6 +28,7 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.conditions.Where;
+import com.elster.jupiter.util.streams.Predicates;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -39,6 +40,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 import static java.util.Arrays.fill;
 
@@ -154,7 +156,14 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void requestTransition(DefaultState defaultState) {
-        getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
+        if (defaultState == DefaultState.CANCELLED) {
+            getType().getServiceCallHandler().beforeCancelling(this, getState());
+            serviceCallService.getServiceCall(id)
+                    .filter(upToDate -> upToDate.getState() != DefaultState.CANCELLED) // not removed and not cancelled yet
+                    .ifPresent(upToDate -> getType().getServiceCallLifeCycle().triggerTransition(upToDate, DefaultState.CANCELLED));
+        } else {
+            getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
+        }
     }
 
     void setState(DefaultState defaultState) {

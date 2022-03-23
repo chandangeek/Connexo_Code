@@ -100,7 +100,6 @@ public class FirmwareCampaignHandlerTest {
         when(firmwareCampaignService.findActiveFirmwareItemByDevice(any())).thenReturn(Optional.of(firmwareItem));
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(event.getType()).thenReturn(eventType);
-        when(firmwareItem.cancel(anyBoolean())).thenReturn(serviceCall);
         when(firmwareItem.getServiceCall()).thenReturn(serviceCall);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(firmwareItem), QueryStream.class);
         when(firmwareCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
@@ -117,7 +116,7 @@ public class FirmwareCampaignHandlerTest {
         when(eventType.getTopic()).thenReturn(FIRMWARE_COMTASKEXECUTION_STARTED);
         when(event.getSource()).thenReturn(firmwareComTaskExecution);
         firmwareCampaignHandler.onEvent(event);
-        verify(serviceCall).requestTransition(DefaultState.ONGOING);
+        verify(serviceCall).transitionWithLockIfPossible(DefaultState.ONGOING);
     }
 
     @Test

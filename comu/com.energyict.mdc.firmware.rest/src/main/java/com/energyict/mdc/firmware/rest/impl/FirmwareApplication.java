@@ -18,6 +18,7 @@ import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -70,6 +71,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile SecurityManagementService securityManagementService;
     private volatile FirmwareCampaignService firmwareCampaignService;
     private volatile DeviceMessageService deviceMessageService;
+    private volatile ServiceCallService serviceCallService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -127,6 +129,7 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(firmwareCampaignService).to(FirmwareCampaignService.class);
             bind(deviceMessageService).to(DeviceMessageService.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
+            bind(serviceCallService).to(ServiceCallService.class);
         }
     }
 
@@ -224,5 +227,10 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setSecurityManagementService(SecurityManagementService securityManagementService) {
         this.securityManagementService = securityManagementService;
+    }
+
+    @Reference
+    public void setServiceCallService(ServiceCallService serviceCallService) {
+        this.serviceCallService = serviceCallService;
     }
 }
