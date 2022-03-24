@@ -15,6 +15,7 @@ public class EI6v2021LoadProfileDataReader extends A2ProfileDataReader {
     private static final ObisCode HOURLY_LOAD_PROFILE     = ObisCode.fromString("7.0.99.99.2.255");
     private static final ObisCode DAILY_LOAD_PROFILE      = ObisCode.fromString("7.0.99.99.3.255");
     private static final ObisCode MONTHLY_LOAD_PROFILE    = ObisCode.fromString("7.0.99.99.4.255");
+    private static final ObisCode EI6_LOAD_PROFILE_STATUS = ObisCode.fromString("7.0.96.5.1.255");
 
     private static List<ObisCode> supportedLoadProfiles = new ArrayList<>();
 
@@ -31,6 +32,11 @@ public class EI6v2021LoadProfileDataReader extends A2ProfileDataReader {
 
     public static List<ObisCode> getSupportedLoadProfiles() {
         return supportedLoadProfiles;
+    }
+
+    @Override
+    protected boolean isProfileStatus(ObisCode obisCode) {
+        return EI6_LOAD_PROFILE_STATUS.equalsIgnoreBChannel(obisCode);
     }
 
 }
