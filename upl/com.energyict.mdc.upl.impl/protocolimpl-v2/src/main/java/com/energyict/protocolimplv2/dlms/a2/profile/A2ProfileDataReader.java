@@ -169,7 +169,7 @@ public class A2ProfileDataReader {
                     // this can happen when the load profile is read twice in the same time window (day for daily lp), then the data block is not accessible.
                     // It could also happen when the load profile is not configured properly.
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties().getRetries() + 1)) {
-                        String message = String.join(" ","Load profile was probably already read today, try modifying the 'last reading' date in the load profile properties.", e.getMessage());
+                        String message = String.join(" ","Error while reading load profile, device responded with: ", e.getMessage());
                         Issue problem = issueFactory.createWarning(loadProfileReader, message, correctedLoadProfileObisCode);
                         collectedLoadProfile.setFailureInformation(ResultType.DataIncomplete, problem);
                     }
