@@ -161,12 +161,12 @@ public class A2 extends AbstractDlmsProtocol {
 
     protected void setupSession(ComChannel comChannel, ObisCode frameCounterObiscode) {
         long frameCounter;
-        String logicalDeviceName;
+        String logicalDeviceName = this.offlineDevice.getSerialNumber();
         DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, getDlmsProperties());
         try {
             frameCounter = getFrameCounter(publicDlmsSession, frameCounterObiscode);
-            logicalDeviceName = getLogicalDeviceName(publicDlmsSession);
             if (hhuSignOnV2 != null) {
+                logicalDeviceName = getLogicalDeviceName(publicDlmsSession);
                 checkDeviceName(logicalDeviceName);
             }
         } catch (DataAccessResultException | ProtocolException e) {
@@ -195,9 +195,9 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     protected String getLogicalDeviceName(DlmsSession publicDlmsSession) throws IOException {
-        getLogger().info("Reading COSEM logical device name " + COSEM_LOGICAL_DEVICE_NAME.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
+        journal("Reading COSEM logical device name " + COSEM_LOGICAL_DEVICE_NAME.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
         String logicalDeviceName = getLogDevName(publicDlmsSession);
-        getLogger().info("COSEM logical device name received: " + logicalDeviceName);
+        journal("COSEM logical device name received: " + logicalDeviceName);
         return logicalDeviceName;
     }
 
@@ -231,7 +231,7 @@ public class A2 extends AbstractDlmsProtocol {
     protected void checkDeviceName(String logicalDeviceName) {
         if (!logicalDeviceName.equals(getDlmsSessionProperties().getDeviceId())) {
             CommunicationException exception = CommunicationException.unexpectedPropertyValue(DlmsProtocolProperties.DEVICE_ID, logicalDeviceName, getDlmsSessionProperties().getDeviceId());
-            getLogger().severe(exception.getMessage());
+            journal(Level.SEVERE, exception.getMessage());
             throw exception;
         }
     }
@@ -255,7 +255,7 @@ public class A2 extends AbstractDlmsProtocol {
                 }
                 return;
             } catch (ProtocolRuntimeException e) {
-                getLogger().log(Level.WARNING, e.getMessage(), e);
+                journal(Level.WARNING, e.getMessage(), e);
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;    // Throw real errors, e.g. unsupported security mechanism, wrong password...
                 } else if (e instanceof ConnectionCommunicationException) {
@@ -270,10 +270,10 @@ public class A2 extends AbstractDlmsProtocol {
 
             // Release and retry the AARQ in case of ACSE exception
             if (++tries > dlmsSession.getProperties().getRetries()) {
-                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
+                journal(Level.SEVERE, "Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
                 throw CommunicationException.protocolConnectFailed(exception);
             } else {
-                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                journal("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
                 } catch (ProtocolRuntimeException e) {
@@ -313,7 +313,7 @@ public class A2 extends AbstractDlmsProtocol {
         try {
             if (ClockChangeMode.SYNC.equals(changeMode)) {
                 if (isTimeIntervalOverClockSync() && isTimeSyncAroundInterval(timeToSet)) {
-                    getLogger().info("Time sync not performed due to hourly interval change on the meter");
+                    journal("Time sync not performed due to hourly interval change on the meter");
                     return;
                 }
             }
@@ -369,7 +369,7 @@ public class A2 extends AbstractDlmsProtocol {
         try {
             return getLogDevName(getDlmsSession());
         } catch (IOException e) {
-            getLogger().severe(e.getLocalizedMessage());
+            journal(Level.SEVERE, e.getLocalizedMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
@@ -459,7 +459,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-02-21$";
+        return "$Date: 2022-03-23$";
     }
 
     protected A2Messaging getProtocolMessaging() {

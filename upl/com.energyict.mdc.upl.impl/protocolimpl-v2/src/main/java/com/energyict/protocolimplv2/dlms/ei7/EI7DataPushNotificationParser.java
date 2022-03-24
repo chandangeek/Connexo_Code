@@ -407,11 +407,16 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             log("Reading load profile " + loadProfileToRead.toString());
             List<ChannelInfo> channelInfos = getDeviceChannelInfo(offlineLoadProfile.get());
             LoadProfileIdentifierByObisCodeAndDevice loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(loadProfileToRead, deviceIdentifier);
-            CollectedLoadProfile collectedLoadProfile = getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
+
             List<IntervalData> collectedIntervalData = readCollectedIntervalData(offlineLoadProfile.get(), compactFrame, offset);
-            collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
-            collectedLoadProfile.setDoStoreOlderValues(true);
-            getCollectedLoadProfiles().add(collectedLoadProfile);
+            if (!collectedIntervalData.isEmpty()) {
+                CollectedLoadProfile collectedLoadProfile = getCollectedDataFactory().createCollectedLoadProfile(loadProfileIdentifier);
+                collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
+                collectedLoadProfile.setDoStoreOlderValues(true);
+                getCollectedLoadProfiles().add(collectedLoadProfile);
+            } else {
+                log("No data has been collected for load profile " + loadProfileToRead.toString());
+            }
         }
     }
 
