@@ -61,6 +61,13 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 text: Uni.I18n.translate('general.sharedCommunicationSchedule', 'DSH', 'Shared communication schedule'),
                 itemId: 'comScheduleName',
                 dataIndex: 'comScheduleName',
+                renderer: function (value) {
+                    switch(value) {
+                        case 'Daily read all': return Uni.I18n.translate('general.dailyReadAll', 'DSH', 'Daily read all');
+                        case 'Daily read all gas': return Uni.I18n.translate('general.dailyReadAllGas', 'DSH', 'Daily read all gas');
+                        case 'Daily read all water': return Uni.I18n.translate('general.dailyReadAllWater', 'DSH', 'Daily read all water');
+                    }
+                },
                 flex: 2
             },
             {
