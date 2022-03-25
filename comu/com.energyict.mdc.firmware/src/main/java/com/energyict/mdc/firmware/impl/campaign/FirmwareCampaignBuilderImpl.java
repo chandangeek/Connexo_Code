@@ -156,7 +156,8 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         Optional.ofNullable(activationDate).ifPresent(firmwareCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(firmwareCampaign::setValidationTimeout);
         ServiceCall serviceCall = firmwareCampaignService.createServiceCallAndTransition(firmwareCampaign);
-        FirmwareCampaign firmwareCampaign2 = firmwareCampaignService.getFirmwareCampaignById(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Just created campaign not found."));
+        FirmwareCampaign firmwareCampaign2 = serviceCall.getExtension(FirmwareCampaignDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Just created campaign not found."));
         firmwareCampaign2.addProperties(properties);
         return firmwareCampaign2;
     }

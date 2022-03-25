@@ -17,6 +17,7 @@ import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -55,7 +56,7 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
         return this;
     }
 
-    public DevicesInFirmwareCampaignFilterImpl withStatus(List<String> firmwareManagementDeviceStatusKeys) {
+    public DevicesInFirmwareCampaignFilterImpl withStatus(Collection<String> firmwareManagementDeviceStatusKeys) {
         this.statusKeys = new HashSet<>();
         this.statusKeys.addAll(firmwareManagementDeviceStatusKeys);
         return this;
@@ -73,7 +74,8 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
             throw new IllegalStateException("FirmwareService is not set");
         }
         ServiceCall campaignServiceCall = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId.get())
-                .orElseThrow(() -> new BadFilterException(String.format("Campaign %d not found.", firmwareCampaignId.get()))).getServiceCall();
+                .orElseThrow(() -> new BadFilterException(String.format("Campaign %d not found.", firmwareCampaignId.get())))
+                .getServiceCall();
         return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".parent", campaignServiceCall);
     }
 

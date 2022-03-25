@@ -11,10 +11,13 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.dynamic.PropertySpecService;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -66,6 +69,12 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     SecurityManagementService securityManagementService;
     @Mock
     FirmwareCampaignService firmwareCampaignService;
+    @Mock
+    ServiceCallService serviceCallService;
+    @Mock
+    CommunicationTaskService communicationTaskService;
+    @Mock
+    ConnectionTaskService connectionTaskService;
 
     @Override
     protected Application getApplication() {
@@ -92,6 +101,9 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setPropertyValueInfoService(propertyValueInfoService);
         application.setMdcPropertyUtils(mdcPropertyUtils);
         application.setSecurityManagementService(securityManagementService);
+        application.setServiceCallService(serviceCallService);
+        application.setCommunicationTaskService(communicationTaskService);
+        application.setConnectionTaskService(connectionTaskService);
         when(clock.getZone()).thenReturn(ZoneId.systemDefault());
         return application;
     }

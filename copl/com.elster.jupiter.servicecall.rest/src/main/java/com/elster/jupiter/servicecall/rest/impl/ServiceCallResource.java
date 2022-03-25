@@ -6,6 +6,7 @@ package com.elster.jupiter.servicecall.rest.impl;
 
 
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
@@ -41,12 +42,15 @@ public class ServiceCallResource {
     private final ServiceCallService serviceCallService;
     private final ExceptionFactory exceptionFactory;
     private final ServiceCallInfoFactory serviceCallInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
-    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory) {
+    public ServiceCallResource(ServiceCallService serviceCallService, ExceptionFactory exceptionFactory, ServiceCallInfoFactory serviceCallInfoFactory,
+                               ConcurrentModificationExceptionFactory conflictFactory) {
         this.serviceCallService = serviceCallService;
         this.exceptionFactory = exceptionFactory;
         this.serviceCallInfoFactory = serviceCallInfoFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -90,7 +94,11 @@ public class ServiceCallResource {
     @RolesAllowed(Privileges.Constants.CHANGE_SERVICE_CALL_STATE)
     public Response cancelServiceCall(@PathParam("id") long id, ServiceCallInfo info) {
         if (info.state.id.equals("sclc.default.cancelled")) {
-            serviceCallService.getServiceCall(id).ifPresent(ServiceCall::cancel);
+            ServiceCall serviceCall = serviceCallService.lockServiceCall(id, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualVersion(() -> serviceCallService.getServiceCall(id).map(ServiceCall::getVersion).orElse(null))
+                            .supplier());
+            serviceCall.cancel();
             return Response.status(Response.Status.ACCEPTED).build();
         }
         return Response.status(Response.Status.BAD_REQUEST).build();

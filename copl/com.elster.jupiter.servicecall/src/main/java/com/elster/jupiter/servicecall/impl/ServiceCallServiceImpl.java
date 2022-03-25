@@ -362,6 +362,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
+    public Optional<ServiceCall> lockServiceCall(long id, long version) {
+        return dataModel.mapper(ServiceCall.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
         return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
                 .withHint(new Hint(Hint.HintType.LEADING, TableSpecs.SCS_SERVICE_CALL_TYPE.name()))

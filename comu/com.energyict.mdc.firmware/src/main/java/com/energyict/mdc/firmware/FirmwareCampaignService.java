@@ -34,7 +34,9 @@ public interface FirmwareCampaignService {
 
     Optional<FirmwareCampaign> getCampaignOn(ComTaskExecution comTaskExecution);
 
-    Optional<DeviceInFirmwareCampaign> findActiveFirmwareItemByDevice(Device device);
+    Optional<? extends DeviceInFirmwareCampaign> findActiveFirmwareItemByDevice(Device device);
+
+    Optional<? extends DeviceInFirmwareCampaign> findFirmwareItem(long campaignId, Device device);
 
     QueryStream<? extends DeviceInFirmwareCampaign> streamDevicesInCampaigns();
 

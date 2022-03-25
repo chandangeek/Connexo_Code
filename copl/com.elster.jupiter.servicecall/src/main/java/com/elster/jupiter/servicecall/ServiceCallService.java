@@ -139,6 +139,8 @@ public interface ServiceCallService {
      */
     Optional<ServiceCall> lockServiceCall(long id);
 
+    Optional<ServiceCall> lockServiceCall(long id, long version);
+
     /**
      * Returns a finder which allows you to filter the found service calls
      *

@@ -42,8 +42,8 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
-                ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
                 if (serviceCall.getTargetObject().isPresent()) {
+                    ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
                     serviceCallFilter.targetObjects.add(serviceCall.getTargetObject().get());
                     serviceCallFilter.states = Arrays.stream(DefaultState.values())
                             .filter(DefaultState::isOpen)

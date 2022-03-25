@@ -7,11 +7,13 @@ package com.elster.jupiter.servicecall;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.util.streams.Predicates;
 
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,6 +104,19 @@ public enum DefaultState implements TranslationKey {
     public static Set<String> openStateKeys() {
         return Arrays.stream(values())
                 .filter(DefaultState::isOpen)
+                .map(DefaultState::getKey)
+                .collect(Collectors.toSet());
+    }
+
+    public static EnumSet<DefaultState> closedStates() {
+        return Arrays.stream(values())
+                .filter(Predicates.not(DefaultState::isOpen))
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(DefaultState.class)));
+    }
+
+    public static Set<String> closedStateKeys() {
+        return Arrays.stream(values())
+                .filter(Predicates.not(DefaultState::isOpen))
                 .map(DefaultState::getKey)
                 .collect(Collectors.toSet());
     }

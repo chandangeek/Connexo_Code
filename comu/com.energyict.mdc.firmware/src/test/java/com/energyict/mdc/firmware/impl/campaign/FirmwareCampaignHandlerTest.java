@@ -75,7 +75,7 @@ public class FirmwareCampaignHandlerTest {
     private final ServiceCall serviceCall = mock(ServiceCall.class);
     private final ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
     private final TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
-    private final DeviceInFirmwareCampaign firmwareItem = mock(DeviceInFirmwareCampaign.class);
+    private final FirmwareCampaignItemDomainExtension firmwareItem = mock(FirmwareCampaignItemDomainExtension.class);
     private final FirmwareCampaignDomainExtension firmwareCampaign = createMockCampaign();
     private final ServiceCall parentSc = mock(ServiceCall.class);
 
@@ -101,6 +101,7 @@ public class FirmwareCampaignHandlerTest {
         when(serviceCallService.lockServiceCall(anyLong())).thenReturn(Optional.of(serviceCall));
         when(event.getType()).thenReturn(eventType);
         when(firmwareItem.getServiceCall()).thenReturn(serviceCall);
+        when(firmwareItem.getFirmwareCampaign()).thenReturn(firmwareCampaign);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Optional.of(firmwareItem), QueryStream.class);
         when(firmwareCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
         when(parentSc.getExtension(any())).thenReturn(Optional.ofNullable(firmwareCampaign));

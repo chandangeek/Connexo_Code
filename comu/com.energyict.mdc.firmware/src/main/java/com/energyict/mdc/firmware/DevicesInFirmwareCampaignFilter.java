@@ -6,6 +6,9 @@ package com.energyict.mdc.firmware;
 
 import com.elster.jupiter.util.conditions.Condition;
 
+import aQute.bnd.annotation.ProviderType;
+
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -13,6 +16,7 @@ import java.util.List;
  * or find {@link DeviceInFirmwareCampaign}s
  * by a number of criteria that can be mixed.
  */
+@ProviderType
 public interface DevicesInFirmwareCampaignFilter {
 
     /**
@@ -29,7 +33,7 @@ public interface DevicesInFirmwareCampaignFilter {
      * @param firmwareManagementDeviceStatusKeys: each DefaultState is uniquely defined by its key()
      * @return the filter
      */
-    DevicesInFirmwareCampaignFilter withStatus(List<String> firmwareManagementDeviceStatusKeys);
+    DevicesInFirmwareCampaignFilter withStatus(Collection<String> firmwareManagementDeviceStatusKeys);
 
     /**
      * Returns the filter's condition

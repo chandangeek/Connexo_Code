@@ -26,6 +26,8 @@ import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.rest.SecurityAccessorInfoFactory;
@@ -72,6 +74,8 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     private volatile FirmwareCampaignService firmwareCampaignService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile ServiceCallService serviceCallService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile ConnectionTaskService connectionTaskService;
 
     @Override
     public Set<Class<?>> getClasses() {
@@ -130,6 +134,8 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
             bind(deviceMessageService).to(DeviceMessageService.class);
             bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
             bind(serviceCallService).to(ServiceCallService.class);
+            bind(communicationTaskService).to(CommunicationTaskService.class);
+            bind(connectionTaskService).to(ConnectionTaskService.class);
         }
     }
 
@@ -232,5 +238,15 @@ public class FirmwareApplication extends Application implements MessageSeedProvi
     @Reference
     public void setServiceCallService(ServiceCallService serviceCallService) {
         this.serviceCallService = serviceCallService;
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 }

@@ -21,6 +21,7 @@ import com.energyict.mdc.common.protocol.DeviceMessageSpec;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -166,7 +167,7 @@ public class ResourceHelper {
     }
 
     public Optional<DeviceInFirmwareCampaignInfo> cancelDeviceInFirmwareCampaign(Device device, long campaignId) {
-        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
+        Optional<? extends DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
             deviceInFirmwareCampaign.get().cancel();
             return Optional.of(deviceInFirmwareCampaignInfoFactory.createInfo(deviceInFirmwareCampaign.get()));
@@ -176,8 +177,8 @@ public class ResourceHelper {
     }
 
     public Optional<DeviceInFirmwareCampaignInfo> retryDeviceInFirmwareCampaign(Device device, long campaignId) {
-        Optional<DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
-        if (deviceInFirmwareCampaign.isPresent() && deviceInFirmwareCampaign.get().getParent().getId() == campaignId) {
+        Optional<? extends DeviceInFirmwareCampaign> deviceInFirmwareCampaign = firmwareCampaignService.findFirmwareItem(campaignId, device);
+        if (deviceInFirmwareCampaign.isPresent() && !deviceInFirmwareCampaign.get().getServiceCall().getState().isOpen()) {
             deviceInFirmwareCampaign.get().retry();
             return Optional.of(deviceInFirmwareCampaignInfoFactory.createInfo(deviceInFirmwareCampaign.get()));
         } else {
