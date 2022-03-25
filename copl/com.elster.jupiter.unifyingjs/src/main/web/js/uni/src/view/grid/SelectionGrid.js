@@ -128,15 +128,18 @@ Ext.define('Uni.view.grid.SelectionGrid', {
     onClickCheckAllButton: function (button) {
         var me = this;
 
-        me.view.getSelectionModel().selectAll();
+        me.view.getSelectionModel().selectRange(0,(me.getStore().getCount() -1));
         button.setDisabled(true);
     },
 
     onSelectionChange: function () {
         var me = this,
             selection = me.getSelectedItems();
-
-        me.getSelectionCounter().setText(me.counterTextFn(selection.length));
+        if(me.radioGroupName == 'selected-communications') {
+            me.getSelectionCounter().setText(me.counterTextFn([selection.length, me.totalCount]));
+        } else {
+            me.getSelectionCounter().setText(me.counterTextFn(selection.length));
+        }
         me.getUncheckAllButton().setDisabled(selection.length === 0);
         if (me.checkAllButtonPresent) {
             me.getCheckAllButton().setDisabled(me.getStore().getCount() === selection.length);

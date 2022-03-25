@@ -181,6 +181,13 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
 
     }
 
+    @Override
+    public long getCommunicationTasksCount(ComTaskExecutionFilterSpecification filter) {
+        ComTaskExecutionFilterSqlBuilder sqlBuilder = new ComTaskExecutionFilterSqlBuilder(filter, this.deviceDataModelService.clock(), this.deviceFromDeviceGroupQueryExecutor());
+        DataMapper<ComTaskExecution> dataMapper = this.deviceDataModelService.dataModel().mapper(ComTaskExecution.class);
+        return this.fetchComTaskExecutions(dataMapper, sqlBuilder.buildCount(dataMapper)).size();
+    }
+
     private List<ComTaskExecution> fetchComTaskExecutions(DataMapper<ComTaskExecution> dataMapper, SqlBuilder sqlBuilder) {
         try (Fetcher<ComTaskExecution> fetcher = dataMapper.fetcher(sqlBuilder)) {
             Iterator<ComTaskExecution> comTaskExecutionIterator = fetcher.iterator();

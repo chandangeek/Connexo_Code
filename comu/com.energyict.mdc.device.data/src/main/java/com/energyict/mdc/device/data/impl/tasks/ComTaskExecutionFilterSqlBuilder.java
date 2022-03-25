@@ -135,6 +135,11 @@ public class ComTaskExecutionFilterSqlBuilder extends AbstractComTaskExecutionFi
         return sqlBuilder.asPageBuilder(pageStart, pageStart + pageSize);
     }
 
+    public SqlBuilder buildCount(DataMapper<ComTaskExecution> dataMapper) {
+        ClauseAwareSqlBuilder sqlBuilder = build(dataMapper.builder(communicationTaskAliasName()));
+        return sqlBuilder.asBuilder();
+    }
+
     @Override
     protected void appendWhereClause(ServerComTaskStatus taskStatus) {
         super.appendWhereClause(taskStatus);

@@ -279,4 +279,6 @@ public interface CommunicationTaskService {
     void executionRescheduledToComWindow(ComTaskExecution comTaskExecution, Instant comWindowStartDate);
 
     List<ComTaskExecution> findLockedByComPort(ComPort comPort);
+
+    long getCommunicationTasksCount(ComTaskExecutionFilterSpecification filter);
 }
