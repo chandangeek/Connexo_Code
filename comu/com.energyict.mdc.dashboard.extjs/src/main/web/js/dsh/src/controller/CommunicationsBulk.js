@@ -80,8 +80,9 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             selectionGrid.getDockedItems()[0].items.items[0].setBoxLabel("<b>All communications</b>  &nbsp &nbsp Count of communication tasks: " + selectionGrid.totalCount);
 
             if(a) {
-                selectionGrid.getSelectionModel().select(records, true, true);
+                selectionGrid.getSelectionModel().select(records, true);
                 selectionGrid.down('#selectionCounter').setText(selectionGrid.counterTextFn([selectionGrid.getSelectionModel().getSelection().length, selectionGrid.totalCount]));
+                wizard.down('bulk-selection-grid').down('#checkAllButton').setDisabled(true);
             }
         }, this);
 
