@@ -217,7 +217,14 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
 
     private void addDayTypes(CalendarInfo calendarInfo, List<DayType> dayTypes) {
         calendarInfo.dayTypes = new ArrayList<>();
-        dayTypes.forEach(dayType -> calendarInfo.dayTypes.add(createDayType(dayType)));
+        dayTypes.forEach(dayType -> {
+            DayTypeInfo dayTypeInfo = createDayType(dayType);
+            TranslationKeys translation = TranslationKeys.from(dayType.getName());
+            if(translation != null){
+                dayTypeInfo.name = thesaurus.getFormat(translation).format();
+            }
+            calendarInfo.dayTypes.add(dayTypeInfo);
+        });
 
     }
 
