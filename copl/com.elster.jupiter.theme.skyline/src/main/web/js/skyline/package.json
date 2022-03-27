@@ -1,5 +1,5 @@
 {
-  "compatVersion" : "10.9.16",
+  "compatVersion" : "10.9.17",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "extend" : "ext-theme-neptune",
@@ -9,5 +9,5 @@
   "requires" : [ ],
   "summary" : "Theme for the Jupiter project called Skyline",
   "type" : "theme",
-  "version" : "10.9.16"
+  "version" : "10.9.17"
 }
