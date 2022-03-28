@@ -373,10 +373,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 serviceCallService::lockServiceCall,
                 sc -> sc.canTransitionTo(DefaultState.CANCELLED),
                 sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
-        setManuallyCancelled(true);
-        lockedServiceCall.update(this);
-        lockedServiceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
-        firmwareCampaignService.streamDevicesInCampaigns()
+        long count = firmwareCampaignService.streamDevicesInCampaigns()
                 .join(ServiceCall.class)
                 .join(State.class)
                 .join(DeviceMessage.class)
@@ -405,12 +402,20 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 })
                 .filter(Objects::nonNull)
                 // locked everything, now cancel all we have
-                .forEach(pair -> {
+                .peek(pair -> {
                     if (pair.hasLast()) {
                         pair.getLast().revoke();
                     }
                     pair.getFirst().cancel();
-                });
+                })
+                .count();
+        if (count > 0) { // at least one item was indeed cancelled
+            setManuallyCancelled(true);
+            lockedServiceCall.update(this);
+            lockedServiceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
+        } else { // couldn't cancel anything
+            throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+        }
     }
 
     private FirmwareCampaignException cantCancelServiceCallException(String serviceCallNumber, ServiceCall serviceCall) {

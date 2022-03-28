@@ -61,9 +61,17 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
             case REJECTED:
             case SUCCESSFUL:
                 completeIfRequired(parent);
-                parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was " +
-                        newState.getDefaultFormat().toLowerCase(), serviceCall.getId(), serviceCall.getType().getName()));
+                parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was {2}.",
+                        serviceCall.getNumber(),
+                        serviceCall.getType().getName(),
+                        newState.getDefaultFormat().toLowerCase()));
                 break;
+            case PENDING:
+                if (!oldState.isOpen()) {
+                    parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was retried.",
+                            serviceCall.getNumber(),
+                            serviceCall.getType().getName()));
+                }
             default:
                 break;
         }
@@ -81,7 +89,8 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
             if (shouldBeCancelled(firmwareCampaignDomainExtension, children)) {
                 firmwareCampaignDomainExtension.setManuallyCancelled(true);
                 parent.update(firmwareCampaignDomainExtension);
-                parent.requestTransition(DefaultState.CANCELLED);
+                // to avoid calling com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceCallHandler.beforeCancelling
+                parent.getType().getServiceCallLifeCycle().triggerTransition(parent, DefaultState.CANCELLED);
             } else if (children.stream().map(ServiceCall::getState).allMatch(s -> DefaultState.SUCCESSFUL == s || DefaultState.CANCELLED == s)) {
                 parent.requestTransition(DefaultState.SUCCESSFUL);
             } else if (children.stream().map(ServiceCall::getState).noneMatch(DefaultState.SUCCESSFUL::equals)) {
