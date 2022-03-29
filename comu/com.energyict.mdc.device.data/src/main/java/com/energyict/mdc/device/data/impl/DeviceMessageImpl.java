@@ -57,23 +57,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
 
     private static final Logger LOGGER = Logger.getLogger(DeviceMessageImpl.class.getName());
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        DeviceMessageImpl that = (DeviceMessageImpl) o;
-        return getId() == that.getId();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId());
-    }
-
     public enum Fields {
         DEVICE("device"),
         DEVICEMESSAGEID("deviceMessageId"),
@@ -353,6 +336,18 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+                || o instanceof DeviceMessageImpl
+                && getId() == ((DeviceMessageImpl) o).getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
+    }
+
     private ReleaseDateUpdater getReleaseDateUpdater() {
         if (this.releaseDateUpdater == null) {
             this.releaseDateUpdater = new ReleaseDateUpdater(getStatus(), this.releaseDate);
@@ -394,7 +389,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     }
 
     public class ReleaseDateUpdater {
-
         private final DeviceMessageStatus status;
         private final Instant initialReleaseDate;
         private Instant newReleaseDate;
@@ -454,24 +448,7 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                                     anyMatch(dms -> dms.getId().dbValue() == deviceMessageId))
                             .anyMatch(cte -> cte.isExecuting() && cte.getConnectionTask().isPresent() && executingConnectionTasks.contains(cte.getConnectionTask().get().getId()));
         }
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (!(o instanceof DeviceMessageImpl)) {
-                return false;
-            }
-            DeviceMessageImpl that = (DeviceMessageImpl) o;
-            return getId() == that.getId();
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(getId());
-        }
     }
-
 
     /**
      * Models a Group used for validating attributes that need
