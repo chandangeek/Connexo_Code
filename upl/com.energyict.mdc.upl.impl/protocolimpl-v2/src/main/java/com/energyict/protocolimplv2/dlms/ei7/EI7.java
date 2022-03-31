@@ -41,7 +41,7 @@ public class EI7 extends A2 {
     }
 
     public EI7DlmsSession createDlmsSession(ComChannel comChannel, DlmsProperties dlmsSessionProperties) {
-        return new EI7DlmsSession(comChannel, dlmsSessionProperties, getHhuSignOnV2(), offlineDevice.getSerialNumber());
+        return new EI7DlmsSession(comChannel, dlmsSessionProperties, getHhuSignOnV2(), offlineDevice.getSerialNumber(), this);
     }
 
     protected EI7Messaging createMessaging() {
@@ -122,7 +122,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-03-23$";
+        return "$Date: 2022-03-31$";
     }
 
     @Override
