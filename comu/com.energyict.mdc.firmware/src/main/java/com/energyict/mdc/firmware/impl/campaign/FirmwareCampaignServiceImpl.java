@@ -169,9 +169,8 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                     numberOfDevices.compute(messageSeeds, (key, value) -> value == null ? 1 : value + 1);
                 });
             } else {
-                serviceCallService.lockServiceCall(serviceCall.getId());
-                serviceCall.requestTransition(DefaultState.CANCELLED);
-                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND).format(campaign.getDeviceGroup(), campaign.getDeviceType().getName()));
+                serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.DEVICES_WITH_GROUP_AND_TYPE_NOT_FOUND)
+                        .format(campaign.getDeviceGroup(), campaign.getDeviceType().getName()));
             }
             int notAddedDevicesBecauseDifferentType = devicesByGroup.size() - devicesByGroupAndType.size();
             if (notAddedDevicesBecauseDifferentType == 1) {
@@ -196,10 +195,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
                 }
             }
             if (numberOfDevices.get(MessageSeeds.DEVICE_WAS_ADDED) == null) {
-                serviceCallService.lockServiceCall(serviceCall.getId());
-                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                    serviceCall.requestTransition(DefaultState.CANCELLED);
-                }
+                serviceCall.transitionWithLockIfPossible(DefaultState.CANCELLED);
                 serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CAMPAIGN_WAS_CANCELED_BECAUSE_DIDNT_RECEIVE_DEVICES).format());
             }
         });

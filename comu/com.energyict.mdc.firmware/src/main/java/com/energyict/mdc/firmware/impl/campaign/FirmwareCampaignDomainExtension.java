@@ -20,6 +20,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.Pair;
@@ -361,7 +362,12 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public void cancel() {
-        getServiceCall().cancel();
+        ServiceCall serviceCall = getServiceCall();
+        ServiceCall lockedServiceCall = LockUtils.forceLockWithDoubleCheck(serviceCall,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(DefaultState.CANCELLED),
+                sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
+        lockedServiceCall.cancel();
     }
 
     void beforeCancelling() {
@@ -369,15 +375,11 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
             throw new FirmwareCampaignException(thesaurus, MessageSeeds.CAMPAIGN_ALREADY_CANCELLED);
         }
         ServiceCall serviceCall = getServiceCall();
-        ServiceCall lockedServiceCall = LockUtils.forceLockWithDoubleCheck(serviceCall,
-                serviceCallService::lockServiceCall,
-                sc -> sc.canTransitionTo(DefaultState.CANCELLED),
-                sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
         long count = firmwareCampaignService.streamDevicesInCampaigns()
                 .join(ServiceCall.class)
                 .join(State.class)
                 .join(DeviceMessage.class)
-                .filter(Where.where("serviceCall.parent").isEqualTo(lockedServiceCall))
+                .filter(Where.where("serviceCall.parent").isEqualTo(serviceCall))
                 .filter(Where.where("serviceCall.state.name").in(DefaultState.openStateKeys()))
                 .filter(Where.where("deviceMessage").isNull().or(Where.where("deviceMessage.deviceMessageStatus").isEqualTo(DeviceMessageStatus.WAITING)))
                 .sorted(Order.ascending("serviceCall.id"))
@@ -411,10 +413,14 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 .count();
         if (count > 0) { // at least one item was indeed cancelled
             setManuallyCancelled(true);
-            lockedServiceCall.update(this);
-            lockedServiceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
-        } else { // couldn't cancel anything
-            throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+            serviceCall.update(this);
+            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
+        } else {
+            ServiceCallFilter filter = new ServiceCallFilter();
+            filter.states = DefaultState.openStates().stream().map(DefaultState::name).collect(Collectors.toList());
+            if (!serviceCall.findChildren(filter).paged(0, 0).find().isEmpty()) { // has open children, but couldn't cancel anything
+                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+            }
         }
     }
 

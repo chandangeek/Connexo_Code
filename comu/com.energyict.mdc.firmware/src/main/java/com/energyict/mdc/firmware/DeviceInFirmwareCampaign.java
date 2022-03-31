@@ -26,7 +26,7 @@ public interface DeviceInFirmwareCampaign {
 
     void cancel();
 
-    ServiceCall retry();
+    void retry();
 
     ServiceCall getParent();
 

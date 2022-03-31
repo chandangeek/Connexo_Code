@@ -76,6 +76,7 @@ public enum MessageSeeds implements MessageSeed {
     TASK_FOR_SENDING_FIRMWARE_IS_MISSING(4015, "TaskForSendingFirmwareIsMissing", "Communication task for sending firmware is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.WARNING),
     CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(4016, "ConnectionMethodDoesntMeetTheRequirement", "The connection method ''{0}'' set on ''{1}'' doesn''t match the one required on the firmware campaign", Level.WARNING),
     DEVICE_PART_OF_ANOTHER_CAMPAIGN(4017, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign.", Level.SEVERE),
+    CANT_RETRY_SERVICE_CALL(4018, "CantRetryServiceCall", "Couldn''t restart service call {0} from state ''{1}''.", Level.SEVERE),
     CAMPAIGN_ALREADY_CANCELLED(4019, "CampaignAlreadyCancelled", "The campaign has already been cancelled.", Level.WARNING),
     CANT_CANCEL_SERVICE_CALL(4020, "CantCancelServiceCall", "The service call {0} is already in state ''{1}'', not allowing cancellation.", Level.SEVERE),
     CAMPAIGN_WITH_DEVICE_CANCELLED(4021, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),

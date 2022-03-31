@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -177,11 +178,14 @@ public class DeviceResource {
     private final JsonService jsonService;
     private final MeteringTranslationService meteringTranslationService;
     private final DeviceMessageInfoFactory deviceMessageInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
+
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
     public DeviceResource(
-            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, ResourceHelper resourceHelper,
+            DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+            ResourceHelper resourceHelper,
             ExceptionFactory exceptionFactory,
             DeviceService deviceService,
             TopologyService topologyService,
@@ -230,7 +234,8 @@ public class DeviceResource {
             BpmService bpmService,
             JsonService jsonService,
             MeteringTranslationService meteringTranslationService,
-            DeviceMessageInfoFactory deviceMessageInfoFactory) {
+            DeviceMessageInfoFactory deviceMessageInfoFactory,
+            ConcurrentModificationExceptionFactory conflictFactory) {
         this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
@@ -282,6 +287,7 @@ public class DeviceResource {
         this.jsonService = jsonService;
         this.meteringTranslationService = meteringTranslationService;
         this.deviceMessageInfoFactory = deviceMessageInfoFactory;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -1039,7 +1045,11 @@ public class DeviceResource {
     @Path("/{name}/runningservicecalls/{id}")
     public Response cancelServiceCall(@PathParam("name") String name, @PathParam("id") long serviceCallId, ServiceCallInfo info) {
         if ("sclc.default.cancelled".equals(info.state.id)) {
-            serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
+            ServiceCall serviceCall = serviceCallService.lockServiceCall(serviceCallId, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualVersion(() -> serviceCallService.getServiceCall(serviceCallId).map(ServiceCall::getVersion).orElse(null))
+                            .supplier());
+            serviceCall.cancel();
             return Response.status(Response.Status.ACCEPTED).build();
         }
         throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);

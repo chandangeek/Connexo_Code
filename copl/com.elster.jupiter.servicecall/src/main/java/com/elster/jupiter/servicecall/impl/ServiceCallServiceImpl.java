@@ -41,11 +41,13 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_8_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.concurrent.LockUtils;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -68,6 +70,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -428,7 +431,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObjects.add(targetObject);
         filter.states = inState.stream().map(Enum::name).collect(Collectors.toList());
-
         return getServiceCallFinder(filter)
                 .stream()
                 .collect(Collectors.toSet());
@@ -436,28 +438,18 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public void cancelServiceCallsFor(Object target) {
-        EnumSet<DefaultState> states = EnumSet.allOf(DefaultState.class);
-        states.remove(DefaultState.CREATED);
-        states.remove(DefaultState.CANCELLED);
-        states.remove(DefaultState.FAILED);
-        states.remove(DefaultState.SUCCESSFUL);
-        states.remove(DefaultState.PARTIAL_SUCCESS);
-        states.remove(DefaultState.REJECTED);
-        findServiceCalls(target, states)
-                .stream()
+        findServiceCalls(target, DefaultState.openStates()).stream()
+                .sorted(Comparator.comparing(ServiceCall::getId))
+                .map(serviceCall -> LockUtils.lockWithDoubleCheck(serviceCall,
+                        this::lockServiceCall,
+                        sc -> sc.canTransitionTo(DefaultState.CANCELLED)))
+                .flatMap(Functions.asStream())
                 .forEach(ServiceCall::cancel);
     }
 
     @Override
     public Set<DefaultState> nonFinalStates() {
-        return EnumSet.of(
-                DefaultState.CREATED,
-                DefaultState.ONGOING,
-                DefaultState.PAUSED,
-                DefaultState.PENDING,
-                DefaultState.SCHEDULED,
-                DefaultState.WAITING
-        );
+        return DefaultState.openStates();
     }
 
     private Condition createConditionFromFilter(ServiceCallFilter filter) {

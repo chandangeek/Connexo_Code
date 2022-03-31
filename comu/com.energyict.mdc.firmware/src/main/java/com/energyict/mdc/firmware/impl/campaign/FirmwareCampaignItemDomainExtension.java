@@ -131,15 +131,15 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     @Override
     public void cancel() {
-        getServiceCall().cancel();
-    }
-
-    void beforeCancelling() {
         ServiceCall serviceCall = getServiceCall();
-        LockUtils.forceLockWithDoubleCheck(serviceCall,
+        ServiceCall lockedServiceCall = LockUtils.forceLockWithDoubleCheck(serviceCall,
                 serviceCallService::lockServiceCall,
                 sc -> sc.canTransitionTo(DefaultState.CANCELLED),
                 sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
+        lockedServiceCall.cancel();
+    }
+
+    void beforeCancelling() {
         getDeviceMessage()
                 .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED)
                 .ifPresent(message -> LockUtils.forceLockWithDoubleCheck(message,
@@ -157,21 +157,27 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                 serviceCallNumber, serviceCall == null ? "no state" : serviceCall.getState().getDisplayName(thesaurus));
     }
 
+    private FirmwareCampaignException cantRetryServiceCallException(String serviceCallNumber, ServiceCall serviceCall) {
+        return new FirmwareCampaignException(thesaurus, MessageSeeds.CANT_RETRY_SERVICE_CALL,
+                serviceCallNumber, serviceCall == null ? "no state" : serviceCall.getState().getDisplayName(thesaurus));
+    }
+
     private FirmwareCampaignException cantCancelDeviceMessageException() {
         return new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
     }
 
     @Override
-    public ServiceCall retry() {
+    public void retry() {
         ServiceCall serviceCall = getServiceCall();
         if (serviceCall.getParent().get().getExtension(FirmwareCampaignDomainExtension.class).get().isManuallyCancelled()) {
             throw new FirmwareCampaignException(thesaurus, MessageSeeds.CAMPAIGN_WITH_DEVICE_CANCELLED);
         }
-        if (serviceCall.canTransitionTo(DefaultState.PENDING)) {
-            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
-            serviceCall.requestTransition(DefaultState.PENDING);
-        }
-        return serviceCallService.getServiceCall(serviceCall.getId()).get();
+        ServiceCall lockedServiceCall = LockUtils.forceLockWithDoubleCheck(serviceCall,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(DefaultState.PENDING),
+                sc -> cantRetryServiceCallException(serviceCall.getNumber(), sc));
+        lockedServiceCall.requestTransition(DefaultState.PENDING);
+        lockedServiceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.RETRIED_BY_USER).format());
     }
 
     @Override

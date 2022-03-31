@@ -41,6 +41,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -476,6 +477,7 @@ public class UsagePointApplication extends Application implements TranslationKey
             bind(UsagePointOutputReferenceCopier.class).to(UsagePointOutputReferenceCopier.class);
             bind(auditService).to(AuditService.class);
             bind(auditInfoFactory).to(AuditInfoFactory.class);
+            bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
         }
     }
 }

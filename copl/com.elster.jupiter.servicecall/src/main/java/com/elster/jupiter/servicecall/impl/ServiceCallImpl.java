@@ -27,6 +27,7 @@ import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.concurrent.LockUtils;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.streams.Predicates;
 
@@ -158,9 +159,9 @@ public class ServiceCallImpl implements ServiceCall {
     public void requestTransition(DefaultState defaultState) {
         if (defaultState == DefaultState.CANCELLED) {
             getType().getServiceCallHandler().beforeCancelling(this, getState());
-            serviceCallService.getServiceCall(id)
-                    .filter(upToDate -> upToDate.getState() != DefaultState.CANCELLED) // not removed and not cancelled yet
-                    .ifPresent(upToDate -> getType().getServiceCallLifeCycle().triggerTransition(upToDate, DefaultState.CANCELLED));
+            if (getState() != DefaultState.CANCELLED) {
+                getType().getServiceCallLifeCycle().triggerTransition(this, DefaultState.CANCELLED);
+            }
         } else {
             getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
         }
@@ -365,12 +366,9 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void transitionWithLockIfPossible(DefaultState state) {
-        if (canTransitionTo(state)) {
-            serviceCallService.lockServiceCall(this.getId()).ifPresent(sc -> {
-                if (sc.canTransitionTo(state)) {
-                    sc.requestTransition(state);
-                }
-            });
-        }
+        LockUtils.lockWithDoubleCheck(this,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(state))
+                .ifPresent(sc -> sc.requestTransition(state));
     }
 }
