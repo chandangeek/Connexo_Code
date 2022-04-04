@@ -172,7 +172,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>security.thread</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.protocol.pluggable</artifactId>
+        </dependency>
         <!-- Testing -->
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -191,11 +194,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>devtools.persistence</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.protocol.pluggable</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
