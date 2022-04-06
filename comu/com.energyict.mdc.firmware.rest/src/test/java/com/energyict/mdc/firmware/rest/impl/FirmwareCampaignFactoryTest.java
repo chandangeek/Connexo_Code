@@ -83,7 +83,9 @@ public class FirmwareCampaignFactoryTest {
         assertEquals("As soon as possible", firmwareCampaignInfo.firmwareUploadConnectionStrategy.name);
         assertEquals("Minimize connections", firmwareCampaignInfo.validationConnectionStrategy.name);
         assertEquals(1L, firmwareCampaignInfo.firmwareUploadComTask.id);
+        assertEquals("comTaskName", firmwareCampaignInfo.firmwareUploadComTask.name);
         assertEquals(2L, firmwareCampaignInfo.validationComTask.id);
+        assertEquals("validationTaskName", firmwareCampaignInfo.validationComTask.name);
     }
 
     @Test
@@ -104,9 +106,9 @@ public class FirmwareCampaignFactoryTest {
         assertEquals("Ongoing", firmwareCampaignInfo.status.name);
     }
 
-
     private FirmwareCampaign createMockCampaign() {
-        ComTask comtask = mock(ComTask.class);
+        ComTask firmwareTask = mock(ComTask.class);
+        ComTask validationComTask = mock(ComTask.class);
         FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
@@ -137,8 +139,10 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.AS_SOON_AS_POSSIBLE));
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.MINIMIZE_CONNECTIONS));
-        when(comtask.getName()).thenReturn("comTaskName");
-        when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
+        when(firmwareTask.getName()).thenReturn("comTaskName");
+        when(taskService.findComTask(1L)).thenReturn(Optional.of(firmwareTask));
+        when(validationComTask.getName()).thenReturn("validationTaskName");
+        when(taskService.findComTask(2L)).thenReturn(Optional.of(validationComTask));
         return firmwareCampaign;
     }
 }

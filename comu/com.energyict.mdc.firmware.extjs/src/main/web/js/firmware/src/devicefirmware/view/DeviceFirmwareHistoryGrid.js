@@ -65,7 +65,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
 
             },
             {
-                dataIndex: 'triggerdBy',
+                dataIndex: 'triggeredBy',
                 header: Uni.I18n.translate('device.firmware.history.TriggeredBy', 'FWC', 'Triggered by'),
                 fixed: true,
                 flex: 3

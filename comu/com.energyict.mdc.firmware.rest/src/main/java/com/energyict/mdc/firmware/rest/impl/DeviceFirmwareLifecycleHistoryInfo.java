@@ -18,7 +18,7 @@ public class DeviceFirmwareLifecycleHistoryInfo {
 
     private String firmwareVersion;
     private String imageIdentifier;
-    private String triggerdBy;
+    private String triggeredBy;
     private Instant uploadedOn;
     private Instant activationDate;
     private String result;
@@ -45,12 +45,12 @@ public class DeviceFirmwareLifecycleHistoryInfo {
         this.imageIdentifier = imageIdentifier;
     }
 
-    public String getTriggerdBy() {
-        return triggerdBy;
+    public String getTriggeredBy() {
+        return triggeredBy;
     }
 
-    public void setTriggerdBy(String triggerdBy) {
-        this.triggerdBy = triggerdBy;
+    public void setTriggeredBy(String triggeredBy) {
+        this.triggeredBy = triggeredBy;
     }
 
     public Instant getUploadedOn() {
@@ -88,7 +88,7 @@ public class DeviceFirmwareLifecycleHistoryInfo {
     private void buildDeviceFirmwareHistoryInfosFrom(DeviceMessage deviceMessage, FirmwareManagementDeviceUtils versionUtils, Thesaurus thesaurus) {
         this.setUploadedOn(deviceMessage.getReleaseDate());
         this.setResult(DeviceMessageStatusTranslationKeys.translationFor(deviceMessage.getStatus(), thesaurus));
-        this.setTriggerdBy(deviceMessage.getUser());
+        this.setTriggeredBy(deviceMessage.getUser());
         this.setFirmwareVersion(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getFirmwareVersion).orElse(null));
         this.setImageIdentifier(versionUtils.getFirmwareVersionFromMessage(deviceMessage).map(FirmwareVersion::getImageIdentifier).orElse(null));
         this.setActivationDate(versionUtils.getActivationDateFromMessage(deviceMessage).orElse(deviceMessage.getReleaseDate()));

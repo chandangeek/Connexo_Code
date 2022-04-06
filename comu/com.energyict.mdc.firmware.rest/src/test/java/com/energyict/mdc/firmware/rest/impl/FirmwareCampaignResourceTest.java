@@ -240,7 +240,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
 
     private FirmwareCampaign createCampaignMock() {
         FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
-        ComTask comtask = mock(ComTask.class);
+        ComTask firmwareComTask = mock(ComTask.class);
+        ComTask validationComTask = mock(ComTask.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getCreationTime()).thenReturn(Instant.ofEpochSecond(111));
@@ -278,8 +279,10 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.AS_SOON_AS_POSSIBLE));
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.MINIMIZE_CONNECTIONS));
-        when(comtask.getName()).thenReturn("comTaskName");
-        when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
+        when(firmwareComTask.getName()).thenReturn("comTaskName");
+        when(taskService.findComTask(1L)).thenReturn(Optional.of(firmwareComTask));
+        when(validationComTask.getName()).thenReturn("validationComTaskName");
+        when(taskService.findComTask(2L)).thenReturn(Optional.of(validationComTask));
         return firmwareCampaign;
     }
 }

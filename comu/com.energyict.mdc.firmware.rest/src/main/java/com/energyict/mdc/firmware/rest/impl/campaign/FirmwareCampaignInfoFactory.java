@@ -111,14 +111,16 @@ public class FirmwareCampaignInfoFactory {
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
-        info.firmwareUploadComTask = campaign.getFirmwareUploadComTaskId() == 0 ? null : new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(), taskService.findComTask(campaign.getFirmwareUploadComTaskId())
-                .get()
-                .getName());
-        info.firmwareUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy().isPresent() ? new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy()
-                .get(), thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().get().name(), campaign.getFirmwareUploadConnectionStrategy().get().name())) : null;
-        info.validationComTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(campaign.getValidationComTaskId(), taskService.findComTask(campaign.getValidationComTaskId())
-                .get()
-                .getName());
+        info.firmwareUploadComTask = campaign.getFirmwareUploadComTaskId() == 0 ?
+                null :
+                new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(), taskService.findComTask(campaign.getFirmwareUploadComTaskId()).get().getName());
+        info.firmwareUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy().isPresent() ?
+                new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy().get(),
+                        thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().get().name(), campaign.getFirmwareUploadConnectionStrategy().get().name())) :
+                null;
+        info.validationComTask = campaign.getValidationComTaskId() == 0 ?
+                null :
+                new IdWithNameInfo(campaign.getValidationComTaskId(), taskService.findComTask(campaign.getValidationComTaskId()).get().getName());
 
         info.validationConnectionStrategy = campaign.getValidationConnectionStrategy().isPresent() ? new IdWithNameInfo(campaign.getValidationConnectionStrategy()
                 .get(), thesaurus.getString(campaign.getValidationConnectionStrategy().get().name(), campaign.getValidationConnectionStrategy().get().name())) : null;
