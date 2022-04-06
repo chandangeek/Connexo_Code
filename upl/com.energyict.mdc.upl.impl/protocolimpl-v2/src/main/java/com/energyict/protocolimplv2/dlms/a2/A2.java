@@ -128,10 +128,12 @@ public class A2 extends AbstractDlmsProtocol {
         if (ComChannelType.SerialComChannel.equals(comChannel.getComChannelType()) || ComChannelType.OpticalComChannel.equals(comChannel.getComChannelType())) {
             getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
             getHHUSignOn((SerialPortComChannel) comChannel);
-            setupSession(comChannel, FRAME_COUNTER_MANAGEMENT_OFFLINE);
+            setupPublicSession(comChannel, FRAME_COUNTER_MANAGEMENT_OFFLINE);
         } else {
-            if (!useCachedFrameCounter()) {
-                setupSession(comChannel, FRAME_COUNTER_MANAGEMENT_ONLINE);
+            if (useCachedFrameCounter()) {
+                setDlmsSession(createDlmsSession(comChannel, getDlmsSessionProperties()));
+            } else {
+                setupPublicSession(comChannel, FRAME_COUNTER_MANAGEMENT_ONLINE);
             }
         }
         journal("Protocol initialization phase ended, executing tasks ...");
@@ -165,20 +167,16 @@ public class A2 extends AbstractDlmsProtocol {
             return false; // no need to handle any FC
         }
 
-        if (!getDlmsSessionProperties().usesPublicClient()) {
-            final int clientId = getDlmsSessionProperties().getClientMacAddress();
+        if (!getDlmsSessionProperties().usesPublicClient() && getDlmsSessionProperties().useCachedFrameCounter()) {
+            long cachedFrameCounter = getDeviceCache().getTXFrameCounter(getDlmsSessionProperties().getClientMacAddress());
 
-            if (getDlmsSessionProperties().useCachedFrameCounter()) {
-                long cachedFrameCounter = getDeviceCache().getTXFrameCounter(clientId);
-
-                if (cachedFrameCounter > 0) {
-                    journal("Using cached frame counter: " + cachedFrameCounter);
-                    setTXFrameCounter(cachedFrameCounter + 1);
-                    return true;
-                } else {
-                    journal("Cached frame counter = " + cachedFrameCounter + ", FC will be read with public client.");
-                    return false;
-                }
+            if (cachedFrameCounter > 0) {
+                journal("Using cached frame counter: " + cachedFrameCounter);
+                setTXFrameCounter(cachedFrameCounter + 1);
+                return true;
+            } else {
+                journal("Cached frame counter = " + cachedFrameCounter + ", FC will be read with public client.");
+                return false;
             }
         }
         return false;
@@ -188,12 +186,12 @@ public class A2 extends AbstractDlmsProtocol {
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
     }
 
-    protected void setupSession(ComChannel comChannel, ObisCode frameCounterObiscode) {
+    protected void setupPublicSession(ComChannel comChannel, ObisCode frameCounterObisCode) {
         long frameCounter;
         String logicalDeviceName = this.offlineDevice.getSerialNumber();
         DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, getDlmsProperties());
         try {
-            frameCounter = getFrameCounter(publicDlmsSession, frameCounterObiscode);
+            frameCounter = getFrameCounter(publicDlmsSession, frameCounterObisCode);
             if (hhuSignOnV2 != null) {
                 logicalDeviceName = getLogicalDeviceName(publicDlmsSession);
                 checkDeviceName(logicalDeviceName);
@@ -208,8 +206,7 @@ public class A2 extends AbstractDlmsProtocol {
             publicDlmsSession.disconnect();
         }
         getDlmsSessionProperties().setSerialNumber(logicalDeviceName);
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
-        getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(MANAGEMENT_CLIENT));
+        setTXFrameCounter(frameCounter + 1);
         if (hhuSignOnV2 != null) {
             hhuSignOnV2.setClientMacAddress(MANAGEMENT_CLIENT);
         }
@@ -515,7 +512,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-03-31$";
+        return "$Date: 2022-04-05$";
     }
 
     protected A2Messaging getProtocolMessaging() {

@@ -536,14 +536,14 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                 channelInfos.add(channel6);
             } else {
                 final ChannelInfo channel1 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX.toString(),
-                        loadProfileUnitScalar == null ? Unit.getUndefined() : loadProfileUnitScalar, getDeviceId());
+                        loadProfileUnitScalar == null ? Unit.get(BaseUnit.NORMALCUBICMETER, -3) : loadProfileUnitScalar, getDeviceId());
                 if (isCumulative(channel1.getChannelObisCode())) {
                     channel1.setCumulative();
                 }
                 channelInfos.add(channel1);
 
                 final ChannelInfo channel2 = new ChannelInfo(ch, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(),
-                        loadProfileUnitScalar == null ? Unit.getUndefined() : loadProfileUnitScalar, getDeviceId());
+                        loadProfileUnitScalar == null ? Unit.get(BaseUnit.NORMALCUBICMETER, -3) : loadProfileUnitScalar, getDeviceId());
                 if (isCumulative(channel2.getChannelObisCode())) {
                     channel2.setCumulative();
                 }
