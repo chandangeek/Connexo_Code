@@ -175,15 +175,21 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 me.getApplication().fireEvent('acknowledge', successMessage);
             },
             failure: function (record, operation) {
-                if (operation.response.status == 400) {
-                    me.showErrorPanel(true);
+                if (operation.response.status === 400) {
                     if (!Ext.isEmpty(operation.response.responseText)) {
                         var json = Ext.decode(operation.response.responseText, true);
                         if (json && json.errors) {
+                            var errorPanel = editForm.down('#form-errors');
+                            var errorMsg = '';
+                            json.errors.forEach(function (error){
+                                errorMsg += error.msg + '\r\n';
+                            })
+                            errorPanel.setText(errorMsg);
                             editForm.getForm().markInvalid(json.errors);
                         }
                     }
                 }
+                me.showErrorPanel(true);
             },
             callback: function () {
                 editForm.setLoading(false);
@@ -321,6 +327,7 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
                 success: function (record) {
                     me.getApplication().fireEvent('changecontentevent', widget);
                     me.getApplication().fireEvent('loadlifecyclestate', record);
+                    me.updateWebServiceStore(stateId, record);
                     form.loadRecord(record);
                 }
             });
@@ -334,6 +341,89 @@ Ext.define('Dlc.devicelifecyclestates.controller.DeviceLifeCycleStates', {
 
             me.getApplication().fireEvent('changecontentevent', widget);
             form.loadRecord(me.deviceLifeCycleState);
+        }
+    },
+
+    updateWebServiceStore: function(stateId, record) {
+        var me = this,
+            widget = Ext.widget('device-life-cycle-state-edit'),
+            form = widget.down('#lifeCycleStateEditForm'),
+            availableWebServicesStore = Ext.StoreManager.get('Dlc.devicelifecyclestates.store.AvailableWebServiceEndpoints'),
+            webServicesOnEntryStore = Ext.StoreManager.get('Dlc.devicelifecyclestates.store.WebServiceEndpointsOnEntry'),
+            webServicesOnExitStore = Ext.StoreManager.get('Dlc.devicelifecyclestates.store.WebServiceEndpointsOnExit'),
+            webServicesOnEntryIdToRemove = new Array(),
+            webServicesOnExitIdToRemove = new Array();
+
+        availableWebServicesStore.getProxy().setExtraParam('stateId', stateId);
+        if (availableWebServicesStore) {
+            availableWebServicesStore.load(function(records, operation, success) {
+                if (success) {
+                    //Update webServicesOnEntryStore.
+                    if (webServicesOnEntryStore.modelId === record.getId()) {
+                        webServicesOnEntryStore.each(function(webServiceKey, value, length) {
+                            var webServicesOnEntryIsPresent = false;
+                            availableWebServicesStore.each(function(availableWebServiceKey, value, length) {
+                                if (webServiceKey.data.id === availableWebServiceKey.data.id) {
+                                    webServicesOnEntryIsPresent = true;
+                                    if (webServiceKey.data.version < availableWebServiceKey.data.version) {
+                                        webServiceKey.data.name = availableWebServiceKey.data.name;
+                                        webServiceKey.data.version = availableWebServiceKey.data.version;
+                                    }
+                                }
+                            });
+                            Ext.each(record.get("onEntryEndPointConfigurations"), function (webServices) {
+                                if (webServiceKey.data.id === webServices.id) {
+                                    webServicesOnEntryIsPresent = true;
+                                    if (webServiceKey.data.version < webServices.version) {
+                                        webServiceKey.data.name = webServices.name;
+                                        webServiceKey.data.version = webServices.version;
+                                    }
+                                }
+                            });
+                            if (!webServicesOnEntryIsPresent) {
+                                webServicesOnEntryIdToRemove.push(webServiceKey.data.id);
+                            }
+                        });
+                        //Remove inactive services.
+                        webServicesOnEntryIdToRemove.forEach(function removeServiceFromWebServicesOnEntryPoint(currentId) {
+                            webServicesOnEntryStore.remove(webServicesOnEntryStore.findRecord("id", currentId, 0, false, true, true));
+                        });
+                    }
+                    if (webServicesOnExitStore.modelId === record.getId()) {
+                        //Update webServicesOnExitStore.
+                        webServicesOnExitStore.each(function(webServiceKey, value, length) {
+                            var webServicesOnExitIsPresent = false;
+                            availableWebServicesStore.each(function(availableWebServiceKey, value, length) {
+                                if (webServiceKey.data.id === availableWebServiceKey.data.id) {
+                                    webServicesOnExitIsPresent = true;
+                                    if (webServiceKey.data.version < availableWebServiceKey.data.version) {
+                                        webServiceKey.data.name = availableWebServiceKey.data.name;
+                                        webServiceKey.data.version = availableWebServiceKey.data.version;
+                                    }
+                                }
+                            });
+                            Ext.each(record.get("onExitEndPointConfigurations"), function (webServices) {
+                                  if (webServiceKey.data.id === webServices.id) {
+                                      webServicesOnEntryIsPresent = true;
+                                      if (webServiceKey.data.version < webServices.version) {
+                                          webServiceKey.data.name = webServices.name;
+                                          webServiceKey.data.version = webServices.version;
+                                      }
+                                  }
+                            });
+                            if (!webServicesOnExitIsPresent) {
+                                webServicesOnExitIdToRemove.push(webServiceKey.data.id);
+                            }
+                        });
+                        //Remove inactive services.
+                        webServicesOnExitIdToRemove.forEach(function removeServiceFromWebServicesOnExitPoint(currentId) {
+                            webServicesOnExitStore.remove(webServicesOnExitStore.findRecord("id", currentId, 0, false, true, true));
+                        });
+                    }
+                    me.getApplication().fireEvent('changecontentevent', widget);
+                    form.loadRecord(record);
+                }
+            });
         }
     },
 
