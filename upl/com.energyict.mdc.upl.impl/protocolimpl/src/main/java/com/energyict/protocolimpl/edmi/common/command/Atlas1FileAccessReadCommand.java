@@ -64,17 +64,17 @@ public class Atlas1FileAccessReadCommand extends AbstractCommand {
 
 		int offset = 3;
 		setStartRecord(ProtocolTools.getIntFromBytes(data, offset, START_RECORD_SIZE));
-		offset+=START_RECORD_SIZE;
+		offset += START_RECORD_SIZE;
 		setNumberOfRecords(ProtocolTools.getIntFromBytes(data, offset, NUMBER_OF_RECORDS_SIZE));
-		offset+=NUMBER_OF_RECORDS_SIZE;
+		offset += NUMBER_OF_RECORDS_SIZE;
 
-		setData(ProtocolUtils.getSubArray(data,offset, calculateEndOffset(data)));
+		setData(ProtocolUtils.getSubArray(data, offset, calculateEndOffset(data)));
 	}
 
 	private int calculateEndOffset(byte[] data) {
 		// sometimes the devices sends a double frame, in this case the same frame is repeated
-		if (data.length > ( HEADER_SIZE * 2)) {
-			byte[] headerBytes = ProtocolUtils.getSubArray(data,0, HEADER_SIZE);
+		if (data.length > (HEADER_SIZE * 2)) {
+			byte[] headerBytes = ProtocolUtils.getSubArray(data, 0, HEADER_SIZE);
 			for (int i = HEADER_SIZE; i < data.length - HEADER_SIZE; i++) {
 				byte[] bytesToTest = ProtocolUtils.getSubArray(data, i, i + HEADER_SIZE);
 				if (Arrays.equals(headerBytes, bytesToTest)) {
