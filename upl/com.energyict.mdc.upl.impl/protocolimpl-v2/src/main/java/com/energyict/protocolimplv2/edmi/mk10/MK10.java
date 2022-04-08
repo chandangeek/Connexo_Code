@@ -306,7 +306,7 @@ public class MK10 implements DeviceProtocol, CommandLineProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-07-23$";
+        return "$Date: 2022-04-08$";
     }
 
     @Override
