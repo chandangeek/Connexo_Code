@@ -3,6 +3,8 @@ package com.energyict.protocolimpl.edmi.common.command;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
+import java.util.Arrays;
+
 /**
  *
  * @author koen
@@ -11,6 +13,9 @@ public class Atlas1FileAccessReadCommand extends AbstractCommand {
 
 	private static final char FILE_ACCESS_READ_COMMAND = 'F';
     private static int ASCII_ZERO = 0x30;
+    private static final int HEADER_SIZE = 9;
+    private static final int START_RECORD_SIZE = 4;
+    private static final int NUMBER_OF_RECORDS_SIZE = 2;
 
 	private int surveyLog;
 	private int options;
@@ -53,16 +58,32 @@ public class Atlas1FileAccessReadCommand extends AbstractCommand {
 	}
 
 	protected void parse(byte[] data) throws CommandResponseException {
-		if (data.length < 9) {
+		if (data.length < HEADER_SIZE) {
 			throw new CommandResponseException("Response for File access read command should have a minimum length of 9; actual size was " + data.length);
 		}
 
 		int offset = 3;
-		setStartRecord(ProtocolTools.getIntFromBytes(data,offset,4));
-		offset+=4;
-		setNumberOfRecords(ProtocolTools.getIntFromBytes(data,offset,2));
-		offset+=2;
-		setData(ProtocolUtils.getSubArray(data,offset));
+		setStartRecord(ProtocolTools.getIntFromBytes(data, offset, START_RECORD_SIZE));
+		offset+=START_RECORD_SIZE;
+		setNumberOfRecords(ProtocolTools.getIntFromBytes(data, offset, NUMBER_OF_RECORDS_SIZE));
+		offset+=NUMBER_OF_RECORDS_SIZE;
+
+		setData(ProtocolUtils.getSubArray(data,offset, calculateEndOffset(data)));
+	}
+
+	private int calculateEndOffset(byte[] data) {
+		// sometimes the devices sends a double frame, in this case the same frame is repeated
+		if (data.length > ( HEADER_SIZE * 2)) {
+			byte[] headerBytes = ProtocolUtils.getSubArray(data,0, HEADER_SIZE);
+			for (int i = HEADER_SIZE; i < data.length - HEADER_SIZE; i++) {
+				byte[] bytesToTest = ProtocolUtils.getSubArray(data, i, i + HEADER_SIZE);
+				if (Arrays.equals(headerBytes, bytesToTest)) {
+					// also strip the CRC of first frame and leading byte of the second frame
+					return i - 4;
+				}
+			}
+		}
+		return data.length - 1;
 	}
 
 	public byte[] getData() {
