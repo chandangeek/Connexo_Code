@@ -75,7 +75,7 @@ public class A2DlmsSession extends DlmsSession {
                 this.dlmsConnection.setRetries(getProperties().getRetries());
 
                 // fallback to reading the frame counter with the public client
-                this.protocol.setupSession(comChannel, A2.FRAME_COUNTER_MANAGEMENT_ONLINE);
+                this.protocol.setupPublicSession(comChannel, A2.FRAME_COUNTER_MANAGEMENT_ONLINE);
                 super.createAssociation();
             } finally {
                 // set back the original value for retries
