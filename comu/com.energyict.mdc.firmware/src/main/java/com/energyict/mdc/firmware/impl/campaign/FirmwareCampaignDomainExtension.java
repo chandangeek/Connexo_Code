@@ -73,9 +73,7 @@ import java.util.stream.Stream;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class})
-
 public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, FirmwareCampaign, HasUniqueName, PersistenceAware {
-
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),

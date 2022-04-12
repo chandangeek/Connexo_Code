@@ -302,11 +302,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
         return streamDevicesInCampaigns().filter(Where.where("device").isEqualTo(device)).collect(Collectors.toList());
     }
 
-    @Override
-    public void cancelServiceCall(ServiceCall serviceCall) {
-        serviceCall.cancel();
-    }
-
     public DataModel getDataModel() {
         return dataModel;
     }

@@ -47,6 +47,4 @@ public interface FirmwareCampaignService {
     List<DeviceInFirmwareCampaign> findFirmwareCampaignItems(Device device);
 
     FirmwareVersion getFirmwareVersion(Map<String, Object> properties);
-
-    void cancelServiceCall(ServiceCall serviceCall);
 }

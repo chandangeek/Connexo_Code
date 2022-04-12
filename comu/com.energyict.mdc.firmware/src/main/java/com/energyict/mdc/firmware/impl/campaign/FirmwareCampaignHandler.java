@@ -93,7 +93,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
             case DEVICE_BEFORE_DELETE:
                 Device device = (Device) event.getSource();
                 firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(item -> {
-                    item.getServiceCall().log(LogLevel.WARNING, "The device is being removed. Cancelling the firmware campaign item...");
+                    item.getParent().log(LogLevel.WARNING, "Device '" + device.getName() + "' is being removed. Cancelling the firmware campaign item...");
                     item.cancel();
                 });
                 firmwareCampaignService.findFirmwareCampaignItems(device).forEach(DeviceInFirmwareCampaign::delete);
