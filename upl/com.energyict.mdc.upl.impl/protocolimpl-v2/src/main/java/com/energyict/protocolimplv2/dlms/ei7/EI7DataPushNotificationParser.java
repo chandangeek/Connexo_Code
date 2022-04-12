@@ -77,9 +77,9 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode SPARE_OBJECT = ObisCode.fromString("0.0.94.39.40.255");
 
     private static final ObisCode MANAGEMENT_FRAME_COUNTER_ONLINE = ObisCode.fromString("0.0.43.1.1.255");
-    private final static ObisCode MANAGEMENT_FRAME_COUNTER_OFFLINE = ObisCode.fromString("0.1.43.1.1.255");
-    private final static ObisCode GUARANTOR_AUTHORITY_COUNTER = ObisCode.fromString("0.0.43.1.48.255");
-    private final static ObisCode INSTALLER_MAINTAINER_COUNTER = ObisCode.fromString("0.0.43.1.3.255");
+    private static final ObisCode MANAGEMENT_FRAME_COUNTER_OFFLINE = ObisCode.fromString("0.1.43.1.1.255");
+    private static final ObisCode GUARANTOR_AUTHORITY_COUNTER = ObisCode.fromString("0.0.43.1.48.255");
+    private static final ObisCode INSTALLER_MAINTAINER_COUNTER = ObisCode.fromString("0.0.43.1.3.255");
     private static final ObisCode CF40_VOLUME_UNITS_SCALAR = ObisCode.fromString("7.0.13.2.3.255");
     private static final ObisCode HALF_HOUR_LP_INTERVAL_LENGTH_SECONDS = ObisCode.fromString("7.4.99.99.1.255");
     private static final ObisCode COSEM_LOGICAL_DEVICE_NAME = ObisCode.fromString("0.0.42.0.0.255");
@@ -88,6 +88,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode HALF_HOUR_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.1.255");
     private static final ObisCode SNAPSHOT_PERIOD_DATA_LOAD_PROFILE = ObisCode.fromString("7.0.98.11.0.255");
 
+    private static final Unit DEFAULT_LOAD_PROFILE_UNIT_SCALAR = Unit.get(BaseUnit.NORMALCUBICMETER, -2);
+
     static final Set<ObisCode> supportedLoadProfiles =
             ImmutableSet.of(HALF_HOUR_LOAD_PROFILE,
                             DAILY_LOAD_PROFILE,
@@ -95,11 +97,15 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                             Frame30.ObisConst.READINGS,
                             Frame30.ObisConst.INTERVAL_DATA);
 
-    private Unit loadProfileUnitScalar;
+    protected Unit loadProfileUnitScalar;
     private List<CollectedLoadProfile> collectedLoadProfiles;
 
     public EI7DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         super(comChannel, context);
+    }
+
+    public Unit getDefaultLoadProfileUnitScalar() {
+        return DEFAULT_LOAD_PROFILE_UNIT_SCALAR;
     }
 
     @Override
@@ -492,7 +498,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         return collectedIntervalData;
     }
 
-    private List<ChannelInfo> getDeviceChannelInfo(OfflineLoadProfile offlineLoadProfile) throws ProtocolException {
+    protected List<ChannelInfo> getDeviceChannelInfo(OfflineLoadProfile offlineLoadProfile) throws ProtocolException {
         if (isSupported(offlineLoadProfile)) {
             List<ChannelInfo> channelInfos = new ArrayList<>();
 
@@ -536,14 +542,14 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                 channelInfos.add(channel6);
             } else {
                 final ChannelInfo channel1 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX.toString(),
-                        loadProfileUnitScalar == null ? Unit.get(BaseUnit.NORMALCUBICMETER, -3) : loadProfileUnitScalar, getDeviceId());
+                        loadProfileUnitScalar == null ? getDefaultLoadProfileUnitScalar() : loadProfileUnitScalar, getDeviceId());
                 if (isCumulative(channel1.getChannelObisCode())) {
                     channel1.setCumulative();
                 }
                 channelInfos.add(channel1);
 
                 final ChannelInfo channel2 = new ChannelInfo(ch, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(),
-                        loadProfileUnitScalar == null ? Unit.get(BaseUnit.NORMALCUBICMETER, -3) : loadProfileUnitScalar, getDeviceId());
+                        loadProfileUnitScalar == null ? getDefaultLoadProfileUnitScalar() : loadProfileUnitScalar, getDeviceId());
                 if (isCumulative(channel2.getChannelObisCode())) {
                     channel2.setCumulative();
                 }
@@ -555,7 +561,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         throw new ProtocolException("Unsupported Load Profile " + offlineLoadProfile.getObisCode());
     }
 
-    private static boolean isSupported(OfflineLoadProfile offlineLoadProfile) {
+    protected static boolean isSupported(OfflineLoadProfile offlineLoadProfile) {
         for (final ObisCode supportedLoadProfile : supportedLoadProfiles) {
             if (offlineLoadProfile.getObisCode().equalsIgnoreBChannel(supportedLoadProfile)) {
                 return true;
@@ -564,11 +570,11 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         return false;
     }
 
-    private boolean isCumulative(ObisCode obisCode) {
+    protected boolean isCumulative(ObisCode obisCode) {
         return ParseUtils.isObisCodeCumulative(obisCode);
     }
 
-    private String getDeviceId() {
+    protected String getDeviceId() {
         return (String) deviceIdentifier.forIntrospection().getValue("serialNumber");
     }
 
