@@ -105,8 +105,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(session.getId()).thenReturn(102L);
         when(firmwareCheckComTask.getId()).thenReturn(201L);
         when(firmwareCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
-        when(firmwareCheckExecution.getId()).thenReturn(202L);
-        when(communicationTaskService.findAndLockComTaskExecutionById(202L)).thenReturn(Optional.of(firmwareCheckExecution));
+        when(firmwareCheckExecution.getId()).thenReturn(2001L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(2001L)).thenReturn(Optional.of(firmwareCheckExecution));
         when(firmwareCheckExecution.getComTask()).thenReturn(firmwareCheckComTask);
         when(firmwareCheckExecution.executesComTask(firmwareCheckComTask)).thenReturn(true);
         when(firmwareCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
@@ -115,8 +115,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         ComTask firmwareComTask = mock(ComTask.class);
         when(firmwareComTask.getId()).thenReturn(101L);
         when(taskService.findFirmwareComTask()).thenReturn(Optional.of(firmwareComTask));
-        when(firmwareExecution.getId()).thenReturn(102L);
-        when(communicationTaskService.findAndLockComTaskExecutionById(102L)).thenReturn(Optional.of(firmwareExecution));
+        when(firmwareExecution.getId()).thenReturn(1001L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(1001L)).thenReturn(Optional.of(firmwareExecution));
         when(firmwareExecution.getComTask()).thenReturn(firmwareComTask);
         when(firmwareExecution.executesComTask(firmwareComTask)).thenReturn(true);
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
@@ -127,7 +127,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(firmwareCheckEnablement));
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn("upgrade");
-        when(device.getMessages()).thenReturn(messages);
+        when(device.getFirmwareMessages()).thenReturn(messages);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(firmwareExecution, firmwareCheckExecution));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -169,8 +169,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(firmwareMessage);
 
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
-                        .getArguments()[0], false)
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService)
+                        .initFor((Device) invocationOnMock.getArguments()[0], false)
         );
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class), eq(true))).thenAnswer(
                 invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
@@ -829,6 +829,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
         when(firmwareMessage.getModTime()).thenReturn(TIME);
+        when(firmwareMessage.getReleaseDate()).thenReturn(TIME.minusSeconds(60));
         messages.add(firmwareMessage);
 
         DeviceMessage activationMessage = mockFirmwareMessage(false);
@@ -837,6 +838,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
         when(activationMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(activationMessage.getId()).thenReturn(1002L);
+        when(activationMessage.getReleaseDate()).thenReturn(TIME.minusSeconds(60));
         messages.add(activationMessage);
         when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
 
