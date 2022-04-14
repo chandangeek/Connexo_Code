@@ -194,6 +194,10 @@ public class TableSqlGenerator {
 	}
 
 	String updateSql(List<ColumnImpl> columns) {
+		return updateSql(columns, true, true);
+	}
+
+	String updateSql(List<ColumnImpl> columns, boolean doVersion, boolean doAutoUpdate) {
 		StringBuilder sb = new StringBuilder("update ");
 		sb.append(table.getQualifiedName());
 		sb.append(" set ");
@@ -204,11 +208,13 @@ public class TableSqlGenerator {
 			sb.append(" = ?");
 			separator = ", ";
 		}
-		for (Column each : table.getAutoUpdateColumns()) {
-			sb.append(separator);
-			sb.append(each.getName());
-			sb.append("=  ?");
-			separator = ", ";
+		if (doAutoUpdate) {
+			for (Column each : table.getAutoUpdateColumns()) {
+				sb.append(separator);
+				sb.append(each.getName());
+				sb.append("=  ?");
+				separator = ", ";
+			}
 		}
 		for (Column each : table.getUpdateValueColumns()) {
 			sb.append(separator);
@@ -217,53 +223,30 @@ public class TableSqlGenerator {
 			sb.append(each.getUpdateValue());
 			separator = ", ";
 		}
-		for (Column each : table.getVersionColumns()) {
-			sb.append(separator);
-			sb.append(each.getName());
-			sb.append(" = ");
-			sb.append(each.getName());
-			sb.append(" + 1");
-			separator = ", ";
+		if (doVersion) {
+			for (Column each : table.getVersionColumns()) {
+				sb.append(separator);
+				sb.append(each.getName());
+				sb.append(" = ");
+				sb.append(each.getName());
+				sb.append(" + 1");
+				separator = ", ";
+			}
 		}
 		sb.append(" where ");
 		addPrimaryKey(sb);
-		for (Column each : table.getVersionColumns()) {
-			sb.append(" and ");
-			sb.append(each.getName());
-			sb.append(" = ?");
+		if (doVersion) {
+			for (Column each : table.getVersionColumns()) {
+				sb.append(" and ");
+				sb.append(each.getName());
+				sb.append(" = ?");
+			}
 		}
 		return sb.toString();
 	}
 
 	String updateSqlWithoutVersionIncrease(List<ColumnImpl> columns) {
-		StringBuilder sb = new StringBuilder("update ");
-		sb.append(table.getQualifiedName());
-		sb.append(" set ");
-		String separator = "";
-		for (Column each : columns) {
-			sb.append(separator);
-			sb.append(each.getName());
-			sb.append(" = ?");
-			separator = ", ";
-		}
-		for (Column each : table.getAutoUpdateColumns()) {
-			sb.append(separator);
-			sb.append(each.getName());
-			sb.append("=  ?");
-			separator = ", ";
-		}
-		for (Column each : table.getUpdateValueColumns()) {
-			sb.append(separator);
-			sb.append(each.getName());
-			sb.append(" = ");
-			sb.append(each.getUpdateValue());
-			separator = ", ";
-		}
-
-		sb.append(" where ");
-		addPrimaryKey(sb);
-
-		return sb.toString();
+		return updateSql(columns, false, true);
 	}
 
     public String auditTrailSql() {

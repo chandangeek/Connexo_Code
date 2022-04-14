@@ -117,6 +117,8 @@ public interface Column {
 
         Builder notAudited();
 
+        Builder notRequiringAutoUpdate();
+
         Builder since(Version version);
 
         Builder upTo(Version version);
