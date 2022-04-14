@@ -36,7 +36,6 @@ public class DeviceMessageItemizerMessageHandler implements MessageHandler {
 
     @Override
     public void process(Message message) {
-
         Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(DeviceMessageService.DEVICE_MESSAGE_QUEUE_DESTINATION);
         if (destinationSpec.isPresent()) {
             BulkDeviceMessageQueueMessage queueMessage = jsonService.deserialize(message.getPayload(), BulkDeviceMessageQueueMessage.class);
