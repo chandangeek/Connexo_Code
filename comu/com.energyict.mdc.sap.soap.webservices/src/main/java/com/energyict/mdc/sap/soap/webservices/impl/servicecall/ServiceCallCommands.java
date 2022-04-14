@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
  */
 package com.energyict.mdc.sap.soap.webservices.impl.servicecall;
 
@@ -25,6 +25,8 @@ import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.ProcessingResultCode;
+import com.energyict.mdc.sap.soap.webservices.impl.SAPWebServiceException;
+import com.energyict.mdc.sap.soap.webservices.impl.SapMeterReadingDocumentReasonProviderHelper;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.CategoryCode;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.ConnectionStatusProcessingResultCode;
@@ -277,18 +279,24 @@ public class ServiceCallCommands {
         childDomainExtension.setDeviceId(message.getDeviceId());
         childDomainExtension.setLrn(message.getLrn());
         childDomainExtension.setReadingReasonCode(message.getReadingReasonCode());
+        childDomainExtension.setDataSourceTypeCode(message.getDataSourceTypeCode());
         childDomainExtension.setReferenceID(message.getHeaderId());
         childDomainExtension.setReferenceUuid(message.getHeaderUUID());
         childDomainExtension.setRequestedScheduledReadingDate(message.getScheduledMeterReadingDate());
 
-        Optional<SAPMeterReadingDocumentReason> provider = WebServiceActivator.findReadingReasonProvider(childDomainExtension.getReadingReasonCode());
-        if (provider.isPresent()) {
-            if (provider.get().shouldUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())) {
-                childDomainExtension.setScheduledReadingDate(clock.instant());
+        try {
+            SapMeterReadingDocumentReasonProviderHelper helper = new SapMeterReadingDocumentReasonProviderHelper(webServiceActivator.getThesaurus());
+            Optional<SAPMeterReadingDocumentReason> provider = helper.findReadingReasonProvider(childDomainExtension.getReadingReasonCode(), childDomainExtension.getDataSourceTypeCode());
+            if (provider.isPresent()) {
+                if (provider.get().shouldUseCurrentDateTime() && isCurrentDate(message.getScheduledMeterReadingDate())) {
+                    childDomainExtension.setScheduledReadingDate(clock.instant());
+                } else {
+                    childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate().plusSeconds(provider.get().getShiftDate()));
+                }
             } else {
-                childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate().plusSeconds(provider.get().getShiftDate()));
+                childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
             }
-        } else {
+        } catch (SAPWebServiceException e) {
             childDomainExtension.setScheduledReadingDate(message.getScheduledMeterReadingDate());
         }
 

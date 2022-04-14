@@ -266,6 +266,7 @@ public class MasterMeterReadingDocumentCreateRequestServiceCallHandler implement
             childDomainExtension.setDeviceName(requestDomainExtension.getDeviceName());
             childDomainExtension.setProcessingDate(requestDomainExtension.getProcessingDate());
             childDomainExtension.setReadingReasonCode(requestDomainExtension.getReadingReasonCode());
+            childDomainExtension.setDataSourceTypeCode(requestDomainExtension.getDataSourceTypeCode());
             childDomainExtension.setChannelId(requestDomainExtension.getChannelId());
             childDomainExtension.setDataSource(requestDomainExtension.getDataSource());
             childDomainExtension.setExtraDataSource(requestDomainExtension.getExtraDataSource());

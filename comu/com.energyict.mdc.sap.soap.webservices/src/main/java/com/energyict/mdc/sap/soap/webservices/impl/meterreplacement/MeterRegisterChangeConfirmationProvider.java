@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.meterreplacement;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MeterRegisterChangeConfirmation;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -14,6 +15,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilitiesDeviceID;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfMsg;
 import com.energyict.mdc.sap.soap.wsdl.webservices.meterreplacementconfirmation.UtilsDvceERPSmrtMtrRegChgConfUtilsDvce;
+
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -39,6 +41,11 @@ public class MeterRegisterChangeConfirmationProvider extends AbstractOutboundEnd
     @Reference
     public void setWebServiceActivator(WebServiceActivator webServiceActivator) {
         // No action, just for binding WebServiceActivator
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        // No action, just for binding WebServicesService
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

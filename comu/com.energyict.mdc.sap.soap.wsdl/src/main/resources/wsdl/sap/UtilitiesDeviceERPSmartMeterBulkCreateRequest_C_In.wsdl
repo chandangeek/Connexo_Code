@@ -413,6 +413,17 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
+   <xsd:simpleType name="ManufacturerModelID">
+    <xsd:annotation>
+     <xsd:documentation xml:lang="EN">
+      <ccts:RepresentationTerm>Identifier</ccts:RepresentationTerm>
+     </xsd:documentation>
+    </xsd:annotation>
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="32"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
    <xsd:complexType name="PartyStandardID">
     <xsd:annotation>
      <xsd:documentation xml:lang="EN">
@@ -657,6 +668,12 @@
      <xsd:minLength value="1"/>
     </xsd:restriction>
    </xsd:simpleType>
+   <xsd:simpleType name="DeviceCharacteristics">
+    <xsd:restriction base="xsd:token">
+     <xsd:maxLength value="60"/>
+     <xsd:minLength value="1"/>
+    </xsd:restriction>
+   </xsd:simpleType>
    <xsd:complexType name="UtilsDvceERPSmrtMtrBlkCrteReqMsg">
     <xsd:sequence>
      <xsd:element name="MessageHeader" type="BusinessDocumentMessageHeader"/>
@@ -668,6 +685,7 @@
      <xsd:element name="PartyInternalID" minOccurs="0" type="PartyInternalID"/>
      <xsd:element name="PartNumberID" minOccurs="0" type="ProductInternalID"/>
      <xsd:element name="SerialID" minOccurs="0" type="SerialID"/>
+     <xsd:element name="ManufacturerModelID" minOccurs="0" type="ManufacturerModelID"/>
     </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="UtilsDvceERPSmrtMtrCrteReqMsg">
@@ -679,6 +697,15 @@
    <xsd:complexType name="UtilsDvceERPSmrtMtrCrteReqSmrtMtr">
     <xsd:sequence>
      <xsd:element name="UtilitiesAdvancedMeteringSystemID" type="UtilitiesAdvancedMeteringSystemID"/>
+     <xsd:element name="ActivationGroupAMIFunctions" minOccurs="0" type="DeviceCharacteristics"/>
+     <xsd:element name="SmartMeterFunctionGroup" minOccurs="0" type="DeviceCharacteristics"/>
+     <xsd:element name="AttributeMessage" minOccurs="0" type="DeviceCharacteristics"/>
+    </xsd:sequence>
+   </xsd:complexType>
+   <xsd:complexType name="UtilsDvceERPSmrtMtrChgReqDvceChrctrstk">
+    <xsd:sequence>
+     <xsd:element name="UtilitiesDeviceCharacteristicsID" minOccurs="0" type="DeviceCharacteristics"/>
+     <xsd:element name="UtilitiesDeviceCharacteristicsValue" minOccurs="0" type="DeviceCharacteristics"/>
     </xsd:sequence>
    </xsd:complexType>
    <xsd:complexType name="UtilsDvceERPSmrtMtrCrteReqUtilsDvce">
@@ -691,6 +718,7 @@
      <xsd:element name="ProductUniqueItemID" minOccurs="0" type="ProductStandardID_V1"/>
      <xsd:element name="IndividualMaterialManufacturerInformation" minOccurs="0" type="UtilsDvceERPSmrtMtrCrteReqIndivMatlMfrInfo"/>
      <xsd:element name="SmartMeter" minOccurs="0" type="UtilsDvceERPSmrtMtrCrteReqSmrtMtr"/>
+     <xsd:element name="DeviceCharacteristics" minOccurs="0" type="UtilsDvceERPSmrtMtrChgReqDvceChrctrstk"/>
     </xsd:sequence>
    </xsd:complexType>
   </xsd:schema>

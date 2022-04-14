@@ -9,12 +9,13 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import ch.iec.tc57._2011.executemasterdatalinkageconfig.FaultMessage;
 import ch.iec.tc57._2011.masterdatalinkageconfigmessage.MasterDataLinkageConfigRequestMessageType;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLinkageTest {
     private MasterDataLinkageConfigRequestMessageType message;
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_payloadIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().dropPayload().build();
@@ -29,7 +30,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_closeLinkage_payloadIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().dropPayload().build();
@@ -44,7 +45,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_ConfigEventIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().dropConfigEvent().build();
@@ -59,7 +60,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_closeLinkage_ConfigEventIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().dropConfigEvent().build();
@@ -74,7 +75,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_emptyMeterList() throws Exception {
         // Prepare
         message = getValidMessage().eraseMeterList().build();
@@ -89,7 +90,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_closeLinkage_emptyMeterList() throws Exception {
         // Prepare
         message = getValidMessage().eraseMeterList().build();
@@ -104,7 +105,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_emptyUsagePointAndEndDeviceList() throws Exception {
         // Prepare
         message = getValidMessage().eraseUsagePointList().eraseEndDeviceList().build();
@@ -119,7 +120,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_closeLinkage_emptyUsagePointAndEndDeviceList() throws Exception {
         // Prepare
         message = getValidMessage().eraseUsagePointList().eraseEndDeviceList().build();
@@ -134,7 +135,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_createdDateTimeIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().withCreatedDateTime(null).eraseEndDeviceList().build();
@@ -149,7 +150,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_closeLinkage_createdDateTimeIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().withCreatedDateTime(null).eraseEndDeviceList().build();
@@ -158,7 +159,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CLOSE);
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_effectiveDateTimeIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().withEffectiveDateTime(null).eraseEndDeviceList().build();
@@ -167,7 +168,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         getInstance(MasterDataLinkageMessageValidator.class).validate(message, MasterDataLinkageAction.CREATE);
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_closeLinkage_effectiveDateTimeIsMissing() throws Exception {
         // Prepare
         message = getValidMessage().withEffectiveDateTime(null).build();
@@ -182,7 +183,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_identificationAttributesMissedForMeter() throws Exception {
         // Prepare
         message = getValidMessage().withMeterName(null).withMeterMRID(null).build();
@@ -198,7 +199,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_closeLinkage_identificationAttributesMissedForMeter() throws Exception {
         // Prepare
         message = getValidMessage().withMeterName(null).withMeterMRID(null).build();
@@ -214,7 +215,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testValidate_createLinkage_identificationAttributesMissedForUsagePoint() throws Exception {
         // Prepare
         message = getValidMessage().withUsagePointMRID(null).withUsagePointName(null).build();
@@ -230,6 +231,7 @@ public class MasterDataLinkageMessageValidatorTest extends AbstractMasterDataLin
         }
     }
 
+    @Ignore
     @Test
     public void testValidate_closeLinkage_identificationAttributesMissedForUsagePoint() throws Exception {
         // Prepare

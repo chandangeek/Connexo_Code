@@ -13,7 +13,7 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
     initComponent: function () {
         var me = this;
 
-        me.items = [
+         me.items = [
             {
                 xtype: 'uni-form-error-message',
                 itemId: 'step1-error-message',
@@ -24,11 +24,23 @@ Ext.define('Dsh.view.communicationsbulk.Step1', {
                 xtype: 'bulk-selection-grid',
                 itemId: 'communications-bulk-selection-grid',
                 store: 'Dsh.store.CommunicationTasksBuffered',
+                checkAllButtonPresent: true,
                 counterTextFn: function (count) {
-                    return Uni.I18n.translatePlural('general.nrOfCommunications.selected', count, 'DSH',
-                        'No communications selected', '{0} communication selected', '{0} communications selected'
-                    );
+                    var string;
+                    if(count == 0 || count[0] == 0){
+                        string = "No communications selected";
+                    } else {
+                        string = Ext.String.format('{0} of {1} communications selected', count[0], count[1]);
+                    }
+                    return Uni.I18n.translate('general.nrOfCommunications.selected', 'DSH', string);
                 },
+
+                onClickCheckAllButton: function (button) {
+                    var me = this;
+                    me.view.getSelectionModel().selectRange(0,(me.getStore().getCount()));
+                    button.setDisabled(true);
+                },
+
 
                 allLabel: Uni.I18n.translate('communication.bulk.allLabel', 'DSH', 'All communications'),
                 allDescription: Uni.I18n.translate('communication.bulk.allDescription', 'DSH', 'Select all communications (related to filters and grouping on the communications  screen)'),

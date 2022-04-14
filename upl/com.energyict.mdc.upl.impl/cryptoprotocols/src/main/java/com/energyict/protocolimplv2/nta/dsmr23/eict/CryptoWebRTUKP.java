@@ -21,8 +21,8 @@ import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.nta.dsmr23.common.CryptoDSMR23Properties;
-import com.energyict.protocolimplv2.nta.dsmr23.messages.CryptoDSMR23MessageExecutor;
-import com.energyict.protocolimplv2.nta.dsmr23.messages.CryptoDSMR23Messaging;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.CryptoWebRTUKPDSMR23MessageExecutor;
+import com.energyict.protocolimplv2.nta.dsmr23.messages.CryptoWebRTUKPDSMR23Messaging;
 
 /**
  * Extension of the WebRTUKP protocol that adds the cryptoserver functionality
@@ -33,8 +33,8 @@ import com.energyict.protocolimplv2.nta.dsmr23.messages.CryptoDSMR23Messaging;
  * Author: khe
  */
 public class CryptoWebRTUKP extends WebRTUKP {
-    private CryptoDSMR23Messaging cryptoMessaging;
-    private CryptoDSMR23MessageExecutor cryptoMessageExecutor;
+    private CryptoWebRTUKPDSMR23Messaging cryptoMessaging;
+    private CryptoWebRTUKPDSMR23MessageExecutor cryptoMessageExecutor;
 
     public CryptoWebRTUKP(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
@@ -43,7 +43,7 @@ public class CryptoWebRTUKP extends WebRTUKP {
 
     @Override
     public String getVersion() {
-        return "Crypto version: 2020-04-26";
+        return "Crypto version: 2022-01-11";
     }
 
     @Override
@@ -98,17 +98,18 @@ public class CryptoWebRTUKP extends WebRTUKP {
         }
         return dlmsConfigurationSupport;
     }
-    protected CryptoDSMR23MessageExecutor getMessageExecutor() {
+
+    protected CryptoWebRTUKPDSMR23MessageExecutor getMessageExecutor() {
         if (this.cryptoMessageExecutor == null) {
-            this.cryptoMessageExecutor = new CryptoDSMR23MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getKeyAccessorTypeExtractor());
+            this.cryptoMessageExecutor = new CryptoWebRTUKPDSMR23MessageExecutor(this, this.getCollectedDataFactory(), this.getIssueFactory(), this.getKeyAccessorTypeExtractor());
         }
         return this.cryptoMessageExecutor;
     }
 
     @Override
-    protected CryptoDSMR23Messaging getDsmr23Messaging() {
+    protected CryptoWebRTUKPDSMR23Messaging getDsmr23Messaging() {
         if (this.cryptoMessaging == null) {
-            this.cryptoMessaging = new CryptoDSMR23Messaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(),
+            this.cryptoMessaging = new CryptoWebRTUKPDSMR23Messaging(getMessageExecutor(), this.getPropertySpecService(), this.getNlsService(),
                     this.getConverter(), this.getDeviceMessageFileExtractor(), this.getTariffCalendarExtractor(),
                     this.getNumberLookupExtractor(), this.getLoadProfileExtractor(), this.getKeyAccessorTypeExtractor());
         }

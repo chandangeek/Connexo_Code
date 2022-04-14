@@ -26,6 +26,7 @@ import com.energyict.dlms.cosem.SingleActionSchedule;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
@@ -158,44 +159,45 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);   //Optimistic
             getProtocol().journal("DSMR23 Message executor processing " + pendingMessage.getSpecification().getName());
             try {
-                if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
+                DeviceMessageSpec messageSpecification = pendingMessage.getSpecification();
+                if (messageSpecification.equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
                     doDisconnect();
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
+                } else if (messageSpecification.equals(ContactorDeviceMessage.CONTACTOR_OPEN_WITH_ACTIVATION_DATE)) {
                     doTimedControlAction(pendingMessage, REMOTE_DISCONNECT);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
+                } else if (messageSpecification.equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
                     doConnect();
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
+                } else if (messageSpecification.equals(ContactorDeviceMessage.CONTACTOR_CLOSE_WITH_ACTIVATION_DATE)) {
                     doTimedControlAction(pendingMessage, REMOTE_RECONNECT);
-                } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE)) {
+                } else if (messageSpecification.equals(ContactorDeviceMessage.CHANGE_CONNECT_CONTROL_MODE)) {
                     changeControlMode(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
+                } else if (messageSpecification.equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE)) {
                     upgradeFirmware(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE)) {
+                } else if (messageSpecification.equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE)) {
                     upgradeFirmwareWithActivationDate(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME)) {
+                } else if (messageSpecification.equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER_AND_RESUME)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION)) {
+                } else if (messageSpecification.equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_RESUME_OPTION)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
+                } else if (messageSpecification.equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_RESUME_AND_IMAGE_IDENTIFIER)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
+                } else if (messageSpecification.equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_IMAGE_IDENTIFIER)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
+                } else if (messageSpecification.equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
                     upgradeFirmwareWithActivationDateAndImageIdentifier(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND)) {
+                } else if (messageSpecification.equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND)) {
                     String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
                     String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
                     activityCalendar(calendarName, activityCalendarContents);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME)) {
+                } else if (messageSpecification.equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_SEND_WITH_DATETIME)) {
                     String calendarName = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarNameAttributeName).getValue();
                     String epoch = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarActivationDateAttributeName).getValue();
                     String activityCalendarContents = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, activityCalendarAttributeName).getValue();
                     activityCalendarWithActivationDate(calendarName, epoch, activityCalendarContents);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_SEND)) {
+                } else if (messageSpecification.equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_SEND)) {
                     fullActivityCalendar(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
+                } else if (messageSpecification.equals(ActivityCalendarDeviceMessage.ACTIVITY_CALENDER_FULL_CALENDAR_WITH_DATETIME)) {
                     fullActivityCalendarWithActivationDate(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
+                } else if (messageSpecification.equals(ActivityCalendarDeviceMessage.SPECIAL_DAY_CALENDAR_SEND)) {
                     String calendarWithSpecialDays = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, specialDaysAttributeName).getValue();
                     String[] calendarParts = calendarWithSpecialDays.split(AbstractDlmsMessaging.SEPARATOR);
                     if (calendarParts.length > 0) {
@@ -203,67 +205,67 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
                     } else {
                         getProtocol().journal("No content to write special days.");
                     }
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
+                } else if (messageSpecification.equals(SecurityMessage.ACTIVATE_DLMS_ENCRYPTION)) {
                     activateDlmsEncryption(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_DLMS_AUTHENTICATION_LEVEL)) {
                     changeAuthLevel(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_WITH_NEW_KEY)) {
                     changeEncryptionKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_WITH_NEW_KEY)) {
                     changeAuthenticationKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_HLS_SECRET_USING_SERVICE_KEY)) {
                     changeHLSSecretUsingServiceKey(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_AUTHENTICATION_KEY_USING_SERVICE_KEY)) {
                     changeAuthenticationKeyUsingServiceKey(pendingMessage, 2);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_ENCRYPTION_KEY_USING_SERVICE_KEY)) {
                     changeEncryptionKeyUsingServiceKey(pendingMessage, 0);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_PASSWORD_WITH_NEW_PASSWORD)) {
                     changePassword(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.CHANGE_LLS_SECRET)) {
+                } else if (messageSpecification.equals(SecurityMessage.CHANGE_LLS_SECRET)) {
                     changeLLSSecret(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM)) {
+                } else if (messageSpecification.equals(NetworkConnectivityMessage.ACTIVATE_WAKEUP_MECHANISM)) {
                     activateWakeUp();
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP)) {
+                } else if (messageSpecification.equals(NetworkConnectivityMessage.DEACTIVATE_SMS_WAKEUP)) {
                     deactivateWakeUp();
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS)) {
+                } else if (messageSpecification.equals(NetworkConnectivityMessage.CHANGE_GPRS_USER_CREDENTIALS)) {
                     changeGPRSSettings(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS)) {
+                } else if (messageSpecification.equals(NetworkConnectivityMessage.CHANGE_GPRS_APN_CREDENTIALS)) {
                     changeGPRSParameters(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST)) {
+                } else if (messageSpecification.equals(NetworkConnectivityMessage.ADD_PHONENUMBERS_TO_WHITE_LIST)) {
                     addPhoneNumberToWhiteList(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1)) {
+                } else if (messageSpecification.equals(DisplayDeviceMessage.CONSUMER_MESSAGE_CODE_TO_PORT_P1)) {
                     codeToP1(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1)) {
+                } else if (messageSpecification.equals(DisplayDeviceMessage.CONSUMER_MESSAGE_TEXT_TO_PORT_P1)) {
                     textToP1(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.GLOBAL_METER_RESET)) {
+                } else if (messageSpecification.equals(DeviceActionMessage.GLOBAL_METER_RESET)) {
                     globalMeterReset();
-                } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS)) {
+                } else if (messageSpecification.equals(LoadBalanceDeviceMessage.CONFIGURE_LOAD_LIMIT_PARAMETERS)) {
                     configureLoadLimitParameters(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS)) {
+                } else if (messageSpecification.equals(LoadBalanceDeviceMessage.SET_EMERGENCY_PROFILE_GROUP_IDS)) {
                     setEmergencyProfileGroupIds(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION)) {
+                } else if (messageSpecification.equals(LoadBalanceDeviceMessage.CLEAR_LOAD_LIMIT_CONFIGURATION)) {
                     clearLoadLimitConfiguration();
-                } else if (pendingMessage.getSpecification().equals(AdvancedTestMessage.XML_CONFIG)) {
+                } else if (messageSpecification.equals(AdvancedTestMessage.XML_CONFIG)) {
                     doXmlConfiguration(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST)) {
+                } else if (messageSpecification.equals(LoadProfileMessage.PARTIAL_LOAD_PROFILE_REQUEST)) {
                     collectedMessage = partialLoadProfileRequest(pendingMessage);    //This message returns a result
-                } else if (pendingMessage.getSpecification().equals(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST)) {
+                } else if (messageSpecification.equals(LoadProfileMessage.LOAD_PROFILE_REGISTER_REQUEST)) {
                     collectedMessage = loadProfileRegisterRequest(pendingMessage);    //This message returns a result
-                } else if (pendingMessage.getSpecification().equals(ClockDeviceMessage.SET_TIME)) {
+                } else if (messageSpecification.equals(ClockDeviceMessage.SET_TIME)) {
                     setTime(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow)) {
+                } else if (messageSpecification.equals(ConfigurationChangeDeviceMessage.ChangeDefaultResetWindow)) {
                     changeDefaultResetWindow(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus)){
+                } else if (messageSpecification.equals(ConfigurationChangeDeviceMessage.ChangeAdministrativeStatus)){
                     changeAdministrativeStatus(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ALARM_REGISTER_RESET)) {
+                } else if (messageSpecification.equals(DeviceActionMessage.ALARM_REGISTER_RESET)) {
                     resetAlarmRegister();
-                } else if (pendingMessage.getSpecification().equals(DeviceActionMessage.ERROR_REGISTER_RESET)) {
+                } else if (messageSpecification.equals(DeviceActionMessage.ERROR_REGISTER_RESET)) {
                     resetErrorRegister();
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Commission_With_Channel)) {
+                } else if (messageSpecification.equals(MBusSetupDeviceMessage.Commission_With_Channel)) {
                     mbusCommission(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(MBusSetupDeviceMessage.Reset_MBus_Client)) {
+                } else if (messageSpecification.equals(MBusSetupDeviceMessage.Reset_MBus_Client)) {
                     mbusReset(pendingMessage);
-                } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL)) {
+                } else if (messageSpecification.equals(SecurityMessage.KEY_RENEWAL)) {
                     renewKey(pendingMessage);
                 } else {   //Unsupported message
                     collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
@@ -795,7 +797,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+        ActivityCalendarController activityCalendarController = newActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
         activityCalendarController.writeCalendarName(calendarName);
         activityCalendarController.writeCalendar(); //Does not activate it yet
@@ -845,10 +847,14 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
         }
     }
 
-    private void writeSpecialDays(String calendarXml) throws IOException {
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+    protected void writeSpecialDays(String calendarXml) throws IOException {
+        ActivityCalendarController activityCalendarController = newActivityCalendarController();
         activityCalendarController.parseContent(calendarXml);
         activityCalendarController.writeSpecialDaysTable();
+    }
+
+    protected ActivityCalendarController newActivityCalendarController() {
+        return new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
     }
 
     protected void activityCalendarWithActivationDate(String calendarName, String epoch, String activityCalendarContents) throws IOException {
@@ -856,7 +862,7 @@ public class Dsmr23MessageExecutor extends AbstractMessageExecutor {
             calendarName = calendarName.substring(0, 8);
         }
 
-        ActivityCalendarController activityCalendarController = new DLMSActivityCalendarController(getCosemObjectFactory(), getProtocol().getDlmsSession().getTimeZone(), false);
+        ActivityCalendarController activityCalendarController = newActivityCalendarController();
         activityCalendarController.parseContent(activityCalendarContents);
         getProtocol().journal("Writing calendar name: "+calendarName);
         activityCalendarController.writeCalendarName(calendarName);

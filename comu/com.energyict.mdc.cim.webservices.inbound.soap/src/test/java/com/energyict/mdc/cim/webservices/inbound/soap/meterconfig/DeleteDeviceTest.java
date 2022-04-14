@@ -31,6 +31,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -85,7 +86,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         when(topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
     }
 
-    @Test
+    @Ignore @Test
     public void testDeleteDeviceSuccessfully() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -111,7 +112,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
-    @Test
+    @Ignore @Test
     public void testDeleteDeviceFailsGapsNotAllowed() throws Exception {
         when(device.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
@@ -150,7 +151,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testDeleteDeviceSuccessGapsAllowed() throws Exception {
         when(device.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
@@ -181,7 +182,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
-    @Test
+    @Ignore @Test
     public void testDeleteDeviceFailsCantRemoveGateway() throws Exception {
         when(topologyService.getSlaveDevices(any(Device.class))).thenReturn(Arrays.asList(slave));
         // Prepare request
@@ -216,6 +217,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
+    @Ignore
     @Test
     public void testDeleteDeviceSuccessUnlinkSlave() throws Exception {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>11.0.0-Kratos-SNAPSHOT</version>
+        <version>13.1.1-Kratos-SNAPSHOT</version>
 
     </parent>
     <artifactId>kpi</artifactId>

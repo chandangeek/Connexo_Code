@@ -30,6 +30,7 @@ import com.energyict.obis.ObisCode;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.HashSet;
@@ -110,25 +111,30 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
                 Instant shipmentDate = lifecycleDates.getReceivedDate().orElse(device.get().getCreateTime());
                 if (extension.getStartDate().isBefore(shipmentDate)) {
                     failServiceCall(extension, MessageSeeds.START_DATE_IS_BEFORE_SHIPMENT_DATE);
-                    return;
-                }
 
-                if (!subParentExtension.isCreateRequest()) {
-                    sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
-                    serviceCall.requestTransition(DefaultState.SUCCESSFUL);
-                    long deviceId = device.get().getId();
-                    if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
-                        serviceCall.log(LogLevel.INFO, "All profiles are closed, removing shared com schedules from device " + device.get().getName());
-                        deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
-                    }
                 } else {
-                    processDeviceRegisterCreation(extension, device.get());
+
+                    if (!subParentExtension.isCreateRequest()) {
+                        if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
+                            processDeviceRegisterChanging(extension, device.get());
+                        }
+                        sapCustomPropertySets.truncateCpsInterval(device.get(), extension.getLrn(), TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
+                        serviceCall.requestTransition(DefaultState.SUCCESSFUL);
+                        long deviceId = device.get().getId();
+                        if (sapCustomPropertySets.areAllProfileIdsClosedBeforeDate(deviceId, clock.instant())) {
+                            serviceCall.log(LogLevel.INFO, "All profiles are closed, removing shared com schedules from device " + device.get().getName());
+                            deviceSharedCommunicationScheduleRemover.removeComSchedules(deviceId);
+                        }
+                    } else {
+                        processDeviceRegisterCreation(extension, device.get());
+                    }
                 }
             } catch (SAPWebServiceException sapEx) {
                 failServiceCallWithException(extension, sapEx);
             } catch (Exception e) {
                 failServiceCallWithException(extension, new SAPWebServiceException(thesaurus, MessageSeeds.ERROR_PROCESSING_METER_REPLACEMENT_REQUEST, e.getLocalizedMessage()));
             }
+
         } else {
             failServiceCall(extension, MessageSeeds.NO_DEVICE_FOUND_BY_SAP_ID, subParentExtension.getDeviceId());
         }
@@ -167,9 +173,15 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
             recurrence = "0";
         }
 
-        if (obis == null && divisionCategory == null) {
-            failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
-            return;
+        if (obis == null) {
+            if (divisionCategory == null) {
+                failServiceCall(extension, MessageSeeds.NO_OBIS_OR_READING_TYPE_KIND);
+                return;
+            }
+            if (WebServiceActivator.getDivisionCategoryCodeMap().isEmpty()) {
+                failServiceCall(extension, MessageSeeds.NO_OBIS);
+                return;
+            }
         }
 
         Pair<MacroPeriod, TimeAttribute> period = webServiceActivator.getRecurrenceCodeMap().get(recurrence);
@@ -179,7 +191,7 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
             return;
         }
 
-        if (divisionCategory != null) {
+        if (divisionCategory != null && !WebServiceActivator.getDivisionCategoryCodeMap().isEmpty()) {
             cimPattern = webServiceActivator.getDivisionCategoryCodeMap().get(divisionCategory);
             if (cimPattern == null) {
                 failServiceCall(extension, MessageSeeds.NO_UTILITIES_DIVISION_CATEGORY_CODE_MAPPING, divisionCategory,
@@ -195,6 +207,35 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         }
     }
 
+    private void processDeviceRegisterChanging(MeterRegisterChangeRequestDomainExtension extension, Device device) {
+        String recurrence = extension.getRecurrenceCode();
+        if (recurrence == null) {
+            recurrence = "0";
+        }
+
+        Pair<MacroPeriod, TimeAttribute> period = webServiceActivator.getRecurrenceCodeMap().get(recurrence);
+        if (period == null) {
+            failServiceCall(extension, MessageSeeds.NO_UTILITIES_MEASUREMENT_RECURRENCE_CODE_MAPPING, recurrence,
+                    WebServiceActivator.REGISTER_RECURRENCE_CODE);
+            return;
+        }
+
+        if (period.getFirst() == MacroPeriod.NOTAPPLICABLE && period.getLast() == TimeAttribute.NOTAPPLICABLE) {
+            Optional<Register> register = device.getRegisterWithDeviceObisCode(ObisCode.fromString(extension.getObis()));
+            if (register.isPresent()) {
+                changeRegisterSpec(register.get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+            }
+
+        } else {
+            Set<Channel> channels = findChannelByObis(device, extension.getObis(), period);
+            if (!channels.isEmpty()) {
+                if (channels.size() == 1) {
+                    changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
+            }
+        }
+    }
+
     private void processChannel(Device device, ServiceCall serviceCall, String obis,
                                 Pair<MacroPeriod, TimeAttribute> period, CIMPattern cimPattern) {
         MeterRegisterChangeRequestDomainExtension extension = serviceCall.getExtensionFor(new MeterRegisterChangeRequestCustomPropertySet()).get();
@@ -205,6 +246,9 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
         }
         if (!channels.isEmpty()) {
             if (channels.size() == 1) {
+                if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
+                    changeChannelSpec(channels.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
                 sapCustomPropertySets.setLrn(channels.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
@@ -232,6 +276,9 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
 
         if (!registers.isEmpty()) {
             if (registers.size() == 1) {
+                if (WebServiceActivator.isChannelDigitNumberUpdateSupported()) {
+                    changeRegisterSpec(registers.stream().findFirst().get(), device, extension.getTotalDigitNumberValue(), extension.getFractionDigitNumberValue());
+                }
                 sapCustomPropertySets.setLrn(registers.stream().findFirst().get(), extension.getLrn(),
                         TimeUtils.convertFromTimeZone(extension.getStartDate(), extension.getTimeZone()),
                         TimeUtils.convertFromTimeZone(extension.getEndDate(), extension.getTimeZone()));
@@ -272,6 +319,28 @@ public class MeterRegisterChangeRequestServiceCallHandler implements ServiceCall
             failServiceCall(extension, MessageSeeds.NO_DATA_SOURCES_WITH_OBIS_OR_KIND, strPeriod, period.getFirst().getId(), period.getLast().getId(),
                     cimPattern.code(), obis);
         }
+    }
+
+    private void changeChannelSpec(Channel channel, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
+        Channel.ChannelUpdater channelUpdater = device.getChannelUpdaterFor(channel);
+        if (fractionDigitNumberValue != null) {
+            channelUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
+        }
+        if (totalDigitNumberValue != null) {
+            channelUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue() - fractionDigitNumberValue.intValue()) - Math.pow(10, -fractionDigitNumberValue.intValue())));
+        }
+        channelUpdater.update();
+    }
+
+    private void changeRegisterSpec(Register register, Device device, BigDecimal totalDigitNumberValue, BigDecimal fractionDigitNumberValue) {
+        Register.RegisterUpdater registerUpdater = device.getRegisterUpdaterFor(register);
+        if (totalDigitNumberValue != null) {
+            registerUpdater.setOverflowValue(BigDecimal.valueOf(Math.pow(10, totalDigitNumberValue.intValue() - fractionDigitNumberValue.intValue()) - Math.pow(10, -fractionDigitNumberValue.intValue())));
+        }
+        if (fractionDigitNumberValue != null) {
+            registerUpdater.setNumberOfFractionDigits(fractionDigitNumberValue.intValue());
+        }
+        registerUpdater.update();
     }
 
     private String convertPeriodToString(Pair<MacroPeriod, TimeAttribute> period) {

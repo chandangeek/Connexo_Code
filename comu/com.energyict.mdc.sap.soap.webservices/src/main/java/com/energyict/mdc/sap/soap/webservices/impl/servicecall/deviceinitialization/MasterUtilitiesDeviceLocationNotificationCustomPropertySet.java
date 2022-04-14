@@ -15,9 +15,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -57,7 +59,7 @@ public class MasterUtilitiesDeviceLocationNotificationCustomPropertySet implemen
 
     @Override
     public PersistenceSupport<ServiceCall, MasterUtilitiesDeviceLocationNotificationDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -113,6 +115,12 @@ public class MasterUtilitiesDeviceLocationNotificationCustomPropertySet implemen
         private final String TABLE_NAME = "SAP_UD7_MASTER_LN_SC_CPS";
         private final String FK = "FK_SAP_UD7_MASTER_LN_SC_CPS";
 
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return MODEL_NAME;
@@ -140,7 +148,13 @@ public class MasterUtilitiesDeviceLocationNotificationCustomPropertySet implemen
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override

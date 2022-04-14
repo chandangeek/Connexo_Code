@@ -34,7 +34,7 @@ public class DescriptionBuilderImpl implements DescriptionBuilder {
     /**
      * The separator between the different properties.
      */
-    private static final String PROPERTY_SEPARATOR = "\n";
+    private static final String PROPERTY_SEPARATOR = "; ";
 
     private String title;
     private List<PropertyDescriptionBuilder> propertyBuilders = new ArrayList<>();
@@ -276,7 +276,7 @@ public class DescriptionBuilderImpl implements DescriptionBuilder {
 
         @Override
         public String toString () {
-            Holder<String> separator = HolderBuilder.first("").andThen(PROPERTY_SEPARATOR);
+            Holder<String> separator = HolderBuilder.first("").andThen(", ");
             StringBuilder builder = new StringBuilder(this.propertyName);
             builder.append(PROPERTY_NAME_VALUE_SEPARATOR);
             for (SimplePropertyDescriptionBuilder valueBuilder : this.valueBuilders) {

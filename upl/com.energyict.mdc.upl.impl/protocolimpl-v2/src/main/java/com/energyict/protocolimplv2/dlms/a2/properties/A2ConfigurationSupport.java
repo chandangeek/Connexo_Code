@@ -18,6 +18,7 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
     public static final String CALLING_AP_TITLE_PROPERTY = "CallingAPTitle";
     public static final String LIMIT_MAX_NR_OF_DAYS_PROPERTY = "LimitMaxNrOfDays";
     public static final String TIME_INTERVAL_OVER_CLOCK_SYNC = "TimeIntervalOverClockSync";
+    public static final String USE_CACHED_FRAME_COUNTER = "UseCachedFrameCounter";
 
     public A2ConfigurationSupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -29,6 +30,7 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
         propertySpecs.add(callingAPTitlePropertySpec());
         propertySpecs.add(limitMaxNumberOfDaysPropertySpec());
         propertySpecs.add(timeIntervalOverClockSync());
+        propertySpecs.add(useCachedFrameCounter());
         return propertySpecs;
     }
 
@@ -42,6 +44,12 @@ public class A2ConfigurationSupport extends DlmsConfigurationSupport {
 
     private PropertySpec timeIntervalOverClockSync() {
         return this.booleanSpecBuilder(TIME_INTERVAL_OVER_CLOCK_SYNC, true, PropertyTranslationKeys.TIME_INTERVAL_OVER_CLOCK_SYNC);
+    }
+
+    private PropertySpec useCachedFrameCounter() {
+        return UPLPropertySpecFactory.specBuilder(USE_CACHED_FRAME_COUNTER, false,
+                        PropertyTranslationKeys.V2_DLMS_USE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec)
+                .finish();
     }
 
     protected PropertySpec bigDecimalSpec(String name, BigDecimal defaultValue, TranslationKey translationKey) {

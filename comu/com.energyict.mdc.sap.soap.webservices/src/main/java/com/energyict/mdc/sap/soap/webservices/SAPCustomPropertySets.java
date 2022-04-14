@@ -35,6 +35,8 @@ public interface SAPCustomPropertySets {
 
     Optional<String> getRegisteredSapDeviceId(EndDevice endDevice);
 
+    Optional<SapDeviceInfo> findSapDeviceInfo(Device device);
+
     /**
      * @deprecated Please use {@link #getSapDeviceId(Device)} or {@link #getSapDeviceId(EndDevice)}.
      */
@@ -65,15 +67,13 @@ public interface SAPCustomPropertySets {
     void setLrn(com.energyict.mdc.common.device.data.Channel channel, String lrn, Instant startDateTime, Instant endDateTime);
 
     /**
-     *  Is there at least one LRN at the current time or in the future.
+     * Is there at least one LRN at the current time or in the future.
      */
     boolean isAnyLrnPresent(long deviceId, Instant currentTime);
 
     boolean isAnyLrnPresentForDate(long deviceId, Instant dateTime);
 
     Optional<Channel> getChannel(String lrn, Instant when);
-
-    void setLocation(Device device, String locationId);
 
     void setPod(Device device, String podId);
 
@@ -115,4 +115,6 @@ public interface SAPCustomPropertySets {
     boolean isRegistered(EndDevice endDevice);
 
     void setRegistered(String sapDeviceId, boolean registered);
+
+    SapDeviceInfo newSapDeviceInfoInstance(Device device);
 }

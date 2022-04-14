@@ -14,7 +14,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.tasks.support.DeviceMessageSupport;
-import com.energyict.protocolcommon.Password;
+
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.messages.ClockDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
@@ -38,7 +38,7 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
     private final PropertySpecService propertySpecService;
     private final NlsService nlsService;
     private final Converter converter;
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     public A2Messaging(AbstractDlmsProtocol protocol, PropertySpecService propertySpecService, NlsService nlsService,
                        Converter converter, DeviceMessageFileExtractor messageFileExtractor,
@@ -109,6 +109,10 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             propertySpec.getName().equals(DeviceMessageConstants.EndOfDSTAttributeName)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
+            return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.newAuthenticationKeyAttributeName)) {
+            return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
+        } else if (propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
             return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else {
             return messageAttribute.toString();

@@ -115,8 +115,7 @@ Ext.onReady(function () {
 
     loader.initPackages(packages);
     // </debug>
-    Ext.Ajax.on("beforerequest", function(conn, options){
-        Ext.Ajax.timeout = 90000;
+    Ext.Ajax.on("beforerequest", function (conn, options) {
         delete conn.defaultHeaders['X-CSRF-TOKEN'];
 
         if (options.method === 'PUT' || options.method === 'POST' || options.method === 'DELETE') {
@@ -128,8 +127,8 @@ Ext.onReady(function () {
                     conn.token = data.responseText;
                 }
             });
-            if(options.headers &&
-                options.headers['Content-type'] === 'multipart/form-data' && options.url){
+            if (options.headers &&
+                options.headers['Content-type'] === 'multipart/form-data' && options.url) {
 
                 options.url = options.url.indexOf('X-CSRF-TOKEN') > 0 ? options.url :
                     options.url + '?X-CSRF-TOKEN=' + conn.token;
@@ -137,13 +136,11 @@ Ext.onReady(function () {
             conn.defaultHeaders['X-CSRF-TOKEN'] = unescape(conn.token);
         }
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
-        conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : xAuthToken;
-
-
+        conn.defaultHeaders.Authorization = xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ") + 1)) : xAuthToken;
     });
 
-    Ext.Ajax.on("requestcomplete", function(conn, response){
-        if(response.request && JSON.stringify(response.request.headers).match('"X-Requested-With":"XMLHttpRequest"'))
+    Ext.Ajax.on("requestcomplete", function (conn, response) {
+        if (response.request && JSON.stringify(response.request.headers).match('"X-Requested-With":"XMLHttpRequest"'))
             localStorage.setItem('X-AUTH-TOKEN', response.getResponseHeader('X-AUTH-TOKEN'));
 
     });
@@ -161,12 +158,12 @@ Ext.onReady(function () {
                 }
             };
 
-        if(localStorage.getItem('X-AUTH-TOKEN')){
+        if (localStorage.getItem('X-AUTH-TOKEN')) {
             Ext.Ajax.defaultHeaders = {
                 'X-CONNEXO-APPLICATION-NAME': 'MDC', // a function that return the main application
                 'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
             };
-        }else{
+        } else {
             Ext.Ajax.defaultHeaders = {
                 'X-CONNEXO-APPLICATION-NAME': 'MDC'
             };
@@ -186,6 +183,14 @@ Ext.onReady(function () {
 
         Uni.store.Apps.load(onDependenciesLoad);
         Uni.util.CheckAppStatus.checkInsightAppStatus(onDependenciesLoad);
+        Ext.Ajax.request({
+            url: '/api/sys/fields/timeout',
+            method: 'GET',
+
+            success: function (response) {
+                Ext.Ajax.timeout = parseInt(response.responseText);
+            }
+        });
     });
 });
 

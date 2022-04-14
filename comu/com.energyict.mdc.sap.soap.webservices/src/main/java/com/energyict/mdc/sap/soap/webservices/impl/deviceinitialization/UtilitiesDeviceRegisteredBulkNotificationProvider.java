@@ -7,6 +7,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractOutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundSoapEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
@@ -75,6 +76,10 @@ public class UtilitiesDeviceRegisteredBulkNotificationProvider extends AbstractO
         this.webServiceActivator = null;
     }
 
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService){
+        // No action, just for binding WebServicesService
+    }
 
     @Reference
     public void setClock(Clock clock) {

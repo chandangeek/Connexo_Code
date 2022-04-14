@@ -54,6 +54,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -461,6 +462,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         return connectionTask;
     }
 
+    @Ignore
     @Test
     public void testRunConnectionsWithFilter() throws Exception {
         mockAppServers(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);

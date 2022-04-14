@@ -20,7 +20,12 @@ public interface SAPMeterReadingDocumentReason {
     /**
      * Reading reason code
      */
-    List<String> getCodes();
+    List<String> getReasonCodeCodes();
+
+    /**
+     * Data source code
+     */
+    List<String> getDataSourceTypeCodeCodes();
 
     /**
      * Collection interval support

@@ -15,6 +15,8 @@ import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SapAttributeNames;
 import com.energyict.mdc.sap.soap.webservices.impl.MessageSeeds;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallCommands;
@@ -105,10 +107,14 @@ public class AbstractLocationNotificationEndpoint extends AbstractInboundEndPoin
 
     private void createChildServiceCall(ServiceCall parent, LocationMessage locationMessage) {
         ServiceCallType serviceCallType = serviceCallCommands.getServiceCallTypeOrThrowException(ServiceCallTypes.UTILITIES_DEVICE_LOCATION_NOTIFICATION);
-
         UtilitiesDeviceLocationNotificationDomainExtension childDomainExtension = new UtilitiesDeviceLocationNotificationDomainExtension();
         childDomainExtension.setDeviceId(locationMessage.getDeviceId());
         childDomainExtension.setLocationId(locationMessage.getLocationId());
+        childDomainExtension.setInstallationNumber(locationMessage.getInstallationNumber());
+        childDomainExtension.setPod(locationMessage.getPod());
+        childDomainExtension.setDivisionCategoryCode(locationMessage.getDivisionCategoryCode());
+        childDomainExtension.setLocationInformation(locationMessage.getLocationIdInformation());
+        childDomainExtension.setModificationInformationInformation(locationMessage.getModificationInformation());
 
         ServiceCallBuilder serviceCallBuilder = parent.newChildCall(serviceCallType)
                 .extendedWith(childDomainExtension);

@@ -1,5 +1,18 @@
 package com.energyict.protocolimplv2.dlms.a2;
 
+import com.energyict.dialer.connection.HHUSignOn;
+import com.energyict.dialer.connection.HHUSignOnV2;
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
+import com.energyict.dlms.InvokeIdAndPriority;
+import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.DataAccessResultException;
+import com.energyict.dlms.cosem.StoredValues;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
+import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
@@ -13,6 +26,7 @@ import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
 import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.cache.DeviceProtocolCache;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -36,20 +50,6 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
-
-import com.energyict.dialer.connection.HHUSignOn;
-import com.energyict.dialer.connection.HHUSignOnV2;
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
-import com.energyict.dlms.InvokeIdAndPriority;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.aso.ApplicationServiceObject;
-import com.energyict.dlms.common.DlmsProtocolProperties;
-import com.energyict.dlms.cosem.DataAccessResultException;
-import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.dlms.protocolimplv2.ApplicationServiceObjectV2;
-import com.energyict.dlms.protocolimplv2.DlmsSession;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
@@ -90,7 +90,7 @@ public class A2 extends AbstractDlmsProtocol {
     public final static int MANAGEMENT_CLIENT = 1;
 
     private final static int ADDRESSING_MODE = 1;
-    private final static ObisCode FRAME_COUNTER_MANAGEMENT_ONLINE = ObisCode.fromString("0.0.43.1.1.255");
+    protected final static ObisCode FRAME_COUNTER_MANAGEMENT_ONLINE = ObisCode.fromString("0.0.43.1.1.255");
     private final static ObisCode FRAME_COUNTER_MANAGEMENT_OFFLINE = ObisCode.fromString("0.1.43.1.1.255");
     public final static ObisCode COSEM_LOGICAL_DEVICE_NAME = ObisCode.fromString("0.0.42.0.0.255");
 
@@ -99,6 +99,7 @@ public class A2 extends AbstractDlmsProtocol {
     private A2LogBookFactory logBookFactory = null;
     private A2Messaging messaging = null;
     private A2HHUSignOn hhuSignOnV2 = null;
+    private A2Cache deviceCache;
 
     private final Converter converter;
     private final NlsService nlsService;
@@ -127,9 +128,13 @@ public class A2 extends AbstractDlmsProtocol {
         if (ComChannelType.SerialComChannel.equals(comChannel.getComChannelType()) || ComChannelType.OpticalComChannel.equals(comChannel.getComChannelType())) {
             getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(PUBLIC_CLIENT));
             getHHUSignOn((SerialPortComChannel) comChannel);
-            setupSession(comChannel, FRAME_COUNTER_MANAGEMENT_OFFLINE);
+            setupPublicSession(comChannel, FRAME_COUNTER_MANAGEMENT_OFFLINE);
         } else {
-            setupSession(comChannel, FRAME_COUNTER_MANAGEMENT_ONLINE);
+            if (useCachedFrameCounter()) {
+                setDlmsSession(createDlmsSession(comChannel, getDlmsSessionProperties()));
+            } else {
+                setupPublicSession(comChannel, FRAME_COUNTER_MANAGEMENT_ONLINE);
+            }
         }
         journal("Protocol initialization phase ended, executing tasks ...");
     }
@@ -146,9 +151,6 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     protected void checkCacheObjects() {
-        if (getDeviceCache() == null) {
-            setDeviceCache(new DLMSCache());
-        }
         DLMSCache dlmsCache = getDeviceCache();
         if (dlmsCache.getObjectList() == null) {
             readObjectList();
@@ -159,14 +161,39 @@ public class A2 extends AbstractDlmsProtocol {
         }
     }
 
-    protected void setupSession(ComChannel comChannel, ObisCode frameCounterObiscode) {
+    protected boolean useCachedFrameCounter() {
+        if (getDlmsSessionProperties().getAuthenticationSecurityLevel() < 5) {
+            journal("Skipping FC handling due to lower security level.");
+            return false; // no need to handle any FC
+        }
+
+        if (!getDlmsSessionProperties().usesPublicClient() && getDlmsSessionProperties().useCachedFrameCounter()) {
+            long cachedFrameCounter = getDeviceCache().getTXFrameCounter(getDlmsSessionProperties().getClientMacAddress());
+
+            if (cachedFrameCounter > 0) {
+                journal("Using cached frame counter: " + cachedFrameCounter);
+                setTXFrameCounter(cachedFrameCounter + 1);
+                return true;
+            } else {
+                journal("Cached frame counter = " + cachedFrameCounter + ", FC will be read with public client.");
+                return false;
+            }
+        }
+        return false;
+    }
+
+    private void setTXFrameCounter(long frameCounter) {
+        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter);
+    }
+
+    protected void setupPublicSession(ComChannel comChannel, ObisCode frameCounterObisCode) {
         long frameCounter;
-        String logicalDeviceName;
+        String logicalDeviceName = this.offlineDevice.getSerialNumber();
         DlmsSession publicDlmsSession = getPublicDlmsSession(comChannel, getDlmsProperties());
         try {
-            frameCounter = getFrameCounter(publicDlmsSession, frameCounterObiscode);
-            logicalDeviceName = getLogicalDeviceName(publicDlmsSession);
+            frameCounter = getFrameCounter(publicDlmsSession, frameCounterObisCode);
             if (hhuSignOnV2 != null) {
+                logicalDeviceName = getLogicalDeviceName(publicDlmsSession);
                 checkDeviceName(logicalDeviceName);
             }
         } catch (DataAccessResultException | ProtocolException e) {
@@ -179,8 +206,7 @@ public class A2 extends AbstractDlmsProtocol {
             publicDlmsSession.disconnect();
         }
         getDlmsSessionProperties().setSerialNumber(logicalDeviceName);
-        getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
-        getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(MANAGEMENT_CLIENT));
+        setTXFrameCounter(frameCounter + 1);
         if (hhuSignOnV2 != null) {
             hhuSignOnV2.setClientMacAddress(MANAGEMENT_CLIENT);
         }
@@ -195,9 +221,9 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     protected String getLogicalDeviceName(DlmsSession publicDlmsSession) throws IOException {
-        getLogger().info("Reading COSEM logical device name " + COSEM_LOGICAL_DEVICE_NAME.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
+        journal("Reading COSEM logical device name " + COSEM_LOGICAL_DEVICE_NAME.toString() + ", corresponding to client " + getDlmsSessionProperties().getClientMacAddress());
         String logicalDeviceName = getLogDevName(publicDlmsSession);
-        getLogger().info("COSEM logical device name received: " + logicalDeviceName);
+        journal("COSEM logical device name received: " + logicalDeviceName);
         return logicalDeviceName;
     }
 
@@ -213,7 +239,7 @@ public class A2 extends AbstractDlmsProtocol {
     }
 
     public A2DlmsSession createDlmsSession(ComChannel comChannel, DlmsProperties dlmsSessionProperties) {
-        return new A2DlmsSession(comChannel, dlmsSessionProperties, hhuSignOnV2, offlineDevice.getSerialNumber());
+        return new A2DlmsSession(comChannel, dlmsSessionProperties, hhuSignOnV2, offlineDevice.getSerialNumber(), this);
     }
 
     protected DlmsProperties getDlmsProperties() {
@@ -231,8 +257,35 @@ public class A2 extends AbstractDlmsProtocol {
     protected void checkDeviceName(String logicalDeviceName) {
         if (!logicalDeviceName.equals(getDlmsSessionProperties().getDeviceId())) {
             CommunicationException exception = CommunicationException.unexpectedPropertyValue(DlmsProtocolProperties.DEVICE_ID, logicalDeviceName, getDlmsSessionProperties().getDeviceId());
-            getLogger().severe(exception.getMessage());
+            journal(Level.SEVERE, exception.getMessage());
             throw exception;
+        }
+    }
+
+    @Override
+    public A2Cache getDeviceCache() {
+        if (deviceCache == null) {
+            deviceCache = new A2Cache();
+        }
+        return deviceCache;
+    }
+
+    @Override
+    public void setDeviceCache(DeviceProtocolCache deviceProtocolCache) {
+        if (deviceProtocolCache instanceof A2Cache) {
+            deviceCache = (A2Cache) deviceProtocolCache;
+        }
+    }
+
+    @Override
+    public void terminate() {
+        // As a last step, update the cache with the last FC
+        if (getDlmsSession() != null && getDlmsSession().getAso() != null && getDlmsSession().getAso().getSecurityContext() != null) {
+            long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
+            int clientMacAddress = getDlmsSessionProperties().getClientMacAddress();
+            getDeviceCache().setTXFrameCounter(clientMacAddress, frameCounter);
+            journal("Caching frame counter = " + frameCounter + " for client = " + clientMacAddress);
+            journal("Meter protocol session ended.");
         }
     }
 
@@ -255,7 +308,7 @@ public class A2 extends AbstractDlmsProtocol {
                 }
                 return;
             } catch (ProtocolRuntimeException e) {
-                getLogger().log(Level.WARNING, e.getMessage(), e);
+                journal(Level.WARNING, e.getMessage(), e);
                 if (e.getCause() != null && e.getCause() instanceof DataAccessResultException) {
                     throw e;    // Throw real errors, e.g. unsupported security mechanism, wrong password...
                 } else if (e instanceof ConnectionCommunicationException) {
@@ -270,10 +323,10 @@ public class A2 extends AbstractDlmsProtocol {
 
             // Release and retry the AARQ in case of ACSE exception
             if (++tries > dlmsSession.getProperties().getRetries()) {
-                getLogger().severe("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
+                journal(Level.SEVERE, "Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries.");
                 throw CommunicationException.protocolConnectFailed(exception);
             } else {
-                getLogger().info("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
+                journal("Unable to establish association after [" + tries + "/" + (dlmsSession.getProperties().getRetries() + 1) + "] tries. Sending RLRQ and retry ...");
                 try {
                     dlmsSession.getAso().releaseAssociation();
                 } catch (ProtocolRuntimeException e) {
@@ -313,7 +366,7 @@ public class A2 extends AbstractDlmsProtocol {
         try {
             if (ClockChangeMode.SYNC.equals(changeMode)) {
                 if (isTimeIntervalOverClockSync() && isTimeSyncAroundInterval(timeToSet)) {
-                    getLogger().info("Time sync not performed due to hourly interval change on the meter");
+                    journal("Time sync not performed due to hourly interval change on the meter");
                     return;
                 }
             }
@@ -369,7 +422,7 @@ public class A2 extends AbstractDlmsProtocol {
         try {
             return getLogDevName(getDlmsSession());
         } catch (IOException e) {
-            getLogger().severe(e.getLocalizedMessage());
+            journal(Level.SEVERE, e.getLocalizedMessage());
             throw ConnectionCommunicationException.unExpectedProtocolError(e);
         }
     }
@@ -459,7 +512,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-01-11$";
+        return "$Date: 2022-04-05$";
     }
 
     protected A2Messaging getProtocolMessaging() {

@@ -87,8 +87,7 @@ public class AS253LoadProfileDataReader {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSessionProperties()
                             .getRetries() + 1)) {
                         Issue problem = issueFactory
-                                .createProblem(loadProfileReader, "loadProfileXBlockingIssue", loadProfileReader.getProfileObisCode(), e
-                                        .getMessage());
+                                .createProblem(loadProfileReader, e.getMessage(), loadProfileReader.getProfileObisCode());
                         collectedLoadProfile.setFailureInformation(ResultType.InCompatible, problem);
                     }
                 }

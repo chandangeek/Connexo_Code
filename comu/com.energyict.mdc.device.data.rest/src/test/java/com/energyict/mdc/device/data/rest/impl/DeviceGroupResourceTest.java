@@ -304,7 +304,7 @@ public class DeviceGroupResourceTest extends DeviceDataRestApplicationJerseyTest
         assertThat(searchablePropertyCondition.getProperty()).isEqualTo(nameSearchableProperty);
         Condition condition = searchablePropertyCondition.getCondition();
         assertThat(condition).isInstanceOf(Comparison.class);
-        assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.LIKEIGNORECASE);
+        assertThat(((Comparison) condition).getOperator()).isEqualTo(Operator.LIKENVL);
         assertThat(((Comparison) condition).getValues()).containsExactly("%");
 
         verify(meteringGroupService).createEnumeratedEndDeviceGroup(meter);

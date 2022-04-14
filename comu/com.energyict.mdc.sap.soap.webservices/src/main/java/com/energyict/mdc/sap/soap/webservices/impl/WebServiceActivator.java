@@ -58,12 +58,12 @@ import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPMeterReadingDocumentReason;
 import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryAssignedNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryBulkAssignedNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationBulkNotificationEndpoint;
-import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.devicecreation.UtilitiesDeviceCreateRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationBulkNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location.UtilitiesDeviceLocationNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryAssignedNotificationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.pod.PointOfDeliveryBulkAssignedNotificationEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterBulkCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.registercreation.UtilitiesDeviceRegisterCreateRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateEndpoint;
@@ -78,8 +78,10 @@ import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancella
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.cancellation.MeterReadingDocumentCancellationRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterBulkChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.MeterRegisterChangeRequestEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.meterreplacement.meterchange.UtilitiesDeviceMeterChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.search.PropertyTranslationKeys;
 import com.energyict.mdc.sap.soap.webservices.impl.search.SapAttributesDeviceSearchDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.sendmeterread.MeterReadingResultCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
@@ -112,10 +114,18 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocum
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreadingdocument.MeterReadingDocumentCreateResultDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterUtilitiesDeviceMeterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MasterUtilitiesDeviceMeterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.MeterRegisterChangeRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.SubMasterMeterRegisterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.UtilitiesDeviceMeterChangeRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.UtilitiesDeviceMeterChangeRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MasterMeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MasterMeterReadingResultCreateRequestDomainExtension;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MeterReadingResultCreateRequestCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.servicecall.receivemeterreadings.MeterReadingResultCreateRequestDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
@@ -200,6 +210,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     public static final List<MeterReadingDocumentCancellationConfirmation> METER_READING_DOCUMENT_CANCELLATION_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final List<MeterReadingDocumentBulkCancellationConfirmation> METER_READING_DOCUMENT_BULK_CANCELLATION_CONFIRMATION = new CopyOnWriteArrayList<>();
     public static final List<MeterRegisterChangeConfirmation> METER_REGISTER_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<MeterReadingResultCreateConfirmation> METER_READING_RESULT_CREATE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
+    public static final List<UtilitiesDeviceMeterChangeConfirmation> UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION_PORTS = new CopyOnWriteArrayList<>();
     public static final List<MeterRegisterBulkChangeConfirmation> METER_REGISTER_BULK_CHANGE_CONFIRMATIONS = new CopyOnWriteArrayList<>();
     public static final String EXPORT_TASK_NAME = "sap.soap.measurementtaskassignment.export.task";
     public static final String EXPORT_TASK_DEVICE_GROUP_NAME = "sap.soap.measurementtaskassignment.device.group";
@@ -236,6 +248,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static final String CHECK_SCHEDULED_REQUEST_TASK_SCHEDULE = "0 0/60 * 1/1 * ? *";
     private static final int CHECK_SCHEDULED_REQUEST_TASK_RETRY_DELAY = 60;
 
+    public static final String SUPPORT_UPDATE_OF_DIGIT_NUMBERS = "com.elster.jupiter.sap.supportUpdateOfChannelDigitNumbers";
+    public static final String SEARCH_ONLY_BY_OBIS = "com.elster.jupiter.sap.searchonlybyobis";
+    public static final String DEVICE_TYPE_NAME_STRATEGY = "com.elster.jupiter.sap.deviceTypeNameStrategy";
+    public static final String READINGS_STRATEGY_SELECTOR = "com.elster.jupiter.sap.readingStrategySelector";
+    public static final String DATA_SOURCE_TYPE_CODE_STRATEGY = "DATASOURCETYPECODE";
+    public static final String REASON_CODE_STRATEGY = "REASONCODE";
+    public static final String MANUFACTURER_MODEL_STRATEGY = "MANUFACTURER_MODEL";
+    public static final String MATERIAL_ID_STRATEGY = "MATERIAL_ID";
+
     private static String exportTaskName;
     private static String exportTaskDeviceGroupName;
     private static List<String> listOfRoleCodes;
@@ -244,6 +265,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private static RelativePeriod exportTaskUpdateWindow;
     private static String exportTaskNewDataEndpointName;
     private static String exportTaskUpdatedDataEndpointName;
+
+    private static boolean supportUpdateOfDigitNumbers;
+    private static String deviceTypeNameStrategy;
+    private static String readingsStrategySelector;
 
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
@@ -282,7 +307,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private Map<String, String> deviceTypesMap;
     private Map<String, Pair<MacroPeriod, TimeAttribute>> recurrenceCodeMap;
-    private Map<String, CIMPattern> divisionCategoryCodeMap;
+    private static Map<String, CIMPattern> divisionCategoryCodeMap;
     private String meteringSystemId;
     private List<String> uudSuccessfulErrorCodes = new ArrayList<>();
     private SearchDomainExtension sapAttributesSearchExtension;
@@ -327,7 +352,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         return recurrenceCodeMap;
     }
 
-    public Map<String, CIMPattern> getDivisionCategoryCodeMap() {
+    public static Map<String, CIMPattern> getDivisionCategoryCodeMap() {
         return divisionCategoryCodeMap;
     }
 
@@ -337,6 +362,18 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public Integer getSapProperty(AdditionalProperties property) {
         return sapProperties.get(property);
+    }
+
+    public static boolean isChannelDigitNumberUpdateSupported() {
+        return supportUpdateOfDigitNumbers;
+    }
+
+    public static String getDeviceTypeNameStrategy() {
+        return deviceTypeNameStrategy;
+    }
+
+    public static String getReadingsStrategySelector() {
+        return readingsStrategySelector;
     }
 
     public String getMeteringSystemId() {
@@ -460,6 +497,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                         .put(version(10, 7, 3), UpgraderV10_7_3.class)
                         .put(version(10, 8), UpgraderV10_8.class)
                         .put(version(10, 9), UpgraderV10_9.class)
+                        .put(version(10, 9, 15), UpgraderV10_9_15.class)
                         .build());
 
         registerServices(bundleContext);
@@ -481,6 +519,10 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 .orElse(DEFAULT_UPDATE_WINDOW));
         exportTaskNewDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_NEW_DATA_ENDPOINT);
         exportTaskUpdatedDataEndpointName = getPropertyValue(bundleContext, EXPORT_TASK_UPDATED_DATA_ENDPOINT);
+
+        supportUpdateOfDigitNumbers = Boolean.parseBoolean(bundleContext.getProperty(SUPPORT_UPDATE_OF_DIGIT_NUMBERS));
+        deviceTypeNameStrategy = Optional.ofNullable(bundleContext.getProperty(DEVICE_TYPE_NAME_STRATEGY)).orElse(MATERIAL_ID_STRATEGY);
+        readingsStrategySelector = Optional.ofNullable(bundleContext.getProperty(READINGS_STRATEGY_SELECTOR)).orElse(REASON_CODE_STRATEGY);
 
         meteringSystemId = Optional.ofNullable(getPropertyValue(bundleContext, METERING_SYSTEM_ID)).orElse(DEFAULT_METERING_SYSTEM_ID);
 
@@ -651,13 +693,6 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         searchService.unregister(sapAttributesSearchExtension);
     }
 
-    public static Optional<SAPMeterReadingDocumentReason> findReadingReasonProvider(String readingReasonCode) {
-        return WebServiceActivator.METER_READING_REASONS
-                .stream()
-                .filter(readingReason -> readingReason.getCodes().contains(readingReasonCode))
-                .findFirst();
-    }
-
     public List<UtilitiesDeviceRegisteredNotification> getUtilitiesDeviceRegisteredNotifications() {
         return Collections.unmodifiableList(UTILITIES_DEVICE_REGISTERED_NOTIFICATION);
     }
@@ -707,6 +742,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 new MasterPodNotificationCustomPropertySet(thesaurus, propertySpecService));
         customPropertySetsMap.put(PodNotificationDomainExtension.class.getName(),
                 new PodNotificationCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterMeterReadingResultCreateRequestDomainExtension.class.getName(),
+                new MasterMeterReadingResultCreateRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MeterReadingResultCreateRequestDomainExtension.class.getName(),
+                new MeterReadingResultCreateRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(MasterUtilitiesDeviceMeterChangeRequestDomainExtension.class.getName(),
+                new MasterUtilitiesDeviceMeterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+        customPropertySetsMap.put(UtilitiesDeviceMeterChangeRequestDomainExtension.class.getName(),
+                new UtilitiesDeviceMeterChangeRequestCustomPropertySet(thesaurus, propertySpecService));
+
 
         return customPropertySetsMap;
     }
@@ -772,6 +816,12 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         registerInboundSoapEndpoint(bundleContext,
                 () -> dataModel.getInstance(StatusChangeRequestBulkCreateEndpoint.class),
                 InboundServices.SAP_STATUS_CHANGE_REQUEST_BULK_CREATE.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(MeterReadingResultCreateEndpoint.class),
+                InboundServices.SAP_METER_READING_RESULT_CREATE_REQUEST.getName());
+        registerInboundSoapEndpoint(bundleContext,
+                () -> dataModel.getInstance(UtilitiesDeviceMeterChangeRequestEndpoint.class),
+                InboundServices.SAP_UTILITIES_DEVICE_ERP_SMART_METER_CHANGE_REQUEST_C_IN.getName());
     }
 
     private <T extends InboundSoapEndPointProvider> void registerInboundSoapEndpoint(BundleContext bundleContext,
@@ -863,6 +913,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addUtilitiesDeviceMeterChangeConfirmation(UtilitiesDeviceMeterChangeConfirmation result) {
+        UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION_PORTS.add(result);
+    }
+
+    public void removeUtilitiesDeviceMeterChangeConfirmation(UtilitiesDeviceMeterChangeConfirmation result) {
+        UTILITIES_DEVICE_METER_CHANGE_CONFIRMATION_PORTS.remove(result);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addUtilitiesDeviceBulkCreateConfirmation(UtilitiesDeviceBulkCreateConfirmation result) {
         UTILITIES_DEVICE_BULK_CREATE_CONFIRMATION.add(result);
     }
@@ -942,6 +1001,15 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
 
     public void removeMeterRegisterChangeConfirmation(MeterRegisterChangeConfirmation requestConfirmation) {
         METER_REGISTER_CHANGE_CONFIRMATIONS.remove(requestConfirmation);
+    }
+
+    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addMeterReadingResultCreateConfirmation(MeterReadingResultCreateConfirmation requestConfirmation) {
+        METER_READING_RESULT_CREATE_CONFIRMATIONS.add(requestConfirmation);
+    }
+
+    public void removeMeterReadingResultCreateConfirmation(MeterReadingResultCreateConfirmation requestConfirmation) {
+        METER_READING_RESULT_CREATE_CONFIRMATIONS.remove(requestConfirmation);
     }
 
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)

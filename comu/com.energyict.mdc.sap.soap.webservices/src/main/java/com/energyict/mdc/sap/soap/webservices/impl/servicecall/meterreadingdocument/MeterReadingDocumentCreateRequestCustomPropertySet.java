@@ -19,9 +19,11 @@ import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import com.google.inject.AbstractModule;
 import com.google.inject.Module;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -63,7 +65,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
 
     @Override
     public PersistenceSupport<ServiceCall, MeterReadingDocumentCreateRequestDomainExtension> getPersistenceSupport() {
-        return new CustomPropertyPersistenceSupport();
+        return new CustomPropertyPersistenceSupport(thesaurus);
     }
 
     @Override
@@ -193,6 +195,12 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
         private final String TABLE_NAME = "SAP_CPS_MR1";
         private final String FK = "FK_SAP_CPS_MR1";
 
+        private Thesaurus thesaurus;
+
+        private CustomPropertyPersistenceSupport(Thesaurus thesaurus) {
+            this.thesaurus = thesaurus;
+        }
+
         @Override
         public String componentName() {
             return MODEL_NAME;
@@ -220,7 +228,13 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
 
         @Override
         public Optional<Module> module() {
-            return Optional.empty();
+            return Optional.of(new AbstractModule() {
+                @Override
+                protected void configure() {
+                    bind(Thesaurus.class).toInstance(thesaurus);
+                    bind(MessageInterpolator.class).toInstance(thesaurus);
+                }
+            });
         }
 
         @Override
@@ -263,6 +277,7 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.SCHEDULED_READING_DATE.javaName())
                     .notNull()
                     .add();
+
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.PROCESSING_DATE.databaseName())
                     .number()
                     .conversion(ColumnConversion.NUMBER2INSTANT)
@@ -285,6 +300,11 @@ public class MeterReadingDocumentCreateRequestCustomPropertySet implements Custo
                     .varChar()
                     .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.READING_REASON_CODE.javaName())
                     .notNull()
+                    .add();
+            table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.databaseName())
+                    .varChar()
+                    .map(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.DATA_SOURCE_TYPE_CODE.javaName())
+                    .since(Version.version(10, 9, 15))
                     .add();
             table.column(MeterReadingDocumentCreateRequestDomainExtension.FieldNames.CHANNEL_ID.databaseName())
                     .number()

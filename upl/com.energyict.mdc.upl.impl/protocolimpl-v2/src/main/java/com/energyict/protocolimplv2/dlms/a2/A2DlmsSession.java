@@ -9,12 +9,16 @@ import com.energyict.dlms.protocolimplv2.connection.UDPIPConnection;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.protocol.exception.DeviceConfigurationException;
+import com.energyict.protocol.exceptions.ProtocolRuntimeException;
 
 import java.util.logging.Logger;
 
 public class A2DlmsSession extends DlmsSession {
 
     private boolean opticalConnection = false;
+
+    private A2 protocol;
+    private ComChannel comChannel;
 
     public A2DlmsSession(ComChannel comChannel, DlmsSessionProperties properties) {
         super(comChannel, properties);
@@ -24,8 +28,13 @@ public class A2DlmsSession extends DlmsSession {
         super(comChannel, properties, logger);
     }
 
-    public A2DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, A2HHUSignOn hhuSignOn, String deviceId) {
+    public A2DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, A2HHUSignOn hhuSignOn, String deviceId,
+                         A2 protocol) {
         super(comChannel, properties, hhuSignOn, deviceId);
+
+        this.protocol = protocol;
+        this.comChannel = comChannel;
+
         if (hhuSignOn != null) {
             opticalConnection = true;
             A2RequestFrameBuilder frameBuilder = new A2RequestFrameBuilder(properties);
@@ -53,7 +62,25 @@ public class A2DlmsSession extends DlmsSession {
         if (opticalConnection) {
             ((A2HHUHDLCConnection) ((SecureConnection) getDlmsV2Connection()).getTransportConnection()).createAssociation();
         } else {
-            super.createAssociation();
+            try {
+                if (this.protocol.useCachedFrameCounter()) {
+                    // intentionally set retries to 0 to save up traffic
+                    this.dlmsConnection.setRetries(0);
+                }
+                super.createAssociation();
+            } catch (ProtocolRuntimeException ex) {
+                this.protocol.journal("Association with cached frame counter failed: " + ex.getMessage());
+
+                // set back the original value for retries
+                this.dlmsConnection.setRetries(getProperties().getRetries());
+
+                // fallback to reading the frame counter with the public client
+                this.protocol.setupPublicSession(comChannel, A2.FRAME_COUNTER_MANAGEMENT_ONLINE);
+                super.createAssociation();
+            } finally {
+                // set back the original value for retries
+                this.dlmsConnection.setRetries(getProperties().getRetries());
+            }
         }
     }
 }

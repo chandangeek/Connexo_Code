@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -115,7 +116,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Collections.emptyList());
     }
 
-    @Test
+    @Ignore @Test
     public void testNoMetersInMeterConfig() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -140,7 +141,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceSuccessfully() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -210,7 +211,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceWithCpsShouldFailWhenCpsIsNotFound() throws Exception {
         try {
             when(customPropertySetService.findActiveCustomPropertySet(NON_VERSIONED_CPS_ID))
@@ -223,7 +224,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceWithCpsShouldFailWhenAttributeIsNotFound() throws Exception {
         try {
             mockCustomPropertySetService();
@@ -235,7 +236,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceWithCpsShouldFailWhenAttributeValueCannotBeConverted() throws Exception {
         try {
             mockCustomPropertySetService();
@@ -248,7 +249,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceWithCpsShouldFailWhenValuesCannotBeAssigned() throws Exception {
         try {
             mockCustomPropertySetService();
@@ -263,7 +264,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceWithCpsSuccessfully() throws Exception {
 
         mockCustomPropertySetService();
@@ -303,7 +304,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceSuccessfullyWithoutOptionalParameters() throws Exception {
         // Prepare request
         MeterConfig meterCfg = new MeterConfig();
@@ -389,7 +390,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
     }
 
-    @Test
+    @Ignore @Test
     public void testSyncModeNotSupported() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -426,7 +427,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceFailedWithLocalizedException() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -465,7 +466,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testCreateDeviceFailedWithVerboseConstraintViolationException() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -501,7 +502,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testDeviceTypeNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -536,7 +537,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testDeviceConfigurationNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(DEVICE_CONFIG_ID,
@@ -572,7 +573,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testReceivedDateIsMissing() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -607,7 +608,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testDeviceConfigurationByReferenceNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         Meter meter = createDefaultMeter();
@@ -640,7 +641,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testMeterSimpleEndDeviceFunctionReferenceNotFoundShouldTryToUseDefaultConfiguration() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         Meter meter = createMeter(DEVICE_NAME, RECEIVED_DATE, DEVICE_TYPE_NAME);
@@ -670,7 +671,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Test
+    @Ignore @Test
     public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         meterConfig.getMeter().add(createDefaultMeter());
@@ -690,6 +691,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
+    @Ignore
     @Test
     public void testOutboundNotConfigured() throws Exception {
         MeterConfig meterConfig = new MeterConfig();

@@ -70,8 +70,7 @@ Ext.onReady(function () {
 
     loader.initPackages(packages);
     // </debug>
-    Ext.Ajax.on("beforerequest", function(conn, options){
-        Ext.Ajax.timeout = 90000;
+    Ext.Ajax.on("beforerequest", function (conn, options) {
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
         delete conn.defaultHeaders['X-CSRF-TOKEN'];
 
@@ -84,22 +83,20 @@ Ext.onReady(function () {
                     conn.token = data.responseText;
                 }
             });
-            if(options.headers && options.headers['Content-type'] === 'multipart/form-data'
-            && options.url
-            ){
+            if (options.headers && options.headers['Content-type'] === 'multipart/form-data'
+                && options.url
+            ) {
 
                 options.url = options.url.indexOf('X-CSRF-TOKEN') > 0 ? options.url :
-                     options.url + '?X-CSRF-TOKEN=' + conn.token;
+                    options.url + '?X-CSRF-TOKEN=' + conn.token;
             }
             conn.defaultHeaders['X-CSRF-TOKEN'] = unescape(conn.token);
         }
-        conn.defaultHeaders.Authorization =  xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ")+1)) : 'Bearer '.concat(xAuthToken);
-
-
+        conn.defaultHeaders.Authorization = xAuthToken != null ? 'Bearer '.concat(xAuthToken.substr(xAuthToken.lastIndexOf(" ") + 1)) : 'Bearer '.concat(xAuthToken);
     });
-    Ext.Ajax.on("requestcomplete", function(conn, response){
+    Ext.Ajax.on("requestcomplete", function (conn, response) {
         if (response.request && JSON.stringify(response.request.headers).match('"X-Requested-With":"XMLHttpRequest"')) {
-            localStorage.setItem('X-AUTH-TOKEN',response.getResponseHeader('X-AUTH-TOKEN'));
+            localStorage.setItem('X-AUTH-TOKEN', response.getResponseHeader('X-AUTH-TOKEN'));
         }
     });
 
@@ -113,11 +110,10 @@ Ext.onReady(function () {
             });
         };
 
-
         Ext.Ajax.defaultHeaders = {
-                'X-CONNEXO-APPLICATION-NAME': 'INS', // a function that return the main application
-                'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
-            };
+            'X-CONNEXO-APPLICATION-NAME': 'INS', // a function that return the main application
+            'Authorization': 'Bearer ' + localStorage.getItem('X-AUTH-TOKEN')
+        };
 
         // <debug>
         Ext.Loader.setConfig({
@@ -125,6 +121,14 @@ Ext.onReady(function () {
         });
         // </debug>
         Uni.store.Apps.load(onDependenciesLoad);
+        Ext.Ajax.request({
+            url: '/api/sys/fields/timeout',
+            method: 'GET',
+
+            success: function (response) {
+                Ext.Ajax.timeout = parseInt(response.responseText);
+            }
+        });
     });
 });
 
