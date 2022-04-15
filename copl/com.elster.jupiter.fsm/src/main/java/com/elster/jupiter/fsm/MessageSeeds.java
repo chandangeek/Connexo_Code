@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.fsm;
@@ -20,7 +21,8 @@ public enum MessageSeeds implements MessageSeed {
     // Generic
     FIELD_TOO_LONG(100, Keys.FIELD_TOO_LONG, "Field must not exceed {max} characters"),
     CAN_NOT_BE_EMPTY(101, Keys.CAN_NOT_BE_EMPTY, "This field is required"),
-    END_POINT_CONFIG_IN_USE_BY_FSM(102, Keys.END_POINT_CONFIG_IS_USE,"Web service end point ''{0}'' is in use by a device life cycle.", Level.SEVERE),
+    CAN_NOT_BE_INACTIVE(102, Keys.CAN_NOT_BE_INACTIVE, "Web service endpoint {0} is inactive."),
+    END_POINT_CONFIG_IN_USE_BY_FSM(103, Keys.END_POINT_CONFIG_IS_USE,"Web service end point ''{0}'' is in use by a device life cycle.", Level.SEVERE),
 
     // StateTransitionEventType
     UNIQUE_EVENT_TYPE_SYMBOL(200, Keys.UNIQUE_EVENT_TYPE_SYMBOL, "The symbolic representation of a state transition event type must be unique"),
@@ -87,6 +89,7 @@ public enum MessageSeeds implements MessageSeed {
     public static final class Keys {
         public static final String FIELD_TOO_LONG = "FieldTooLong";
         public static final String CAN_NOT_BE_EMPTY = "CanNotBeEmpty";
+        public static final String CAN_NOT_BE_INACTIVE = "EndPointCanNotBeInactive";
         public static final String NO_SUCH_PROCESS = "finite.state.machine.unknown.process";
         public static final String STATE_CHANGE_PROCESS_IN_USE = "finite.state.machine.process.inUse";
         public static final String UNIQUE_EVENT_TYPE_SYMBOL = "state.transition.event.type.unique.symbol";

@@ -389,8 +389,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                 var webServicesOnEntryStore = this.down('#webServicesOnEntryGrid').getStore();
                 if (webServicesOnEntryStore.modelId !== record.getId()){
                     webServicesOnEntryStore.removeAll();
-                    Ext.each(record.get("onEntryEndPointConfigurations"), function (transitionBusinessProcess) {
-                        webServicesOnEntryStore.add(transitionBusinessProcess);
+                    Ext.each(record.get("onEntryEndPointConfigurations"), function (webServices) {
+                        webServicesOnEntryStore.add(webServices);
                     });
                     webServicesOnEntryStore.modelId = record.getId();
                 }

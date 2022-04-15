@@ -6,6 +6,7 @@ package com.elster.jupiter.fsm.impl;
 
 import com.elster.jupiter.fsm.EndPointConfigurationReference;
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.fsm.impl.constraints.IsActive;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -39,6 +40,7 @@ public class EndPointConfigurationReferenceImpl implements EndPointConfiguration
     @SuppressWarnings("unused") // Managed by ORM
     private long id;
     @IsPresent
+    @IsActive
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
     @IsPresent
     private Reference<State> state = Reference.empty();
