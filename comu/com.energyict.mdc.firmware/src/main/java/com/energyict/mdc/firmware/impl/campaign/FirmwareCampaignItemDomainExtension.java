@@ -456,7 +456,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         Optional<ComTaskExecution> optionalFirmwareComTaskExec = findOrCreateFirmwareComTaskExecution();
         if (optionalFirmwareComTaskExec.isPresent()) {
             ComTaskExecution firmwareComTaskExec = optionalFirmwareComTaskExec.get();
-            Instant appliedStartDate = campaign.getUploadPeriodStart();
+            Instant appliedStartDate = getAppliedStartDate(campaign);
             ScheduledConnectionTask connectionTask = (ScheduledConnectionTask) firmwareComTaskExec.getConnectionTask().get();
             if (!firmwareComTaskExec.isOnHold() && connectionTask.isActive()
                     && (!campaign.getFirmwareUploadConnectionStrategy().isPresent()
@@ -491,6 +491,16 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
             getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             getServiceCall().requestTransition(DefaultState.REJECTED);
         }
+    }
+
+    private Instant getAppliedStartDate(FirmwareCampaign campaign) {
+        Instant now = Instant.now();
+
+        if (campaign.getComWindow().includes(now)){
+            return now;
+        }
+
+        return campaign.getUploadPeriodStart();
     }
 
     @Override

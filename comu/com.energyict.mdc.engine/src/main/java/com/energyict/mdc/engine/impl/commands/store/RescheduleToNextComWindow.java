@@ -6,7 +6,6 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.common.interval.PartialTime;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.JobExecution;
@@ -19,9 +18,12 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Models a {@link DeviceCommand} that reschedules a {@link ScheduledJob}
@@ -35,6 +37,8 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
     private final static String DESCRIPTION_TITLE = "Reschedule to next communication window";
     private final FirmwareService firmwareService;
     private final TimeOfUseCampaignService timeOfUseCampaignService;
+
+    private final Logger debugLogger = Logger.getLogger(this.getClass().getName());
 
     public RescheduleToNextComWindow(JobExecution scheduledJob, ServiceProvider serviceProvider, FirmwareService firmwareService, TimeOfUseCampaignService timeOfUseCampaignService) {
         super(scheduledJob, serviceProvider);
@@ -72,25 +76,41 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
         scheduledJob.doRescheduleToNextComWindow(startingPoint);
     }
 
-    private Instant getComWindowAppliedStartDate(ComWindow comWindow, Instant startDate) {
-        int SECONDS_IN_DAY = 86400;
-        Calendar calendar = getUtcCalendar();
-        calendar.setTimeInMillis(startDate.toEpochMilli());
-        if (comWindow.includes(calendar)) {
-            Calendar calendar2 = getUtcCalendar();
-            PartialTime.fromHours(((GregorianCalendar) calendar).toZonedDateTime().getHour())
-                    .plus(PartialTime.fromMinutes(((GregorianCalendar) calendar).toZonedDateTime().getMinute())).copyTo(calendar2);
-            return getUtcCalendar().after(calendar2) ? calendar2.toInstant().plusSeconds(SECONDS_IN_DAY) : calendar2.toInstant();
-        } else if (comWindow.after(calendar)) {
-            comWindow.getStart().copyTo(calendar);
-            return calendar.toInstant();
-        } else {
-            /* Timestamp must be after ComWindow,
-             * advance one day and set time to start of the ComWindow. */
-            calendar.add(Calendar.DATE, 1);
-            comWindow.getStart().copyTo(calendar);
-            return calendar.toInstant();
+    /**
+     * nextExecutionTimeStamp = start of ComWindow, but can be in the past!
+     *
+     * @param comWindow
+     * @param nextExecutionTimeStamp
+     * @return
+     */
+    public Instant getComWindowAppliedStartDate(ComWindow comWindow, Instant nextExecutionTimeStamp) {
+        log("[FWC] getComWindowAppliedStartDate calculated from from " + nextExecutionTimeStamp.toString() + " to fit in comWindow: " + comWindow.toString());
+
+        if (nextExecutionTimeStamp.isBefore(getNow())
+                || !comWindow.includes(nextExecutionTimeStamp)) {
+            Calendar startOfComWindow = getUtcCalendar();
+            comWindow.getStart().copyTo(startOfComWindow);
+            nextExecutionTimeStamp = startOfComWindow.toInstant();
+            log("[FWC] getComWindowAppliedStartDate - adjusting to start of comWindow: " + nextExecutionTimeStamp.toString());
         }
+
+        if (nextExecutionTimeStamp.isBefore(getNow())) {
+            nextExecutionTimeStamp = nextExecutionTimeStamp.plus(1, ChronoUnit.DAYS);
+            log("[FWC] getComWindowAppliedStartDate - still in the past adding one day: " + nextExecutionTimeStamp.toString());
+        }
+
+        if (nextExecutionTimeStamp.isBefore(getNow())) {
+            log("[FWC] getComWindowAppliedStartDate - give up, still in the past: " + nextExecutionTimeStamp);
+        } else {
+            if (comWindow.includes(nextExecutionTimeStamp)) {
+                log("[FWC] getComWindowAppliedStartDate - rescheduling to: " + nextExecutionTimeStamp);
+                return nextExecutionTimeStamp;
+            }
+        }
+
+        // fallback
+        nextExecutionTimeStamp = nextExecutionTimeStamp.plus(1, ChronoUnit.DAYS);
+        return nextExecutionTimeStamp;
     }
 
     public Calendar getUtcCalendar() {
@@ -104,6 +124,13 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
     @Override
     public String getDescriptionTitle() {
         return DESCRIPTION_TITLE;
+    }
+
+
+    protected void log(String text) {
+        if (debugLogger.isLoggable(Level.INFO)) {
+            debugLogger.info("[ScheduledJob][RescheduleToNextComWindow]" + text);
+        }
     }
 
 }

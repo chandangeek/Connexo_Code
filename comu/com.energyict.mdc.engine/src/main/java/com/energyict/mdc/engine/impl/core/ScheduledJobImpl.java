@@ -32,7 +32,8 @@ import com.energyict.protocol.exceptions.ConnectionSetupException;
 import java.time.Clock;
 import java.util.Calendar;
 import java.util.Optional;
-import java.util.TimeZone;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Provides code reuse opportunities for component that
@@ -47,6 +48,8 @@ import java.util.TimeZone;
  * @since 2012-06-14 (16:44)
  */
 public abstract class ScheduledJobImpl extends JobExecution {
+
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     protected ScheduledJobImpl(ComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, ServiceProvider serviceProvider) {
         super(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
@@ -108,6 +111,8 @@ public abstract class ScheduledJobImpl extends JobExecution {
                 .findFirst();
         if (touComWindow.isPresent()) {
             comWindowToUse = touComWindow.get();
+        } else {
+            log("Using task comWindow: " + (comWindowToUse!=null?comWindowToUse.toString():"none") );
         }
         Optional<ComWindow> firmwareComWindow = getComTaskExecutions().stream()
                 .map(comTaskExecution -> getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution)
@@ -125,7 +130,8 @@ public abstract class ScheduledJobImpl extends JobExecution {
         if (comWindow == null) {
             return true;
         } else {
-            Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            // using server time-zone, which should be the same as the configured window
+            Calendar now = Calendar.getInstance();
             now.setTimeInMillis(getServiceProvider().clock().millis());
             return comWindow.includes(now);
         }
@@ -138,6 +144,7 @@ public abstract class ScheduledJobImpl extends JobExecution {
         if (getExecutionContext() != null) {
             this.getExecutionContext().getComSessionBuilder().incrementNotExecutedTasks(this.getComTaskExecutions().size());
             this.getExecutionContext().createJournalEntry(ComServer.LogLevel.INFO, "Rescheduling to next ComWindow because current timestamp is not " + getComWindow());
+            log(" Rescheduling task " + getConnectionTask().getName() + " for " + getConnectionTask().getDevice().getSerialNumber());
             this.getExecutionContext().getStoreCommand().add(
                     new RescheduleToNextComWindow(this, getExecutionContext().getDeviceCommandServiceProvider(), getServiceProvider().firmwareService(), getServiceProvider().touService()));
             this.completeOutsideComWindow();
@@ -270,5 +277,13 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
     }
 
+    protected Logger getLogger(){
+        return this.logger;
+    }
 
+    protected void log(String text){
+        if (getLogger().isLoggable(Level.INFO)){
+            getLogger().info("[ScheduledJob] "+text);
+        }
+    }
 }
