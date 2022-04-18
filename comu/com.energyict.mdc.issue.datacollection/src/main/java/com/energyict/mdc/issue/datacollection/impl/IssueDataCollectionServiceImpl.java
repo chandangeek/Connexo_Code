@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datacollection.impl;
 
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -23,6 +24,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringTranslationService;
@@ -170,6 +172,9 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
 
     @Activate
     public final void activate(BundleContext bundleContext) {
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -197,9 +202,12 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         BasicDataCollectionRuleTemplate basicDataCollectionRuleTemplate = new BasicDataCollectionRuleTemplate(this, thesaurus, issueService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, timeService, clock, meteringTranslationService, taskService);
         EventAggregationRuleTemplate eventAggregationRuleTemplate = new EventAggregationRuleTemplate(thesaurus, issueService, this, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService);
         MeterRegistrationRuleTemplate meterRegistrationRuleTemplate = new MeterRegistrationRuleTemplate(this, thesaurus, issueService, propertySpecService, deviceConfigurationService, deviceLifeCycleConfigurationService, meteringTranslationService);
+        IssueProcessAssociationProvider issueProcessAssociationProvider = new IssueProcessAssociationProvider(thesaurus, issueService, propertySpecService);
+
         registrations.add(bundleContext.registerService(CreationRuleTemplate.class, basicDataCollectionRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDataCollectionRuleTemplate.NAME))));
         registrations.add(bundleContext.registerService(CreationRuleTemplate.class, eventAggregationRuleTemplate, new Hashtable<>(ImmutableMap.of("name", EventAggregationRuleTemplate.NAME))));
         registrations.add(bundleContext.registerService(CreationRuleTemplate.class, meterRegistrationRuleTemplate, new Hashtable<>(ImmutableMap.of("name", MeterRegistrationRuleTemplate.NAME))));
+        registrations.add(bundleContext.registerService(ProcessAssociationProvider.class, issueProcessAssociationProvider, new Hashtable<>(ImmutableMap.of("name", IssueProcessAssociationProvider.NAME))));
 
         upgradeService.register(identifier("MultiSense", IssueDataCollectionService.COMPONENT_NAME),
                 dataModel,
@@ -240,9 +248,11 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(IssueDataCollectionService.COMPONENT_NAME, "Issue Datacollection");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
+    }
+
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + IssueProcessAssociationProvider.APP_KEY + ")")
+    public void setLicense(License license) {
+        // explicit dependency on license
     }
 
     public DataModel getDataModel() {

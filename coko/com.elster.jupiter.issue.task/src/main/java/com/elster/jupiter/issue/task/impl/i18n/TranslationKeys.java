@@ -4,10 +4,11 @@
 
 package com.elster.jupiter.issue.task.impl.i18n;
 
-import com.elster.jupiter.issue.task.impl.actions.CloseIssueAction;
-import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.issue.task.impl.ModuleConstants;
+import com.elster.jupiter.issue.task.impl.TaskIssueProcessAssociationProvider;
+import com.elster.jupiter.issue.task.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.task.impl.templates.BasicTaskIssueRuleTemplate;
+import com.elster.jupiter.nls.TranslationKey;
 
 public enum TranslationKeys implements TranslationKey {
     AQ_TASK_EVENT_SUBSC(ModuleConstants.AQ_TASK_EVENT_SUBSC, ModuleConstants.AQ_TASK_EVENT_DISPLAYNAME),
@@ -29,8 +30,11 @@ public enum TranslationKeys implements TranslationKey {
     ISSUE_CREATION_SELECTION_ON_RECURRENCE("issue.creation.selection.on.recurrence", "On recurrence"),
     CREATE_NEW_TASK_ISSUE("create.new.task.issue", "Create new issue"),
     LOG_ON_SAME_TASK_ISSUE("log.on.same.task.issue", "Log on existing open issue"),
-    TASK_PROPS("task.issue.props", "Task issue properties")
-    ;
+    TASK_PROPS("task.issue.props", "Task issue properties"),
+
+    TASK_ISSUE_ASSOCIATION_PROVIDER(TaskIssueProcessAssociationProvider.ASSOCIATION_TYPE, "Task issue"),
+    TASK_ISSUE_REASON_TITLE("issueReasons", "Issue reasons"),
+    TASK_ISSUE_REASON_COLUMN("issueReason", "Issue reason");
 
     private final String key;
     private final String defaultFormat;

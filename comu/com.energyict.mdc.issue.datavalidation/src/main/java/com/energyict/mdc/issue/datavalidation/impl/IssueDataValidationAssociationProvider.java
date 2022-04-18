@@ -1,4 +1,8 @@
-package com.energyict.mdc.bpm.impl.issue.datavalidation;
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.issue.datavalidation.impl;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -26,27 +30,15 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(
-        name = "IssueDataValidationAssociationProvider",
-        service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
-        property = "name=IssueDataValidationAssociationProvider", immediate = true
-)
-public class IssueDataValidationAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
-
+public class IssueDataValidationAssociationProvider implements ProcessAssociationProvider {
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "BPM";
     public static final String ASSOCIATION_TYPE = "datavalidationissue";
+    public static final String NAME = "IssueDataValidationAssociationProvider";
 
-    private volatile License license;
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
 
-    // OSGi requires a default contructor
-    public IssueDataValidationAssociationProvider() {
-    }
-
-    // Testing purposes
     @Inject
     public IssueDataValidationAssociationProvider(final Thesaurus thesaurus,
                                                   final IssueService issueService,
@@ -101,41 +93,6 @@ public class IssueDataValidationAssociationProvider implements ProcessAssociatio
                 .addValues(possibleValues)
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish();
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
-    }
-
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
     }
 
     @XmlRootElement
@@ -229,5 +186,4 @@ public class IssueDataValidationAssociationProvider implements ProcessAssociatio
             }
         }
     }
-
 }

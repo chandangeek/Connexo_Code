@@ -1,3 +1,0 @@
--classpath: target/classes
--dsannotations: * 
-Private-Package: com.energyict.mdc.bpm.impl.*

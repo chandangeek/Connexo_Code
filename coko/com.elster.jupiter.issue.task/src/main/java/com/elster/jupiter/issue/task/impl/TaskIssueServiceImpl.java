@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.issue.task.impl;
 
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -21,6 +22,16 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
+import com.elster.jupiter.issue.task.HistoricalTaskIssue;
+import com.elster.jupiter.issue.task.OpenTaskIssue;
+import com.elster.jupiter.issue.task.TaskIssue;
+import com.elster.jupiter.issue.task.TaskIssueFilter;
+import com.elster.jupiter.issue.task.TaskIssueService;
+import com.elster.jupiter.issue.task.entity.OpenTaskIssueImpl;
+import com.elster.jupiter.issue.task.impl.database.TableSpecs;
+import com.elster.jupiter.issue.task.impl.i18n.MessageSeeds;
+import com.elster.jupiter.issue.task.impl.i18n.TranslationKeys;
+import com.elster.jupiter.issue.task.impl.install.Installer;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -31,24 +42,19 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.orm.QueryExecutor;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.exception.MessageSeed;
-import com.elster.jupiter.issue.task.TaskIssueFilter;
-import com.elster.jupiter.issue.task.TaskIssueService;
-import com.elster.jupiter.issue.task.HistoricalTaskIssue;
-import com.elster.jupiter.issue.task.TaskIssue;
-import com.elster.jupiter.issue.task.OpenTaskIssue;
-import com.elster.jupiter.issue.task.impl.database.TableSpecs;
-import com.elster.jupiter.issue.task.impl.i18n.MessageSeeds;
-import com.elster.jupiter.issue.task.impl.i18n.TranslationKeys;
-import com.elster.jupiter.issue.task.impl.install.Installer;
-import com.elster.jupiter.issue.task.entity.OpenTaskIssueImpl;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -56,10 +62,10 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 
-import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -74,9 +80,11 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
     private volatile QueryService queryService;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
-
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
+    private volatile PropertySpecService propertySpecService;
+
+    private final List<ServiceRegistration<?>> registrations = new ArrayList<>();
 
     // For OSGi framework
     public TaskIssueServiceImpl() {
@@ -90,7 +98,9 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
                                 OrmService ormService,
                                 QueryService queryService,
                                 EventService eventService,
-                                UpgradeService upgradeService
+                                UpgradeService upgradeService,
+                                PropertySpecService propertySpecService,
+                                BundleContext bundleContext
     ) {
         this();
         setMessageService(messageService);
@@ -100,12 +110,15 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
         setQueryService(queryService);
         setEventService(eventService);
         setUpgradeService(upgradeService);
-
-        activate();
+        setPropertySpecService(propertySpecService);
+        activate(bundleContext);
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -119,7 +132,18 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
                 bind(TaskIssueService.class).toInstance(TaskIssueServiceImpl.this);
             }
         });
+
+        TaskIssueProcessAssociationProvider processAssociationProvider = new TaskIssueProcessAssociationProvider(thesaurus, issueService, propertySpecService);
+        registrations.add(bundleContext.registerService(ProcessAssociationProvider.class, processAssociationProvider,
+                new Hashtable<>(ImmutableMap.of("name", TaskIssueProcessAssociationProvider.NAME))));
+
         upgradeService.register(identifier("Pulse", TaskIssueService.COMPONENT_NAME), dataModel, Installer.class, Collections.emptyMap());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        registrations.forEach(ServiceRegistration::unregister);
+        registrations.clear();
     }
 
     @Reference
@@ -141,9 +165,6 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(TaskIssueService.COMPONENT_NAME, "Task Issue");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
     }
 
     public DataModel getDataModel() {
@@ -163,6 +184,11 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
     }
 
     @Override

@@ -82,7 +82,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>issue</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.pluggable</artifactId>
@@ -155,6 +154,18 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>bootstrap</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>properties.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -165,11 +176,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>ids</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>systemadmin</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -288,10 +294,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
             <scope>test</scope>
@@ -305,10 +307,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>properties.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -345,10 +343,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering.zone</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>metering.groups</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

@@ -1,19 +1,29 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.bpm.impl.issue.task;
+package com.energyict.mdc.issue.datacollection.impl;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.issue.share.entity.IssueReason;
 import com.elster.jupiter.issue.share.entity.IssueType;
 import com.elster.jupiter.issue.share.service.IssueService;
-import com.elster.jupiter.issue.task.TaskIssueService;
 import com.elster.jupiter.license.License;
-import com.elster.jupiter.nls.*;
-import com.elster.jupiter.properties.*;
+import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
+import com.elster.jupiter.nls.TranslationKeyProvider;
+import com.elster.jupiter.properties.HasIdAndName;
+import com.elster.jupiter.properties.PropertySelectionMode;
+import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.properties.PropertySpecService;
+import com.elster.jupiter.properties.ValueFactory;
 import com.elster.jupiter.properties.rest.BpmProcessPropertyFactory;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
+import com.energyict.mdc.issue.datacollection.impl.i18n.TranslationKeys;
+
 import com.google.common.collect.ImmutableList;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -30,55 +40,25 @@ import java.util.Optional;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
-
-@Component(name = "TaskIssueProcessAssociationProvider",
-        service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
-        property = "name=TaskIssueProcessAssociationProvider", immediate = true)
-public class TaskIssueProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
+public class IssueProcessAssociationProvider implements ProcessAssociationProvider {
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "BPM";
-    public static final String ASSOCIATION_TYPE = "taskissue";
+    public static final String ASSOCIATION_TYPE = "datacollectionissue";
+    public static final String NAME = "IssueProcessAssociationProvider";
 
-    private volatile License license;
     private volatile Thesaurus thesaurus;
     private volatile IssueService issueService;
     private volatile PropertySpecService propertySpecService;
 
-    //For OSGI purposes
-    public TaskIssueProcessAssociationProvider() {
-    }
-
-    //For testing purposes
     @Inject
-    public TaskIssueProcessAssociationProvider(Thesaurus thesaurus, IssueService issueService, PropertySpecService propertySpecService) {
+    public IssueProcessAssociationProvider(Thesaurus thesaurus, IssueService issueService, PropertySpecService propertySpecService) {
         this.thesaurus = thesaurus;
         this.issueService = issueService;
         this.propertySpecService = propertySpecService;
     }
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setIssueService(IssueService issueService) {
-        this.issueService = issueService;
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
-    }
-
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(TranslationKeys.TASK_ISSUE_ASSOCIATION_PROVIDER).format();
+        return this.thesaurus.getFormat(TranslationKeys.DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER).format();
     }
 
     @Override
@@ -94,18 +74,18 @@ public class TaskIssueProcessAssociationProvider implements ProcessAssociationPr
     @Override
     public List<PropertySpec> getPropertySpecs() {
         ImmutableList.Builder<PropertySpec> builder = ImmutableList.builder();
-        builder.add(getTaskIssueReasonPropertySpec());
+        builder.add(getIssueReasonPropertySpec());
         return builder.build();
     }
 
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
-        return (TranslationKeys.TASK_ISSUE_REASON_TITLE.getKey().equals(name))? Optional.of(getTaskIssueReasonPropertySpec()) : Optional.empty();
+        return (TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE.getKey()
+                .equals(name)) ? Optional.of(getIssueReasonPropertySpec()) : Optional.empty();
     }
 
-    private PropertySpec getTaskIssueReasonPropertySpec() {
-        IssueType issueType = issueService.findIssueType(TaskIssueService.TASK_ISSUE).orElse(null);
-
+    private PropertySpec getIssueReasonPropertySpec() {
+        IssueType issueType = issueService.findIssueType(IssueDataCollectionService.DATA_COLLECTION_ISSUE).orElse(null);
         IssueReasonInfo[] possibleValues = issueService.query(IssueReason.class)
                 .select(where("issueType").isEqualTo(issueType))
                 .stream().map(IssueReasonInfo::new)
@@ -114,28 +94,13 @@ public class TaskIssueProcessAssociationProvider implements ProcessAssociationPr
 
         return this.propertySpecService
                 .specForValuesOf(new IssueReasonInfoValuePropertyFactory())
-                .named(TranslationKeys.TASK_ISSUE_REASON_TITLE.getKey(), TranslationKeys.TASK_ISSUE_REASON_TITLE)
+                .named(TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE.getKey(), TranslationKeys.DATA_COLLECTION_ISSUE_REASON_TITLE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .markMultiValued(",")
                 .addValues(possibleValues)
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish();
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
     }
 
     @XmlRootElement

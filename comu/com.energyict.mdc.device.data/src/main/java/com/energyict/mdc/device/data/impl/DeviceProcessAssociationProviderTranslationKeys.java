@@ -1,16 +1,12 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.bpm.impl.device;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.nls.TranslationKey;
 
-/**
- * Created by dragos on 2/18/2016.
- */
-
-public enum TranslationKeys implements TranslationKey {
+public enum DeviceProcessAssociationProviderTranslationKeys implements TranslationKey {
     DEVICE_ASSOCIATION_PROVIDER(DeviceProcessAssociationProvider.ASSOCIATION_TYPE, "Device"),
     DEVICE_STATE_TITLE("deviceStates", "Device states"),
     DEVICE_LIFECYCLE_COLUMN("deviceLifecycle", "Device life cycle"),
@@ -19,7 +15,7 @@ public enum TranslationKeys implements TranslationKey {
     private final String key;
     private final String defaultFormat;
 
-    TranslationKeys(String key, String defaultFormat) {
+    DeviceProcessAssociationProviderTranslationKeys(String key, String defaultFormat) {
         this.key = key;
         this.defaultFormat = defaultFormat;
     }

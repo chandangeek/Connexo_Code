@@ -1,20 +1,15 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.bpm.impl.device;
+package com.energyict.mdc.device.data.impl;
 
 import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.State;
-import com.elster.jupiter.license.License;
 import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.MeteringTranslationService;
-import com.elster.jupiter.nls.Layer;
-import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.nls.TranslationKey;
-import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySelectionMode;
 import com.elster.jupiter.properties.PropertySpec;
@@ -26,38 +21,26 @@ import com.energyict.mdc.common.device.lifecycle.config.DeviceLifeCycle;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 
 import com.google.common.collect.ImmutableList;
-import org.osgi.service.component.annotations.Component;
-import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-@Component(name = "DeviceProcessAssociationProvider",
-        service = {ProcessAssociationProvider.class, TranslationKeyProvider.class},
-        property = "name=DeviceProcessAssociationProvider", immediate = true)
-public class DeviceProcessAssociationProvider implements ProcessAssociationProvider, TranslationKeyProvider {
+public class DeviceProcessAssociationProvider implements ProcessAssociationProvider {
     public static final String APP_KEY = "MDC";
-    public static final String COMPONENT_NAME = "CBP";
     public static final String ASSOCIATION_TYPE = "device";
+    public static final String NAME = "DeviceProcessAssociationProvider";
 
-    private volatile License license;
     private volatile Thesaurus thesaurus;
     private volatile PropertySpecService propertySpecService;
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
     private volatile MeteringTranslationService meteringTranslationService;
 
-    //For OSGI purposes
-    public DeviceProcessAssociationProvider() {
-    }
-
-    //For testing purposes
     @Inject
     public DeviceProcessAssociationProvider(Thesaurus thesaurus, PropertySpecService propertySpecService, FiniteStateMachineService finiteStateMachineService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService, MeteringTranslationService meteringTranslationService) {
         this.thesaurus = thesaurus;
@@ -67,39 +50,9 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
         this.meteringTranslationService = meteringTranslationService;
     }
 
-    @Reference
-    public void setNlsService(NlsService nlsService) {
-        this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.DOMAIN);
-    }
-
-    @Reference
-    public void setPropertySpecService(PropertySpecService propertySpecService) {
-        this.propertySpecService = propertySpecService;
-    }
-
-    @Reference
-    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
-        this.finiteStateMachineService = finiteStateMachineService;
-    }
-
-    @Reference
-    public void setDeviceLifeCycleConfigurationService(DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
-        this.deviceLifeCycleConfigurationService = deviceLifeCycleConfigurationService;
-    }
-
-    @Reference
-    public void setMeteringTranslationService(MeteringTranslationService meteringTranslationService) {
-        this.meteringTranslationService = meteringTranslationService;
-    }
-
-    @Reference(target = "(com.elster.jupiter.license.rest.key=" + APP_KEY + ")")
-    public void setLicense(License license) {
-        this.license = license;
-    }
-
     @Override
     public String getName() {
-        return this.thesaurus.getFormat(TranslationKeys.DEVICE_ASSOCIATION_PROVIDER).format();
+        return this.thesaurus.getFormat(DeviceProcessAssociationProviderTranslationKeys.DEVICE_ASSOCIATION_PROVIDER).format();
     }
 
     @Override
@@ -121,7 +74,7 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
 
     @Override
     public Optional<PropertySpec> getPropertySpec(String name) {
-        return (TranslationKeys.DEVICE_STATE_TITLE.getKey()
+        return (DeviceProcessAssociationProviderTranslationKeys.DEVICE_STATE_TITLE.getKey()
                 .equals(name)) ? Optional.of(getDeviceStatePropertySpec()) : Optional.empty();
     }
 
@@ -138,28 +91,13 @@ public class DeviceProcessAssociationProvider implements ProcessAssociationProvi
 
         return this.propertySpecService
                 .specForValuesOf(new DeviceStateInfoValuePropertyFactory())
-                .named(TranslationKeys.DEVICE_STATE_TITLE.getKey(), TranslationKeys.DEVICE_STATE_TITLE)
+                .named(DeviceProcessAssociationProviderTranslationKeys.DEVICE_STATE_TITLE.getKey(), DeviceProcessAssociationProviderTranslationKeys.DEVICE_STATE_TITLE)
                 .fromThesaurus(this.thesaurus)
                 .markRequired()
                 .markMultiValued(",")
                 .addValues(possibleValues)
                 .markExhaustive(PropertySelectionMode.LIST)
                 .finish();
-    }
-
-    @Override
-    public String getComponentName() {
-        return COMPONENT_NAME;
-    }
-
-    @Override
-    public Layer getLayer() {
-        return Layer.DOMAIN;
-    }
-
-    @Override
-    public List<TranslationKey> getKeys() {
-        return Arrays.asList(TranslationKeys.values());
     }
 
     @XmlRootElement

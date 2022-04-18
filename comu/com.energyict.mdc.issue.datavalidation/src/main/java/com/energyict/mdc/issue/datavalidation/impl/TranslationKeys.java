@@ -35,7 +35,11 @@ public enum TranslationKeys implements TranslationKey {
     SUSCPECT_CREATION_RULE_TEMPLATE_NAME("SuspectCreationRuleTemplateName", "Create issue when suspects created"),
     SUSCPECT_CREATION_RULE_TEMPLATE_DESCRIPTION("SuspectCreationRuleTemplateDescription", "Create issue when suspects created"),
     EVENT_TEMPORAL_THRESHOLD("eventTemporalThreshold", "Event time threshold"),
-    VALIDATION_RULES_PROPERTY(SuspectCreatedIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, "Validation rules");
+    VALIDATION_RULES_PROPERTY(SuspectCreatedIssueCreationRuleTemplate.DEVICE_CONFIGURATIONS, "Validation rules"),
+
+    DATA_VALIDATION_ISSUE_ASSOCIATION_PROVIDER(IssueDataValidationAssociationProvider.ASSOCIATION_TYPE, "Data validation issue"),
+    DATA_VALIDATION_ISSUE_REASON_TITLE("issueReasons", "Issue reasons"),
+    DATA_VALIDATION_ISSUE_REASON_COLUMN("issueReason", "Issue reason");
 
     private final String key;
     private final String defaultFormat;

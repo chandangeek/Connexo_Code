@@ -425,7 +425,8 @@ public class DeviceImplDoSomethingWithEventsTest {
                                 injector.getInstance(SecurityManagementService.class),
                                 injector.getInstance(MeteringZoneService.class), calendarService,
                                 injector.getInstance(MeteringTranslationService.class),
-                                injector.getInstance(ConfigPropertiesService.class)
+                                injector.getInstance(ConfigPropertiesService.class),
+                                injector.getInstance(FiniteStateMachineService.class)
                         );
                 this.dataModel = this.deviceDataModelService.dataModel();
                 ctx.commit();

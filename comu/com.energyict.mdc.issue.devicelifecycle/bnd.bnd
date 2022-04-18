@@ -1,4 +1,4 @@
 -classpath: target/classes 
 -dsannotations: *
 Private-Package: com.energyict.mdc.issue.devicelifecycle.impl.*
-Export-Package: com.energyict.mdc.issue.devicelifecycle.*
+Export-Package: com.energyict.mdc.issue.devicelifecycle

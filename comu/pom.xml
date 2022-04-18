@@ -71,12 +71,6 @@
             </dependency>
             <dependency>
                 <groupId>com.energyict</groupId>
-                <artifactId>mdc.bpm</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
                 <artifactId>mdc.bpm.extjs</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
@@ -689,7 +683,6 @@
         <module>com.energyict.mdc.app</module>
         <module>com.energyict.mdc.app.help</module>
         <module>com.energyict.mdc.autoreschedule</module>
-        <module>com.energyict.mdc.bpm</module>
         <module>com.energyict.mdc.bpm.extjs</module>
         <module>com.energyict.mdc.cim.webservices.inbound.soap</module>
         <module>com.energyict.mdc.cim.webservices.outbound.soap</module>

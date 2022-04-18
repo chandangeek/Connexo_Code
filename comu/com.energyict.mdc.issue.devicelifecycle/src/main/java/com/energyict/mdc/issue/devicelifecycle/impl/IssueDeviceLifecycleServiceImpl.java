@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.devicelifecycle.impl;
 
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.events.EventService;
@@ -19,6 +20,7 @@ import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -30,6 +32,7 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.users.User;
@@ -45,9 +48,13 @@ import com.energyict.mdc.issue.devicelifecycle.OpenIssueDeviceLifecycle;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.IssueDeviceLifecycleImpl;
 import com.energyict.mdc.issue.devicelifecycle.impl.entity.OpenIssueDeviceLifecycleImpl;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
@@ -55,6 +62,7 @@ import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,19 +81,26 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
     private volatile MessageService messageService;
     private volatile UpgradeService upgradeService;
     private volatile DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService;
-    /* for dependency - startup/installation order */
     private volatile MeteringService meteringService;
-
-
-
+    private volatile PropertySpecService propertySpecService;
     private volatile DataModel dataModel;
+
+    private final List<ServiceRegistration<?>> registrations = new ArrayList<>();
 
     //for OSGI
     public IssueDeviceLifecycleServiceImpl() {
     }
 
     @Inject
-    public IssueDeviceLifecycleServiceImpl(OrmService ormService, IssueService issueService, NlsService nlsService, EventService eventService, MessageService messageService, UpgradeService upgradeService, DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService) {
+    public IssueDeviceLifecycleServiceImpl(OrmService ormService,
+                                           IssueService issueService,
+                                           NlsService nlsService,
+                                           EventService eventService,
+                                           MessageService messageService,
+                                           UpgradeService upgradeService,
+                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
+                                           PropertySpecService propertySpecService,
+                                           BundleContext bundleContext) {
         this();
         setOrmService(ormService);
         setIssueService(issueService);
@@ -95,11 +110,15 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
         setUpgradeService(upgradeService);
         setMeteringService(meteringService);
         setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
-        activate();
+        setPropertySpecService(propertySpecService);
+        activate(bundleContext);
     }
 
     @Activate
-    public final void activate() {
+    public final void activate(BundleContext bundleContext) {
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -112,11 +131,22 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
                 bind(MessageService.class).toInstance(messageService);
             }
         });
+
+        IssueLifecycleProcessAssociationProvider processAssociationProvider = new IssueLifecycleProcessAssociationProvider(thesaurus, issueService, propertySpecService);
+        registrations.add(bundleContext.registerService(ProcessAssociationProvider.class, processAssociationProvider,
+                new Hashtable<>(ImmutableMap.of("name", IssueLifecycleProcessAssociationProvider.NAME))));
+
         upgradeService.register(
                 InstallIdentifier.identifier("MultiSense", IssueDeviceLifecycleService.COMPONENT_NAME),
                 dataModel,
                 Installer.class,
                 Collections.emptyMap());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        registrations.forEach(ServiceRegistration::unregister);
+        registrations.clear();
     }
 
     @Override
@@ -140,17 +170,17 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
     @Override
     public Optional<OpenIssueDeviceLifecycle> findOpenIssue(long id) {
         return dataModel.query(OpenIssueDeviceLifecycle.class, OpenIssue.class)
-                        .select(Where.where(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
-                        .stream()
-                        .findFirst();
+                .select(Where.where(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+                .stream()
+                .findFirst();
     }
 
     @Override
     public Optional<HistoricalIssueDeviceLifecycle> findHistoricalIssue(long id) {
         return dataModel.query(HistoricalIssueDeviceLifecycle.class, HistoricalIssue.class)
-                        .select(Where.where(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
-                        .stream()
-                        .findFirst();
+                .select(Where.where(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName() + ".id").isEqualTo(id))
+                .stream()
+                .findFirst();
     }
 
     @Override
@@ -185,9 +215,6 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(IssueDeviceLifecycleService.COMPONENT_NAME, "Issue Device Lifecycle");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
     }
 
     public DataModel getDataModel() {
@@ -215,7 +242,7 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
         this.messageService = messageService;
     }
 
-   @Reference
+    @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
     }
@@ -228,6 +255,16 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
     @Reference
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
+    }
+
+    @Reference
+    public void setPropertySpecService(PropertySpecService propertySpecService) {
+        this.propertySpecService = propertySpecService;
+    }
+
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + IssueLifecycleProcessAssociationProvider.APP_KEY + ")")
+    public void setLicense(License license) {
+        // explicit dependency on license
     }
 
     @Override

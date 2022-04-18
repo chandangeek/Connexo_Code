@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.issue.datavalidation.impl;
 
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.estimation.EstimationService;
@@ -22,6 +23,7 @@ import com.elster.jupiter.issue.share.service.IssueCreationService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
 import com.elster.jupiter.issue.share.service.spi.IssueReasonTranslationProvider;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -129,6 +131,9 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
 
     @Activate
     public final void activate(BundleContext bundleContext) {
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -150,6 +155,7 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         });
 
         registerCreationRuleTemplateServices(bundleContext);
+        registerProcessAssociationProvider(bundleContext);
 
         upgradeService.register(
                 InstallIdentifier.identifier("MultiSense", IssueDataValidationService.COMPONENT_NAME),
@@ -235,9 +241,6 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
     @Reference
     public void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(IssueDataValidationService.COMPONENT_NAME, "Issue Data Validation");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
     }
 
     public DataModel getDataModel() {
@@ -310,6 +313,11 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         this.validationService = validationService;
     }
 
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + IssueDataValidationAssociationProvider.APP_KEY + ")")
+    public void setLicense(License license) {
+        // explicit dependency on license
+    }
+
     @Override
     public Optional<? extends OpenIssue> getOpenIssue(OpenIssue issue) {
         return issue instanceof OpenIssueDataValidation ? Optional.of(issue) : findOpenIssue(issue.getId());
@@ -378,6 +386,12 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 new Hashtable<>(ImmutableMap.of("name", SuspectCreatedIssueCreationRuleTemplate.NAME))));
         serviceRegistrations.add(bundleContext.registerService(CreationRuleTemplate.class, dataValidationIssueCreationRuleTemplate,
                 new Hashtable<>(ImmutableMap.of("name", DataValidationIssueCreationRuleTemplate.NAME))));
+    }
+
+    private void registerProcessAssociationProvider(BundleContext bundleContext) {
+        IssueDataValidationAssociationProvider provider = new IssueDataValidationAssociationProvider(thesaurus, issueService, propertySpecService);
+        serviceRegistrations.add(bundleContext.registerService(ProcessAssociationProvider.class, provider,
+                new Hashtable<>(ImmutableMap.of("name", IssueDataValidationAssociationProvider.NAME))));
     }
 
     public Thesaurus thesaurus() {

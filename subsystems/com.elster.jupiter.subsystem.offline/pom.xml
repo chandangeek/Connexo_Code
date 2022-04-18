@@ -94,10 +94,6 @@
         <!-- multisense bundles -->
         <dependency>
             <groupId>com.energyict</groupId>
-            <artifactId>mdc.bpm</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>
         </dependency>
         <dependency>
