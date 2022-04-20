@@ -494,7 +494,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     private Instant getAppliedStartDate(FirmwareCampaign campaign) {
-        Instant now = Instant.now();
+        Instant now = clock.instant();
 
         if (campaign.getComWindow().includes(now)){
             return now;
