@@ -36,7 +36,11 @@ public enum TranslationKeys implements TranslationKey {
     TRANSITION_NOT_POSSIBLE_FROM_CURRENT_DEVICE_STATE("transition.not.possible.from.curent.device.state", "The failed transition action cannot be executed from current device state"),
     UNABLE_TO_FIND_FAILED_TRANSITION_TO_RETRY("unable.find.fail.transition.retry", "Unable to find the failed transition"),
     UNABLE_TO_UPDATE_TRANSITION_STATUS("unable.update.transition.status", "Failed to update transition status"),
-    CLOSE_ACTION_DEVICE_EXCLUDED_FROM_CLOSING("action.issue.close.device.excluded", "Device ''{0}'' is excluded from autoclosure");
+    CLOSE_ACTION_DEVICE_EXCLUDED_FROM_CLOSING("action.issue.close.device.excluded", "Device ''{0}'' is excluded from autoclosure"),
+
+    DEVICE_LIFECYCLE_ISSUE_ASSOCIATION_PROVIDER(IssueLifecycleProcessAssociationProvider.ASSOCIATION_TYPE, "Device lifecycle issue"),
+    DEVICE_LIFECYCLE_ISSUE_REASON_TITLE("issueReasons", "Issue reasons"),
+    DEVICE_LIFECYCLE_ISSUE_REASON_COLUMN("issueReason", "Issue reason");
 
     private final String key;
     private final String defaultFormat;

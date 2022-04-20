@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.device.data.impl;
 
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.calendar.CalendarService;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
@@ -11,8 +12,10 @@ import com.elster.jupiter.datavault.DataVaultService;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.estimation.EstimationService;
 import com.elster.jupiter.events.EventService;
+import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.kpi.KpiService;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.ConfigPropertiesService;
 import com.elster.jupiter.metering.MeteringService;
@@ -41,6 +44,7 @@ import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_21SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_8_11SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_9_3SimpleUpgrader;
 import com.elster.jupiter.users.UserPreferencesService;
@@ -55,7 +59,6 @@ import com.energyict.mdc.common.device.data.KeyAccessorStatus;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
-import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -100,6 +103,7 @@ import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecification
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
 import com.energyict.mdc.tasks.TaskService;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -121,6 +125,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -178,6 +183,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private volatile SecurityManagementService securityManagementService;
     private volatile MeteringZoneService meteringZoneService;
     private volatile CalendarService calendarService;
+    private volatile FiniteStateMachineService finiteStateMachineService;
 
     private ServerConnectionTaskService connectionTaskService;
     private ConnectionTaskReportService connectionTaskReportService;
@@ -192,13 +198,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private BatchService batchService;
     private DeviceMessageService deviceMessageService;
-    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private List<ServiceRegistration<?>> serviceRegistrations = new ArrayList<>();
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private BundleContext bundleContext;
     private ConfigPropertiesService configPropertiesService;
     private ComTaskExecutionCreatorEventHandler comTaskExecutionCreatorEventHandler;
     private DeviceSearchDomain deviceSearchDomain;
     private SecurityAccessorDAO securityAccessorDAO;
+    private DeviceProcessAssociationProvider deviceProcessAssociationProvider;
 
     // For OSGi purposes only
     public DeviceDataModelServiceImpl() {
@@ -222,7 +229,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
             LockService lockService, DataVaultService dataVaultService,
             SecurityManagementService securityManagementService, MeteringZoneService meteringZoneService,
             CalendarService calendarService, MeteringTranslationService meteringTranslationService,
-            ConfigPropertiesService configPropertiesService) {
+            ConfigPropertiesService configPropertiesService, FiniteStateMachineService finiteStateMachineService) {
         this();
         setOrmService(ormService);
         setEventService(eventService);
@@ -264,6 +271,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         setCalendarService(calendarService);
         setMeteringTranslationService(meteringTranslationService);
         setConfigPropertiesService(configPropertiesService);
+        setFiniteStateMachineService(finiteStateMachineService);
         activate(bundleContext);
     }
 
@@ -490,6 +498,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                 .join(nlsService.getThesaurus(Constants.COMPONENT_NAME, Layer.DOMAIN));
     }
 
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + DeviceProcessAssociationProvider.APP_KEY + ")")
+    public void setLicense(License license) {
+        // explicit dependency on license
+    }
+
     @Reference
     public void setMessagingService(MessageService messagingService) {
         this.messagingService = messagingService;
@@ -655,6 +668,11 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.meteringZoneService = meteringZoneService;
     }
 
+    @Reference
+    public void setFiniteStateMachineService(FiniteStateMachineService finiteStateMachineService) {
+        this.finiteStateMachineService = finiteStateMachineService;
+    }
+
     private Module getModule() {
         return new AbstractModule() {
             @Override
@@ -790,6 +808,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         comTaskExecutionCreatorEventHandler = new ComTaskExecutionCreatorEventHandler(deviceService);
         deviceSearchDomain = new DeviceSearchDomain(this, clock, protocolPluggableService);
         securityAccessorDAO = new SecurityAccessorDAOImpl(dataModel);
+        deviceProcessAssociationProvider = new DeviceProcessAssociationProvider(thesaurus, propertySpecService, finiteStateMachineService, deviceLifeCycleConfigurationService, meteringTranslationService);
     }
 
     private void registerRealServices(BundleContext bundleContext) {
@@ -809,6 +828,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         registerCrlRequestTaskPropertiesService(bundleContext);
         registerDeviceSearchDomainService(bundleContext);
         registerPKIService(bundleContext);
+        registerDeviceProcessAssociationProvider(bundleContext);
     }
 
     private void registerDeviceSearchDomainService(BundleContext bundleContext) {
@@ -874,9 +894,14 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         this.serviceRegistrations.add(bundleContext.registerService(CrlRequestTaskPropertiesService.class, this.crlRequestTaskPropertiesService, null));
     }
 
+    private void registerDeviceProcessAssociationProvider(BundleContext bundleContext) {
+        this.serviceRegistrations.add(bundleContext.registerService(ProcessAssociationProvider.class, deviceProcessAssociationProvider, new Hashtable<>(ImmutableMap.of("name", DeviceProcessAssociationProvider.NAME))));
+    }
+
     @Deactivate
     public void stop() throws Exception {
-        this.serviceRegistrations.forEach(ServiceRegistration::unregister);
+        serviceRegistrations.forEach(ServiceRegistration::unregister);
+        serviceRegistrations.clear();
     }
 
     @Override
@@ -904,6 +929,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
         keys.addAll(Arrays.asList(KeyAccessorStatus.values()));
         keys.addAll(Arrays.asList(CustomPropertyTranslationKeys.values()));
         keys.addAll(Arrays.asList(AuditTranslationKeys.values()));
+        keys.addAll(Arrays.asList(DeviceProcessAssociationProviderTranslationKeys.values()));
         return keys;
     }
 

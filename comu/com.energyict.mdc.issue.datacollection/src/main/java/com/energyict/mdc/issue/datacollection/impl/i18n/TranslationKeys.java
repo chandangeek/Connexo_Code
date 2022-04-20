@@ -5,6 +5,7 @@
 package com.energyict.mdc.issue.datacollection.impl.i18n;
 
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.issue.datacollection.impl.IssueProcessAssociationProvider;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.energyict.mdc.issue.datacollection.impl.actions.CloseIssueAction;
 import com.energyict.mdc.issue.datacollection.impl.templates.BasicDataCollectionRuleTemplate;
@@ -72,7 +73,11 @@ public enum TranslationKeys implements TranslationKey {
     EVENT_TITLE_CONNECTION_LOST("EventTitleConnectionLost", "Connection lost"),
 
     DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES(ModuleConstants.DEVICE_LIFECYCLE_STATE_IN_DEVICE_TYPES, "Device lifecycle state in device type "),
-    EVENT_TEMPORAL_THRESHOLD(ModuleConstants.EVENT_TEMPORAL_THRESHOLD, "Event time threshold");
+    EVENT_TEMPORAL_THRESHOLD(ModuleConstants.EVENT_TEMPORAL_THRESHOLD, "Event time threshold"),
+
+    DATA_COLLECTION_ISSUE_ASSOCIATION_PROVIDER(IssueProcessAssociationProvider.ASSOCIATION_TYPE, "Data collection issue"),
+    DATA_COLLECTION_ISSUE_REASON_TITLE("issueReasons", "Issue reasons"),
+    DATA_COLLECTION_ISSUE_REASON_COLUMN("issueReason", "Issue reason");
 
     private final String key;
     private final String defaultFormat;

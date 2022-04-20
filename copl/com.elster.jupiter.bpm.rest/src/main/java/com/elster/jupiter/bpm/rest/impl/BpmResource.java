@@ -62,7 +62,6 @@ import com.elster.jupiter.util.conditions.Order;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonObjectFormatVisitor;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -88,6 +87,7 @@ import javax.ws.rs.core.UriInfo;
 import java.io.ByteArrayInputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -125,7 +125,7 @@ public class BpmResource {
         this.propertyValueInfoService = propertyValueInfoService;
         this.conflictFactory = conflictFactory;
 
-        this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Connexo Flow is not available.");
+        this.errorNotFoundMessage = thesaurus.getString("error.flow.unavailable", "Cannot connect to Flow; HTTP error {0}.");
         this.errorInvalidMessage = thesaurus.getString("error.flow.invalid.response", "Invalid response received, please check your Flow version.");
     }
 
@@ -171,7 +171,7 @@ public class BpmResource {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
             } catch (RuntimeException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(this.errorNotFoundMessage)
+                        .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                         .build());
             }
         }
@@ -194,7 +194,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         return new com.elster.jupiter.bpm.rest.ProcessInstanceInfo(obj);
@@ -217,7 +217,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         return new NodeInfos(arr);
@@ -241,7 +241,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         return new VariableInfos(arr);
@@ -260,7 +260,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         return new DeploymentInfos(arr);
@@ -300,7 +300,7 @@ public class BpmResource {
                         .build());
             } catch (RuntimeException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(this.errorNotFoundMessage)
+                        .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                         .build());
             } catch (JsonProcessingException e) {
                 e.printStackTrace();
@@ -338,7 +338,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -376,7 +376,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
@@ -416,7 +416,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         return jsnobject != null ? new ProcessInstanceNodeInfos(jsnobject, thesaurus) : new ProcessInstanceNodeInfos();
@@ -451,7 +451,7 @@ public class BpmResource {
                     Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorNotFoundMessage).build());
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage())).build());
         }
     }
 
@@ -474,7 +474,7 @@ public class BpmResource {
                     Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorNotFoundMessage).build());
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage())).build());
         }
         return jsnobject != null ? new ChildProcessInstanceLogList(jsnobject) : new ChildProcessInstanceLogList();
     }
@@ -520,7 +520,7 @@ public class BpmResource {
                     Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(
-                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorNotFoundMessage).build());
+                    Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage())).build());
         }
         return new ProcessInstanceNodeInfoWithSubprocessList();
     }
@@ -653,7 +653,7 @@ public class BpmResource {
                         .withMessageBody(MessageSeeds.EDIT_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
                         .supplier().get()
                         : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(this.errorNotFoundMessage)
+                        .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                         .build());
             }
             if (response == null) {
@@ -712,7 +712,7 @@ public class BpmResource {
                 bpmService.getBpmServer().doPost(rest, null, auth);
             } catch (RuntimeException e) {
                 throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(this.errorNotFoundMessage)
+                        .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                         .build());
             }
             return Response.ok().build();
@@ -971,7 +971,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         return new ProcessDefinitionInfos(arr);
@@ -1010,7 +1010,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
     }
@@ -1086,7 +1086,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         ProcessInstanceInfos runningProcessInfos = new ProcessInstanceInfos(arr, "");
@@ -1125,7 +1125,7 @@ public class BpmResource {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE).entity(this.errorInvalidMessage).build());
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         ProcessHistoryInfos processHistoryInfos = new ProcessHistoryInfos(arr);
@@ -1171,7 +1171,7 @@ public class BpmResource {
             }
         } catch (RuntimeException e) {
             throw new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                    .entity(this.errorNotFoundMessage)
+                    .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                     .build());
         }
         if (obj == null) {
@@ -1418,7 +1418,7 @@ public class BpmResource {
                         .withMessageBody(MessageSeeds.START_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
                         .supplier().get()
                         : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                        .entity(this.errorNotFoundMessage)
+                        .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                         .build());
             }
         }
@@ -1439,7 +1439,7 @@ public class BpmResource {
                             .withMessageBody(MessageSeeds.COMPLETE_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
                             .supplier().get()
                             : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                            .entity(this.errorNotFoundMessage)
+                            .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                             .build());
                 }
 
@@ -1464,7 +1464,7 @@ public class BpmResource {
                             .withMessageBody(MessageSeeds.SAVE_TASK_CONCURRENT_BODY, e.getMessage().replace("409", ""))
                             .supplier().get()
                             : new WebApplicationException(Response.status(Response.Status.SERVICE_UNAVAILABLE)
-                            .entity(this.errorNotFoundMessage)
+                            .entity(MessageFormat.format(errorNotFoundMessage, e.getLocalizedMessage()))
                             .build());
                 }
             } catch (JsonProcessingException e) {

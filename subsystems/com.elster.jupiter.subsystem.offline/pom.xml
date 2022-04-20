@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter.subsystem</groupId>
         <artifactId>parent</artifactId>
-        <version>13.2.0-Kratos-SNAPSHOT</version>
+        <version>14.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>offline</artifactId>
@@ -92,10 +92,6 @@
             <artifactId>h2</artifactId>
         </dependency>
         <!-- multisense bundles -->
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.bpm</artifactId>
-        </dependency>
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.common</artifactId>

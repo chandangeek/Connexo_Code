@@ -6,6 +6,7 @@ package com.energyict.mdc.device.alarms.impl.i18n;
 
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.device.alarms.impl.DeviceAlarmProcessAssociationProvider;
 import com.energyict.mdc.device.alarms.impl.ModuleConstants;
 import com.energyict.mdc.device.alarms.impl.actions.CloseDeviceAlarmAction;
 
@@ -50,7 +51,12 @@ public enum TranslationKeys implements TranslationKey {
     PROCESS_ACTION_SUCCESS("issue.action.processAction.success", "Process successufuly called"),
     PROCESS_ACTION_FAIL("issue.action.processAction.fail", "Process call failed"),
     PROCESS_ACTION_PROCESS_IS_ABSENT("issue.action.processAction.process.absent", "Process that you called does not exist in system"),
-    PROCESS_ACTION_PROCESS_COMOBOX_IS_ABSENT("issue.action.processAction.combobox.absent", "Process combobox is absent");
+    PROCESS_ACTION_PROCESS_COMOBOX_IS_ABSENT("issue.action.processAction.combobox.absent", "Process combobox is absent"),
+
+    DEVICE_ALARM_ASSOCIATION_PROVIDER(DeviceAlarmProcessAssociationProvider.ASSOCIATION_TYPE, "Alarm"),
+    DEVICE_ALARM_REASON_TITLE("alarmReasons", "Alarm reasons"),
+    DEVICE_ALARM_REASON_COLUMN("alarmReason", "Alarm reason");
+
 
     private final String key;
     private final String defaultFormat;

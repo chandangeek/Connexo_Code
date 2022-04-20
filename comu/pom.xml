@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>13.2.0-Kratos-SNAPSHOT</version>
+        <version>14.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <groupId>com.energyict</groupId>
@@ -66,12 +66,6 @@
             <dependency>
                 <groupId>com.energyict</groupId>
                 <artifactId>mdc.autoreschedule</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.energyict</groupId>
-                <artifactId>mdc.bpm</artifactId>
                 <version>${project.version}</version>
                 <scope>provided</scope>
             </dependency>
@@ -689,7 +683,6 @@
         <module>com.energyict.mdc.app</module>
         <module>com.energyict.mdc.app.help</module>
         <module>com.energyict.mdc.autoreschedule</module>
-        <module>com.energyict.mdc.bpm</module>
         <module>com.energyict.mdc.bpm.extjs</module>
         <module>com.energyict.mdc.cim.webservices.inbound.soap</module>
         <module>com.energyict.mdc.cim.webservices.outbound.soap</module>

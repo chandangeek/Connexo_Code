@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.alarms.impl;
 
 import com.elster.jupiter.bpm.BpmService;
+import com.elster.jupiter.bpm.ProcessAssociationProvider;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
@@ -28,6 +29,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.issue.share.service.IssueActionService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.issue.share.service.spi.IssueGroupTranslationProvider;
+import com.elster.jupiter.license.License;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.MeteringService;
@@ -181,6 +183,9 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
     @Activate
     public void activate(BundleContext bundleContext) {
+        for (TableSpecs spec : TableSpecs.values()) {
+            spec.addTo(dataModel);
+        }
         dataModel.register(new AbstractModule() {
             @Override
             protected void configure() {
@@ -208,8 +213,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
 
         setBundleContext(bundleContext);
         BasicDeviceAlarmRuleTemplate basicDeviceAlarmRuleTemplate = dataModel.getInstance(BasicDeviceAlarmRuleTemplate.class);
+        DeviceAlarmProcessAssociationProvider deviceAlarmProcessAssociationProvider = new DeviceAlarmProcessAssociationProvider(thesaurus, issueService, propertySpecService);
+
         registrations.add(bundleContext.registerService(CreationRuleTemplate.class, basicDeviceAlarmRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDeviceAlarmRuleTemplate.NAME))));
         registrations.add(bundleContext.registerService(BasicDeviceAlarmRuleTemplate.class, basicDeviceAlarmRuleTemplate, new Hashtable<>(ImmutableMap.of("name", BasicDeviceAlarmRuleTemplate.NAME))));
+        registrations.add(bundleContext.registerService(ProcessAssociationProvider.class, deviceAlarmProcessAssociationProvider, new Hashtable<>(ImmutableMap.of("name", DeviceAlarmProcessAssociationProvider.NAME))));
 
         upgradeService.register(identifier("MultiSense", DeviceAlarmService.COMPONENT_NAME), dataModel, Installer.class, ImmutableMap.of(
                 version(10, 4), UpgraderV10_4.class,
@@ -248,6 +256,11 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
                 .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN));
     }
 
+    @Reference(target = "(com.elster.jupiter.license.rest.key=" + DeviceAlarmProcessAssociationProvider.APP_KEY + ")")
+    public void setLicense(License license) {
+        // explicit dependency on license
+    }
+
     public void setBundleContext(BundleContext bundleContext) {
         this.bundleContext = bundleContext;
     }
@@ -264,9 +277,6 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     @Reference
     public final void setOrmService(OrmService ormService) {
         dataModel = ormService.newDataModel(DeviceAlarmService.COMPONENT_NAME, "Device Alarms");
-        for (TableSpecs spec : TableSpecs.values()) {
-            spec.addTo(dataModel);
-        }
     }
 
     @Reference

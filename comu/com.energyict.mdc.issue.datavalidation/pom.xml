@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>13.2.0-Kratos-SNAPSHOT</version>
+        <version>14.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.issue.datavalidation</artifactId>
@@ -64,8 +64,6 @@
             <groupId>org.apache.servicemix.bundles</groupId>
             <artifactId>org.apache.servicemix.bundles.json</artifactId>
         </dependency>
-
-        <!-- Jupiter modules -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
@@ -101,11 +99,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties.rest</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>rest.util</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -151,13 +144,20 @@
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bpm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>systemadmin</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
-        <!--         <dependency> -->
-        <!--             <groupId>com.elster.jupiter</groupId> -->
-        <!--             <artifactId>metering.groups</artifactId> -->
-        <!--             <scope>test</scope> -->
-        <!--         </dependency> -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>kpi</artifactId>
@@ -191,11 +191,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>pubsub</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>systemadmin</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -294,10 +289,6 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>calendar</artifactId>
             <scope>test</scope>
@@ -310,11 +301,6 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>servicecall</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bpm</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -385,6 +371,11 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>validators</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>rest.util</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

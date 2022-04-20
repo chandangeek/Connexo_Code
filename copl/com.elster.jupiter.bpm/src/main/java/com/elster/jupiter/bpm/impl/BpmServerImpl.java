@@ -210,17 +210,17 @@ public class BpmServerImpl implements BpmServer {
         try {
             URL targetUrl = new URL(url + targetURL);
             httpConnection = (HttpURLConnection) targetUrl.openConnection();
-            int responseCode = httpConnection.getResponseCode();
-            if (responseCode != 200 && responseCode != 204) {
-                throw new RuntimeException(Integer.toString(responseCode));
-            }
             getLogger().info("BpmServer: GET: " + targetUrl.toString());
             httpConnection.setConnectTimeout(60000);
             httpConnection.setDoOutput(true);
             httpConnection.setRequestMethod("GET");
             httpConnection.setRequestProperty("Authorization", authorizationHeader);
             httpConnection.setRequestProperty("Accept", "application/json");
+            int responseCode = httpConnection.getResponseCode();
             getLogger().info("BpmServer: GET: " + targetUrl.toString() + " - Response: " + responseCode);
+            if (responseCode != 200 && responseCode != 204) {
+                throw new RuntimeException(Integer.toString(responseCode));
+            }
             BufferedReader br = new BufferedReader(new InputStreamReader(
                     (httpConnection.getInputStream())));
             String output;
