@@ -82,7 +82,7 @@ public class ComWindow {
                 && !end.before(timeDurationFromMidnight);
     }
 
-    public boolean includes (Instant momentInTime){
+    public boolean includes (Instant momentInTime) {
         Calendar calendarInUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendarInUTC.setTimeInMillis(momentInTime.toEpochMilli());
         return this.includes(calendarInUTC);
@@ -101,7 +101,7 @@ public class ComWindow {
 
         PartialTime secondsFromMidnight = this.secondsFromMidnight(calendarInUTC);
 
-        if (this.getEnd().before(this.getStart())){ // the start->end are across midnight, eg 22:00 -> 03:00
+        if (this.getEnd().before(this.getStart())) { // the start->end are across midnight, eg 22:00 -> 03:00
             return this.getStart().before(secondsFromMidnight) ||  // 23:00 ... 23:30 ........... 03:00
                     this.getEnd().after(secondsFromMidnight);      // 23:00 ........... 01:00 ... 03:00
         }
@@ -167,7 +167,7 @@ public class ComWindow {
     }
 
     public String toString () {
-        return "between " + this.getStart().toString() + " and " + this.getEnd().toString()+ " (UTC)";
+        return "between " + this.getStart().toString() + " and " + this.getEnd().toString() + " (UTC)";
     }
 
 }

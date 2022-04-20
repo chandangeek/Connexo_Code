@@ -111,8 +111,6 @@ public abstract class ScheduledJobImpl extends JobExecution {
                 .findFirst();
         if (touComWindow.isPresent()) {
             comWindowToUse = touComWindow.get();
-        } else {
-            log("Using task comWindow: " + (comWindowToUse!=null?comWindowToUse.toString():"none") );
         }
         Optional<ComWindow> firmwareComWindow = getComTaskExecutions().stream()
                 .map(comTaskExecution -> getServiceProvider().firmwareService().getFirmwareCampaignService().getCampaignOn(comTaskExecution)
@@ -277,13 +275,13 @@ public abstract class ScheduledJobImpl extends JobExecution {
         }
     }
 
-    protected Logger getLogger(){
+    protected Logger getLogger() {
         return this.logger;
     }
 
-    protected void log(String text){
-        if (getLogger().isLoggable(Level.INFO)){
-            getLogger().info("[ScheduledJob] "+text);
+    protected void log(String text) {
+        if (getLogger().isLoggable(Level.INFO)) {
+            getLogger().info("[ScheduledJob] " + text);
         }
     }
 }
