@@ -198,7 +198,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private BatchService batchService;
     private DeviceMessageService deviceMessageService;
-    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private List<ServiceRegistration<?>> serviceRegistrations = new ArrayList<>();
     private CrlRequestTaskPropertiesService crlRequestTaskPropertiesService;
     private BundleContext bundleContext;
     private ConfigPropertiesService configPropertiesService;
@@ -900,7 +900,8 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
 
     @Deactivate
     public void stop() throws Exception {
-        this.serviceRegistrations.forEach(ServiceRegistration::unregister);
+        serviceRegistrations.forEach(ServiceRegistration::unregister);
+        serviceRegistrations.clear();
     }
 
     @Override
