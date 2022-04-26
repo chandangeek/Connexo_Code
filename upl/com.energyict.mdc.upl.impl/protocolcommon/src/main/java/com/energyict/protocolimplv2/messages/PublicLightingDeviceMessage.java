@@ -50,7 +50,8 @@ public enum PublicLightingDeviceMessage implements DeviceMessageSpecSupplier {
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, relayNumberAttributeName, relayNumberAttributeDefaultTranslation, BigDecimal.ONE, BigDecimal.valueOf(2)),
-                    this.bigDecimalSpec(service, relayOperatingModeAttributeName, relayOperatingModeAttributeDefaultTranslation, BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2), BigDecimal.valueOf(3))
+                    this.bigDecimalSpec(service, relayOperatingModeAttributeName, relayOperatingModeAttributeDefaultTranslation,
+                            BigDecimal.ZERO, BigDecimal.ONE, BigDecimal.valueOf(2), BigDecimal.valueOf(3), BigDecimal.valueOf(4))
             );
         }
     },
