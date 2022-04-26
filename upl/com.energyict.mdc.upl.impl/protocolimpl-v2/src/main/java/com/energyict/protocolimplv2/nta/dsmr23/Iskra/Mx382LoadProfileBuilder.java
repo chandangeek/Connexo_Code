@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.energyict.protocolimplv2.nta.dsmr40.common.profiles.Dsmr40LoadProfileBuilder.MBUS_LP_DUPLICATED_CHANNEL;
-import static com.energyict.protocolimplv2.nta.esmr50.common.loadprofiles.ESMR50LoadProfileBuilder.setFieldAndGet;
 
 public class Mx382LoadProfileBuilder extends LoadProfileBuilder<Mx382> {
 
@@ -64,7 +63,7 @@ public class Mx382LoadProfileBuilder extends LoadProfileBuilder<Mx382> {
                                 ci -> ci.getChannelObisCode().equalsIgnoreBChannel(MBUS_LP_DUPLICATED_CHANNEL) &&
                                         ci.getUnit().equals(Unit.get(BaseUnit.SECOND))
                         ).forEach(
-                                ci -> ci.setName( setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
+                                ci -> ci.setName( ObisCode.setFieldAndGet(ObisCode.fromString(ci.getName()), 5, 5).toString() )
                         );
                     }
 
