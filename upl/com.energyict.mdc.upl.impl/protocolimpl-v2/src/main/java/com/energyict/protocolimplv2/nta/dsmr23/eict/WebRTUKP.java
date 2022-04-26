@@ -182,13 +182,6 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
         return getLoadProfileBuilder().getLoadProfileData(loadProfiles);
     }
 
-    public LoadProfileBuilder getLoadProfileBuilder() {
-        if (this.loadProfileBuilder == null) {
-            this.loadProfileBuilder = new LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
-        }
-        return loadProfileBuilder;
-    }
-
     @Override
     public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
         return getDeviceLogBookFactory().getLogBookData(logBooks);
