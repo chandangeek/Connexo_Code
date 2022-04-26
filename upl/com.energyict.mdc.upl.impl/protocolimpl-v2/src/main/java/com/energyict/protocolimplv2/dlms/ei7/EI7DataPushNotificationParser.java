@@ -16,6 +16,7 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.dlms.ParseUtils;
+import com.energyict.dlms.ScalerUnit;
 import com.energyict.dlms.axrdencoding.AXDRDecoder;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.axrdencoding.AxdrType;
@@ -27,6 +28,7 @@ import com.energyict.dlms.axrdencoding.Unsigned16;
 import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.axrdencoding.util.DateTimeOctetString;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
@@ -88,14 +90,27 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode HALF_HOUR_LOAD_PROFILE = ObisCode.fromString("7.0.99.99.1.255");
     private static final ObisCode SNAPSHOT_PERIOD_DATA_LOAD_PROFILE = ObisCode.fromString("7.0.98.11.0.255");
 
+    private static final ObisCode CURRENT_DIAGNOSTIC = ObisCode.fromString("7.0.96.5.1.0");
+    private static final ObisCode SNAPSHOT_REASON_CODE = ObisCode.fromString("0.0.96.10.2.0");
+    private static final ObisCode SNAPSHOT_BILLING_PERIOD_COUNTER = ObisCode.fromString("7.0.0.1.0.0");
+    private static final ObisCode CURRENT_INDEX_OF_CONVERTED_VOLUME = ObisCode.fromString("7.0.13.2.0.0");
+    private static final ObisCode CURRENT_INDEX_OF_CONVERTED_VOLUME_F1 = ObisCode.fromString("7.0.13.2.1.0");
+    private static final ObisCode CURRENT_INDEX_OF_CONVERTED_VOLUME_F2 = ObisCode.fromString("7.0.13.2.2.0");
+    private static final ObisCode CURRENT_INDEX_OF_CONVERTED_VOLUME_F3 = ObisCode.fromString("7.0.13.2.3.0");
+    private static final ObisCode CURRENT_INDEX_OF_CONVERTED_VOLUME_UNDER_ALARM = ObisCode.fromString("7.0.12.2.0.0");
+    private static final ObisCode MAXIMUM_CONVENTIONAL_CONVERTED_GAS_FLOW_VALUE = ObisCode.fromString("7.0.43.45.0.0");
+    private static final ObisCode MAXIMUM_CONVENTIONAL_CONVERTED_GAS_FLOW_TIMESTAMP = ObisCode.fromString("7.0.43.45.5.0");
+    private static final ObisCode SNAPSHOT_PERIOD_DIAGNOSTIC = ObisCode.fromString("7.2.96.5.1.0");
+    private static final ObisCode ACTIVE_UNI_TS_TARIFF_PLAN = ObisCode.fromString("0.0.94.39.21.0");
+
     private static final Unit DEFAULT_LOAD_PROFILE_UNIT_SCALAR = Unit.get(BaseUnit.NORMALCUBICMETER, -2);
 
-    static final Set<ObisCode> supportedLoadProfiles =
-            ImmutableSet.of(HALF_HOUR_LOAD_PROFILE,
-                            DAILY_LOAD_PROFILE,
-                            SNAPSHOT_PERIOD_DATA_LOAD_PROFILE,
-                            Frame30.ObisConst.READINGS,
-                            Frame30.ObisConst.INTERVAL_DATA);
+    private static final Set<ObisCode> supportedLoadProfiles = ImmutableSet.of(
+            HALF_HOUR_LOAD_PROFILE,
+            DAILY_LOAD_PROFILE,
+            SNAPSHOT_PERIOD_DATA_LOAD_PROFILE,
+            Frame30.ObisConst.READINGS,
+            Frame30.ObisConst.INTERVAL_DATA);
 
     protected Unit loadProfileUnitScalar;
     private List<CollectedLoadProfile> collectedLoadProfiles;
@@ -158,7 +173,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         if (dataType instanceof OctetString) {
             byte[] compactFrame = ((OctetString) dataType).getOctetStr();
             byte compactFrameTag = compactFrame[0];
-            if ( compactFrameTag == COMPACT_FRAME_30 ) {
+            if (compactFrameTag == COMPACT_FRAME_30) {
                 readCompactFrame30(compactFrame);
             } else if (compactFrameTag == COMPACT_FRAME_40) {
                 readCompactFrame40(compactFrame);
@@ -249,13 +264,30 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
             readSnapshotPeriodCounter(dateTime, compactFrame, 66);
 
-            //readLoadProfile(SNAPSHOT_PERIOD_DATA_LOAD_PROFILE, compactFrame, 67); TODO
+            readSnapshotPeriodData(compactFrame);
 
             readManagementFcOnline(dateTime, compactFrame, 117);
             //readSpareObject(dateTime, compactFrame, 121, 1); cannot decode OctetString with size 1
         } catch (IOException e) {
             throw DataParseException.ioException(e);
         }
+    }
+
+    private void readSnapshotPeriodData(byte[] compactFrame) throws IOException {
+        Unsigned32 unixTime = new Unsigned32(getByteArray(compactFrame, 67, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        Date date = getDateTime(unixTime);
+        readCurrentDiagnostic(date, compactFrame, 71);
+        readSnapshotReasonCode(date, compactFrame, 73);
+        readSnapshotPeriodBillingCounter(date, compactFrame, 74);
+        readCurrentIndexOfConvertedVolume(date, compactFrame, 75);
+        readCurrentIndexOfConvertedVolumeF1(date, compactFrame, 79);
+        readCurrentIndexOfConvertedVolumeF2(date, compactFrame, 83);
+        readCurrentIndexOfConvertedVolumeF3(date, compactFrame, 87);
+        readCurrentIndexOfConvertedVolumeUnderAlarm(date, compactFrame, 91);
+        readMaximumConventionalGasFlowValue(date, compactFrame, 95);
+        readMaximumConventionalGasFlowTimestamp(date, compactFrame, 99);
+        readSnapshotPeriodDiagnostic(date, compactFrame, 112);
+        readActiveUniTsTariffPlan(date, compactFrame, 114);
     }
 
     /**
@@ -302,6 +334,67 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         calendar.setTimeZone(getDeviceTimeZone());
         calendar.setTimeInMillis(unixTime * 1000);
         return calendar.getTime();
+    }
+
+    private void readCurrentDiagnostic(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned16 currentDiagnostic = new Unsigned16(getByteArray(compactFrame, offset, Unsigned16.SIZE, AxdrType.LONG_UNSIGNED), 0);
+        addCollectedRegister(CURRENT_DIAGNOSTIC, currentDiagnostic.getValue(), null, dateTime, null);
+    }
+
+    private void readSnapshotReasonCode(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned8 snapshotReasonCode = new Unsigned8(getByteArray(compactFrame, offset, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
+        addCollectedRegister(SNAPSHOT_REASON_CODE, snapshotReasonCode.getValue(), null, dateTime, null);
+    }
+
+    private void readSnapshotPeriodBillingCounter(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned8 snapshotPeriodBillingCounter = new Unsigned8(getByteArray(compactFrame, offset, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
+        addCollectedRegister(SNAPSHOT_BILLING_PERIOD_COUNTER, snapshotPeriodBillingCounter.getValue(), null, dateTime, null);
+    }
+
+    private void readCurrentIndexOfConvertedVolume(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 currentIndexOfConvertedVolume = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME, currentIndexOfConvertedVolume.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+    }
+
+    private void readCurrentIndexOfConvertedVolumeF1(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 currentIndexOfConvertedVolumeF1 = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F1, currentIndexOfConvertedVolumeF1.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+    }
+
+    private void readCurrentIndexOfConvertedVolumeF2(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 currentIndexOfConvertedVolumeF2 = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F2, currentIndexOfConvertedVolumeF2.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+    }
+
+    private void readCurrentIndexOfConvertedVolumeF3(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 currentIndexOfConvertedVolumeF3 = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F3, currentIndexOfConvertedVolumeF3.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+    }
+
+    private void readCurrentIndexOfConvertedVolumeUnderAlarm(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_UNDER_ALARM, currentIndexOfConvertedVolumeUnderAlarm.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+    }
+
+    private void readMaximumConventionalGasFlowValue(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned32 maximumConventionalGasFlowValue = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+        addCollectedRegister(MAXIMUM_CONVENTIONAL_CONVERTED_GAS_FLOW_VALUE, maximumConventionalGasFlowValue.getValue(), null, dateTime, null);
+    }
+
+    private void readMaximumConventionalGasFlowTimestamp(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        OctetString maximumConventionalGasFlowTimestamp = new OctetString(getByteArray(compactFrame, offset, 14, AxdrType.OCTET_STRING));
+        addCollectedRegister(MAXIMUM_CONVENTIONAL_CONVERTED_GAS_FLOW_TIMESTAMP, new DateTimeOctetString(maximumConventionalGasFlowTimestamp.toByteArray()).longValue() / 1000, null, dateTime, null);
+    }
+
+    private void readSnapshotPeriodDiagnostic(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        Unsigned16 snapshotPeriodDiagnostic = new Unsigned16(getByteArray(compactFrame, offset, Unsigned16.SIZE, AxdrType.LONG_UNSIGNED), 0);
+        addCollectedRegister(SNAPSHOT_PERIOD_DIAGNOSTIC, snapshotPeriodDiagnostic.getValue(), null, dateTime, null);
+    }
+
+    private void readActiveUniTsTariffPlan(Date dateTime, byte[] compactFrame, int offset) throws IOException {
+        OctetString activeUniTsTariffPlan = new OctetString(getByteArray(compactFrame, offset, 4, AxdrType.OCTET_STRING));
+        String value = activeUniTsTariffPlan.toString().substring(19, 21) + activeUniTsTariffPlan.toString().substring(22, 24);
+        addCollectedRegister(ACTIVE_UNI_TS_TARIFF_PLAN, Integer.parseInt(value, 16), null, dateTime, null);
     }
 
     private void readManagementFcOnline(Date dateTime, byte[] compactFrame, int offset) throws IOException {
@@ -397,8 +490,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                 collectedLoadProfile.setCollectedIntervalData(collectedIntervalData, channelInfos);
                 collectedLoadProfile.setDoStoreOlderValues(true);
                 getCollectedLoadProfiles().add(collectedLoadProfile);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 log("Error while reading load profile " + loadProfileToRead.toString() + "\n" + e.getMessage());
             }
         }
@@ -466,7 +558,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, offset + 10, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
             if (offlineLoadProfile.getObisCode().equals(HALF_HOUR_LOAD_PROFILE)) {
                 Unsigned8 currentActiveTariff = new Unsigned8(getByteArray(compactFrame, offset + 14, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
-                collectedIntervalData.add( createCollectedIntervalData(unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
+                collectedIntervalData.add(createCollectedIntervalData(unixTime, dailyDiagnostic, currentIndexOfConvertedVolume,
                         currentIndexOfConvertedVolumeUnderAlarm, currentActiveTariff));
                 offset += 15;
             } else {
@@ -478,10 +570,10 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         return collectedIntervalData;
     }
 
-    private IntervalData createCollectedIntervalData( Unsigned32 unixTime, Unsigned16 dailyDiagnostic,
-                                             Unsigned32 currentIndexOfConvertedVolume,
-                                             Unsigned32 currentIndexOfConvertedVolumeUnderAlarm,
-                                             Unsigned8 currentActiveTariff) {
+    private IntervalData createCollectedIntervalData(Unsigned32 unixTime, Unsigned16 dailyDiagnostic,
+                                                     Unsigned32 currentIndexOfConvertedVolume,
+                                                     Unsigned32 currentIndexOfConvertedVolumeUnderAlarm,
+                                                     Unsigned8 currentActiveTariff) {
         IntervalData collectedIntervalData = new IntervalData();
         Calendar dateTime = Calendar.getInstance(getDeviceTimeZone());
         dateTime.setTimeInMillis(unixTime.longValue() * 1000);
