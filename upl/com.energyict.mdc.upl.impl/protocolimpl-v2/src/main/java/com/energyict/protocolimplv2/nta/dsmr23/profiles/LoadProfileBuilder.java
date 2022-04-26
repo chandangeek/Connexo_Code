@@ -77,7 +77,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
     /**
      * The used meterProtocol
      */
-    private final T meterProtocol;
+    protected final T meterProtocol;
     /**
      * Keep track of a list of channelMask per LoadProfileReader
      */
@@ -85,35 +85,35 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a {@link ComposedProfileConfig}
      */
-    private Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<>();
+    protected Map<LoadProfileReader, ComposedProfileConfig> lpConfigMap = new HashMap<>();
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.LoadProfileReader} and a list of {@link com.energyict.protocol.Register} which
      * will represent the 'data' channels of the Profile
      */
-    private Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<>();
+    protected Map<LoadProfileReader, List<CapturedRegisterObject>> capturedObjectRegisterListMap = new HashMap<>();
     /**
      * Keeps track of the list of <CODE>ChannelInfo</CODE> objects for all the LoadProfiles
      */
-    private Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
+    protected Map<LoadProfileReader, List<ChannelInfo>> channelInfoMap = new HashMap<>();
     /**
      * Keep track of a list of statusMask per LoadProfileReader
      */
-    private Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<>();
+    protected Map<LoadProfileReader, Integer> statusMasksMap = new HashMap<>();
     /**
      * Keeps track of the link between a {@link com.energyict.protocol.Register} and his {@link com.energyict.dlms.DLMSAttribute} for ComposedCosemObject reads ...
      */
-    private Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<>();
+    protected Map<CapturedRegisterObject, DLMSAttribute> registerUnitMap = new HashMap<>();
 
     /**
      * The list of LoadProfileReaders which are expected to be fetched
      */
-    private List<LoadProfileReader> expectedLoadProfileReaders;
+    protected List<LoadProfileReader> expectedLoadProfileReaders;
 
     /**
      * The list of <CODE>DeviceLoadProfileConfiguration</CODE> objects which are build from the information from the actual device, based on the {@link #expectedLoadProfileReaders}
      */
-    private List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
-    private final CollectedDataFactory collectedDataFactory;
+    protected List<CollectedLoadProfileConfiguration> loadProfileConfigurationList;
+    protected final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
 
     public LoadProfileBuilder(T meterProtocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
@@ -206,7 +206,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
      * @param loadProfileReaders the complete list of loadProfileReaders
      * @return the validated list containing all valid loadProfileReaders
      */
-    private List<LoadProfileReader> filterOutAllInvalidLoadProfiles(List<LoadProfileReader> loadProfileReaders) {
+    protected List<LoadProfileReader> filterOutAllInvalidLoadProfiles(List<LoadProfileReader> loadProfileReaders) {
         List<LoadProfileReader> validLoadProfileReaders = new ArrayList<>();
 
         for (LoadProfileReader loadProfileReader : loadProfileReaders) {
@@ -328,7 +328,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
      * @param supportsBulkRequest indication whether we may use the DLMS bulkRequest
      * @return the constructed <CODE>ComposedCosemObject</CODE>
      */
-    private ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<CapturedRegisterObject> registers, boolean supportsBulkRequest) {
+    protected ComposedCosemObject constructCapturedObjectRegisterUnitComposedCosemObject(List<CapturedRegisterObject> registers, boolean supportsBulkRequest) {
         if (registers != null) {
             List<DLMSAttribute> dlmsAttributes = new ArrayList<>();
             for (CapturedRegisterObject register : registers) {
@@ -409,7 +409,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return channelInfos;
     }
 
-    private int constructStatusMask(List<CapturedRegisterObject> registers) {
+    protected int constructStatusMask(List<CapturedRegisterObject> registers) {
         int statusMask = 0;
         int counter = 0;
         for (CapturedRegisterObject registerUnit : registers) {
@@ -421,7 +421,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return statusMask;
     }
 
-    private int constructChannelMask(List<CapturedRegisterObject> registers) {
+    protected int constructChannelMask(List<CapturedRegisterObject> registers) {
         int channelMask;
 
         if (isCombinedLoadProfile(registers)) {
@@ -432,11 +432,11 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return channelMask;
     }
 
-    private boolean isCombinedLoadProfile(List<CapturedRegisterObject> capturedRegisterObjectList) {
+    protected boolean isCombinedLoadProfile(List<CapturedRegisterObject> capturedRegisterObjectList) {
         return capturedRegisterObjectList.stream().anyMatch(cro -> cro.getObisCode().equalsIgnoreBChannel(MBUS_LP_COMBINED_CHANNEL));
     }
 
-    private int getCombinedLoadProfileChannelMask(List<CapturedRegisterObject> registers) {
+    protected int getCombinedLoadProfileChannelMask(List<CapturedRegisterObject> registers) {
         int channelMask = 0;
         int counter = 0;
         int mbusCounter = 1;
@@ -471,7 +471,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
                 .filter(cro -> cro.getObisCode().equals(currentRegisterObisCode)).count();
     }
 
-    private int getLoadProfileChannelMask(List<CapturedRegisterObject> registers) {
+    protected int getLoadProfileChannelMask(List<CapturedRegisterObject> registers) {
         int channelMask = 0;
         int counter = 0;
 
@@ -485,11 +485,11 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return channelMask;
     }
 
-    private boolean isMbusRegister(CapturedRegisterObject register) {
+    protected boolean isMbusRegister(CapturedRegisterObject register) {
         return register.getObisCode().equalsIgnoreBChannel(MBUS_LP_COMBINED_CHANNEL);
     }
 
-    private boolean isValidMasterRegister(CapturedRegisterObject register) {
+    protected boolean isValidMasterRegister(CapturedRegisterObject register) {
         return !"".equals(register.getSerialNumber()) &&
                 isDataObisCode(register.getObisCode(), register.getSerialNumber()) &&
                 !isMbusRegister(register);

@@ -50,6 +50,7 @@ import com.energyict.protocolimplv2.nta.abstractnta.AbstractSmartNtaProtocol;
 import com.energyict.protocolimplv2.nta.dsmr23.Dsmr23Properties;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 
 import java.io.IOException;
@@ -107,7 +108,7 @@ public class Mx382 extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-07-14$";
+        return "$Date: 2022-04-25$";
     }
 
     @Override
@@ -356,6 +357,14 @@ public class Mx382 extends AbstractSmartNtaProtocol {
                     this.numberLookupExtractor, this.loadProfileExtractor, this.keyAccessorTypeExtractor);
         }
         return this.dsmr23Messaging;
+    }
+
+    @Override
+    protected LoadProfileBuilder getLoadProfileBuilder(){
+        if(this.loadProfileBuilder == null){
+            loadProfileBuilder = new Mx382LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return this.loadProfileBuilder;
     }
 
     @Override
