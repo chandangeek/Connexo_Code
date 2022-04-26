@@ -13,14 +13,11 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
-import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
 
 public class SetupFirmwareManagementCommand extends CommandWithTransaction{
 
@@ -29,9 +26,6 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
     private final static String IMAGE_IDENTIFIER = "NTA-Sim_V_2.0.0";
     private final static String LANDIS_GYR_ZMD_DEVICETYPE = "Landis+Gyr ZMD";
     private final static String ACTARIS_SL7000_DEVICETYPE = "Actaris SL7000";
-
-    private Set<ProtocolSupportedFirmwareOptions> supportedOptions = EnumSet.of(ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_IMMEDIATE,
-                                                                          ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE);
 
     private final FirmwareService firmwareService;
     private final DeviceConfigurationService deviceConfigurationService;
@@ -70,7 +64,7 @@ public class SetupFirmwareManagementCommand extends CommandWithTransaction{
                 if(deviceType.getName().equals(ACTARIS_SL7000_DEVICETYPE)){
                     options.activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption.TARGET_FIRMWARE_STATUS_CHECK, Collections.singleton(FirmwareStatus.FINAL));
                 }
-                options.setOptions(supportedOptions);
+                options.setOptions(firmwareService.getSupportedFirmwareOptionsFor(deviceType));
                 options.save();
             }
         }
