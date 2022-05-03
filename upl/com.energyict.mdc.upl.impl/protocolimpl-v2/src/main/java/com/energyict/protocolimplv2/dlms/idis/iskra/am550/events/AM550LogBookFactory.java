@@ -14,12 +14,12 @@ import java.util.List;
 /**
  * Created by Dmitry Borisov on 26/10/2021.
  */
-public final class Am550LogBookFactory extends Mx382LogBookFactory {
+public final class AM550LogBookFactory extends Mx382LogBookFactory {
 
     private static ObisCode COMMUNICATION_DETAIL_EVENT_LOG = ObisCode.fromString("0.0.99.98.6.255");
     private static ObisCode SECURITY_EVENT_LOG             = ObisCode.fromString("0.0.99.98.7.255");
 
-    public Am550LogBookFactory(AM550 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
+    public AM550LogBookFactory(AM550 protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(protocol, collectedDataFactory, issueFactory);
         supportedLogBooks.add(COMMUNICATION_DETAIL_EVENT_LOG);
         supportedLogBooks.add(SECURITY_EVENT_LOG);
@@ -28,10 +28,10 @@ public final class Am550LogBookFactory extends Mx382LogBookFactory {
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(COMMUNICATION_DETAIL_EVENT_LOG)) {
-            meterEvents = new Am550CommunicationDetailEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new AM550CommunicationDetailEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
             return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
         } else if(logBookObisCode.equals(SECURITY_EVENT_LOG)) {
-            meterEvents = new Am550SecurityEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
+            meterEvents = new AM550SecurityEventLog(dataContainer, protocol.getTimeZone()).getMeterEvents();
             return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents);
         }
 

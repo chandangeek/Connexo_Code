@@ -11,9 +11,9 @@ import java.util.TimeZone;
 /**
  * Created by Dmitry Borisov on 26/10/2021.
  */
-public class Am550SecurityEventLog extends AbstractEvent {
+public class AM550SecurityEventLog extends AbstractEvent {
 
-    public Am550SecurityEventLog(DataContainer dc, TimeZone timeZone) {
+    public AM550SecurityEventLog(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);
     }
 
@@ -132,7 +132,7 @@ public class Am550SecurityEventLog extends AbstractEvent {
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.FIRMWARE_ACTIVATED, eventId, "LR firmware activated"));
                 break;
             case 238:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.DISCONNECTOR_STATUS_CHANGED, eventId, "Disconnector physical connect"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.STATUS_CHANGED, eventId, "Disconnector physical connect"));
                 break;
             case 244:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.METER_COVER_OPENED, eventId, "Module cover opened"));

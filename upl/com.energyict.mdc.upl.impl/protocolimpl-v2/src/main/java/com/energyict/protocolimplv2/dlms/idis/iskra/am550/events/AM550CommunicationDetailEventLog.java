@@ -11,9 +11,9 @@ import java.util.TimeZone;
 /**
  * Created by Dmitry Borisov on 26/10/2021.
  */
-public class Am550CommunicationDetailEventLog extends AbstractEvent {
+public class AM550CommunicationDetailEventLog extends AbstractEvent {
 
-    Am550CommunicationDetailEventLog(DataContainer dc, TimeZone timeZone) {
+    AM550CommunicationDetailEventLog(DataContainer dc, TimeZone timeZone) {
         super(dc, timeZone);
     }
 
@@ -21,13 +21,13 @@ public class Am550CommunicationDetailEventLog extends AbstractEvent {
     protected void buildMeterEvent(List<MeterEvent> meterEvents, Date eventTimeStamp, int eventId) {
         switch (eventId) {
             case 26:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_CONNECTION_START, eventId, "Communication started on remote interface I3 or I3.1"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_CONNECTION, eventId, "Communication started on remote interface I3 or I3.1"));
                 break;
             case 27:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_DISCONNECTION, eventId, "Communication ended on remote interface I3 or I3.1"));
                 break;
             case 28:
-                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_CONNECTION_START, eventId, "Communication started on local interface IE-M"));
+                meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_CONNECTION, eventId, "Communication started on local interface IE-M"));
                 break;
             case 29:
                 meterEvents.add(new MeterEvent((Date) eventTimeStamp.clone(), MeterEvent.REMOTE_DISCONNECTION, eventId, "Communication ended on local interface IE-M"));

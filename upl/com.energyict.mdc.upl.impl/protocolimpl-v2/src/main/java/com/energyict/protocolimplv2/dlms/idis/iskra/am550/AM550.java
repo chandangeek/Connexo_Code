@@ -1,5 +1,8 @@
 package com.energyict.protocolimplv2.dlms.idis.iskra.am550;
 
+import com.energyict.dlms.axrdencoding.TypeEnum;
+import com.energyict.dlms.cosem.Disconnector;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
@@ -11,14 +14,12 @@ import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
-import com.energyict.dlms.axrdencoding.TypeEnum;
-import com.energyict.dlms.cosem.Disconnector;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.idis.am500.events.IDISLogBookFactory;
-import com.energyict.protocolimplv2.dlms.idis.iskra.am550.events.Am550LogBookFactory;
+import com.energyict.protocolimplv2.dlms.idis.am500.profiledata.IDISProfileDataReader;
+import com.energyict.protocolimplv2.dlms.idis.iskra.am550.events.AM550LogBookFactory;
 import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.Mx382;
+import com.energyict.protocolimplv2.dlms.idis.iskra.mx382.profiledata.AM550ProfileDataReader;
 
 import java.io.IOException;
 
@@ -30,11 +31,20 @@ public class AM550 extends Mx382 {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, calendarExtractor, messageFileExtractor, keyAccessorTypeExtractor);
     }
 
-    protected IDISLogBookFactory getIDISLogBookFactory() {
+    @Override
+    protected IDISLogBookFactory<AM550> getIDISLogBookFactory() {
         if (idisLogBookFactory == null) {
-            idisLogBookFactory = new Am550LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
+            idisLogBookFactory = new AM550LogBookFactory(this, this.getCollectedDataFactory(), this.getIssueFactory());
         }
         return idisLogBookFactory;
+    }
+
+    @Override
+    public IDISProfileDataReader<AM550> getIDISProfileDataReader() {
+        if (idisProfileDataReader == null) {
+            idisProfileDataReader = new AM550ProfileDataReader(this, this.getCollectedDataFactory(), this.getIssueFactory(), getDlmsSessionProperties().getLimitMaxNrOfDays());
+        }
+        return idisProfileDataReader;
     }
 
     @Override
@@ -77,7 +87,7 @@ public class AM550 extends Mx382 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-02-01$";
+        return "$Date: 2022-05-02$";
     }
 
 }
