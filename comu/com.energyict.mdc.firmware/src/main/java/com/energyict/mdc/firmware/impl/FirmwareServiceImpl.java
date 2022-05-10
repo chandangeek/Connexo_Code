@@ -115,8 +115,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -753,6 +755,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             .put(version(10, 4), V10_4SimpleUpgrader.class)
                             .put(version(10, 4, 1), V10_4_1SimpleUpgrader.class)
                             .put(version(10, 4, 24), UpgraderV10_4_24.class)
+                            .put(version(10, 4, 33), UpgraderV10_4_33.class)
                             .put(version(10, 6), UpgraderV10_6.class)
                             .put(version(10, 7), UpgraderV10_7.class)
                             .build());
