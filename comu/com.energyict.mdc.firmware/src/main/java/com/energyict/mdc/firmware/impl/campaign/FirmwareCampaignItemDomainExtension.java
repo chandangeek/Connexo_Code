@@ -54,9 +54,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.function.Predicate;
+import java.util.logging.Logger;
 
 public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, DeviceInFirmwareCampaign {
     private static final String PROPERTY_NAME_RESUME = "FirmwareDeviceMessage.upgrade.resume";
+    private static final Logger logger = Logger.getLogger(FirmwareCampaignItemDomainExtension.class.getName());
 
     public enum FieldNames {
         DOMAIN("serviceCall", "service_call"),
@@ -143,8 +145,17 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     void beforeCancelling() {
+        if (getDeviceMessage().isPresent()){
+            boolean runningCampaing = firmwareService.hasRunningFirmwareTask(getDevice());
+            logger.info("[FWC] beforeCancelling message " + getDeviceMessage().get().getId() +
+                    " with status " + getDeviceMessage().get().getStatus() +
+                    " of device " + getDevice().getName() + ", has running campaign: " + runningCampaing);
+        }
+
+        // can cancel only a waiting or pending message, the others are completed already (either with success or not)
         getDeviceMessage()
-                .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED)
+                .filter(message -> message.getStatus() == DeviceMessageStatus.WAITING)
+                .filter(message -> message.getStatus() == DeviceMessageStatus.PENDING)
                 .ifPresent(message -> LockUtils.forceLockWithDoubleCheck(message,
                                 deviceMessageService::findAndLockDeviceMessageById,
                                 dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING, // pre-check

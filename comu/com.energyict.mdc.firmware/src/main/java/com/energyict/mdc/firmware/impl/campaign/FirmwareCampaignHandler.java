@@ -19,6 +19,7 @@ import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.device.data.tasks.history.CompletionCode;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -36,6 +37,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
+import java.util.logging.Logger;
 
 public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
@@ -54,6 +56,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
     private final Thesaurus thesaurus;
     private final ThreadPrincipalService threadPrincipalService;
     private final TransactionService transactionService;
+    private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
     public FirmwareCampaignHandler(FirmwareServiceImpl firmwareService, Clock clock, ServiceCallService serviceCallService,
@@ -105,6 +108,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskFailed(ComTaskExecution comTaskExecution) {
         Device device = comTaskExecution.getDevice();
+        logger.info("[FWC] onComTaskFailed " + device.getName() + " / "+ comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName());
         Optional<? extends DeviceInFirmwareCampaign> deviceInFirmwareCampaignOptional = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaignOptional.isPresent()) {
             DeviceInFirmwareCampaign deviceInFirmwareCampaign = deviceInFirmwareCampaignOptional.get();
@@ -147,6 +151,29 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         Device device = comTaskExecution.getDevice();
+        logger.info("[FWC] onComTaskCompleted " + device.getName() + " / "+ comTaskExecution.getComTask().getName()
+                + " on " + comTaskExecution.getDevice().getName() + " -> " + comTaskExecution.getStatusDisplayName() );
+
+        /* See com.energyict.mdc.device.data.tasks.history.CompletionCode.ProtocolError
+            The protocol errors are marked as com.energyict.mdc.upl.meterdata.ResultType.DataIncomplete
+            which will set the connection method result to SUCCESS!
+
+            So here we check if this is the case, and handle the result as a failed one.
+        */
+        if (comTaskExecution.getLastSession().isPresent()){
+            CompletionCode completionCode = comTaskExecution.getLastSession().get().getHighestPriorityCompletionCode();
+            if (completionCode.equals(CompletionCode.ProtocolError)){
+                logger.warning("[FWC] onComTaskCompleted " + device.getName() + " / "+ comTaskExecution.getComTask().getName()
+                        + " on " + comTaskExecution.getDevice().getName() + " -> " + comTaskExecution.getStatusDisplayName()
+                        + " this is a PROTOCOL-ERROR disguised as success! Handling as failed!"
+                );
+                onComTaskFailed(comTaskExecution);
+                return;
+            } else {
+                logger.info("[FWC] onComTaskCompleted status is "+completionCode.name());
+            }
+        }
+
         Optional<? extends DeviceInFirmwareCampaign> deviceInFirmwareCampaignOptional = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaignOptional.isPresent()) {
             DeviceInFirmwareCampaign deviceInFirmwareCampaign = deviceInFirmwareCampaignOptional.get();
@@ -197,6 +224,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
     private void onComTaskStarted(ComTaskExecution comTaskExecution) {
         if (comTaskExecution.isFirmware()) {
             Device device = comTaskExecution.getDevice();
+            logger.info("[FWC] onComTaskStarted " + device.getName() + " / "+ comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName());
             firmwareCampaignService.findActiveFirmwareItemByDevice(device).ifPresent(firmwareItem -> {
                 FirmwareVersion firmwareVersion = firmwareItem.getFirmwareCampaign().getFirmwareVersion();
                 ServiceCall serviceCall = firmwareItem.getServiceCall();

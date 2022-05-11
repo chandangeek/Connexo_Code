@@ -6,6 +6,7 @@ package com.energyict.mdc.firmware.impl.campaign;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
@@ -411,8 +412,15 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         } else {
             ServiceCallFilter filter = new ServiceCallFilter();
             filter.states = DefaultState.openStates().stream().map(DefaultState::name).collect(Collectors.toList());
-            if (!serviceCall.findChildren(filter).paged(0, 0).find().isEmpty()) { // has open children, but couldn't cancel anything
-                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+            Finder<ServiceCall> children = serviceCall.findChildren(filter);
+            if (!children.paged(0, 0).find().isEmpty()) { // has open children, but couldn't cancel anything
+                long nonCancellableChildren = children.find().stream()
+                        .filter(c -> !c.canTransitionTo(DefaultState.CANCELLED))
+                        .count();
+
+                if (nonCancellableChildren > 0) {
+                    throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
+                }
             }
         }
     }
