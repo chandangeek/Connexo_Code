@@ -15,11 +15,11 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class UpgraderV10_4_33 implements Upgrader {
+public class UpgraderV10_4_34 implements Upgrader {
     private final DataModel dataModel;
 
     @Inject
-    UpgraderV10_4_33(DataModel dataModel) {
+    UpgraderV10_4_34(DataModel dataModel) {
         this.dataModel = dataModel;
     }
 

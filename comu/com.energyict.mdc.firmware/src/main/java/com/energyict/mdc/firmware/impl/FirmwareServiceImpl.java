@@ -88,7 +88,6 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -755,7 +754,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             .put(version(10, 4), V10_4SimpleUpgrader.class)
                             .put(version(10, 4, 1), V10_4_1SimpleUpgrader.class)
                             .put(version(10, 4, 24), UpgraderV10_4_24.class)
-                            .put(version(10, 4, 33), UpgraderV10_4_33.class)
+                            .put(version(10, 4, 34), UpgraderV10_4_34.class)
                             .put(version(10, 6), UpgraderV10_6.class)
                             .put(version(10, 7), UpgraderV10_7.class)
                             .build());
