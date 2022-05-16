@@ -151,6 +151,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_DLMS_POLLING_DELAY_DESCRIPTION("upl.property.v2.dlms.pollingDelay.description", "Polling delay"),
     V2_DLMS_BACK_FILL_ON_INBOUND("upl.property.v2.dlms.backFillOnInbound", "BackFill on Inbound"),
     V2_DLMS_BACK_FILL_ON_INBOUND_DESCRIPTION("upl.property.v2.dlms.backFillOnInbound.description", "BackFill on Inbound"),
+    V2_DLMS_DATA_VOLUME_UNIT("upl.property.v2.dlms.dataVolumeUnit", "Data volume unit"),
+    V2_DLMS_DATA_VOLUME_SCALAR("upl.property.v2.dlms.dataVolumeScalar", "Data volume scalar"),
 
     V2_EDP_SERVER_UPPER_MAC_ADDRESS("upl.property.v2.edp.serverUpperMacAddress", "Server upper MAC address"),
     V2_EDP_SERVER_UPPER_MAC_ADDRESS_DESCRIPTION("upl.property.v2.edp.serverUpperMacAddress.description", "Server upper MAC address"),

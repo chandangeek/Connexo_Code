@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
+import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
@@ -39,6 +40,7 @@ import com.energyict.protocolimplv2.dlms.a2.properties.A2Properties;
 import com.energyict.protocolimplv2.dlms.ei7.frames.CommunicationType;
 import com.energyict.protocolimplv2.dlms.ei7.frames.DailyReadings;
 import com.energyict.protocolimplv2.dlms.ei7.frames.Frame30;
+import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.google.common.collect.ImmutableSet;
 
@@ -53,6 +55,8 @@ import java.util.Set;
 
 import static com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader.getEiServerStatus;
 import static com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport.COMMUNICATION_TYPE_STR;
+import static com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport.EI7_DEFAULT_DATA_VOLUME_SCALAR_PROPERTY;
+import static com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport.EI7_DEFAULT_DATA_VOLUME_UNIT_PROPERTY;
 
 public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
@@ -103,8 +107,6 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private static final ObisCode SNAPSHOT_PERIOD_DIAGNOSTIC = ObisCode.fromString("7.2.96.5.1.0");
     private static final ObisCode ACTIVE_UNI_TS_TARIFF_PLAN = ObisCode.fromString("0.0.94.39.21.0");
 
-    private static final Unit DEFAULT_LOAD_PROFILE_UNIT_SCALAR = Unit.get(BaseUnit.NORMALCUBICMETER, -2);
-
     private static final Set<ObisCode> supportedLoadProfiles = ImmutableSet.of(
             HALF_HOUR_LOAD_PROFILE,
             DAILY_LOAD_PROFILE,
@@ -112,15 +114,21 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             Frame30.ObisConst.READINGS,
             Frame30.ObisConst.INTERVAL_DATA);
 
-    protected Unit loadProfileUnitScalar;
+    private Unit dataVolumeUnitScalar;
     private List<CollectedLoadProfile> collectedLoadProfiles;
 
     public EI7DataPushNotificationParser(ComChannel comChannel, InboundDiscoveryContext context) {
         super(comChannel, context);
     }
 
-    public Unit getDefaultLoadProfileUnitScalar() {
-        return DEFAULT_LOAD_PROFILE_UNIT_SCALAR;
+    public Unit getDataVolumeUnitScalar() {
+        if (this.dataVolumeUnitScalar == null) {
+            TypedProperties typedProperties = getInboundDAO().getDeviceLocalProtocolProperties(getDeviceIdentifier());
+            this.dataVolumeUnitScalar = Unit.get(
+                    typedProperties.getTypedProperty(EI7ConfigurationSupport.DATA_VOLUME_UNIT_PROPERTY, EI7_DEFAULT_DATA_VOLUME_UNIT_PROPERTY),
+                    typedProperties.getTypedProperty(EI7ConfigurationSupport.DATA_VOLUME_SCALAR_PROPERTY, EI7_DEFAULT_DATA_VOLUME_SCALAR_PROPERTY));
+        }
+        return this.dataVolumeUnitScalar;
     }
 
     @Override
@@ -209,6 +217,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             readLoadProfile(HALF_HOUR_LOAD_PROFILE, compactFrame, 51);
         } catch (IOException e) {
             throw DataParseException.ioException(e);
+        } catch (IndexOutOfBoundsException ex) {
+            throw DataParseException.indexOutOfBoundsException(ex);
         }
     }
 
@@ -233,6 +243,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             //readSpareObject(dateTime, compactFrame, 28, 1); cannot decode OctetString with size 1
         } catch (IOException e) {
             throw DataParseException.ioException(e);
+        } catch (IndexOutOfBoundsException ex) {
+            throw DataParseException.indexOutOfBoundsException(ex);
         }
     }
 
@@ -250,6 +262,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             //readSpareObject(dateTime, compactFrame, 71, 1); cannot decode OctetString with size 1
         } catch (IOException e) {
             throw DataParseException.ioException(e);
+        } catch (IndexOutOfBoundsException ex) {
+            throw DataParseException.indexOutOfBoundsException(ex);
         }
     }
 
@@ -270,6 +284,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             //readSpareObject(dateTime, compactFrame, 121, 1); cannot decode OctetString with size 1
         } catch (IOException e) {
             throw DataParseException.ioException(e);
+        } catch (IndexOutOfBoundsException ex) {
+            throw DataParseException.indexOutOfBoundsException(ex);
         }
     }
 
@@ -353,27 +369,27 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCurrentIndexOfConvertedVolume(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 currentIndexOfConvertedVolume = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME, currentIndexOfConvertedVolume.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME, currentIndexOfConvertedVolume.getValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
     private void readCurrentIndexOfConvertedVolumeF1(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 currentIndexOfConvertedVolumeF1 = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F1, currentIndexOfConvertedVolumeF1.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F1, currentIndexOfConvertedVolumeF1.getValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
     private void readCurrentIndexOfConvertedVolumeF2(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 currentIndexOfConvertedVolumeF2 = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F2, currentIndexOfConvertedVolumeF2.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F2, currentIndexOfConvertedVolumeF2.getValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
     private void readCurrentIndexOfConvertedVolumeF3(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 currentIndexOfConvertedVolumeF3 = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F3, currentIndexOfConvertedVolumeF3.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_F3, currentIndexOfConvertedVolumeF3.getValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
     private void readCurrentIndexOfConvertedVolumeUnderAlarm(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_UNDER_ALARM, currentIndexOfConvertedVolumeUnderAlarm.getValue(), new ScalerUnit(getDefaultLoadProfileUnitScalar()), dateTime, null);
+        addCollectedRegister(CURRENT_INDEX_OF_CONVERTED_VOLUME_UNDER_ALARM, currentIndexOfConvertedVolumeUnderAlarm.getValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
     private void readMaximumConventionalGasFlowValue(Date dateTime, byte[] compactFrame, int offset) throws IOException {
@@ -453,7 +469,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         final BaseUnit unit = BaseUnit.get(scalarAndUnit[2]);
         String volumeUnitsAndScalar = "Scalar = " + scalar + ", Unit = " + unit.toString();
         addCollectedRegister(CF40_VOLUME_UNITS_SCALAR, 0, null, dateTime, volumeUnitsAndScalar);
-        this.loadProfileUnitScalar = Unit.get(unit.getDlmsCode(), scalar);
+        this.dataVolumeUnitScalar = Unit.get(unit.getDlmsCode(), scalar);
     }
 
     private void readHalfHourLpIntervalLengthSeconds(Date dateTime, byte[] compactFrame, int offset) throws IOException {
@@ -463,12 +479,12 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readConvertedVolumeIndex(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 volumeIndex = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-        addCollectedRegister(CONVERTED_VOLUME_INDEX, volumeIndex.longValue(), null, dateTime, null);
+        addCollectedRegister(CONVERTED_VOLUME_INDEX, volumeIndex.longValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
     private void readConvertedUnderAlarmVolumeIndex(Date dateTime, byte[] compactFrame, int offset) throws IOException {
         Unsigned32 alarmVolumeIndex = new Unsigned32(getByteArray(compactFrame, offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-        addCollectedRegister(CONVERTED_UNDER_ALARM_VOLUME_INDEX, alarmVolumeIndex.longValue(), null, dateTime, null);
+        addCollectedRegister(CONVERTED_UNDER_ALARM_VOLUME_INDEX, alarmVolumeIndex.longValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
     private void readLoadProfile(ObisCode loadProfileToRead, DailyReadings[] dailyReadings) {
@@ -597,31 +613,31 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
             int ch = 0;
 
             if (SNAPSHOT_PERIOD_DATA_LOAD_PROFILE.equals(offlineLoadProfile.getObisCode())) {
-                final ChannelInfo channel1 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX.toString(), Unit.getUndefined(), getDeviceId());
+                final ChannelInfo channel1 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX.toString(), getDataVolumeUnitScalar(), getDeviceId());
                 if (isCumulative(channel1.getChannelObisCode())) {
                     channel1.setCumulative();
                 }
                 channelInfos.add(channel1);
 
-                final ChannelInfo channel2 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX_F1_RATE.toString(), Unit.getUndefined(), getDeviceId());
+                final ChannelInfo channel2 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX_F1_RATE.toString(), getDataVolumeUnitScalar(), getDeviceId());
                 if (isCumulative(channel2.getChannelObisCode())) {
                     channel2.setCumulative();
                 }
                 channelInfos.add(channel2);
 
-                final ChannelInfo channel3 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX_F2_RATE.toString(), Unit.getUndefined(), getDeviceId());
+                final ChannelInfo channel3 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX_F2_RATE.toString(), getDataVolumeUnitScalar(), getDeviceId());
                 if (isCumulative(channel3.getChannelObisCode())) {
                     channel3.setCumulative();
                 }
                 channelInfos.add(channel3);
 
-                final ChannelInfo channel4 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX_F3_RATE.toString(), Unit.getUndefined(), getDeviceId());
+                final ChannelInfo channel4 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX_F3_RATE.toString(), getDataVolumeUnitScalar(), getDeviceId());
                 if (isCumulative(channel4.getChannelObisCode())) {
                     channel4.setCumulative();
                 }
                 channelInfos.add(channel4);
 
-                final ChannelInfo channel5 = new ChannelInfo(ch++, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(), Unit.getUndefined(), getDeviceId());
+                final ChannelInfo channel5 = new ChannelInfo(ch++, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(), getDataVolumeUnitScalar(), getDeviceId());
                 if (isCumulative(channel5.getChannelObisCode())) {
                     channel5.setCumulative();
                 }
@@ -633,15 +649,13 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
                 }
                 channelInfos.add(channel6);
             } else {
-                final ChannelInfo channel1 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX.toString(),
-                        loadProfileUnitScalar == null ? getDefaultLoadProfileUnitScalar() : loadProfileUnitScalar, getDeviceId());
+                final ChannelInfo channel1 = new ChannelInfo(ch++, CONVERTED_VOLUME_INDEX.toString(), getDataVolumeUnitScalar(), getDeviceId());
                 if (isCumulative(channel1.getChannelObisCode())) {
                     channel1.setCumulative();
                 }
                 channelInfos.add(channel1);
 
-                final ChannelInfo channel2 = new ChannelInfo(ch, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(),
-                        loadProfileUnitScalar == null ? getDefaultLoadProfileUnitScalar() : loadProfileUnitScalar, getDeviceId());
+                final ChannelInfo channel2 = new ChannelInfo(ch, CONVERTED_UNDER_ALARM_VOLUME_INDEX.toString(), getDataVolumeUnitScalar(), getDeviceId());
                 if (isCumulative(channel2.getChannelObisCode())) {
                     channel2.setCumulative();
                 }

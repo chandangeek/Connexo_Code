@@ -1,10 +1,5 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.UniversalObject;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -12,22 +7,32 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.dlms.DLMSCache;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.a2.A2;
 import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
 import com.energyict.protocolimplv2.dlms.ei7.messages.EI7Messaging;
 import com.energyict.protocolimplv2.dlms.ei7.profiles.EI7LoadProfileDataReader;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
+import com.energyict.protocolimplv2.dlms.ei7.registers.EI7RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 public class EI7 extends A2 {
+   protected EI7RegisterFactory registerFactory = null;
 
     /*Predefined OBIS Code for EI7 meter - What is the firmware version obis code???????? */
 //    private static final ObisCode FIRMWARE_VERSION_OBIS_CODE = ObisCode.fromString("0.0.0.2.0.255");
@@ -62,8 +67,6 @@ public class EI7 extends A2 {
     @Override
     protected void readObjectList() {
         getDlmsSession().getMeterConfig().setInstantiatedObjectList(new EI7ObjectList().getObjectList());
-
-
     }
 
     @Override
@@ -82,7 +85,6 @@ public class EI7 extends A2 {
             Data firmwareData = getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_OBIS_CODE);
             AbstractDataType valueAttr = firmwareData.getValueAttr();
 
-
             if (valueAttr.isOctetString()) {
 
                 byte[] berEncodedByteArray = valueAttr.getOctetString().getBEREncodedByteArray();
@@ -100,13 +102,9 @@ public class EI7 extends A2 {
                 int major = (versionNumber & 0xF800) >> 11;
                 int minor = (versionNumber & 0x07C0) >> 6;
                 int fix = versionNumber & 0x003F;
-                System.out.println();
-
 
                 firmwareFinalVersion = String.format("%s.%s.%s", major, minor, fix);
             }
-
-
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle((IOException) e, getDlmsSession().getProperties().getRetries() + 1);
         }
@@ -122,7 +120,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-04-07$";
+        return "$Date: 2022-05-17$";
     }
 
     @Override
@@ -142,4 +140,15 @@ public class EI7 extends A2 {
         return dlmsConfigurationSupport;
     }
 
+    @Override
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
+        return getEI7RegisterFactory().readRegisters(registers);
+    }
+
+    private EI7RegisterFactory getEI7RegisterFactory() {
+        if (registerFactory == null) {
+            registerFactory = new EI7RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
+        }
+        return registerFactory;
+    }
 }
