@@ -95,7 +95,7 @@ public class A2 extends AbstractDlmsProtocol {
     public final static ObisCode COSEM_LOGICAL_DEVICE_NAME = ObisCode.fromString("0.0.42.0.0.255");
 
     protected A2ProfileDataReader profileDataReader = null;
-    private A2RegisterFactory registerFactory = null;
+    protected A2RegisterFactory registerFactory = null;
     private A2LogBookFactory logBookFactory = null;
     private A2Messaging messaging = null;
     private A2HHUSignOn hhuSignOnV2 = null;

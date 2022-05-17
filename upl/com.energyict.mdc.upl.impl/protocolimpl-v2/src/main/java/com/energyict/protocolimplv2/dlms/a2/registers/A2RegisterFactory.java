@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.UniversalObject;
@@ -68,6 +69,9 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
     private final A2 protocol;
     private final CollectedDataFactory collectedDataFactory;
     private final IssueFactory issueFactory;
+    private final int dataVolumeUnit;
+    private final int dataVolumeScalar;
+
     private List<ObisCode> binaryMaps16BitObisCodes = Arrays.asList(VALVE_CONFIGURATION_PGV);
     private List<ObisCode> binaryMaps8BitObisCodes = Arrays.asList(VALVE_CLOSURE_CAUSE, UNITS_DEVICE_STATUS);
     private List<ObisCode> firmwareVersionObisCodes = Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION);
@@ -78,6 +82,8 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
         this.protocol = a2;
         this.collectedDataFactory = collectedDataFactory;
         this.issueFactory = issueFactory;
+        this.dataVolumeUnit = BaseUnit.UNITLESS;
+        this.dataVolumeScalar = 0;
     }
 
     @Override
@@ -210,7 +216,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
             } else if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {
                 final Register register = protocol.getDlmsSession().getCosemObjectFactory().getRegister(obisCode);
 //                Quantity quantity = new Quantity(register.getValueAttr().toBigDecimal(), register.getScalerUnit().getEisUnit()); // The scalar and unit are not used in class 3
-                Quantity quantity = new Quantity(register.getValueAttr().toBigDecimal(), 255, 0);
+                Quantity quantity = new Quantity(register.getValueAttr().toBigDecimal(), getDataVolumeUnit(obisCode), getDataVolumeScalar(obisCode)); // EI6 and EI7 uses scalar and unit for data volume registers
 
                 // process Battery change authorization structure
                 if (obisCode.equals(BATERY_CHANGE_AUTHORIZATION)) {
@@ -375,5 +381,13 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
+    }
+
+    public int getDataVolumeUnit(ObisCode obisCode) {
+        return dataVolumeUnit;
+    }
+
+    public int getDataVolumeScalar(ObisCode obisCode) {
+        return dataVolumeScalar;
     }
 }
