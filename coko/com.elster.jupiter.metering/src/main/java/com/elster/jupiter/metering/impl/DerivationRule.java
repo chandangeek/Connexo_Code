@@ -14,7 +14,6 @@ public enum DerivationRule {
         switch (this) {
             case DELTA:
             case MULTIPLIED_DELTA:
-            case MULTIPLIED:
                 return true;
             default:
                 return false;
