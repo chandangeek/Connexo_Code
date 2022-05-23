@@ -154,8 +154,7 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
         // can cancel only a waiting or pending message, the others are completed already (either with success or not)
         getDeviceMessage()
-                .filter(message -> message.getStatus() == DeviceMessageStatus.WAITING)
-                .filter(message -> message.getStatus() == DeviceMessageStatus.PENDING)
+                .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED)
                 .ifPresent(message -> LockUtils.forceLockWithDoubleCheck(message,
                                 deviceMessageService::findAndLockDeviceMessageById,
                                 dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING, // pre-check
