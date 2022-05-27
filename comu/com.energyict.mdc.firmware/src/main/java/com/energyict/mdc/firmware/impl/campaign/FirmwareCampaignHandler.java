@@ -152,9 +152,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         Device device = comTaskExecution.getDevice();
 
-        String logInfo = "[FWC] onComTaskCompleted " + device.getName() + " / "+ comTaskExecution.getComTask().getName()
-                + " on " + comTaskExecution.getDevice().getName() + " -> " + comTaskExecution.getStatusDisplayName();
-
+        String logInfo = "[FWC] onComTaskCompleted " + device.getName() + " / "+ comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName();
 
         if (comTaskExecution.isLastExecutionFailed()) {
             logger.info(logInfo + " last execution failed" );
