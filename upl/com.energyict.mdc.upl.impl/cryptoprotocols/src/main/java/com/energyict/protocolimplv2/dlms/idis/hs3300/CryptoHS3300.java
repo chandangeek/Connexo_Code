@@ -82,7 +82,7 @@ public class CryptoHS3300 extends HS3300 {
     }
 
     @Override
-    protected void readFrameCounterSecure(ComChannel comChannel) {
+    protected void readFrameCounter(ComChannel comChannel) {
         getLogger().info(getLogPrefix()+"Reading frame counter using secure method (HSM validation)");
 
         byte[] authenticationKeyBytes = getDlmsSessionProperties().getSecurityProvider().getAuthenticationKey();
