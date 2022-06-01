@@ -277,18 +277,6 @@ public class A2 extends AbstractDlmsProtocol {
         }
     }
 
-    @Override
-    public void terminate() {
-        // As a last step, update the cache with the last FC
-        if (getDlmsSession() != null && getDlmsSession().getAso() != null && getDlmsSession().getAso().getSecurityContext() != null) {
-            long frameCounter = getDlmsSession().getAso().getSecurityContext().getFrameCounter();
-            int clientMacAddress = getDlmsSessionProperties().getClientMacAddress();
-            getDeviceCache().setTXFrameCounter(clientMacAddress, frameCounter);
-            journal("Caching frame counter = " + frameCounter + " for client = " + clientMacAddress);
-            journal("Meter protocol session ended.");
-        }
-    }
-
     /**
      * Add extra retries to the association request.
      * If the request was rejected because by the meter the previous association was still open, this retry mechanism will solve the problem.
