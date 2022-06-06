@@ -89,7 +89,7 @@ Ext.define('Yfn.controller.Main', {
                             }
                         });
                     } else {
-                        reportsItems.push(Uni.I18n.translate('report.ConnexoFactsIsNotAvailable', 'YFN', 'Connexo Facts is not available'));
+                        reportsItems.push(Uni.I18n.translate('report.ConnexoFactsIsNotAvailable', 'YFN', "Connexo Facts isn't available."));
                     }
                     portalContainer.refresh(reportsItems);
                     Ext.Ajax.resumeEvent('requestexception');

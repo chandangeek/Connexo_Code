@@ -16,17 +16,7 @@ public enum TranslationKeys implements TranslationKey {
     THURSDAY(DayOfWeek.THURSDAY.name(), "Thursday"),
     FRIDAY(DayOfWeek.FRIDAY.name(), "Friday"),
     SATURDAY(DayOfWeek.SATURDAY.name(), "Saturday"),
-    SUNDAY(DayOfWeek.SUNDAY.name(), "Sunday"),
-    SUMMER("Summer", "Summer"),
-    WINTER("Winter", "Winter"),
-    SUMMER_WEEKDAY("summer weekday", "summer weekday"),
-    WEEKEND("weekend", "weekend"),
-    WINTER_DAY("winter day", "winter day"),
-    HOLIDAY("holiday", "holiday"),
-    ON_PEAK("On Peak (3)", "On Peak (3)"),
-    OFF_PEAK("Off Peak (5)", "Off Peak (5)"),
-    DEMAND_RESPOND("Demand response", "Demand response")
-    ;
+    SUNDAY(DayOfWeek.SUNDAY.name(), "Sunday");
 
     private final String key;
     private final String defaultFormat;

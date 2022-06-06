@@ -28,6 +28,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
+import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.time.rest.impl.TimeApplication;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
@@ -143,7 +144,6 @@ public class DeviceConfigurationApplication extends Application implements Messa
                 ProtocolPropertiesResource.class,
                 DeviceConfigurationEstimationRuleSetResource.class,
                 MultiPartFeature.class,
-                TrustStoreResource.class,
                 IssueService.class,
                 TrustStoreResource.class,
                 HsmPublicConfiguration.class
@@ -232,12 +232,12 @@ public class DeviceConfigurationApplication extends Application implements Messa
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, Layer.REST)
-                            .join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN))
-                            .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
-                            .join(nlsService.getThesaurus(TimeApplication.COMPONENT_NAME, Layer.REST))
-                            // for com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation
-                            .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
-
+                .join(nlsService.getThesaurus(DeviceProtocolService.COMPONENT_NAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(MeteringService.COMPONENTNAME, Layer.DOMAIN))
+                .join(nlsService.getThesaurus(TimeApplication.COMPONENT_NAME, Layer.REST))
+                .join(nlsService.getThesaurus(TimeService.COMPONENT_NAME, Layer.DOMAIN))
+                // for com.elster.jupiter.pki.SecurityAccessorTypePurposeTranslation
+                .join(nlsService.getThesaurus(SecurityManagementService.COMPONENTNAME, Layer.DOMAIN));
     }
 
     @Reference
