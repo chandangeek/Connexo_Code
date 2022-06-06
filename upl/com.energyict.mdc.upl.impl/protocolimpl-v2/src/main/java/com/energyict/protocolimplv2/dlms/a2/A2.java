@@ -180,8 +180,7 @@ public class A2 extends AbstractDlmsProtocol {
         }
         getDlmsSessionProperties().setSerialNumber(logicalDeviceName);
         getDlmsSessionProperties().getSecurityProvider().setInitialFrameCounter(frameCounter + 1);
-        // TODO confirm that we don't need management client
-        //getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(MANAGEMENT_CLIENT));
+        getDlmsSessionProperties().getProperties().setProperty(DlmsProtocolProperties.CLIENT_MAC_ADDRESS, BigDecimal.valueOf(MANAGEMENT_CLIENT));
         if (hhuSignOnV2 != null) {
             hhuSignOnV2.setClientMacAddress(MANAGEMENT_CLIENT);
         }
@@ -460,7 +459,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-04-05$";
+        return "$Date: 2022-06-06$";
     }
 
     protected A2Messaging getProtocolMessaging() {

@@ -120,7 +120,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-05-17$";
+        return "$Date: 2022-06-06$";
     }
 
     @Override
