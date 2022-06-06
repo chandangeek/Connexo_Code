@@ -21,6 +21,7 @@ import com.energyict.protocolimplv2.dlms.ei7.EI7;
 import java.util.List;
 
 public class EI6v2021 extends EI7 {
+
     protected EI6v2021RegisterFactory registerFactory = null;
 
     public EI6v2021(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
@@ -36,7 +37,7 @@ public class EI6v2021 extends EI7 {
 
     @Override
     public String getVersion() {
-        return "2022-05-17";
+        return "2022-06-06";
     }
 
     protected EI6v2021Messaging createMessaging() {

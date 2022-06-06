@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.ei7;
 
 import com.energyict.dlms.protocolimplv2.DlmsSessionProperties;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.protocolimplv2.dlms.a2.A2;
 import com.energyict.protocolimplv2.dlms.a2.A2DlmsSession;
 import com.energyict.protocolimplv2.dlms.a2.A2HHUSignOn;
 
@@ -18,7 +17,7 @@ public class EI7DlmsSession extends A2DlmsSession {
         super(comChannel, properties, logger);
     }
 
-    public EI7DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, A2HHUSignOn hhuSignOn, String deviceId, A2 protocol) {
-        super(comChannel, properties, hhuSignOn, deviceId, protocol);
+    public EI7DlmsSession(ComChannel comChannel, DlmsSessionProperties properties, A2HHUSignOn hhuSignOn, String deviceId) {
+        super(comChannel, properties, hhuSignOn, deviceId);
     }
 }

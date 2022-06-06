@@ -11,13 +11,8 @@ import java.math.BigDecimal;
 
 public class A2Properties extends DlmsProperties {
 
-    private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
 
     public A2Properties() {
-    }
-
-    public boolean usesPublicClient() {
-        return getClientMacAddress() == PUBLIC_CLIENT_MAC_ADDRESS;
     }
 
     @Override
@@ -37,10 +32,6 @@ public class A2Properties extends DlmsProperties {
         } else {
             return ProtocolTools.getBytesFromHexString(callingAPTitle.getContent(), "");
         }
-    }
-
-    public boolean useCachedFrameCounter() {
-        return getProperties().getTypedProperty(A2ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false);
     }
 
     public long getLimitMaxNrOfDays() {
