@@ -197,7 +197,7 @@ public class HandHeldUnitEnablerCommandTest extends AbstractComCommandExecuteTes
         doThrow(ConnectionException.class).when(meterProtocolAdapter).enableHHUSignOn(any(SerialCommunicationChannelAdapter.class));
 
         groupedDeviceCommand.execute(executionContext);
-
+        groupedDeviceCommand.connectionErrorOccurred();
         assertEquals(commandRoot.hasConnectionErrorOccurred(), true);
         assertEquals(groupedDeviceCommand.getComTaskRoot(comTaskExecution).getIssues().size(), 1);
     }
