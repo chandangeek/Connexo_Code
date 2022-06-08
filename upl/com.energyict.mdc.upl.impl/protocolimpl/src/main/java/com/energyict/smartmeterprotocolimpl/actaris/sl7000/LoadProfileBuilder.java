@@ -299,6 +299,8 @@ public class LoadProfileBuilder {
             if (currentAdd) {
                 profileData.addInterval(currentIntervalData);
             }
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
 
             previousIntervalData = currentIntervalData;
             previousAdd = currentAdd;
