@@ -19,6 +19,7 @@ import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -154,7 +155,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
         String logInfo = "[FWC] onComTaskCompleted " + device.getName() + " / "+ comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName();
 
-        if (comTaskExecution.isLastExecutionFailed()) {
+        if (didLastExecutionFailed(comTaskExecution)) {
             logger.info(logInfo + " last execution failed" );
             onComTaskFailed(comTaskExecution);
             return;
@@ -162,6 +163,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
         if (comTaskExecution.getLastSession().isPresent()){
             CompletionCode completionCode = comTaskExecution.getLastSession().get().getHighestPriorityCompletionCode();
+            // at this point isLastExecutionFailed = false, i.e. the result is "success"
             if (sessionHasProtocolError(completionCode)){
                 logger.warning(logInfo + " has completion code " + completionCode.name()
                         + "! This is a PROTOCOL-ERROR disguised as success! Handling as failed!");
@@ -221,6 +223,21 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         }
     }
 
+    /** Trying to check if last execution failed, although we get a completion success notification */
+    private boolean didLastExecutionFailed(ComTaskExecution comTaskExecution) {
+        if (comTaskExecution.isLastExecutionFailed()){
+            return true;
+        }
+
+        if (comTaskExecution.getLastSession().isPresent()){
+            if (comTaskExecution.getLastSession().get().getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Failure)){
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     /**
      * See com.energyict.mdc.device.data.tasks.history.CompletionCode.ProtocolError
      * The protocol errors are marked as com.energyict.mdc.upl.meterdata.ResultType.DataIncomplete
@@ -229,7 +246,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
      * So here we check if this is the case, and handle the result as a failed one.
      */
     private boolean sessionHasProtocolError(CompletionCode completionCode) {
-        return  (completionCode.equals(CompletionCode.ProtocolError) || completionCode.hasPriorityOver(CompletionCode.ProtocolError));
+        return completionCode.equals(CompletionCode.ProtocolError) ;
     }
 
     private void onComTaskStarted(ComTaskExecution comTaskExecution) {
