@@ -23,6 +23,7 @@ import com.energyict.dlms.cosem.NbiotPushSetup;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.messages.A2MessageExecutor;
+import com.energyict.protocolimplv2.dlms.ei7.EI7Const;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -89,8 +90,6 @@ public class EI7MessageExecutor extends A2MessageExecutor {
     }
 
     private void writeNetworkTimeout(OfflineDeviceMessage pendingMessage) throws IOException {
-        final ObisCode timeoutNbiotObisCode = ObisCode.fromString("0.1.94.39.52.255");
-        final ObisCode timeoutGprsObisCode = ObisCode.fromString("0.0.94.39.52.255");
         final String timeoutObjectString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.timeoutObject);
         final int sessionMaxDuration = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.sessionMaxDuration));
         final int inactivityTimeout = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.inactivityTimeoutAttributeName));
@@ -106,10 +105,10 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         ObisCode timeoutObisCode;
         switch (timeoutType) {
             case GPRS:
-                timeoutObisCode = timeoutGprsObisCode;
+                timeoutObisCode = EI7Const.GPRS_TIMEOUT;
                 break;
             case NBIOT:
-                timeoutObisCode = timeoutNbiotObisCode;
+                timeoutObisCode = EI7Const.NBIoT_TIMEOUT;
                 break;
             default:
                 throw new ProtocolException("Unknown timeout type, expected either GPRS or NBIOT.");

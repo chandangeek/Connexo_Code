@@ -7,7 +7,7 @@ import com.energyict.cbo.BaseUnit;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2ConfigurationSupport;
-import com.energyict.protocolimplv2.dlms.ei7.frames.CommunicationType;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 import java.util.List;
 
@@ -41,8 +41,8 @@ public class EI6ConfigurationSupport extends A2ConfigurationSupport {
     private PropertySpec gprsOrNbiotPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(COMMUNICATION_TYPE_STR, false, PropertyTranslationKeys.V2_COMMUNICATION_TYPE,
                 getPropertySpecService()::stringSpec)
-                .addValues(CommunicationType.GPRS.getName(),CommunicationType.NB_IoT.getName())
-                .setDefaultValue(CommunicationType.GPRS.getName())
+                .addValues(NetworkConnectivityMessage.TimeoutType.GPRS.name(), NetworkConnectivityMessage.TimeoutType.NBIOT.name())
+                .setDefaultValue(NetworkConnectivityMessage.TimeoutType.GPRS.name())
                 .markExhaustive()
                 .finish();
     }
