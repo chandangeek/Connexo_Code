@@ -222,11 +222,11 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         }
     }
 
-    private void readCompactFrame30(byte[] compactFrame) {
+    protected void readCompactFrame30(byte[] compactFrame) {
         try {
             boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR)
                     .equals(NetworkConnectivityMessage.TimeoutType.GPRS);
-            Frame30.deserialize(compactFrame).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
+            Frame30.deserialize(compactFrame, true).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
         } catch (Exception e) {
             log("Error while reading compact frame 30:\n" + e.getMessage());
         }
@@ -339,7 +339,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         }
     }
 
-    private Date getDateTime(Unsigned32 unixTime) {
+    protected Date getDateTime(Unsigned32 unixTime) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeZone(getDeviceTimeZone());
         calendar.setTimeInMillis(unixTime.longValue() * 1000);
@@ -488,7 +488,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
         addCollectedRegister(CONVERTED_UNDER_ALARM_VOLUME_INDEX, alarmVolumeIndex.longValue(), new ScalerUnit(getDataVolumeUnitScalar()), dateTime, null);
     }
 
-    private void readLoadProfile(ObisCode loadProfileToRead, DailyReadings[] dailyReadings) {
+    protected void readLoadProfile(ObisCode loadProfileToRead, DailyReadings[] dailyReadings) {
         DeviceOfflineFlags offlineContext = new DeviceOfflineFlags(DeviceOfflineFlags.ALL_LOAD_PROFILES_FLAG);
         OfflineDevice offlineDevice = inboundDAO.getOfflineDevice(deviceIdentifier, offlineContext);
         List<OfflineLoadProfile> allOfflineLoadProfiles = offlineDevice.getAllOfflineLoadProfiles();

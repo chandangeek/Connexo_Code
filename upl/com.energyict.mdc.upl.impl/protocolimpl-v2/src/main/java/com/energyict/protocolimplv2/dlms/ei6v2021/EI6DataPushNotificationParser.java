@@ -6,11 +6,14 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.cbo.Unit;
 import com.energyict.protocolimplv2.dlms.ei7.EI7DataPushNotificationParser;
+import com.energyict.protocolimplv2.dlms.ei7.frames.Frame30;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 
 import static com.energyict.protocolimplv2.dlms.ei6v2021.properties.EI6ConfigurationSupport.DATA_VOLUME_SCALAR_PROPERTY;
 import static com.energyict.protocolimplv2.dlms.ei6v2021.properties.EI6ConfigurationSupport.DATA_VOLUME_UNIT_PROPERTY;
 import static com.energyict.protocolimplv2.dlms.ei6v2021.properties.EI6ConfigurationSupport.EI6_DEFAULT_DATA_VOLUME_SCALAR_PROPERTY;
 import static com.energyict.protocolimplv2.dlms.ei6v2021.properties.EI6ConfigurationSupport.EI6_DEFAULT_DATA_VOLUME_UNIT_PROPERTY;
+import static com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport.COMMUNICATION_TYPE_STR;
 
 public class EI6DataPushNotificationParser extends EI7DataPushNotificationParser {
     private Unit dataVolumeUnitScalar;
@@ -28,5 +31,16 @@ public class EI6DataPushNotificationParser extends EI7DataPushNotificationParser
                     typedProperties.getTypedProperty(DATA_VOLUME_SCALAR_PROPERTY, EI6_DEFAULT_DATA_VOLUME_SCALAR_PROPERTY));
         }
         return this.dataVolumeUnitScalar;
+    }
+
+    @Override
+    protected void readCompactFrame30(byte[] compactFrame) {
+        try {
+            boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR)
+                    .equals(NetworkConnectivityMessage.TimeoutType.GPRS);
+            Frame30.deserialize(compactFrame, false).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
+        } catch (Exception e) {
+            log("Error while reading compact frame 30:\n" + e.getMessage());
+        }
     }
 }
