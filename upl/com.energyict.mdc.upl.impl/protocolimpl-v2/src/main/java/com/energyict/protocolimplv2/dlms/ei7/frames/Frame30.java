@@ -52,8 +52,9 @@ public class Frame30 extends Frame {
 		public static final ObisCode INTERVAL_DATA                                     = ObisCode.fromString("7.0.99.99.2.255");
 	}
 
-	public static Frame30 deserialize(byte[] data, boolean currentActiveTariffIncluded) throws IOException, ClassNotFoundException {
+	public static Frame30 deserialize(byte[] data) throws IOException, ClassNotFoundException {
 		Frame30 newFrame = new Frame30();
+
 		try {
 			// Register part
 			newFrame.unixTime = new Unsigned32(getByteArray(data, 1, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
@@ -84,7 +85,7 @@ public class Frame30 extends Frame {
 			newFrame.readings = new DailyReadings[readingsEntriesNumber.getValue()];
 			for (int i = 0; i < readingsEntriesNumber.getValue(); ++i) {
 				newFrame.readings[i] = new DailyReadings();
-				startPos = readLP(data, startPos, newFrame.readings[i], currentActiveTariffIncluded);
+				startPos = readLP(data, startPos, newFrame.readings[i]);
 			}
 
 			Unsigned8 intervalDataEntriesNumber = new Unsigned8(getByteArray(data, startPos, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
@@ -92,7 +93,7 @@ public class Frame30 extends Frame {
 			newFrame.intervalData = new DailyReadings[intervalDataEntriesNumber.getValue()];
 			for (int i = 0; i < intervalDataEntriesNumber.getValue(); ++i) {
 				newFrame.intervalData[i] = new DailyReadings();
-				startPos = readLP(data, startPos, newFrame.intervalData[i], currentActiveTariffIncluded);
+				startPos = readLP(data, startPos, newFrame.intervalData[i]);
 			}
 		} catch (IOException e) {
 			throw DataParseException.ioException(e);
@@ -125,18 +126,13 @@ public class Frame30 extends Frame {
 		saveLoadProfileFunc.accept(ObisConst.INTERVAL_DATA, intervalData);
 	}
 
-	private static int readLP(byte[] data, int m_offset, DailyReadings aReading, boolean currentActiveTariffIncluded) throws IOException {
+	private static int readLP(byte[] data, int m_offset, DailyReadings aReading) throws IOException {
 		aReading.unixTime                       = new Unsigned32(getByteArray(data, m_offset, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED),0);
 		aReading.dailyDiagnostic                = new Unsigned16(getByteArray(data, m_offset += 4, Unsigned16.SIZE, AxdrType.LONG_UNSIGNED),0);
 		aReading.currentIndexOfConvertedVolume  = new Unsigned32(getByteArray(data, m_offset += 2, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED),0);
 		aReading.currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(data, m_offset += 4, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED),0);
-		if (currentActiveTariffIncluded) {
-			aReading.currentActiveTariff        = new Unsigned8(getByteArray(data, m_offset += 4, Unsigned8.SIZE, AxdrType.UNSIGNED),0);
-			m_offset += 1;
-		} else {
-			aReading.currentActiveTariff 		= new Unsigned8(0);
-			m_offset += 4;
-		}
+		aReading.currentActiveTariff            = new Unsigned8(0);
+		m_offset += 4;
 		return m_offset;
 	}
 }
