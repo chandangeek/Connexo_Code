@@ -10,6 +10,7 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DataParseException;
+import com.energyict.protocolimplv2.dlms.ei7.EI7Const;
 
 import java.io.IOException;
 import java.util.Date;
@@ -35,8 +36,6 @@ public class Frame30 extends Frame {
 	private DailyReadings[] intervalData;       // Interval data
 
 	public static class ObisConst {
-		public static final ObisCode GPRS_TIMEOUT                                      = ObisCode.fromString("0.0.94.39.52.255");
-		public static final ObisCode NBIoT_TIMEOUT                                     = ObisCode.fromString("0.1.94.39.52.255");
 		public static final ObisCode DISCONNECT_CONTROL_BOOL                           = ObisCode.fromString("0.0.96.3.10.255");
 		public static final ObisCode DISCONNECT_CONTROL_ENUM                           = ObisCode.fromString("0.1.96.3.10.255");
 		public static final ObisCode MANAGEMENT_FRAMECOUNTER_ON_LINE                   = ObisCode.fromString("0.0.43.1.1.255");
@@ -89,10 +88,10 @@ public class Frame30 extends Frame {
 				startPos = readLP(data, startPos, newFrame.readings[i]);
 			}
 
-			Unsigned8 intrvlDataEntriesNmbr = new Unsigned8(getByteArray(data, startPos, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
+			Unsigned8 intervalDataEntriesNumber = new Unsigned8(getByteArray(data, startPos, Unsigned8.SIZE, AxdrType.UNSIGNED), 0);
 			++startPos;
-			newFrame.intervalData = new DailyReadings[intrvlDataEntriesNmbr.getValue()];
-			for (int i = 0; i < intrvlDataEntriesNmbr.getValue(); ++i) {
+			newFrame.intervalData = new DailyReadings[intervalDataEntriesNumber.getValue()];
+			for (int i = 0; i < intervalDataEntriesNumber.getValue(); ++i) {
 				newFrame.intervalData[i] = new DailyReadings();
 				startPos = readLP(data, startPos, newFrame.intervalData[i]);
 			}
@@ -105,7 +104,7 @@ public class Frame30 extends Frame {
 	public final void save(FiveConsumer<ObisCode, Long, ScalerUnit, Date, String> saveRegisterFunc, BiConsumer<ObisCode, DailyReadings[]> saveLoadProfileFunc, Function<Unsigned32, Date> getDateTime, boolean isGPRS) {
 		Date dateTime = getDateTime.apply(unixTime);
 
-		ObisCode timeoutObisCode = isGPRS ? ObisConst.GPRS_TIMEOUT : ObisConst.NBIoT_TIMEOUT;
+		ObisCode timeoutObisCode = isGPRS ? EI7Const.GPRS_TIMEOUT : EI7Const.NBIoT_TIMEOUT;
 		saveRegisterFunc.accept(timeoutObisCode.setB(2), gprsTimeout.sessionMaxDuration.longValue(), null, dateTime, null);
 		saveRegisterFunc.accept(timeoutObisCode.setB(3), gprsTimeout.inactivityTimeout.longValue(), null, dateTime, null);
 		saveRegisterFunc.accept(timeoutObisCode.setB(4), gprsTimeout.sessionMaxDuration.longValue(), null, dateTime, null);
@@ -132,7 +131,8 @@ public class Frame30 extends Frame {
 		aReading.dailyDiagnostic                = new Unsigned16(getByteArray(data, m_offset += 4, Unsigned16.SIZE, AxdrType.LONG_UNSIGNED),0);
 		aReading.currentIndexOfConvertedVolume  = new Unsigned32(getByteArray(data, m_offset += 2, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED),0);
 		aReading.currentIndexOfConvertedVolumeUnderAlarm = new Unsigned32(getByteArray(data, m_offset += 4, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED),0);
-		aReading.currentActiveTariff            = new Unsigned8(getByteArray(data, m_offset += 4, Unsigned8.SIZE, AxdrType.UNSIGNED),0);
-		return ++m_offset;
+		aReading.currentActiveTariff            = new Unsigned8(0);
+		m_offset += 4;
+		return m_offset;
 	}
 }

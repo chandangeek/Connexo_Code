@@ -37,9 +37,9 @@ import com.energyict.protocol.IntervalValue;
 import com.energyict.protocol.exception.DataParseException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.dlms.a2.properties.A2Properties;
-import com.energyict.protocolimplv2.dlms.ei7.frames.CommunicationType;
 import com.energyict.protocolimplv2.dlms.ei7.frames.DailyReadings;
 import com.energyict.protocolimplv2.dlms.ei7.frames.Frame30;
+import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 import com.google.common.collect.ImmutableSet;
@@ -224,7 +224,8 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
 
     private void readCompactFrame30(byte[] compactFrame) {
         try {
-            boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR).equals(CommunicationType.GPRS.getName());
+            boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR)
+                    .equals(NetworkConnectivityMessage.TimeoutType.GPRS.name());
             Frame30.deserialize(compactFrame).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
         } catch (Exception e) {
             log("Error while reading compact frame 30:\n" + e.getMessage());
