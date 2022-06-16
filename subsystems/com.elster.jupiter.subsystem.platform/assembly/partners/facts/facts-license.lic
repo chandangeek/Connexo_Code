@@ -1,4 +1,4 @@
-Licensor=Yellowfin International Pty Ltd
+Licensor=Yellowfin, Inc.
 Licensee=Honeywell (formerly Elster Energy)
 ServerName=localhost
 DataSources=9999
@@ -6,10 +6,10 @@ Consumers=9999
 Writers=9999
 Dashboard=9999
 MultiCast=9999
-IssueDate=2021-12-13
+IssueDate=2022-05-30
 Locale=EN
 Language=EN
-LicenceId=343077
+LicenceId=345022
 ConcurrentUsers=9999
 ServerCores=9999
 NamedUsers=9999
@@ -21,6 +21,6 @@ ClusterCores=9999
 ConcurrentMode=DISABLED
 Clients=9999
 LicenseType=DEVELOPMENT
-Expiration=2022-06-12
+Expiration=2022-11-27
 
-Signature=302C02144A29A5751791C1C7DBC7743ED6E4E7438687CD8002147799BB6DFB4528DD5123902152AF39F17E7E40AB
+Signature=302C02142822927B4333497DA5E49A11191E8C8141CB15A802143ABDDE8360E06A021CA59D5E3678A214D9FA5431
