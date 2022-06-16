@@ -186,7 +186,6 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
     private void connectionErrorOccurred(DeviceProtocol deviceProtocol, Throwable e) {
         addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE, e), CompletionCode.ConnectionError);
-        groupedDeviceCommand.connectionErrorOccurred();
     }
 
     @Override
