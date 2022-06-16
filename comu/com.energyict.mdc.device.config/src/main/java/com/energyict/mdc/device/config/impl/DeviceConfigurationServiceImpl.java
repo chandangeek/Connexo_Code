@@ -148,6 +148,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 import static java.util.stream.Collectors.toList;
 
@@ -750,10 +751,12 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         .put(Version.version(10, 8), UpgraderV10_8.class)
                         .put(Version.version(10, 8, 1), UpgraderV10_8_1.class)
                         .put(Version.version(10, 8, 16), V10_8_16SimpleUpgrader.class)
+                        .put(Version.version(10, 8, 31), UpgraderV10_8_31.class)
                         .put(Version.version(10, 9), V10_9SimpleUpgrader.class)
                         .put(Version.version(10, 9, 9), V10_9_9SimpleUpgrader.class)
                         //CONM-2568
                         .put(Version.version(10, 9, 13), UpgraderV10_9_13.class)
+                        .put(Version.version(10, 9, 17), UpgraderV10_9_17.class)
                         .build());
         initPrivileges();
     }

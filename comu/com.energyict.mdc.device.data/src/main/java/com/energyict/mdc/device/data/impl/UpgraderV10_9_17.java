@@ -18,5 +18,9 @@ public class UpgraderV10_9_17 implements Upgrader {
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         execute(dataModel, "UPDATE " + TableSpecs.DDC_DEVICEPROTOCOLPROPERTY.name() + " SET INFOVALUE = 'NBIOT' WHERE PROPERTYSPEC = 'CommunicationType' AND INFOVALUE = 'NB-IoT'");
         execute(dataModel, "DELETE FROM " + TableSpecs.DDC_DEVICEPROTOCOLPROPERTY.name() + " WHERE PROPERTYSPEC = 'UseCachedFrameCounter'");
+        execute(dataModel, "DELETE FROM " + TableSpecs.DDC_DEVICEPROTOCOLPROPERTY.name() + " where PROPERTYSPEC = 'CommunicationType' AND DEVICEID IN " +
+                "(SELECT dd.ID FROM " + TableSpecs.DDC_DEVICE.name() + " dd JOIN DTC_DEVICETYPE dt ON dd.DEVICETYPE = dt.ID JOIN CPC_PLUGGABLECLASS p ON dt.DEVICEPROTOCOLPLUGGABLEID = p.id " +
+                "WHERE p.JAVACLASSNAME = 'com.energyict.protocolimplv2.dlms.ei7.EI7')");
+
     }
 }

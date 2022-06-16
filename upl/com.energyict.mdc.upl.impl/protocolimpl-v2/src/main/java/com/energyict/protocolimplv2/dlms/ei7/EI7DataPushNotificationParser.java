@@ -225,7 +225,7 @@ public class EI7DataPushNotificationParser extends EventPushNotificationParser {
     private void readCompactFrame30(byte[] compactFrame) {
         try {
             boolean isGPRS = inboundDAO.getDeviceProtocolProperties(getDeviceIdentifier()).getProperty(COMMUNICATION_TYPE_STR)
-                    .equals(NetworkConnectivityMessage.TimeoutType.GPRS);
+                    .equals(NetworkConnectivityMessage.TimeoutType.GPRS.name());
             Frame30.deserialize(compactFrame).save(this::addCollectedRegister, this::readLoadProfile, this::getDateTime, isGPRS);
         } catch (Exception e) {
             log("Error while reading compact frame 30:\n" + e.getMessage());
