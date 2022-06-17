@@ -112,6 +112,7 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
                         /* Any other ConnectionCommunicationException means that the connection is broken/closed and can no longer be used.
                          * The next comtasks for this connection will be set to 'not executed'. */
                         connectionErrorOccurred(deviceProtocol, e);
+                        executionContext.connect();
                     }
                     logTaskExecutionFailed(executionContext, e);
                 } catch (ConnectionSetupException | ModemException e) {
@@ -185,7 +186,6 @@ public abstract class SimpleComCommand implements ComCommand, CanProvideDescript
 
     private void connectionErrorOccurred(DeviceProtocol deviceProtocol, Throwable e) {
         addIssue(getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.COMMAND_FAILED_DUE_TO_CONNECTION_RELATED_ISSUE, e), CompletionCode.ConnectionError);
-        groupedDeviceCommand.connectionErrorOccurred();
     }
 
     @Override

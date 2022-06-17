@@ -73,6 +73,7 @@ public class CommandRootImpl implements CommandRoot {
                     executionContext.connectionLogger.taskExecutionFailed(e, getCurrentThreadName(), getComTasksDescription(), executionContext.getComTaskExecution().getDevice().getName());
                 }
             }
+            executionContext.close();
         }
     }
 

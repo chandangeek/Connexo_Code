@@ -211,8 +211,8 @@ public class RescheduleBehaviorForAsapTest extends AbstractRescheduleBehaviorTes
         verify(comServerDAO).executionCompleted(comTaskExecution1);
         verify(comServerDAO).executionCompleted(comTaskExecution2);
         verify(comServerDAO).executionCompleted(comTaskExecution3);
-        verify(comServerDAO).executionRescheduled(comTaskExecution4, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO).executionRescheduled(comTaskExecution5, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
+        verify(comServerDAO).executionRescheduled(comTaskExecution4, clockPlus5Min.instant()); // we want the comTask to be rescheduled in ASAP
         verify(comServerDAO).executionFailed(connectionTask);
     }
 
