@@ -751,6 +751,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         .put(Version.version(10, 8), UpgraderV10_8.class)
                         .put(Version.version(10, 8, 1), UpgraderV10_8_1.class)
                         .put(Version.version(10, 8, 16), V10_8_16SimpleUpgrader.class)
+                        .put(Version.version(10, 8, 30), UpgraderV10_8_30.class)
                         .put(Version.version(10, 8, 31), UpgraderV10_8_31.class)
                         .put(Version.version(10, 9), V10_9SimpleUpgrader.class)
                         .put(Version.version(10, 9, 9), V10_9_9SimpleUpgrader.class)
