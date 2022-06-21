@@ -22,9 +22,9 @@ public class UpgraderV10_9_17 implements Upgrader {
                 "where p.JAVACLASSNAME = 'com.energyict.protocolimplv2.dlms.ei7.EI7'or p.JAVACLASSNAME = 'com.energyict.protocolimplv2.dlms.ei6v2021.EI6v2021')");
 
         // change communication type value
-        execute(dataModel, "UPDATE " + TableSpecs.DTC_PROTOCOLCONFIGPROPSATTR.name() + " SET VALUE = 'NBIOT' WHERE NAME = 'CommunicationType' AND VALUE = 'NB-IoT' and DEVICEID in " +
-                "(select dd.ID from DDC_DEVICE dd join DTC_DEVICETYPE dt on dd.DEVICETYPE = dt.ID JOIN CPC_PLUGGABLECLASS p on dt.DEVICEPROTOCOLPLUGGABLEID = p.id " +
-                "where p.JAVACLASSNAME = 'com.energyict.protocolimplv2.dlms.ei6v2021.EI6v2021')");
+        execute(dataModel, "UPDATE " + TableSpecs.DTC_PROTOCOLCONFIGPROPSATTR.name() + " SET VALUE = 'NBIOT' WHERE NAME = 'CommunicationType' AND VALUE = 'NB-IoT' and DEVICECONFIGURATION in " +
+        "(select dc.ID from DTC_DEVICECONFIG dc JOIN DTC_DEVICETYPE dt on dc.DEVICETYPEID = dt.ID JOIN CPC_PLUGGABLECLASS p on dt.DEVICEPROTOCOLPLUGGABLEID = p.id " +
+        "where p.JAVACLASSNAME = 'com.energyict.protocolimplv2.dlms.ei6v2021.EI6v2021')");
 
         // remove communication type property from EI7
         execute(dataModel, "DELETE FROM " + TableSpecs.DTC_PROTOCOLCONFIGPROPSATTR.name() + " WHERE NAME = 'CommunicationType' AND DEVICECONFIGURATION IN " +
