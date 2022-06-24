@@ -225,17 +225,9 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
 
     /** Trying to check if last execution failed, although we get a completion success notification */
     private boolean didLastExecutionFailed(ComTaskExecution comTaskExecution) {
-        if (comTaskExecution.isLastExecutionFailed()){
-            return true;
-        }
-
-        if (comTaskExecution.getLastSession().isPresent()){
-            if (comTaskExecution.getLastSession().get().getSuccessIndicator().equals(ComTaskExecutionSession.SuccessIndicator.Failure)){
-                return true;
-            }
-        }
-
-        return false;
+        return comTaskExecution.isLastExecutionFailed()
+                || comTaskExecution.getLastSession().isPresent()
+                && comTaskExecution.getLastSession().get().getSuccessIndicator() == ComTaskExecutionSession.SuccessIndicator.Failure;
     }
 
     /**

@@ -46,10 +46,15 @@ import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.HasUniqueName;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.UniqueName;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpec;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
+import com.energyict.mdc.protocol.api.messaging.DeviceMessageId;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+
+import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -327,7 +332,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         return serviceCall.get().getId();
     }
 
-
     @Override
     public ServiceCall getServiceCall() {
         return serviceCall.get();
@@ -337,7 +341,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     public boolean isWithUniqueFirmwareVersion() {
         return withUniqueFirmwareVersion;
     }
-
 
     public void withUniqueFirmwareVersion(boolean withUniqueFirmwareVersion) {
         this.withUniqueFirmwareVersion = withUniqueFirmwareVersion;
@@ -362,6 +365,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 sc -> sc.canTransitionTo(DefaultState.CANCELLED),
                 sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
         lockedServiceCall.cancel();
+        this.serviceCall.set(lockedServiceCall);
     }
 
     void beforeCancelling() {
@@ -375,7 +379,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 .join(DeviceMessage.class)
                 .filter(Where.where("serviceCall.parent").isEqualTo(serviceCall))
                 .filter(Where.where("serviceCall.state.name").in(DefaultState.openStateKeys()))
-                .filter(Where.where("deviceMessage").isNull().or(Where.where("deviceMessage.deviceMessageStatus").isEqualTo(DeviceMessageStatus.WAITING)))
+                .filter(Where.where("deviceMessage").isNull()
+                        .or(Where.where("deviceMessage.deviceMessageStatus").in(ImmutableSet.of(DeviceMessageStatus.WAITING, DeviceMessageStatus.PENDING))))
                 .sorted(Order.ascending("serviceCall.id"))
                 // queried the items, now lock the service calls
                 .map(item -> LockUtils.lockWithPostCheck(item.getServiceCall(), serviceCallService::lockServiceCall, sc -> sc.canTransitionTo(DefaultState.CANCELLED))
@@ -400,8 +405,10 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 // locked everything, now cancel all we have
                 .peek(pair -> {
                     if (pair.hasLast()) {
+                        // device message
                         pair.getLast().revoke();
                     }
+                    // service call
                     pair.getFirst().cancel();
                 })
                 .count();
@@ -414,13 +421,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
             filter.states = DefaultState.openStates().stream().map(DefaultState::name).collect(Collectors.toList());
             Finder<ServiceCall> children = serviceCall.findChildren(filter);
             if (!children.paged(0, 0).find().isEmpty()) { // has open children, but couldn't cancel anything
-                long nonCancellableChildren = children.find().stream()
-                        .filter(c -> !c.canTransitionTo(DefaultState.CANCELLED))
-                        .count();
-
-                if (nonCancellableChildren > 0) {
-                    throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
-                }
+                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
             }
         }
     }

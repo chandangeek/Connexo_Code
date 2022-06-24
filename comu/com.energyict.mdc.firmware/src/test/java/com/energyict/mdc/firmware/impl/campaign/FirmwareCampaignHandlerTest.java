@@ -26,7 +26,8 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
-import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
+import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
+import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
@@ -47,7 +48,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
@@ -125,6 +125,7 @@ public class FirmwareCampaignHandlerTest {
         when(clock.instant()).thenReturn(Instant.ofEpochSecond(6000));
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
         when(firmwareComTaskExecution.getDevice()).thenReturn(device);
+        when(firmwareComTaskExecution.isLastExecutionFailed()).thenReturn(false);
         when(eventType.getTopic()).thenReturn(FIRMWARE_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(firmwareComTaskExecution);
         when(serviceCall.getParent()).thenReturn(Optional.ofNullable(parentSc));
@@ -154,6 +155,7 @@ public class FirmwareCampaignHandlerTest {
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
         when(firmwareCampaign.isWithVerification()).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
+        when(verificationComTaskExecution.isLastExecutionFailed()).thenReturn(false);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
         when(firmwareItem.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(true);
@@ -170,6 +172,7 @@ public class FirmwareCampaignHandlerTest {
         Device device = createMockDevice(DeviceMessageStatus.CONFIRMED);
         when(firmwareCampaign.isWithVerification()).thenReturn(true);
         when(verificationComTaskExecution.getDevice()).thenReturn(device);
+        when(verificationComTaskExecution.isLastExecutionFailed()).thenReturn(true);
         when(eventType.getTopic()).thenReturn(MANUAL_COMTASKEXECUTION_COMPLETED);
         when(event.getSource()).thenReturn(verificationComTaskExecution);
         when(firmwareItem.doesDeviceAlreadyHaveTheSameVersion()).thenReturn(false);
@@ -210,6 +213,10 @@ public class FirmwareCampaignHandlerTest {
         when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
         when(messagesTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
         when(deviceMessageCategory.getId()).thenReturn(0);
+        ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
+        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
+        when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         return comTaskExecution;
     }
 
@@ -221,6 +228,10 @@ public class FirmwareCampaignHandlerTest {
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusInformationTask));
         when(deviceMessageCategory.getId()).thenReturn(0);
+        ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
+        when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
+        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
+        when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         return comTaskExecution;
     }
 

@@ -146,15 +146,15 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
 
     void beforeCancelling() {
         if (getDeviceMessage().isPresent()){
-            boolean runningCampaing = firmwareService.hasRunningFirmwareTask(getDevice());
+            boolean hasRunningFirmwareTask = firmwareService.hasRunningFirmwareTask(getDevice());
             logger.info("[FWC] beforeCancelling message " + getDeviceMessage().get().getId() +
                     " with status " + getDeviceMessage().get().getStatus() +
-                    " of device " + getDevice().getName() + ", has running campaign: " + runningCampaing);
+                    " of device " + getDevice().getName() + ", has running firmware task: " + hasRunningFirmwareTask);
         }
 
-        // can cancel only a waiting or pending message, the others are completed already (either with success or not)
         getDeviceMessage()
-                .filter(this::canCancelMessage)
+                // if already cancelled or failed, just cancel also the service call with no errors
+                .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED && message.getStatus() != DeviceMessageStatus.FAILED)
                 .ifPresent(message -> LockUtils.forceLockWithDoubleCheck(message,
                                 deviceMessageService::findAndLockDeviceMessageById,
                                 dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING, // pre-check
@@ -163,10 +163,6 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                                 dm -> cantCancelDeviceMessageException())
                         .revoke()
                 );
-    }
-
-    private boolean canCancelMessage(DeviceMessage deviceMessage) {
-        return (deviceMessage.getStatus() != DeviceMessageStatus.CANCELED) && (deviceMessage.getStatus() != DeviceMessageStatus.FAILED);
     }
 
     private FirmwareCampaignException cantCancelServiceCallException(String serviceCallNumber, ServiceCall serviceCall) {
