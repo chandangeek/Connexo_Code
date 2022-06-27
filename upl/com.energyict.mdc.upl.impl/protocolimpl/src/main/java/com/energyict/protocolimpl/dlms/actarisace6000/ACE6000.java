@@ -123,6 +123,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
     public static final String ASYNC_EOB_SCRIPT_TABLE = "0.0.10.0.1.255";
     public static final int CLASS_ID = 9;
     public static final int METHOD_SCRIPT1_EOB_RESET = 1;
+    public static final int DEFAULT_SECURITY_LEVEL = 1;
     private final ACE6000Messages messageProtocol;
     private ACE6000Properties properties = null;
 
@@ -1385,7 +1386,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2021-08-16$";
+        return "$Date: 2022-06-25$";
     }
 
     @Override
@@ -1446,7 +1447,8 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
             strPassword = properties.getTypedProperty(PASSWORD.getName());
             iHDLCTimeoutProperty = properties.getTypedProperty(TIMEOUT.getName(), 10000);
             iProtocolRetriesProperty = properties.getTypedProperty(RETRIES.getName(), 5);
-            iSecurityLevelProperty = properties.getTypedProperty(SECURITYLEVEL.getName(), 1);
+
+            iSecurityLevelProperty = getSecurityLevel(properties.toStringProperties().getProperty(SECURITYLEVEL.getName()));
             iRequestTimeZone = properties.getTypedProperty("RequestTimeZone", 0);
             iRoundtripCorrection = properties.getTypedProperty(ROUNDTRIPCORRECTION.getName(), 0);
 
@@ -1464,6 +1466,14 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
         } catch (NumberFormatException e) {
             throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
         }
+    }
+
+    private int getSecurityLevel(String securityLevel) throws NumberFormatException {
+        String[] secLevel = securityLevel.split(":");
+        if (secLevel.length > 0) {
+            return Integer.parseInt(secLevel[0].trim());
+        }
+        return DEFAULT_SECURITY_LEVEL;
     }
 
     @Override
