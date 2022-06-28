@@ -112,8 +112,11 @@ public class PropertyInfo {
             } else {
                 valueInfoStream = possibleValuesAsStream(possible.getAllValues()).filter(displayValueFilterFilter).sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue));
             }
-
             this.values.addAll(valueInfoStream.collect(Collectors.toList()));
+            //CONM-2887
+            if(this.values.get(0).displayValue.equals("Meter")){
+                this.values.get(0).displayValue = "Device";
+            }
             this.total = this.values.size();
         }
         return this;
