@@ -53,7 +53,7 @@ public class SecurityAccessorTypeInfoFactory {
                 .getTrustStore().get().getId() : 0;
         info.purpose = purposeToInfo(securityAccessorType.getPurpose());
         if (securityAccessorType.getKeyType().getCryptographicType().requiresDuration() && securityAccessorType.getDuration().isPresent()) {
-            info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get());
+            info.duration = new TimeDurationInfo(securityAccessorType.getDuration().get(), thesaurus);
         }
 
         if (securityAccessorType.keyTypeIsHSM()) {

@@ -221,7 +221,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                                 },
                                 {
                                     xtype: 'combobox',
-                                    name: 'duration[timeUnit]',
+                                    name: 'duration[localizedTimeUnit]',
                                     itemId: 'cbo-security-accessor-validity-period-delay',
                                     store: 'Mdc.store.TimeUnitsYearsSeconds',
                                     queryMode: 'local',

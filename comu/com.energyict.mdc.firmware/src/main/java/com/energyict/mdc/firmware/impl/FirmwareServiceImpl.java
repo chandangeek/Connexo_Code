@@ -41,6 +41,7 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.elster.jupiter.util.exception.MessageSeed;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
@@ -132,7 +133,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
  */
 @Component(name = "com.energyict.mdc.firmware", service = {FirmwareService.class, MessageSeedProvider.class, TranslationKeyProvider.class, ServiceCallCancellationHandler.class}, property = "name=" + FirmwareService.COMPONENTNAME, immediate = true)
 public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider, TranslationKeyProvider, ServiceCallCancellationHandler {
-
+    /*
+     * {@link com.energyict.protocolimplv2.messages.DeviceMessageCategories#FIRMWARE}
+     */
+    private static final int FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID = 9;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DataModel dataModel;
@@ -263,12 +267,12 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType) {
         return deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
+                        .filter(spec -> spec.getCategory().getId() == FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID)
                         .map(DeviceMessageSpec::getId)
-                        .filter(id -> DeviceMessageId.find(id).isPresent())
-                        .map(DeviceMessageId::from)
+                        .map(DeviceMessageId::find)
+                        .flatMap(Functions.asStream())
                         .map(this.deviceMessageSpecificationService::getProtocolSupportedFirmwareOptionFor)
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
+                        .flatMap(Functions.asStream())
                         .collect(Collectors.toSet()))
                 .orElse(Collections.emptySet());
     }
@@ -564,7 +568,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     public void resumeFirmwareUploadForDevice(Device device) {
         device.getMessagesByState(DeviceMessageStatus.PENDING)
                 .stream()
-                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
+                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID)
                 .forEach(deviceMessage -> {
                     this.resume(device, deviceMessage);
                     deviceMessage.updateDeviceMessageStatus(DeviceMessageStatus.CANCELED);
@@ -614,7 +618,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private void cancelPendingFirmwareMessages(Device device) {
         device.getMessagesByState(DeviceMessageStatus.PENDING)
                 .stream()
-                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
+                .filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID)
                 .forEach(DeviceMessage::revoke);
     }
 

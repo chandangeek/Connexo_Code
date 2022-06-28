@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.calendar.rest.impl;
 
-
 import com.elster.jupiter.calendar.Calendar;
 import com.elster.jupiter.calendar.DayType;
 import com.elster.jupiter.calendar.Event;
@@ -48,11 +47,10 @@ import java.util.stream.Stream;
         immediate = true,
         service = CalendarInfoFactory.class)
 public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
-
     private volatile Thesaurus thesaurus;
 
-    //osgi
     public CalendarInfoFactoryImpl() {
+        // for OSGi
     }
 
     @Inject
@@ -218,7 +216,6 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
     private void addDayTypes(CalendarInfo calendarInfo, List<DayType> dayTypes) {
         calendarInfo.dayTypes = new ArrayList<>();
         dayTypes.forEach(dayType -> calendarInfo.dayTypes.add(createDayType(dayType)));
-
     }
 
     private void addDaysPerType(CalendarInfo calendarInfo, List<Period> periods, List<DayType> dayTypes) {
@@ -227,7 +224,8 @@ public class CalendarInfoFactoryImpl implements CalendarInfoFactory {
         dayTypes.forEach(dayType -> daysPerDaytype.put(dayType.getId(), new LinkedHashSet<>()));
         for (Period period : periods) {
             Stream.of(DayOfWeek.values())
-                    .forEach(dow -> daysPerDaytype.get(period.getDayType(dow).getId()).add(thesaurus.getFormat(TranslationKeys.from(dow.name())).format()));
+                    .forEach(dow -> daysPerDaytype.get(period.getDayType(dow).getId())
+                            .add(thesaurus.getFormat(TranslationKeys.from(dow.name())).format()));
         }
 
         daysPerDaytype.keySet()

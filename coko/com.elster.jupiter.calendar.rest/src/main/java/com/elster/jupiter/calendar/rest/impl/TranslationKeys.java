@@ -16,8 +16,7 @@ public enum TranslationKeys implements TranslationKey {
     THURSDAY(DayOfWeek.THURSDAY.name(), "Thursday"),
     FRIDAY(DayOfWeek.FRIDAY.name(), "Friday"),
     SATURDAY(DayOfWeek.SATURDAY.name(), "Saturday"),
-    SUNDAY(DayOfWeek.SUNDAY.name(), "Sunday")
-    ;
+    SUNDAY(DayOfWeek.SUNDAY.name(), "Sunday");
 
     private final String key;
     private final String defaultFormat;
