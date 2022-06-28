@@ -5222,7 +5222,7 @@ FWC;DOMAIN;FIRMWARE.firmwareVersion.firmwareType;Firmware-Typ
 FWC;DOMAIN;firmware.type.AUXILIARY;Zusatz-Firmware
 FWC;DOMAIN;firmware.type.CA_CONFIG_IMAGE;Abbild
 FWC;DOMAIN;firmware.type.COMMUNICATION;Kommunikation
-FWC;DOMAIN;firmware.type.METER;Zähler
+FWC;DOMAIN;firmware.type.METER;Gerät
 FWC;DOMAIN;FirmwareBelowMinimumLevel;Die Firmware der folgenden Typen liegt unter der Mindestebene: {0}.
 FWC;DOMAIN;FirmwareCampaignCustomPropertySet;Benutzerdefinierte Eigenschaft der Firmware-Kampagne festgelegt
 FWC;DOMAIN;FirmwareCampaignItemCustomPropertySet;Benutzerdefinierte Eigenschaft des Firmware-Kampagnenelements festgelegt
