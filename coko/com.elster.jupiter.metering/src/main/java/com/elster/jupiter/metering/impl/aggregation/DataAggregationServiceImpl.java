@@ -463,9 +463,9 @@ public class DataAggregationServiceImpl implements ServerDataAggregationService 
     }
 
     private CalculatedMetrologyContractData postProcess(ServerUsagePoint usagePoint, MetrologyContract contract, Range<Instant> period, Map<ReadingType, List<CalculatedReadingRecordImpl>> calculatedReadingRecords) {
-        MetrologyContractCalculationIntrospector introspector = this.introspect(usagePoint, contract, period);
-        Map<ReadingType, List<CalculatedReadingRecordImpl>> withMissings = this.addMissings(calculatedReadingRecords, introspector, period);
-        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, withMissings, this.truncaterFactory, this.sourceChannelSetFactory);
+        //MetrologyContractCalculationIntrospector introspector = this.introspect(usagePoint, contract, period);
+        //Map<ReadingType, List<CalculatedReadingRecordImpl>> withMissings = this.addMissings(calculatedReadingRecords, introspector, period);
+        return new CalculatedMetrologyContractDataImpl(usagePoint, contract, period, calculatedReadingRecords, this.truncaterFactory, this.sourceChannelSetFactory);
     }
 
     private Map<ReadingType, List<CalculatedReadingRecordImpl>> addMissings(Map<ReadingType, List<CalculatedReadingRecordImpl>> readingRecords, MetrologyContractCalculationIntrospector introspector, Range<Instant> period) {
