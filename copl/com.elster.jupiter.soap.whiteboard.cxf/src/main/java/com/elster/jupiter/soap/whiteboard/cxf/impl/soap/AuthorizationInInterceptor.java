@@ -37,6 +37,9 @@ import java.util.logging.Logger;
  */
 public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
 
+    public static final String PUBLIC_REST_API = "privilege.pulse.public.api.rest";
+    public static final String SYS_APPLICATION_NAME = "SYS";
+    public static final String NOT_AUTHORIZED = "Not authorized";
     static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
 
     private final UserService userService;
@@ -78,12 +81,12 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
             Optional<User> user = userService.authenticateBase64(Base64Utility.encode((userName + ":" + password).getBytes()), request
                     .getRemoteAddr());
             if (!user.isPresent()) {
-                fail(message, "Not authorized",
+                fail(message, NOT_AUTHORIZED,
                         "User " + userName + " denied access: invalid credentials", HttpURLConnection.HTTP_FORBIDDEN);
             }
             if (endPointConfiguration.getGroup().isPresent()) {
                 if (!user.get().isMemberOf(endPointConfiguration.getGroup().get())) {
-                    fail(message, "Not authorized",
+                    fail(message, NOT_AUTHORIZED,
                             "User " + userName + " denied access: not in role", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
@@ -91,7 +94,7 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
         } catch (Fault e) {
             throw e;
         } catch (Exception e) {
-            fail(message, "Not authorized",
+            fail(message, NOT_AUTHORIZED,
                     "Exception while logging in " + userName + ": " + e.getLocalizedMessage(), e, HttpURLConnection.HTTP_FORBIDDEN);
         }
     }
