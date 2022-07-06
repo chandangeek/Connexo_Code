@@ -33,7 +33,7 @@ public class JanzB280 extends CX20009 {
 
     @Override
     public String getVersion() {
-        return "2022-04-22";
+        return "2022-07-06";
     }
 
     @Override

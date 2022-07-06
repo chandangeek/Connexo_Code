@@ -11,6 +11,7 @@ public enum RelayOperatingMode {
     IP_SWITCH_ON(1, "IP switch on - permanent state"),
     ASTRONOMICAL_CLOCK(2, "Astronomical clock (default mode)"),
     TIME_SWITCHING_TABLE(3, "Time switching table"),
+    CLOCK_TABLE_COMBINED(4, "Clock + Table combined"),
     UNKNOWN(-1, "Unknown");
 
     private final String description;
