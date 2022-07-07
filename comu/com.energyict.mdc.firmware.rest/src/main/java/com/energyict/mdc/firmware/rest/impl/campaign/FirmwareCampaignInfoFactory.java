@@ -187,7 +187,7 @@ public class FirmwareCampaignInfoFactory {
                 .newFirmwareCampaign(info.name)
                 .withDeviceType(deviceType)
                 .withDeviceGroup(info.deviceGroup)
-                .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
+                .withFirmwareType(firmwareVersion.getFirmwareType())
                 .withManagementOption(managementOptions)
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
                 .withFirmwareUploadComTaskId(info.firmwareUploadComTask == null ? null : ((Number) info.firmwareUploadComTask.id).longValue())

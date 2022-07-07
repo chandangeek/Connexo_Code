@@ -380,14 +380,19 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                 .filter(Where.where("serviceCall.parent").isEqualTo(serviceCall))
                 .filter(Where.where("serviceCall.state.name").in(DefaultState.openStateKeys()))
                 .filter(Where.where("deviceMessage").isNull()
-                        .or(Where.where("deviceMessage.deviceMessageStatus").in(ImmutableSet.of(DeviceMessageStatus.WAITING, DeviceMessageStatus.PENDING))))
+                        .or(Where.where("deviceMessage.deviceMessageStatus")
+                                // for these message states we agree to be able to cancel corresponding service call; for the rest of states we reject the cancel request
+                                .in(ImmutableSet.of(DeviceMessageStatus.WAITING, DeviceMessageStatus.PENDING, DeviceMessageStatus.CANCELED, DeviceMessageStatus.FAILED))))
                 .sorted(Order.ascending("serviceCall.id"))
                 // queried the items, now lock the service calls
                 .map(item -> LockUtils.lockWithPostCheck(item.getServiceCall(), serviceCallService::lockServiceCall, sc -> sc.canTransitionTo(DefaultState.CANCELLED))
                         .map(lockedSC -> Pair.of(lockedSC, item))
                         .orElse(null))
                 .filter(Objects::nonNull)
-                .map(pair -> pair.withLast(item -> item.getDeviceMessage().orElse(null)))
+                .map(pair -> pair.withLast(item -> item.getDeviceMessage()
+                        // if already cancelled or failed, just leave them without changes and proceed with cancelling service calls
+                        .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED && message.getStatus() != DeviceMessageStatus.FAILED)
+                        .orElse(null)))
                 // locked the service calls, now lock the messages
                 .sorted(Comparator.comparing(Pair::getLast, Comparator.nullsFirst(Comparator.comparing(DeviceMessage::getId))))
                 .map(pair -> {

@@ -248,10 +248,8 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public void log(String message, Exception exception) {
         LogLevel level = LogLevel.SEVERE;
-        if (type.get().getLogLevel().compareTo(level) > -1) {
-            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, level, clock.instant(), stackTrace2String(exception));
-            instance.save();
-        }
+        ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, level, clock.instant(), stackTrace2String(exception));
+        instance.save();
     }
 
     private String stackTrace2String(Exception e) {
@@ -362,10 +360,11 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public void transitionWithLockIfPossible(DefaultState state) {
-        LockUtils.lockWithDoubleCheck(this,
+    public boolean transitionWithLockIfPossible(DefaultState state) {
+        Optional<ServiceCall> locked = LockUtils.lockWithDoubleCheck(this,
                 serviceCallService::lockServiceCall,
-                sc -> sc.canTransitionTo(state))
-                .ifPresent(sc -> sc.requestTransition(state));
+                sc -> sc.canTransitionTo(state));
+        locked.ifPresent(sc -> sc.requestTransition(state));
+        return locked.isPresent();
     }
 }
