@@ -124,7 +124,7 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
     private static final String SUCCESSFUL_LOGIN = "Successful authentication for user ";
     private static final String UNSUCCESSFUL_LOGIN = "Unsuccessful login attempt for user ";
     private static final String ACCOUNT_LOCKED = "The current account is locked. Please contact your administrator!";
-    private static final String NO_PRIVILEGES = "The used has no privileges ";
+    private static final String NO_PRIVILEGES = "The user has no privileges ";
 
     private static final String JUPITER_REALM = "Local";
     private Logger userLogin = Logger.getLogger("userLog");

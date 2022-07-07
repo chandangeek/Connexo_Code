@@ -71,6 +71,7 @@ public class AuthenticationInInterceptorTest {
         authorizationInInterceptor = new AuthorizationInInterceptor(userService, webServicesService, threadPrincipalService, eventService);
         Group developerGroup = mock(Group.class);
         when(developerGroup.getName()).thenReturn("Developer");
+        when(developerGroup.hasPrivilege(anyString(),anyString())).thenReturn(true);
         when(userService.findGroup("Developer")).thenReturn(Optional.of(developerGroup));
         User user = mock(User.class);
         when(user.getName()).thenReturn("Admin");
@@ -191,5 +192,27 @@ public class AuthenticationInInterceptorTest {
             assertThat(se.getMessage(), is("Not authorized"));
             verify(webServicesService).failOccurrence(any(Long.class), any(Exception.class));
         }
+    }
+
+    @Test
+    public void testNoPrivilegeAuthentication() {
+        Group noPrivilegesGroup = mock(Group.class);
+        when(noPrivilegesGroup.getName()).thenReturn("Developer");
+        when(noPrivilegesGroup.hasPrivilege(anyString(),anyString())).thenReturn(false);
+        when(userService.findGroup("Developer")).thenReturn(Optional.of(noPrivilegesGroup));
+        when(endPointConfiguration.getGroup()).thenReturn(Optional.of(noPrivilegesGroup));
+
+        when(httpSession.getAttribute("userName")).thenReturn(null);
+        when(httpSession.getAttribute("password")).thenReturn(null);
+        when(authorizationPolicy.getUserName()).thenReturn("admin");
+        when(authorizationPolicy.getPassword()).thenReturn("admin");
+
+        try {
+            authorizationInInterceptor.handleMessage(message);
+            fail("Expected security exception");
+        } catch (Fault se) {
+            // This page left blank intentionally
+        }
+        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: not in role");
     }
 }

@@ -37,7 +37,6 @@ import java.util.logging.Logger;
  */
 public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public static final String PUBLIC_REST_API = "privilege.pulse.public.api.rest";
     public static final String SYS_APPLICATION_NAME = "SYS";
     public static final String NOT_AUTHORIZED = "Not authorized";
     static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";

@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.soap.whiteboard.cxf.security;
 
+import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.nls.TranslationKey;
 
 import java.util.Arrays;
@@ -16,6 +17,7 @@ public enum Privileges implements TranslationKey {
 
     //Privileges
     VIEW_WEB_SERVICES(Constants.VIEW_WEB_SERVICES, "View"),
+    INVOKE_WEB_SERVICES(Constants.INVOKE_WEB_SERVICES, "Invoke"),
     ADMINISTRATE_WEB_SERVICES(Constants.ADMINISTRATE_WEB_SERVICES, "Administrate"),
     VIEW_HISTORY_WEB_SERVICES(Constants.VIEW_HISTORY_WEB_SERVICES, "View history"),
     RETRY_WEB_SERVICES(Constants.RETRY_WEB_SERVICES, "Retry"),
@@ -49,8 +51,10 @@ public enum Privileges implements TranslationKey {
                 .toArray(new String[Privileges.values().length]);
     }
 
+    @ProviderType
     public interface Constants {
         String VIEW_WEB_SERVICES = "privilege.view.webservices";
+        String INVOKE_WEB_SERVICES = "privilege.invoke.webservices";
         String ADMINISTRATE_WEB_SERVICES = "privilege.administrate.webservices";
         String VIEW_HISTORY_WEB_SERVICES = "privilege.viewHistory.webservices";
         String RETRY_WEB_SERVICES = "privilege.retry.webservices";
