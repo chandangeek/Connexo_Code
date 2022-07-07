@@ -74,7 +74,7 @@ public class SmartZmdMessageConverter extends AbstractMessageConverter {
             TariffCalendar calender = (TariffCalendar) messageAttribute;
             return this.tariffCalendarExtractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender, this.tariffCalendarExtractor); //The ID and the XML representation of the code table, separated by a |
         }
-        return EMPTY_FORMAT;
+        return messageAttribute.toString();
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
