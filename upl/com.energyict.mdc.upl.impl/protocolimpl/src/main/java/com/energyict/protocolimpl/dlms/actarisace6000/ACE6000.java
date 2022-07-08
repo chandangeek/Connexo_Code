@@ -881,6 +881,8 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
             if (currentAdd) {
                 calendar.add(Calendar.MINUTE, (getProfileInterval() / 60));
             }
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
 
             currentIntervalData = getIntervalData(dataContainer.getRoot().getStructure(i), calendar);
 
@@ -1386,7 +1388,7 @@ public class ACE6000 extends PluggableMeterProtocol implements DeviceSecuritySup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2022-06-25$";
+        return "$Date: 2022-07-08$";
     }
 
     @Override
