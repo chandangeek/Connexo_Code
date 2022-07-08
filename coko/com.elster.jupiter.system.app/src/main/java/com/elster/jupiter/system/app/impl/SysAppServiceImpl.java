@@ -127,6 +127,7 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
                     ImmutableMap.of(
                             version(10, 2), Installer.class,
                             version(10, 3), Installer.class,
+                            version(10, 4, 37), UpgraderV10_4_37.class
                             version(10, 7, 4), UpgraderV10_7_4.class,
                             version(10, 8, 1), UpgraderV10_8_1.class,
                             version(10, 9), UpgraderV10_9.class

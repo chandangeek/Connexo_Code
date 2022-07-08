@@ -66,6 +66,9 @@ class MdmAppPrivileges {
                 com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
                 com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
 
+                // Web Services
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES,
+
                 //Relative periods
                 com.elster.jupiter.time.security.Privileges.Constants.VIEW_RELATIVE_PERIOD,
 

@@ -202,6 +202,9 @@ class MdcAppPrivileges {
                 com.elster.jupiter.servicecall.security.Privileges.Constants.VIEW_SERVICE_CALLS,
                 com.elster.jupiter.servicecall.security.Privileges.Constants.CHANGE_SERVICE_CALL_STATE,
 
+                //web services
+                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES,
+
                 //metrology configuration
                 com.elster.jupiter.metering.security.Privileges.Constants.ADMINISTER_METROLOGY_CONFIGURATION,
                 com.elster.jupiter.metering.security.Privileges.Constants.VIEW_METROLOGY_CONFIGURATION,

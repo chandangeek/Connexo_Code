@@ -11,6 +11,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
+import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpSession;
 import java.net.HttpURLConnection;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  * Authentication interceptor for Apache CXF. Will verify credentials and assert the user has the role as configured on the endpoint.
@@ -37,7 +39,6 @@ import java.util.logging.Logger;
  */
 public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    public static final String SYS_APPLICATION_NAME = "SYS";
     public static final String NOT_AUTHORIZED = "Not authorized";
     static final String USERPRINCIPAL = "com.elster.jupiter.userprincipal";
 
@@ -104,6 +105,20 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
             eventService.postEvent(EventType.INBOUND_AUTH_FAILURE.topic(), occurrence);
         });
         doFail(message, statusCode);
+    }
+
+    /**
+     * In this release the endpoints are not observing application affiliation
+     * TODO: check application affiliation in upper versions
+     */
+    private boolean hasInvokePrivileges(InboundEndPointConfiguration endPointConfiguration) {
+        if (endPointConfiguration.getGroup().isPresent()) {
+            Group group = endPointConfiguration.getGroup().get();
+            return Stream
+                    .of("SYS", "MDC", "INS")
+                    .anyMatch(app -> group.hasPrivilege(app, Privileges.Constants.INVOKE_WEB_SERVICES));
+        }
+        return true;
     }
 
     private void fail(Message request, String message, String detailedMessage, Exception e, int statusCode) {
