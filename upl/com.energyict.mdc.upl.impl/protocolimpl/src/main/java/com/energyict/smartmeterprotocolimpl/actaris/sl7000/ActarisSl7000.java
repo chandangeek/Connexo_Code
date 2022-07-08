@@ -265,7 +265,7 @@ public class ActarisSl7000 extends AbstractSmartDlmsProtocol implements Protocol
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-06-08 14:24:00 +0300 (Wed, 08 Jun 2022)$";
+        return "$Date: 2022-07-08 14:24:00 +0300 (Fri, 08 JuL 2022)$";
     }
 
     public ComposedMeterInfo getMeterInfo() {
