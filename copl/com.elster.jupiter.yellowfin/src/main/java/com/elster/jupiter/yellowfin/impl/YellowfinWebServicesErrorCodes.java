@@ -1,6 +1,7 @@
 package com.elster.jupiter.yellowfin.impl;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * This enum holds the YellowFin web-service error codes and their description.

@@ -41,11 +41,10 @@ import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
-import javax.xml.rpc.*;
+import javax.xml.rpc.ServiceException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.*;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,13 +52,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.logging.*;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.apache.log4j.helpers.LogLog.warn;
 
 @Component(name = "com.elster.jupiter.yellowfin", service = {YellowfinService.class, TranslationKeyProvider.class}, immediate = true, property = "name=" + YellowfinService.COMPONENTNAME)
 @SuppressWarnings("unused")
