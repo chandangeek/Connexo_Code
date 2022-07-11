@@ -50,6 +50,7 @@ public class MdmAppInstaller {
         });
         upgradeService.register(InstallIdentifier.identifier("Insight", "DMA"), dataModel, Installer.class,
                 ImmutableMap.of(version(10, 3), UpgraderV10_3.class,
+                        version(10, 4, 37), UpgraderV10_4_37.class,
                         version(10, 7), UpgraderV10_7.class,
                         version(10, 7, 4), UpgraderV10_7_4.class,
                         version(10, 9), UpgraderV10_9.class));
@@ -113,13 +114,19 @@ public class MdmAppInstaller {
         }
 
         private void assignPrivilegesToDefaultRoles() {
-            userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdmAppService.APPLICATION_KEY, getPrivilegesDataExpert());
+            userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdmAppService.APPLICATION_KEY, getPrivilegesBatchExecutor());
             userService.grantGroupWithPrivilege(MdmAppService.Roles.DATA_EXPERT.value(), MdmAppService.APPLICATION_KEY, getPrivilegesDataExpert());
             userService.grantGroupWithPrivilege(MdmAppService.Roles.DATA_OPERATOR.value(), MdmAppService.APPLICATION_KEY, getPrivilegesDataOperator());
         }
 
-        private String[] getPrivilegesDataExpert() {
+        private String[] getPrivilegesBatchExecutor() {
             return MdmAppPrivileges.getApplicationAllPrivileges().stream().toArray(String[]::new);
+        }
+
+        private String[] getPrivilegesDataExpert() {
+            return MdmAppPrivileges.getApplicationAllPrivileges().stream()
+                    .filter(name -> !name.equals(com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES))
+                    .toArray(String[]::new);
         }
 
         private String[] getPrivilegesDataOperator() {

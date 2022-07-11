@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -76,7 +77,8 @@ final class Installer implements FullInstaller, Upgrader {
     }
 
     private String[] batchExecutorPrivileges() {
-        return Stream.concat(Arrays.stream(userService.userAdminPrivileges()), Stream.of(Privileges.Constants.VIEW_SYS_PROPS, Privileges.Constants.ADMINISTER_SYS_PROPS))
+        return Stream.concat(Arrays.stream(userService.userAdminPrivileges()),
+                    Stream.of(Privileges.Constants.VIEW_SYS_PROPS, Privileges.Constants.ADMINISTER_SYS_PROPS, com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES))
                 .toArray(String[]::new);
     }
 

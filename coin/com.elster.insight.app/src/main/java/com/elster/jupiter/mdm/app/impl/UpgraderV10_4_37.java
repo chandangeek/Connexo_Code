@@ -3,10 +3,10 @@
  *
  */
 
-package com.elster.jupiter.system.app.impl;
+package com.elster.jupiter.mdm.app.impl;
 
+import com.elster.jupiter.mdm.app.MdmAppService;
 import com.elster.jupiter.orm.DataModelUpgrader;
-import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 
@@ -23,8 +23,7 @@ public class UpgraderV10_4_37 implements Upgrader {
 
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
-        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, SysAppService.APPLICATION_KEY, newBatchExecutorPrivileges());
-        userService.grantGroupWithPrivilege(UserService.SYSTEM_ADMIN_ROLE, SysAppService.APPLICATION_KEY, newSystemAdminPrivileges());
+        userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdmAppService.APPLICATION_KEY, newBatchExecutorPrivileges());
     }
 
     private String[] newBatchExecutorPrivileges() {
@@ -33,11 +32,5 @@ public class UpgraderV10_4_37 implements Upgrader {
                 com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES,
         };
     }
-
-    private String[] newSystemAdminPrivileges() {
-        return new String[]{
-                //web-services
-                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES,
-        };
-    }
 }
+
