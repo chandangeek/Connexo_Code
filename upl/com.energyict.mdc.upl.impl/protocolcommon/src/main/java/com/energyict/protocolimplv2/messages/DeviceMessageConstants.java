@@ -1080,6 +1080,10 @@ public final class DeviceMessageConstants {
     public static final String VoltageAndCurrentRatioDefaultTranslation = "Write voltage and current ratios";
     public static final String VoltageRatioDefaultTranslation = "Write voltage ratio";
     public static final String CurrentRatioDefaultTranslation = "Write current ratio";
+    public static final String VoltageRatioDenominatorDefaultTranslation = "Voltage ratio denominator";
+    public static final String VoltageRatioNumeratorDefaultTranslation = "Voltage ratio numerator";
+    public static final String CurrentRatioDenominatorDefaultTranslation = "Current ratio denominator";
+    public static final String CurrentRatioNumeratorDefaultTranslation = "Current ratio numerator";
     public static final String ThresholdForDemandCloseToContractPowerAttributeName = "PowerConfigurationDeviceMessage.thresholdDemandCloseToContractPower";
     public static final String PassiveDemandControlThresholdObisAttributeName = "PowerConfigurationDeviceMessage.passiveDemandControlThresholdObis";
     public static final String PassiveDemandControlThresholdValueAttributeName = "PowerConfigurationDeviceMessage.passiveDemandControlThresholdValue";
