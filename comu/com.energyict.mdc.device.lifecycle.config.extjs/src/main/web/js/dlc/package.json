@@ -1,14 +1,14 @@
 {
-  "compatVersion" : "10.9.17",
+  "compatVersion" : "10.9.18",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.energyict.mdc.device.lifecycle.config.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.17"
+    "com.elster.jupiter.unifyingjs@10.9.18"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.17"
+  "version" : "10.9.18"
 }
