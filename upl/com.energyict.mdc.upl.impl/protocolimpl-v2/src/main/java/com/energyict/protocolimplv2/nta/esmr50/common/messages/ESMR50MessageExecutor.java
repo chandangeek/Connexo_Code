@@ -63,6 +63,8 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
     private static final String MBUS_LOAD_PROFILE_PERIOD_1 = "0.x.24.3.0.255";
     private static final ObisCode MBUS_CONFIGURATION_OBJECT = ObisCode.fromString("0.1.94.31.3.255");
 
+    private static final int MAX_ATTEMPTS_LTE_IMAGE_TRANSFER_INITIATE = 30;
+
     private final DeviceMasterDataExtractor deviceMasterDataExtractor;
 
     public ESMR50MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory,
@@ -307,41 +309,21 @@ public class ESMR50MessageExecutor extends Dsmr40MessageExecutor {
         getCosemObjectFactory().getData(ESMR50RegisterFactory.LTE_FW_DOWNLOAD_TIME).setValueAttr(new Unsigned32(lteFWDownloadTime));
     }
 
-    private void doActivateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException {
-        getProtocol().journal("Activating LTE Firmware image.");
-        ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer(LTE_IMAGE_TRANSFER_OBIS);
-        imageTransfer.imageActivation();
-    }
-
     private void doInitiateLTEImageTransfer(OfflineDeviceMessage pendingMessage) throws IOException, InterruptedException {
         getProtocol().journal("Initiating LTE Firmware image transfer.");
         ImageTransfer imageTransfer = getCosemObjectFactory().getImageTransfer(LTE_IMAGE_TRANSFER_OBIS);
         imageTransfer.initializeFOTA(true);
 
-        final int max_attempt_count = 30; // 5 min wait for firmware downloading
-        int attempt_count = 0;
-        while( attempt_count < max_attempt_count ) {
+        for (int attempt_count = 0; attempt_count < MAX_ATTEMPTS_LTE_IMAGE_TRANSFER_INITIATE; attempt_count++) {
             final ImageTransferStatus currentState = imageTransfer.readImageTransferStatus();
-            if( ImageTransferStatus.TRANSFER_INITIATED == currentState ) {
+            if (ImageTransferStatus.TRANSFER_INITIATED == currentState) {
                 getProtocol().journal(Level.INFO, "Image transfer state says the transfer was initiated, meaning we were in the process of sending data, checking if the image name is the same." + currentState.getInfo() );
-            } else {
-                getProtocol().journal(Level.INFO, "Image transfer state says the transfer wasn't initiated: " + currentState.getInfo() );
+                return;
             }
-            // 10 sec step wait until we ready to activate fw.
-            Thread.sleep(10000L);
-
-            List<ImageTransfer.ImageToActivateInfo> imageInfo = imageTransfer.readImageToActivateInfo();
-            if (!imageInfo.isEmpty()) {
-                for (ImageTransfer.ImageToActivateInfo a_info : imageInfo) {
-                    if (a_info.getImageIdentifier() != null) {
-                        getProtocol().journal("Activate firmware");
-                        doActivateLTEImageTransfer(pendingMessage);
-                        return;
-                    }
-                }
-            }
-            ++attempt_count;
+            getProtocol().journal(Level.INFO, "Image transfer state says the transfer wasn't initiated: " + currentState.getInfo());
+            Thread.sleep(1000L);
         }
+        getProtocol().journal(Level.WARNING, "Image transfer state says the transfer wasn't initiated after 30 attempts");
     }
 
 
