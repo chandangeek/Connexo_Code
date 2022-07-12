@@ -270,7 +270,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "Date: 2021-04-19";
+        return "Date: 2022-07-12";
     }
 
     private PropertySpec stringWithDefault(String name, TranslationKey translationKey, String defaultValue) {
