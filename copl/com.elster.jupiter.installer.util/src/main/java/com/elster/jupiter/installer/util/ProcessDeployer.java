@@ -4,12 +4,10 @@
 
 package com.elster.jupiter.installer.util;
 
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,23 +17,21 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.MessageFormat;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.UUID;
 
 /**
  * Main class to deploy the predefined processes during Connexo install
  */
 public class ProcessDeployer {
-
-
     final static String LINE = "\r\n";
-    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"groupId\":\"Honeywell\",\"version\":\"2.8.1\",\"description\":\"Repository for Connexo projects\"}";
+    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"groupId\":\"Honeywell\",\"version\":\"42\",\"description\":\"Repository for Connexo projects\"}";
     private static final String defaultSpacePayload = "{\"name\":\"Honeywell\",\"description\":\"Default Connexo organizational unit\",\"owner\":\"admin\",\"defaultGroupId\":\"Honeywell\"}";
-    private static final String defaultdeployPayload = "{\r\n \"release-id\":{\r\n \"group-id\":\"com.energyict\",\r\n \"artifact-id\":\"DeviceProcesses\",\r\n \"version\":\"2.8.1\"\r\n }\r\n}";
+    private static final String defaultDeployPayload = "'{'\r\n \"release-id\":'{'\r\n \"group-id\":\"{0}\",\r\n \"artifact-id\":\"{1}\",\r\n \"version\":\"{2}\"\r\n '}'\r\n'}'";
     private static final String spaceName = "Honeywell";
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         if ("installProcesses".equals(args[0])) {
             if (args.length != 5) {
                 System.out.println("Incorrect syntax. The following parameters are required:");
@@ -92,7 +88,7 @@ public class ProcessDeployer {
         String baseUrl = "/services/rest/server/containers/" + deploymentId;
         if (!doGetDeployment(arg + baseUrl, authString)) {
             String deployUrl = arg + baseUrl;
-            doPutAndWait(deployUrl, authString, defaultdeployPayload);
+            doPutAndWait(deployUrl, authString, MessageFormat.format(defaultDeployPayload, (Object[]) resolveGAV(deploymentId)));
         }
     }
 
@@ -130,10 +126,7 @@ public class ProcessDeployer {
             }
         }
 
-        if (responseCode == 404) {
-            return false;
-        }
-        return true;
+        return responseCode != 404;
     }
 
     private static boolean doPost(String url, String authString, File kjar) {
@@ -152,9 +145,10 @@ public class ProcessDeployer {
             OutputStream outputStream = httpConnection.getOutputStream();
             PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, "UTF-8"), true);
 
-            addField(writer, boundary,"groupId", "com.energyict");
-            addField(writer, boundary,"artifactId", "DeviceProcesses");
-            addField(writer, boundary,"version", "2.8.1");
+            String[] gav = resolveGAV(kjar);
+            addField(writer, boundary, "groupId", gav[0]);
+            addField(writer, boundary, "artifactId", gav[1]);
+            addField(writer, boundary, "version", gav[2]);
             addFile(writer, outputStream, boundary, "fileUploadElement", kjar);
 
             writer.flush();
@@ -175,10 +169,19 @@ public class ProcessDeployer {
             }
         }
 
-        if (responseCode == 404) {
-            return false;
-        }
-        return true;
+        return responseCode != 404;
+    }
+
+    private static String[] resolveGAV(File kjar) {
+        String groupPath = kjar.getAbsoluteFile().getParentFile().getParentFile().getParentFile().getAbsolutePath();
+        String group = groupPath.substring(groupPath.lastIndexOf("kie/") + 4).replace('/', '.');
+        String name = kjar.getName();
+        String[] artifactAndVersion = name.substring(0, name.lastIndexOf('.')).split("-");
+        return new String[]{group, artifactAndVersion[0], artifactAndVersion[1]};
+    }
+
+    private static String[] resolveGAV(String deploymentId) {
+        return deploymentId.split(":");
     }
 
     private static void addField(PrintWriter writer, String boundary, String name, String value) {
@@ -246,10 +249,7 @@ public class ProcessDeployer {
             }
         }
 
-        if (responseCode == 404) {
-            return false;
-        }
-        return true;
+        return responseCode != 404;
     }
 
     private static boolean doGetDeployment(String url, String authString) {
@@ -283,8 +283,8 @@ public class ProcessDeployer {
     }
 
     private static String readInputStreamToString(HttpURLConnection connection) {
-        String result = null;
-        StringBuffer sb = new StringBuffer();
+        String result;
+        StringBuilder sb = new StringBuilder();
         InputStream is = null;
 
         try {
@@ -340,7 +340,7 @@ public class ProcessDeployer {
         int timeout = 5 * 1000;
 
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (maxSteps != 0 && !result) {
             try {
                 maxSteps--;
                 Thread.sleep(timeout);
@@ -361,7 +361,7 @@ public class ProcessDeployer {
         int timeout = 5 * 1000;
 
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (maxSteps != 0 && !result) {
             try {
                 maxSteps--;
                 Thread.sleep(timeout);
@@ -382,7 +382,7 @@ public class ProcessDeployer {
         int timeout = 5 * 1000;
 
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (maxSteps != 0 && !result) {
             try {
                 maxSteps--;
                 Thread.sleep(timeout);
@@ -402,7 +402,7 @@ public class ProcessDeployer {
         int timeout = 5 * 1000;
 
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (maxSteps != 0 && !result) {
             try {
                 maxSteps--;
                 Thread.sleep(timeout);

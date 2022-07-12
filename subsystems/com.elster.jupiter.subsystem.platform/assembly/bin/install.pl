@@ -1,4 +1,10 @@
 #!/usr/bin/perl
+
+# To generate install.exe run this command
+# pp -o install.exe install.pl
+#
+## more info: https://metacpan.org/release/RSCHUPP/PAR-Packer-1.024/view/lib/pp.pm
+
 use strict;
 #use warnings;
 use Cwd;
@@ -33,7 +39,7 @@ my $renewdatabasepassword=0;
 my $updatetomcatappsheader=0;
 
 my $config_file="$CONNEXO_DIR/conf/config.properties";
-my $config_cmd="config.cmd";
+my $config_cmd="$SCRIPT_DIR/config.cmd";
 my $SERVICE_VERSION="";
 
 my $INSTALL_CONNEXO="yes";
@@ -81,8 +87,10 @@ my $CASE_MGMT="rhpam-7.8.0-case-mgmt-showcase-eap7-deployable";
 
 my $CONNEXO_ADMIN_ACCOUNT="admin";
 my $CONNEXO_ADMIN_PASSWORD;
-my $PAM_MANAGEMENT_ACCOUNT="pamadmin";
+my $TOMCAT_ADMIN_ACCOUNT="admin";
 my $TOMCAT_ADMIN_PASSWORD="D3moAdmin";
+my $PAM_MANAGEMENT_ACCOUNT="pamadmin";
+my $JBOSS_ADMIN_ACCOUNT="admin";
 my $JBOSS_ADMIN_PASSWORD="D3moAdmin";
 
 my $SSO_IDP_ENDPOINT;
@@ -246,51 +254,57 @@ sub read_config {
             chomp($row);
             if ( "$row" ne "") {
                 my @val=split('=',$row);
-                if ( "$val[0]" eq "JAVA_HOME" )                     {$JAVA_HOME=$val[1];}
-                if ( "$val[0]" eq "HOST_NAME" )                     {$HOST_NAME=$val[1];}
-                if ( "$val[0]" eq "ADMIN_PASSWORD" )                {$CONNEXO_ADMIN_PASSWORD=$val[1];}
-                if ( "$val[0]" eq "CONNEXO_HTTP_PORT" )             {$CONNEXO_HTTP_PORT=$val[1];}
-                if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )              {$TOMCAT_HTTP_PORT=$val[1];}
-                if ( "$val[0]" eq "JBOSS_HTTP_PORT" )               {$JBOSS_HTTP_PORT=$val[1];}
-                if ( "$val[0]" eq "SERVICE_VERSION" )               {$SERVICE_VERSION=$val[1];}
-                if ( "$val[0]" eq "INSTALL_CONNEXO" )               {$INSTALL_CONNEXO=$val[1];}
-                if ( "$val[0]" eq "UPGRADE" )                       {$UPGRADE=$val[1];}
-                if ( "$val[0]" eq "UPGRADE_PATH" )                  {$UPGRADE_PATH=$val[1];}
-                if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
-                if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )       {$ENCRYPTION_KEYFILE_PATH=$val[1]; $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;}
-                if ( "$val[0]" eq "SYSTEM_IDENTIFIER" )             {$SYSTEM_IDENTIFIER=$val[1];}
-                if ( "$val[0]" eq "SYSTEM_IDENTIFIER_COLOR" )       {$SYSTEM_IDENTIFIER_COLOR=$val[1];}
-                if ( "$val[0]" eq "INSTALL_FACTS" )                 {$INSTALL_FACTS=$val[1];}
-                if ( "$val[0]" eq "INSTALL_FLOW" )                  {$INSTALL_FLOW=$val[1];}
-                if ( "$val[0]" eq "ACTIVATE_SSO" )                  {$ACTIVATE_SSO=$val[1];}
-                if ( "$val[0]" eq "APACHE_PATH" )                   {$APACHE_PATH=$val[1];}
-                if ( "$val[0]" eq "HTTPS" )                         {$HTTPS=$val[1];}
-                if ( "$val[0]" eq "jdbcUrl" )                       {$jdbcUrl=$val[1];}
-                if ( "$val[0]" eq "dbUserName" )                    {$dbUserName=$val[1];}
-                if ( "$val[0]" eq "dbPassword" )                    {$dbPassword=$val[1];}
-                if ( "$val[0]" eq "ENABLE_AUDITING" )               {$ENABLE_AUDITING=$val[1];}
-                if ( "$val[0]" eq "ENABLE_PARTITIONING" )           {$ENABLE_PARTITIONING=$val[1];}
-                if ( "$val[0]" eq "CONNEXO_SERVICE" )               {$CONNEXO_SERVICE=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_HOST" )                 {$FACTS_DB_HOST=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_PORT" )                 {$FACTS_DB_PORT=$val[1];}
-                if ( "$val[0]" eq "FACTS_DB_NAME" )                 {$FACTS_DB_NAME=$val[1];}
-				if ( "$val[0]" eq "FACTS_DB_USE_SERVICE_NAME" )     {$FACTS_DB_USE_SERVICE_NAME=$val[1];}
-                if ( "$val[0]" eq "FACTS_DBUSER" )                  {$FACTS_DBUSER=$val[1];}
-                if ( "$val[0]" eq "FACTS_DBPASSWORD" )              {$FACTS_DBPASSWORD=$val[1];}
-                if ( "$val[0]" eq "FACTS_LICENSE" )                 {$FACTS_LICENSE=$val[1];}
-                if ( "$val[0]" eq "FLOW_JDBC_URL" )                 {$FLOW_JDBC_URL=$val[1];}
-                if ( "$val[0]" eq "FLOW_DB_USER" )                  {$FLOW_DB_USER=$val[1];}
-                if ( "$val[0]" eq "FLOW_DB_PASSWORD" )              {$FLOW_DB_PASSWORD=$val[1];}
-                if ( "$val[0]" eq "SSO_IDP_ENDPOINT" )              {$SSO_IDP_ENDPOINT=$val[1];}
-                if ( "$val[0]" eq "SSO_ACS_ENDPOINT" )              {$SSO_ACS_ENDPOINT=$val[1];}
-                if ( "$val[0]" eq "SSO_X509_CERTIFICATE" )          {$SSO_X509_CERTIFICATE=$val[1];}
-                if ( "$val[0]" eq "SSO_ADMIN_USER" )                {$SSO_ADMIN_USER=$val[1];}
-                if ( "$val[0]" eq "SSO_ENABLED" )                   {$SSO_ENABLED=$val[1];}
-				if ( "$val[0]" eq "SMTP_PASSWORD" )                   {$SMTP_PASSWORD=$val[1];}
-                if ( "$val[0]" eq "SMTP_HOST" )                   {$SMTP_HOST=$val[1];}
-                if ( "$val[0]" eq "SMTP_PORT" )                   {$SMTP_PORT=$val[1];}
-                if ( "$val[0]" eq "SMTP_USER" )                   {$SMTP_USER=$val[1];}
-                if ( "$val[0]" eq "SMTP_FROM" ) 				    {$SMTP_FROM=$val[1]}
+                if ( "$val[0]" eq "JAVA_HOME" )                                     {$JAVA_HOME=$val[1];}
+                if ( "$val[0]" eq "HOST_NAME" )                                     {$HOST_NAME=$val[1];}
+                if ( "$val[0]" eq "CONNEXO_ADMIN_ACCOUNT" && "$val[1]" ne "" )      {$CONNEXO_ADMIN_ACCOUNT=$val[1];}
+                if ( "$val[0]" eq "ADMIN_PASSWORD" && "$val[1]" ne "" )             {$CONNEXO_ADMIN_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "CONNEXO_ADMIN_PASSWORD" && "$val[1]" ne "" )     {$CONNEXO_ADMIN_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "TOMCAT_ADMIN_ACCOUNT" && "$val[1]" ne "" )       {$TOMCAT_ADMIN_ACCOUNT=$val[1];}
+                if ( "$val[0]" eq "TOMCAT_ADMIN_PASSWORD" && "$val[1]" ne "" )      {$TOMCAT_ADMIN_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "JBOSS_ADMIN_ACCOUNT" && "$val[1]" ne "" )        {$JBOSS_ADMIN_ACCOUNT=$val[1];}
+                if ( "$val[0]" eq "JBOSS_ADMIN_PASSWORD" && "$val[1]" ne "" )       {$JBOSS_ADMIN_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "CONNEXO_HTTP_PORT" )                             {$CONNEXO_HTTP_PORT=$val[1];}
+                if ( "$val[0]" eq "TOMCAT_HTTP_PORT" )                              {$TOMCAT_HTTP_PORT=$val[1];}
+                if ( "$val[0]" eq "JBOSS_HTTP_PORT" )                               {$JBOSS_HTTP_PORT=$val[1];}
+                if ( "$val[0]" eq "SERVICE_VERSION" )                               {$SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "INSTALL_CONNEXO" )                               {$INSTALL_CONNEXO=$val[1];}
+                if ( "$val[0]" eq "UPGRADE" )                                       {$UPGRADE=$val[1];}
+                if ( "$val[0]" eq "UPGRADE_PATH" )                                  {$UPGRADE_PATH=$val[1];}
+                if ( "$val[0]" eq "UPGRADE_OLD_SERVICE_VERSION" )                   {$UPGRADE_OLD_SERVICE_VERSION=$val[1];}
+                if ( "$val[0]" eq "ENCRYPTION_KEYFILE_PATH" )                       {$ENCRYPTION_KEYFILE_PATH=$val[1]; $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;}
+                if ( "$val[0]" eq "SYSTEM_IDENTIFIER" )                             {$SYSTEM_IDENTIFIER=$val[1];}
+                if ( "$val[0]" eq "SYSTEM_IDENTIFIER_COLOR" )                       {$SYSTEM_IDENTIFIER_COLOR=$val[1];}
+                if ( "$val[0]" eq "INSTALL_FACTS" )                                 {$INSTALL_FACTS=$val[1];}
+                if ( "$val[0]" eq "INSTALL_FLOW" )                                  {$INSTALL_FLOW=$val[1];}
+                if ( "$val[0]" eq "ACTIVATE_SSO" )                                  {$ACTIVATE_SSO=$val[1];}
+                if ( "$val[0]" eq "APACHE_PATH" )                                   {$APACHE_PATH=$val[1];}
+                if ( "$val[0]" eq "HTTPS" )                                         {$HTTPS=$val[1];}
+                if ( "$val[0]" eq "jdbcUrl" )                                       {$jdbcUrl=$val[1];}
+                if ( "$val[0]" eq "dbUserName" )                                    {$dbUserName=$val[1];}
+                if ( "$val[0]" eq "dbPassword" )                                    {$dbPassword=$val[1];}
+                if ( "$val[0]" eq "ENABLE_AUDITING" )                               {$ENABLE_AUDITING=$val[1];}
+                if ( "$val[0]" eq "ENABLE_PARTITIONING" )                           {$ENABLE_PARTITIONING=$val[1];}
+                if ( "$val[0]" eq "CONNEXO_SERVICE" )                               {$CONNEXO_SERVICE=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_HOST" )                                 {$FACTS_DB_HOST=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_PORT" )                                 {$FACTS_DB_PORT=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_NAME" )                                 {$FACTS_DB_NAME=$val[1];}
+                if ( "$val[0]" eq "FACTS_DB_USE_SERVICE_NAME" )                     {$FACTS_DB_USE_SERVICE_NAME=$val[1];}
+                if ( "$val[0]" eq "FACTS_DBUSER" )                                  {$FACTS_DBUSER=$val[1];}
+                if ( "$val[0]" eq "FACTS_DBPASSWORD" )                              {$FACTS_DBPASSWORD=$val[1];}
+                if ( "$val[0]" eq "FACTS_LICENSE" )                                 {$FACTS_LICENSE=$val[1];}
+                if ( "$val[0]" eq "FLOW_JDBC_URL" )                                 {$FLOW_JDBC_URL=$val[1];}
+                if ( "$val[0]" eq "FLOW_DB_USER" )                                  {$FLOW_DB_USER=$val[1];}
+                if ( "$val[0]" eq "FLOW_DB_PASSWORD" )                              {$FLOW_DB_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "SSO_IDP_ENDPOINT" )                              {$SSO_IDP_ENDPOINT=$val[1];}
+                if ( "$val[0]" eq "SSO_ACS_ENDPOINT" )                              {$SSO_ACS_ENDPOINT=$val[1];}
+                if ( "$val[0]" eq "SSO_X509_CERTIFICATE" )                          {$SSO_X509_CERTIFICATE=$val[1];}
+                if ( "$val[0]" eq "SSO_ADMIN_USER" )                                {$SSO_ADMIN_USER=$val[1];}
+                if ( "$val[0]" eq "SSO_ENABLED" )                                   {$SSO_ENABLED=$val[1];}
+                if ( "$val[0]" eq "SMTP_PASSWORD" )                                 {$SMTP_PASSWORD=$val[1];}
+                if ( "$val[0]" eq "SMTP_HOST" )                                     {$SMTP_HOST=$val[1];}
+                if ( "$val[0]" eq "SMTP_PORT" )                                     {$SMTP_PORT=$val[1];}
+                if ( "$val[0]" eq "SMTP_USER" )                                     {$SMTP_USER=$val[1];}
+                if ( "$val[0]" eq "SMTP_FROM" )                                     {$SMTP_FROM=$val[1]}
             }
         }
         close($FH);
@@ -309,8 +323,22 @@ sub read_config {
         print "Please enter the hostname (leave empty to use the system variable: $HOST_NAME): ";
         chomp($HOST_NAME=<STDIN>);
         while (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
-            print "Please enter the admin password (different from \"admin\"): ";
+            print "Please enter the Connexo admin password (different from \"admin\"): ";
             chomp($CONNEXO_ADMIN_PASSWORD=<STDIN>);
+        }
+        while (("$TOMCAT_ADMIN_PASSWORD" eq "") || ("$TOMCAT_ADMIN_PASSWORD" eq "admin")) {
+            print "Please enter the Tomcat admin password (different from \"admin\") or keep empty to reuse Connexo admin password: ";
+            chomp($TOMCAT_ADMIN_PASSWORD=<STDIN>);
+            if ("$TOMCAT_ADMIN_PASSWORD" eq "") {
+                $TOMCAT_ADMIN_PASSWORD=$CONNEXO_ADMIN_PASSWORD;
+            }
+        }
+        while (("$JBOSS_ADMIN_PASSWORD" eq "") || ("$JBOSS_ADMIN_PASSWORD" eq "admin")) {
+            print "Please enter the JBoss admin password (different from \"admin\") or keep empty to reuse Connexo admin password: ";
+            chomp($JBOSS_ADMIN_PASSWORD=<STDIN>);
+            if ("$JBOSS_ADMIN_PASSWORD" eq "") {
+                $JBOSS_ADMIN_PASSWORD=$CONNEXO_ADMIN_PASSWORD;
+            }
         }
         print "Are you performing an upgrade of an existing installation: (yes/no) ";
         chomp($UPGRADE=<STDIN>);
@@ -350,7 +378,7 @@ sub read_config {
             chomp($FACTS_DB_PORT=<STDIN>);
             print "Please enter the oracle database name for Facts: ";
             chomp($FACTS_DB_NAME=<STDIN>);
-			print "Will the connection to the oracle database use service name instead of SID? (yes/no): ";
+            print "Will the connection to the oracle database use service name instead of SID? (yes/no): ";
             chomp($FACTS_DB_USE_SERVICE_NAME=<STDIN>);
             print "Please enter the database user for Facts: ";
             chomp($FACTS_DBUSER=<STDIN>);
@@ -425,7 +453,15 @@ sub read_config {
         $HOST_NAME=hostname;
     }
     if (("$CONNEXO_ADMIN_PASSWORD" eq "") || ("$CONNEXO_ADMIN_PASSWORD" eq "admin")) {
-        print "Please provide an admin password (different from \"admin\")\n";
+-       print "Please provide a Connexo admin password (different from \"admin\")\n";
+        exit (0);
+    }
+    if (("$TOMCAT_ADMIN_PASSWORD" eq "") || ("$TOMCAT_ADMIN_PASSWORD" eq "admin")) {
+        print "Please provide a Tomcat admin password (different from \"admin\")\n";
+        exit (0);
+    }
+    if (("$JBOSS_ADMIN_PASSWORD" eq "") || ("$JBOSS_ADMIN_PASSWORD" eq "admin")) {
+        print "Please provide a JBoss admin password (different from \"admin\")\n";
         exit (0);
     }
     $KEYFILE_FULLPATH= join("/",$ENCRYPTION_KEYFILE_PATH,$KEY_FILE);
@@ -600,10 +636,6 @@ sub install_connexo {
 	} else {
 			print "\n\nSkip installation of Connexo\n";
 	}
-	    replace_row_in_file($config_cmd, "dbPassword=", "set dbPassword=");
-		replace_row_in_file($config_cmd, "SMTP_PASSWORD=", "set SMTP_PASSWORD=");
-		replace_row_in_file($config_cmd, "ADMIN_PASSWORD=", "set ADMIN_PASSWORD=");
-
 }
 
 sub update_properties_file_with_encrypted_password {
@@ -637,13 +669,12 @@ sub update_properties_file_with_encrypted_password {
 
     my $encryptedPassword = $cipher->encrypt($dbPassword);
     my $base64EncodedPassword = encode_base64($encryptedPassword);
-	my $mailEncryptedPassword = $cipher->encrypt($SMTP_PASSWORD);
+    my $mailEncryptedPassword = $cipher->encrypt($SMTP_PASSWORD);
     my $mailBase64EncodedPassword = encode_base64($mailEncryptedPassword);
     replace_row_in_file($config_file,"com.elster.jupiter.datasource.jdbcpassword=","");
     add_to_file_if($config_file,"com.elster.jupiter.datasource.jdbcpassword=$base64EncodedPassword");
-	replace_row_in_file($config_file,"mail.password=","");
+    replace_row_in_file($config_file,"mail.password=","");
     add_to_file_if($config_file,"mail.password=$mailBase64EncodedPassword");
-
 }
 
 sub add_or_update_encryption_key_file{
@@ -675,9 +706,9 @@ sub install_tomcat {
 		print "==========================================================================\n";
 
 		if ("$ACTIVATE_SSO" eq "yes") {
-			$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
+			$ENV{JvmArgs}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
 		} else {
-			$ENV{JVM_OPTIONS}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dcom.elster.jupiter.url=$CONNEXO_URL;-Dcom.elster.jupiter.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dcom.elster.jupiter.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
+			$ENV{JvmArgs}="-Dorg.uberfire.nio.git.ssh.port=$TOMCAT_SSH_PORT;-Dorg.uberfire.nio.git.daemon.port=$TOMCAT_DAEMON_PORT;-Dport.shutdown=$TOMCAT_SHUTDOWN_PORT;-Dport.http=$TOMCAT_HTTP_PORT;-Dflow.url=$FLOW_URL;-Dconnexo.url=$CONNEXO_URL;-Dconnexo.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dconnexo.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dcom.elster.jupiter.url=$CONNEXO_URL;-Dcom.elster.jupiter.user=\"$CONNEXO_ADMIN_ACCOUNT\";-Dcom.elster.jupiter.password=\"$CONNEXO_ADMIN_PASSWORD\";-Dbtm.root=\"$CATALINA_HOME\";-Dbitronix.tm.configuration=\"$CATALINA_HOME/conf/btm-config.properties\";-Djbpm.tsr.jndi.lookup=java:comp/env/TransactionSynchronizationRegistry;-Dorg.kie.demo=false;-Dorg.kie.example=false;-Dconnexo.configuration=\"$CATALINA_HOME/conf/connexo.properties\";-Dorg.jboss.logging.provider=slf4j;-Dorg.uberfire.nio.git.ssh.algorithm=RSA";
 		}
 
 		chdir "$TOMCAT_BASE";
@@ -712,7 +743,7 @@ sub install_tomcat {
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"user\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"manager\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
 		replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/tomcat-users.xml","password=\"tomcat\"","password=\"$TOMCAT_ADMIN_PASSWORD\"");
-        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=AshareTransactionConnectionspache Tomcat 9.0 ","set DISPLAYNAME=");
+        replace_in_file("$TOMCAT_BASE/$TOMCAT_DIR/bin/service.bat","set DISPLAYNAME=Apache Tomcat 9.0 ","set DISPLAYNAME=");
         add_to_file("$TOMCAT_BASE/$TOMCAT_DIR/conf/btm-config.properties", "\nbitronix.tm.2pc.warnAboutZeroResourceTransactions=false");
 
         unlink("$CATALINA_HOME/lib/slf4j-simple-1.7.5.jar");
@@ -788,8 +819,7 @@ sub install_tomcat {
             add_to_file($catalina, "com.elster.jupiter.user=$replaceACCOUNT");
             add_to_file($catalina, "com.elster.jupiter.password=$replacePASSWORD");
         }
-
-	}
+    }
 }
 
 sub install_jboss {
@@ -826,13 +856,13 @@ sub install_jboss {
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/bin/jboss-cli.bat","set \"JAVA_HOME=C\"","set \"JAVA_HOME=$JAVA_HOME\"");
         if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             system("add-user.bat -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
-            system("add-user.bat -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("add-user.bat -a -r ApplicationRealm -u \"$JBOSS_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
             system("add-user.bat -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
         } else {
             system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/vault.sh");
             system("chmod +x $JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh");
             system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -r ManagementRealm -u \"$PAM_MANAGEMENT_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -g PowerUser,BillingAdmin --silent");
-            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$CONNEXO_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
+            system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u \"$JBOSS_ADMIN_ACCOUNT\" -p \"$JBOSS_ADMIN_PASSWORD\" -ro analyst,admin,manager,user,kie-server,kiemgmt,rest-all,Administrators --silent");
             system("$JBOSS_BASE/$JBOSS_DIR/bin/add-user.sh -a -r ApplicationRealm -u controllerUser -p \"$JBOSS_ADMIN_PASSWORD\" -ro kie-server,rest-all --silent");
         }
 
@@ -880,8 +910,8 @@ sub install_jboss {
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"com.elster.jupiter.user\" value=\"\"/>","<property name=\"com.elster.jupiter.user\" value=\"$replaceACCOUNT\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.location\" value=\"http://localhost:8080/kie-server/services/rest/server\"/>","<property name=\"org.kie.server.location\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server/services/rest/server\"/>");
         replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller\" value=\"http://localhost:8080/business-central/rest/controller\"/>","<property name=\"org.kie.server.controller\" value=\"http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central/rest/controller\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.user\" value=\"\"/>","<property name=\"org.kie.server.controller.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
-        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.user\" value=\"\"/>","<property name=\"org.kie.server.user\" value=\"$CONNEXO_ADMIN_ACCOUNT\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.controller.user\" value=\"\"/>","<property name=\"org.kie.server.controller.user\" value=\"$JBOSS_ADMIN_ACCOUNT\"/>");
+        replace_in_file("$JBOSS_BASE/$JBOSS_DIR/standalone/configuration/standalone.xml","<property name=\"org.kie.server.user\" value=\"\"/>","<property name=\"org.kie.server.user\" value=\"$JBOSS_ADMIN_ACCOUNT\"/>");
 
         add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","");
         add_to_file("$STANDALONE_HOME/standalone/configuration/connexo.properties","com.elster.jupiter.user=$CONNEXO_ADMIN_ACCOUNT");
@@ -989,8 +1019,8 @@ sub install_facts {
 		$FACTS_BASE_REPL=~s{\\}{\\\\}g;
 		open(my $FH,">> $FACTS_TEMP_PROPERTIES") or die "Could not open $FACTS_TEMP_PROPERTIES: $!";
 		print $FH "\n";
-		print $FH "action.adminuser.username=$CONNEXO_ADMIN_ACCOUNT\n";
-		print $FH "action.adminuser.password=$CONNEXO_ADMIN_PASSWORD\n";
+		print $FH "action.adminuser.username=$TOMCAT_ADMIN_ACCOUNT\n";
+		print $FH "action.adminuser.password=$TOMCAT_ADMIN_PASSWORD\n";
 		print $FH "option.licencefile=$INSTALLER_LICENSE_REPL\n";
 		print $FH "option.db.hostname=$FACTS_DB_HOST\n";
 		print $FH "option.db.port=$FACTS_DB_PORT\n";
@@ -1046,8 +1076,8 @@ sub install_facts {
 
         add_to_file_if($config_file,"\n#Facts");
         add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
-        add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
-        add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
+        add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$TOMCAT_ADMIN_ACCOUNT");
+        add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$TOMCAT_ADMIN_PASSWORD");
 		if ("$ACTIVATE_SSO" eq "yes") {
             add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=https://$HOST_NAME/facts/");
         }
@@ -1122,8 +1152,8 @@ sub install_flow {
         unlink("$CATALINA_HOME/webapps/flow/WEB-INF/lib/log4j-over-slf4j-1.7.2.jar");
         print "Copying extra jar files\n";
         if (-e "$CONNEXO_DIR/partners/flow/jbpm.extension.jar") {
-              print "    $CONNEXO_DIR/partners/flow/jbpm.extension.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/jbpm.extension.jar\n";
-        copy("$CONNEXO_DIR/partners/flow/jbpm.extension.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/jbpm.extension.jar");
+            print "    $CONNEXO_DIR/partners/flow/jbpm.extension.jar -> $JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/jbpm.extension.jar\n";
+            copy("$CONNEXO_DIR/partners/flow/jbpm.extension.jar","$JBOSS_BASE/$JBOSS_DIR/standalone/deployments/kie-server.war/WEB-INF/lib/jbpm.extension.jar");
         }
 
         create_tables();
@@ -1140,7 +1170,7 @@ sub install_flow {
         } else {
             add_to_file_if($config_file,"\n#Flow");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server");
-            add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
+            add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$JBOSS_ADMIN_ACCOUNT");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$JBOSS_ADMIN_PASSWORD");
             add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central");
         }
@@ -1485,9 +1515,7 @@ sub start_tomcat_service {
     if ("$INSTALL_FACTS" eq "yes") {
         print "\n\nStarting Apache Tomcat ...\n";
         print "==========================================================================\n";
-        if ("$INSTALL_FACTS" eq "yes") {
-            copy("$CONNEXO_DIR/partners/flow/resources.properties", "$CATALINA_HOME/conf/resources.properties");
-        }
+        copy("$CONNEXO_DIR/partners/flow/resources.properties", "$CATALINA_HOME/conf/resources.properties");
         if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
             system("sc config \"ConnexoTomcat$SERVICE_VERSION\"  start= delayed-auto");
             system("sc failure \"ConnexoTomcat$SERVICE_VERSION\" actions= restart/10000/restart/10000/\"\"/10000 reset= 86400");
@@ -1563,11 +1591,7 @@ sub start_tomcat {
 			}
 
 			chdir "$CONNEXO_DIR";
-			if ("$ACTIVATE_SSO" eq "yes") {
-                postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
-            } else {
-                postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $CONNEXO_ADMIN_ACCOUNT $CONNEXO_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
-            }
+            postCall("\"$JAVA_HOME/bin/java\" -cp \"$CONNEXO_DIR/partners/facts/yellowfin.installer.jar\" com.elster.jupiter.install.reports.OpenReports datasource.xml http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts $TOMCAT_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD" , "Installing Connexo Facts content failed");
 			unlink("$CONNEXO_DIR/datasource.xml");
 		}
 	}
@@ -1635,49 +1659,60 @@ sub start_jboss {
         chdir "$JBOSS_BASE/$JBOSS_DIR/bin";
         start_jboss_service();
 
-		if ("$INSTALL_FLOW" eq "yes") {
-        	print "\nInstalling Connexo Flow content...\n";
-            chdir "$CONNEXO_DIR";
-            print "Changing directory to $CONNEXO_DIR\n";
-            # using JBOSS password here because the filters should not be active yet if SSO is used
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createSpace $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
-            sleep 5;
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
+        print "\nInstalling Connexo Flow content...\n";
+        chdir "$CONNEXO_DIR";
+        print "Changing directory to $CONNEXO_DIR\n";
+        # using JBOSS password here because the filters should not be active yet if SSO is used
+        postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createSpace $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
+        sleep 5;
+        postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
 
-            print "\nCopy processes to repository...\n";
-            print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/mdc/kie/com/energyict/DeviceProcesses/2.8.1/DeviceProcesses-2.8.1.jar\n";
-            postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/mdc/kie/com/energyict/DeviceProcesses/2.8.1/DeviceProcesses-2.8.1.jar", "Installing Connexo Flow content failed");
-
-            print "\nDeploy MDC processes...\n";
-            my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
-            if(-e $mdcfile){
-               open(INPUT, $mdcfile);
-               my $line;
-               while($line = <INPUT>){
-                 chomp($line);
-                 my ($name,$deploymentid)  = split(';', $line);
-                 print "Deploying: $name\n";
-                 postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($name) failed");
-                 sleep 2;
-               }
-               close(INPUT);
+        print "\nDeploy MDC processes...\n";
+        my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
+        if(-e $mdcfile){
+            open(INPUT, $mdcfile);
+            my $line;
+            my %kjars;
+            while($line = <INPUT>){
+                chomp($line);
+                my ($name,$deploymentid) = split(';', $line);
+                if (not $kjars{$deploymentid}){
+                    $kjars{$deploymentid} = 1;
+                    my ($path,$id,$version) = split(':', $deploymentid);
+                    $path =~ s/\./\//g;
+                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/mdc/kie/$path/$id/$version/$id-$version.jar\n";
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/mdc/kie/$path/$id/$version/$id-$version.jar", "Installing Connexo Flow content failed");
+                    print "Deploying: $deploymentid\n";
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($deploymentid) failed");
+                }
+                sleep 2;
             }
-
-            #print "\nDeploy INSIGHT processes...\n";
-            #my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
-            #if(-e $insightfile){
-            #open(INPUT, $insightfile);
-            #my $line = <INPUT>; # header
-            #while($line = <INPUT>){
-               #chomp($line);
-               #my ($name,$deploymentid)  = split(';', $line);
-               #print "Deploying: $name\n";
-               #postCall("\"$JAVA_HOME/bin/java\" -cp \"lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $CONNEXO_ADMIN_ACCOUNT $TOMCAT_ADMIN_PASSWORD http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow $deploymentid",  "Installing Connexo Flow content ($name) failed");
-               #sleep 2;
-            #}
-            #close(INPUT);
+            close(INPUT);
         }
-	}
+
+        print "\nDeploy INSIGHT processes...\n";
+        my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
+        if(-e $insightfile){
+            open(INPUT, $insightfile);
+            my $line;
+            my %kjars;
+            while($line = <INPUT>){
+                chomp($line);
+                my ($name,$deploymentid) = split(';', $line);
+                if (not $kjars{$deploymentid}){
+                    $kjars{$deploymentid} = 1;
+                    my ($path,$id,$version) = split(':', $deploymentid);
+                    $path =~ s/\./\//g;
+                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/insight/kie/$path/$id/$version/$id-$version.jar\n";
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/insight/kie/$path/$id/$version/$id-$version.jar", "Installing Connexo Flow content failed");
+                    print "Deploying: $deploymentid\n";
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($deploymentid) failed");
+                }
+                sleep 2;
+            }
+            close(INPUT);
+        }
+    }
 }
 
 sub final_steps {
@@ -1695,18 +1730,17 @@ sub final_steps {
         print "3. Start Apache HTTP 2.4 service:\n";
         print "   -> sc start Apache2.4\n";
     }
-
 }
 
 sub replace_row_in_file {
 	my ($filename,$src,$dst)=@_;
-	open (IN,"$filename") or die "Cannot open file ".$filename." for read";
+	open (IN,"$filename") or die "Cannot open file ".$filename." for reading";
 	my @lines=<IN>;
 	close IN;
 
-	open (OUT,">","$filename") or die "Cannot open file ".$filename." for write";
+	open (OUT,">","$filename") or die "Cannot open file ".$filename." for writing";
 	foreach my $line (@lines) {
-	if ($line =~ m/$src/) { print OUT "\n"; print OUT $dst; print OUT "\n"; next;}
+	if ($line =~ m/$src/) { print OUT $dst; print OUT "\n"; next;}
 	print OUT $line;
 	}
 	close OUT;
@@ -2087,8 +2121,8 @@ sub perform_upgrade {
             if ("$INSTALL_FACTS" eq "yes") {
                 add_to_file_if($config_file,"\n#Facts");
                 add_to_file_if($config_file,"com.elster.jupiter.yellowfin.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/facts");
-                add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$CONNEXO_ADMIN_ACCOUNT");
-                add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$CONNEXO_ADMIN_PASSWORD");
+                add_to_file_if($config_file,"com.elster.jupiter.yellowfin.user=$TOMCAT_ADMIN_ACCOUNT");
+                add_to_file_if($config_file,"com.elster.jupiter.yellowfin.password=$TOMCAT_ADMIN_PASSWORD");
                 if ("$ACTIVATE_SSO" eq "yes") {
                     add_to_file_if($config_file,"com.elster.jupiter.yellowfin.externalurl=https://$HOST_NAME/facts/");
                 }
@@ -2104,8 +2138,8 @@ sub perform_upgrade {
                     add_to_file_if($config_file,"\n#Flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.url=http://$HOST_NAME:$TOMCAT_HTTP_PORT/flow");
                     add_to_file_if($config_file,"com.elster.jupiter.bpm.externalurl=https://$HOST_NAME/flow");
-                    add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$CONNEXO_ADMIN_ACCOUNT");
-                    add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$TOMCAT_ADMIN_PASSWORD");
+                    add_to_file_if($config_file,"com.elster.jupiter.bpm.user=$JBOSS_ADMIN_ACCOUNT");
+                    add_to_file_if($config_file,"com.elster.jupiter.bpm.password=$JBOSS_ADMIN_PASSWORD");
                 }
             }
             add_to_file_if($config_file,"upgrade=true");
@@ -2249,68 +2283,66 @@ sub update_tomcat_apps_header {
 }
 
 sub renew_db_password {
-print "Please enter the Connexo database password: ";
+    print "Please enter the Connexo database password: ";
     chomp($dbPassword=<STDIN>);
     $dbPassword=~ s/^\s+|\s+$//g;
     if($dbPassword eq ""){
-    die "Please provide a non-empty database password";
+        die "Please provide a non-empty database password";
     }
-print "Please enter the encryption key file path (if empty will use the one defined in the config file): ";
+    print "Please enter the encryption key file path (if empty will use the one defined in the config file): ";
     chomp($ENCRYPTION_KEYFILE_PATH=<STDIN>);
     if($ENCRYPTION_KEYFILE_PATH) {
         $ENCRYPTION_KEYFILE_PATH =~ s|\\|/|g;
         $KEYFILE_FULLPATH= join("/",$ENCRYPTION_KEYFILE_PATH,$KEY_FILE);
     } else {
-               open(my $FH,"< $config_file") or die "Could not open $config_file: $!";
-               my $kf ='com.elster.jupiter.datasource.keyfile';
-                   while(<$FH>) {
-
-                       my $line = $_ if ($_ =~ m/$kf/);
-                        if ( $line ne "") {
-                            my @val=split('=',$line);
-                            if ( $val[1] ne "" ) {
-                                $KEYFILE_FULLPATH=$val[1];
-                                $KEYFILE_FULLPATH=~ s|\\|/|g;
-                                $KEYFILE_FULLPATH=~ s/^\s+|\s+$//g;
-                                last;
-                                }
-                            }
-                    }
-                close($FH);
+       open(my $FH,"< $config_file") or die "Could not open $config_file: $!";
+       my $kf ='com.elster.jupiter.datasource.keyfile';
+       while(<$FH>) {
+           my $line = $_ if ($_ =~ m/$kf/);
+            if ( $line ne "") {
+                my @val=split('=',$line);
+                if ( $val[1] ne "" ) {
+                    $KEYFILE_FULLPATH=$val[1];
+                    $KEYFILE_FULLPATH=~ s|\\|/|g;
+                    $KEYFILE_FULLPATH=~ s/^\s+|\s+$//g;
+                    last;
+                }
+            }
+        }
+        close($FH);
     }
-update_properties_file_with_encrypted_password();
+    update_properties_file_with_encrypted_password();
 
-  if ("$CONNEXO_SERVICE" eq "yes") {
+    if ("$CONNEXO_SERVICE" eq "yes") {
       print "Stopping Connexo services\n";
       if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
           system("sc stop Connexo$SERVICE_VERSION");
           my $STATE_STRING="-1";
-  		while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
-  			sleep 3;
+          while (($STATE_STRING ne "0") && ($STATE_STRING ne "1")) {
+              sleep 3;
               $STATE_STRING=(`sc query Connexo$SERVICE_VERSION`);
               $STATE_STRING =~ s/.*(STATE\s*:\s\d).*/$1/sg;
               $STATE_STRING =~ s/.*: //g;
               $STATE_STRING = $STATE_STRING*1;
-  		}
+          }
       } else {
           system("/sbin/service Connexo$SERVICE_VERSION stop");
       }
 
       print "Starting Connexo...";
       start_connexo();
-  }
-
+    }
 }
 
 sub enable_sso{
-	print "Enabling SSO properties ...";
-	if($SSO_ENABLED eq "true"){
-                add_to_file_if($config_file,"sso.enabled=$SSO_ENABLED");
-                add_to_file_if($config_file,"sso.idp.endpoint=$SSO_IDP_ENDPOINT");
-                add_to_file_if($config_file,"sso.acs.endpoint=$SSO_ACS_ENDPOINT");
-                add_to_file_if($config_file,"sso.x509.certificate=$SSO_X509_CERTIFICATE");
-                add_to_file_if($config_file,"sso.admin.user=$SSO_ADMIN_USER");
-            }
+    print "Enabling SSO properties ...";
+    if($SSO_ENABLED eq "true"){
+        add_to_file_if($config_file,"sso.enabled=$SSO_ENABLED");
+        add_to_file_if($config_file,"sso.idp.endpoint=$SSO_IDP_ENDPOINT");
+        add_to_file_if($config_file,"sso.acs.endpoint=$SSO_ACS_ENDPOINT");
+        add_to_file_if($config_file,"sso.x509.certificate=$SSO_X509_CERTIFICATE");
+        add_to_file_if($config_file,"sso.admin.user=$SSO_ADMIN_USER");
+    }
 }
 
 # Main
@@ -2328,11 +2360,11 @@ read_args();
 if ($help) {
     show_help();
 }elsif($renewdatabasepassword){
-        renew_db_password();
+    renew_db_password();
 }elsif($updatetomcatappsheader){
-        update_tomcat_apps_header();
+    update_tomcat_apps_header();
 }elsif ($install) {
-	read_config();
+    read_config();
     if ("$UPGRADE" eq "yes") {
         perform_upgrade();
     } else {
@@ -2351,9 +2383,17 @@ if ($help) {
         restart_jboss_service();
         final_steps();
     }
+    replace_row_in_file($config_cmd, "dbPassword=", "set dbPassword=");
+    replace_row_in_file($config_cmd, "SMTP_PASSWORD=", "set SMTP_PASSWORD=");
+    replace_row_in_file($config_cmd, " ADMIN_PASSWORD=", "set ADMIN_PASSWORD=");
+    replace_row_in_file($config_cmd, "CONNEXO_ADMIN_PASSWORD=", "set CONNEXO_ADMIN_PASSWORD=");
+    replace_row_in_file($config_cmd, "TOMCAT_ADMIN_PASSWORD=", "set TOMCAT_ADMIN_PASSWORD=");
+    replace_row_in_file($config_cmd, "JBOSS_ADMIN_PASSWORD=", "set JBOSS_ADMIN_PASSWORD=");
+    replace_row_in_file($config_cmd, "FACTS_DBPASSWORD=", "set FACTS_DBPASSWORD=");
+    replace_row_in_file($config_cmd, "FLOW_DB_PASSWORD=", "set FLOW_DB_PASSWORD=");
 } else {
-	read_uninstall_config();
-	uninstall_all();
+    read_uninstall_config();
+    uninstall_all();
 }
 chdir "$CURRENT_DIR";
 print "\n\n,----------------------------------------------------------,\n";
