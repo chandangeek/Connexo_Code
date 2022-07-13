@@ -5,17 +5,17 @@
         <server>
             <id>eict-releases</id>
             <username>cxo_artifactory</username>
-            <password>APAUcihyRUdguiihvcgfaWbFQNQ</password>
+            <password>APDeQj7xukp5Audcm4ASoEtkuq</password>
         </server>
         <server>
             <id>eict-snapshots</id>
             <username>cxo_artifactory</username>
-            <password>APAUcihyRUdguiihvcgfaWbFQNQ</password>
+            <password>APDeQj7xukp5Audcm4ASoEtkuq</password>
         </server>
         <server>
             <id>eict-third-party</id>
             <username>cxo_artifactory</username>
-            <password>APAUcihyRUdguiihvcgfaWbFQNQ</password>
+            <password>APDeQj7xukp5Audcm4ASoEtkuq</password>
         </server>
 
     </servers>
