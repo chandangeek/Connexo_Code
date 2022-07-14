@@ -315,7 +315,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 if (comTaskExecution.getConnectionTask().isPresent()) {
                     ConnectionStrategy connectionStrategy = ((ScheduledConnectionTask) comTaskExecution.getConnectionTask().get()).getConnectionStrategy();
                     if (comTaskExecution.getConnectionTask().get().isActive()
-                            && !campaign.getValidationConnectionStrategy().map(cs -> cs != connectionStrategy).isPresent()) {
+                            && !campaign.getValidationConnectionStrategy().filter(cs -> cs != connectionStrategy).isPresent()) {
                         comTaskExecution.schedule(when);
                     } else {
                         if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {

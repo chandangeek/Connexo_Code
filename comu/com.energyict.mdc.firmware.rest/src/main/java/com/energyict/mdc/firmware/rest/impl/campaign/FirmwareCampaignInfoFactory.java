@@ -192,8 +192,8 @@ public class FirmwareCampaignInfoFactory {
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
                 .withFirmwareUploadComTaskId(info.firmwareUploadComTask == null ? null : ((Number) info.firmwareUploadComTask.id).longValue())
                 .withValidationComTaskId(info.validationComTask == null ? null : ((Number) info.validationComTask.id).longValue())
-                .withFirmwareUploadConnectionStrategy(info.firmwareUploadConnectionStrategy == null ? null : info.firmwareUploadConnectionStrategy.name)
-                .withValidationConnectionStrategy(info.validationConnectionStrategy == null ? null : info.validationConnectionStrategy.name)
+                .withFirmwareUploadConnectionStrategy(Optional.ofNullable(info.firmwareUploadConnectionStrategy).map(IdWithNameInfo::getId).map(Object::toString).orElse(null))
+                .withValidationConnectionStrategy(Optional.ofNullable(info.validationConnectionStrategy).map(IdWithNameInfo::getId).map(Object::toString).orElse(null))
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
                 .withUniqueFirmwareVersion(info.withUniqueFirmwareVersion);
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);
