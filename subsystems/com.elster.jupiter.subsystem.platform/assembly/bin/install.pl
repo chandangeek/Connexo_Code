@@ -1667,7 +1667,7 @@ sub start_jboss {
         sleep 5;
         postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer createRepository $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central", "Installing Connexo Flow content failed");
 
-        print "\nDeploy MDC processes...\n";
+        print "\nInstalling MDC processes...\n";
         my $mdcfile = "$CONNEXO_DIR/partners/flow/mdc/processes.csv";
         if(-e $mdcfile){
             open(INPUT, $mdcfile);
@@ -1680,17 +1680,15 @@ sub start_jboss {
                     $kjars{$deploymentid} = 1;
                     my ($path,$id,$version) = split(':', $deploymentid);
                     $path =~ s/\./\//g;
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/mdc/kie/$path/$id/$version/$id-$version.jar\n";
                     postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/mdc/kie/$path/$id/$version/$id-$version.jar", "Installing Connexo Flow content failed");
-                    print "Deploying: $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($deploymentid) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $deploymentid", "Installing Connexo Flow content ($deploymentid) failed");
                 }
                 sleep 2;
             }
             close(INPUT);
         }
 
-        print "\nDeploy INSIGHT processes...\n";
+        print "\nInstalling MDM processes...\n";
         my $insightfile = "$CONNEXO_DIR/partners/flow/insight/processes.csv";
         if(-e $insightfile){
             open(INPUT, $insightfile);
@@ -1703,10 +1701,8 @@ sub start_jboss {
                     $kjars{$deploymentid} = 1;
                     my ($path,$id,$version) = split(':', $deploymentid);
                     $path =~ s/\./\//g;
-                    print "Calling:\t\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/insight/kie/$path/$id/$version/$id-$version.jar\n";
                     postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer installProcesses $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $CONNEXO_DIR/partners/flow/insight/kie/$path/$id/$version/$id-$version.jar", "Installing Connexo Flow content failed");
-                    print "Deploying: $deploymentid\n";
-                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/kie-server $deploymentid", "Installing Connexo Flow content ($deploymentid) failed");
+                    postCall("\"$JAVA_HOME/bin/java\" -cp \"partners/flow/lib/*${CLASSPATH_SEPARATOR}partners/jboss/standalone/deployments/business-central.war/WEB-INF/lib/*${CLASSPATH_SEPARATOR}lib/com.elster.jupiter.installer.util.jar\" com.elster.jupiter.installer.util.ProcessDeployer deployProcess $JBOSS_ADMIN_ACCOUNT $JBOSS_ADMIN_PASSWORD http://$HOST_NAME:$JBOSS_HTTP_PORT/business-central $deploymentid", "Installing Connexo Flow content ($deploymentid) failed");
                 }
                 sleep 2;
             }
