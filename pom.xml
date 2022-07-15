@@ -52,6 +52,7 @@
         <pmd.version>3.14.0</pmd.version>
         <maven-checkstyle.version>3.1.2</maven-checkstyle.version>
         <checkstyle.version>8.45.1</checkstyle.version>
+        <log4j.version>2.17.1</log4j.version>
         <offline.copy.skip>false</offline.copy.skip>
     </properties>
 
@@ -97,7 +98,7 @@
         <pluginRepository>
             <id>eict-plugins</id>
             <name>EnergyICT plugin repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-third-party-maven-stable-local/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -108,7 +109,7 @@
         <pluginRepository>
             <id>eict-plugins-snapshots</id>
             <name>EnergyICT plugin repository</name>
-            <url>https://artifactory-na.honeywell.com:443/artifactory/connexosnapshot-maven-stable-local/</url>
+            <url>https://artifactory-na.honeywell.com:443/artifactory/connexo-third-party-maven-stable-local/</url>
             <releases>
                 <enabled>false</enabled>
             </releases>
@@ -153,14 +154,12 @@
 
     <!-- Distribution management. -->
     <distributionManagement>
-        <!--  TODO:  This should be replaced with Artifactory  -->
         <repository>
             <id>eict-releases</id>
             <name>EnergyICT releases repository</name>
             <url>https://artifactory-na.honeywell.com:443/artifactory/connexorelease-maven-stable-local/</url>
         </repository>
 
-        <!--  TODO:  This should be replaced with Artifactory  -->
         <snapshotRepository>
             <id>eict-snapshots</id>
             <name>EnergyICT snapshots repository</name>
