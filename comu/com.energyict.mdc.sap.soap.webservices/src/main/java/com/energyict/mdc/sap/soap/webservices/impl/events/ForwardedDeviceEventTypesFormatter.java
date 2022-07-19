@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.sap.soap.custom.eventhandlers;
+package com.energyict.mdc.sap.soap.webservices.impl.events;
 
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Logger;
 
-class ForwardedDeviceEventTypesFormatter {
+public class ForwardedDeviceEventTypesFormatter {
     private static final Logger LOGGER = Logger.getLogger(ForwardedDeviceEventTypesFormatter.class.getName());
     private final Map<String, SAPDeviceEventType> forwardedEventTypesByEventCode = new HashMap<>();
     private final Map<String, SAPDeviceEventType> forwardedEventTypesByDeviceEventCode = new HashMap<>();
@@ -33,7 +33,7 @@ class ForwardedDeviceEventTypesFormatter {
     private final SAPCustomPropertySets sapCustomPropertySets;
     private boolean disablePropertyTag = true;
 
-    ForwardedDeviceEventTypesFormatter(SAPCustomPropertySets sapCustomPropertySets) {
+    public ForwardedDeviceEventTypesFormatter(SAPCustomPropertySets sapCustomPropertySets) {
         this.sapCustomPropertySets = sapCustomPropertySets;
     }
 
@@ -55,7 +55,7 @@ class ForwardedDeviceEventTypesFormatter {
                 || eventType.getDeviceEventCode().filter(forwardedEventTypesByDeviceEventCode::containsKey).isPresent();
     }
 
-    Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt> filterAndFormat(EndDeviceEventRecord eventRecord) {
+    public Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt> filterAndFormat(EndDeviceEventRecord eventRecord) {
         SAPDeviceEventType eventType = forwardedEventTypesByEventCode.get(eventRecord.getEventTypeCode());
         if (eventType == null) {
             eventType = forwardedEventTypesByDeviceEventCode.get(eventRecord.getDeviceEventType());

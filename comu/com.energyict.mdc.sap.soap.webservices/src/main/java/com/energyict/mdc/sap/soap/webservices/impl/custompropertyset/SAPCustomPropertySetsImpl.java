@@ -344,9 +344,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
     @Override
     public Optional<Channel> getChannel(String lrn, Instant when) {
         return Stream.<Supplier<Optional<Pair<Long, ReadingType>>>>of(
-                () -> getChannelIdentification(lrn, when),
-                () -> getRegisterIdentification(lrn, when)
-        )
+                        () -> getChannelIdentification(lrn, when),
+                        () -> getRegisterIdentification(lrn, when)
+                )
                 .map(Supplier::get)
                 .filter(Optional::isPresent)
                 .findFirst()
@@ -418,9 +418,9 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
     public void truncateCpsInterval(Device device, String lrn, Instant endDate) {
         Optional<Pair<Object, RegisteredCustomPropertySet>> dataSource = Stream.<Supplier<Optional<Pair<Object, RegisteredCustomPropertySet>>>>of(
-                () -> getChannelCps(device.getId(), lrn, endDate),
-                () -> getRegisterCps(device.getId(), lrn, endDate)
-        )
+                        () -> getChannelCps(device.getId(), lrn, endDate),
+                        () -> getRegisterCps(device.getId(), lrn, endDate)
+                )
                 .map(Supplier::get)
                 .filter(Optional::isPresent)
                 .findFirst()
@@ -1066,6 +1066,24 @@ public class SAPCustomPropertySetsImpl implements MessageSeedProvider, Translati
 
             setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
         }
+    }
+
+    @Override
+    public boolean isPushEventsToSapFlagSet(EndDevice endDevice) {
+        Subquery deviceSubquery = getDataModel(DeviceDataServices.COMPONENT_NAME)
+                .query(Device.class)
+                .asSubquery(Where.where("meter").isEqualTo(endDevice), "id");
+        return getDataModel(DeviceSAPInfoCustomPropertySet.MODEL_NAME)
+                .stream(DeviceSAPInfoDomainExtension.class)
+                .anyMatch(ListOperator.IN.contains(deviceSubquery, DeviceSAPInfoDomainExtension.FieldNames.DOMAIN.javaName())
+                        .and(Where.where(DeviceSAPInfoDomainExtension.FieldNames.PUSH_EVENTS_TO_SAP.javaName()).isEqualTo(true)));
+    }
+
+    @Override
+    public void setPushEventsToSapFlag(Device device, boolean pushEventsToSap) {
+        lockDeviceTypeOrThrowException(device.getDeviceType());
+        Device lockedDevice = lockDeviceOrThrowException(device.getId());
+        setDeviceCPSProperty(lockedDevice, DeviceSAPInfoDomainExtension.FieldNames.PUSH_EVENTS_TO_SAP.javaName(), pushEventsToSap);
     }
 
     private Optional<Instant> getFirstActiveLrnStartDate(long deviceId, Instant now) {

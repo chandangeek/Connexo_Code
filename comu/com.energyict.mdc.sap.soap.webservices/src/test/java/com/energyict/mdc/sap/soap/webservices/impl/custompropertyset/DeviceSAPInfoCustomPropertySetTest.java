@@ -117,7 +117,7 @@ public class DeviceSAPInfoCustomPropertySetTest extends AbstractCustomPropertySe
         Table table = mock(Table.class, withSettings().defaultAnswer(Mockito.RETURNS_DEEP_STUBS));
         persistenceSupport.addCustomPropertyColumnsTo(table, null);
 
-        verify(table, times(13)).column(anyString());
+        verify(table, times(14)).column(anyString());
     }
 
     @Test
