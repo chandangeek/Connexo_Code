@@ -5451,7 +5451,7 @@ FWC;REST;general.confirm;Bestätigen
 FWC;REST;general.connectionMethodStrategy;Strategie der Verbindungsmethode
 FWC;REST;general.connectionStrategy.asSoonAsPossible;So bald wie möglich
 FWC;REST;general.connectionStrategy.minimizeConnections;Verbindungen minimieren
-FWC;REST;general.deprecate;Depreciate Comment: pending question
+FWC;REST;general.deprecate;Veralten
 FWC;REST;general.details;Details
 FWC;REST;general.deviceGroup;Gerätegruppe
 FWC;REST;general.devices;Geräte
