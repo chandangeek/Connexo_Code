@@ -36,7 +36,7 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXmlParsing;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
-import com.energyict.protocolimplv2.messages.DisplayDeviceParametersMessage;
+import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -73,6 +73,7 @@ public class ACE6000Messages extends ProtocolMessages  {
     private static final String WRITE_VOLTAGE_AND_CURRENT_RATIOS = "Write voltage and current ratios";
     private static final String BILLINGRESET = RtuMessageConstant.BILLINGRESET;
     private static final String BILLINGRESET_DISPLAY = "Billing reset";
+    private static final String DISPLAY_END_OF_TEXT_STRING_EMPTY_PLACEHOLDER = "<space>";
 
     private final ACE6000 protocol;
     private final TariffCalendarExtractor tariffCalendarExtractor;
@@ -97,34 +98,37 @@ public class ACE6000Messages extends ProtocolMessages  {
     @Override
     public MessageResult queryMessage(MessageEntry messageEntry) throws IOException {
         try {
-            if (isItThisMessage(messageEntry, TimeOfUseMessageBuilder.getMessageNodeTag())) {
-                infoLog("Sending TimeOfUse message.");
-                updateTimeOfUse(messageEntry);
-                infoLog("TimeOfUse message successful");
-                return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent() != null) {
-                if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
+            if (messageEntry.getContent() != null) {
+                if (isItThisMessage(messageEntry, TimeOfUseMessageBuilder.getMessageNodeTag())) {
+                    infoLog("Sending TimeOfUse message.");
+                    updateTimeOfUse(messageEntry);
+                    infoLog("TimeOfUse message successful");
+                    return MessageResult.createSuccess(messageEntry);
+                } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
                     return writeActivityCalendar(messageEntry);
                 } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_SPECIAL_DAYS)) {
                     return writeSpecialDays(messageEntry);
                 } else if (messageEntry.getContent().contains(RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
                     return write12LinesInActivityCalendar(messageEntry);
-                } else if (isItThisMessage(messageEntry, DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS.toString())) {
-                    infoLog(String.format("Sending %s message.", DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS));
+                } else if (messageEntry.getContent().contains(SET_DISPLAY_MESSAGE_TAG)) {
+                    doWriteMessageToDisplay(getContentBetweenTags(SET_DISPLAY_MESSAGE_TAG, messageEntry.getContent()));
+                    return MessageResult.createSuccess(messageEntry);
+                } else if (isItThisMessage(messageEntry, DisplayDeviceMessage.DISPLAY_GENERAL_PARAMETERS.toString())) {
+                    infoLog(String.format("Sending %s message.", DisplayDeviceMessage.DISPLAY_GENERAL_PARAMETERS));
                     displayGeneralParameters(messageEntry);
-                    infoLog(String.format("%s message succesfull.", DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS));
+                    infoLog(String.format("%s message succesfull.", DisplayDeviceMessage.DISPLAY_GENERAL_PARAMETERS));
                     return MessageResult.createSuccess(messageEntry);
-                } else if (isItThisMessage(messageEntry, DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS.toString())) {
-                    infoLog(String.format("Sending %s message.", DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS));
+                } else if (isItThisMessage(messageEntry, DisplayDeviceMessage.DISPLAY_READOUT_TABLE_PARAMETERS.toString())) {
+                    infoLog(String.format("Sending %s message.", DisplayDeviceMessage.DISPLAY_READOUT_TABLE_PARAMETERS));
                     displayReadoutTableParameters(messageEntry);
-                    infoLog(String.format("%s message succesfull.", DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS));
+                    infoLog(String.format("%s message succesfull.", DisplayDeviceMessage.DISPLAY_READOUT_TABLE_PARAMETERS));
                     return MessageResult.createSuccess(messageEntry);
-                } else if (messageEntry.getContent().contains(BILLINGRESET)) {
-                    infoLog("Sending message Billing reset.");
-                    this.protocol.billingReset();
-                    infoLog("Billing reset message successful.");
+                } else if (isItThisMessage(messageEntry, RtuMessageConstant.DEMAND_RESET)) {
+                    infoLog("Sending message DemandReset.");
+                    this.protocol.resetDemand();
+                    infoLog("DemandReset message successful.");
                     return MessageResult.createSuccess(messageEntry);
-                } else if (messageEntry.getContent().contains(VoltageRatioDenominatorAttributeName)) {
+                } else if (messageEntry.getContent().contains(VOLTAGE_AND_CURRENT_PARAMS)) {
                     infoLog("Sending " + WRITE_VOLTAGE_AND_CURRENT_RATIOS + " message.");
                     setWriteVoltageAndCurrentRatios(getContentBetweenTags(VOLTAGE_AND_CURRENT_PARAMS, messageEntry.getContent()));
                     infoLog(WRITE_VOLTAGE_AND_CURRENT_RATIOS + " message successful");
@@ -252,7 +256,11 @@ public class ACE6000Messages extends ProtocolMessages  {
         structure.addDataType(new Unsigned8(Integer.parseInt(getContentBetweenTags(DeviceMessageConstants.Display_Off_TimeOut, messageEntry.getContent()))));
         structure.addDataType(new Unsigned8(Integer.parseInt(getContentBetweenTags(DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Normal_Mode, messageEntry.getContent()))));
         structure.addDataType(new BooleanObject(Boolean.parseBoolean(getContentBetweenTags(DeviceMessageConstants.DisplayExistence_Of_EndOfText, messageEntry.getContent()))));
-        structure.addDataType(new VisibleString(getContentBetweenTags(DeviceMessageConstants.DisplayEndOfTextString, messageEntry.getContent()), 8));
+        String displayEndOfTextString = getContentBetweenTags(DeviceMessageConstants.DisplayEndOfTextString, messageEntry.getContent());
+        if (displayEndOfTextString.equals(DISPLAY_END_OF_TEXT_STRING_EMPTY_PLACEHOLDER)) {
+            displayEndOfTextString = " ";
+        }
+        structure.addDataType(new VisibleString(displayEndOfTextString, 8));
         structure.addDataType(new Unsigned8(Integer.parseInt(getContentBetweenTags(DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Altmode1, messageEntry.getContent()))));
         structure.addDataType(new Unsigned8(Integer.parseInt(getContentBetweenTags(DeviceMessageConstants.DisplayNb_DisplayedHisto_Sets_Altmode2, messageEntry.getContent()))));
         structure.addDataType(new Unsigned8(Integer.parseInt(getContentBetweenTags(DeviceMessageConstants.DisplayTimeout_For_AltMode, messageEntry.getContent()))));
@@ -433,6 +441,19 @@ public class ACE6000Messages extends ProtocolMessages  {
      */
     private void infoLog(String messageToLog) {
         this.protocol.getLogger().info(messageToLog);
+    }
+
+    /**
+     * This command sends a message onto the display of the meter. This message
+     * has the highest priority. This means that all other messages are
+     * overwritten by this message in scrollmode.
+     *
+     * @param message The message to show on the LCD of the device
+     * @throws IOException
+     */
+    public void doWriteMessageToDisplay(String message) throws IOException {
+        ACE6000DisplayController displayController = new ACE6000DisplayController(protocol);
+        displayController.writeMessage(message);
     }
 
     private static String getContentBetweenTags(String tagName, String content) throws ProtocolException {
