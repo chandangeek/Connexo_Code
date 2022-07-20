@@ -18,6 +18,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
@@ -25,6 +26,7 @@ import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 import com.google.inject.Injector;
 import org.osgi.service.event.EventConstants;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -128,6 +130,20 @@ public class DataCollectionEventHandler implements MessageHandler {
     private void createEventsBasedOnDescription(List<IssueEvent> events, Map<?, ?> map, EventDescription description, Device device) {
         for (Map<?, ?> mapForSingleEvent : description.splitEvents(map)) {
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
+
+            if (description.getName().equalsIgnoreCase(DataCollectionResolveEventDescription.CONNECTION_LOST_AUTO_RESOLVE.getName())) {
+
+                LOG.info("[CONM2772]UNABLE_TO_CONNECT_AUTO_RESOLVE event received for device");
+                LOG.info("[CONM2772]Fetching events for device...");
+                List<DataCollectionEventMetadata> eventsForDevice = getExistingEventsForDevice(device);
+
+                eventsForDevice.forEach(eventMetaData -> {
+                    LOG.info("[CONM2772]Deleting existing event : " + eventMetaData.getEventType() +
+                            ", event creation time : " + eventMetaData.getCreateDateTime().atZone(ZoneId.systemDefault()) + "...");
+                    eventMetaData.delete();
+                });
+            }
+
             try {
                 dcEvent.wrap(mapForSingleEvent, description, device);
                 if (description.validateEvent(dcEvent)) {
@@ -138,6 +154,23 @@ public class DataCollectionEventHandler implements MessageHandler {
                 LOG.severe(e.getMessage());
             }
         }
+    }
+
+    private List<DataCollectionEventMetadata> getExistingEventsForDevice(Device device){
+        List<DataCollectionEventMetadata> eventsForDevice = null;
+
+        try {
+            eventsForDevice = issueDataCollectionService.getDataCollectionEventsForDevice(device);
+            LOG.info("[CONM2772]############################# Existing events for device : (" + device.getId() + device.getName() + ") count is : " + eventsForDevice.size());
+            eventsForDevice.forEach(eventMetaData ->
+                    LOG.info("[CONM2772]############################# Existing events type : " + eventMetaData.getEventType() + ", device id : "+ eventMetaData.getDevice().getId() +
+                            ", event creation time : " + eventMetaData.getCreateDateTime().atZone(ZoneId.systemDefault()))
+            );
+        } catch(Exception e) {
+            LOG.severe(e.getMessage());
+        }
+
+        return eventsForDevice;
     }
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {

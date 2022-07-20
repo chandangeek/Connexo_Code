@@ -252,6 +252,7 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
 
     // Used in rule engine
     public boolean checkOccurrenceConditions(final String relativePeriodWithCount, final String triggeringEndDeviceEventTypes) {
+        LOG.log(Level.INFO, "[CONM2772](++)checkOccurrenceConditions");
         final List<String> relativePeriodWithCountValues = parseRawInputToList(relativePeriodWithCount, COLON_SEPARATOR);
 
         final int eventCountThreshold = Integer.parseInt(relativePeriodWithCountValues.get(0));
@@ -273,20 +274,40 @@ public abstract class DataCollectionEvent implements IssueEvent, OccurrenceCondi
         final Range<ZonedDateTime> closedInterval = relativePeriod.get().getClosedZonedInterval(clock.instant().atZone(clock.getZone()).with(LocalTime.now()));
         final List<DataCollectionEventMetadata> dataCollectionEvents = issueDataCollectionService.getDataCollectionEventsForDeviceWithinTimePeriod(device, closedInterval);
 
+        LOG.log(Level.INFO, "[CONM2772]Threshold : {0}", eventCountThreshold);
+        LOG.log(Level.INFO, "[CONM2772]Device id : {0}", device.getId());
+        LOG.log(Level.INFO, "[CONM2772]Device name : {0}", device.getName());
+        LOG.log(Level.INFO, "[CONM2772]closed interval range : {0}", closedInterval.toString());
+
+        for (DataCollectionEventMetadata event : dataCollectionEvents) {
+            LOG.log(Level.INFO, "[CONM2772]=======> event time : {0}", event.getCreateDateTime().atZone(clock.getZone()));
+            LOG.log(Level.INFO, "[CONM2772]=======> event type : {0}", event.getEventType());
+        }
+
         int counter = 0;
         for (DataCollectionEventMetadata event : dataCollectionEvents) {
             if (event.getEventType().equals(this.getIssueResolvingEvent().getName())) {
+                LOG.log(Level.INFO, "[CONM2772]Incoming event type : {0}", event.getEventType());
+                LOG.log(Level.INFO, "[CONM2772](-)checkOccurrenceConditions");
                 return false;
             } else if (event.getEventType().equals(this.getIssueCausingEvent().getName())) {
+                LOG.log(Level.INFO, "[CONM2772]Counter case event type : {0}", event.getEventType());
                 if (closedInterval.contains(event.getCreateDateTime().atZone(clock.getZone()))) {
+                    LOG.log(Level.INFO, "[CONM2772]-------> event creation time : {0}", event.getCreateDateTime().atZone(clock.getZone()));
                     counter++;
                 }
             }
 
+            LOG.log(Level.INFO, "[CONM2772]-------> counter : {0}", counter);
+
             if (counter >= eventCountThreshold) {
+                LOG.log(Level.INFO, "[CONM2772]-------> counter is >= threshold : {0}", eventCountThreshold);
+                LOG.log(Level.INFO, "[CONM2772](--)checkOccurrenceConditions");
                 return true;
             }
         }
+
+        LOG.log(Level.INFO, "[CONM2772]Default exit.(---)checkOccurrenceConditions");
         return false;
     }
 
