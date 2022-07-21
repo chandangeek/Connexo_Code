@@ -40,7 +40,7 @@ public class OpenReports {
             System.out.println("Incorrect syntax. The following parameters are required:");
             System.out.println("path -- path to the reports xml file to import");
             System.out.println("url -- url to the Connexo Facts installation");
-            System.out.println("user -- a Conenxo Facts user with administrative privileges");
+            System.out.println("user -- a Connexo Facts user with administrative privileges");
             System.out.println("password -- password for the provided user");
             return;
         }

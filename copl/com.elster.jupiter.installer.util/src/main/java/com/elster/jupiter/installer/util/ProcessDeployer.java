@@ -4,12 +4,10 @@
 
 package com.elster.jupiter.installer.util;
 
-
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -19,23 +17,33 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.StandardCharsets;
+import java.text.MessageFormat;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Main class to deploy the predefined processes during Connexo install
  */
 public class ProcessDeployer {
+    private static final String LINE = "\r\n";
+    private static final String DEFAULT_REPO_PAYLOAD = "{\"name\":\"Connexo\",\"groupId\":\"Honeywell\",\"version\":\"42\",\"description\":\"Repository for Connexo projects\"}";
+    private static final String DEFAULT_SPACE_PAYLOAD = "{\"name\":\"Honeywell\",\"description\":\"Default Connexo organizational unit\",\"owner\":\"admin\",\"defaultGroupId\":\"Honeywell\"}";
+    private static final String DEFAULT_DEPLOYMENT_PAYLOAD = "'{'\"container-id\":\"{0}\",\"container-name\":\"\"," +
+            "\"release-id\":'{'\"group-id\":\"{1}\",\"artifact-id\":\"{2}\",\"version\":\"{3}\"'}'," +
+            "\"configuration\":'{'" +
+            "\"RULE\":'{'\"org.kie.server.controller.api.model.spec.RuleConfig\":'{'\"pollInterval\":null,\"scannerStatus\":\"STOPPED\"'}' '}'," +
+            "\"PROCESS\":'{'\"org.kie.server.controller.api.model.spec.ProcessConfig\":'{'\"runtimeStrategy\":\"SINGLETON\",\"kbase\":\"\",\"ksession\":\"\",\"mergeMode\":\"MERGE_COLLECTIONS\"'}' '}'" +
+            " '}'," +
+            "\"status\":\"STARTED\"'}'";
+    private static final String SPACE_NAME = "Honeywell";
+    private static final int MAX_ATTEMPTS = 5;
+    private static final int TIMEOUT = 5000;
+    private static final Logger logger = Logger.getLogger(ProcessDeployer.class.getName());
 
-
-    final static String LINE = "\r\n";
-    private static final String defaultRepoPayload = "{\"name\":\"Connexo\",\"groupId\":\"Honeywell\",\"version\":\"2.8.1\",\"description\":\"Repository for Connexo projects\"}";
-    private static final String defaultSpacePayload = "{\"name\":\"Honeywell\",\"description\":\"Default Connexo organizational unit\",\"owner\":\"admin\",\"defaultGroupId\":\"Honeywell\"}";
-    private static final String defaultdeployPayload = "{\r\n \"release-id\":{\r\n \"group-id\":\"com.energyict\",\r\n \"artifact-id\":\"DeviceProcesses\",\r\n \"version\":\"2.8.1\"\r\n }\r\n}";
-    private static final String spaceName = "Honeywell";
-
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         if ("installProcesses".equals(args[0])) {
             if (args.length != 5) {
                 System.out.println("Incorrect syntax. The following parameters are required:");
@@ -61,10 +69,10 @@ public class ProcessDeployer {
 
         String authString = "Basic " + new String(Base64.getEncoder().encode((args[1] + ":" + args[2]).getBytes()));
         if (args[0].equals("createRepository")) {
-            createRepository(args[3], authString, defaultRepoPayload);
+            createRepository(args[3], authString, DEFAULT_REPO_PAYLOAD);
         }
         if (args[0].equals("createSpace")) {
-            createSpace(args[3], authString, defaultSpacePayload);
+            createSpace(args[3], authString, DEFAULT_SPACE_PAYLOAD);
         }
         if (args[0].equals("deployProcess")) {
             deployProcess(args[4], args[3], authString);
@@ -72,7 +80,7 @@ public class ProcessDeployer {
     }
 
     private static void createRepository(String arg, String authString, String payload) {
-        String url = arg + "/rest/spaces/"+spaceName+"/projects";
+        String url = arg + "/rest/spaces/"+ SPACE_NAME +"/projects";
         doPostAndWait(url, authString, payload);
     }
 
@@ -85,14 +93,16 @@ public class ProcessDeployer {
     private static void createSpace(String arg, String authString, String payload) {
         String url = arg + "/rest/spaces/";
         doPostAndWait(url, authString, payload);
-        doVerify(url + spaceName, authString);
+        doVerify(url + SPACE_NAME, authString);
     }
 
     private static void deployProcess(String deploymentId, String arg, String authString) {
-        String baseUrl = "/services/rest/server/containers/" + deploymentId;
+        String baseUrl = "/rest/controller/management/servers/default-kieserver/containers/" + deploymentId;
         if (!doGetDeployment(arg + baseUrl, authString)) {
-            String deployUrl = arg + baseUrl;
-            doPutAndWait(deployUrl, authString, defaultdeployPayload);
+            logger.info("Deploying " + deploymentId + "...");
+            String[] gav = resolveGAV(deploymentId);
+            String payload = MessageFormat.format(DEFAULT_DEPLOYMENT_PAYLOAD, deploymentId, gav[0], gav[1], gav[2]);
+            doPutAndWait(arg + baseUrl, authString, payload);
         }
     }
 
@@ -109,7 +119,7 @@ public class ProcessDeployer {
 
             if (payload != null && !payload.isEmpty()) {
                 httpConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-                OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(), "UTF-8");
+                OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(), StandardCharsets.UTF_8);
                 outWriter.write(payload);
                 outWriter.close();
             } else {
@@ -123,17 +133,13 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("POST call to Connexo REST API failed.", e);
+            throw new RuntimeException("POST call to Flow REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
         }
-
-        if (responseCode == 404) {
-            return false;
-        }
-        return true;
+        return responseCode != 404;
     }
 
     private static boolean doPost(String url, String authString, File kjar) {
@@ -148,13 +154,13 @@ public class ProcessDeployer {
             httpConnection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
             httpConnection.setRequestProperty("Authorization", authString);
 
-
             OutputStream outputStream = httpConnection.getOutputStream();
-            PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, "UTF-8"), true);
+            PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
 
-            addField(writer, boundary,"groupId", "com.energyict");
-            addField(writer, boundary,"artifactId", "DeviceProcesses");
-            addField(writer, boundary,"version", "2.8.1");
+            String[] gav = resolveGAV(kjar);
+            addField(writer, boundary, "groupId", gav[0]);
+            addField(writer, boundary, "artifactId", gav[1]);
+            addField(writer, boundary, "version", gav[2]);
             addFile(writer, outputStream, boundary, "fileUploadElement", kjar);
 
             writer.flush();
@@ -168,17 +174,25 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("POST call to Connexo REST API failed.", e);
+            throw new RuntimeException("POST call to Flow REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
         }
+        return responseCode != 404;
+    }
 
-        if (responseCode == 404) {
-            return false;
-        }
-        return true;
+    private static String[] resolveGAV(File kjar) {
+        String groupPath = kjar.getAbsoluteFile().getParentFile().getParentFile().getParentFile().getAbsolutePath();
+        String group = groupPath.substring(groupPath.lastIndexOf("kie/") + 4).replace('/', '.');
+        String name = kjar.getName();
+        String[] artifactAndVersion = name.substring(0, name.lastIndexOf('.')).split("-");
+        return new String[]{group, artifactAndVersion[0], artifactAndVersion[1]};
+    }
+
+    private static String[] resolveGAV(String deploymentId) {
+        return deploymentId.split(":");
     }
 
     private static void addField(PrintWriter writer, String boundary, String name, String value) {
@@ -225,7 +239,7 @@ public class ProcessDeployer {
 
             if (payload != null && !payload.isEmpty()) {
                 httpConnection.setRequestProperty("Content-Type", "application/json;charset=UTF-8");
-                OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(), "UTF-8");
+                OutputStreamWriter outWriter = new OutputStreamWriter(httpConnection.getOutputStream(), StandardCharsets.UTF_8);
                 outWriter.write(payload);
                 outWriter.close();
             } else {
@@ -239,17 +253,13 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("PUT call to Connexo REST API failed.", e);
+            throw new RuntimeException("PUT call to Flow REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
             }
         }
-
-        if (responseCode == 404) {
-            return false;
-        }
-        return true;
+        return responseCode != 404;
     }
 
     private static boolean doGetDeployment(String url, String authString) {
@@ -273,7 +283,7 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("GET deployment call to Connexo REST API failed.", e);
+            throw new RuntimeException("GET deployment call to Flow REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
@@ -283,8 +293,8 @@ public class ProcessDeployer {
     }
 
     private static String readInputStreamToString(HttpURLConnection connection) {
-        String result = null;
-        StringBuffer sb = new StringBuffer();
+        String result;
+        StringBuilder sb = new StringBuilder();
         InputStream is = null;
 
         try {
@@ -296,17 +306,16 @@ public class ProcessDeployer {
             }
             result = sb.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Failed reading response from Connexo REST API.", e);
+            throw new RuntimeException("Failed reading response from Flow REST API.", e);
         } finally {
             if (is != null) {
                 try {
                     is.close();
                 } catch (IOException e) {
-                    throw new RuntimeException("Failed closing the connection to Connexo REST API.", e);
+                    throw new RuntimeException("Failed closing the connection to Flow REST API.", e);
                 }
             }
         }
-
         return result;
     }
 
@@ -326,7 +335,7 @@ public class ProcessDeployer {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("GET call to Connexo REST API failed.", e);
+            throw new RuntimeException("GET call to Flow REST API failed.", e);
         } finally {
             if (httpConnection != null) {
                 httpConnection.disconnect();
@@ -336,85 +345,84 @@ public class ProcessDeployer {
     }
 
     private static void doVerify(String url, String authString) {
-        int maxSteps = 12;
-        int timeout = 5 * 1000;
-
+        int remainingAttempts = MAX_ATTEMPTS;
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (remainingAttempts != 0 && !result) {
             try {
-                maxSteps--;
-                Thread.sleep(timeout);
+                remainingAttempts--;
+                Thread.sleep(TIMEOUT);
                 result = doGet(url, authString);
+                logger.info("successfully verified: " + result);
             } catch (RuntimeException e) {
-                if (maxSteps == 0) {
+                if (remainingAttempts == 0) {
                     throw e;
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-
     }
 
     private static void doPostAndWait(String url, String authString, String payload) {
-        int maxSteps = 12;
-        int timeout = 5 * 1000;
-
+        int remainingAttempts = MAX_ATTEMPTS;
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (remainingAttempts != 0 && !result) {
             try {
-                maxSteps--;
-                Thread.sleep(timeout);
+                remainingAttempts--;
+                logger.info("try " + (MAX_ATTEMPTS - remainingAttempts));
+                Thread.sleep(TIMEOUT);
                 result = doPost(url, authString, payload);
+                logger.info("success: " + result);
             } catch (RuntimeException e) {
-                if (maxSteps == 0) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+                if (remainingAttempts == 0) {
                     throw e;
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-
     }
 
     private static void doPostAndWait(String url, String authString, File f) {
-        int maxSteps = 12;
-        int timeout = 5 * 1000;
-
+        int remainingAttempts = MAX_ATTEMPTS;
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (remainingAttempts != 0 && !result) {
             try {
-                maxSteps--;
-                Thread.sleep(timeout);
+                remainingAttempts--;
+                logger.info("try " + (MAX_ATTEMPTS - remainingAttempts));
+                Thread.sleep(TIMEOUT);
                 result = doPost(url, authString, f);
+                logger.info("success: " + result);
             } catch (RuntimeException e) {
-                if (maxSteps == 0) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+                if (remainingAttempts == 0) {
                     throw e;
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-
     }
-    private static void doPutAndWait(String url, String authString, String payload) {
-        int maxSteps = 12;
-        int timeout = 5 * 1000;
 
+    private static void doPutAndWait(String url, String authString, String payload) {
+        int remainingAttempts = MAX_ATTEMPTS;
         boolean result = false;
-        while ((maxSteps != 0) && (result == false)) {
+        while (remainingAttempts != 0 && !result) {
             try {
-                maxSteps--;
-                Thread.sleep(timeout);
+                remainingAttempts--;
+                logger.info("try " + (MAX_ATTEMPTS - remainingAttempts));
+                Thread.sleep(TIMEOUT);
                 result = doPUT(url, authString, payload);
+                logger.info("success: " + result);
             } catch (RuntimeException e) {
-                if (maxSteps == 0) {
+                logger.log(Level.WARNING, e.getMessage(), e);
+                if (remainingAttempts == 0) {
                     throw e;
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }
         }
-
     }
 }

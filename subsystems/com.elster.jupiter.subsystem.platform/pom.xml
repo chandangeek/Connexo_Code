@@ -502,14 +502,6 @@
                     <version>10.7.2</version>
                     <scope>provided</scope>
                 </dependency>
-                <!-- Packaged jBPM stuff  -->
-                <dependency>
-                    <groupId>com.elster.jupiter.thirdparty.apps.flow</groupId>
-                    <artifactId>flow</artifactId>
-                    <version>10.2</version>
-                    <type>war</type>
-                    <scope>provided</scope>
-                </dependency>
                 <!-- Packaged RedHat PAM stuff  -->
                 <dependency>
                     <groupId>com.elster.jupiter.thirdparty.apps.pam</groupId>
