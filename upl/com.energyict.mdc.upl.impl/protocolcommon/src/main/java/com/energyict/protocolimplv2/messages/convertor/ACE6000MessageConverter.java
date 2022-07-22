@@ -12,7 +12,6 @@ import com.energyict.protocolimpl.messages.RtuMessageConstant;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.DisplayDeviceMessage;
-import com.energyict.protocolimplv2.messages.DisplayDeviceParametersMessage;
 import com.energyict.protocolimplv2.messages.PowerConfigurationDeviceMessage;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.MultipleInnerTagsMessageEntry;
 import com.energyict.protocolimplv2.messages.convertor.messageentrycreators.general.SimpleTagMessageEntry;
@@ -99,7 +98,7 @@ public class ACE6000MessageConverter extends AbstractMessageConverter {
             TariffCalendar calender = (TariffCalendar) messageAttribute;
             return tariffCalendarExtractor.id(calender) + TimeOfUseMessageEntry.SEPARATOR + convertCodeTableToXML(calender, tariffCalendarExtractor); //The ID and the XML representation of the code table, separated by a |
         }
-        return EMPTY_FORMAT;
+        return messageAttribute.toString();
     }
 
     protected Map<DeviceMessageSpec, MessageEntryCreator> getRegistry() {
@@ -111,8 +110,8 @@ public class ACE6000MessageConverter extends AbstractMessageConverter {
                 .put(messageSpec(DisplayDeviceMessage.SET_DISPLAY_MESSAGE), new SetDisplayMessageEntry(DisplayMessageAttributeName))
                 //EOB reset messages
                 .put(messageSpec(DeviceActionMessage.DEMAND_RESET), new SimpleTagMessageEntry(RtuMessageConstant.DEMAND_RESET, false))
-                .put(messageSpec(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS),
-                    new MultipleInnerTagsMessageEntry(DisplayDeviceParametersMessage.DISPLAY_GENERAL_PARAMETERS.toString(),
+                .put(messageSpec(DisplayDeviceMessage.DISPLAY_GENERAL_PARAMETERS),
+                    new MultipleInnerTagsMessageEntry(DisplayDeviceMessage.DISPLAY_GENERAL_PARAMETERS.toString(),
                         DisplayLeadingZero, DisplayBacklight,
                         DisplayEOB_Confirm, DisplayString_EOB_Confirm,
                         DisplaySeparators_Display, DisplayTime_Format,
@@ -123,8 +122,8 @@ public class ACE6000MessageConverter extends AbstractMessageConverter {
                         DisplayNb_DisplayedHisto_Sets_Altmode2, DisplayTimeout_For_AltMode,
                         DisplayAutorized_EOB, DisplayTimeout_Load_Profile,
                         Displaying_Of_LPMenus, Display_ButtonEmulation_By_Optical_Head))
-                .put(messageSpec(DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS),
-                    new MultipleInnerTagsMessageEntry(DisplayDeviceParametersMessage.DISPLAY_READOUT_TABLE_PARAMETERS.toString(),
+                .put(messageSpec(DisplayDeviceMessage.DISPLAY_READOUT_TABLE_PARAMETERS),
+                    new MultipleInnerTagsMessageEntry(DisplayDeviceMessage.DISPLAY_READOUT_TABLE_PARAMETERS.toString(),
                         DisplayInternal_Identifier, DisplaySequence_Indicator,
                         DisplayIdentification_Code, DisplayScaler,
                         DisplayNumber_Of_Decimal, DisplayNumber_Of_Display_Historical_Data,
