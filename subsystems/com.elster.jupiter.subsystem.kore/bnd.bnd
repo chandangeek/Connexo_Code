@@ -1,7 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.subsystem.kore.impl
-Embed-Dependency: \
-    groupId=com.elster.jupiter;artifactId=kore;type=pom,\
-    groupId=com.elster.jupiter;artifactId=platform;type=pom,\
-    groupId=com.elster.jupiter.subsystem;artifactId=platform;type=pom
+Include-Resource: target/dependency,{maven-resources}

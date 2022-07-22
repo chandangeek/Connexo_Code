@@ -2,12 +2,12 @@ package com.energyict.protocolimplv2.dlms.idis.am500;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;
 import java.util.Optional;

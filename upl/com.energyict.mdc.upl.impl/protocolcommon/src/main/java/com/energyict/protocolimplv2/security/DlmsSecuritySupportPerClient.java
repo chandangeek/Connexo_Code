@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.KeyAccessorType;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 

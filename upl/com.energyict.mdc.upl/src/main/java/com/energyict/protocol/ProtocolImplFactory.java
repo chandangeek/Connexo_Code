@@ -42,16 +42,6 @@ public class ProtocolImplFactory {
         return ifac;
     }
 
-
-    static public String getProtocolImplVersion() {
-        try {
-            Class cls = Class.forName("com.energyict.protocolimpl.base.ProtocolVersionImpl");
-            return cls.getPackage().getSpecificationVersion();
-        } catch (ClassNotFoundException ex) {
-            return null;
-        }
-    }
-
     private Object getInstance(String className) throws IOException {
         try {
             return (Class.forName(className).newInstance());

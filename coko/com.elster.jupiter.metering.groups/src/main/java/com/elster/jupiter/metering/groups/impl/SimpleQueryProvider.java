@@ -18,8 +18,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Subquery;
 
-import org.osgi.service.component.annotations.Reference;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Supplier;
@@ -41,12 +39,10 @@ abstract class SimpleQueryProvider<T extends HasId> implements QueryProvider<T> 
         return this;
     }
 
-    @Reference
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
     }
 
-    @Reference
     public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(MeteringGroupsService.COMPONENTNAME, Layer.DOMAIN);
     }

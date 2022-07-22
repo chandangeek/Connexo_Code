@@ -11,10 +11,12 @@ Export-Package: com.energyict.dlms,\
 Import-Package: !test.wsdl.import2.types,\
     !org.apache.bsf,\
     !org.apache.commons.httpclient.*,\
+    !org.apache.commons.modeler,\
     !org.mortbay.*,\
     !org.apache.commons.net.pop3,\
     !org.apache.commons.net.smtp,\
     !org.exolab.castor.xml,\
     !junit.textui,\
     !junit.framework,\
+    !com.energyict.concentrator.jniexar,\
     *

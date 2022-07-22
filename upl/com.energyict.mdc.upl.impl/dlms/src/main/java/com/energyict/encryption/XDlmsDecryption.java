@@ -1,10 +1,11 @@
 package com.energyict.encryption;
 
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 
 /**

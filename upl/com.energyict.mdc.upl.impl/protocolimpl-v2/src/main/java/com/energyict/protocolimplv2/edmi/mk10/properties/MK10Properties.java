@@ -6,7 +6,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.protocolimplv2.edmi.dialects.CommonEDMIDeviceProtocolDialect;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;
 import java.time.Duration;

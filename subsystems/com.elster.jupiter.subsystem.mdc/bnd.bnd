@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.jupiter.subsystem.mdc.impl
-Embed-Dependency: groupId=com.energyict;artifactId=mdc.parent;type=pom
+Include-Resource: target/dependency,{maven-resources}

@@ -49,7 +49,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.messages.syncobjects.Ma
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.protocolimplv2.messages.DeviceActionMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
 import java.math.BigDecimal;

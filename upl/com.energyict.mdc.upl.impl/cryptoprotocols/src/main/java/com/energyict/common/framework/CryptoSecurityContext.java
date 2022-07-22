@@ -22,7 +22,7 @@ import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocol.exceptions.HsmException;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100SecurityProvider;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;

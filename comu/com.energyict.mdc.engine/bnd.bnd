@@ -2,6 +2,7 @@
 -dsannotations: *
 Import-Package: !com.sun.jdi.*,\
     !com.sun.jdmk.comm,\
+    !com.sun.nio.file,\
     !com.sun.security.auth.module,\
     !groovy.lang,\
     !oracle.aurora.rdbms,\

@@ -7,7 +7,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.Version;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
 
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import javax.validation.constraints.Size;
 import java.math.BigDecimal;

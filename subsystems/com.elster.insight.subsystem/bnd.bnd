@@ -1,4 +1,4 @@
 -classpath: target/classes
 -dsannotations: *
 Private-Package: com.elster.insight.subsystem.impl
-Embed-Dependency: groupId=com.elster.jupiter;artifactId=mdm.parent;type=pom
+Include-Resource: target/dependency,{maven-resources}

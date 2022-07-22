@@ -1,15 +1,11 @@
-package com.energyict.protocolimplv2.security;
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
+package com.energyict.mdc.upl.security;
 
 import com.energyict.mdc.upl.nls.TranslationKey;
 
-/**
- * Summarizes all the used SecurityProperty names for our protocol packages.
- * This allows proper visible reuse of security property names
- * <p>
- * Copyrights EnergyICT
- * Date: 10/01/13
- * Time: 16:43
- */
 public enum SecurityPropertySpecTranslationKeys implements TranslationKey {
 
     PASSWORD("Password", "Password"),

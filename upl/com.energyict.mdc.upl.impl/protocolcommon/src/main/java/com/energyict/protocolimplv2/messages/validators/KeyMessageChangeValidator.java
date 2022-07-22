@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.messages.validators;
 import com.energyict.mdc.upl.messages.DeviceMessage;
 import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.security.SecurityPropertySet;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * Created by cisac on 11/25/2016.

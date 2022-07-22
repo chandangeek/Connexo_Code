@@ -101,7 +101,7 @@ import com.energyict.protocolimplv2.eict.rtu3.beacon3100.topology.enums.G3NodeTx
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
 import com.energyict.protocolimplv2.security.DsmrSecuritySupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 import com.google.common.collect.Lists;
 
 import java.io.File;

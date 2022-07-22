@@ -5,7 +5,7 @@ import com.elster.jupiter.cps.PersistentDomainExtension;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.upl.security.CertificateWrapper;
 
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * Provides an implementation for the {@link PersistentDomainExtension} interface for {@link DlmsSecuritySuite1And2Support}.

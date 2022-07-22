@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.elster.jupiter</groupId>
+         <groupId>com.elster.jupiter</groupId>
          <artifactId>platform</artifactId>
          <version>14.1.0-Kratos-SNAPSHOT</version>
     </parent>
@@ -33,17 +33,14 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -84,15 +81,15 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
-						<configuration>
-							<artifactSet>
-								<excludes>
-									<exclude>org.glassfish.hk2.external:javax.inject</exclude>
-									<exclude>com.google.inject:guice</exclude>
-									<exclude>org.apache.servicemix.bundles:org.apache.servicemix.bundles.aopalliance</exclude>
-								</excludes>
-							</artifactSet>
-						</configuration>
+                        <configuration>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.glassfish.hk2.external:javax.inject</exclude>
+                                    <exclude>com.google.inject:guice</exclude>
+                                    <exclude>org.apache.servicemix.bundles:org.apache.servicemix.bundles.aopalliance</exclude>
+                                </excludes>
+                            </artifactSet>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>

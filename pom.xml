@@ -264,7 +264,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>3.0.1-elster-patch-1</version>
+                    <version>4.2.1</version>
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
@@ -429,13 +429,14 @@
                 <configuration>
 <!--                    <failOnWarning>true</failOnWarning>-->
                     <instructions>
-                        <Bundle-Vendor>Elster</Bundle-Vendor>
+                        <Bundle-Vendor>Honeywell</Bundle-Vendor>
                         <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
                         <Git-SHA-1>${buildNumber}</Git-SHA-1>
                         <Git-branch>${scmBranch}</Git-branch>
                         <Build-timestamp>${timestamp}</Build-timestamp>
                         <_sources>${include.source}</_sources>
                         <_include>bnd.bnd</_include>
+                        <_dsannotations-options>version;minimum=1.0.0</_dsannotations-options>
                     </instructions>
                     <supportedProjectTypes>
                         <supportedProjectType>bundle</supportedProjectType>
@@ -541,13 +542,14 @@
                         <artifactId>maven-bundle-plugin</artifactId>
                         <configuration>
                             <instructions>
-                                <Bundle-Vendor>Elster</Bundle-Vendor>
+                                <Bundle-Vendor>Honeywell</Bundle-Vendor>
                                 <Bundle-RequiredExecutionEnvironment>JavaSE-1.8</Bundle-RequiredExecutionEnvironment>
                                 <Git-SHA-1>${buildNumber}</Git-SHA-1>
                                 <Git-branch>${scmBranch}</Git-branch>
                                 <Build-timestamp>${timestamp}</Build-timestamp>
                                 <_sources>${include.source}</_sources>
                                 <_include>bnd.bnd</_include>
+                                <_dsannotations-options>version;minimum=1.0.0</_dsannotations-options>
                             </instructions>
                             <supportedProjectTypes>
                                 <supportedProjectType>bundle</supportedProjectType>
