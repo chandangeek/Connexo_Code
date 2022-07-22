@@ -39,8 +39,12 @@ public class UpgraderV10_9_19 implements Upgrader {
 
     private void migrateSql() {
         try (Connection connection = this.dataModel.getConnection(true); Statement statement = connection.createStatement()) {
-            execute(statement, "rename CSE_EVENT_MAPPING_STATUS TO SDE_EVENT_MAPPING_STATUS");
-            execute(statement, "rename CSE_EVENT_MAPPING_STATUSJRNL TO SDE_EVENT_MAPPING_STATUSJRNL");
+            if (dataModel.doesTableExist("CSE_EVENT_MAPPING_STATUS") && !dataModel.doesTableExist("SDE_EVENT_MAPPING_STATUS")) {
+                execute(statement, "rename CSE_EVENT_MAPPING_STATUS TO SDE_EVENT_MAPPING_STATUS");
+            }
+            if (dataModel.doesTableExist("CSE_EVENT_MAPPING_STATUSJRNL") && !dataModel.doesTableExist("SDE_EVENT_MAPPING_STATUSJRNL")) {
+                execute(statement, "rename CSE_EVENT_MAPPING_STATUSJRNL TO SDE_EVENT_MAPPING_STATUSJRNL");
+            }
             execute(statement, "update CPS_REGISTERED_CUSTOMPROPSET set LOGICALID = '" + NEW_CUSTOM_PROPERTY_SET_ID + "' where LOGICALID = '" + OLD_CUSTOM_PROPERTY_SET_ID + "'");
             execute(statement, "update CPS_REG_CUSTOMPROPSET_JRNL set LOGICALID = '" + NEW_CUSTOM_PROPERTY_SET_ID + "' where LOGICALID = '" + OLD_CUSTOM_PROPERTY_SET_ID + "'");
         } catch (SQLException e) {

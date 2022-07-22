@@ -62,7 +62,7 @@ public class MeterEventCreateRequestProviderImpl extends AbstractOutboundEndPoin
         // for OSGI purposes
     }
 
-    // for OSGI purposes
+    // for test purposes
     public MeterEventCreateRequestProviderImpl(Clock clock, SAPCustomPropertySets sapCustomPropertySets, WebServiceActivator webServiceActivator) {
         setClock(clock);
         setSapCustomPropertySets(sapCustomPropertySets);
