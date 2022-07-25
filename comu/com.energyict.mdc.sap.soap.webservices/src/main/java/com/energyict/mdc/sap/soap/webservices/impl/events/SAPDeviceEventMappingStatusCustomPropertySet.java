@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.custom.eventhandlers;
+package com.energyict.mdc.sap.soap.webservices.impl.events;
 
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.EditPrivilege;
@@ -11,6 +11,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecService;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
 import javax.inject.Inject;
 import java.util.Arrays;

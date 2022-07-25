@@ -38,7 +38,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         METER_FUNCTION_GROUP("meterFunctionGroup", "METER_FUNCTION_GROUP"),
         ATTRIBUTE_MESSAGE("attributeMessage", "ATTRIBUTE_MESSAGE"),
         CHARACTERISTICS_ID("characteristicsId", "CHARACTERISTICS_ID"),
-        CHARACTERISTICS_VALUE("characteristicsValue", "CHARACTERISTICS_VALUE");
+        CHARACTERISTICS_VALUE("characteristicsValue", "CHARACTERISTICS_VALUE"),
+        PUSH_EVENTS_TO_SAP("pushEventsToSap", "PUSH_EVENTS_TO_SAP");
 
 
         FieldNames(String javaName, String databaseName) {
@@ -96,6 +97,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
     private String characteristicsValue;
 
     private boolean registered;
+    private boolean pushEventsToSap;
     private CustomPropertySetService customPropertySetService;
     private Thesaurus thesaurus;
 
@@ -132,6 +134,8 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         setAttributeMessage((String) propertyValues.getProperty(FieldNames.ATTRIBUTE_MESSAGE.javaName()));
         setCharacteristicsId((String) propertyValues.getProperty(FieldNames.CHARACTERISTICS_ID.javaName()));
         setCharacteristicsValue((String) propertyValues.getProperty(FieldNames.CHARACTERISTICS_VALUE.javaName()));
+        setPushEventsToSap((boolean) Optional.ofNullable(propertyValues.getProperty(FieldNames.PUSH_EVENTS_TO_SAP.javaName()))
+                .orElse(true));
     }
 
     @Override
@@ -149,6 +153,7 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
         propertySetValues.setProperty(FieldNames.ATTRIBUTE_MESSAGE.javaName(), attributeMessage);
         propertySetValues.setProperty(FieldNames.CHARACTERISTICS_ID.javaName(), characteristicsId);
         propertySetValues.setProperty(FieldNames.CHARACTERISTICS_VALUE.javaName(), characteristicsValue);
+        propertySetValues.setProperty(FieldNames.PUSH_EVENTS_TO_SAP.javaName(), this.shouldPushEventsToSap());
     }
 
     @Override
@@ -261,6 +266,14 @@ public class DeviceSAPInfoDomainExtension extends AbstractPersistentDomainExtens
 
     public void setRegistered(boolean registered) {
         this.registered = registered;
+    }
+
+    public boolean shouldPushEventsToSap() {
+        return pushEventsToSap;
+    }
+
+    public void setPushEventsToSap(boolean pushEventsToSap) {
+        this.pushEventsToSap = pushEventsToSap;
     }
 
     public Device getDevice() {

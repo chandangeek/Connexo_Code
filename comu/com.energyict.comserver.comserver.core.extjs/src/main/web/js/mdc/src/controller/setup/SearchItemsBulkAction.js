@@ -118,6 +118,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
         {
             ref: 'sendSapPanel',
             selector: '#searchitems-bulk-step3 #device-send-sap-notification-bulk'
+        },
+        {
+            ref: 'setSapPanel',
+            selector: '#searchitems-bulk-step3 #device-set-push-events-to-sap-bulk'
         }
     ],
 
@@ -664,6 +668,55 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 }
             });
             break;
+        case 'setPushEventsToSap':
+            var mDeviceNames = [];
+            var setPushEventsToSapBulk = '/api/sap/setpusheventstosap';
+            if (me.allDevices) {
+                var store = me.getDevicesGrid().getStore();
+                var deviceData = store.getProxy().getReader().jsonData;
+                if (deviceData && deviceData.searchResults){
+                    Ext.each(deviceData.searchResults, function (item) {
+                        mDeviceNames.push(item.id);
+                    });
+                    me.allDevicesCnt = mDeviceNames.length;
+                }
+            } else {
+                Ext.each(me.devices, function (item) {
+                    mDeviceNames.push(item.getId());
+                });
+            }
+
+            var form = me.getSetSapPanel();
+            var pushEventsToSapValue = form.down('#pushEventsToSapCheckbox').getValue();
+
+            var jsonData = {
+                'deviceIds' : mDeviceNames,
+                'action' : 'setPushEventsToSapFlag',
+                'pushEventsToSap' : pushEventsToSapValue
+            }
+
+            if (me.allDevices){
+                jsonData.filter = me.getDevicesGrid().getStore().getProxy().encodeFilters(store.filters.getRange())
+            }
+
+            Ext.Ajax.request({
+                url: setPushEventsToSapBulk,
+                method: 'PUT',
+                jsonData: jsonData,
+                timeout: 180000,
+                success: function (response) {
+                    statusPage.showSetPushEventsToSapSuccess(me.allDevices? me.allDevicesCnt : me.devices.length);
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                },
+
+                failure: function (response) {
+                    statusPage.showSetPushEventsToSapFailure(response.responseText);
+                    finishBtn.enable();
+                    wizard.setLoading(false);
+                }
+            });
+            break;
         }
         me.nextClick();
     },
@@ -812,8 +865,16 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
             case 'sendRegisteredSapNotification':
                 finalMessage = Uni.I18n.translatePlural('searchItems.bulk.successfullySentSapNotification', me.allDevices? me.allDevicesCnt : me.devices.length, 'MDC',
                         "SAP notifications were sent to {0} devices",
-                        "SAP notification was sent to {0} devices",
+                        "SAP notification was sent to {0} device",
                         "SAP notifications were sent to {0} devices"
+                    );
+
+                break;
+            case 'setPushEventsToSap':
+                finalMessage = Uni.I18n.translatePlural('searchItems.bulk.successfullySetPushEventsToSap', me.allDevices? me.allDevicesCnt : me.devices.length, 'MDC',
+                        "'Push events to SAP' attributes were set for {0} devices",
+                        "'Push events to SAP' attribute was set for {0} device",
+                        "'Push events to SAP' attributes were set for {0} devices"
                     );
 
                 break;
@@ -1072,6 +1133,7 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     nextCmp.down('#load-profile-panel').hide();
                     nextCmp.down('#issue-manually-creation-rules-item-add-bulk').hide();
                     nextCmp.down('#device-send-sap-notification-bulk').hide();
+                    nextCmp.down('#device-set-push-events-to-sap-bulk').hide();
 
                     switch (me.operation) {
                         case 'changeconfig':
@@ -1181,6 +1243,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
 
                                     }
                                 });
+                            break;
+                            case 'setPushEventsToSap':
+                                nextCmp.down('#device-set-push-events-to-sap-bulk').show();
                             break;
                     }
                 }
@@ -1333,6 +1398,23 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                 if (deviceData && deviceData.searchResults) me.allDevicesCnt = deviceData.searchResults.length;
                             }
                         }
+                        break;
+                   case 'setPushEventsToSap':
+                        var setSapPanel = currentCmp.down('#device-set-push-events-to-sap-bulk');
+                        me.validation = setSapPanel.isValid();
+                        errorPanel = currentCmp.down('#step3-errors');
+                        errorContainer = null
+                        if (!errorPanel.isHidden()) {
+                            errorPanel.hide();
+                        }
+                        if (me.validation){
+                            if (me.allDevices){
+                                me.allDevicesCnt = 0;
+                                var store = me.getDevicesGrid().getStore();
+                                var deviceData = store.getProxy().getReader().jsonData;
+                                if (deviceData && deviceData.searchResults) me.allDevicesCnt = deviceData.searchResults.length;
+                            }
+                        }
                 }
                 break;
         }
@@ -1414,7 +1496,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                                    progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkIssue', 'MDC', 'Creating {0} issues. Please wait...', me.allDevicesCnt, false);
                                    break;
                                 case 'sendRegisteredSapNotification':
-                                   progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkSAP', 'MDC', 'Sending SAP notifications to {0} deviecs. Please wait...', me.allDevicesCnt, false);
+                                   progressBarText = Uni.I18n.translate('searchItems.bulk.creatingBulkSAP', 'MDC', 'Sending SAP notifications to {0} devices. Please wait...', me.allDevicesCnt, false);
+                                   break;
+                                case 'setPushEventsToSap':
+                                   progressBarText = Uni.I18n.translate('searchItems.bulk.settingBulkSAP', 'MDC', "Setting 'push events to SAP' attributes for {0} devices. Please wait...", me.allDevicesCnt, false);
                                    break;
                                 default:
                                    progressBarText = Uni.I18n.translate('general.removing', 'MDC', 'Removing...');
@@ -1498,6 +1583,10 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     title = Uni.I18n.translate('deviceSendSapNotifications.title', 'MDC', 'Send registered notifications to SAP')
                 }
                     break;
+                case 'setPushEventsToSap' : {
+                    title = Uni.I18n.translate('deviceSetPushEventsToSapAttribute.title', 'MDC', "Set/unset 'push events to SAP' attribute")
+                }
+                    break;
             }
             (items.length > 0) && Ext.each(items, function (item) {
                 item.setTitle(title);
@@ -1564,6 +1653,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                     break;
                 case 'sendRegisteredSapNotification':
                     titleText = Uni.I18n.translate('searchItems.bulk.sendsapnotification.confirmSendRegisteredMsg', 'MDC', 'Send registered notifications to {0} devices?', me.allDevicesCnt);
+                    break;
+                case 'setPushEventsToSap':
+                    titleText = Uni.I18n.translate('searchItems.bulk.setpusheventstosap.confirmChangeAttributeMsg', 'MDC', "Change 'push events to SAP' attribute for {0} devices?", me.allDevicesCnt);
                     break;
             }
         } else {
@@ -1651,6 +1743,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 case 'sendRegisteredSapNotification':
                     titleText = Uni.I18n.translate('searchItems.bulk.sendsapnotification.confirmSendRegisteredMsg', 'MDC', 'Send registered notifications to {0} devices?', me.devices.length);
                     break;
+                case 'setPushEventsToSap':
+                    titleText = Uni.I18n.translate('searchItems.bulk.setpusheventstosap.confirmChangeAttributeMsg', 'MDC', "Change 'push events to SAP' attribute for {0} devices?", me.devices.length);
+                    break;
             }
         }
 
@@ -1704,6 +1799,9 @@ Ext.define('Mdc.controller.setup.SearchItemsBulkAction', {
                 bodyText = ' ';
                 break;
             case 'sendRegisteredSapNotification':
+                bodyText = ' ';
+                break;
+            case 'setPushEventsToSap':
                 bodyText = ' ';
                 break;
         }

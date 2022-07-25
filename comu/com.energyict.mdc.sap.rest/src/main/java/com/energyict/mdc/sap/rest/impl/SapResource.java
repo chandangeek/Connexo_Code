@@ -29,7 +29,8 @@ import com.energyict.mdc.device.data.QueueMessage;
 import com.energyict.mdc.device.data.exceptions.InvalidSearchDomain;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.SAPRegisteredNotificationOnDeviceQueueMessage;
-import com.energyict.mdc.sap.soap.webservices.SAPRegisteredNotificationOnDevicesFilterSpecification;
+import com.energyict.mdc.sap.soap.webservices.SapBulkActionDeviceFilterSpecification;
+import com.energyict.mdc.sap.soap.webservices.SetPushEventsToSapOnDeviceQueueMessage;
 import com.energyict.mdc.sap.soap.webservices.UtilitiesDeviceRegisteredNotification;
 import com.energyict.mdc.sap.soap.webservices.security.Privileges;
 
@@ -59,8 +60,10 @@ import static com.elster.jupiter.util.conditions.Where.where;
 @Path("/")
 public class SapResource {
     private final static String SEND_SAP_REGISTERED_NOTIFICATION_START = "sendSAPRNStart";
+    private final static String SET_PUSH_EVENTS_TO_SAP = "setPushEventsToSapFlag";
 
     private final String BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DESTINATION = "BulkSAPRegNotificationQD";
+    private final String BULK_SETPUSHEVENTSTOSAP_QUEUE_DESTINATION = "BulkSAPPushEventsQD";
     private final ExceptionFactory exceptionFactory;
     private final DeviceService deviceService;
     private final SAPCustomPropertySets sapCustomPropertySets;
@@ -202,7 +205,7 @@ public class SapResource {
             throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
         }
 
-        SAPRegisteredNotificationOnDevicesFilterSpecification sapRNFilter = new SAPRegisteredNotificationOnDevicesFilterSpecification();
+        SapBulkActionDeviceFilterSpecification sapRNFilter = new SapBulkActionDeviceFilterSpecification();
         Stream<Device> deviceStream;
 
         if (request.filter != null) {
@@ -230,7 +233,7 @@ public class SapResource {
         return Response.ok().entity("{\"success\":\"true\"}").build();
     }
 
-    private void setFilterProperties(JsonQueryFilter filter, SearchDomain deviceSearchDomain, SAPRegisteredNotificationOnDevicesFilterSpecification sapRNFilter) {
+    private void setFilterProperties(JsonQueryFilter filter, SearchDomain deviceSearchDomain, SapBulkActionDeviceFilterSpecification sapRNFilter) {
         if (filter.hasFilters()) {
             deviceSearchDomain.getPropertiesValues(searchableProperty -> SearchablePropertyValueConverter.convert(searchableProperty, filter))
                     .stream()
@@ -240,7 +243,47 @@ public class SapResource {
         }
     }
 
-    private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(SAPRegisteredNotificationOnDevicesFilterSpecification filter) {
+    @PUT
+    @Transactional
+    @Path("/setpusheventstosap")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @RolesAllowed({Privileges.Constants.SEND_WEB_SERVICE_REQUEST, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
+    public Response setPushEventsToSap(BulkSetPushEventsToSapInfo request) {
+
+        if (!SET_PUSH_EVENTS_TO_SAP.equalsIgnoreCase(request.action)) {
+            throw exceptionFactory.newException(MessageSeeds.BAD_ACTION);
+        }
+
+        SapBulkActionDeviceFilterSpecification setPushEventsToSapFlagFilter = new SapBulkActionDeviceFilterSpecification();
+        Stream<Device> deviceStream;
+
+        if (request.filter != null) {
+            JsonQueryFilter filter = new JsonQueryFilter(request.filter);
+            Optional<SearchDomain> deviceSearchDomain = searchService.findDomain(Device.class.getName());
+            if (deviceSearchDomain.isPresent()) {
+                setFilterProperties(filter, deviceSearchDomain.get(), setPushEventsToSapFlagFilter);
+                SearchBuilder<Object> searchBuilder = getObjectSearchBuilder(setPushEventsToSapFlagFilter, deviceSearchDomain.get());
+                deviceStream = searchBuilder.toFinder().stream().map(Device.class::cast);
+            } else {
+                throw new InvalidSearchDomain(thesaurus, Device.class.getName());
+            }
+        } else {
+            deviceStream = deviceService.findAllDevices(where("id").in(request.deviceIds)).stream();
+        }
+
+        Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(BULK_SETPUSHEVENTSTOSAP_QUEUE_DESTINATION);
+        if (destinationSpec.isPresent()) {
+            deviceStream.forEach(
+                    device -> processMessagePost(new SetPushEventsToSapOnDeviceQueueMessage(device.getId(), request.pushEventsToSap), destinationSpec.get()));
+        } else {
+            throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
+        }
+
+        return Response.ok().entity("{\"success\":\"true\"}").build();
+    }
+
+    private Function<SearchableProperty, SearchablePropertyValue> getPropertyMapper(SapBulkActionDeviceFilterSpecification filter) {
         return searchableProperty -> new SearchablePropertyValue(searchableProperty, filter.properties.get(searchableProperty.getName()));
     }
 
@@ -249,7 +292,7 @@ public class SapResource {
         destinationSpec.message(json).send();
     }
 
-    private SearchBuilder<Object> getObjectSearchBuilder(SAPRegisteredNotificationOnDevicesFilterSpecification filter, SearchDomain searchDomain) {
+    private SearchBuilder<Object> getObjectSearchBuilder(SapBulkActionDeviceFilterSpecification filter, SearchDomain searchDomain) {
         SearchBuilder<Object> searchBuilder = searchService.search(searchDomain);
         for (SearchablePropertyValue propertyValue : searchDomain.getPropertiesValues(getPropertyMapper(filter))) {
             try {

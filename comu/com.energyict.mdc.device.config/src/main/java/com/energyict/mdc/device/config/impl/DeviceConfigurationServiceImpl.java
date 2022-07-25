@@ -758,6 +758,7 @@ public class DeviceConfigurationServiceImpl implements ServerDeviceConfiguration
                         //CONM-2568
                         .put(Version.version(10, 9, 13), UpgraderV10_9_13.class)
                         .put(Version.version(10, 9, 17), UpgraderV10_9_17.class)
+                        .put(Version.version(10, 9, 19), UpgraderV10_9_19.class)
                         .build());
         initPrivileges();
     }

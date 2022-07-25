@@ -44,6 +44,7 @@ public enum TranslationKeys implements TranslationKey {
     CPS_CHARACTERISTICS_ID_DESCRIPTION("device.cps.properties.characteristicsid.description", "Characteristics id in SAP"),
     CPS_CHARACTERISTICS_VALUE("device.cps.properties.characteristicsvalue", "Characteristics value"),
     CPS_CHARACTERISTICS_VALUE_DESCRIPTION("device.cps.properties.characteristicsvalue.description", "Characteristics value in SAP"),
+    PUSHEVENTSTOSAP("device.cps.properties.pushEventsToSap", "Push events to SAP"),
 
     ;
 

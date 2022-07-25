@@ -107,6 +107,36 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step5', {
         this.add(widget);
         Ext.resumeLayouts(true);
     },
+   showSetPushEventsToSapSuccess: function (devicesCnt) {
+        var widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: Uni.I18n.translate('searchItems.bulk.pushEventsToSapAttributesHaveBeenSet', 'MDC', "{0} 'push events to SAP' attributes have been changed", devicesCnt),
+            type: 'success'
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
+    },
+    showSetPushEventsToSapFailure: function (text) {
+        var widget = {
+            xtype: 'uni-notification-panel',
+            margin: '0 0 0 -13',
+            message: Uni.I18n.translate('searchItems.bulk.pushEventsToSapAttributesNotSet', 'MDC', "'Push events to SAP' attributes have not been changed due to the next error:"),
+            type: 'error',
+            additionalItems: [
+                {
+                    xtype: 'container',
+                    html: '<span style="color: #EB5642;">'+ text + '</span>',
+                }
+            ]
+        };
+        Ext.suspendLayouts();
+        this.removeAll();
+        this.add(widget);
+        Ext.resumeLayouts(true);
+    },
 
 
 
