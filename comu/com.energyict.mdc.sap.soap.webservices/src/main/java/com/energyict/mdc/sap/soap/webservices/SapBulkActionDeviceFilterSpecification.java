@@ -9,7 +9,7 @@ import com.elster.jupiter.search.SearchablePropertyValue;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SAPRegisteredNotificationOnDevicesFilterSpecification {
+public class SapBulkActionDeviceFilterSpecification {
     public Map<String, SearchablePropertyValue.ValueBean> properties = new HashMap<>();
 
     public SearchablePropertyValue.ValueBean getPropertyValue(SearchableProperty property) {

@@ -308,6 +308,27 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step3', {
                                 name: 'id'
                             },
                         ]
+             },
+             {
+                 xtype: 'form',
+                 itemId: 'device-set-push-events-to-sap-bulk',
+                 buttonAlign: 'left',
+                 hidden: true,
+                 layout: {
+                     type: 'vbox',
+                     align: 'left'
+                 },
+                 defaults: {
+                     labelWidth: 200,
+                 },
+                 items: [
+                             {
+                                 xtype: 'checkbox',
+                                 name: 'pusheventstosap',
+                                 itemId: 'pushEventsToSapCheckbox',
+                                 fieldLabel: Uni.I18n.translate('sap.pusheventstosap', 'MDC', 'Push events to SAP')
+                             },
+                         ]
             }
         ];
         me.callParent(arguments);

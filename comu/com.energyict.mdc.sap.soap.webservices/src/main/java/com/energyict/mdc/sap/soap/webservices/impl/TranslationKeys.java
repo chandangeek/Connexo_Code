@@ -4,8 +4,11 @@
 package com.energyict.mdc.sap.soap.webservices.impl;
 
 import com.elster.jupiter.export.DataExportWebService;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
+import com.energyict.mdc.sap.soap.webservices.impl.events.SAPDeviceEventMappingStatusCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.messagehandlers.SAPRegisteredNotificationOnDeviceMessageHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.messagehandlers.SetPushEventsToSapFlagOnDeviceMessageHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterPodNotificationCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceCreateRequestCustomPropertySet;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.deviceinitialization.MasterUtilitiesDeviceLocationNotificationCustomPropertySet;
@@ -22,8 +25,8 @@ import com.energyict.mdc.sap.soap.webservices.impl.servicecall.meterreplacement.
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckConfirmationTimeoutHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckScheduledRequestHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancellationHandlerFactory;
-import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 
 public enum TranslationKeys implements TranslationKey {
@@ -32,7 +35,7 @@ public enum TranslationKeys implements TranslationKey {
     TIMEOUT_DESCRIPTION(DataExportWebService.TIMEOUT_PROPERTY_KEY + ".description", "Set a liberal timeout greater than 10 seconds but below 1 day to avoid system overload."),
 
     // Service calls
-    DOMAIN_NAME("serviceCall", "Service call"),
+    DOMAIN_NAME("serviceCallDomainName", "Service call"),
     PARENT_SERVICE_CALL("parentServiceCall", "Parent service call"),
     METER_READING_DOCUMENT_ID("meterReadingDocumentId", "Meter reading document ID"),
     DEVICE_ID("deviceId", "Device ID"),
@@ -147,7 +150,11 @@ public enum TranslationKeys implements TranslationKey {
     AT_LEAST_ONE_LRN_WAS_SET("sap.microchecks.AtLeastOneLrnWasSet", "At least one LRN was set"),
     AT_LEAST_ONE_LRN_WAS_SET_DESCRIPTION("sap.microchecks.AtLeastOneLrnWasSet.description", "Check if at least one Logical Register Number was set on the device"),
 
-    SAPREGISTEREDNOTIFICATION_SUBSCRIBER(SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_SUBSCRIBER, SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DISPLAYNAME);
+    SAPREGISTEREDNOTIFICATION_SUBSCRIBER(SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_SUBSCRIBER, SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DISPLAYNAME),
+    SETPUSHEVENTSTOSAP_SUBSCRIBER(SetPushEventsToSapFlagOnDeviceMessageHandlerFactory.BULK_SETPUSHEVENTSTOSAP_QUEUE_SUBSCRIBER, SetPushEventsToSapFlagOnDeviceMessageHandlerFactory.BULK_SETPUSHEVENTSTOSAP_QUEUE_DISPLAYNAME),
+
+    SAP_EVENT_MAPPING_STATUS_CPS(SAPDeviceEventMappingStatusCustomPropertySet.CUSTOM_PROPERTY_SET_ID, "SAP device event mapping status"),
+    SAP_EVENT_MAPPING_LOADING_SC_TYPE("SAPEventMappingLoadingServiceCallType", "Loading of SAP device event mapping csv");
 
     private final String key;
     private final String defaultFormat;
@@ -165,5 +172,9 @@ public enum TranslationKeys implements TranslationKey {
     @Override
     public String getDefaultFormat() {
         return defaultFormat;
+    }
+
+    public String translate(Thesaurus thesaurus) {
+        return thesaurus.getFormat(this).format();
     }
 }

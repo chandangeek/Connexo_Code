@@ -12,8 +12,6 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.sap.soap.custom.eventhandlers.CustomSAPDeviceEventHandler;
-import com.energyict.mdc.sap.soap.custom.eventhandlers.SAPDeviceEventMappingStatusDomainExtension;
-import com.energyict.mdc.sap.soap.custom.eventhandlers.TranslationKeys;
 import com.energyict.mdc.sap.soap.custom.export.MessageSeeds;
 
 import org.osgi.service.component.annotations.Component;
@@ -45,8 +43,6 @@ public class TranslationInstaller implements MessageSeedProvider, TranslationKey
         return Stream.of(
                 com.energyict.mdc.sap.soap.custom.export.TranslationKeys.values(),
                 com.energyict.mdc.sap.soap.custom.meterreadingdocument.TranslationKeys.values(),
-                TranslationKeys.values(),
-                SAPDeviceEventMappingStatusDomainExtension.FieldNames.values(),
                 com.energyict.mdc.sap.soap.custom.eventsfromcalculatedvalues.custompropertyset.TranslationKeys.values())
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());

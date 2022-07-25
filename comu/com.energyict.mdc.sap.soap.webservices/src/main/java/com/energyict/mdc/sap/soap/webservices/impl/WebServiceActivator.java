@@ -69,6 +69,11 @@ import com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.register
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestBulkCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.StatusChangeRequestCreateEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.enddeviceconnection.cancellation.StatusChangeRequestCancellationEndpoint;
+import com.energyict.mdc.sap.soap.webservices.impl.events.ForwardedDeviceEventTypesFormatter;
+import com.energyict.mdc.sap.soap.webservices.impl.events.MeterEventCreateRequestFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.events.SAPDeviceEventMappingLoader;
+import com.energyict.mdc.sap.soap.webservices.impl.events.SAPDeviceEventMappingStatusCustomPropertySet;
+import com.energyict.mdc.sap.soap.webservices.impl.events.SAPDeviceEventMappingStatusDomainExtension;
 import com.energyict.mdc.sap.soap.webservices.impl.measurementtaskassignment.MeasurementTaskAssignmentChangeRequestEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateBulkEndpoint;
 import com.energyict.mdc.sap.soap.webservices.impl.meterreadingdocument.MeterReadingDocumentCreateEndpoint;
@@ -132,10 +137,12 @@ import com.energyict.mdc.sap.soap.webservices.impl.task.CheckStatusChangeCancell
 import com.energyict.mdc.sap.soap.webservices.impl.task.SearchDataSourceHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.task.UpdateSapExportTaskHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.security.Privileges;
-
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.google.inject.Module;
+import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.component.annotations.Activate;
@@ -148,6 +155,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.validation.MessageInterpolator;
+import java.nio.file.FileSystem;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -301,6 +309,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private volatile DataExportService dataExportService;
     private volatile TimeService timeService;
     private volatile SearchService searchService;
+    private volatile FileSystem fileSystem;
     private volatile MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor;
 
     private final Map<AdditionalProperties, Integer> sapProperties = new HashMap<>();
@@ -311,6 +320,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
     private String meteringSystemId;
     private List<String> uudSuccessfulErrorCodes = new ArrayList<>();
     private SearchDomainExtension sapAttributesSearchExtension;
+    private CustomPropertySet mappingStatusCustomPropertySet;
+    private MeterEventCreateRequestFactory meterEventCreateRequestFactory;
 
     public static Optional<String> getExportTaskName() {
         return Optional.ofNullable(exportTaskName);
@@ -404,7 +415,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                                MeasurementTaskAssignmentChangeProcessor measurementTaskAssignmentChangeProcessor,
                                DeviceAlarmService deviceAlarmService,
                                IssueService issueService,
-                               SearchService searchService) {
+                               SearchService searchService,
+                               FileSystem fileSystem) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -436,6 +448,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         setDeviceAlarmService(deviceAlarmService);
         setIssueService(issueService);
         setSearchService(searchService);
+        setFileSystem(fileSystem);
         activate(bundleContext);
     }
 
@@ -476,6 +489,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                 bind(UpgradeService.class).toInstance(upgradeService);
                 bind(NlsService.class).toInstance(nlsService);
                 bind(SearchService.class).toInstance(searchService);
+                bind(SAPDeviceEventMappingStatusCustomPropertySet.class).in(Scopes.SINGLETON);
+                bind(FileSystem.class).toInstance(fileSystem);
                 bind(WebServiceActivator.class).toInstance(WebServiceActivator.this);
             }
         };
@@ -495,9 +510,11 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
                         .put(version(10, 7, 1), UpgraderV10_7_1.class)
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
                         .put(version(10, 7, 3), UpgraderV10_7_3.class)
+                        .put(version(10, 7, 16), UpgraderV10_7_16.class)
                         .put(version(10, 8), UpgraderV10_8.class)
                         .put(version(10, 9), UpgraderV10_9.class)
                         .put(version(10, 9, 15), UpgraderV10_9_15.class)
+                        .put(version(10, 9, 19), UpgraderV10_9_19.class)
                         .build());
 
         registerServices(bundleContext);
@@ -540,6 +557,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         loadUudSuccessfulErrorCodes();
 
         failOngoingExportTaskServiceCalls();
+
+        loadSapEventsMapping();
     }
 
     private void loadUudSuccessfulErrorCodes() {
@@ -691,6 +710,8 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         serviceRegistrations.forEach(ServiceRegistration::unregister);
         getServiceCallCustomPropertySets().values().forEach(customPropertySetService::removeCustomPropertySet);
         searchService.unregister(sapAttributesSearchExtension);
+        customPropertySetService.removeCustomPropertySet(mappingStatusCustomPropertySet);
+        mappingStatusCustomPropertySet = null;
     }
 
     public List<UtilitiesDeviceRegisteredNotification> getUtilitiesDeviceRegisteredNotifications() {
@@ -1194,6 +1215,7 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         keys.addAll(Arrays.asList(TranslationKeys.values()));
         keys.addAll(Arrays.asList(PropertyTranslationKeys.values()));
         keys.addAll(Arrays.asList(Privileges.values()));
+        keys.addAll(Arrays.asList(SAPDeviceEventMappingStatusDomainExtension.FieldNames.values()));
         return keys;
     }
 
@@ -1219,5 +1241,29 @@ public class WebServiceActivator implements MessageSeedProvider, TranslationKeyP
         serviceCalls.stream()
                 .forEach(sC -> dataExportService.getDataExportServiceCallType()
                         .tryFailingServiceCall(sC, MessageSeeds.DATA_EXPORT_TASK_WAS_INTERRUPTED.getDefaultFormat()));
+    }
+
+    private void loadSapEventsMapping() {
+        Injector injector = Guice.createInjector(getModule());
+        mappingStatusCustomPropertySet = injector.getInstance(SAPDeviceEventMappingStatusCustomPropertySet.class);
+        customPropertySetService.addCustomPropertySet(mappingStatusCustomPropertySet);
+        SAPDeviceEventMappingLoader eventMappingLoader = injector.getInstance(SAPDeviceEventMappingLoader.class);
+        ForwardedDeviceEventTypesFormatter formatter;
+        try {
+            formatter = eventMappingLoader.loadMapping();
+        } catch (Exception e) {
+            LOGGER.log(Level.SEVERE, "Couldn't load SAP device event mapping csv: " + e.getLocalizedMessage(), e);
+            formatter = null;
+        }
+        this.meterEventCreateRequestFactory = new MeterEventCreateRequestFactory(formatter);
+    }
+
+    public MeterEventCreateRequestFactory getMeterEventCreateRequestFactory() {
+        return this.meterEventCreateRequestFactory;
+    }
+
+    @Reference
+    public void setFileSystem(FileSystem fileSystem) {
+        this.fileSystem = fileSystem;
     }
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
-package com.energyict.mdc.sap.soap.custom.eventhandlers;
+package com.energyict.mdc.sap.soap.webservices.impl.events;
 
 import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
@@ -9,6 +9,7 @@ import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.servicecall.ServiceCall;
 
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.google.inject.Module;
 
 import java.util.Collections;
@@ -17,12 +18,13 @@ import java.util.Optional;
 
 public class SAPDeviceEventMappingStatusPersistenceSupport implements PersistenceSupport<ServiceCall, SAPDeviceEventMappingStatusDomainExtension> {
 
-    private static final String TABLE_NAME = CustomSAPDeviceEventHandler.COMPONENT_NAME + "_EVENT_MAPPING_STATUS";
+    private static final String COMPONENT_NAME = "SDE";
+    private static final String TABLE_NAME = COMPONENT_NAME + "_EVENT_MAPPING_STATUS";
     private static final String FK_NAME = "FK_" + TABLE_NAME + "_SC";
 
     @Override
     public String componentName() {
-        return CustomSAPDeviceEventHandler.COMPONENT_NAME;
+        return COMPONENT_NAME;
     }
 
     @Override
@@ -94,6 +96,6 @@ public class SAPDeviceEventMappingStatusPersistenceSupport implements Persistenc
 
     @Override
     public String application() {
-        return CustomSAPDeviceEventHandler.APPLICATION_NAME;
+        return WebServiceActivator.APPLICATION_NAME;
     }
 }

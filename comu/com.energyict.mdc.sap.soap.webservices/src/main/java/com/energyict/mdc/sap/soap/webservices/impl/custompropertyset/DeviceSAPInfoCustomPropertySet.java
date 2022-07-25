@@ -174,6 +174,12 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                         .named(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), TranslationKeys.REGISTERED)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .booleanSpec()
+                        .named(DeviceSAPInfoDomainExtension.FieldNames.PUSH_EVENTS_TO_SAP.javaName(), TranslationKeys.PUSHEVENTSTOSAP)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
@@ -298,6 +304,12 @@ public class DeviceSAPInfoCustomPropertySet implements CustomPropertySet<Device,
                     .map(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName())
                     .since(Version.version(10, 7, 2))
                     .installValue("'N'")
+                    .add();
+            table.column(DeviceSAPInfoDomainExtension.FieldNames.PUSH_EVENTS_TO_SAP.databaseName())
+                    .bool()
+                    .map(DeviceSAPInfoDomainExtension.FieldNames.PUSH_EVENTS_TO_SAP.javaName())
+                    .since(Version.version(10, 9, 19))
+                    .installValue("'Y'")
                     .add();
         }
 

@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.sap.soap.custom.eventhandlers;
+package com.energyict.mdc.sap.soap.webservices.impl.events;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
@@ -16,9 +16,9 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
-import com.energyict.mdc.sap.soap.custom.eventhandlers.SAPDeviceEventType.CsvField;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
-
+import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
+import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
 import com.google.common.collect.ImmutableMap;
 import org.osgi.framework.BundleContext;
 
@@ -32,7 +32,7 @@ import java.nio.file.Files;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-class SAPDeviceEventMappingLoader {
+public class SAPDeviceEventMappingLoader {
     private static final String BATCH_EXECUTOR_USER_NAME = "batch executor";
     private static final String PROPERTY_CSV_PATH_NAME = "com.elster.jupiter.sap.eventmapping.csv.path";
     private static final String PROPERTY_CSV_PATH_DEFAULT = "./sap/event-mapping.csv";
@@ -77,7 +77,7 @@ class SAPDeviceEventMappingLoader {
         formatter = new ForwardedDeviceEventTypesFormatter(sapCustomPropertySets);
     }
 
-    ForwardedDeviceEventTypesFormatter loadMapping() {
+    public ForwardedDeviceEventTypesFormatter loadMapping() {
         setSecurityContext();
         String path = getProperty(PROPERTY_CSV_PATH_NAME, PROPERTY_CSV_PATH_DEFAULT);
         String separator = getProperty(PROPERTY_CSV_SEPARATOR_NAME, PROPERTY_CSV_SEPARATOR_DEFAULT);
@@ -115,9 +115,8 @@ class SAPDeviceEventMappingLoader {
 
     private static Exception duplicateEventCodeOrDeviceEventCodeException(SAPDeviceEventType eventType) {
         return new Exception("Non-unique event identification code(s) " + toString(eventType) +
-                ". Combination of " + CsvField.EVENT_CODE.name() + " & " + CsvField.DEVICE_EVENT_CODE.name() +
-                " on respective positions " + CsvField.EVENT_CODE.position() + " & " + CsvField.DEVICE_EVENT_CODE.position() + " must be unique.");
-    }
+                ". Combination of " + SAPDeviceEventType.CsvField.EVENT_CODE.name() + " & " + SAPDeviceEventType.CsvField.DEVICE_EVENT_CODE.name() +
+                " on respective positions " + SAPDeviceEventType.CsvField.EVENT_CODE.position() + " & " + SAPDeviceEventType.CsvField.DEVICE_EVENT_CODE.position() + " must be unique.");    }
 
     private static String toString(SAPDeviceEventType eventType) {
         return eventType.getEventCode()
@@ -144,7 +143,7 @@ class SAPDeviceEventMappingLoader {
             properties.setPath(path);
             properties.setSeparator(separator);
             ServiceCall serviceCall = getServiceCallType().newServiceCall()
-                    .origin(CustomSAPDeviceEventHandler.APPLICATION_NAME)
+                    .origin(WebServiceActivator.APPLICATION_NAME)
                     .extendedWith(properties)
                     .create();
             serviceCall.requestTransition(DefaultState.PENDING);

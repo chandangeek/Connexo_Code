@@ -85,6 +85,13 @@ Ext.define('Mdc.view.setup.searchitems.bulk.Step2', {
                 name: 'operation',
                 inputValue: 'sendRegisteredSapNotification',
                 privileges: Mdc.privileges.Device.sendSapRegisteredNotification
+            },
+            {
+                itemId: 'setPushEventsToSap',
+                boxLabel: '<b>' + Uni.I18n.translate('deviceSetPushEventsToSapAttribute.title', 'MDC', "Set/unset 'push events to SAP' attribute") + '</b>',
+                name: 'operation',
+                inputValue: 'setPushEventsToSap',
+                privileges: Mdc.privileges.Device.administrateDevice
             }
         ]
     }
