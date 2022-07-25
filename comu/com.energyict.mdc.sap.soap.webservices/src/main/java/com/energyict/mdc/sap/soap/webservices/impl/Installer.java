@@ -19,6 +19,7 @@ import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.users.UserService;
 import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.sap.soap.webservices.impl.messagehandlers.SAPRegisteredNotificationOnDeviceMessageHandlerFactory;
+import com.energyict.mdc.sap.soap.webservices.impl.messagehandlers.SetPushEventsToSapFlagOnDeviceMessageHandlerFactory;
 import com.energyict.mdc.sap.soap.webservices.impl.servicecall.ServiceCallTypes;
 import com.energyict.mdc.sap.soap.webservices.impl.task.ConnectionStatusChangeMessageHandlerFactory;
 
@@ -28,6 +29,7 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys.SAPREGISTEREDNOTIFICATION_SUBSCRIBER;
+import static com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys.SETPUSHEVENTSTOSAP_SUBSCRIBER;
 
 public class Installer implements FullInstaller {
 
@@ -95,6 +97,7 @@ public class Installer implements FullInstaller {
     void createMessageHandlers() {
         QueueTableSpec defaultQueueTableSpec = messageService.getQueueTableSpec("MSG_RAWQUEUETABLE").get();
         this.createMessageHandler(defaultQueueTableSpec, SAPRegisteredNotificationOnDeviceMessageHandlerFactory.BULK_SAPREGISTEREDNOTIFICATION_QUEUE_DESTINATION, SAPREGISTEREDNOTIFICATION_SUBSCRIBER);
+        this.createMessageHandler(defaultQueueTableSpec, SetPushEventsToSapFlagOnDeviceMessageHandlerFactory.BULK_SETPUSHEVENTSTOSAP_QUEUE_DESTINATION, SETPUSHEVENTSTOSAP_SUBSCRIBER);
     }
 
     private void createMessageHandler(QueueTableSpec defaultQueueTableSpec, String destinationName, TranslationKey nameKey) {

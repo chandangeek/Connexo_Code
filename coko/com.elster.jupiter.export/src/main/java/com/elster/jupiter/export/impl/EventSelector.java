@@ -15,7 +15,6 @@ import com.elster.jupiter.export.MeterEventData;
 import com.elster.jupiter.export.StructureMarker;
 import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.groups.Membership;
-import com.elster.jupiter.metering.readings.beans.EndDeviceEventImpl;
 import com.elster.jupiter.metering.readings.beans.MeterReadingImpl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
@@ -123,19 +122,6 @@ class EventSelector implements DataSelector {
         MeterReadingImpl meterReading = MeterReadingImpl.newInstance();
         meterReading.addAllEndDeviceEvents(endDevice.getDeviceEvents(range).stream()
                 .filter(selectorConfig.getFilterPredicate())
-                .map(endDeviceEventRecord -> {
-                            EndDeviceEventImpl event = EndDeviceEventImpl.of(endDeviceEventRecord.getEventTypeCode(), endDeviceEventRecord.getDeviceEventType(),
-                                    endDeviceEventRecord.getCreatedDateTime(), endDeviceEventRecord.getDescription());
-                            event.setMrid(endDeviceEventRecord.getMRID());
-                            event.setIssuerId(endDeviceEventRecord.getIssuerID());
-                            event.setIssuerTrackingId(endDeviceEventRecord.getIssuerTrackingID());
-                            event.setReason(endDeviceEventRecord.getReason());
-                            event.setUserId(endDeviceEventRecord.getUserID());
-                            event.setSeverity(endDeviceEventRecord.getSeverity());
-                            event.getEventData().putAll(endDeviceEventRecord.getProperties());
-                            return event;
-                        }
-                )
                 .collect(Collectors.toList()));
         events.add(meterReading.getEvents().size());
         devicesWithEvents.add(meterReading.getEvents().size() == 0 ? 0 : 1);
