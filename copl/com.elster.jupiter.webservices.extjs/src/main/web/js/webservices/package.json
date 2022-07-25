@@ -1,14 +1,14 @@
 {
-  "compatVersion" : "10.9.18",
+  "compatVersion" : "10.9.19",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.webservices.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.18"
+    "com.elster.jupiter.unifyingjs@10.9.19"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.18"
+  "version" : "10.9.19"
 }
