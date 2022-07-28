@@ -183,9 +183,10 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
      */
     protected void performTLSHandshakeWithRetries(SSLSocket socket, String logPrefix) throws IOException, SSLException {
         int retry = 5; // usually the first retry is enough
-        while (retry>0) {
+        while (retry > 0) {
             try {
                 socket.startHandshake();
+                return;
             } catch (SSLException e) {
                 // catch generic SSL Exceptions and check if there is caused by HSM Timeout
                 if (isHSMFunctionTimedOutException(e) && (retry > 1)) {
@@ -194,9 +195,6 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
                 } else {
                     throw e;
                 }
-            } catch (IOException e) {
-                // any other exception will be handled in upper layers
-                throw e;
             }
         }
     }
