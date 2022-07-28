@@ -131,15 +131,16 @@ public class DataCollectionEventHandler implements MessageHandler {
         for (Map<?, ?> mapForSingleEvent : description.splitEvents(map)) {
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
 
-            if (description.getName().equalsIgnoreCase(DataCollectionResolveEventDescription.CONNECTION_LOST_AUTO_RESOLVE.getName())) {
+            if (description.getName().equalsIgnoreCase(DataCollectionResolveEventDescription.UNABLE_TO_CONNECT_AUTO_RESOLVE.getName())) {
 
-                LOG.info("[CONM2772]UNABLE_TO_CONNECT_AUTO_RESOLVE event received for device");
-                LOG.info("[CONM2772]Fetching events for device...");
+                LOG.info(description.getName() + " event received for device. Fetching existing events for device...");
+
                 List<DataCollectionEventMetadata> eventsForDevice = getExistingEventsForDevice(device);
 
                 eventsForDevice.forEach(eventMetaData -> {
-                    LOG.info("[CONM2772]Deleting existing event : " + eventMetaData.getEventType() +
-                            ", event creation time : " + eventMetaData.getCreateDateTime().atZone(ZoneId.systemDefault()) + "...");
+                    LOG.info("Deleting existing events type : " + eventMetaData.getEventType() + ", device id : "+ eventMetaData.getDevice().getId() +
+                            ", event id : "+ eventMetaData.getId() + ", event creation time : " + eventMetaData.getCreateDateTime().atZone(ZoneId.systemDefault()) + "...");
+
                     eventMetaData.delete();
                 });
             }
@@ -161,11 +162,7 @@ public class DataCollectionEventHandler implements MessageHandler {
 
         try {
             eventsForDevice = issueDataCollectionService.getDataCollectionEventsForDevice(device);
-            LOG.info("[CONM2772]############################# Existing events for device : (" + device.getId() + device.getName() + ") count is : " + eventsForDevice.size());
-            eventsForDevice.forEach(eventMetaData ->
-                    LOG.info("[CONM2772]############################# Existing events type : " + eventMetaData.getEventType() + ", device id : "+ eventMetaData.getDevice().getId() +
-                            ", event creation time : " + eventMetaData.getCreateDateTime().atZone(ZoneId.systemDefault()))
-            );
+            LOG.info("Existing events for device : (id : " + device.getId() + ", name : " +  device.getName() + ") count is : " + eventsForDevice.size());
         } catch(Exception e) {
             LOG.severe(e.getMessage());
         }
