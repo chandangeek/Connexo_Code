@@ -23,6 +23,7 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
         FAILED_ENTRIES_NUMBER("failedEntriesNumber", "Number of event entries failed to load"),
         SKIPPED_ENTRIES_NUMBER("skippedEntriesNumber", "Number of event entries not forwarded to SAP"),
         PATH("path", "Path to event mapping csv"),
+        COLUMN_VALUE_SEPARATOR("columnValueSeparator", "Separator for a list of values in a column"),
         SEPARATOR("separator", "Csv separator");
 
         private final String javaName;
@@ -60,6 +61,9 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
     @NotNull
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class})
     private String path;
+    @NotNull
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class})
+    private String columnValueSeparator;
     @NotNull
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class})
     private String separator;
@@ -100,6 +104,14 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
         this.path = path;
     }
 
+    public String getColumnValueSeparator() {
+        return columnValueSeparator;
+    }
+
+    public void setColumnValueSeparator(String columnValueSeparator) {
+        this.columnValueSeparator = columnValueSeparator;
+    }
+
     public String getSeparator() {
         return separator;
     }
@@ -116,6 +128,7 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
         setSkippedEntriesNumber(getLongPropertyAndMapToInt(propertyValues, FieldNames.SKIPPED_ENTRIES_NUMBER));
         setPath((String) propertyValues.getProperty(FieldNames.PATH.javaName()));
         setSeparator((String) propertyValues.getProperty(FieldNames.SEPARATOR.javaName()));
+        setColumnValueSeparator((String) propertyValues.getProperty(FieldNames.COLUMN_VALUE_SEPARATOR.javaName()));
     }
 
     @Override
@@ -125,6 +138,7 @@ public class SAPDeviceEventMappingStatusDomainExtension extends AbstractPersiste
         propertySetValues.setProperty(FieldNames.SKIPPED_ENTRIES_NUMBER.javaName(), (long) getSkippedEntriesNumber());
         propertySetValues.setProperty(FieldNames.PATH.javaName(), getPath());
         propertySetValues.setProperty(FieldNames.SEPARATOR.javaName(), getSeparator());
+        propertySetValues.setProperty(FieldNames.COLUMN_VALUE_SEPARATOR.javaName(), getColumnValueSeparator());
     }
 
     private static int getLongPropertyAndMapToInt(CustomPropertySetValues values, FieldNames name) {

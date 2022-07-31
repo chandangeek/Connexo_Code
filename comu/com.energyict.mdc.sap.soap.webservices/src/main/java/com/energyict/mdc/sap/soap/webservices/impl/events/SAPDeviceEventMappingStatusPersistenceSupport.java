@@ -7,6 +7,7 @@ import com.elster.jupiter.cps.PersistenceSupport;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCall;
 
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -90,6 +91,13 @@ public class SAPDeviceEventMappingStatusPersistenceSupport implements Persistenc
         table.column(SAPDeviceEventMappingStatusDomainExtension.FieldNames.SEPARATOR.databaseName())
                 .varChar()
                 .map(SAPDeviceEventMappingStatusDomainExtension.FieldNames.SEPARATOR.javaName())
+                .notNull()
+                .add();
+        table.column(SAPDeviceEventMappingStatusDomainExtension.FieldNames.COLUMN_VALUE_SEPARATOR.databaseName())
+                .varChar()
+                .map(SAPDeviceEventMappingStatusDomainExtension.FieldNames.COLUMN_VALUE_SEPARATOR.javaName())
+                .since(Version.version(10, 7, 17))
+                .installValue("'/'")
                 .notNull()
                 .add();
     }

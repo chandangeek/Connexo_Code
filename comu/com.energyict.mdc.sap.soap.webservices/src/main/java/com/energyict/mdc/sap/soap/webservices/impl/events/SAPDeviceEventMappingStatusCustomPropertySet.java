@@ -90,6 +90,11 @@ public class SAPDeviceEventMappingStatusCustomPropertySet implements CustomPrope
                         .fromThesaurus(thesaurus)
                         .markRequired()
                         .finish(),
+                propertySpecService.stringSpec()
+                        .named(SAPDeviceEventMappingStatusDomainExtension.FieldNames.COLUMN_VALUE_SEPARATOR)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
+                        .finish(),
                 propertySpecService.longSpec()
                         .named(SAPDeviceEventMappingStatusDomainExtension.FieldNames.LOADED_ENTRIES_NUMBER)
                         .fromThesaurus(thesaurus)

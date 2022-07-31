@@ -4,7 +4,12 @@
 
 package com.energyict.mdc.sap.soap.webservices.impl.events;
 
+import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
+import com.elster.jupiter.metering.groups.EndDeviceGroup;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.ObjectFactory;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.ObjectPropertyValue;
@@ -19,6 +24,7 @@ import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbu
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPCrteReqPrpty;
 import com.energyict.mdc.sap.soap.wsdl.webservices.utilitiessmartmetereventerpbulkcreaterequestservice.UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt;
 
+import java.time.Clock;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,10 +37,16 @@ public class ForwardedDeviceEventTypesFormatter {
     private final Map<String, SAPDeviceEventType> forwardedEventTypesByDeviceEventCode = new HashMap<>();
     private final ObjectFactory objectFactory = new ObjectFactory();
     private final SAPCustomPropertySets sapCustomPropertySets;
+    private final DeviceService deviceService;
+    private final MeteringGroupsService meteringGroupsService;
+    private final Clock сlock;
     private boolean disablePropertyTag = true;
 
-    public ForwardedDeviceEventTypesFormatter(SAPCustomPropertySets sapCustomPropertySets) {
+    public ForwardedDeviceEventTypesFormatter(SAPCustomPropertySets sapCustomPropertySets, DeviceService deviceService, MeteringGroupsService meteringGroupsService, Clock сlock) {
         this.sapCustomPropertySets = sapCustomPropertySets;
+        this.deviceService = deviceService;
+        this.meteringGroupsService = meteringGroupsService;
+        this.сlock = сlock;
     }
 
     public void setDisablePropertyTag(boolean disablePropertyTag) {
@@ -55,6 +67,28 @@ public class ForwardedDeviceEventTypesFormatter {
                 || eventType.getDeviceEventCode().filter(forwardedEventTypesByDeviceEventCode::containsKey).isPresent();
     }
 
+    boolean filterByDeviceTypeAndGroup(SAPDeviceEventType eventType, EndDevice endDevice) {
+        Optional<Device> device = deviceService.findDeviceByMrid(endDevice.getMRID());
+        if (device.isPresent()) {
+            String deviceType = device.get().getDeviceType().getName();
+            boolean deviceTypeMatched = eventType.getDeviceTypes().isEmpty() || eventType.getDeviceTypes().contains(deviceType);
+            if (deviceTypeMatched) {
+                return eventType.getDeviceGroups().isEmpty() || eventType.getDeviceGroups().stream().anyMatch(gN -> isDeviceInGroup(gN, endDevice));
+            }
+        } else {
+            LOGGER.info("Device isn't found for the end device '" + endDevice.getName() + "'.");
+        }
+        return false;
+    }
+
+    boolean isDeviceInGroup(String groupName, EndDevice endDevice) {
+        Optional<EndDeviceGroup> endDeviceGroup = meteringGroupsService.findEndDeviceGroupByName(groupName);
+        if (endDeviceGroup.isPresent()) {
+            return endDeviceGroup.get().isMember(endDevice, сlock.instant());
+        }
+        return false;
+    }
+
     public Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt> filterAndFormat(EndDeviceEventRecord eventRecord) {
         SAPDeviceEventType eventType = forwardedEventTypesByEventCode.get(eventRecord.getEventTypeCode());
         if (eventType == null) {
@@ -62,6 +96,12 @@ public class ForwardedDeviceEventTypesFormatter {
         }
         if (eventType == null) {
             return Optional.empty(); // this event type is either not present in mapping file, or has 'forwarded' = false
+        }
+        if (!filterByDeviceTypeAndGroup(eventType, eventRecord.getEndDevice())) {
+            String eventInfo = eventType.getEventCode().isPresent() ? " for event type with code '" + eventType.getEventCode().get() + "'" :
+                    eventType.getDeviceEventCode().isPresent() ? " for event type with device code '" + eventType.getDeviceEventCode().get() + "'" : "";
+            LOGGER.fine("End device '" + eventRecord.getEndDevice().getName() + "'" + eventInfo + " has been filtered out.");
+            return Optional.empty();
         }
         Optional<String> sapDeviceId = sapCustomPropertySets.getRegisteredSapDeviceId(eventRecord.getEndDevice());
         if (!sapDeviceId.isPresent()) {

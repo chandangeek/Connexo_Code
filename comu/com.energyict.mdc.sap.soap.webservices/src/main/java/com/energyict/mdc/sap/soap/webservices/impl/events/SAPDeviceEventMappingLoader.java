@@ -6,6 +6,7 @@ package com.energyict.mdc.sap.soap.webservices.impl.events;
 
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.cps.RegisteredCustomPropertySet;
+import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
@@ -16,6 +17,7 @@ import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.sap.soap.webservices.SAPCustomPropertySets;
 import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 import com.energyict.mdc.sap.soap.webservices.impl.WebServiceActivator;
@@ -29,6 +31,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
+import java.time.Clock;
 import java.util.Optional;
 import java.util.stream.Stream;
 
@@ -38,6 +41,8 @@ public class SAPDeviceEventMappingLoader {
     private static final String PROPERTY_CSV_PATH_DEFAULT = "./sap/event-mapping.csv";
     private static final String PROPERTY_CSV_SEPARATOR_NAME = "com.elster.jupiter.sap.eventmapping.csv.separator";
     private static final String PROPERTY_CSV_SEPARATOR_DEFAULT = ";";
+    private static final String PROPERTY_COLUMN_VALUE_SEPARATOR = "com.elster.jupiter.sap.eventmapping.column.value.separator";
+    private static final String PROPERTY_COLUMN_VALUE_SEPARATOR_DEFAULT = "/";
     private static final String PROPERTY_DISABLE_PROPERTY_TAG = "com.elster.jupiter.sap.eventpropertytag.disable";
     private static final String PROPERTY_DISABLE_PROPERTY_TAG_DEFAULT = "true";
 
@@ -48,6 +53,9 @@ public class SAPDeviceEventMappingLoader {
     private final FileSystem fileSystem;
     private final ServiceCallService serviceCallService;
     private final CustomPropertySetService customPropertySetService;
+    private final DeviceService deviceService;
+    private final MeteringGroupsService meteringGroupsService;
+    private final Clock сlock;
     private final SAPDeviceEventMappingStatusCustomPropertySet eventMappingStatusCPS;
     private final UserService userService;
     private final ThreadPrincipalService threadPrincipalService;
@@ -65,7 +73,10 @@ public class SAPDeviceEventMappingLoader {
                                 UserService userService,
                                 ThreadPrincipalService threadPrincipalService,
                                 TransactionService transactionService,
-                                SAPDeviceEventMappingStatusCustomPropertySet eventMappingStatusCPS) {
+                                SAPDeviceEventMappingStatusCustomPropertySet eventMappingStatusCPS,
+                                DeviceService deviceService,
+                                MeteringGroupsService meteringGroupsService,
+                                Clock сlock) {
         this.bundleContext = bundleContext;
         this.fileSystem = fileSystem;
         this.serviceCallService = serviceCallService;
@@ -74,24 +85,31 @@ public class SAPDeviceEventMappingLoader {
         this.threadPrincipalService = threadPrincipalService;
         this.transactionService = transactionService;
         this.eventMappingStatusCPS = eventMappingStatusCPS;
-        formatter = new ForwardedDeviceEventTypesFormatter(sapCustomPropertySets);
+        this.deviceService = deviceService;
+        this.meteringGroupsService = meteringGroupsService;
+        this.сlock = сlock;
+        formatter = new ForwardedDeviceEventTypesFormatter(sapCustomPropertySets, deviceService, meteringGroupsService, сlock);
     }
 
     public ForwardedDeviceEventTypesFormatter loadMapping() {
         setSecurityContext();
         String path = getProperty(PROPERTY_CSV_PATH_NAME, PROPERTY_CSV_PATH_DEFAULT);
+        String columnValueSeparator = getProperty(PROPERTY_COLUMN_VALUE_SEPARATOR, PROPERTY_COLUMN_VALUE_SEPARATOR_DEFAULT);
         String separator = getProperty(PROPERTY_CSV_SEPARATOR_NAME, PROPERTY_CSV_SEPARATOR_DEFAULT);
         formatter.setDisablePropertyTag(Boolean.valueOf(getProperty(PROPERTY_DISABLE_PROPERTY_TAG, PROPERTY_DISABLE_PROPERTY_TAG_DEFAULT)));
-        ServiceCall serviceCall = createServiceCall(path, separator);
+        ServiceCall serviceCall = createServiceCall(path, separator, columnValueSeparator);
         try (InputStream input = Files.newInputStream(fileSystem.getPath(path));
              BufferedReader reader = new BufferedReader(new InputStreamReader(input, Charset.forName("UTF-8")))) {
+            if (separator.equalsIgnoreCase(columnValueSeparator)) {
+                throw separatorsAreNotDifferentException();
+            }
             LineCounter lineCounter = new LineCounter();
             reader.lines()
                     .peek(line -> lineCounter.newLine())
                     .skip(1) // header line
                     .flatMap(line -> {
                         try {
-                            SAPDeviceEventType eventType = SAPDeviceEventType.parseFromCsvEntry(line, separator);
+                            SAPDeviceEventType eventType = SAPDeviceEventType.parseFromCsvEntry(line, separator, columnValueSeparator);
                             if (eventType.isForwardedToSap() && formatter.contains(eventType)) {
                                 throw duplicateEventCodeOrDeviceEventCodeException(eventType);
                             }
@@ -113,10 +131,15 @@ public class SAPDeviceEventMappingLoader {
         return formatter;
     }
 
+    private static Exception separatorsAreNotDifferentException() {
+        return new Exception("CSV separator and separator in a column for a list of values must have different values.");
+    }
+
     private static Exception duplicateEventCodeOrDeviceEventCodeException(SAPDeviceEventType eventType) {
         return new Exception("Non-unique event identification code(s) " + toString(eventType) +
                 ". Combination of " + SAPDeviceEventType.CsvField.EVENT_CODE.name() + " & " + SAPDeviceEventType.CsvField.DEVICE_EVENT_CODE.name() +
-                " on respective positions " + SAPDeviceEventType.CsvField.EVENT_CODE.position() + " & " + SAPDeviceEventType.CsvField.DEVICE_EVENT_CODE.position() + " must be unique.");    }
+                " on respective positions " + SAPDeviceEventType.CsvField.EVENT_CODE.position() + " & " + SAPDeviceEventType.CsvField.DEVICE_EVENT_CODE.position() + " must be unique.");
+    }
 
     private static String toString(SAPDeviceEventType eventType) {
         return eventType.getEventCode()
@@ -137,11 +160,12 @@ public class SAPDeviceEventMappingLoader {
         return value == null ? defaultValue : value;
     }
 
-    private ServiceCall createServiceCall(String path, String separator) {
+    private ServiceCall createServiceCall(String path, String separator, String columnValueSeparator) {
         try (TransactionContext context = transactionService.getContext()) {
             SAPDeviceEventMappingStatusDomainExtension properties = new SAPDeviceEventMappingStatusDomainExtension();
             properties.setPath(path);
             properties.setSeparator(separator);
+            properties.setColumnValueSeparator(columnValueSeparator);
             ServiceCall serviceCall = getServiceCallType().newServiceCall()
                     .origin(WebServiceActivator.APPLICATION_NAME)
                     .extendedWith(properties)
