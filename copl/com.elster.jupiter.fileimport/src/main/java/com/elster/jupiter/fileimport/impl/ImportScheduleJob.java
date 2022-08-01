@@ -44,7 +44,6 @@ class ImportScheduleJob implements CronJob {
         this.fileImportService = fileImportService;
         this.importScheduleId = importScheduleId;
         this.thesaurus = thesaurus;
-
     }
 
     @Override
@@ -65,13 +64,12 @@ class ImportScheduleJob implements CronJob {
                 .map(ServerImportSchedule.class::cast)
                 .ifPresent(importSchedule -> {
                     Path importFolder = fileImportService.getBasePath().resolve(importSchedule.getImportDirectory());
-                    LOGGER.fine("import folder: " + importFolder.toString());
+                    LOGGER.fine("import folder: " + importFolder);
                     FolderScanningJob folderScanningJob = new FolderScanningJob(
                             new PollingFolderScanner(filter, fileSystem, importFolder, importSchedule.getPathMatcher(), this.thesaurus),
                             new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
                             fileImportService);
                     folderScanningJob.run();
-
                 });
     }
 }

@@ -7,29 +7,32 @@ package com.elster.jupiter.fileimport.impl;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.transaction.Transaction;
 import com.elster.jupiter.transaction.TransactionService;
-import com.elster.jupiter.transaction.VoidTransaction;
+import com.elster.jupiter.transaction.impl.TransactionModule;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.ScheduleExpression;
+
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+
+import java.io.IOException;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Clock;
+import java.util.Optional;
+import java.util.function.Consumer;
+
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
 import org.mockito.Matchers;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
-import java.nio.file.DirectoryStream;
-import java.nio.file.Path;
-import java.time.Clock;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -38,9 +41,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-@Ignore
 public class ImportScheduleJobTest {
-
     private static final long ID = 354156L;
     private static final String SERIALIZED = "SERIALIZED";
     private ImportScheduleJob importScheduleJob;
@@ -50,19 +51,12 @@ public class ImportScheduleJobTest {
     @Mock
     private ScheduleExpression scheduleExpression;
     @Mock
-    private Path importDir;
-    @Mock
-    private FileUtils fileSystem;
+    private FileUtils fileUtils;
     @Mock
     private DirectoryStream<Path> directoryStream;
-    @Mock
-    private Path path;
-    @Mock
-    private TransactionService transactionService;
-
+    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     @Mock
     private CronExpressionParser cronExpressionParser;
-
     @Mock
     private ServerFileImportOccurrence fileImportOccurrence;
     @Mock
@@ -75,38 +69,36 @@ public class ImportScheduleJobTest {
     private FileImportService fileImportService;
     @Mock
     private Clock clock;
-    @Mock
+    private FileSystem testFileSystem;
+    private Path path;
     private Path basePath;
+    private Path importDir;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        testFileSystem = Jimfs.newFileSystem(Configuration.windows());
+        basePath = testFileSystem.getRootDirectories().iterator().next();
+        importDir = basePath.resolve("Import");
+        Files.createDirectory(importDir);
+        path = importDir.resolve("file");
+        Files.createFile(path);
+
         when(importSchedule.getScheduleExpression()).thenReturn(scheduleExpression);
         when(importSchedule.getImportDirectory()).thenReturn(importDir);
         when(importSchedule.getId()).thenReturn(1L);
+        when(importSchedule.isActive()).thenReturn(true);
         when(fileImportService.getImportSchedule(1L)).thenReturn(Optional.of(importSchedule));
         when(fileImportService.getBasePath()).thenReturn(basePath);
-        when(basePath.resolve(importDir)).thenReturn(importDir);
         when(fileImportService.getAppServerName()).thenReturn(Optional.of("appServerName"));
-//        when(serviceLocator.getFileSystem()).thenReturn(fileSystem);
-//        when(serviceLocator.getPredicates()).thenReturn(predicates);
-//        when(serviceLocator.getJsonService()).thenReturn(jsonService);
-//        when(serviceLocator.getTransactionService()).thenReturn(transactionService);
-                when(fileSystem.newDirectoryStream(importDir, null)).thenReturn(directoryStream);
+        when(fileUtils.newDirectoryStream(importDir, null)).thenReturn(directoryStream);
         when(fileImportOccurrence.getId()).thenReturn(ID);
 
-
-        when(transactionService.execute(any())).thenAnswer(new Answer<Object>() {
-            @Override
-            public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((VoidTransaction) invocationOnMock.getArguments()[0]).get();
-            }
-        });
-
-        importScheduleJob = new ImportScheduleJob(path -> true, fileSystem, jsonService, fileImportService, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser,clock);
+        importScheduleJob = new ImportScheduleJob(path -> true, fileUtils, jsonService, fileImportService, importSchedule.getId(), transactionService, thesaurus, cronExpressionParser,clock);
     }
 
     @After
-    public void tearDown() {
+    public void tearDown() throws IOException {
+        testFileSystem.close();
     }
 
     @Test
@@ -115,7 +107,6 @@ public class ImportScheduleJobTest {
     }
 
     @Test
-    @Ignore
     public void testRun() throws Exception {
         doAnswer(invocationOnMock -> {
             Consumer consumer = (Consumer) invocationOnMock.getArguments()[0];

@@ -82,7 +82,6 @@ import java.util.stream.Collectors;
 
 @Path("/importservices")
 public class FileImportScheduleResource {
-
     private final FileImportService fileImportService;
     private final TransactionService transactionService;
     private final PropertyValueInfoService propertyValueInfoService;
@@ -96,7 +95,6 @@ public class FileImportScheduleResource {
     private final ExceptionFactory exceptionFactory;
     private final JsonService jsonService;
     private final Thesaurus thesaurus;
-
 
     private static final int MAX_FILE_SIZE = 100 * 1024 * 1024;
     private static final int UNPROCESSIBLE_ENTITY = 422;
@@ -382,7 +380,6 @@ public class FileImportScheduleResource {
         return finderBuilder.build();
     }
 
-
     @GET
     @Path("/history/{occurrenceId}")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -391,7 +388,6 @@ public class FileImportScheduleResource {
                                                            @BeanParam JsonQueryFilter filter,
                                                            @PathParam("occurrenceId") long occurrenceId,
                                                            @Context SecurityContext securityContext) {
-
         return FileImportOccurrenceInfo.of(
                 fileImportService.getFileImportOccurrence(occurrenceId).orElseThrow(() -> new WebApplicationException(Response.Status.NOT_FOUND)));
     }
@@ -404,7 +400,6 @@ public class FileImportScheduleResource {
                                                           @BeanParam JsonQueryFilter filter,
                                                           @PathParam("occurrenceId") long occurrenceId,
                                                           @Context SecurityContext securityContext) {
-
         Optional<Order> timeStampOrder = queryParameters.getSortingColumns().stream()
                 .filter(col -> col.getName().equals("timestamp"))
                 .findAny();

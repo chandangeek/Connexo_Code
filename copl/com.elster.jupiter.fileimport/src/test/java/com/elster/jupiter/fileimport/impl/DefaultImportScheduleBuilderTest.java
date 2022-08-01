@@ -92,8 +92,7 @@ public class DefaultImportScheduleBuilderTest {
         when(validatorFactory.getValidator()).thenReturn(validator);
         when(validator.validate(any(), anyVararg())).thenReturn(Collections.<ConstraintViolation<Object>>emptySet());
         when(dataModel.getInstance(ImportScheduleImpl.class)).thenReturn(
-                new ImportScheduleImpl(dataModel, fileImportService, messageService, eventService, scheduleExpressionParser, nameResolver, fileUtils, thesaurus, testFileSystem, Clock
-                        .systemDefaultZone()));
+                new ImportScheduleImpl(dataModel, fileImportService, messageService, eventService, scheduleExpressionParser, nameResolver, fileUtils, thesaurus, Clock.systemDefaultZone()));
     }
 
     @Test

@@ -13,7 +13,6 @@ import com.elster.jupiter.domain.util.impl.DomainUtilModule;
 import com.elster.jupiter.events.impl.EventsModule;
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.FileImportService;
-import com.elster.jupiter.fileimport.FileImporter;
 import com.elster.jupiter.fileimport.FileImporterFactory;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -52,15 +51,12 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.Scopes;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.event.EventAdmin;
-import org.osgi.service.log.LogService;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.time.Clock;
 import java.time.Instant;
@@ -87,14 +83,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class FileImportServiceIT {
-
     private static final long ID = 5564;
     private static final String FILE_NAME = "fileName";
     private static final String CONTENTS = "CONTENTS";
     private static final String SUCCESS_MESSAGE = "SUCCESS_MESSAGE";
     private static final String FAILURE_MESSAGE = "FAILURE_MESSAGE";
     private static final String SUCCESS_WITH_FAILURE_MESSAGE = "SUCCESS_WITH_FAILURE_MESSAGE";
-    private static final String SERIALIZED = "serialized";
     private static final String DESTINATION_NAME = "DESTINATION";
     private static final String IMPORTER_NAME = "TEST_IMPORTER";
     private ImportScheduleImpl importSchedule;
@@ -106,8 +100,6 @@ public class FileImportServiceIT {
     @Mock
     private UserService userService;
     @Mock
-    private EventAdmin eventAdmin;
-    @Mock
     private LicenseService licenseService;
 
     @Mock
@@ -118,7 +110,6 @@ public class FileImportServiceIT {
     private Path successFilePath;
     private Path failureFilePath;
     private Path sourceDirectory, inProcessDirectory, successDirectory, failureDirectory, basePath;
-
 
     @Mock
     private FileUtilsImpl fileUtils;
@@ -132,19 +123,10 @@ public class FileImportServiceIT {
     @Mock
     private User user;
 
-    @Mock
-    private LogService logService;
-
     private JsonService jsonService;
-
     private TransactionService transactionService;
-
-
     private Clock clock;
-
     private MessageService messageService;
-
-
     private Injector injector;
 
     private Logger logger;
@@ -154,20 +136,13 @@ public class FileImportServiceIT {
 
     private Predicate<Path> filter = path -> !Files.isDirectory(path);
 
-
     @Mock
     private NlsMessageFormat importStarted, importFinished;
     private InMemoryBootstrapModule inMemoryBootstrapModule = new InMemoryBootstrapModule();
-
     @Mock
     FileImporterFactory fileImporterFactory;
-
-    @Mock
-    FileImporter fileImporter;
-
     @Mock
     ScheduleExpression scheduleExpression;
-
     @Mock
     private QueueTableSpec queueTableSpec;
     @Mock
@@ -180,9 +155,7 @@ public class FileImportServiceIT {
     @Rule
     public TestRule expectedConstraintViolationRule = new ExpectedConstraintViolationRule();
 
-
     private class MockModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(TimeService.class).toInstance(timeService);
@@ -198,8 +171,6 @@ public class FileImportServiceIT {
         when(userService.createUser(any(), any())).thenReturn(user);
 
         testFileSystem = Jimfs.newFileSystem(Configuration.windows());
-
-
         try {
             injector = Guice.createInjector(
                     inMemoryBootstrapModule,
@@ -221,32 +192,26 @@ public class FileImportServiceIT {
             throw new RuntimeException(e);
         }
         transactionService = injector.getInstance(TransactionService.class);
-        transactionService.execute(() -> {
+        transactionService.run(() -> {
             fileImportService = injector.getInstance(FileImportServiceImpl.class);
             clock = injector.getInstance(Clock.class);
             messageService = injector.getInstance(MessageService.class);
             jsonService = injector.getInstance(JsonService.class);
-
-            return null;
         });
 
-        transactionService.execute(() -> {
+        transactionService.run(() -> {
             queueTableSpec = messageService.createQueueTableSpec(DESTINATION_NAME, "raw", null, true);
             destination = queueTableSpec.createDestinationSpec(DESTINATION_NAME, 0);
             destination.activate();
             subscriberSpec = destination.subscribe(new SimpleTranslationKey(DESTINATION_NAME, DESTINATION_NAME), "TST", Layer.DOMAIN);
-            return null;
         });
 
-
         assertThat(messageService.getDestinationSpec(DESTINATION_NAME).get()).isEqualTo(destination);
-
 
         logger = Logger.getAnonymousLogger();
         logger.setUseParentHandlers(false);
         logRecorder = new LogRecorder(Level.ALL);
         logger.addHandler(logRecorder);
-
 
         when(fileUtils.getInputStream(any(Path.class))).thenReturn(contentsAsStream());
         when(fileUtils.move(any(Path.class), any(Path.class))).thenCallRealMethod();
@@ -281,12 +246,13 @@ public class FileImportServiceIT {
 
         when(fileImporterFactory.getDestinationName()).thenReturn(DESTINATION_NAME);
         when(fileImporterFactory.getName()).thenReturn(IMPORTER_NAME);
-        when(fileImporterFactory.getPropertySpecs()).thenReturn(Collections.EMPTY_LIST);
+        when(fileImporterFactory.getPropertySpecs()).thenReturn(Collections.emptyList());
         when(fileImporterFactory.getApplicationName()).thenReturn("SYS");
         when(fileImporterFactory.requiresTransaction()).thenReturn(true);
 
+        fileImportService.setAppServerInfoProvider(() -> Optional.of("appServerName"));
 
-        transactionService.execute(() -> {
+        transactionService.run(() -> {
             importSchedule = (ImportScheduleImpl) fileImportService.newBuilder()
                     .setName("IMPORT_SCHEDULE1")
                     .setDestination(DESTINATION_NAME)
@@ -298,9 +264,7 @@ public class FileImportServiceIT {
                     .setImporterName(IMPORTER_NAME)
                     .setScheduleExpression(scheduleExpression)
                     .create();
-            return null;
         });
-
 
         when(thesaurus.getFormat(MessageSeeds.FILE_IMPORT_STARTED)).thenReturn(importStarted);
         when(importStarted.format(anyVararg())).thenAnswer(invocation -> {
@@ -310,7 +274,6 @@ public class FileImportServiceIT {
         when(importFinished.format(anyVararg())).thenAnswer(invocation -> {
             return MessageFormat.format(MessageSeeds.FILE_IMPORT_FINISHED.getDefaultFormat(), "");// invocation.getArguments()[0]);//, invocation.getArguments()[1]);
         });
-
     }
 
     private ByteArrayInputStream contentsAsStream() {
@@ -318,20 +281,19 @@ public class FileImportServiceIT {
     }
 
     @After
-    public void tearDown() throws SQLException {
+    public void tearDown() throws Exception {
+        testFileSystem.close();
         inMemoryBootstrapModule.deactivate();
     }
 
     @Test
     public void testImportFileWithSuccess() throws IOException {
-
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
         if (!Files.exists(file)) {
             Files.createFile(file);
         }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccess(SUCCESS_MESSAGE));
-        when(fileImportService.getAppServerName()).thenReturn(Optional.of("AppServerName"));
         FolderScanningJob folderScanningJob = new FolderScanningJob(
                 new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
                 new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
@@ -341,10 +303,7 @@ public class FileImportServiceIT {
 
         Message received = subscriberSpec.receive();
         StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
-        transactionService.execute(() -> {
-            importMessageHandler.process(received);
-            return null;
-        });
+        transactionService.run(() -> importMessageHandler.process(received));
 
         assertThat(Files.exists(fileImportService.getBasePath().resolve(sourceFilePath))).isFalse();
         assertThat(Files.exists(fileImportService.getBasePath().resolve(successFilePath))).isTrue();
@@ -354,14 +313,12 @@ public class FileImportServiceIT {
 
     @Test
     public void testImportFileWithFailure() throws IOException {
-
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
         if (!Files.exists(file)) {
             Files.createFile(file);
         }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markFailure(FAILURE_MESSAGE));
-        when(fileImportService.getAppServerName()).thenReturn(Optional.of("AppServerName"));
         FolderScanningJob folderScanningJob = new FolderScanningJob(
                 new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
                 new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
@@ -371,10 +328,7 @@ public class FileImportServiceIT {
 
         Message received = subscriberSpec.receive();
         StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
-        transactionService.execute(() -> {
-            importMessageHandler.process(received);
-            return null;
-        });
+        transactionService.run(() -> importMessageHandler.process(received));
 
         assertThat(Files.exists(fileImportService.getBasePath().resolve(sourceFilePath))).isFalse();
         assertThat(Files.exists(fileImportService.getBasePath().resolve(successFilePath))).isFalse();
@@ -384,14 +338,12 @@ public class FileImportServiceIT {
 
     @Test
     public void testImportFileSuccessWithFailures() throws IOException {
-
         Path file = basePath.resolve(sourceDirectory).resolve(FILE_NAME);
         if (!Files.exists(file)) {
             Files.createFile(file);
         }
 
         when(fileImporterFactory.createImporter(any())).thenReturn(fileImportOccurrence -> fileImportOccurrence.markSuccessWithFailures(SUCCESS_WITH_FAILURE_MESSAGE));
-        when(fileImportService.getAppServerName()).thenReturn(Optional.of("AppServerName"));
         FolderScanningJob folderScanningJob = new FolderScanningJob(
                 new PollingFolderScanner(filter, fileUtils, fileImportService.getBasePath().resolve(sourceDirectory), importSchedule.getPathMatcher(), this.thesaurus),
                 new DefaultFileHandler(importSchedule, jsonService, transactionService, clock, fileImportService),
@@ -401,10 +353,7 @@ public class FileImportServiceIT {
 
         Message received = subscriberSpec.receive();
         StreamImportMessageHandler importMessageHandler = (StreamImportMessageHandler) fileImportService.createMessageHandler();
-        transactionService.execute(() -> {
-            importMessageHandler.process(received);
-            return null;
-        });
+        transactionService.run(() -> importMessageHandler.process(received));
 
         assertThat(Files.exists(fileImportService.getBasePath().resolve(sourceFilePath))).isFalse();
         assertThat(Files.exists(fileImportService.getBasePath().resolve(successFilePath))).isTrue();
@@ -415,57 +364,48 @@ public class FileImportServiceIT {
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}", property = "importDirectory")
     public void createWithTheSameImportAndProcessFoldersTest() {
-        transactionService.execute(() -> {
-            fileImportService.newBuilder()
-                    .setName("IMPORT_SCHEDULE_1")
-                    .setDestination(DESTINATION_NAME)
-                    .setPathMatcher("*")
-                    .setImportDirectory(testFileSystem.getPath("source"))
-                    .setFailureDirectory(testFileSystem.getPath("failure"))
-                    .setSuccessDirectory(testFileSystem.getPath("success"))
-                    .setProcessingDirectory(testFileSystem.getPath("source"))
-                    .setImporterName(IMPORTER_NAME)
-                    .setScheduleExpression(scheduleExpression)
-                    .create();
-            return null;
-        });
+        transactionService.run(() -> fileImportService.newBuilder()
+                .setName("IMPORT_SCHEDULE_1")
+                .setDestination(DESTINATION_NAME)
+                .setPathMatcher("*")
+                .setImportDirectory(testFileSystem.getPath("source"))
+                .setFailureDirectory(testFileSystem.getPath("failure"))
+                .setSuccessDirectory(testFileSystem.getPath("success"))
+                .setProcessingDirectory(testFileSystem.getPath("source"))
+                .setImporterName(IMPORTER_NAME)
+                .setScheduleExpression(scheduleExpression)
+                .create());
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}", property = "importDirectory")
     public void createWithTheSameImportAndSuccessFoldersTest() {
-        transactionService.execute(() -> {
-            fileImportService.newBuilder()
-                    .setName("IMPORT_SCHEDULE_2")
-                    .setDestination(DESTINATION_NAME)
-                    .setPathMatcher("*")
-                    .setImportDirectory(testFileSystem.getPath("source"))
-                    .setFailureDirectory(testFileSystem.getPath("failure"))
-                    .setSuccessDirectory(testFileSystem.getPath("source"))
-                    .setProcessingDirectory(testFileSystem.getPath("process"))
-                    .setImporterName(IMPORTER_NAME)
-                    .setScheduleExpression(scheduleExpression)
-                    .create();
-            return null;
-        });
+        transactionService.run(() -> fileImportService.newBuilder()
+                .setName("IMPORT_SCHEDULE_2")
+                .setDestination(DESTINATION_NAME)
+                .setPathMatcher("*")
+                .setImportDirectory(testFileSystem.getPath("source"))
+                .setFailureDirectory(testFileSystem.getPath("failure"))
+                .setSuccessDirectory(testFileSystem.getPath("source"))
+                .setProcessingDirectory(testFileSystem.getPath("process"))
+                .setImporterName(IMPORTER_NAME)
+                .setScheduleExpression(scheduleExpression)
+                .create());
     }
 
     @Test
     @ExpectedConstraintViolation(messageId = "{" + MessageSeeds.Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER + "}", property = "importDirectory")
     public void createWithTheSameImportAndFailureFoldersTest() {
-        transactionService.execute(() -> {
-            fileImportService.newBuilder()
-                    .setName("IMPORT_SCHEDULE_3")
-                    .setDestination(DESTINATION_NAME)
-                    .setPathMatcher("*")
-                    .setImportDirectory(testFileSystem.getPath("source"))
-                    .setFailureDirectory(testFileSystem.getPath("source"))
-                    .setSuccessDirectory(testFileSystem.getPath("success"))
-                    .setProcessingDirectory(testFileSystem.getPath("process"))
-                    .setImporterName(IMPORTER_NAME)
-                    .setScheduleExpression(scheduleExpression)
-                    .create();
-            return null;
-        });
+        transactionService.run(() -> fileImportService.newBuilder()
+                .setName("IMPORT_SCHEDULE_3")
+                .setDestination(DESTINATION_NAME)
+                .setPathMatcher("*")
+                .setImportDirectory(testFileSystem.getPath("source"))
+                .setFailureDirectory(testFileSystem.getPath("source"))
+                .setSuccessDirectory(testFileSystem.getPath("success"))
+                .setProcessingDirectory(testFileSystem.getPath("process"))
+                .setImporterName(IMPORTER_NAME)
+                .setScheduleExpression(scheduleExpression)
+                .create());
     }
 }

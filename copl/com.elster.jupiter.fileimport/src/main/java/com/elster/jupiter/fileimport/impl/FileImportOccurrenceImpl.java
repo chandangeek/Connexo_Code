@@ -18,7 +18,6 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.conditions.Condition;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -35,8 +34,6 @@ import java.util.Optional;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -57,11 +54,11 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     private final DataModel dataModel;
     private final FileNameCollisionResolver fileNameCollisionResolver;
     private final Thesaurus thesaurus;
-    private FileImportService fileImportService;
-    private List<ImportLogEntry> logEntries = new ArrayList<>();
+    private final FileImportService fileImportService;
+    private final List<ImportLogEntry> logEntries = new ArrayList<>();
+    private final Clock clock;
 
     private Logger logger;
-    private Clock clock;
 
     @Inject
     private FileImportOccurrenceImpl(FileImportService fileImportService, FileUtils fileUtils, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock) {
@@ -74,7 +71,17 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     }
 
     public static FileImportOccurrenceImpl create(FileImportService fileImportService, FileUtils importFileSystem, DataModel dataModel, FileNameCollisionResolver fileNameCollisionResolver, Thesaurus thesaurus, Clock clock, ImportSchedule importSchedule, Path path) {
-        return new FileImportOccurrenceImpl(fileImportService, importFileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock).init(importSchedule, path);
+        FileImportOccurrenceImpl fileImportOccurrence = new FileImportOccurrenceImpl(fileImportService, importFileSystem, dataModel, fileNameCollisionResolver, thesaurus, clock);
+        fileImportOccurrence.init(importSchedule, path);
+        return fileImportOccurrence;
+    }
+
+    private void init(ImportSchedule importSchedule, Path path) {
+        this.path = path;
+        this.importSchedule = importSchedule;
+        this.importScheduleId = importSchedule.getId();
+        this.status = Status.NEW;
+        this.triggerTime = clock.instant();
     }
 
     @Override
@@ -86,61 +93,6 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
         MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(), thesaurus);
         this.setStartDate(clock.instant());
-        moveFile();
-        save();
-    }
-
-    private FileImportOccurrenceImpl init(ImportSchedule importSchedule, Path path) {
-        this.path = path;
-        this.importSchedule = importSchedule;
-        this.importScheduleId = importSchedule.getId();
-        this.status = Status.NEW;
-        this.triggerTime = clock.instant();
-        return this;
-    }
-
-    @Override
-    public long getId() {
-        return id;
-    }
-
-    @Override
-    public InputStream getContents() {
-        if (inputStream == null) {
-            inputStream = fileUtils.getInputStream(fileImportService.getBasePath().resolve(path));
-        }
-        return inputStream;
-    }
-
-    @Override
-    public ImportSchedule getImportSchedule() {
-        if (importSchedule == null) {
-            importSchedule = importScheduleFactory().getExisting(importScheduleId);
-        }
-        return importSchedule;
-    }
-
-    private DataMapper<ImportSchedule> importScheduleFactory() {
-        return dataModel.mapper(ImportSchedule.class);
-    }
-
-    @Override
-    public Status getStatus() {
-        return status;
-    }
-
-    @Override
-    public String getStatusName() {
-        return this.thesaurus.getFormat(this.getStatus()).format();
-    }
-
-    @Override
-    public void markFailure(String message) {
-        validateStatus();
-        this.message = message;
-        this.endDate = clock.instant();
-        status = Status.FAILURE;
-        ensureStreamClosed();
         moveFile();
         save();
     }
@@ -167,6 +119,43 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         moveFile();
         save();
         MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(), thesaurus);
+    }
+
+    @Override
+    public void markFailure(String message) {
+        validateStatus();
+        this.message = message;
+        this.endDate = clock.instant();
+        status = Status.FAILURE;
+        ensureStreamClosed();
+        moveFile();
+        save();
+    }
+
+    private void moveFile() {
+        try {
+            Path filePath = fileImportService.getBasePath().resolve(path);
+            if (Files.exists(filePath)) {
+                Path target = targetPath(filePath);
+                getLogger().log(Level.FINE, "FileImportOccurrenceImpl :: moveFile :: moving file from source: " + filePath + "to target: " + target);
+                fileUtils.move(filePath, target);
+                path = fileImportService.getBasePath().relativize(target);
+            }
+        } catch (Exception exception) {
+            status = Status.FAILURE;
+            getLogger().log(Level.SEVERE, exception.getMessage(), exception);
+        }
+    }
+
+    @Override
+    public void save() {
+        saveLogEntries();
+        flushLogEntries();
+        if (id == 0) {
+            fileImportFactory().persist(this);
+        } else {
+            fileImportFactory().update(this);
+        }
     }
 
     @Override
@@ -213,9 +202,7 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
     @Override
     public Finder<ImportLogEntry> getLogsFinder() {
-
         Condition condition = where("fileImportOccurrenceReference").isEqualTo(this);
-        //Order[] orders = new Order[]{Order.descending("timeStamp"), Order.ascending("position")};
         return DefaultFinder.of(ImportLogEntry.class, condition, dataModel);
     }
 
@@ -239,17 +226,6 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         logEntries.add(dataModel.getInstance(ImportLogEntryImpl.class).init(this, timestamp, level, message));
     }
 
-    @Override
-    public void save() {
-        saveLogEntries();
-        flushLogEntries();
-        if (id == 0) {
-            fileImportFactory().persist(this);
-        } else {
-            fileImportFactory().update(this);
-        }
-    }
-
     private void saveLogEntries() {
         Arrays.stream(getLogger().getHandlers()).filter(FileImportLogHandler.class::isInstance).forEach(handler -> ((FileImportLogHandler) handler).saveLogEntries());
     }
@@ -260,19 +236,6 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
     private DataMapper<FileImportOccurrence> fileImportFactory() {
         return dataModel.mapper(FileImportOccurrence.class);
-    }
-
-    private void moveFile() {
-        try {
-            Path filePath = fileImportService.getBasePath().resolve(path);
-            if (Files.exists(filePath)) {
-                Path target = targetPath(filePath);
-                fileUtils.move(filePath, target);
-                path = fileImportService.getBasePath().relativize(target);
-            }
-        } catch (Exception e) {
-            getLogger().log(Level.SEVERE, e.getMessage(), e);
-        }
     }
 
     private Path targetPath(Path path) {
@@ -324,4 +287,38 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         return dataModel.getConnection(false);
     }
 
+    @Override
+    public long getId() {
+        return id;
+    }
+
+    @Override
+    public InputStream getContents() {
+        if (inputStream == null) {
+            inputStream = fileUtils.getInputStream(fileImportService.getBasePath().resolve(path));
+        }
+        return inputStream;
+    }
+
+    @Override
+    public ImportSchedule getImportSchedule() {
+        if (importSchedule == null) {
+            importSchedule = importScheduleFactory().getExisting(importScheduleId);
+        }
+        return importSchedule;
+    }
+
+    private DataMapper<ImportSchedule> importScheduleFactory() {
+        return dataModel.mapper(ImportSchedule.class);
+    }
+
+    @Override
+    public Status getStatus() {
+        return status;
+    }
+
+    @Override
+    public String getStatusName() {
+        return this.thesaurus.getFormat(this.getStatus()).format();
+    }
 }
