@@ -15,23 +15,27 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
+import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionServiceImpl;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
 
 import com.google.inject.Injector;
 import org.osgi.service.event.EventConstants;
 
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -135,14 +139,19 @@ public class DataCollectionEventHandler implements MessageHandler {
 
                 LOG.info(description.getName() + " event received for device. Fetching existing events for device...");
 
-                List<DataCollectionEventMetadata> eventsForDevice = getExistingEventsForDevice(device);
+                Optional<List<DataCollectionEventMetadata>> eventsForDeviceOpt = getExistingEventsForDevice(device);
 
-                eventsForDevice.forEach(eventMetaData -> {
-                    LOG.info("Deleting existing events type : " + eventMetaData.getEventType() + ", device id : "+ eventMetaData.getDevice().getId() +
-                            ", event id : "+ eventMetaData.getId() + ", event creation time : " + eventMetaData.getCreateDateTime().atZone(ZoneId.systemDefault()) + "...");
+                if (eventsForDeviceOpt.isPresent()) {
+                    List<DataCollectionEventMetadata> eventsForDevice = eventsForDeviceOpt.get();
 
-                    eventMetaData.delete();
-                });
+                    DataModel dataModel = ((IssueDataCollectionServiceImpl) issueDataCollectionService).getDataModel();
+                    DataMapper<DataCollectionEventMetadata> dataCollectionEventMetadataDataMapper =
+                            ((DataModelImpl) dataModel).mapper(DataCollectionEventMetadata.class);
+
+                    LOG.info("Deleting events for device : (id : " + device.getId() + ", name : "
+                            +  device.getName() + ") count is : " + eventsForDevice.size());
+                    dataCollectionEventMetadataDataMapper.remove(eventsForDevice);
+                }
             }
 
             try {
@@ -157,17 +166,15 @@ public class DataCollectionEventHandler implements MessageHandler {
         }
     }
 
-    private List<DataCollectionEventMetadata> getExistingEventsForDevice(Device device){
-        List<DataCollectionEventMetadata> eventsForDevice = null;
+    private Optional<List<DataCollectionEventMetadata>> getExistingEventsForDevice(Device device){
 
         try {
-            eventsForDevice = issueDataCollectionService.getDataCollectionEventsForDevice(device);
-            LOG.info("Existing events for device : (id : " + device.getId() + ", name : " +  device.getName() + ") count is : " + eventsForDevice.size());
+            return Optional.ofNullable(issueDataCollectionService.getDataCollectionEventsForDevice(device));
         } catch(Exception e) {
-            LOG.severe(e.getMessage());
+            LOG.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        return eventsForDevice;
+        return Optional.empty();
     }
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {
