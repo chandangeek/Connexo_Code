@@ -21,6 +21,7 @@ public class DeviceSAPInfoDomainExtensionTest {
     private String deviceLocation = "1001216751";
     private String pointOfDelivery = "1234";
     private Boolean registered = true;
+    private Boolean pushEventsToSap = true;
 
     private CustomPropertySetValues cpsValues;
     private DeviceSAPInfoDomainExtension domainExtension;
@@ -40,6 +41,7 @@ public class DeviceSAPInfoDomainExtensionTest {
         cpsValues.setProperty(DeviceSAPInfoDomainExtension.FieldNames.DEVICE_LOCATION.javaName(), deviceLocation);
         cpsValues.setProperty(DeviceSAPInfoDomainExtension.FieldNames.POINT_OF_DELIVERY.javaName(), pointOfDelivery);
         cpsValues.setProperty(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName(), registered);
+        cpsValues.setProperty(DeviceSAPInfoDomainExtension.FieldNames.PUSH_EVENTS_TO_SAP.javaName(), pushEventsToSap);
 
         domainExtension.copyFrom(device, cpsValues);
 
@@ -55,6 +57,7 @@ public class DeviceSAPInfoDomainExtensionTest {
         domainExtension.setDeviceLocation(deviceLocation);
         domainExtension.setPointOfDelivery(pointOfDelivery);
         domainExtension.setRegistered(registered);
+        domainExtension.setPushEventsToSap(pushEventsToSap);
 
         domainExtension.copyTo(cpsValues);
 
@@ -66,6 +69,8 @@ public class DeviceSAPInfoDomainExtensionTest {
                 .isEqualTo(pointOfDelivery);
         assertThat(cpsValues.getProperty(DeviceSAPInfoDomainExtension.FieldNames.REGISTERED.javaName()))
                 .isEqualTo(registered);
+        assertThat(cpsValues.getProperty(DeviceSAPInfoDomainExtension.FieldNames.PUSH_EVENTS_TO_SAP.javaName()))
+                .isEqualTo(pushEventsToSap);
     }
 
     @Test
