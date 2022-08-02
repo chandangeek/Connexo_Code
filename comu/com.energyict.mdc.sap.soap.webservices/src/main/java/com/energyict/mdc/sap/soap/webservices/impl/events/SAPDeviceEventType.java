@@ -6,8 +6,12 @@ package com.energyict.mdc.sap.soap.webservices.impl.events;
 
 import com.elster.jupiter.util.streams.Predicates;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SAPDeviceEventType {
     enum CsvField {
@@ -23,6 +27,8 @@ public class SAPDeviceEventType {
         SEVERITY_CODE_DESCRIPTION,
         ORIGIN_TYPE_CODE,
         ORIGIN_TYPE_CODE_DESCRIPTION,
+        DEVICE_TYPES,
+        DEVICE_GROUPS,
         SAP_PROCESS_WORKFLOW_TRIGGER,
         REMARKS;
 
@@ -30,6 +36,7 @@ public class SAPDeviceEventType {
             return ordinal() + 1;
         }
     }
+
     static final String NO_EVENT_CODE = "0.0.0.0";
     private final String eventCode;
     private final String deviceEventCode;
@@ -38,8 +45,10 @@ public class SAPDeviceEventType {
     private final int severityCode;
     private final int originTypeCode;
     private final boolean forwardedToSap;
+    private final Set<String> deviceTypes = new HashSet<>();
+    private final Set<String> deviceGroups = new HashSet<>();
 
-    private SAPDeviceEventType(String csvEntry, String separator) {
+    private SAPDeviceEventType(String csvEntry, String separator, String columnValueSeparator) {
         String[] values = csvEntry.split(separator, CsvField.values().length);
         eventCode = parseString(values, CsvField.EVENT_CODE).filter(Predicates.not(NO_EVENT_CODE::equals)).orElse(null);
         deviceEventCode = parseString(values, CsvField.DEVICE_EVENT_CODE).orElse(null);
@@ -56,10 +65,13 @@ public class SAPDeviceEventType {
         typeCode = parseMandatoryInt(values, CsvField.TYPE_CODE);
         severityCode = parseMandatoryInt(values, CsvField.SEVERITY_CODE);
         originTypeCode = parseMandatoryInt(values, CsvField.ORIGIN_TYPE_CODE);
+
+        parseString(values, CsvField.DEVICE_TYPES).ifPresent(devTypes -> deviceTypes.addAll(Arrays.stream(devTypes.split(columnValueSeparator)).map(String::trim).collect(Collectors.toList())));
+        parseString(values, CsvField.DEVICE_GROUPS).ifPresent(devGroups -> deviceGroups.addAll(Arrays.stream(devGroups.split(columnValueSeparator)).map(String::trim).collect(Collectors.toList())));
     }
 
-    static SAPDeviceEventType parseFromCsvEntry(String csvEntry, String separator) {
-        return new SAPDeviceEventType(csvEntry, separator);
+    static SAPDeviceEventType parseFromCsvEntry(String csvEntry, String separator, String columnValueSeparator) {
+        return new SAPDeviceEventType(csvEntry, separator, columnValueSeparator);
     }
 
     private static Optional<String> parseString(String[] values, CsvField field) {
@@ -140,5 +152,13 @@ public class SAPDeviceEventType {
 
     public Optional<String> getDeviceEventCode() {
         return Optional.ofNullable(deviceEventCode);
+    }
+
+    public Set<String> getDeviceTypes() {
+        return deviceTypes;
+    }
+
+    public Set<String> getDeviceGroups() {
+        return deviceGroups;
     }
 }
