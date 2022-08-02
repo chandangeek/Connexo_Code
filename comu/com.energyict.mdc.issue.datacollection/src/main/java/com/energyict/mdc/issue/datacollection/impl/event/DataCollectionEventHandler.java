@@ -17,24 +17,17 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.impl.DataModelImpl;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
-import com.energyict.mdc.issue.datacollection.impl.IssueDataCollectionServiceImpl;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-
 import com.google.inject.Injector;
 import org.osgi.service.event.EventConstants;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -48,12 +41,17 @@ public class DataCollectionEventHandler implements MessageHandler {
     private final MeteringService meteringService;
     private final EventService eventService;
     private final IssueDataCollectionService issueDataCollectionService;
+    private final DataModel dataModel;
 
-    public DataCollectionEventHandler(Injector injector, MeteringService meteringService, IssueDataCollectionService issueDataCollectionService, EventService eventService) {
+
+    public DataCollectionEventHandler(Injector injector, MeteringService meteringService,
+                                      IssueDataCollectionService issueDataCollectionService,
+                                      EventService eventService, DataModel dataModel) {
         this.injector = injector;
         this.meteringService = meteringService;
         this.eventService = eventService;
         this.issueDataCollectionService = issueDataCollectionService;
+        this.dataModel = dataModel;
     }
 
     protected IssueCreationService getIssueCreationService() {
@@ -135,7 +133,9 @@ public class DataCollectionEventHandler implements MessageHandler {
         for (Map<?, ?> mapForSingleEvent : description.splitEvents(map)) {
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
 
-            if (description.getName().equalsIgnoreCase(DataCollectionResolveEventDescription.UNABLE_TO_CONNECT_AUTO_RESOLVE.getName())) {
+            if ( (description.getName().equalsIgnoreCase(DataCollectionResolveEventDescription.UNABLE_TO_CONNECT_AUTO_RESOLVE.getName())) ||
+                    (description.getName().equalsIgnoreCase(DataCollectionResolveEventDescription.CONNECTION_LOST_AUTO_RESOLVE.getName())) ||
+                    (description.getName().equalsIgnoreCase(DataCollectionResolveEventDescription.DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE.getName())) ) {
 
                 LOG.info(description.getName() + " event received for device. Fetching existing events for device...");
 
@@ -144,13 +144,12 @@ public class DataCollectionEventHandler implements MessageHandler {
                 if (eventsForDeviceOpt.isPresent()) {
                     List<DataCollectionEventMetadata> eventsForDevice = eventsForDeviceOpt.get();
 
-                    DataModel dataModel = ((IssueDataCollectionServiceImpl) issueDataCollectionService).getDataModel();
-                    DataMapper<DataCollectionEventMetadata> dataCollectionEventMetadataDataMapper =
-                            ((DataModelImpl) dataModel).mapper(DataCollectionEventMetadata.class);
-
-                    LOG.info("Deleting events for device : (id : " + device.getId() + ", name : "
-                            +  device.getName() + ") count is : " + eventsForDevice.size());
-                    dataCollectionEventMetadataDataMapper.remove(eventsForDevice);
+                    if (!eventsForDevice.isEmpty()) {
+                        DataMapper<DataCollectionEventMetadata> dataCollectionEventMetadataDataMapper = dataModel.mapper(DataCollectionEventMetadata.class);
+                        LOG.info("Deleting events for device : (id : " + device.getId() + ", name : "
+                                + device.getName() + ") count is : " + eventsForDevice.size());
+                        dataCollectionEventMetadataDataMapper.remove(eventsForDevice);
+                    }
                 }
             }
 
@@ -174,7 +173,7 @@ public class DataCollectionEventHandler implements MessageHandler {
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
 
-        return Optional.empty();
+        return Optional.of(Collections.emptyList());
     }
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {

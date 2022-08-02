@@ -13,6 +13,8 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -51,6 +53,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     private volatile Clock clock;
     private volatile Thesaurus thesaurus;
     private volatile EventService eventService;
+    private volatile OrmService ormService;
 
     // For OSGi framework only
     public DataCollectionEventHandlerFactory() {
@@ -72,7 +75,8 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
             EventService eventService,
             IssueDataCollectionService issueDataCollectionService,
             Clock clock,
-            NlsService nlsService) {
+            NlsService nlsService,
+            OrmService ormService) {
         this();
         setJsonService(jsonService);
         setIssueService(issueService);
@@ -87,6 +91,7 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
         setClock(clock);
         setNlsService(nlsService);
         setEventService(eventService);
+        setOrmService(ormService);
     }
 
     @Override
@@ -109,9 +114,11 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
                 bind(Clock.class).toInstance(clock);
                 bind(IssueDataCollectionService.class).toInstance(issueDataCollectionService);
                 bind(EventService.class).toInstance(eventService);
+                bind(OrmService.class).toInstance(ormService);
             }
         });
-        return new DataCollectionEventHandler(injector, meteringService, issueDataCollectionService, eventService);
+        DataModel dataModel = ormService.getDataModel(IssueDataCollectionService.COMPONENT_NAME).get();
+        return new DataCollectionEventHandler(injector, meteringService, issueDataCollectionService, eventService, dataModel);
     }
 
     @Reference
@@ -178,6 +185,11 @@ public class DataCollectionEventHandlerFactory implements MessageHandlerFactory 
     @Reference
     public final void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setOrmService(final OrmService ormService) {
+        this.ormService = ormService;
     }
 
 }
