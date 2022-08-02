@@ -18,6 +18,8 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -36,7 +38,6 @@ import org.ejbca.core.protocol.ws.EjbcaWSService;
 import org.ejbca.core.protocol.ws.NameAndId;
 import org.ejbca.core.protocol.ws.NotFoundException_Exception;
 import org.ejbca.core.protocol.ws.UserDataVOWS;
-import org.ejbca.core.protocol.ws.UserDoesntFullfillEndEntityProfile_Exception;
 import org.ejbca.core.protocol.ws.WaitingForApprovalException_Exception;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -255,7 +256,7 @@ public class CaServiceImpl implements CaService {
             String certEncoded  = new String(Base64.getEncoder().encode(x509Cert.getEncoded()));
             LOGGER.info("Final certificate:\n"+ BEGIN_CERTIFICATE +certEncoded+ END_CERTIFICATE);
 
-        } catch (IOException | CertificateException | InvalidNameException e) {
+        } catch (IOException | CertificateException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
@@ -569,17 +570,11 @@ public class CaServiceImpl implements CaService {
         lazyInit();
     }
 
-
     public byte[] getPKCS7(byte[] pkcs7Data) {
         return Base64.getDecoder().decode(pkcs7Data);
     }
 
-    @FunctionalInterface
-    public interface ThrowingSupplier<T> {
-        T get() throws Exception;
-    }
-
-    protected <T> T callEjbcaWithRetry(ThrowingSupplier<T> supplier) throws CertificateAuthorityRuntimeException{
+    protected <T> T callEjbcaWithRetry(ExceptionThrowingSupplier<T, Exception> supplier) throws CertificateAuthorityRuntimeException{
         int retry = 5; // usually the first retry is enough
         while (retry > 0) {
             try {

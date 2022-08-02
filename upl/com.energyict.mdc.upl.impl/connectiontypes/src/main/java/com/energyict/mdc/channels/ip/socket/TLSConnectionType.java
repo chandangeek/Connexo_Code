@@ -45,7 +45,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private static final String SEPARATOR = ",";
     public static final String DEFAULT_SECURE_RANDOM_ALG_SHA_1_PRNG = "SHA1PRNG";
     public static final String DEFAULT_SECURE_RANDOM_PROVIDER_SUN = "SUN";
-    public static final String COM_ATOS_WORLDLINE_JSS_API_FUNCTION_TIMED_OUT_EXCEPTION = "com.atos.worldline.jss.api.FunctionTimedOutException";
+    private static final String COM_ATOS_WORLDLINE_JSS_API_FUNCTION_TIMED_OUT_EXCEPTION = "com.atos.worldline.jss.api.FunctionTimedOutException";
 
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private Logger logger;
