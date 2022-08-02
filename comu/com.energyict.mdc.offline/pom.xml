@@ -415,6 +415,23 @@
     <build>
         <plugins>
             <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-poms</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeTypes>pom</includeTypes>
+                            <includeGroupIds>com.jidesoft</includeGroupIds>
+                            <copyPom>true</copyPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <version>1.8</version>
@@ -459,9 +476,14 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
-                        <configuration>
-                            <skip>${offline.copy.skip}</skip>
-                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <configuration>
+                                    <skip>${offline.copy.skip}</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

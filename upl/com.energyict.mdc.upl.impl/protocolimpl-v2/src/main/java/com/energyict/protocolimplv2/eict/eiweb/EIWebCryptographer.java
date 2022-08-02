@@ -11,7 +11,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 
 import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.mdc.upl.TypedProperties;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 /**
  * @author Rudi Vankeirsbilck (rudi)

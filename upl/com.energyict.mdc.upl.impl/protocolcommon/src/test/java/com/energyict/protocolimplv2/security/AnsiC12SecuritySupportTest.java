@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceAccessLevel;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import org.fest.assertions.core.Condition;
 

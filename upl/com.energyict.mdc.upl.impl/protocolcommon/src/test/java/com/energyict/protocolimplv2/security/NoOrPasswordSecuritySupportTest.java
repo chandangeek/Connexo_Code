@@ -2,6 +2,7 @@ package com.energyict.protocolimplv2.security;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.security.AuthenticationDeviceAccessLevel;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import org.fest.assertions.core.Condition;
 

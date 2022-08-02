@@ -35,6 +35,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 import com.energyict.protocols.impl.channels.ip.IpMessageSeeds;
 
 import org.osgi.service.component.annotations.Component;
@@ -216,7 +217,7 @@ public class DeviceProtocolServiceImpl implements DeviceProtocolService, Message
                 Stream.of(com.energyict.protocolimpl.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.energyict.protocolimpl.properties.nls.PropertyTranslationKeys.values()),
                 Stream.of(com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys.values()),
-                Stream.of(com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys.values()))
+                Stream.of(SecurityPropertySpecTranslationKeys.values()))
                 .flatMap(Function.identity())
                 .map(com.energyict.mdc.upl.nls.TranslationKey.class::cast) // Downcast the generic type to Upl TranslationKey (to avoid problems at runtime)
                 .map(ConnexoTranslationKeyAdapter::adaptTo)

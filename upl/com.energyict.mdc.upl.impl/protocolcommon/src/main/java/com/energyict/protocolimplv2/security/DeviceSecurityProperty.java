@@ -4,6 +4,7 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecBuilder;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import com.energyict.protocolimpl.properties.DescriptionTranslationKey;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;

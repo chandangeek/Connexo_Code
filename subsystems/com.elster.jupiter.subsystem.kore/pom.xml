@@ -48,13 +48,13 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>kore</artifactId>
+            <artifactId>platform</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
-            <artifactId>platform</artifactId>
+            <artifactId>kore</artifactId>
             <version>${project.version}</version>
             <type>pom</type>
         </dependency>
@@ -316,6 +316,27 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-poms</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeTypes>pom</includeTypes>
+                            <includeArtifactIds>platform,kore</includeArtifactIds>
+                            <copyPom>true</copyPom>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
     <profiles>
         <profile>
             <id>assembly</id>

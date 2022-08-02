@@ -14,7 +14,7 @@ import com.energyict.protocolimpl.dlms.g3.G3RespondingFrameCounterHandler;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import java.security.InvalidKeyException;
 import java.security.PrivateKey;

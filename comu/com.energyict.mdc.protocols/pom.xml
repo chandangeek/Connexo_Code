@@ -9,7 +9,6 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>15.0.0-Kratos-SNAPSHOT</version>
-
     </parent>
 
     <artifactId>mdc.protocols</artifactId>
@@ -298,9 +297,9 @@
                     <instructions>
                         <_include>bnd.bnd</_include>
                         <Embed-Dependency>
-                            groupId=!com.elster.jupiter|org.bouncycastle;
+                            groupId=!com.elster.jupiter;
                             scope=!test;
-                            artifactId=!commons-logging|serialio-xmodemapi-osgi|javax.servlet-api|org.osgi.core|org.osgi.compendium|mdc.*
+                            artifactId=connectiontypes|cryptoprotocols|dlms*|protocol*|axis*|commons-codec|commons-discovery|commons-lang|elsterutils|jbcrypt|jna|json|rxtx|utilities|wavenis-driver|yamlbeans
                         </Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
@@ -317,6 +316,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>

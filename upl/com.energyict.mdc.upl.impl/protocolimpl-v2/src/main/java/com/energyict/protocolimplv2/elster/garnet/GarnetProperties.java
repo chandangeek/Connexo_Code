@@ -6,6 +6,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import com.energyict.dlms.DLMSUtils;
 import com.energyict.nls.PropertyTranslationKeys;
@@ -13,7 +14,6 @@ import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.properties.Temporals;
 import com.energyict.protocolimpl.properties.UPLPropertySpecFactory;
 import com.energyict.protocolimplv2.elster.garnet.exception.GarnetException;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;
 import java.time.Duration;

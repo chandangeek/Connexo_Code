@@ -41,7 +41,7 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLToConnexoPropertySpe
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLAuthenticationLevelAdapter;
 import com.energyict.mdc.protocol.pluggable.adapters.upl.accesslevel.UPLEncryptionLevelAdapter;
 import com.energyict.mdc.upl.security.AdvancedDeviceProtocolSecurityCapabilities;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 

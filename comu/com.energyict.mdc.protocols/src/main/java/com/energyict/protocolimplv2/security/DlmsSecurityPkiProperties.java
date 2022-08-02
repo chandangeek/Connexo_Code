@@ -12,6 +12,7 @@ import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.energyict.mdc.protocol.api.security.CommonBaseDeviceSecurityProperties;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import javax.validation.constraints.Size;
 

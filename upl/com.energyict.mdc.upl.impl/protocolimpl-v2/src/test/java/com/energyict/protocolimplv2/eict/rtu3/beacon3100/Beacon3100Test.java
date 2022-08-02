@@ -21,7 +21,7 @@ import com.energyict.protocol.exception.CommunicationException;
 import com.energyict.protocolimpl.utils.IPv6Utils;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.properties.Beacon3100ConfigurationSupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;

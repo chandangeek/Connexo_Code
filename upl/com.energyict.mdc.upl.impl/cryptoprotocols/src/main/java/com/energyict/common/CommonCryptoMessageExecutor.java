@@ -29,7 +29,7 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.Iskra.Mx382Cache;
 import com.energyict.protocolimplv2.nta.esmr50.common.ESMR50Cache;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.IOException;

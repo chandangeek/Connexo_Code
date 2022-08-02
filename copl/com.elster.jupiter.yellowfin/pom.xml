@@ -14,7 +14,6 @@
     <name>[Jupiter] com.elster.jupiter.yellowfin</name>
     <packaging>bundle</packaging>
 
-
     <build>
         <plugins>
             <plugin>
@@ -25,7 +24,7 @@
                     <instructions>
                         <_include>bnd.bnd</_include>
                         <Embed-Dependency>
-                            artifactId=yellowfin-ws|axis|axis-jaxrpc|commons-logging|commons-discovery|activation|axis-wsdl4j|log4j-api-2.17.1|log4j-1.2-api-2.17.1|log4j-core-2.17.1|javax.xml.soap-api
+                            artifactId=yellowfin-ws|axis|axis-jaxrpc|commons-logging|commons-discovery|activation|axis-wsdl4j|log4j-api|log4j-1.2-api|log4j-core|javax.xml.soap-api
                         </Embed-Dependency>
                     </instructions>
                 </configuration>
@@ -103,17 +102,14 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-1.2-api</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
@@ -150,9 +146,5 @@
         </dependency>
 
     </dependencies>
-
-    <properties>
-        <log4j.version>2.17.1</log4j.version>
-    </properties>
 
 </project>

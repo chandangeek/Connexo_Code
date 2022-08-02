@@ -78,7 +78,7 @@ import com.energyict.protocolimplv2.dlms.idis.hs3300.registers.HS3300RegisterFac
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.G3NodeState;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
 import com.energyict.protocolimplv2.security.DlmsSecuritySuite1And2Support;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
 import java.math.BigDecimal;

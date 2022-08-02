@@ -222,7 +222,7 @@ import com.energyict.protocols.mdc.services.impl.ProtocolsModule;
 
 import com.energyict.protocolimpl.elster.a3.AlphaA3;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;

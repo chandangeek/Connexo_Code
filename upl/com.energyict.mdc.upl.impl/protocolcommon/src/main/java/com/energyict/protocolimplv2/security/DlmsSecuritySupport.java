@@ -9,6 +9,7 @@ import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
 import com.energyict.mdc.upl.security.EncryptionDeviceAccessLevel;
 import com.energyict.mdc.upl.security.LegacyDeviceProtocolSecurityCapabilities;
 import com.energyict.mdc.upl.security.LegacySecurityPropertyConverter;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

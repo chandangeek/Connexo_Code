@@ -6,7 +6,7 @@ import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300SecurityProvider;
 import com.energyict.protocolimplv2.eict.rtu3.beacon3100.CryptoBeacon3100ConfigurationSupport;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 public class CryptoHS3300SecurityProvider extends HS3300SecurityProvider {
 

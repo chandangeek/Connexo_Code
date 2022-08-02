@@ -73,9 +73,14 @@
                 <plugins>
                     <plugin>
                         <artifactId>maven-dependency-plugin</artifactId>
-                        <configuration>
-                            <skip>${offline.copy.skip}</skip>
-                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>copy</id>
+                                <configuration>
+                                    <skip>${offline.copy.skip}</skip>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>

@@ -1,15 +1,13 @@
 package com.energyict.protocolimplv2.nta.dsmr23.common;
 
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.crypto.IrreversibleKey;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
 import com.energyict.common.IrreversibleKeyImpl;
 import com.energyict.protocolimplv2.nta.abstractnta.NTASecurityProvider;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 public class CryptoDSMR23SecurityProvider extends NTASecurityProvider {
     //stolen from CryptoBeacon3100ConfigurationSupport

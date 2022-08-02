@@ -11,6 +11,7 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
 
 import com.energyict.dlms.DLMSConnectionException;
 import com.energyict.dlms.InvokeIdAndPriority;
@@ -36,7 +37,6 @@ import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.messages.enums.DlmsEncryptionLevelMessageValues;
 import com.energyict.protocolimplv2.security.DeviceProtocolSecurityPropertySetImpl;
-import com.energyict.protocolimplv2.security.SecurityPropertySpecTranslationKeys;
 import org.json.JSONArray;
 import org.json.JSONException;
 

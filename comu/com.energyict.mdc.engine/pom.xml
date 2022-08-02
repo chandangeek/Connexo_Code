@@ -10,7 +10,6 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>15.0.0-Kratos-SNAPSHOT</version>
-
     </parent>
 
     <artifactId>mdc.engine</artifactId>
