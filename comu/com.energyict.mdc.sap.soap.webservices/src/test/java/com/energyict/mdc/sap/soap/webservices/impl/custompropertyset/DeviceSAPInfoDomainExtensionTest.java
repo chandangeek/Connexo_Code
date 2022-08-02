@@ -49,6 +49,7 @@ public class DeviceSAPInfoDomainExtensionTest {
         assertThat(domainExtension.getDeviceLocation().get()).isSameAs(deviceLocation);
         assertThat(domainExtension.getPointOfDelivery().get()).isSameAs(pointOfDelivery);
         assertThat(domainExtension.isRegistered()).isSameAs(registered);
+        assertThat(domainExtension.shouldPushEventsToSap()).isSameAs(pushEventsToSap);
     }
 
     @Test
