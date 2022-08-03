@@ -203,14 +203,14 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                 }
                 // date
                 CosemDate date = valueAttr.getDate();
-                if( date != null){
+                if (date != null) {
                     registerValue = new RegisterValue(obisCode, date.toString());
                 }
                 // time
                 CosemTime time = valueAttr.getTime();
-                    if(time != null){
-                        registerValue = new RegisterValue(obisCode, time.toString());
-                    }
+                if (time != null) {
+                    registerValue = new RegisterValue(obisCode, time.toString());
+                }
 
                 // class 3
             } else if (uo.getClassID() == DLMSClassId.REGISTER.getClassId()) {

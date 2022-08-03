@@ -126,6 +126,8 @@ public final class DeviceMessageConstants {
     public static final String SecurityLevelMulticastDefaultTranslation = "Multicast security level";
     public static final String SecurityPolicyMulticastV0 = "FirmwareDeviceMessage.SecurityPolicyMulticastV0";
     public static final String SecurityPolicyMulticastV0DefaultTranslation = "Multicast security policy";
+    public static final String startOfConventionalGasDay = "ConfigurationChangeDeviceMessage.startOfConventionalGasDay";
+    public static final String startOfConventionalGasDayDefaultTranslation = "Start of Conventional Gas Day";
 
 
     /**
