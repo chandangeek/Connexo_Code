@@ -31,10 +31,8 @@ public class CosemTime extends AbstractDataType {
 
     @Override
     protected byte[] doGetBEREncodedByteArray() {
-        return
-                new byte[]{
-                        AxdrType.DATE.getTag(),
-                        (byte) (size + 1),    // fixed, no need for giving the length
+        return new byte[] {
+                        AxdrType.TIME27.getTag(),
                         (byte) (hour),
                         (byte) (minutes),
                         (byte) (seconds),

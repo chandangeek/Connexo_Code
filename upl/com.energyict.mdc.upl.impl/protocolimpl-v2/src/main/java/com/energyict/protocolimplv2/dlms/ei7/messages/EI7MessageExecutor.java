@@ -1,15 +1,8 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.ResultType;
-
 import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.AxdrType;
+import com.energyict.dlms.axrdencoding.CosemTime;
 import com.energyict.dlms.axrdencoding.Integer8;
 import com.energyict.dlms.axrdencoding.OctetString;
 import com.energyict.dlms.axrdencoding.Structure;
@@ -20,10 +13,19 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.dlms.cosem.NbiotPushSetup;
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.messages.A2MessageExecutor;
 import com.energyict.protocolimplv2.dlms.ei7.EI7Const;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
@@ -37,6 +39,7 @@ import java.util.Calendar;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newAuthenticationKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.newEncryptionKeyAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.obisCode;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.startOfConventionalGasDay;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.threshold;
 
 public class EI7MessageExecutor extends A2MessageExecutor {
@@ -59,6 +62,8 @@ public class EI7MessageExecutor extends A2MessageExecutor {
 
     private static final ObisCode ORPHAN_STATE = ObisCode.fromString("0.0.94.39.10.255");
 
+    private static final ObisCode START_OF_CONVENTIONAL_GAS_DAY = ObisCode.fromString("7.0.0.9.3.255");
+
     protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     public EI7MessageExecutor(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
@@ -78,6 +83,8 @@ public class EI7MessageExecutor extends A2MessageExecutor {
                 writeNetworkTimeout(pendingMessage);
             } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL_EI6_7)) {
                 renewKey(pendingMessage);
+            } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.GAS_DAY_CONFIGURATION)) {
+                setGasDay(pendingMessage);
             } else {
                 super.executeMessage(pendingMessage, collectedMessage);
             }
@@ -213,5 +220,27 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         }
         byte[] akWrappedKey = DatatypeConverter.parseHexBinary(newAuthenticationKey);
         getProtocol().getDlmsSession().getCosemObjectFactory().getAssociationLN(ObisCode.fromString(obis)).changeHLSSecret(akWrappedKey);
+    }
+
+    private void setGasDay(OfflineDeviceMessage pendingMessage) throws IOException {
+        final String gasDayTime = getDeviceMessageAttributeValue(pendingMessage, startOfConventionalGasDay);
+
+        final Calendar gasDayTimeCal = Calendar.getInstance();
+        gasDayTimeCal.setTimeInMillis(Long.parseLong(gasDayTime));
+        int hour = gasDayTimeCal.get(Calendar.HOUR);
+        int minutes = gasDayTimeCal.get(Calendar.MINUTE);
+
+        byte[] cosemTimeBytes = new byte[] {
+                AxdrType.TIME27.getTag(),
+                (byte) (hour),
+                (byte) (minutes),
+                (byte) (0x00), // seconds
+                (byte) (0x00), // hundreds
+        };
+
+        final CosemTime cosemTime = new CosemTime(cosemTimeBytes, 0);
+        Data gasDay = getProtocol().getDlmsSession().getCosemObjectFactory().getData(START_OF_CONVENTIONAL_GAS_DAY);
+        gasDay.setValueAttr(cosemTime);
+        getProtocol().journal("Start of gas day set to " + hour + ":" + minutes);
     }
 }

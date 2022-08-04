@@ -9,9 +9,9 @@ import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
-
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.messages.A2Messaging;
+import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ContactorDeviceMessage;
 import com.energyict.protocolimplv2.messages.DeviceMessageConstants;
 import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
@@ -55,6 +55,7 @@ public class EI7Messaging extends A2Messaging {
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD.get(getPropertySpecService(), getNlsService(), getConverter()));
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_NETWORK_TIMEOUT.get(getPropertySpecService(), getNlsService(), getConverter()));
             supportedMessages.add(SecurityMessage.KEY_RENEWAL_EI6_7.get(getPropertySpecService(), getNlsService(), getConverter()));
+            supportedMessages.add(ConfigurationChangeDeviceMessage.GAS_DAY_CONFIGURATION.get(getPropertySpecService(), getNlsService(), getConverter()));
         }
         return supportedMessages;
     }
@@ -64,7 +65,8 @@ public class EI7Messaging extends A2Messaging {
         final String propertyName = propertySpec.getName();
         if (propertyName.equals(DeviceMessageConstants.executionTime) ||
                 propertyName.equals(DeviceMessageConstants.communicationWindowStartTime) ||
-                propertyName.equals(DeviceMessageConstants.communicationWindowStopTime)) {
+                propertyName.equals(DeviceMessageConstants.communicationWindowStopTime) ||
+                propertyName.equals(DeviceMessageConstants.startOfConventionalGasDay)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         }
         return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);

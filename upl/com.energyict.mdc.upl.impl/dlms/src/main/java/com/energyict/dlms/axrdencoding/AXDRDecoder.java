@@ -140,6 +140,8 @@ public final class AXDRDecoder {
                     return new UTF8String(data, offset);
                 case DATE_TIME:
                     return new DateTime(data, offset);
+                case TIME27:
+                    return new CosemTime(data, offset);
                 default:
                     throw new ProtocolException("AXDRDecoder, unknown datatype " + data[offset]);
             }

@@ -972,6 +972,12 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
                     this.stringTextareaSpec(service, specialDaysFormatDatesAttributeName, specialDaysFormatDatesAttributeDefaultTranslation)
             );
         }
+    },
+    GAS_DAY_CONFIGURATION(31099, "Update gas day setting") {
+        @Override
+        public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.singletonList(this.dateTimeSpec(service, DeviceMessageConstants.startOfConventionalGasDay, DeviceMessageConstants.startOfConventionalGasDayDefaultTranslation));
+        }
     };
 
     private final long id;
