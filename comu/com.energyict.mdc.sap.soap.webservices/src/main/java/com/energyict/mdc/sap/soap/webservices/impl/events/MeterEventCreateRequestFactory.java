@@ -21,7 +21,7 @@ public class MeterEventCreateRequestFactory {
         throw new RuntimeException("Failed to send notification about event " + toString(event) + ": mapping csv hadn't been loaded properly.");
     };
 
-    private Function<EndDeviceEventRecord, Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt>> eventFormatter;
+    protected Function<EndDeviceEventRecord, Optional<UtilsSmrtMtrEvtERPCrteReqUtilsSmrtMtrEvt>> eventFormatter;
 
     public MeterEventCreateRequestFactory(ForwardedDeviceEventTypesFormatter formatter) {
         setEventFormatter(formatter);
