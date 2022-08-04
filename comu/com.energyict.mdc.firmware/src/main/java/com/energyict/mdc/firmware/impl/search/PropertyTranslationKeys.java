@@ -19,7 +19,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     FIRMWARE(FirmwareSearchablePropertyGroup.GROUP_NAME, "Firmware"),
     FIRMWARE_VERSION(FirmwareVersionSearchableProperty.PROPERTY_NAME, "Firmware version"),
     FIRMWARE_TYPE(FirmwareTypeSearchableProperty.PROPERTY_NAME, "Firmware type"),
-    FIRMWARE_TYPE_METER("firmware.type." + FirmwareType.METER.name(), "Meter"),
+    FIRMWARE_TYPE_METER("firmware.type." + FirmwareType.METER.name(), "Device"),
     FIRMWARE_TYPE_COMMUNICATION("firmware.type." + FirmwareType.COMMUNICATION.name(), "Communication"),
     FIRMWARE_TYPE_CA_CONFIG_IMAGE("firmware.type." + FirmwareType.CA_CONFIG_IMAGE.name(), "Image"),
     FIRMWARE_TYPE_AUXILIARY("firmware.type." + FirmwareType.AUXILIARY.name(), "Auxiliary");

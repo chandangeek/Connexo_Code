@@ -130,6 +130,7 @@ public class FileImportScheduleResourceTest extends FileImportApplicationTest {
         info.id = 1;
         info.name = "New name";
         info.scanFrequency = -1;
+        info.active = true;
         info.importDirectory = "New folder";
         info.inProcessDirectory = "progress";
         info.failureDirectory = "failure";

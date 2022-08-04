@@ -36,7 +36,7 @@ public interface ImportSchedule {
      */
     boolean isActive();
 
-    void setActive(Boolean active);
+    void setActive(boolean active);
 
     /**
      * @return import schedule name

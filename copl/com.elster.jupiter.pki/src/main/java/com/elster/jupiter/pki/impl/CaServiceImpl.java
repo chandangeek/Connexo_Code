@@ -18,6 +18,8 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
+import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
+
 import org.apache.commons.lang3.StringUtils;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -36,7 +38,6 @@ import org.ejbca.core.protocol.ws.EjbcaWSService;
 import org.ejbca.core.protocol.ws.NameAndId;
 import org.ejbca.core.protocol.ws.NotFoundException_Exception;
 import org.ejbca.core.protocol.ws.UserDataVOWS;
-import org.ejbca.core.protocol.ws.UserDoesntFullfillEndEntityProfile_Exception;
 import org.ejbca.core.protocol.ws.WaitingForApprovalException_Exception;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
@@ -52,12 +53,15 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.TrustManagerFactory;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidKeyException;
@@ -66,6 +70,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CRLException;
@@ -113,6 +118,10 @@ public class CaServiceImpl implements CaService {
     public static final String END_CERTIFICATE_REQUEST = "\n-----END CERTIFICATE REQUEST-----\n";
     public static final String BEGIN_CERTIFICATE = "-----BEGIN CERTIFICATE-----\n";
     public static final String END_CERTIFICATE = "\n-----END CERTIFICATE-----\n";
+
+    public static final String DEFAULT_SECURE_RANDOM_ALG_SHA_1_PRNG = "SHA1PRNG";
+    public static final String DEFAULT_SECURE_RANDOM_PROVIDER_SUN = "SUN";
+    public static final String COM_ATOS_WORLDLINE_JSS_API_FUNCTION_TIMED_OUT_EXCEPTION = "com.atos.worldline.jss.api.FunctionTimedOutException";
 
     private boolean configured;
     private String pkiHost;
@@ -225,7 +234,7 @@ public class CaServiceImpl implements CaService {
 
             LOGGER.info("Sending CSR to EJBCA WebService:\n" + BEGIN_CERTIFICATE_REQUEST + csrEncoded + END_CERTIFICATE_REQUEST);
 
-            certificateResponse = ejbcaWS.certificateRequest(userData, csrEncoded, CERT_REQ_TYPE_PKCS10, null, RESPONSETYPE_CERTIFICATE);
+            certificateResponse = callEjbcaWithRetry(() -> ejbcaWS.certificateRequest(userData, csrEncoded, CERT_REQ_TYPE_PKCS10, null, RESPONSETYPE_CERTIFICATE));
 
             LOGGER.info("Response received");
             LOGGER.info("\t- responseType: " + certificateResponse.getResponseType());
@@ -247,8 +256,7 @@ public class CaServiceImpl implements CaService {
             String certEncoded  = new String(Base64.getEncoder().encode(x509Cert.getEncoded()));
             LOGGER.info("Final certificate:\n"+ BEGIN_CERTIFICATE +certEncoded+ END_CERTIFICATE);
 
-        } catch (ApprovalException_Exception | AuthorizationDeniedException_Exception | EjbcaException_Exception | NotFoundException_Exception |
-                UserDoesntFullfillEndEntityProfile_Exception | WaitingForApprovalException_Exception | IOException | CertificateException e) {
+        } catch (IOException | CertificateException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
@@ -297,67 +305,55 @@ public class CaServiceImpl implements CaService {
     @Override
     public List<String> getPkiCaNames() {
         checkConfiguration();
-        try {
-            return ejbcaWS.getAvailableCAs().stream().map(NameAndId::getName).collect(Collectors.toList());
-        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
-        }
+        List<NameAndId> availableCas = callEjbcaWithRetry(()->ejbcaWS.getAvailableCAs());
+        return availableCas.stream().map(NameAndId::getName).collect(Collectors.toList());
     }
 
     public List<IdWithNameInfo> getEndEntities() {
         checkConfiguration();
-        try {
-            return ejbcaWS.getAuthorizedEndEntityProfiles().stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
-        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
-        }
+        List<NameAndId> endEntityProfiles = callEjbcaWithRetry(()->ejbcaWS.getAuthorizedEndEntityProfiles());
+        return endEntityProfiles.stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
     }
 
     @Override
     public List<IdWithNameInfo> getCaName(int endEntityId) {
-        try {
-            return ejbcaWS.getAvailableCAsInProfile(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
-        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
-        }
+        checkConfiguration();
+        List<NameAndId> availableCAsInProfile = callEjbcaWithRetry(()->ejbcaWS.getAvailableCAsInProfile(endEntityId));
+        return availableCAsInProfile.stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
     }
 
     @Override
     public List<IdWithNameInfo> getCertificateProfile(int endEntityId) {
-        try {
-            return ejbcaWS.getAvailableCertificateProfiles(endEntityId).stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
-        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
-        }
+        checkConfiguration();
+        List<NameAndId> availableCertificateProfiles = callEjbcaWithRetry(()->ejbcaWS.getAvailableCertificateProfiles(endEntityId));
+        return availableCertificateProfiles.stream().map(f -> new IdWithNameInfo(f.getId(), f.getName())).collect(Collectors.toList());
     }
 
     @Override
     public String getPkiInfo() {
         checkConfiguration();
         StringBuilder result = new StringBuilder();
-        try {
-            result.append("Version: ");
-            String version = ejbcaWS.getEjbcaVersion();
-            result.append(version).append('\n');
-            Map<Integer, String> authorizedEEProfiles = ejbcaWS.getAuthorizedEndEntityProfiles().stream()
-                    .collect(Collectors.toMap(NameAndId::getId, NameAndId::getName));
-            for (Map.Entry<Integer, String> authorizedEEProfilesEntry : authorizedEEProfiles.entrySet()) {
-                int profileId = authorizedEEProfilesEntry.getKey();
-                String profileName = authorizedEEProfilesEntry.getValue();
-                String caInProfile = ejbcaWS.getAvailableCAsInProfile(profileId).stream().map(NameAndId::getName)
-                        .collect(Collectors.toList()).toString();
-                String cpInProfile = ejbcaWS.getAvailableCertificateProfiles(profileId).stream().map(NameAndId::getName)
-                        .collect(Collectors.toList()).toString();
-                result.append("EE Profile: ").append(profileName).append('\n').append("CAs in profile: ").append(caInProfile).append('\n')
-                        .append("CPs in profile: ").append(cpInProfile).append('\n');
-            }
-        } catch (AuthorizationDeniedException_Exception | EjbcaException_Exception e) {
-            LOGGER.log(Level.SEVERE, e.getMessage(), e);
-            throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.INVALID_REVOCATION_REASON, e.getLocalizedMessage());
+
+        result.append("EJBCA Version: ");
+        String version = callEjbcaWithRetry(()->ejbcaWS.getEjbcaVersion());
+        result.append(version).append('\n');
+
+        result.append("Available CAs: ");
+        List<NameAndId> availableCas = callEjbcaWithRetry(()->ejbcaWS.getAvailableCAs());
+        result.append(availableCas.stream().map(NameAndId::getName).collect(Collectors.toList())).append("\n");
+
+        Map<Integer, String> authorizedEEProfiles = callEjbcaWithRetry(()->ejbcaWS.getAuthorizedEndEntityProfiles()).stream()
+                .collect(Collectors.toMap(NameAndId::getId, NameAndId::getName));
+        for (Map.Entry<Integer, String> authorizedEEProfilesEntry : authorizedEEProfiles.entrySet()) {
+            int profileId = authorizedEEProfilesEntry.getKey();
+            String profileName = authorizedEEProfilesEntry.getValue();
+            String caInProfile = callEjbcaWithRetry(()->ejbcaWS.getAvailableCAsInProfile(profileId)).stream().map(NameAndId::getName)
+                    .collect(Collectors.toList()).toString();
+            String cpInProfile = callEjbcaWithRetry(()->ejbcaWS.getAvailableCertificateProfiles(profileId)).stream().map(NameAndId::getName)
+                    .collect(Collectors.toList()).toString();
+
+            result.append("EE Profile: ").append(profileName).append('\n').append("CAs in profile: ").append(caInProfile).append('\n')
+                    .append("CPs in profile: ").append(cpInProfile).append('\n');
         }
         return result.toString();
     }
@@ -399,9 +395,9 @@ public class CaServiceImpl implements CaService {
     private Optional<X509CRL> getCrl(String caName, boolean isDelta) {
         byte[] crlBytes;
         try {
-            crlBytes = ejbcaWS.getLatestCRL(caName, isDelta);
+            crlBytes = callEjbcaWithRetry(()-> ejbcaWS.getLatestCRL(caName, isDelta));
             return Optional.ofNullable(null != crlBytes ? getX509CRL(crlBytes) : null);
-        } catch (CADoesntExistsException_Exception | EjbcaException_Exception | CertificateException | CRLException e) {
+        } catch (CertificateException | CRLException e) {
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
         }
@@ -498,7 +494,7 @@ public class CaServiceImpl implements CaService {
             TrustManagerFactory tmf = TrustManagerFactory.getInstance("SunX509");
             tmf.init(trustStore);
             SSLContext sslContext = SSLContext.getInstance(PROTOCOL);
-            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
+            sslContext.init(kmf.getKeyManagers(), tmf.getTrustManagers(), getSecureRandom());
             return sslContext;
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | UnrecoverableKeyException | KeyManagementException | InvalidKeyException e) {
             throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
@@ -537,6 +533,26 @@ public class CaServiceImpl implements CaService {
         }
     }
 
+    /**
+     * Because we use the JSS runtime is used as default to be able to handle the private key
+     * For random generator we have to use the native SUN provider,
+     *      else it will use the true-random from JSS, which is very resource intensive!
+     *
+     * @return either the default random from sun, or the fallback from JSS
+     */
+    private SecureRandom getSecureRandom() {
+
+        try {
+            SecureRandom secureRandom = SecureRandom.getInstance(DEFAULT_SECURE_RANDOM_ALG_SHA_1_PRNG, DEFAULT_SECURE_RANDOM_PROVIDER_SUN);
+            LOGGER.fine("EJBCA web service: Using default SUN random generator for TLS handshake.");
+            return secureRandom;
+        } catch (Exception e) {
+            LOGGER.warning("EJBCA web service: Falling back to default random generator (JSS), cannot use the native random generator: " + e.getMessage());
+        }
+
+        return new SecureRandom();
+    }
+
     private void lazyInit() {
         if (ejbcaWS == null) {
             ejbcaWS = createWSBackend();
@@ -554,8 +570,42 @@ public class CaServiceImpl implements CaService {
         lazyInit();
     }
 
-
     public byte[] getPKCS7(byte[] pkcs7Data) {
         return Base64.getDecoder().decode(pkcs7Data);
     }
+
+    protected <T> T callEjbcaWithRetry(ExceptionThrowingSupplier<T, Exception> supplier) throws CertificateAuthorityRuntimeException{
+        int retry = 5; // usually the first retry is enough
+        while (retry > 0) {
+            try {
+                return supplier.get();
+            } catch (SSLException e) {
+                // catch generic SSL Exceptions and check if there is caused by HSM Timeout
+                if (isHSMFunctionTimedOutException(e) && (retry > 1)) {
+                    retry--;
+                    LOGGER.warning("HSM Timeout detected " + e.getLocalizedMessage() + "; will retry " + retry + " more times");
+                } else {
+                    throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+                }
+            } catch (Exception e) {
+                LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, e.getLocalizedMessage());
+            }
+        }
+
+        // never reach
+        throw new CertificateAuthorityRuntimeException(thesaurus, MessageSeeds.CA_RUNTIME_ERROR, "retries exhausted");
+    }
+
+    /**
+     * Helper function to detect if the exception is caused by an HSM timeout, without adding a dependency to HSM or JSS
+     */
+    private boolean isHSMFunctionTimedOutException(SSLException e) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        e.printStackTrace(printWriter);
+
+        return e.toString().contains(COM_ATOS_WORLDLINE_JSS_API_FUNCTION_TIMED_OUT_EXCEPTION);
+    }
+
 }

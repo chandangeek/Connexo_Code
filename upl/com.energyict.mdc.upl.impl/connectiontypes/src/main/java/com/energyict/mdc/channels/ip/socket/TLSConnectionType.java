@@ -18,6 +18,8 @@ import com.energyict.protocolimplv2.messages.nls.Thesaurus;
 
 import javax.net.ssl.*;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.security.*;
 import java.security.cert.CertificateException;
@@ -43,6 +45,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
     private static final String SEPARATOR = ",";
     public static final String DEFAULT_SECURE_RANDOM_ALG_SHA_1_PRNG = "SHA1PRNG";
     public static final String DEFAULT_SECURE_RANDOM_PROVIDER_SUN = "SUN";
+    private static final String COM_ATOS_WORLDLINE_JSS_API_FUNCTION_TIMED_OUT_EXCEPTION = "com.atos.worldline.jss.api.FunctionTimedOutException";
 
     private final CertificateWrapperExtractor certificateWrapperExtractor;
     private Logger logger;
@@ -163,7 +166,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             socket.connect(new InetSocketAddress(host, port), timeOut);
 
             getLogger().info(logPrefix+"TCP Socket connected, starting TLS handshake "+tlsVersion);
-            socket.startHandshake();
+            performTLSHandshakeWithRetries(socket, logPrefix);
 
             getLogger().info(logPrefix+"TLS Socket is ready for communication "+tlsVersion);
 
@@ -172,6 +175,39 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
             getLogger().severe("Security exception:" + e.getMessage());
             throw new ConnectionException(Thesaurus.ID.toString(), MessageSeeds.FailedToSetupTLSConnection, e);
         }
+    }
+
+    /**
+     * Catch any HSM timeouts and retry.
+     * This can happen because JSS runtime is the first security provider, and all crypto functions are relayed to HSM
+     */
+    protected void performTLSHandshakeWithRetries(SSLSocket socket, String logPrefix) throws IOException, SSLException {
+        int retry = 5; // usually the first retry is enough
+        while (retry > 0) {
+            try {
+                socket.startHandshake();
+                return;
+            } catch (SSLException e) {
+                // catch generic SSL Exceptions and check if there is caused by HSM Timeout
+                if (isHSMFunctionTimedOutException(e) && (retry > 1)) {
+                    retry--;
+                    getLogger().warning(logPrefix + "HSM Timeout detected " + e.getLocalizedMessage() + "; will retry " + retry + " more times");
+                } else {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    /**
+     * Helper function to detect if the exception is caused by an HSM timeout, without adding a dependency to HSM or JSS
+     */
+    private boolean isHSMFunctionTimedOutException(SSLException e) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        e.printStackTrace(printWriter);
+
+        return e.toString().contains(COM_ATOS_WORLDLINE_JSS_API_FUNCTION_TIMED_OUT_EXCEPTION);
     }
 
     /**
@@ -232,7 +268,7 @@ public class TLSConnectionType extends OutboundTcpIpConnectionType {
 
     @Override
     public String getVersion() {
-        return "Date: 2021-04-19";
+        return "Date: 2022-07-12";
     }
 
     private PropertySpec stringWithDefault(String name, TranslationKey translationKey, String defaultValue) {

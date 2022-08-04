@@ -9,13 +9,11 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.json.JsonService;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.time.Clock;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -44,8 +42,8 @@ class DefaultFileHandler implements FileHandler {
 
     @Override
     public void handle(final Path file) {
-        File lockFile = file.resolveSibling(file.getFileName() + LOCK_FILE_EXTENSION).toFile();
-        try (FileChannel fileChannel = new RandomAccessFile(lockFile, "rw").getChannel();) {
+        Path lockFile = file.resolveSibling(file.getFileName() + LOCK_FILE_EXTENSION);
+        try (FileChannel fileChannel = FileChannel.open(lockFile, StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE, StandardOpenOption.DELETE_ON_CLOSE)) {
             if (fileChannel.tryLock() != null) {
                 transactionService.run(() -> doHandle(file));
             }
@@ -53,12 +51,6 @@ class DefaultFileHandler implements FileHandler {
             //file handled by another appserver
         } catch (IOException e) {
             logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-        } finally {
-            try {
-                Files.delete(lockFile.toPath());
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, e.getLocalizedMessage(), e);
-            }
         }
     }
 

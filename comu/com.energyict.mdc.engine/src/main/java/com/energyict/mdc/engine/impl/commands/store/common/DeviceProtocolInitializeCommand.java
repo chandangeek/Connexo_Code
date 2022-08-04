@@ -22,6 +22,8 @@ import com.energyict.mdc.upl.issue.Problem;
 
 import com.energyict.protocol.exceptions.ConnectionCommunicationException;
 
+import java.util.logging.Level;
+
 public class DeviceProtocolInitializeCommand extends SimpleComCommand {
 
     private final OfflineDevice device;
@@ -49,6 +51,7 @@ public class DeviceProtocolInitializeCommand extends SimpleComCommand {
         } catch (ConnectionCommunicationException e) {
             throw e;
         } catch (Throwable e) {
+            executionContext.getLogger().log(Level.SEVERE, e.getMessage(), e);
             Problem problem = getCommandRoot().getServiceProvider().issueService().newProblem(deviceProtocol, MessageSeeds.DEVICEPROTOCOL_PROTOCOL_ISSUE, e.getMessage(), e);
             addIssue(problem, CompletionCode.InitError);
         }

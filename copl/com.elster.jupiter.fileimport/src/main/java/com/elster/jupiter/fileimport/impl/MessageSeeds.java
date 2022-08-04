@@ -27,8 +27,7 @@ public enum MessageSeeds implements MessageSeed {
     FILE_IMPORT_STARTED(1008, Constants.FILE_IMPORT_STARTED, "Import is started", Level.INFO),
     FILE_IMPORT_FINISHED(1008, Constants.FILE_IMPORT_FINISHED, "Import is finished", Level.INFO),
     CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER(1009, Constants.CAN_NOT_BE_THE_SAME_AS_IMPORT_FOLDER, "Import folder can not be the same as in process, success or failure folders", Level.INFO),
-    VALID_PATH_REQUIRED(1010, Constants.VALID_PATH_REQUIRED, "This field requires a valid path.", Level.SEVERE)
-        ;
+    VALID_PATH_REQUIRED(1010, Constants.VALID_PATH_REQUIRED, "This field requires a valid path.", Level.SEVERE);
 
     private final int number;
     private final String key;

@@ -112,7 +112,6 @@ public class PropertyInfo {
             } else {
                 valueInfoStream = possibleValuesAsStream(possible.getAllValues()).filter(displayValueFilterFilter).sorted((v1, v2) -> v1.displayValue.compareToIgnoreCase(v2.displayValue));
             }
-
             this.values.addAll(valueInfoStream.collect(Collectors.toList()));
             this.total = this.values.size();
         }
