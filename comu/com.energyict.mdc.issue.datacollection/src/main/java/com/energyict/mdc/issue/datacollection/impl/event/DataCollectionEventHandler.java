@@ -156,7 +156,7 @@ public class DataCollectionEventHandler implements MessageHandler {
 
     private void removeFilteredEvents(EventDescription description, Device device) {
         try {
-            if ((description == null) || (device == null) ) {
+            if ((description == null) || (device == null)) {
                 LOG.severe(() -> "Invalid input parameters(device  : " + device + ", event : " + description + ") received!!");
                 return;
             }
@@ -171,24 +171,26 @@ public class DataCollectionEventHandler implements MessageHandler {
                 // remove  existing events
                 this.deleteDbEventsForDevice(device.getName(), filteredEventsForDevice);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
     }
 
     private void deleteDbEventsForDevice(String deviceName, List<DataCollectionEventMetadata> filteredEventsForDevice) {
         try {
-            if ((deviceName == null) || (filteredEventsForDevice == null) ) {
+            if ((deviceName == null) || (filteredEventsForDevice == null)) {
                 LOG.severe(() -> "Invalid input parameters(device name : " + deviceName + ", filtered events : " + filteredEventsForDevice + ") received!!");
                 return;
             }
 
             // delete list of events to be removed
-            LOG.info(() -> "Deleting events for device name : " + deviceName + " with  count : " + filteredEventsForDevice.size());
+            if (!filteredEventsForDevice.isEmpty()) {
+                LOG.info(() -> "Deleting events for device name : " + deviceName + " with count : " + filteredEventsForDevice.size());
 
-            DataMapper<DataCollectionEventMetadata> dataCollectionEventMetadataDataMapper = dataModel.mapper(DataCollectionEventMetadata.class);
-            dataCollectionEventMetadataDataMapper.remove(filteredEventsForDevice);
-        } catch(Exception e) {
+                DataMapper<DataCollectionEventMetadata> dataCollectionEventMetadataDataMapper = dataModel.mapper(DataCollectionEventMetadata.class);
+                dataCollectionEventMetadataDataMapper.remove(filteredEventsForDevice);
+            }
+        } catch (Exception e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
     }
@@ -218,7 +220,7 @@ public class DataCollectionEventHandler implements MessageHandler {
             }
 
             return Optional.ofNullable(eventToBeRemoved);
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
 
@@ -226,10 +228,10 @@ public class DataCollectionEventHandler implements MessageHandler {
     }
 
     private List<DataCollectionEventMetadata> getExistingEventsForDevice(Device device, List<String> events) {
-        List<DataCollectionEventMetadata> filteredEventsForDevice = null;
+        List<DataCollectionEventMetadata> filteredEventsForDevice = Collections.emptyList();
 
         try {
-            if ((device == null) || (events == null) ) {
+            if ((device == null) || (events == null)) {
                 LOG.severe(() -> "Invalid input parameters(device : " + device + ", events : " + events + ") received!!");
                 return Collections.emptyList();
             }
@@ -242,12 +244,9 @@ public class DataCollectionEventHandler implements MessageHandler {
                         filter(dataCollectionEventMetadata -> events.contains(dataCollectionEventMetadata.getEventType()))
                         .collect(Collectors.toList());
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             LOG.log(Level.SEVERE, e.getMessage(), e);
         }
-
-        if (filteredEventsForDevice == null)
-            filteredEventsForDevice = Collections.emptyList();
 
         return filteredEventsForDevice;
     }
