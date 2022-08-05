@@ -139,8 +139,10 @@ public class DataCollectionEventHandler implements MessageHandler {
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
 
             try {
-                // remove old unnecessary events
-                removeFilteredEvents(description, device);
+                if (description instanceof DataCollectionResolveEventDescription) {
+                    // remove old unnecessary events
+                    removeFilteredEvents(description, device);
+                }
 
                 // handle incoming event
                 dcEvent.wrap(mapForSingleEvent, description, device);
@@ -162,7 +164,7 @@ public class DataCollectionEventHandler implements MessageHandler {
             }
 
             // find failure event corresponding to "resolve" event
-            Optional<String> failureEventName = findExistingFailureEventName(description.getName());
+            Optional<String> failureEventName = findExistingFailureEventName(description);
 
             if (failureEventName.isPresent()) {
                 // filter and remove  existing events
@@ -195,29 +197,17 @@ public class DataCollectionEventHandler implements MessageHandler {
         }
     }
 
-    private Optional<String> findExistingFailureEventName(String receivedEvent) {
+    private Optional<String> findExistingFailureEventName(EventDescription eventDescription) {
         try {
-            if (receivedEvent == null) {
+            if (eventDescription == null) {
                 LOG.severe(() -> "Invalid input parameter received!!");
                 return Optional.empty();
             }
 
             // identify event to be removed
-            String eventToBeRemoved = null;
-
-            if (receivedEvent.equalsIgnoreCase(DataCollectionResolveEventDescription.CONNECTION_LOST_AUTO_RESOLVE.getName())) {
-                eventToBeRemoved = DataCollectionEventDescription.CONNECTION_LOST.getName();
-            } else if (receivedEvent.equalsIgnoreCase(DataCollectionResolveEventDescription.DEVICE_COMMUNICATION_FAILURE_AUTO_RESOLVE.getName())) {
-                eventToBeRemoved = DataCollectionEventDescription.DEVICE_COMMUNICATION_FAILURE.getName();
-            } else if (receivedEvent.equalsIgnoreCase(DataCollectionResolveEventDescription.UNABLE_TO_CONNECT_AUTO_RESOLVE.getName())) {
-                eventToBeRemoved = DataCollectionEventDescription.UNABLE_TO_CONNECT.getName();
-            } else if (receivedEvent.equalsIgnoreCase(DataCollectionResolveEventDescription.UNKNOWN_INBOUND_DEVICE_EVENT_AUTO_RESOLVE.getName())) {
-                eventToBeRemoved = DataCollectionEventDescription.UNKNOWN_INBOUND_DEVICE.getName();
-            } else if (receivedEvent.equalsIgnoreCase(DataCollectionResolveEventDescription.UNKNOWN_OUTBOUND_DEVICE_EVENT_AUTO_RESOLVE.getName())) {
-                eventToBeRemoved = DataCollectionEventDescription.UNKNOWN_OUTBOUND_DEVICE.getName();
-            } else if (receivedEvent.equalsIgnoreCase(DataCollectionResolveEventDescription.REGISTERED_TO_GATEWAY.getName())) {
-                eventToBeRemoved = EventType.UNREGISTERED_FROM_GATEWAY_DELAYED.name();
-            }
+            String eventToBeRemoved = eventDescription == DataCollectionResolveEventDescription.REGISTERED_TO_GATEWAY ?
+                    DataCollectionEventDescription.UNREGISTERED_FROM_GATEWAY.name() :
+                    eventDescription.getUniqueKey();
 
             return Optional.ofNullable(eventToBeRemoved);
         } catch (Exception e) {
