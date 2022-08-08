@@ -15,21 +15,25 @@ import com.elster.jupiter.metering.EndDevice;
 import com.elster.jupiter.metering.EndDeviceStage;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.orm.DataMapper;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.issue.datacollection.DataCollectionEventMetadata;
 import com.energyict.mdc.issue.datacollection.IssueDataCollectionService;
 import com.energyict.mdc.issue.datacollection.event.DataCollectionEvent;
 import com.energyict.mdc.issue.datacollection.impl.ModuleConstants;
-
 import com.google.inject.Injector;
 import org.osgi.service.event.EventConstants;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -42,12 +46,17 @@ public class DataCollectionEventHandler implements MessageHandler {
     private final MeteringService meteringService;
     private final EventService eventService;
     private final IssueDataCollectionService issueDataCollectionService;
+    private final DataModel dataModel;
 
-    public DataCollectionEventHandler(Injector injector, MeteringService meteringService, IssueDataCollectionService issueDataCollectionService, EventService eventService) {
+
+    public DataCollectionEventHandler(Injector injector, MeteringService meteringService,
+                                      IssueDataCollectionService issueDataCollectionService,
+                                      EventService eventService, DataModel dataModel) {
         this.injector = injector;
         this.meteringService = meteringService;
         this.eventService = eventService;
         this.issueDataCollectionService = issueDataCollectionService;
+        this.dataModel = dataModel;
     }
 
     protected IssueCreationService getIssueCreationService() {
@@ -128,7 +137,14 @@ public class DataCollectionEventHandler implements MessageHandler {
     private void createEventsBasedOnDescription(List<IssueEvent> events, Map<?, ?> map, EventDescription description, Device device) {
         for (Map<?, ?> mapForSingleEvent : description.splitEvents(map)) {
             DataCollectionEvent dcEvent = injector.getInstance(description.getEventClass());
+
             try {
+                if (description instanceof DataCollectionResolveEventDescription) {
+                    // remove old unnecessary events
+                    removeFilteredEvents(description, device);
+                }
+
+                // handle incoming event
                 dcEvent.wrap(mapForSingleEvent, description, device);
                 if (description.validateEvent(dcEvent)) {
                     events.add(dcEvent);
@@ -138,6 +154,91 @@ public class DataCollectionEventHandler implements MessageHandler {
                 LOG.severe(e.getMessage());
             }
         }
+    }
+
+    private void removeFilteredEvents(EventDescription description, Device device) {
+        try {
+            if ((description == null) || (device == null)) {
+                LOG.severe(() -> "Invalid input parameters(device  : " + device + ", event : " + description + ") received!!");
+                return;
+            }
+
+            // find failure event corresponding to "resolve" event
+            Optional<String> failureEventName = findExistingFailureEventName(description);
+
+            if (failureEventName.isPresent()) {
+                // filter and remove  existing events
+                List<DataCollectionEventMetadata> filteredEventsForDevice = getExistingEventsForDevice(device, Arrays.asList(failureEventName.get(), description.getName()));
+
+                // remove  existing events
+                this.deleteDbEventsForDevice(device.getName(), filteredEventsForDevice);
+            }
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    private void deleteDbEventsForDevice(String deviceName, List<DataCollectionEventMetadata> filteredEventsForDevice) {
+        try {
+            if ((deviceName == null) || (filteredEventsForDevice == null)) {
+                LOG.severe(() -> "Invalid input parameters(device name : " + deviceName + ", filtered events : " + filteredEventsForDevice + ") received!!");
+                return;
+            }
+
+            // delete list of events to be removed
+            if (!filteredEventsForDevice.isEmpty()) {
+                LOG.info(() -> "Deleting events for device name : " + deviceName + " with count : " + filteredEventsForDevice.size());
+
+                DataMapper<DataCollectionEventMetadata> dataCollectionEventMetadataDataMapper = dataModel.mapper(DataCollectionEventMetadata.class);
+                dataCollectionEventMetadataDataMapper.remove(filteredEventsForDevice);
+            }
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        }
+    }
+
+    private Optional<String> findExistingFailureEventName(EventDescription eventDescription) {
+        try {
+            if (eventDescription == null) {
+                LOG.severe(() -> "Invalid input parameter received!!");
+                return Optional.empty();
+            }
+
+            // identify event to be removed
+            String eventToBeRemoved = eventDescription == DataCollectionResolveEventDescription.REGISTERED_TO_GATEWAY ?
+                    DataCollectionEventDescription.UNREGISTERED_FROM_GATEWAY.name() :
+                    eventDescription.getUniqueKey();
+
+            return Optional.ofNullable(eventToBeRemoved);
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        }
+
+        return Optional.empty();
+    }
+
+    private List<DataCollectionEventMetadata> getExistingEventsForDevice(Device device, List<String> events) {
+        List<DataCollectionEventMetadata> filteredEventsForDevice = Collections.emptyList();
+
+        try {
+            if ((device == null) || (events == null)) {
+                LOG.severe(() -> "Invalid input parameters(device : " + device + ", events : " + events + ") received!!");
+                return Collections.emptyList();
+            }
+
+            LOG.info(() -> "Searching for the events : " + events);
+
+            List<DataCollectionEventMetadata> allEventsForDevice = issueDataCollectionService.getDataCollectionEventsForDevice(device);
+            if (allEventsForDevice != null) {
+                filteredEventsForDevice = allEventsForDevice.stream().
+                        filter(dataCollectionEventMetadata -> events.contains(dataCollectionEventMetadata.getEventType()))
+                        .collect(Collectors.toList());
+            }
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, e.getMessage(), e);
+        }
+
+        return filteredEventsForDevice;
     }
 
     protected Optional<Long> getLong(Map<?, ?> map, String key) {
