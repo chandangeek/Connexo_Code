@@ -17,10 +17,11 @@ import com.energyict.mdc.tou.campaign.TimeOfUseCampaign;
 import com.energyict.mdc.tou.campaign.TimeOfUseCampaignService;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Optional;
-import java.util.TimeZone;
 
 /**
  * Models a {@link DeviceCommand} that reschedules a {@link ScheduledJob}
@@ -31,20 +32,19 @@ import java.util.TimeZone;
  * @since 2014-10-23 (15:32)
  */
 public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand {
-
     private final static String DESCRIPTION_TITLE = "Reschedule to next communication window";
     private final FirmwareService firmwareService;
     private final TimeOfUseCampaignService timeOfUseCampaignService;
 
-    public RescheduleToNextComWindow(JobExecution scheduledJob, FirmwareService firmwareService, TimeOfUseCampaignService timeOfUseCampaignService) {
-        super(scheduledJob);
+    public RescheduleToNextComWindow(JobExecution scheduledJob, ServiceProvider serviceProvider, FirmwareService firmwareService, TimeOfUseCampaignService timeOfUseCampaignService) {
+        super(scheduledJob, serviceProvider);
         this.firmwareService = firmwareService;
         this.timeOfUseCampaignService = timeOfUseCampaignService;
     }
 
     @Override
     protected void doExecute(ComServerDAO comServerDAO, JobExecution scheduledJob) {
-        Instant startingPoint = getClock().instant();
+        Instant startingPoint = getNow();
         Optional<Instant> instant = scheduledJob.getComTaskExecutions()
                 .stream()
                 .map(comTaskExecution -> {
@@ -74,13 +74,13 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
 
     private Instant getComWindowAppliedStartDate(ComWindow comWindow, Instant startDate) {
         int SECONDS_IN_DAY = 86400;
-        Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar calendar = getUtcCalendar();
         calendar.setTimeInMillis(startDate.toEpochMilli());
         if (comWindow.includes(calendar)) {
-            Calendar calendar2 = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+            Calendar calendar2 = getUtcCalendar();
             PartialTime.fromHours(((GregorianCalendar) calendar).toZonedDateTime().getHour())
                     .plus(PartialTime.fromMinutes(((GregorianCalendar) calendar).toZonedDateTime().getMinute())).copyTo(calendar2);
-            return Calendar.getInstance(TimeZone.getTimeZone("UTC")).after(calendar2) ? calendar2.toInstant().plusSeconds(SECONDS_IN_DAY) : calendar2.toInstant();
+            return getUtcCalendar().after(calendar2) ? calendar2.toInstant().plusSeconds(SECONDS_IN_DAY) : calendar2.toInstant();
         } else if (comWindow.after(calendar)) {
             comWindow.getStart().copyTo(calendar);
             return calendar.toInstant();
@@ -91,6 +91,14 @@ public class RescheduleToNextComWindow extends RescheduleExecutionDeviceCommand 
             comWindow.getStart().copyTo(calendar);
             return calendar.toInstant();
         }
+    }
+
+    public Calendar getUtcCalendar() {
+        return GregorianCalendar.from(ZonedDateTime.ofInstant(getNow(), ZoneId.of("UTC"))); // obtain current calendar in UTC using getClock()
+    }
+
+    public Instant getNow() {
+        return getClock().instant();
     }
 
     @Override
