@@ -63,6 +63,8 @@ public class AuthenticationInInterceptorTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private EventService eventService;
+    @Mock
+    private User user;
 
     private AuthorizationInInterceptor authorizationInInterceptor;
 
@@ -73,7 +75,6 @@ public class AuthenticationInInterceptorTest {
         when(developerGroup.getName()).thenReturn("Developer");
         when(developerGroup.hasPrivilege(anyString(),anyString())).thenReturn(true);
         when(userService.findGroup("Developer")).thenReturn(Optional.of(developerGroup));
-        User user = mock(User.class);
         when(user.getName()).thenReturn("Admin");
         when(user.isMemberOf(any(Group.class))).thenReturn(false);
         when(user.isMemberOf(developerGroup)).thenReturn(true);
@@ -89,11 +90,11 @@ public class AuthenticationInInterceptorTest {
         when(message.get(AuthorizationPolicy.class)).thenReturn(authorizationPolicy);
         when(userService.findUser(anyString())).thenReturn(Optional.empty());
         when(message.get(MESSAGE_CONTEXT_OCCURRENCE_ID)).thenReturn(1l);
+        when(user.hasPrivilege(anyString(), anyString())).thenReturn(true);
     }
 
     @Test
     public void testNormalAuthenticationNoSession() throws Exception {
-
         when(httpSession.getAttribute("userName")).thenReturn(null);
         when(httpSession.getAttribute("password")).thenReturn(null);
         when(authorizationPolicy.getUserName()).thenReturn("admin");
@@ -106,7 +107,6 @@ public class AuthenticationInInterceptorTest {
 
     @Test
     public void testAuthenticationWrongPassword() throws Exception {
-
         when(httpSession.getAttribute("userName")).thenReturn(null);
         when(httpSession.getAttribute("password")).thenReturn(null);
         when(authorizationPolicy.getUserName()).thenReturn("admin");
@@ -195,17 +195,14 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testNoPrivilegeAuthentication() {
-        Group noPrivilegesGroup = mock(Group.class);
-        when(noPrivilegesGroup.getName()).thenReturn("Developer");
-        when(noPrivilegesGroup.hasPrivilege(anyString(),anyString())).thenReturn(false);
-        when(userService.findGroup("Developer")).thenReturn(Optional.of(noPrivilegesGroup));
-        when(endPointConfiguration.getGroup()).thenReturn(Optional.of(noPrivilegesGroup));
+    public void testAuthenticationNoPrivilege() throws Exception {
+        when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
 
         when(httpSession.getAttribute("userName")).thenReturn(null);
         when(httpSession.getAttribute("password")).thenReturn(null);
         when(authorizationPolicy.getUserName()).thenReturn("admin");
         when(authorizationPolicy.getPassword()).thenReturn("admin");
+        when(user.hasPrivilege(anyString(), anyString())).thenReturn(false);
 
         try {
             authorizationInInterceptor.handleMessage(message);
@@ -213,6 +210,6 @@ public class AuthenticationInInterceptorTest {
         } catch (Fault se) {
             // This page left blank intentionally
         }
-        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: not in role");
+        verify(endPointConfiguration).log(LogLevel.WARNING, "User admin denied access: no privileges");
     }
 }

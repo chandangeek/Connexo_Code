@@ -11,7 +11,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
-import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -90,6 +89,11 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                             "User " + userName + " denied access: not in role", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
+            if (!hasInvokePrivileges(user.get())) {
+                // needs privilege Web services / Invoke
+                logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: no privileges");
+                fail(NOT_AUTHORIZED, HttpURLConnection.HTTP_FORBIDDEN);
+            }
             request.setAttribute(USERPRINCIPAL, user.get());
         } catch (Fault e) {
             throw e;
@@ -111,14 +115,9 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
      * In this release the endpoints are not observing application affiliation
      * TODO: check application affiliation in upper versions
      */
-    private boolean hasInvokePrivileges(InboundEndPointConfiguration endPointConfiguration) {
-        if (endPointConfiguration.getGroup().isPresent()) {
-            Group group = endPointConfiguration.getGroup().get();
-            return Stream
-                    .of("SYS", "MDC", "INS")
-                    .anyMatch(app -> group.hasPrivilege(app, Privileges.Constants.INVOKE_WEB_SERVICES));
-        }
-        return true;
+    private boolean hasInvokePrivileges(User user) {
+        return Stream.of("SYS", "MDC", "INS")
+                .anyMatch(app -> user.hasPrivilege(app, Privileges.Constants.INVOKE_WEB_SERVICES));
     }
 
     private void fail(Message request, String message, String detailedMessage, Exception e, int statusCode) {
