@@ -18,6 +18,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.nta.dsmr23.eict.WebRTUKP;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23MessageExecutor;
 import com.energyict.protocolimplv2.nta.dsmr23.messages.Dsmr23Messaging;
+import com.energyict.protocolimplv2.nta.dsmr23.profiles.LoadProfileBuilder;
 
 import java.util.List;
 
@@ -30,6 +31,7 @@ import java.util.List;
 public final class AM100 extends WebRTUKP {
 
     private AM100DlmsProperties dlmsProperties;
+    private LoadProfileBuilder loadProfileBuilder;
 
     public AM100(PropertySpecService propertySpecService, NlsService nlsService, Converter converter, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, DeviceMessageFileExtractor messageFileExtractor, TariffCalendarExtractor calendarExtractor, NumberLookupExtractor numberLookupExtractor, LoadProfileExtractor loadProfileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(propertySpecService, nlsService, converter, collectedDataFactory, issueFactory, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
@@ -82,6 +84,14 @@ public final class AM100 extends WebRTUKP {
                             this.getPropertySpecService(), this.nlsService, this.converter, messageFileExtractor, calendarExtractor, numberLookupExtractor, loadProfileExtractor, keyAccessorTypeExtractor);
         }
         return dsmr23Messaging;
+    }
+
+    @Override
+    protected LoadProfileBuilder getLoadProfileBuilder() {
+        if (this.loadProfileBuilder == null) {
+            this.loadProfileBuilder = new LoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return loadProfileBuilder;
     }
 
     @Override

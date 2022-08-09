@@ -156,6 +156,13 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
             return "!"; // the Kamstrup device requires a '!' sign in the IEC1107 signOn
         }
     }
+    @Override
+    protected LoadProfileBuilder getLoadProfileBuilder() {
+        if (this.loadProfileBuilder == null) {
+            this.loadProfileBuilder = new WebRTUKPLoadProfileBuilder(this, this.getCollectedDataFactory(), this.getIssueFactory());
+        }
+        return loadProfileBuilder;
+    }
 
     @Override
     public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
@@ -310,7 +317,7 @@ public class WebRTUKP extends AbstractSmartNtaProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-01-11$";
+        return "$Date: 2022-08-09$";
     }
 
     @Override

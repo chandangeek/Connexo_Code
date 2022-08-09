@@ -432,7 +432,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return channelMask;
     }
 
-    private boolean isCombinedLoadProfile(ObisCode obisCode, List<CapturedRegisterObject> capturedRegisterObjectList) {
+    protected boolean isCombinedLoadProfile(ObisCode obisCode, List<CapturedRegisterObject> capturedRegisterObjectList) {
         return !obisCode.equalsIgnoreBChannel(MBUS_HOURLY_LP_OBISCODE) && capturedRegisterObjectList.stream().anyMatch(cro -> cro.getObisCode().equalsIgnoreBChannel(MBUS_LP_COMBINED_CHANNEL));
     }
 
