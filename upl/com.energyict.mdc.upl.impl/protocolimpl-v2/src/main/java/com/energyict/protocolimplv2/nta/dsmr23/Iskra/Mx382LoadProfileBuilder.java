@@ -76,7 +76,7 @@ public class Mx382LoadProfileBuilder extends LoadProfileBuilder<Mx382> {
                     }
                     else {
                         this.statusMasksMap.put(lpr, constructStatusMask(capturedObjectRegisterListMap.get(lpr)));
-                        this.channelMaskMap.put(lpr, constructChannelMask(capturedObjectRegisterListMap.get(lpr)));
+                        this.channelMaskMap.put(lpr, constructChannelMask(lpc.getObisCode(), capturedObjectRegisterListMap.get(lpr)));
                     }
 
                 } catch (IOException e) {
