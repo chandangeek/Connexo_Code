@@ -177,7 +177,7 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
                     }
 
                     int statusMask = constructStatusMask(capturedObjectRegisterListMap.get(lpr));
-                    int channelMask = constructChannelMask(capturedObjectRegisterListMap.get(lpr));
+                    int channelMask = constructChannelMask(lpc.getObisCode(), capturedObjectRegisterListMap.get(lpr));
                     lpc.setChannelInfos(channelInfos);
                     this.channelInfoMap.put(lpr, channelInfos);
                     this.statusMasksMap.put(lpr, statusMask);
@@ -421,10 +421,10 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return statusMask;
     }
 
-    protected int constructChannelMask(List<CapturedRegisterObject> registers) {
+    protected int constructChannelMask(ObisCode obisCode, List<CapturedRegisterObject> registers) {
         int channelMask;
 
-        if (isCombinedLoadProfile(registers)) {
+        if (isCombinedLoadProfile(obisCode, registers)) {
             channelMask = getCombinedLoadProfileChannelMask(registers);
         } else {
             channelMask = getLoadProfileChannelMask(registers);
@@ -432,8 +432,8 @@ public class LoadProfileBuilder<T extends AbstractDlmsProtocol> implements Devic
         return channelMask;
     }
 
-    protected boolean isCombinedLoadProfile(List<CapturedRegisterObject> capturedRegisterObjectList) {
-        return capturedRegisterObjectList.stream().anyMatch(cro -> cro.getObisCode().equalsIgnoreBChannel(MBUS_LP_COMBINED_CHANNEL));
+    private boolean isCombinedLoadProfile(ObisCode obisCode, List<CapturedRegisterObject> capturedRegisterObjectList) {
+        return !obisCode.equalsIgnoreBChannel(MBUS_HOURLY_LP_OBISCODE) && capturedRegisterObjectList.stream().anyMatch(cro -> cro.getObisCode().equalsIgnoreBChannel(MBUS_LP_COMBINED_CHANNEL));
     }
 
     protected int getCombinedLoadProfileChannelMask(List<CapturedRegisterObject> registers) {
