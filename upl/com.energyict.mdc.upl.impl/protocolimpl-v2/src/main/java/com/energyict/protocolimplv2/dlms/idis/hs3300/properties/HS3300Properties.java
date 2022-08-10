@@ -45,7 +45,7 @@ public class HS3300Properties extends IDISProperties {
         } else {
             try {
                 return ProtocolTools.getBytesFromHexString(callingAPTitle, "");
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 throw DeviceConfigurationException.invalidPropertyFormat(IDIS.CALLING_AP_TITLE, callingAPTitle, "Should be a hex string of 16 characters");
             }
         }
