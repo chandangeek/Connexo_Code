@@ -12,6 +12,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocol.exception.DeviceConfigurationException;
 import com.energyict.protocolimpl.base.ProtocolProperty;
 import com.energyict.protocolimpl.dlms.idis.IDIS;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimplv2.DeviceProtocolDialectTranslationKeys;
 import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISProperties;
 
@@ -42,7 +43,11 @@ public class HS3300Properties extends IDISProperties {
         if (callingAPTitle.isEmpty()) {
             return super.getSystemIdentifier();
         } else {
-            return callingAPTitle.getBytes();
+            try {
+                return ProtocolTools.getBytesFromHexString(callingAPTitle, "");
+            } catch (Throwable e) {
+                throw DeviceConfigurationException.invalidPropertyFormat(IDIS.CALLING_AP_TITLE, callingAPTitle, "Should be a hex string of 16 characters");
+            }
         }
     }
 
