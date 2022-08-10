@@ -10,6 +10,7 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300;
+import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.properties.HS3400LteProperties;
 
 /**
  * Supported device type(s): HS3400DxxHxCL PP LTE
@@ -27,12 +28,20 @@ public class HS3400LtePP extends HS3300 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-02-08$";
+        return "$Date: 2022-08-10$";
     }
 
     @Override
     public String getProtocolDescription() {
         return "Honeywell HS3400 Poly-phase LTE DLMS Meter";
+    }
+
+    @Override
+    public HS3400LteProperties getDlmsSessionProperties() {
+        if (dlmsProperties == null) {
+            dlmsProperties = new HS3400LteProperties(this.getPropertySpecService(), this.getNlsService(), this.getCertificateWrapperExtractor());
+        }
+        return (HS3400LteProperties) dlmsProperties;
     }
 
 }

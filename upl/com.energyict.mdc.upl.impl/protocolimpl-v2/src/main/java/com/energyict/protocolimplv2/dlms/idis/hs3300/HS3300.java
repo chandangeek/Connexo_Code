@@ -96,7 +96,7 @@ import java.util.Optional;
  */
 public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport, AdvancedDeviceProtocolSecurityCapabilities {
 
-    public static final String PROTOCOL_VERSION = "$Date: 2022-08-10$";
+    public static final String PROTOCOL_VERSION = "$Date: 2022-05-31$";
 
     protected static final int MANAGEMENT_CLIENT   = 1;
     protected static final int DATA_READOUT_CLIENT = 2;
