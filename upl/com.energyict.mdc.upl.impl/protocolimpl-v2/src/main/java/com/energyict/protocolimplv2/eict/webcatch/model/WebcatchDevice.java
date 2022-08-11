@@ -11,7 +11,7 @@ import java.util.Objects;
  * Maps the given JSON data to a object notation.
  */
 @XmlRootElement
-public class WebcatchDevice {
+public class WebcatchDevice implements Comparable<WebcatchDevice> {
 
   /**serial number of the device. */
   private String serial;
@@ -99,6 +99,11 @@ public class WebcatchDevice {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public int compareTo(WebcatchDevice that) {
+    return this.serial.compareTo(that.serial);
   }
 }
 
