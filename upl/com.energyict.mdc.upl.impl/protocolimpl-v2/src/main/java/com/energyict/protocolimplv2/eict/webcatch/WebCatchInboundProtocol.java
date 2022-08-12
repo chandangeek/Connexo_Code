@@ -35,6 +35,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.energyict.mdc.upl.tasks.support.DeviceLoadProfileSupport.GENERIC_LOAD_PROFILE_OBISCODE;
 
@@ -72,7 +73,7 @@ public class WebCatchInboundProtocol implements ServletBasedInboundDeviceProtoco
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-08-26 $";
+        return "$Date: 2022-08-11 $";
     }
 
     @Override
@@ -146,7 +147,7 @@ public class WebCatchInboundProtocol implements ServletBasedInboundDeviceProtoco
         IntervalData intervalData = new IntervalData(Date.from(Instant.ofEpochSecond(Long.parseLong(catchallObject.getUtcstamp()))));
 
         int channelIndex = 0;
-        for (WebcatchDevice webcatchDevice : catchallObject.getDevices()) {
+        for (WebcatchDevice webcatchDevice : catchallObject.getDevices().stream().sorted().collect(Collectors.toList())) {
             for (WebcatchChannel webcatchChannel : webcatchDevice.getValues()) {
                 profileData.addChannel(buildChannelInfo(channelIndex++));
                 intervalData.addValue(webcatchChannel.getValue());
