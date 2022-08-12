@@ -542,14 +542,22 @@ class TableDdlGenerator implements PartitionMethod.Visitor {
         if (toColumn.isAutoIncrement() && !fromColumn.isAutoIncrement()) {
             upgradeDifferences = new ArrayList<>(upgradeDifferences);
             upgradeDifferences.add(addAutoIncrementSequenceDifference(toColumn));
+        } else if (fromColumn.isAutoIncrement() && !toColumn.isAutoIncrement()) {
+            upgradeDifferences = new ArrayList<>(upgradeDifferences);
+            upgradeDifferences.add(dropAutoIncrementSequenceDifference(fromColumn));
         }
         return upgradeDifferences;
     }
 
     private Difference addAutoIncrementSequenceDifference(ColumnImpl toColumn) {
-        DdlDifferenceImpl.DifferenceBuilder difference = DdlDifferenceImpl.builder("Table " + table.getName() + " : Added sequence " + toColumn
-                .getName());
+        DdlDifferenceImpl.DifferenceBuilder difference = DdlDifferenceImpl.builder("Table " + table.getName() + " : Added sequence for " + toColumn.getName());
         difference.add(getSequenceDdl(toColumn));
+        return difference.build().get();
+    }
+
+    private Difference dropAutoIncrementSequenceDifference(ColumnImpl fromColumn) {
+        DdlDifferenceImpl.DifferenceBuilder difference = DdlDifferenceImpl.builder("Table " + table.getName() + " : Removed sequence for " + fromColumn.getName());
+        difference.add(getDropSequenceDdl(fromColumn.getQualifiedSequenceName()));
         return difference.build().get();
     }
 

@@ -5,19 +5,22 @@
 package com.elster.jupiter.orm.h2;
 
 import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
+import com.elster.jupiter.orm.callback.PersistenceAware;
 import com.elster.jupiter.orm.schema.ExistingColumn;
 
 import com.google.common.base.Joiner;
 
+import javax.inject.Inject;
 import java.sql.Types;
-import java.util.List;
 
-public class ColumnImpl implements ExistingColumn {
-
+public class ColumnImpl implements ExistingColumn, PersistenceAware {
     private static final int MAX_ORACLE_VARCHAR_DATATYPE_SIZE = 4000;
+
+    private DataModel databaseDataModel;
     @SuppressWarnings("unused")
     private String tableName;
     private String name;
@@ -29,6 +32,20 @@ public class ColumnImpl implements ExistingColumn {
     private int characterLength;
 
     private Reference<TableImpl> table = ValueReference.absent();
+    private Reference<SequenceImpl> sequence = ValueReference.absent();
+
+    @Inject
+    public ColumnImpl(DataModel dataModel) {
+        databaseDataModel = dataModel;
+    }
+
+    @Override
+    public void postLoad() {
+        databaseDataModel.mapper(SequenceImpl.class).getEager(table.get().getName() + name).ifPresent(sequence::set);
+        if (!sequence.isPresent()) {
+            databaseDataModel.mapper(SequenceImpl.class).getEager(table.get().getName() + '_' + name).ifPresent(sequence::set);
+        }
+    }
 
     @Override
     public String getName() {
@@ -44,6 +61,7 @@ public class ColumnImpl implements ExistingColumn {
             if (!nullable) {
                 column.notNull();
             }
+            sequence.map(SequenceImpl::getName).ifPresent(column::sequence);
             if (dataType == Types.DATE) {
                 if (name.equals("CREDATE")) {
                     column.insert("SYSDATE").skipOnUpdate();
@@ -53,7 +71,6 @@ public class ColumnImpl implements ExistingColumn {
                 }
             }
             column.add();
-
         }
     }
 
@@ -63,6 +80,7 @@ public class ColumnImpl implements ExistingColumn {
                 column.varChar(Math.min(characterLength, MAX_ORACLE_VARCHAR_DATATYPE_SIZE));
                 return;
             case Types.NUMERIC:
+            case Types.DECIMAL:
                 column.number();
                 return;
             case Types.DATE:
@@ -80,11 +98,10 @@ public class ColumnImpl implements ExistingColumn {
     }
 
     public boolean isAutoId() {
-        if (!"ID".equals(name)) {
-            return false;
-        }
-        List<ExistingColumn> primaryKeyColumns = table.get().getPrimaryKeyColumns();
-        return primaryKeyColumns.size() == 1 && primaryKeyColumns.get(0).getName().equals("ID");
+        return "ID".equals(name)
+                && (Types.NUMERIC == dataType || Types.DECIMAL == dataType)
+                && !nullable
+                && sequence.isPresent();
     }
 
     public boolean isForeignKeyPart() {
@@ -110,6 +127,7 @@ public class ColumnImpl implements ExistingColumn {
             case Types.VARCHAR:
                 return Joiner.on("").join("varChar(", dataLength, ")");
             case Types.NUMERIC:
+            case Types.DECIMAL:
                 return "number()";
             case Types.DATE:
                 return "type(\"DATE\")";
@@ -206,5 +224,4 @@ public class ColumnImpl implements ExistingColumn {
     public String toString() {
         return Joiner.on(" ").join("Column:", name, "type:", dataType + "(", dataLength + ")");
     }
-
 }

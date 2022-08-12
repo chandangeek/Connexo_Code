@@ -173,7 +173,6 @@ public class TableDdlGeneratorJournalingDiffsIT {
                 .findDifferences();
 
         // Asserts
-
         assertThat(differences).hasSize(1);
         Difference difference = differences.get(0);
         assertThat(((DdlDifference)difference).ddl()).hasSize(1);

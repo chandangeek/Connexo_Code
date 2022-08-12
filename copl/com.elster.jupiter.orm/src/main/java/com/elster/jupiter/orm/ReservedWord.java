@@ -128,6 +128,11 @@ public enum ReservedWord {
         return Stream.of(values()).anyMatch(each -> each.match(aString));
     }
 
+    public static boolean isReserved(String aString, boolean isTest) {
+        boolean reserved = isReserved(aString);
+        return isTest ? reserved && !INCREMENT.match(aString) : reserved; // H2 SEQUENCES table uses column called "INCREMENT"
+    }
+
     private boolean match(String aString) {
         return this.name().equalsIgnoreCase(aString);
     }

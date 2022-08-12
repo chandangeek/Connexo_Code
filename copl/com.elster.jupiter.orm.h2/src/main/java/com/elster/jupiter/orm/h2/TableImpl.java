@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.schema.ExistingColumn;
 import com.elster.jupiter.orm.schema.ExistingIndex;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.util.Checks;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.ArrayList;

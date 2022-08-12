@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.schema.ExistingColumn;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
+import com.elster.jupiter.orm.schema.ExistingSequence;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 
@@ -22,7 +23,15 @@ public enum H2TableSpecs implements SchemaInfoProvider.TableSpec {
             Column nameColumn = table.column("TABLE_NAME").varChar(128).notNull().map("name").add();
             table.primaryKey("PK_USERTABLES").on(nameColumn).add();
         }
-
+    },
+    SEQUENCES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ExistingSequence> table = dataModel.addTable("INFORMATION_SCHEMA", name(), ExistingSequence.class);
+            table.map(SequenceImpl.class);
+            Column nameColumn = table.column("SEQUENCE_NAME").varChar(128).notNull().map("name").add();
+            table.primaryKey("PK_USERSEQUENCES").on(nameColumn).add();
+        }
     },
     COLUMNS {
         @Override
