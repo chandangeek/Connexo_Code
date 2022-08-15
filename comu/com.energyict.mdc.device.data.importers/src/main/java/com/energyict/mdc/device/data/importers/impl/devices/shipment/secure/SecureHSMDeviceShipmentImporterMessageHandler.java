@@ -25,15 +25,12 @@ import com.google.inject.AbstractModule;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
-import org.osgi.service.component.annotations.ReferenceCardinality;
-import org.osgi.service.component.annotations.ReferencePolicy;
 
 import javax.inject.Inject;
 import java.util.Collections;
 import java.util.List;
 
 import static com.elster.jupiter.orm.Version.version;
-
 
 @Component(name = "com.energyict.mdc.device.data.importers.impl.devices.shipment.secure.SecureHSMDeviceShipmentImporterMessageHandler",
         service = {MessageHandlerFactory.class, TranslationKeyProvider.class},
@@ -43,7 +40,6 @@ import static com.elster.jupiter.orm.Version.version;
                 "destination=" + SecureHSMDeviceShipmentImporterMessageHandler.DESTINATION_NAME},
         immediate = true)
 public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHandlerFactory, TranslationKeyProvider {
-
     static final String DESTINATION_NAME = "SecHSMShipmntImport";
     static final String SUBSCRIBER_NAME = "SecHSMShipmntImport";
     static final String COMPONENT_NAME = "SHI";
@@ -57,15 +53,20 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
     private volatile HsmEnergyService hsmEnergyService;
 
     public SecureHSMDeviceShipmentImporterMessageHandler() {
-
+        // for OSGi
     }
 
     @Inject // for test purposes
-    public SecureHSMDeviceShipmentImporterMessageHandler(FileImportService fileImportService, UpgradeService upgradeService, MessageService messageService, OrmService ormService) {
+    public SecureHSMDeviceShipmentImporterMessageHandler(FileImportService fileImportService,
+                                                         UpgradeService upgradeService,
+                                                         MessageService messageService,
+                                                         OrmService ormService,
+                                                         HsmEnergyService hsmEnergyService) {
         setFileImportService(fileImportService);
         setUpgradeService(upgradeService);
         setMessageService(messageService);
         setOrmService(ormService);
+        setHsmEnergyService(hsmEnergyService);
     }
 
     @Activate
@@ -87,7 +88,6 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
                 ImmutableMap.of(
                         version(10, 4), UpgraderV10_4_HSM.class
                 ));
-
     }
 
     @Reference
@@ -110,19 +110,14 @@ public class SecureHSMDeviceShipmentImporterMessageHandler implements MessageHan
         this.ormService = ormService;
     }
 
-
-    @Override
-    public MessageHandler newMessageHandler() {
-        return fileImportService.createMessageHandler();
-    }
-
-    @Reference(cardinality = ReferenceCardinality.OPTIONAL, policy = ReferencePolicy.DYNAMIC)
+    @Reference
     public void setHsmEnergyService(HsmEnergyService hsmEnergyService) {
         this.hsmEnergyService = hsmEnergyService;
     }
 
-    public void unsetHsmEnergyService(HsmEnergyService hsmEnergyService) {
-        this.hsmEnergyService = null;
+    @Override
+    public MessageHandler newMessageHandler() {
+        return fileImportService.createMessageHandler();
     }
 
     @Override
