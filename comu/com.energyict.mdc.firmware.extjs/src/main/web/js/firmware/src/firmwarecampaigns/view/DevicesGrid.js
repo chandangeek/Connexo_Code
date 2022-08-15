@@ -88,6 +88,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                     }
                     switch (record.get('status').id) { // current device status
                         case 'PENDING':
+                        case 'ONGOING':
                         case 'CANCELLED':
                         case 'FAILED':
                         case 'REJECTED':

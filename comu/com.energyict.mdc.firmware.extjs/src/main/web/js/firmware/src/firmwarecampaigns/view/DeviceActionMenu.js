@@ -34,7 +34,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DeviceActionMenu', {
         beforeshow: function (menu) {
             var me = this,
                 currentDeviceStatus = menu.record.get('status').id,
-                cancelAllowed = currentDeviceStatus === 'PENDING',
+                cancelAllowed = currentDeviceStatus === 'PENDING' || currentDeviceStatus === 'ONGOING',
                 retryAllowed = currentDeviceStatus === 'CANCELLED' || currentDeviceStatus === 'FAILED' || currentDeviceStatus === 'REJECTED' || me.manuallyCancelled,
                 cancelMenuItem = menu.down('#fwc-device-action-cancel'),
                 retryMenuItem = menu.down('#fwc-device-action-retry');
