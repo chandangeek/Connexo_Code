@@ -171,11 +171,7 @@ public class CustomJbpmResource {
             return processHistoryInfos;
         } finally {
             if (em != null) {
-                try {
-                    em.close();
-                } catch (Exception e) {
-                    logger.info("Exception in closing em in getProcessAll() method --------------" + e.getMessage());
-                }
+                em.close();
             }
         }
     }
@@ -225,11 +221,7 @@ public class CustomJbpmResource {
                 return issueProcessInfos;
             } finally {
                 if (em != null) {
-                    try {
-                        em.close();
-                    } catch (Exception e) {
-                        logger.info("Exception in closing em in getAllProcesses() method --------------" + e.getMessage());
-                    }
+                    em.close();
                 }
             }
         }
@@ -270,11 +262,7 @@ public class CustomJbpmResource {
             return new ProcessInstanceNodeInfos(nodes, processInstanceState, processVariables);
         } finally {
             if (em != null) {
-                try {
-                    em.close();
-                } catch (Exception e) {
-                    logger.info("Exception in closing em in getProcessInstanceNode() method --------------" + e.getMessage());
-                }
+                em.close();
             }
         }
     }
@@ -297,11 +285,7 @@ public class CustomJbpmResource {
             return new ProcessInstanceLogInfo(log);
         } finally {
             if (em != null) {
-                try {
-                    em.close();
-                } catch (Exception e) {
-                    logger.info("Exception in closing em in getProcessInstanceLog() method --------------" + e.getMessage());
-                }
+                em.close();
             }
         }
     }
@@ -324,11 +308,7 @@ public class CustomJbpmResource {
             return new ProcessInstanceLogInfos(logs);
         } finally {
             if (em != null) {
-                try {
-                    em.close();
-                } catch (Exception e) {
-                    logger.info("Exception in closing em in getProcessInstanceChildLog() method --------------" + e.getMessage());
-                }
+                em.close();
             }
         }
     }
@@ -380,11 +360,7 @@ public class CustomJbpmResource {
                 return runningProcessInfos;
             } finally {
                 if (em != null) {
-                    try {
-                        em.close();
-                    } catch (Exception e) {
-                        logger.info("Exception in closing em in getRunningProcesses() method --------------" + e.getMessage());
-                    }
+                    em.close();
                 }
             }
         }
@@ -439,11 +415,7 @@ public class CustomJbpmResource {
                 return processHistoryInfos;
             } finally {
                 if (em != null) {
-                    try {
-                        em.close();
-                    } catch (Exception e) {
-                        logger.info("Exception in closing em in getProcessHistory() method --------------" + e.getMessage());
-                    }
+                    em.close();
                 }
             }
         }
@@ -782,11 +754,7 @@ public class CustomJbpmResource {
 
             } finally {
                 if (em != null) {
-                    try {
-                        em.close();
-                    } catch (Exception e) {
-                        logger.info("Exception in closing em in getTasks() method --------------" + e.getMessage());
-                    }
+                    em.close();
                 }
             }
         }
@@ -1204,11 +1172,7 @@ public class CustomJbpmResource {
                 return new ProcessInstanceInfos(list);
             } finally {
                 if (em != null) {
-                    try {
-                        em.close();
-                    } catch (Exception e) {
-                        logger.info("Exception in closing em in getProc() method --------------" + e.getMessage());
-                    }
+                    em.close();
                 }
             }
         }
@@ -1338,11 +1302,7 @@ public class CustomJbpmResource {
             return taskSummaryList.getTasks();
         } finally {
             if (em != null) {
-                try {
-                    em.close();
-                } catch (Exception e) {
-                    logger.info("Exception in closing em in getTaskForProceessInstance() method --------------" + e.getMessage());
-                }
+                em.close();
             }
         }
     }
@@ -1647,11 +1607,7 @@ public class CustomJbpmResource {
             return null;
         } finally {
             if (em != null) {
-                try {
-                    em.close();
-                } catch (Exception e) {
-                    logger.info("Exception in closing em in getAuditTask() method --------------" + e.getMessage());
-                }
+                em.close();
             }
         }
     }
