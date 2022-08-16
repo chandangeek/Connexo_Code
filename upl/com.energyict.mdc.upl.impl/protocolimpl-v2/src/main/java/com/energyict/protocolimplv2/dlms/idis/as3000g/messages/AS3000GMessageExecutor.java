@@ -1,6 +1,7 @@
 package com.energyict.protocolimplv2.dlms.idis.as3000g.messages;
 
-import com.energyict.mdc.upl.UnsupportedException;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
@@ -39,7 +40,7 @@ public class AS3000GMessageExecutor extends AM540MessageExecutor {
 
     private CollectedMessage writeFilter(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         int register = Integer.valueOf(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmRegisterAttributeName).getValue());
-        BigDecimal filter = new BigDecimal(MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue());
+        String alarmFilterValue = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.alarmFilterAttributeName).getValue();
         ObisCode alarmFilterObisCode;
         switch (register) {
             case 1:
@@ -59,7 +60,15 @@ public class AS3000GMessageExecutor extends AM540MessageExecutor {
                 return collectedMessage;
         }
 
-        writeAlarmFilter(alarmFilterObisCode, filter.longValue());
+        boolean[] booleansArray =  new boolean[alarmFilterValue.length()];
+
+        for (int i = 0; i < alarmFilterValue.length(); i++) {
+            booleansArray[i] = alarmFilterValue.charAt(i) == '1';
+        }
+
+        final Data alarmFilter = getCosemObjectFactory().getData(alarmFilterObisCode);
+        alarmFilter.setValueAttr(new BitString(booleansArray));
+
         return collectedMessage;
     }
 }
