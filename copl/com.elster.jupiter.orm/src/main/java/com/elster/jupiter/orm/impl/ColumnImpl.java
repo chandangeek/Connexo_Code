@@ -86,7 +86,7 @@ public class ColumnImpl implements Column {
             this.logAndThrowIllegalTableMappingException("Table " + table.getName() + ": column name '" + name + "' is too long, max length is " + ColumnConversion.CATALOGNAMELIMIT + ", actual length is " + name
                     .length() + ".");
         }
-        if (ReservedWord.isReserved(name)) {
+        if (ReservedWord.isReserved(name, table.getDataModel().getOrmService().isTest())) {
             this.logAndThrowIllegalTableMappingException("Table " + table.getName() + ": column name '" + name + "' is a reserved word and can't be used as the name of a column.");
         }
         this.table.set(table);

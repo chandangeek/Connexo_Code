@@ -14,7 +14,9 @@ import com.elster.jupiter.orm.IllegalTableMappingException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.impl.ColumnImpl;
 import com.elster.jupiter.orm.impl.DataModelImpl;
+import com.elster.jupiter.orm.impl.OrmServiceImpl;
 import com.elster.jupiter.orm.impl.TableImpl;
+import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 
 import java.util.Collections;
 
@@ -44,6 +46,8 @@ public class CorruptedOrmMappingTest {
     @Mock
     private DataModelImpl dataModel;
     @Mock
+    private SchemaInfoProvider schemaInfoProvider;
+    @Mock
     private TableImpl<?> otherTable;
     @Mock
     private ColumnImpl otherTablesColumn;
@@ -57,6 +61,10 @@ public class CorruptedOrmMappingTest {
         doReturn(otherTable).when(otherTablesColumn).getTable();
         when(otherTablesColumn.getName()).thenReturn("OTHERTABLESCOLUMN");
         when(dataModel.getVersion()).thenReturn(Version.version(1, 0));
+        when(schemaInfoProvider.isTestSchemaProvider()).thenReturn(false);
+        OrmServiceImpl ormService = new OrmServiceImpl();
+        ormService.setSchemaInfoProvider(schemaInfoProvider);
+        when(dataModel.getOrmService()).thenReturn(ormService);
     }
 
     @After

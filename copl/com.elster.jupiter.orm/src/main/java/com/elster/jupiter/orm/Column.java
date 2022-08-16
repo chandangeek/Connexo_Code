@@ -91,6 +91,12 @@ public interface Column {
 
         Builder notNull(boolean value);
 
+        /**
+         * <b>Important: upgrade is guaranteed to work only in case {@code name} is concatenated table name + column name without separator or separated with underscore</b>
+         * E.g. for table CMP_TABLE and column COL: either CMP_TABLECOL or CMP_TABLE_COL
+         * @param name recommended to be a concatenated table name + column name without separator or separated with underscore
+         * @return this
+         */
         Builder sequence(String name);
 
         Builder insert(String pseudoLiteral);

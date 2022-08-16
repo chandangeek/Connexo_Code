@@ -50,6 +50,11 @@ final class DdlDifferenceImpl implements DdlDifference {
         return Objects.hash(ddl);
     }
 
+    @Override
+    public String toString() {
+        return description;
+    }
+
     static DifferenceBuilder builder(String description) {
         return new DifferenceBuilder(description);
     }

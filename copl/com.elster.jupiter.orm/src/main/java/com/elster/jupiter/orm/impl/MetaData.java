@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 class MetaData {
-
     private final List<ExistingTable> tables;
 
     public MetaData(DataModel dataModel) {

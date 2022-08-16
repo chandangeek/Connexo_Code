@@ -11,6 +11,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.schema.ExistingColumn;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingIndex;
+import com.elster.jupiter.orm.schema.ExistingSequence;
 import com.elster.jupiter.orm.schema.ExistingTable;
 import com.elster.jupiter.orm.schema.SchemaInfoProvider;
 
@@ -24,6 +25,17 @@ public enum OracleTableSpecs implements SchemaInfoProvider.TableSpec {
             table.primaryKey("PK_USERTABLES").on(nameColumn).add();
         }
 
+    },
+    USER_SEQUENCES {
+        @Override
+        public void addTo(DataModel dataModel) {
+            Table<ExistingSequence> table = dataModel.addTable(name(), ExistingSequence.class);
+            table.map(UserSequenceImpl.class);
+            Column nameColumn = table.column("SEQUENCE_NAME").varChar(128).notNull().map("name").add();
+            table.column("MIN_VALUE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("minValue").add();
+            table.column("CACHE_SIZE").number().notNull().conversion(ColumnConversion.NUMBER2INT).map("cacheSize").add();
+            table.primaryKey("PK_USERSEQUENCES").on(nameColumn).add();
+        }
     },
     USER_TAB_COLS {
         @Override
@@ -43,7 +55,6 @@ public enum OracleTableSpecs implements SchemaInfoProvider.TableSpec {
             table.primaryKey("PK_USERCOLUMNS").on(tableColumn, nameColumn).add();
             table.foreignKey("FK_COLUMNTABLE").on(tableColumn).references(USER_TABLES.name())
                     .map("table").reverseMap("columns").reverseMapOrder("position").add();
-
         }
     },
     USER_CONSTRAINTS {
