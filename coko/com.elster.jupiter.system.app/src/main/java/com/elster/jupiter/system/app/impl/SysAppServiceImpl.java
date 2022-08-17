@@ -22,12 +22,14 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.system.SubsystemService;
 import com.elster.jupiter.system.app.SysAppService;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.ApplicationPrivilegesProvider;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
@@ -124,14 +126,15 @@ public class SysAppServiceImpl implements SysAppService, TranslationKeyProvider,
                 }
             });
             upgradeService.register(InstallIdentifier.identifier("Pulse", "SSA"), dataModel, Installer.class,
-                    ImmutableMap.of(
-                            version(10, 2), Installer.class,
-                            version(10, 3), Installer.class,
-                            version(10, 4, 37), UpgraderV10_4_37.class
-                            version(10, 7, 4), UpgraderV10_7_4.class,
-                            version(10, 8, 1), UpgraderV10_8_1.class,
-                            version(10, 9), UpgraderV10_9.class
-                    ));
+                    ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                            .put(version(10, 2), Installer.class)
+                            .put(version(10, 3), Installer.class)
+                            .put(version(10, 4, 37), UpgraderV10_4_37.class)
+                            .put(version(10, 7, 4), UpgraderV10_7_4.class)
+                            .put(version(10, 8, 1), UpgraderV10_8_1.class)
+                            .put(version(10, 9), UpgraderV10_9.class)
+                            .put(version(10, 9, 19), UpgraderV10_9_19.class)
+                            .build());
         } catch (RuntimeException e) {
             e.printStackTrace();
             throw e;

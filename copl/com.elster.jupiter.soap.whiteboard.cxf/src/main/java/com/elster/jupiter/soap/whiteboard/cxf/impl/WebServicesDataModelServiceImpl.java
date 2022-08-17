@@ -282,6 +282,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                 ImmutableMap.<Version, Class<? extends Upgrader>>builder()
                         .put(V10_4SimpleUpgrader.VERSION, V10_4SimpleUpgrader.class)
                         .put(UpgraderV10_4_9.VERSION, UpgraderV10_4_9.class)
+                        .put(Version.version(10, 4, 37), Upgrader_V10_4_37.class)
                         .put(UpgraderV10_5_1.VERSION, UpgraderV10_5_1.class)
                         .put(UpgraderV10_7.VERSION, UpgraderV10_7.class)
                         .put(UpgraderV10_7_1.VERSION, UpgraderV10_7_1.class)
@@ -292,6 +293,7 @@ public class WebServicesDataModelServiceImpl implements WebServicesDataModelServ
                         .put(Version.version(10, 8, 7, 1), UpgraderV10_8_7_1.class)
                         .put(UpgraderV10_9.VERSION, UpgraderV10_9.class)
                         .put(UpgraderV10_9_1.VERSION, UpgraderV10_9_1.class)
+                        .put(Version.version(10, 9, 19), Upgrader_V10_9_19.class)
                         .build());
         Class<?> clazz = org.glassfish.hk2.osgiresourcelocator.ServiceLoader.class;
         clazz.getAnnotations();

@@ -7,7 +7,6 @@ package com.elster.jupiter.system.app.impl;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.system.app.SysAppService;
-import com.elster.jupiter.systemproperties.security.Privileges;
 import com.elster.jupiter.upgrade.FullInstaller;
 import com.elster.jupiter.upgrade.SqlExceptionThrowingFunction;
 import com.elster.jupiter.upgrade.Upgrader;
@@ -17,7 +16,6 @@ import javax.inject.Inject;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -78,7 +76,9 @@ final class Installer implements FullInstaller, Upgrader {
 
     private String[] batchExecutorPrivileges() {
         return Stream.concat(Arrays.stream(userService.userAdminPrivileges()),
-                    Stream.of(Privileges.Constants.VIEW_SYS_PROPS, Privileges.Constants.ADMINISTER_SYS_PROPS, com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES))
+                        Stream.of(com.elster.jupiter.systemproperties.security.Privileges.Constants.VIEW_SYS_PROPS,
+                                com.elster.jupiter.systemproperties.security.Privileges.Constants.ADMINISTER_SYS_PROPS,
+                                com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES))
                 .toArray(String[]::new);
     }
 
@@ -94,5 +94,4 @@ final class Installer implements FullInstaller, Upgrader {
                 com.elster.jupiter.pki.security.Privileges.Constants.VIEW_CERTIFICATES,
         };
     }
-
 }

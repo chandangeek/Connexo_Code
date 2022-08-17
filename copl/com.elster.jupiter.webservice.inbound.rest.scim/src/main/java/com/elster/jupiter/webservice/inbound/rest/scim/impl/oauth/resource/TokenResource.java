@@ -7,6 +7,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.OAuthError;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.error.OAuthException;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenResponse;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.SignedJWT;
 import javassist.tools.rmi.ObjectNotFoundException;
@@ -21,16 +22,17 @@ import javax.ws.rs.core.MediaType;
 import java.text.ParseException;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Optional;
 
 @Path("token")
 public class TokenResource {
+    private final TokenService tokenService;
+    private final UserService userService;
 
     @Inject
-    private TokenService tokenService;
-
-    @Inject
-    private UserService userService;
+    public TokenResource(TokenService tokenService, UserService userService) {
+        this.tokenService = tokenService;
+        this.userService = userService;
+    }
 
     @POST
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -51,10 +53,10 @@ public class TokenResource {
         final User provisioningUser = userService.findUser("provisioning")
                 .orElseThrow(() -> new ObjectNotFoundException("Provisioning user is not found."));
 
-        final SignedJWT serviceSignetJWT = tokenService.createServiceSignedJWT(provisioningUser, expiresIn, "client", "connexo", new HashMap<>());
+        final SignedJWT serviceSignedJWT = tokenService.createServiceSignedJWT(provisioningUser, expiresIn, "client", "connexo", new HashMap<>());
 
         return TokenResponse.TokenResponseBuilder.aTokenResponse()
-                .withAccessToken(serviceSignetJWT.serialize())
+                .withAccessToken(serviceSignedJWT.serialize())
                 .withTokenType("bearer")
                 .withExpiresIn(expiresIn)
                 .build();

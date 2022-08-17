@@ -6,11 +6,14 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.soap.whiteboard.cxf.impl.MessageUtils;
+import com.elster.jupiter.soap.whiteboard.cxf.security.Privileges;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 
@@ -27,8 +30,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.net.HttpURLConnection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 
 /**
  * Authentication interceptor for Apache CXF. Will verify credentials and assert the user has the role as configured on the endpoint.
@@ -89,10 +92,13 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
                             "User " + userName + " denied access: not in role", HttpURLConnection.HTTP_FORBIDDEN);
                 }
             }
-            if (!hasInvokePrivileges(user.get())) {
+            String applicationName = webServicesService.getWebService(endPointConfiguration.getWebServiceName())
+                    .map(WebService::getApplicationName)
+                    .orElse(ApplicationSpecific.WebServiceApplicationName.UNDEFINED.getName());
+            if (!hasInvokePrivileges(applicationName, user.get())) {
                 // needs privilege Web services / Invoke
-                logInTransaction(LogLevel.WARNING, "User " + userName + " denied access: no privileges");
-                fail(NOT_AUTHORIZED, HttpURLConnection.HTTP_FORBIDDEN);
+                fail(message, NOT_AUTHORIZED,
+                        "User " + userName + " denied access: no privileges", HttpURLConnection.HTTP_FORBIDDEN);
             }
             request.setAttribute(USERPRINCIPAL, user.get());
         } catch (Fault e) {
@@ -111,13 +117,13 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
         doFail(message, statusCode);
     }
 
-    /**
-     * In this release the endpoints are not observing application affiliation
-     * TODO: check application affiliation in upper versions
-     */
-    private boolean hasInvokePrivileges(User user) {
-        return Stream.of("SYS", "MDC", "INS")
-                .anyMatch(app -> user.hasPrivilege(app, Privileges.Constants.INVOKE_WEB_SERVICES));
+    private boolean hasInvokePrivileges(String appName, User user) {
+        return mapApplicationName(appName).stream()
+                .allMatch(app -> user.hasPrivilege(app, Privileges.Constants.INVOKE_WEB_SERVICES));
+    }
+
+    private static Set<String> mapApplicationName(String appName) {
+        return ApplicationSpecific.WebServiceApplicationName.fromName(appName).getApplicationCodes();
     }
 
     private void fail(Message request, String message, String detailedMessage, Exception e, int statusCode) {

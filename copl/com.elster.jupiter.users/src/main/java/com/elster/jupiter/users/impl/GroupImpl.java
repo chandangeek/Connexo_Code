@@ -182,7 +182,7 @@ final class GroupImpl implements Group {
         privilegeInGroup.persist();
         getPrivilegeInGroups().add(privilegeInGroup);
         publisher.publish(this, privilege);
-        return false;
+        return true;
     }
 
     private void checkGranting(Privilege privilege) {
