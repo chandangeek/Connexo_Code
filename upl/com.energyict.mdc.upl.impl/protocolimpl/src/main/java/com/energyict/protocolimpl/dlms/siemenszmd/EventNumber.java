@@ -139,7 +139,7 @@ public class EventNumber {
     static public MeterEvent toMeterEvent(int protocolEventCode, Date dateTime) {
         EventNumber eventNumber = EventNumber.getEventNumber(protocolEventCode);
         if (eventNumber == null) {
-            return new MeterEvent(dateTime, MeterEvent.OTHER, "Unknown event code " + eventNumber);
+            return new MeterEvent(dateTime, MeterEvent.OTHER, "Unknown event code " + protocolEventCode);
         } else if (eventNumber.isIgnore()) {
             return null;
         }
