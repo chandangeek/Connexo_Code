@@ -168,7 +168,7 @@ public class MeterReadingStorer {
                 found = dataModel.mapper(EndDeviceEventType.class).getOptional(eventCode);
             }
             if (found.isPresent()) {
-                Optional<EndDeviceEventRecord> existing = getEventMapper().getOptional(meter.getId(), sourceEvent.getEventTypeCode(), sourceEvent.getCreatedDateTime());
+                Optional<EndDeviceEventRecord> existing = getEventMapper().getOptional(meter.getId(), sourceEvent.getEventTypeCode(), sourceEvent.getCreatedDateTime(), sourceEvent.getLogBookId());
                 if (existing.isPresent()) {
                     if (existing.get().updateProperties(sourceEvent.getEventData())) {
                         toUpdate.add(existing.get());

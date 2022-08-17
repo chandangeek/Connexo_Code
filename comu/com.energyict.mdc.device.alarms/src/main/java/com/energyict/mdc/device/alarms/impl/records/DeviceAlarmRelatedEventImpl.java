@@ -19,6 +19,7 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
         EVENTRECORD("eventRecord"),
         EVENT_TYPE_CODE("eventTypeCode"),
         DEVICE_CODE("deviceCode"),
+        LOGBOOK_ID("logBookId"),
         END_DEVICE_ID("endDeviceId"),
         RECORD_TIME("recordTime"),
         CREATE_TIME("createTime");
@@ -44,6 +45,8 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
     @SuppressWarnings("unused")
     private long endDeviceId;
     @SuppressWarnings("unused")
+    private long logBookId;
+    @SuppressWarnings("unused")
     private Instant recordTime;
     @SuppressWarnings("unused")
     private Instant createTime;
@@ -53,6 +56,7 @@ public class DeviceAlarmRelatedEventImpl implements DeviceAlarmRelatedEvent {
         this.deviceCode = eventRecord.getDeviceEventType() == null ? "*" : eventRecord.getDeviceEventType();
         this.eventTypeCode = eventRecord.getEventTypeCode();
         this.endDeviceId = eventRecord.getEndDevice().getId();
+        this.logBookId = eventRecord.getLogBookId();
         this.recordTime = eventRecord.getCreatedDateTime();
         return this;
     }

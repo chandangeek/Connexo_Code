@@ -82,12 +82,7 @@ import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
 import com.elster.jupiter.metering.impl.configproperties.ConfigPropertyImpl;
 import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileImpl;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
-import com.elster.jupiter.orm.Column;
-import com.elster.jupiter.orm.ColumnConversion;
-import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.DeleteRule;
-import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.orm.Version;
+import com.elster.jupiter.orm.*;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -644,13 +639,20 @@ public enum TableSpecs {
             table.column("STATUSREMARK").varChar(NAME_LENGTH).map("status.remark").add();
             table.column("STATUSVALUE").varChar(NAME_LENGTH).map("status.value").add();
             table.column("PROCESSINGFLAGS").number().map("processingFlags").conversion(NUMBER2LONG).add();
-            table.column("LOGBOOKID").number().map("logBookId").conversion(NUMBER2LONG).add();
+            Column oldLogbookIdColumn = table.column("LOGBOOKID").number().map("logBookId").conversion(NUMBER2LONG).upTo(version(10, 9, 19)).add();
+            Column logbookIdColumn = table.column("LOGBOOKID").number().notNull().map("logBookId").conversion(NUMBER2LONG).since(version(10, 9, 19)).previously(oldLogbookIdColumn).add();
             table.column("LOGBOOKPOSITION").number().map("logBookPosition").conversion(NUMBER2INT).add();
             table.column("DEVICEEVENTTYPE").varChar(80).map("deviceEventType").add();
             table.column("READINGDATETIME").number().conversion(NUMBER2INSTANT).map("readingDateTime").since(version(10, 6)).add();
             table.addAuditColumns();
-            table.primaryKey("PK_MTR_ENDDEVICEEVENTRECORD")
+            PrimaryKeyConstraint oldConstraint = table.primaryKey("PK_MTR_ENDDEVICEEVENTRECORD")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
+                    .upTo(version(10, 9, 19))
+                    .add();
+            table.primaryKey("PK_MTR_ENDDEVICEEVENTRECORD")
+                    .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, logbookIdColumn)
+                    .since(version(10, 9, 19))
+                    .previously(oldConstraint)
                     .add();
             table.partitionOn(createdDateTimeColumn);
             table.foreignKey("FK_MTR_EVENT_ENDDEVICE")
@@ -689,12 +691,26 @@ public enum TableSpecs {
                     .conversion(NUMBER2INSTANT)
                     .map("createdDateTime")
                     .add();
+            Column logbookIdColumn = table.column("LOGBOOKID")
+                    .number()
+                    .notNull()
+                    .map("logBookId")
+                    .conversion(NUMBER2LONG)
+                    .since(version(10, 9, 19))
+                    .add();
+
             Column keyColumn = table.column("KEY").varChar(NAME_LENGTH).notNull().map("key").add();
             table.column("DETAIL_VALUE").varChar(SHORT_DESCRIPTION_LENGTH).notNull().map("value").add();
-            table.primaryKey("PK_MTR_ENDDEVICEEVENTDETAIL")
+            PrimaryKeyConstraint oldConstraint = table.primaryKey("PK_MTR_ENDDEVICEEVENTDETAIL")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, keyColumn)
+                    .upTo(version(10, 9, 19))
                     .add();
-            table.foreignKey("FK_MTR_ENDDEVICEEVENT_DETAIL")
+            table.primaryKey("PK_MTR_ENDDEVICEEVENTDETAIL")
+                    .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, logbookIdColumn, keyColumn)
+                    .since(version(10, 9, 19))
+                    .previously(oldConstraint)
+                    .add();
+            ForeignKeyConstraint oldForeign = table.foreignKey("FK_MTR_ENDDEVICEEVENT_DETAIL")
                     .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn)
                     .references(EndDeviceEventRecord.class)
                     .onDelete(DeleteRule.CASCADE)
@@ -702,6 +718,18 @@ public enum TableSpecs {
                     .reverseMap("detailRecords")
                     .composition()
                     .refPartition()
+                    .upTo(version(10, 9, 19))
+                    .add();
+            table.foreignKey("FK_MTR_ENDDEVICEEVENT_DETAIL")
+                    .on(endDeviceColumn, eventTypeColumn, createdDateTimeColumn, logbookIdColumn)
+                    .references(EndDeviceEventRecord.class)
+                    .onDelete(DeleteRule.CASCADE)
+                    .map("eventRecord")
+                    .reverseMap("detailRecords")
+                    .composition()
+                    .refPartition()
+                    .since(version(10, 9, 19))
+                    .previously(oldForeign)
                     .add();
         }
     },
