@@ -109,12 +109,12 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     private static final EndDeviceType typeMeter = EndDeviceType.ELECTRICMETER;
 
-    private final TariffCalendarExtractor calendarExtractor;
-    private final NlsService nlsService;
-    private final Converter converter;
-    private final DeviceMessageFileExtractor messageFileExtractor;
-    private final CertificateWrapperExtractor certificateWrapperExtractor;
-    private final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
+    protected final TariffCalendarExtractor calendarExtractor;
+    protected final NlsService nlsService;
+    protected final Converter converter;
+    protected final DeviceMessageFileExtractor messageFileExtractor;
+    protected final CertificateWrapperExtractor certificateWrapperExtractor;
+    protected final KeyAccessorTypeExtractor keyAccessorTypeExtractor;
 
     protected HS3300Messaging deviceMessaging;
     private HS3300Cache deviceCache;
@@ -847,7 +847,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
         return dlmsConfigurationSupport;
     }
 
-    private HasDynamicProperties getNewInstanceOfConfigurationSupport() {
+    protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
         return new HS3300ConfigurationSupport(this.getPropertySpecService());
     }
 

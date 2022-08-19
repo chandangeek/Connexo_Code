@@ -128,7 +128,7 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
      *
      * @return	The corresponding PropertySpec.
      */
-    private final PropertySpec increaseFrameCounterOnHLSReply() {
+    protected final PropertySpec increaseFrameCounterOnHLSReply() {
         return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec).finish();
     }
     private PropertySpec shortAddressPan() {
@@ -143,19 +143,19 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.IP_V4_ADDRESS, false, PropertyTranslationKeys.V2_IP_V4_ADDRESS, this.getPropertySpecService()::stringSpec).finish();
     }
 
-    private PropertySpec frameCounterRecoveryRetries() {
+    protected PropertySpec frameCounterRecoveryRetries() {
         return this.bigDecimalSpec(HS3300ConfigurationSupport.FRAME_COUNTER_RECOVERY_RETRIES, false, PropertyTranslationKeys.V2_DLMS_FRAME_COUNTER_RECOVERY_RETRIES, BigDecimal.valueOf(100));
     }
-    private PropertySpec frameCounterRecoveryStep() {
+    protected PropertySpec frameCounterRecoveryStep() {
         return this.bigDecimalSpec(HS3300ConfigurationSupport.FRAME_COUNTER_RECOVERY_STEP, false, PropertyTranslationKeys.V2_DLMS_FRAME_COUNTER_RECOVERY_STEP, BigDecimal.ONE);
     }
 
-    private PropertySpec frameCounterLimit() {
+    protected PropertySpec frameCounterLimit() {
         return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.FRAME_COUNTER_LIMIT, false, PropertyTranslationKeys.V2_NTA_FRAME_COUNTER_LIMIT, getPropertySpecService()::positiveBigDecimalSpec)
                 .setDefaultValue(new BigDecimal(0)).finish();
     }
 
-    private PropertySpec validateCachedFrameCounter() {
+    protected PropertySpec validateCachedFrameCounter() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.VALIDATE_CACHED_FRAMECOUNTER, false, PropertyTranslationKeys.V2_DLMS_VALIDATE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec)
                 .finish();
     }
@@ -173,7 +173,7 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
      *
      * @return The property specification.
      */
-    private final PropertySpec skipFramecounterAuthenticationTagValidation() {
+    protected final PropertySpec skipFramecounterAuthenticationTagValidation() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.SKIP_FC_AUTH_TAG_VALIDATION, false, PropertyTranslationKeys.V2_SKIP_FC_AUTH_TAG_VALIDATION, getPropertySpecService()::booleanSpec)
                 .setDefaultValue(false)
                 .finish();
@@ -184,7 +184,7 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
      *
      * @return The property specification.
      */
-    private final PropertySpec useUndefinedForTimeDeviation() {
+    protected final PropertySpec useUndefinedForTimeDeviation() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false, PropertyTranslationKeys.V2_USE_UNDEFINED_AS_TIME_DEVIATION, getPropertySpecService()::booleanSpec)
                 .setDefaultValue(true)
                 .finish();
@@ -195,21 +195,21 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
      *
      * @return <code>true</code> for a cached frame counter, <code>false</code> if not.
      */
-    private PropertySpec useCachedFrameCounter() {
+    protected PropertySpec useCachedFrameCounter() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.USE_CACHED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_USE_CACHED_FRAMECOUNTER, getPropertySpecService()::booleanSpec)
                 .finish();
     }
 
-    private PropertySpec requestAuthenticatedFrameCounter() {
+    protected PropertySpec requestAuthenticatedFrameCounter() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.REQUEST_AUTHENTICATED_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_REQUEST_AUTHENTICATE_FRAME_COUNTER, getPropertySpecService()::booleanSpec)
                 .finish();
     }
 
-    private PropertySpec lastSeenDatePropertySpec() {
+    protected PropertySpec lastSeenDatePropertySpec() {
         return UPLPropertySpecFactory.specBuilder(G3Properties.PROP_LASTSEENDATE, false, PropertyTranslationKeys.V2_DLMS_LAST_SEENDATE, getPropertySpecService()::bigDecimalSpec).finish();
     }
 
-    private PropertySpec pollingDelayPropertySpec() {
+    protected PropertySpec pollingDelayPropertySpec() {
         return this.durationSpec(POLLING_DELAY, false, Duration.ofSeconds(0), PropertyTranslationKeys.V2_DLMS_POLLING_DELAY);
     }
 
@@ -255,21 +255,21 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
                 .finish();
     }
 
-    private PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
+    protected PropertySpec useEquipmentIdentifierAsSerialNumberPropertySpec() {
         return UPLPropertySpecFactory.specBuilder(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, false, PropertyTranslationKeys.V2_DLMS_USE_EQUIPMENT_IDENTIFIER_AS_SERIAL, this.getPropertySpecService()::booleanSpec)
                 .setDefaultValue(USE_EQUIPMENT_IDENTIFIER_AS_SERIAL_DEFAULT_VALUE)
                 .finish();
     }
 
-    private PropertySpec aarqTimeoutPropertySpec() {
+    protected PropertySpec aarqTimeoutPropertySpec() {
         return this.durationSpec(AARQ_TIMEOUT_PROPERTY, false, DEFAULT_NOT_USED_AARQ_TIMEOUT, PropertyTranslationKeys.V2_DLMS_AARQ_TIMEOUT);
     }
 
-    private PropertySpec aarqRetriesPropertySpec() {
+    protected PropertySpec aarqRetriesPropertySpec() {
         return this.bigDecimalSpec(AARQ_RETRIES_PROPERTY, false, PropertyTranslationKeys.V2_DLMS_AARQ_RETRIES, BigDecimal.valueOf(2));
     }
 
-    private PropertySpec initialFrameCounter() {
+    protected PropertySpec initialFrameCounter() {
         return UPLPropertySpecFactory.specBuilder(INITIAL_FRAME_COUNTER, false, PropertyTranslationKeys.V2_DLMS_INITIAL_FRAME_COUNTER, this.getPropertySpecService()::positiveBigDecimalSpec).finish();
     }
 

@@ -8,8 +8,11 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300;
+import com.energyict.protocolimplv2.dlms.idis.hs340.lte.sp.messages.HS340Messaging;
+import com.energyict.protocolimplv2.dlms.idis.hs340.lte.sp.properties.HS340ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.hs340.lte.sp.properties.HS340LteProperties;
 
 /**
@@ -17,6 +20,8 @@ import com.energyict.protocolimplv2.dlms.idis.hs340.lte.sp.properties.HS340LtePr
  * Protocol release notes: https://confluence.honeywell.com/pages/viewpage.action?pageId=657053892
  */
 public class HS340LteSP extends HS3300 {
+
+    HS340Messaging deviceMessaging;
 
     public HS340LteSP(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
                        TariffCalendarExtractor calendarExtractor, NlsService nlsService, Converter converter,
@@ -44,4 +49,17 @@ public class HS340LteSP extends HS3300 {
         return (HS340LteProperties) dlmsProperties;
     }
 
+    protected HS340Messaging getDeviceMessaging() {
+        if (this.deviceMessaging == null) {
+            this.deviceMessaging = new HS340Messaging(this, getCollectedDataFactory(), getIssueFactory(),
+                    getPropertySpecService(), this.getNlsService(), this.getConverter(), this.getCalendarExtractor(),  this.getCertificateWrapperExtractor(),
+                    this.getMessageFileExtractor(), this.getKeyAccessorTypeExtractor());
+        }
+        return this.deviceMessaging;
+    }
+
+    @Override
+    public HasDynamicProperties getNewInstanceOfConfigurationSupport() {
+        return new HS340ConfigurationSupport(this.getPropertySpecService());
+    }
 }

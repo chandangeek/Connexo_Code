@@ -84,6 +84,18 @@ public class HS3300Messaging extends AbstractDlmsMessaging implements DeviceMess
         return keyAccessorTypeExtractor;
     }
 
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public NlsService getNlsService() {
+        return nlsService;
+    }
+
+    public Converter getConverter() {
+        return converter;
+    }
+
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
