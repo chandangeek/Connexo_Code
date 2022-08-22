@@ -29,13 +29,16 @@ import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
+import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -60,13 +63,14 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
     private final ThreadPrincipalService threadPrincipalService;
     private final TransactionService transactionService;
     private final DeviceMessageService deviceMessageService;
+    private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareServiceImpl firmwareService;
     private final Logger logger = Logger.getLogger(this.getClass().getName());
 
     @Inject
     public FirmwareCampaignHandler(FirmwareServiceImpl firmwareService, Clock clock, ServiceCallService serviceCallService,
                                    Thesaurus thesaurus, ThreadPrincipalService threadPrincipalService, TransactionService transactionService,
-                                   DeviceMessageService deviceMessageService) {
+                                   DeviceMessageService deviceMessageService, DeviceMessageSpecificationService deviceMessageSpecificationService) {
         super(LocalEvent.class);
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
         this.serviceCallService = serviceCallService;
@@ -75,6 +79,7 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
         this.threadPrincipalService = threadPrincipalService;
         this.transactionService = transactionService;
         this.deviceMessageService = deviceMessageService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareService = firmwareService;
     }
 
@@ -140,9 +145,9 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                         .anyMatch(StatusInformationTask.class::isInstance)) {
                     if (firmwareCampaign.isWithVerification()) {
-                        Instant firmwareUploadTime = deviceInFirmwareCampaign.getServiceCall().getLastModificationTime();
-                        if (firmwareUploadTime.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
-                            if (deviceInFirmwareCampaign.getDeviceMessage().isPresent()) {
+                        Optional<Instant> activationDate = getActivationTime(deviceInFirmwareCampaign);
+                        if (activationDate.isPresent()) { // means the message is present and sent
+                            if (activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
                                 MessageSeed message;
                                 switch (deviceInFirmwareCampaign.getDeviceMessage().get().getStatus()) {
                                     case CONFIRMED:
@@ -162,9 +167,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                                 if (serviceCall.transitionWithLockIfPossible(DefaultState.FAILED)) {
                                     serviceCall.log(LogLevel.WARNING, thesaurus.getFormat(message).format());
                                 }
+                            } else {
+                                // the time is not out yet before verification
+                                scheduleVerification(deviceInFirmwareCampaign, activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()));
                             }
-                        } else {
-                            scheduleVerification(deviceInFirmwareCampaign, firmwareUploadTime.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                         }
                     }
                 } else if (comTaskExecution.getComTask().getId() == firmwareCampaign.getValidationComTaskId()) {
@@ -179,8 +185,8 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
     private void onComTaskCompleted(ComTaskExecution comTaskExecution) {
         Device device = comTaskExecution.getDevice();
 
-        String logInfo = "[FWC] onComTaskCompleted " + device.getName() + " / "
-                + comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName();
+        logger.info("[FWC] onComTaskCompleted " + device.getName() + " / "
+                + comTaskExecution.getComTask().getName() + " -> " + comTaskExecution.getStatusDisplayName());
 
         Optional<? extends DeviceInFirmwareCampaign> deviceInFirmwareCampaignOptional = firmwareCampaignService.findActiveFirmwareItemByDevice(device);
         if (deviceInFirmwareCampaignOptional.isPresent()) {
@@ -193,11 +199,12 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                         switch (deviceInFirmwareCampaign.getDeviceMessage().get().getStatus()) {
                             case CONFIRMED:
                                 serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.FIRMWARE_INSTALLATION_COMPLETED).format());
-                                if (!firmwareCampaign.isWithVerification()) {
-                                    serviceCall.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
-                                } else {
-                                    scheduleVerification(deviceInFirmwareCampaign, clock.instant().plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
+                                if (firmwareCampaign.isWithVerification()) {
+                                    Instant activationTime = getActivationTime(deviceInFirmwareCampaign).orElseGet(clock::instant);
+                                    scheduleVerification(deviceInFirmwareCampaign, activationTime.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()));
                                     serviceCall.log(LogLevel.INFO, thesaurus.getFormat(MessageSeeds.VERIFICATION_SCHEDULED).format());
+                                } else {
+                                    serviceCall.transitionWithLockIfPossible(DefaultState.SUCCESSFUL);
                                 }
                                 break;
                             case CANCELED:
@@ -218,9 +225,9 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 } else if (comTaskExecution.getComTask().getProtocolTasks().stream()
                         .anyMatch(StatusInformationTask.class::isInstance)) {
                     if (firmwareCampaign.isWithVerification()) {
-                        Instant firmwareUploadTime = deviceInFirmwareCampaign.getServiceCall().getLastModificationTime();
-                        if (firmwareUploadTime.plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
-                            if (deviceInFirmwareCampaign.getDeviceMessage().isPresent()) {
+                        Optional<Instant> activationDate = getActivationTime(deviceInFirmwareCampaign);
+                        if (activationDate.isPresent()) { // means the message is present and sent
+                            if (activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()).isBefore(clock.instant())) {
                                 switch (deviceInFirmwareCampaign.getDeviceMessage().get().getStatus()) {
                                     case CONFIRMED:
                                         if (deviceInFirmwareCampaign.doesDeviceAlreadyHaveTheSameVersion()) {
@@ -254,10 +261,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                                     default:
                                         // nothing to do, wait for final state
                                 }
+                            } else {
+                                // the time is not out yet before verification
+                                scheduleVerification(deviceInFirmwareCampaign, activationDate.get().plusMillis(firmwareCampaign.getValidationTimeout().getMilliSeconds()));
                             }
-                        } else {
-                            // the time is not out yet before verification
-                            scheduleVerification(deviceInFirmwareCampaign, firmwareUploadTime.plusSeconds(firmwareCampaign.getValidationTimeout().getSeconds()));
                         }
                     }
                 } else if (comTaskExecution.getComTask().getId() == firmwareCampaign.getValidationComTaskId()) {
@@ -290,6 +297,39 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 }
             });
         }
+    }
+
+    private Optional<Instant> getActivationTime(DeviceInFirmwareCampaign deviceInFirmwareCampaign) {
+        return deviceInFirmwareCampaign.getDeviceMessage()
+                .filter(message -> message.getSentDate().isPresent())
+                .map(message -> {
+                    Instant messageExecutionTime = message.getModTime();
+                    Optional<ProtocolSupportedFirmwareOptions> uploadOption = deviceMessageSpecificationService.getProtocolSupportedFirmwareOptionFor(message.getDeviceMessageId());
+                    if (uploadOption.isPresent()
+                            && uploadOption.get() == ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE) {
+                        return retrieveDate(message)
+                                .map(activationTime -> max(activationTime, messageExecutionTime))
+                                .orElse(messageExecutionTime);
+                    }
+                    return messageExecutionTime;
+                });
+    }
+
+    private static Instant max(Instant one, Instant two) {
+        return one.isAfter(two) ? one : two;
+    }
+
+    private Optional<Instant> retrieveDate(DeviceMessage deviceMessage) {
+        return deviceMessage.getSpecification().getPropertySpecs().stream()
+                .filter(propertySpec -> Date.class == propertySpec.getValueFactory().getValueType())
+                .findAny()
+                .flatMap(propertySpec -> deviceMessage.getAttributes().stream()
+                        .filter(attribute -> attribute.getName().equals(propertySpec.getName()))
+                        .findAny())
+                .map(DeviceMessageAttribute::getValue)
+                .filter(Date.class::isInstance)
+                .map(Date.class::cast)
+                .map(Date::toInstant);
     }
 
     private interface EventProcessor {

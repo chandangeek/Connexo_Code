@@ -136,6 +136,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
      * {@link com.energyict.protocolimplv2.messages.DeviceMessageCategories#FIRMWARE}
      */
     static final int FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID = 9;
+
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DataModel dataModel;
