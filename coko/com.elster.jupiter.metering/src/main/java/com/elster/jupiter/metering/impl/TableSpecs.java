@@ -82,7 +82,14 @@ import com.elster.jupiter.metering.impl.config.UsagePointRequirementValue;
 import com.elster.jupiter.metering.impl.configproperties.ConfigPropertyImpl;
 import com.elster.jupiter.metering.impl.slp.SyntheticLoadProfileImpl;
 import com.elster.jupiter.metering.slp.SyntheticLoadProfile;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.DeleteRule;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.PrimaryKeyConstraint;
+import com.elster.jupiter.orm.Table;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.parties.Party;
 import com.elster.jupiter.parties.PartyRole;
 import com.elster.jupiter.usagepoint.lifecycle.config.UsagePointLifeCycle;
@@ -696,6 +703,7 @@ public enum TableSpecs {
                     .notNull()
                     .map("logBookId")
                     .conversion(NUMBER2LONG)
+                    .installValue("0")
                     .since(version(10, 9, 19))
                     .add();
 

@@ -62,16 +62,21 @@ public class OpenTaskIssueImpl extends TaskIssueImpl implements OpenTaskIssue {
 
     @Override
     public void addTaskOccurrence(TaskOccurrence taskOccurrence, String errorMessage, Instant failureTime) {
-        createNewRelatedTaskOccurrence(taskOccurrence, errorMessage, failureTime);
+        if (!getTaskOccurrence(taskOccurrence, errorMessage, failureTime).isPresent())
+            createNewRelatedTaskOccurrence(taskOccurrence, errorMessage, failureTime);
     }
 
-    @Override
-    public void removeTaskOccurrence(TaskOccurrence taskOccurrence, String errorMessage, Instant failureTime) {
-        Optional<OpenRelatedTaskOccurrence> relatedTaskOccurrence = taskOccurrences.stream()
+    private Optional<OpenRelatedTaskOccurrence> getTaskOccurrence(TaskOccurrence taskOccurrence, String errorMessage, Instant failureTime) {
+        return  taskOccurrences.stream()
                 .filter(occurrence -> occurrence.getTaskOccurrence().equals(taskOccurrence))
                 .filter(occurrence -> occurrence.getErrorMessage().equals(errorMessage))
                 .filter(occurrence -> occurrence.getFailureTime().equals(failureTime))
                 .findFirst();
+    }
+
+    @Override
+    public void removeTaskOccurrence(TaskOccurrence taskOccurrence, String errorMessage, Instant failureTime) {
+        Optional<OpenRelatedTaskOccurrence> relatedTaskOccurrence = getTaskOccurrence(taskOccurrence, errorMessage, failureTime);
         relatedTaskOccurrence.ifPresent(openIssueFailedTransition -> taskOccurrences.remove(openIssueFailedTransition));
     }
 

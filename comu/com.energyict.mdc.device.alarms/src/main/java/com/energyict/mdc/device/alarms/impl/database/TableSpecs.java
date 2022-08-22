@@ -6,7 +6,11 @@ package com.energyict.mdc.device.alarms.impl.database;
 
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.events.EndDeviceEventRecord;
-import com.elster.jupiter.orm.*;
+import com.elster.jupiter.orm.Column;
+import com.elster.jupiter.orm.ColumnConversion;
+import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
+import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.OpenDeviceAlarm;
@@ -115,6 +119,7 @@ public enum TableSpecs {
                     .notNull()
                     .map("logBookId")
                     .conversion(NUMBER2LONG)
+                    .installValue("0")
                     .since(version(10, 9, 19))
                     .add();
             Column recordTimeColumn = table.column("RECORDTIME")
@@ -191,6 +196,7 @@ public enum TableSpecs {
                     .notNull()
                     .map("logBookId")
                     .conversion(NUMBER2LONG)
+                    .installValue("0")
                     .since(version(10, 9, 19))
                     .add();
             Column recordTimeColumn = table.column("RECORDTIME")

@@ -21,5 +21,17 @@ public class UpgraderV10_9_19 implements Upgrader {
     @Override
     public void migrate(DataModelUpgrader dataModelUpgrader) {
         dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 19));
+        execute(dataModel,
+                "update DAL_OPEN_ALM_RELATED_EVT set LOGBOOKID = (\n" +
+                        "select LOGBOOKID from MTR_ENDDEVICEEVENTRECORD where \n" +
+                        "DAL_OPEN_ALM_RELATED_EVT.ENDDEVICEID = MTR_ENDDEVICEEVENTRECORD.ENDDEVICEID and\n" +
+                        "DAL_OPEN_ALM_RELATED_EVT.EVENTTYPE = MTR_ENDDEVICEEVENTRECORD.EVENTTYPE and\n" +
+                        "DAL_OPEN_ALM_RELATED_EVT.RECORDTIME = MTR_ENDDEVICEEVENTRECORD.CREATEDDATETIME)",
+                "update DAL_HIST_ALM_RELATED_EVT set LOGBOOKID = (\n" +
+                        "select LOGBOOKID from MTR_ENDDEVICEEVENTRECORD where \n" +
+                        "DAL_HIST_ALM_RELATED_EVT.ENDDEVICEID = MTR_ENDDEVICEEVENTRECORD.ENDDEVICEID and\n" +
+                        "DAL_HIST_ALM_RELATED_EVT.EVENTTYPE = MTR_ENDDEVICEEVENTRECORD.EVENTTYPE and\n" +
+                        "DAL_HIST_ALM_RELATED_EVT.RECORDTIME = MTR_ENDDEVICEEVENTRECORD.CREATEDDATETIME)"
+        );
     }
 }
