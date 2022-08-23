@@ -31,13 +31,15 @@ public class UpgraderV10_9_19 implements Upgrader {
                 "drop index VAL_FK_OPNALM_REL_EVTSEVT",
                 "create table MTR_ENDDEVICEEVENTDETAIL_TMP as (select * from MTR_ENDDEVICEEVENTDETAIL)",
                 "drop table MTR_ENDDEVICEEVENTDETAIL cascade constraints",
-                "rename MTR_ENDDEVICEEVENTDETAIL_TMP to MTR_ENDDEVICEEVENTDETAIL",
+                "rename MTR_ENDDEVICEEVENTDETAIL_TMP to MTR_ENDDEVICEEVENTDETAIL"
+        );
+        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 19));
+        execute(dataModel,
                 "update MTR_ENDDEVICEEVENTDETAIL set LOGBOOKID = (\n" +
                         "select LOGBOOKID from MTR_ENDDEVICEEVENTRECORD where \n" +
                         "MTR_ENDDEVICEEVENTDETAIL.ENDDEVICEID = MTR_ENDDEVICEEVENTRECORD.ENDDEVICEID and\n" +
                         "MTR_ENDDEVICEEVENTDETAIL.EVENTTYPE = MTR_ENDDEVICEEVENTRECORD.EVENTTYPE and\n" +
                         "MTR_ENDDEVICEEVENTDETAIL.CREATEDDATETIME = MTR_ENDDEVICEEVENTRECORD.CREATEDDATETIME)"
         );
-        dataModelUpgrader.upgrade(dataModel, Version.version(10, 9, 19));
     }
 }
