@@ -82,12 +82,14 @@ public class MdcAppInstaller {
                         .put(version(10, 3), UpgraderV10_3.class)
                         .put(version(10, 4), UpgraderV10_4.class)
                         .put(version(10, 4, 1), UpgraderV10_4_1.class)
+                        .put(version(10, 4, 37), UpgraderV10_4_37.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), UpgraderV10_7.class)
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
                         .put(version(10, 7, 4), UpgraderV10_7_4.class)
                         .put(version(10, 8), UpgraderV10_8.class)
                         .put(version(10, 9), UpgraderV10_9.class)
+                        .put(version(10, 9, 19), UpgraderV10_9_19.class)
                         .build()
         );
     }
@@ -122,12 +124,18 @@ public class MdcAppInstaller {
         }
 
         public void assignPrivilegesToDefaultRoles() {
-            String[] privilegesMeterExpert = getPrivilegesMeterExpert();
-
             userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_OPERATOR.value(), MdcAppService.APPLICATION_KEY, getPrivilegesMeterOperator());
-            userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
-            userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, privilegesMeterExpert);
+            userService.grantGroupWithPrivilege(MdcAppService.Roles.METER_EXPERT.value(), MdcAppService.APPLICATION_KEY, getPrivilegesMeterExpert());
+            userService.grantGroupWithPrivilege(UserService.BATCH_EXECUTOR_ROLE, MdcAppService.APPLICATION_KEY, getPrivilegesBatchExecutor());
             userService.grantGroupWithPrivilege(MdcAppService.Roles.REPORT_VIEWER.value(), MdcAppService.APPLICATION_KEY, getPrivilegesReportViewer());
+        }
+
+        private String[] getPrivilegesBatchExecutor() {
+            return MdcAppPrivileges.getApplicationPrivileges()
+                    .stream()
+                    .filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS))
+                    .filter(p -> !p.equals(com.energyict.mdc.device.command.security.Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE))
+                    .toArray(String[]::new);
         }
 
         private String[] getPrivilegesMeterExpert() {
@@ -135,6 +143,7 @@ public class MdcAppInstaller {
                     .stream()
                     .filter(p -> !p.equals(com.elster.jupiter.yellowfin.security.Privileges.Constants.VIEW_REPORTS))
                     .filter(p -> !p.equals(com.energyict.mdc.device.command.security.Privileges.Constants.APPROVE_COMMAND_LIMITATION_RULE))
+                    .filter(p -> !p.equals(com.elster.jupiter.soap.whiteboard.cxf.security.Privileges.Constants.INVOKE_WEB_SERVICES))
                     .toArray(String[]::new);
         }
 

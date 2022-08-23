@@ -6,8 +6,10 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl.soap;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
+import com.elster.jupiter.soap.whiteboard.cxf.WebService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
@@ -35,6 +37,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -63,6 +66,10 @@ public class AuthenticationInInterceptorTest {
     private ThreadPrincipalService threadPrincipalService;
     @Mock
     private EventService eventService;
+    @Mock
+    private User user;
+    @Mock
+    private WebService webService;
 
     private AuthorizationInInterceptor authorizationInInterceptor;
 
@@ -71,8 +78,8 @@ public class AuthenticationInInterceptorTest {
         authorizationInInterceptor = new AuthorizationInInterceptor(userService, webServicesService, threadPrincipalService, eventService);
         Group developerGroup = mock(Group.class);
         when(developerGroup.getName()).thenReturn("Developer");
+        when(developerGroup.hasPrivilege(anyString(),anyString())).thenReturn(true);
         when(userService.findGroup("Developer")).thenReturn(Optional.of(developerGroup));
-        User user = mock(User.class);
         when(user.getName()).thenReturn("Admin");
         when(user.isMemberOf(any(Group.class))).thenReturn(false);
         when(user.isMemberOf(developerGroup)).thenReturn(true);
@@ -87,12 +94,14 @@ public class AuthenticationInInterceptorTest {
         when(httpServletRequest.getRemoteAddr()).thenReturn("127.0.0.1");
         when(message.get(AuthorizationPolicy.class)).thenReturn(authorizationPolicy);
         when(userService.findUser(anyString())).thenReturn(Optional.empty());
-        when(message.get(MESSAGE_CONTEXT_OCCURRENCE_ID)).thenReturn(1l);
+        when(message.get(MESSAGE_CONTEXT_OCCURRENCE_ID)).thenReturn(1L);
+        when(user.hasPrivilege(anyString(), anyString())).thenReturn(true);
+        when(webServicesService.getWebService(anyString())).thenReturn(Optional.of(webService));
+        when(webService.getApplicationName()).thenReturn(ApplicationSpecific.WebServiceApplicationName.MULTISENSE.getName());
     }
 
     @Test
     public void testNormalAuthenticationNoSession() throws Exception {
-
         when(httpSession.getAttribute("userName")).thenReturn(null);
         when(httpSession.getAttribute("password")).thenReturn(null);
         when(authorizationPolicy.getUserName()).thenReturn("admin");
@@ -105,7 +114,6 @@ public class AuthenticationInInterceptorTest {
 
     @Test
     public void testAuthenticationWrongPassword() throws Exception {
-
         when(httpSession.getAttribute("userName")).thenReturn(null);
         when(httpSession.getAttribute("password")).thenReturn(null);
         when(authorizationPolicy.getUserName()).thenReturn("admin");
@@ -116,7 +124,7 @@ public class AuthenticationInInterceptorTest {
             fail("Expected security exception");
         } catch (Fault se) {
             assertThat(se.getMessage(), is("Not authorized"));
-            verify(webServicesService).failOccurrence(1l, "User admin denied access: invalid credentials");
+            verify(webServicesService).failOccurrence(1L, "User admin denied access: invalid credentials");
         }
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
@@ -136,7 +144,7 @@ public class AuthenticationInInterceptorTest {
             fail("Expected security exception");
         } catch (Fault se) {
             assertThat(se.getMessage(), is("Not authorized"));
-            verify(webServicesService).failOccurrence(1l, "User admin denied access: not in role");
+            verify(webServicesService).failOccurrence(1L, "User admin denied access: not in role");
         }
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
@@ -169,7 +177,7 @@ public class AuthenticationInInterceptorTest {
             fail("Expected security exception");
         } catch (Fault se) {
             assertThat(se.getMessage(), is("Not authorized"));
-            verify(webServicesService).failOccurrence(1l, "User admin denied access: invalid credentials");
+            verify(webServicesService).failOccurrence(1L, "User admin denied access: invalid credentials");
         }
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
@@ -191,5 +199,47 @@ public class AuthenticationInInterceptorTest {
             assertThat(se.getMessage(), is("Not authorized"));
             verify(webServicesService).failOccurrence(any(Long.class), any(Exception.class));
         }
+    }
+
+    @Test
+    public void testAuthenticationNoPrivilege() throws Exception {
+        when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
+
+        when(httpSession.getAttribute("userName")).thenReturn(null);
+        when(httpSession.getAttribute("password")).thenReturn(null);
+        when(authorizationPolicy.getUserName()).thenReturn("admin");
+        when(authorizationPolicy.getPassword()).thenReturn("admin");
+        when(user.hasPrivilege(anyString(), anyString())).thenReturn(false);
+
+        try {
+            authorizationInInterceptor.handleMessage(message);
+            fail("Expected security exception");
+        } catch (Fault se) {
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1L, "User admin denied access: no privileges");
+        }
+        verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
+    }
+
+    @Test
+    public void testAuthenticationNotEnoughPrivileges() throws Exception {
+        when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
+
+        when(httpSession.getAttribute("userName")).thenReturn(null);
+        when(httpSession.getAttribute("password")).thenReturn(null);
+        when(authorizationPolicy.getUserName()).thenReturn("admin");
+        when(authorizationPolicy.getPassword()).thenReturn("admin");
+        when(user.hasPrivilege(eq("MDC"), anyString())).thenReturn(true);
+        when(user.hasPrivilege(eq("INS"), anyString())).thenReturn(false);
+        when(webService.getApplicationName()).thenReturn(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
+
+        try {
+            authorizationInInterceptor.handleMessage(message);
+            fail("Expected security exception");
+        } catch (Fault se) {
+            assertThat(se.getMessage(), is("Not authorized"));
+            verify(webServicesService).failOccurrence(1L, "User admin denied access: no privileges");
+        }
+        verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 }

@@ -71,7 +71,7 @@ public class SCIMApplication extends Application implements ApplicationSpecific 
 
     @Override
     public String getApplication() {
-        return WebServiceApplicationName.SCIM_PROVISIONING_TOOL.getName();
+        return WebServiceApplicationName.SYSTEM.getName();
     }
 
 }

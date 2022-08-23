@@ -3,6 +3,7 @@ package com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.resource;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.SCIMApplication;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -12,8 +13,6 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Form;
@@ -29,8 +28,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-public class OAuthBaseTest extends JerseyTest {
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
+public abstract class OAuthBaseTest extends JerseyTest {
     protected static final String TOKEN_RESOURCE_PATH = "/token";
     protected static final String CLIENT_CREDENTIALS = Base64.getEncoder().encodeToString("enexis.password".getBytes());
     protected static final Form TOKEN_REQUEST_FORM_WITH_GRANT_TYPE_CLIENT_CREDENTIALS = new Form();
@@ -57,7 +58,6 @@ public class OAuthBaseTest extends JerseyTest {
 
     @Mock
     protected UserService userService;
-
     @Mock
     protected TokenService tokenService;
 

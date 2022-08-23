@@ -3,32 +3,30 @@ package com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.resource;
 import com.elster.jupiter.users.Group;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.jaxrs.SCIMApplication;
-import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.dto.TokenResponse;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.oauth.resource.OAuthBaseTest;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.GroupSchema;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.SchemaType;
 import com.elster.jupiter.webservice.inbound.rest.scim.impl.scim.schema.UserSchema;
+
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.Before;
-import org.mockito.Matchers;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Application;
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.junit.Before;
+import org.mockito.Matchers;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class SCIMBaseTest extends OAuthBaseTest {
+public abstract class SCIMBaseTest extends OAuthBaseTest {
 
     protected static final String USER_RESOURCE_PATH = "/Users";
     protected static final String GROUP_RESOURCE_PATH = "/Groups";
@@ -80,9 +78,9 @@ public class SCIMBaseTest extends OAuthBaseTest {
         when(userService.createSCIMUser(any(String.class), any(String.class), any(String.class))).thenReturn(user);
         when(userService.createSCIMGroup(any(String.class), any(String.class), any(String.class))).thenReturn(group);
         when(userService.findUserByExternalId(any(String.class))).thenReturn(Optional.empty());
-        when(userService.findUserByExternalId(Matchers.same("1"))).thenReturn(Optional.of(user));
+        when(userService.findUserByExternalId(Matchers.eq("1"))).thenReturn(Optional.of(user));
         when(userService.findGroupByExternalId(any(String.class))).thenReturn(Optional.empty());
-        when(userService.findGroupByExternalId(Matchers.same("1"))).thenReturn(Optional.of(group));
+        when(userService.findGroupByExternalId(Matchers.eq("1"))).thenReturn(Optional.of(group));
         when(userService.getGroupMembers(any(String.class))).thenReturn(new ArrayList<>());
     }
 

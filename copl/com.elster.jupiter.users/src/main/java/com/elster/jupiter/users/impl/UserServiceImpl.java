@@ -121,9 +121,10 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
 
     private static final String TRUSTSTORE_PATH = "com.elster.jupiter.users.truststore";
     private static final String TRUSTSTORE_PASS = "com.elster.jupiter.users.truststorepass";
-    private static final String SUCCESSFUL_LOGIN = "Successful login for user ";
+    private static final String SUCCESSFUL_LOGIN = "Successful authentication for user ";
     private static final String UNSUCCESSFUL_LOGIN = "Unsuccessful login attempt for user ";
     private static final String ACCOUNT_LOCKED = "The current account is locked. Please contact your administrator!";
+    private static final String NO_PRIVILEGES = "The user has no privileges ";
 
     private static final String JUPITER_REALM = "Local";
     private Logger userLogin = Logger.getLogger("userLog");
@@ -303,13 +304,20 @@ public class UserServiceImpl implements UserService, MessageSeedProvider, Transl
         }
         Optional<User> user = authenticate(domain, userName, names[1], ipAddr);
 
-        if (user.isPresent() && user.get().isUserLocked(getLockingAccountSettings())) {
-            logMessage(ACCOUNT_LOCKED, userName, domain, ipAddr);
-        } else if (user.isPresent() && !user.get().getPrivileges().isEmpty()) {
-            logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
+        if (user.isPresent()){
+            if (user.get().isUserLocked(getLockingAccountSettings())){
+                logMessage(ACCOUNT_LOCKED, userName, domain, ipAddr);
+                return Optional.empty();
+            } else if (user.get().getPrivileges().isEmpty()) {
+                logMessage(NO_PRIVILEGES, userName, domain, ipAddr);
+                return Optional.empty();
+            } else {
+                logMessage(SUCCESSFUL_LOGIN, userName, domain, ipAddr);
+            }
         } else {
             if (!userName.equals("")) {
                 logMessage(UNSUCCESSFUL_LOGIN, userName, domain, ipAddr);
+                return Optional.empty();
             }
         }
         return user;

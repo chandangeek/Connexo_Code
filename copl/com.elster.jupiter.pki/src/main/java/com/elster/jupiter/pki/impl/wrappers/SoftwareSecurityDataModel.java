@@ -135,8 +135,9 @@ public class SoftwareSecurityDataModel {
     }
 
     @Reference
-    public void setHsmEncryptionService(HsmEncryptionService hsmEncryptionService) { this.hsmEncryptionService = hsmEncryptionService; }
-
+    public void setHsmEncryptionService(HsmEncryptionService hsmEncryptionService) {
+        this.hsmEncryptionService = hsmEncryptionService;
+    }
 
     @Activate
     public void activate() {
