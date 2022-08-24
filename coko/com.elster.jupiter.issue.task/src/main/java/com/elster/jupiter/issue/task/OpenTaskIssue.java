@@ -9,6 +9,7 @@ import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.tasks.TaskOccurrence;
 
 import java.time.Instant;
+import java.util.Optional;
 
 public interface OpenTaskIssue extends OpenIssue, TaskIssue {
     

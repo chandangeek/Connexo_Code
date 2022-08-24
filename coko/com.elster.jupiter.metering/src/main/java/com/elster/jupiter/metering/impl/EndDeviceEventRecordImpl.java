@@ -38,6 +38,8 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
         private long endDeviceId;
         @SuppressWarnings("unused")
         private Instant createdDateTime;
+        @SuppressWarnings("unused")
+        private long logBookId;
 
         private String key;
         private String value;
@@ -51,6 +53,8 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
             eventTypeCode = eventRecord.getEventType().getMRID();
             endDeviceId = eventRecord.getEndDevice().getId();
             createdDateTime = eventRecord.getCreatedDateTime();
+            logBookId = eventRecord.getLogBookId();
+
             this.key = key;
             this.value = value;
         }

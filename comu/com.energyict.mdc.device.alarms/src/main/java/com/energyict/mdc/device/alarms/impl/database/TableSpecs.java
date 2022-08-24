@@ -9,6 +9,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.ColumnConversion;
 import com.elster.jupiter.orm.DataModel;
+import com.elster.jupiter.orm.ForeignKeyConstraint;
 import com.elster.jupiter.orm.Table;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.entity.HistoricalDeviceAlarm;
@@ -113,6 +114,14 @@ public enum TableSpecs {
                     .installValue("'*'")
                     .since(version(10,4))
                     .add();
+            Column logbookIdColumn = table.column("LOGBOOKID")
+                    .number()
+                    .notNull()
+                    .map("logBookId")
+                    .conversion(NUMBER2LONG)
+                    .installValue("0")
+                    .since(version(10, 9, 19))
+                    .add();
             Column recordTimeColumn = table.column("RECORDTIME")
                     .number()
                     .notNull()
@@ -137,12 +146,23 @@ public enum TableSpecs {
                     .reverseMap(DeviceAlarmImpl.Fields.DEVICE_ALARM_RELATED_EVENTS.fieldName())
                     .onDelete(CASCADE)
                     .composition().add();
-            table.foreignKey("VAL_FK_OPNALM_REL_EVTSEVT")
+            ForeignKeyConstraint oldForeign = table.foreignKey("VAL_FK_OPNALM_REL_EVTSEVT")
                     .on(endDeviceColumn, eventTypeColumn, recordTimeColumn)
                     .references(EndDeviceEventRecord.class)
                     .map("eventRecord")
                     .onDelete(CASCADE)
-                    .composition().add();
+                    .composition()
+                    .upTo(version(10, 9, 19))
+                    .add();
+            table.foreignKey("VAL_FK_OPNALM_REL_EVTSEVT")
+                    .on(endDeviceColumn, eventTypeColumn, recordTimeColumn, logbookIdColumn)
+                    .references(EndDeviceEventRecord.class)
+                    .map("eventRecord")
+                    .onDelete(CASCADE)
+                    .composition()
+                    .since(version(10, 9, 19))
+                    .previously(oldForeign)
+                    .add();
         }
     },
 
@@ -171,6 +191,14 @@ public enum TableSpecs {
                     .installValue("'*'")
                     .since(version(10,4))
                     .add();
+            Column logbookIdColumn = table.column("LOGBOOKID")
+                    .number()
+                    .notNull()
+                    .map("logBookId")
+                    .conversion(NUMBER2LONG)
+                    .installValue("0")
+                    .since(version(10, 9, 19))
+                    .add();
             Column recordTimeColumn = table.column("RECORDTIME")
                     .number()
                     .notNull()
@@ -196,12 +224,23 @@ public enum TableSpecs {
                     .reverseMap(DeviceAlarmImpl.Fields.DEVICE_ALARM_RELATED_EVENTS.fieldName())
                     .onDelete(CASCADE)
                     .composition().add();
-            table.foreignKey("VAL_FK_HSTALM_REL_EVTSEVT")
+            ForeignKeyConstraint oldForeign = table.foreignKey("VAL_FK_HSTALM_REL_EVTSEVT")
                     .on(endDeviceColumn, eventTypeColumn, recordTimeColumn)
                     .references(EndDeviceEventRecord.class)
                     .map("eventRecord")
                     .onDelete(CASCADE)
-                    .composition().add();
+                    .composition()
+                    .upTo(version(10, 9, 19))
+                    .add();
+            table.foreignKey("VAL_FK_HSTALM_REL_EVTSEVT")
+                    .on(endDeviceColumn, eventTypeColumn, recordTimeColumn, logbookIdColumn)
+                    .references(EndDeviceEventRecord.class)
+                    .map("eventRecord")
+                    .onDelete(CASCADE)
+                    .composition()
+                    .since(version(10, 9, 19))
+                    .previously(oldForeign)
+                    .add();
         }
     };
 
