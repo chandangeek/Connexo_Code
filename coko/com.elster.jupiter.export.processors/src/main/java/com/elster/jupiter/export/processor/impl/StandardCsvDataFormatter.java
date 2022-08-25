@@ -158,11 +158,10 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
     }
 
     Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
-        ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-        StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
-                .add(DEFAULT_DATE_TIME_FORMAT.format(date));
-
         if (reading.getValue() != null || reading instanceof Reading && ((Reading) reading).getText() != null) {
+            ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
+            StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
+                    .add(DEFAULT_DATE_TIME_FORMAT.format(date));
             if (!excludeMRID) {
                 joiner.add(domainObject.getMRID());
             }
