@@ -8,7 +8,7 @@ import com.elster.jupiter.export.DataExportService;
 import com.elster.jupiter.export.ReadingTypeDataExportItem;
 import com.elster.jupiter.metering.MetrologyContractChannelsContainer;
 import com.elster.jupiter.metering.config.MetrologyPurpose;
-import com.elster.jupiter.metering.readings.BaseReading;
+import com.elster.jupiter.metering.readings.Reading;
 import com.elster.jupiter.validation.ValidationResult;
 
 import javax.inject.Inject;
@@ -38,7 +38,7 @@ public class CsvUsagePointDataFormatter extends StandardCsvDataFormatter{
     }
 
     @Override
-    Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
+    Optional<String> writeReading(Reading reading, ValidationResult validationResult) {
         if (reading.getValue() != null) {
             ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
             StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
