@@ -113,14 +113,14 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
         ReadingType readingType = meterReadingData.getItem().getReadingType();
 
         List<FormattedExportData> formattedExportData = Stream.concat(
-                readings.stream()
-                        .map(reading ->
-                                writeReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : ValidationResult.NOT_VALIDATED)),
-                intervalBlocks.stream()
-                        .map(IntervalBlock::getIntervals)
-                        .flatMap(Collection::stream)
-                        .map(reading ->
-                                writeBaseReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : ValidationResult.NOT_VALIDATED)))
+                        readings.stream()
+                                .map(reading ->
+                                        writeReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : ValidationResult.NOT_VALIDATED)),
+                        intervalBlocks.stream()
+                                .map(IntervalBlock::getIntervals)
+                                .flatMap(Collection::stream)
+                                .map(reading ->
+                                        writeReading(reading, validationData != null ? asValidationResult(validationData.getValidationStatus(reading.getTimeStamp()), readingType) : ValidationResult.NOT_VALIDATED)))
                 .flatMap(Functions.asStream())
                 .map(line -> TextLineExportData.of(createStructureMarker(exportData, main, update), line))
                 .collect(Collectors.toList());
@@ -157,43 +157,18 @@ class StandardCsvDataFormatter implements ReadingDataFormatter, StandardFormatte
                 .orElse(null);
     }
 
-    Optional<String> writeReading(Reading reading, ValidationResult validationResult) {
+    Optional<String> writeReading(BaseReading reading, ValidationResult validationResult) {
         ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
         StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
                 .add(DEFAULT_DATE_TIME_FORMAT.format(date));
-        if (reading.getValue() != null) {
-            if (!excludeMRID) {
-                joiner.add(domainObject.getMRID());
-            }
-            joiner.add(domainObject.getName())
-                    .add(readingType.getMRID())
-                    .add(reading.getValue().toString())
-                    .add(asString(validationResult));
-            return Optional.of(joiner.toString());
-        } else if (reading.getText() != null) {
-            if (!excludeMRID) {
-                joiner.add(domainObject.getMRID());
-            }
-            joiner.add(domainObject.getName())
-                    .add(readingType.getMRID())
-                    .add(reading.getText())
-                    .add(asString(validationResult));
-            return Optional.of(joiner.toString());
-        }
-        return Optional.empty();
-    }
 
-    Optional<String> writeBaseReading(BaseReading reading, ValidationResult validationResult) {
-        ZonedDateTime date = ZonedDateTime.ofInstant(reading.getTimeStamp(), ZoneId.systemDefault());
-        StringJoiner joiner = new StringJoiner(fieldSeparator, "", "\n")
-                .add(DEFAULT_DATE_TIME_FORMAT.format(date));
-        if (reading.getValue() != null) {
+        if (reading.getValue() != null || reading instanceof Reading && ((Reading) reading).getText() != null) {
             if (!excludeMRID) {
                 joiner.add(domainObject.getMRID());
             }
             joiner.add(domainObject.getName())
                     .add(readingType.getMRID())
-                    .add(reading.getValue().toString())
+                    .add(reading.getValue() != null ? reading.getValue().toString() : ((Reading) reading).getText())
                     .add(asString(validationResult));
             return Optional.of(joiner.toString());
         }
