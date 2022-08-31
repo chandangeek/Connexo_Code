@@ -11,6 +11,7 @@ import com.energyict.mdc.protocol.inbound.general.RequestDiscover;
 import com.energyict.mdc.protocol.inbound.idis.AM122PushEventNotification;
 import com.energyict.mdc.protocol.inbound.idis.DataPushNotification;
 import com.energyict.mdc.protocol.inbound.idis.T210DPushEventNotification;
+import com.energyict.mdc.protocol.inbound.mbus.Merlin;
 import com.energyict.mdc.protocol.inbound.nfc.NFCDataPushNotification;
 import com.energyict.mdc.upl.InboundDeviceProtocol;
 
@@ -47,7 +48,8 @@ public enum InboundDeviceProtocolRule implements PluggableClassDefinition<Inboun
     NFCDataPushNotification(NFCDataPushNotification.class),
     WebCatchInboundProtocol(WebCatchInboundProtocol.class),
     EI6v2021Inbound(EI6v2021Inbound.class),
-    EI4UmiInbound(EI4UmiInbound.class);
+    EI4UmiInbound(EI4UmiInbound.class),
+    Merlin(com.energyict.mdc.protocol.inbound.mbus.Merlin.class);
 
     private final Class<? extends InboundDeviceProtocol> inboundDeviceProtocolClass;
 
