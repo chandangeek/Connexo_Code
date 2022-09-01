@@ -25,8 +25,6 @@ import com.energyict.protocolimpl.generic.ParseUtils;
 import com.energyict.protocolimpl.messages.codetableparsing.CodeTableXml;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.ZMD;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -46,6 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.logging.Logger;
 
 /**
  * ActivityCalendar implementation for the ZMD Smartmeter protocol
@@ -131,11 +130,6 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
      * The name of the passive Calendar
      */
     private OctetString passiveCalendarName;
-
-    /**
-     * The current {@link org.apache.commons.logging.Log}
-     */
-    private final Log logger = LogFactory.getLog(getClass());
 
     /**
      * Contains a map of given DayProfile Ids and usable DayProfile Ids. The ApolloMeter does not allow a dayId starting from <b>0</b>
@@ -239,16 +233,16 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
             NodeList specialDayList = doc.getElementsByTagName(CodeTableXml.specialDays);
             createSpecialDays(specialDayList);
 
-            logger.debug("SeasonArray : " + ParseUtils.decimalByteToString(seasonArray.getBEREncodedByteArray()));
-            logger.debug("WeekArray : " + ParseUtils.decimalByteToString(weekArray.getBEREncodedByteArray()));
-            logger.debug("DayArray : " + ParseUtils.decimalByteToString(dayArray.getBEREncodedByteArray()));
-            logger.debug("SpecialDayArray : " + ParseUtils.decimalByteToString(specialDayArray.getBEREncodedByteArray()));
+            getLogger().finest("SeasonArray : " + ParseUtils.decimalByteToString(seasonArray.getBEREncodedByteArray()));
+            getLogger().finest("WeekArray : " + ParseUtils.decimalByteToString(weekArray.getBEREncodedByteArray()));
+            getLogger().finest("DayArray : " + ParseUtils.decimalByteToString(dayArray.getBEREncodedByteArray()));
+            getLogger().finest("SpecialDayArray : " + ParseUtils.decimalByteToString(specialDayArray.getBEREncodedByteArray()));
 
         } catch (ParserConfigurationException e) {
-            logger.error("ActivityCalendar parser -> Could not create a DocumentBuilder.");
+            getLogger().severe("ActivityCalendar parser -> Could not create a DocumentBuilder.");
             throw new IOException("ActivityCalendar parser -> Could not create a DocumentBuilder. ParseConfigurationException message : " + e.getLocalizedMessage());
         } catch (SAXException e) {
-            logger.error("ActivityCalendar parser -> A parse ERROR occurred.");
+            getLogger().severe("ActivityCalendar parser -> A parse ERROR occurred.");
             throw new IOException("ActivityCalendar parser -> A parse ERROR occurred. SAXException message : " + e.getLocalizedMessage());
         }
     }
@@ -272,7 +266,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
             for (int j = 0; j < dayProfile.getChildNodes().getLength(); j++) {
                 if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayId)) {
                     this.tempShiftedDayIdMap.put(dayProfile.getChildNodes().item(j).getTextContent(), dayIdCounter++);
-                    logger.debug("DayId : " + dayProfile.getChildNodes().item(j).getTextContent() + " is changed to " + dayIdCounter);
+                    getLogger().finest("DayId : " + dayProfile.getChildNodes().item(j).getTextContent() + " is changed to " + dayIdCounter);
                 }
             }
         }
@@ -309,13 +303,17 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
         ac.writeWeekProfileTablePassive(getWeekArray());
         ac.writeDayProfileTablePassive(getDayArray());
 
-        getSpecialDayTable().writeSpecialDays(getSpecialDayArray());
+        // Write special days on another Obis code
+        if (sortedSpecialDayNodes.size() > 0) {
+            getLogger().fine("Sending out the new passive calendar special days.");
+            getSpecialDayTable().writeSpecialDays(getSpecialDayArray());
+        }
 
         // Always write activationDate - activateNow() function is not supported
         if (!"0".equalsIgnoreCase(this.activatePassiveCalendarTime.stringValue())) {
             ac.writeActivatePassiveCalendarTime(this.activatePassiveCalendarTime);
         } else {
-            logger.trace("No passiveCalendar activation date was given.");
+            getLogger().fine("No passiveCalendar activation date was given.");
         }
     }
 
@@ -333,7 +331,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
      */
     public void writeCalendarActivationTime(Calendar activationDate) throws IOException {
         if (activationDate == null) {
-            logger.trace("No passiveCalendar activation date was given! No activation date will be set!");
+            getLogger().fine("No passiveCalendar activation date was given! No activation date will be set!");
         } else {
             getActivityCalendar().writeActivatePassiveCalendarTime(new OctetString(convertUnixToDeviceTimeZoneDateTime(activationDate.getTimeInMillis()).getBEREncodedByteArray(), 0));
         }
@@ -386,29 +384,29 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
             for (int j = 0; j < seasonProfile.getChildNodes().getLength(); j++) {
                 Node seasonNode = seasonProfile.getChildNodes().item(j);
                 if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonProfileName)) {
-                    logger.debug("SeasonProfileName : " + seasonNode.getTextContent());
+                    getLogger().finest("SeasonProfileName : " + seasonNode.getTextContent());
                     sp.setSeasonProfileName(createSeasonName(seasonNode.getTextContent()));
                 } else if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonStart)) {
                     byte[] startTime = initialDateTimeArray.clone();
                     //TODO it is possible that you have to give at least 1 valid value
-                    logger.debug("Entering SeasonStart Element");
+                    getLogger().finest("Entering SeasonStart Element");
                     for (int k = 0; k < seasonNode.getChildNodes().getLength(); k++) {
                         Node startTimeElement = seasonNode.getChildNodes().item(k);
                         if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dYear)) {
-                            logger.debug("SeasonStartYear : " + startTimeElement.getTextContent());
+                            getLogger().finest("SeasonStartYear : " + startTimeElement.getTextContent());
                             startTime[indexDtYearLow] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0x00FF);
                             startTime[indexDtYearHigh] = (byte) ((Integer.valueOf(startTimeElement.getTextContent()) & 0xFF00) >> 8);
                         } else if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dMonth)) {
-                            logger.debug("SeasonStartMonth : " + startTimeElement.getTextContent());
+                            getLogger().finest("SeasonStartMonth : " + startTimeElement.getTextContent());
                             startTime[indexDtMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
                         } else if (startTimeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dDay)) {
-                            logger.debug("SeasonStartDay : " + startTimeElement.getTextContent());
+                            getLogger().finest("SeasonStartDay : " + startTimeElement.getTextContent());
                             startTime[indexDtDayOfMonth] = (byte) (Integer.valueOf(startTimeElement.getTextContent()) & 0xFF);
                         }
                     }
                     sp.setSeasonStart(OctetString.fromByteArray(startTime));
                 } else if (seasonNode.getNodeName().equalsIgnoreCase(CodeTableXml.seasonWeekName)) {
-                    logger.debug("SeasonWeekName : " + seasonNode.getTextContent());
+                    getLogger().finest("SeasonWeekName : " + seasonNode.getTextContent());
                     sp.setWeekName(createWeekName(seasonNode.getTextContent()));
                 }
             }
@@ -444,28 +442,28 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
             for (int j = 0; j < weekProfile.getChildNodes().getLength(); j++) {
                 Node weekNode = weekProfile.getChildNodes().item(j);
                 if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.weekProfileName)) {
-                    logger.debug("WeekProfileName : " + weekNode.getTextContent());
+                    getLogger().finest("WeekProfileName : " + weekNode.getTextContent());
                     wp.setWeekProfileName(createWeekName(weekNode.getTextContent()));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkMonday)) {
-                    logger.debug("Monday : " + weekNode.getTextContent());
+                    getLogger().finest("Monday : " + weekNode.getTextContent());
                     wp.setMonday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkTuesday)) {
-                    logger.debug("Tuesday : " + weekNode.getTextContent());
+                    getLogger().finest("Tuesday : " + weekNode.getTextContent());
                     wp.setTuesday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkWednesDay)) {
-                    logger.debug("WednesDay : " + weekNode.getTextContent());
+                    getLogger().finest("WednesDay : " + weekNode.getTextContent());
                     wp.setWednesday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkThursday)) {
-                    logger.debug("Thursday : " + weekNode.getTextContent());
+                    getLogger().finest("Thursday : " + weekNode.getTextContent());
                     wp.setThursday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkFriday)) {
-                    logger.debug("Friday : " + weekNode.getTextContent());
+                    getLogger().finest("Friday : " + weekNode.getTextContent());
                     wp.setFriday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSaturday)) {
-                    logger.debug("Saturday : " + weekNode.getTextContent());
+                    getLogger().finest("Saturday : " + weekNode.getTextContent());
                     wp.setSaturday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 } else if (weekNode.getNodeName().equalsIgnoreCase(CodeTableXml.wkSunday)) {
-                    logger.debug("Sunday : " + weekNode.getTextContent());
+                    getLogger().finest("Sunday : " + weekNode.getTextContent());
                     wp.setSunday(new Unsigned8(this.tempShiftedDayIdMap.get(weekNode.getTextContent())));
                 }
             }
@@ -500,22 +498,22 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
             DayProfiles dp = new DayProfiles();
             for (int j = 0; j < dayProfile.getChildNodes().getLength(); j++) {
                 if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayId)) {
-                    logger.debug("DayId : " + dayProfile.getChildNodes().item(j).getTextContent());
+                    getLogger().finest("DayId : " + dayProfile.getChildNodes().item(j).getTextContent());
                     dp.setDayId(new Unsigned8(this.tempShiftedDayIdMap.get(dayProfile.getChildNodes().item(j).getTextContent())));
 
                 } else if (dayProfile.getChildNodes().item(j).getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffs)) {
                     Node dayProfileSchedules = dayProfile.getChildNodes().item(j);
-                    logger.debug("NrOfDayProfileTariffs : " + dayProfileSchedules.getChildNodes().getLength());
+                    getLogger().finest("NrOfDayProfileTariffs : " + dayProfileSchedules.getChildNodes().getLength());
                     Array dpsArray = new Array();
                     for (int k = 0; k < dayProfileSchedules.getChildNodes().getLength(); k++) {
                         Node dayProfileSchedule = dayProfileSchedules.getChildNodes().item(k);
-                        logger.debug("NrOfElements : " + dayProfileSchedule.getChildNodes().getLength());
+                        getLogger().finest("NrOfElements : " + dayProfileSchedule.getChildNodes().getLength());
                         DayProfileActions dpa = new DayProfileActions();
                         for (int l = 0; l < dayProfileSchedule.getChildNodes().getLength(); l++) {
                             byte[] dayTariffStartTime = initialDayTariffStartTimeArray.clone();
                             Node schedule = dayProfileSchedule.getChildNodes().item(l);
                             if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffStartTime)) {
-                                logger.debug("DayScheduleStartTime : " + schedule.getTextContent());
+                                getLogger().finest("DayScheduleStartTime : " + schedule.getTextContent());
                                 for (int m = 0; m < schedule.getChildNodes().getLength(); m++) {
                                     Node timeElement = schedule.getChildNodes().item(m);
                                     if (timeElement.getNodeName().equalsIgnoreCase(CodeTableXml.dHour)) {
@@ -529,7 +527,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
                                 dpa.setStartTime(OctetString.fromByteArray(dayTariffStartTime));
 
                             } else if (schedule.getNodeName().equalsIgnoreCase(CodeTableXml.dayTariffId)) {
-                                logger.debug("DayScheduleScriptSelector : " + schedule.getTextContent());
+                                getLogger().finest("DayScheduleScriptSelector : " + schedule.getTextContent());
                                 int value = Integer.parseInt(schedule.getTextContent());
                                 if (value != 0) {
                                     dpa.setScriptSelector(new Unsigned16(value));
@@ -609,7 +607,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
 
                     if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDate)) {
                         index = sortedSpecialDayNodes.indexOf(specialDayEntry);
-                        logger.debug("SpecialDayEntryIndex : " + index);
+                        getLogger().finest("SpecialDayEntryIndex : " + index);
                         sds.addDataType(new Unsigned16(index));
                         byte[] sdDate = initialSpecialDayDateArray.clone();
                         for (int k = 0; k < specialDayEntry.getChildNodes().getLength(); k++) {
@@ -623,10 +621,10 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
                                 sdDate[indexDDayOfMonth] = (byte) (Integer.valueOf(sdTimeElement.getTextContent()) & 0xFF);
                             }
                         }
-                        logger.debug("SpecialDayEntryDate : " + specialDayEntry.getTextContent());
+                        getLogger().finest("SpecialDayEntryDate : " + specialDayEntry.getTextContent());
                         sds.addDataType(OctetString.fromByteArray(sdDate));
                     } else if (specialDayEntry.getNodeName().equalsIgnoreCase(CodeTableXml.specialDayEntryDayId)) {
-                        logger.debug("SpecialDayEntryDayId : " + specialDayEntry.getTextContent());
+                        getLogger().finest("SpecialDayEntryDayId : " + specialDayEntry.getTextContent());
                         sds.addDataType(new Unsigned8(this.tempShiftedDayIdMap.get(specialDayEntry.getTextContent())));
                     }
                 }
@@ -672,7 +670,7 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
         if (content.length == 1) {
             content[0] = Integer.valueOf(index, 16).byteValue();
         } else {
-            logger.warn(errors[type]);
+            getLogger().warning(errors[type]);
             throw new IOException(errors[type]);
         }
         return OctetString.fromByteArray(content);
@@ -757,5 +755,9 @@ public class ZMDActivityCalendarController implements ActivityCalendarController
                 ac.writeDayProfileTablePassive(getDayArray());
                 break;
         }
+    }
+
+    private Logger getLogger() {
+        return this.protocol.getLogger();
     }
 }
