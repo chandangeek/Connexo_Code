@@ -2,7 +2,9 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramEncoding;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramFunctionType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -90,9 +92,14 @@ public class TelegramBodyPayload {
 
         // increase startPosition by 1 (DIF) and the number of DIFEs
         VIFTelegramField vif = new VIFTelegramField();
-        vif.addFieldPart(this.bodyFieldDecrypted.getFieldParts().get(startPosition + 1 + difeList.size()));
-        vif.setParent(rec);
-        vif.parse();
+        if (dif.getFunctionType() != TelegramFunctionType.USER_DEFINED_CELL_ID) {
+            vif.addFieldPart(this.bodyFieldDecrypted.getFieldParts().get(startPosition + 1 + difeList.size()));
+            vif.setParent(rec);
+            vif.parse();
+        } else {
+            // User-Defined Cell Id doesn't seem to use a VIF
+            startPosition--;
+        }
 
         rec.setVif(vif);
 
@@ -165,6 +172,7 @@ public class TelegramBodyPayload {
     }
 
     private DIFETelegramField processSingleDIFEField(String fieldValue) {
+        System.out.println("\t# DIFE: " + fieldValue);
         DIFETelegramField dife = new DIFETelegramField();
         dife.addFieldPart(fieldValue);
 
@@ -191,8 +199,16 @@ public class TelegramBodyPayload {
 
     private VIFETelegramField processSingleVIFEField(String fieldValue) {
         System.out.println("\t** VIFE: " + fieldValue);
+
+        int iFieldValue = Converter.hexToInt(fieldValue);
         VIFETelegramField vife = new VIFETelegramField();
         vife.addFieldPart(fieldValue);
+
+        if((iFieldValue & VIFTelegramField.EXTENSION_BIT_MASK) == VIFTelegramField.EXTENSION_BIT_MASK) {
+            vife.setExtensionBit(true);
+            System.out.println("\t\t - extension: true ");
+        }
+
 
         return vife;
     }

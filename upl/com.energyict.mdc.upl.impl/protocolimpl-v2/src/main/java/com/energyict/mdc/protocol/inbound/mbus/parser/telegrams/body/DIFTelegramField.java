@@ -68,6 +68,10 @@ public class DIFTelegramField extends TelegramField {
         // don't need to be interpreted (for example 2F as a fill byte)
         switch (iDifField) {
             case 0x0F:
+                // User defined data identified (Cell ID)
+                this.dataFieldLength = 23;
+                this.functionType = TelegramFunctionType.USER_DEFINED_CELL_ID;
+                this.dataFieldEncoding = TelegramEncoding.ENCODING_USER_DEFINED_CELL_ID;
                 return;
             case 0x1F:
                 return;
@@ -89,7 +93,7 @@ public class DIFTelegramField extends TelegramField {
         }
 
         if((iDifField & DIFTelegramField.EXTENSION_BIT) == DIFTelegramField.EXTENSION_BIT) {
-            System.out.println("\t extention = true");
+            System.out.println("\t - extension = true");
             this.extensionBit = true;
         }
         if((iDifField & DIFTelegramField.LSB_SAVE_NUMBER_BIT) == DIFTelegramField.LSB_SAVE_NUMBER_BIT) {
@@ -107,6 +111,11 @@ public class DIFTelegramField extends TelegramField {
     }
 
     private void parseEncodingAndLength(int iDifField) {
+        if (!TelegramEncoding.ENCODING_NULL.equals(this.dataFieldEncoding)) {
+            // already have something, eg. from user-defined;
+            return;
+        }
+
         this.dataFieldLengthAndEncoding =  (iDifField & DIFTelegramField.DATA_FIELD_MASK);
         switch (this.dataFieldLengthAndEncoding) {
             case 0:

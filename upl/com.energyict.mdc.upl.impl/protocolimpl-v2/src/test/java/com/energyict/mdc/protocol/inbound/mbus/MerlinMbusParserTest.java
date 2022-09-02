@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import junit.framework.TestCase;
 import org.junit.Test;
@@ -67,18 +68,28 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parse(DAILY_FRAME_ENCRYPTED1);
 
 
-        assertEquals("677B0FDD7EA", parser.getTelegram().getSerialNr());
+        assertEquals("FDB07736", parser.getTelegram().getSerialNr());
+        assertEquals("7F2D", Converter.convertListToString(parser.getTelegram().getHeader().getmField().getFieldParts()));
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
         assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
 
         // date
-        assertEquals("2021-10-22 09:57:56" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
+       // assertEquals("2021-10-22 09:57:56" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
 
         // snapshot value
-        assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
+        assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
         assertEquals("m^3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
 
+        // snapshot value
+        assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getDataField().getParsedValue());
+        assertEquals("m^3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getmUnit().getValue());
+        assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
+
+        // battery data
+        assertEquals("1" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getDataField().getParsedValue());
+        assertEquals("none", parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getVif().getmUnit().getValue());
+        assertEquals(0, parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getVif().getMultiplier());
     }
 
 

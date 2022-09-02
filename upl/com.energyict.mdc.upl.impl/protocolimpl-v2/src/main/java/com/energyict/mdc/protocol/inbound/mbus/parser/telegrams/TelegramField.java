@@ -12,13 +12,10 @@ public class TelegramField {
     protected String parsedValue;
 
     public TelegramField() {
-
+        this.fieldParts = new ArrayList<String>();
     }
 
     public void addFieldPart(String value) {
-        if(this.fieldParts == null) {
-            this.fieldParts = new ArrayList<String>();
-        }
         this.fieldParts.add(value);
     }
 

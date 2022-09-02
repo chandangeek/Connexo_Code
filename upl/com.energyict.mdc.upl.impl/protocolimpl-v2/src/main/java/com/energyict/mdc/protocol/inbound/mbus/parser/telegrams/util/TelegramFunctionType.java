@@ -7,7 +7,8 @@ public enum TelegramFunctionType {
     MINIMUM_VALUE(2),
     ERROR_STATE_VALUE(3),
     SPECIAL_FUNCTION(4),
-    SPECIAL_FUNCTION_FILL_BYTE(5);
+    SPECIAL_FUNCTION_FILL_BYTE(5),
+    USER_DEFINED_CELL_ID(6);
 
     private int value;
 

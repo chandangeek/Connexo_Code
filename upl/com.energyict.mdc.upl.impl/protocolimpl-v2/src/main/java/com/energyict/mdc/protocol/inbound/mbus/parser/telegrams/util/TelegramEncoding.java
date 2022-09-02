@@ -6,7 +6,8 @@ public enum TelegramEncoding {
     ENCODING_INTEGER(1),
     ENCODING_REAL(2),
     ENCODING_BCD(3),
-    ENCODING_VARIABLE_LENGTH(4);
+    ENCODING_VARIABLE_LENGTH(4),
+    ENCODING_USER_DEFINED_CELL_ID(5);
 
     private int value;
 

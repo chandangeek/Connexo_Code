@@ -9,7 +9,7 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.VIF_Unit_Mu
 
 public class VIFTelegramField extends TelegramField {
 
-    private static int EXTENSION_BIT_MASK = 0x80; 		// 1000 0000
+    public static int EXTENSION_BIT_MASK = 0x80; 		// 1000 0000
     private static int LAST_TWO_BIT_OR_MASK = 0x03; 	// 0000 0011
     private static int LAST_THREE_BIT_OR_MASK = 0x07; 	// 0000 0111
     private static int UNIT_MULTIPLIER_MASK = 0x7F; 	// 0111 1111
@@ -299,6 +299,9 @@ public class VIFTelegramField extends TelegramField {
     }
 
     public void debugOutput() {
+        if (this.getFieldParts().size() == 0) {
+            return;
+        }
         System.out.println("VIF-Field: ");
         System.out.println("\tExtension-Bit: \t\t" + this.extensionBit);
 

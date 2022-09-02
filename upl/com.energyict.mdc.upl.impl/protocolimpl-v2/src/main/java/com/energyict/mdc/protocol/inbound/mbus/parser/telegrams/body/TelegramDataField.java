@@ -68,6 +68,9 @@ public class TelegramDataField extends TelegramField {
                 System.err.println("Dont know how to parse ENCODING_NULL " + Converter.convertListToString(fieldsRev));
                 // TODO: exception
                 break;
+            case ENCODING_USER_DEFINED_CELL_ID:
+                // each bit has a different meaning;
+                break;
             default:
                 System.err.println("Dont know how to parse field of encoding: " + enc + ", value: " + Converter.convertListToString(fieldsRev));
                 // TODO: exception
