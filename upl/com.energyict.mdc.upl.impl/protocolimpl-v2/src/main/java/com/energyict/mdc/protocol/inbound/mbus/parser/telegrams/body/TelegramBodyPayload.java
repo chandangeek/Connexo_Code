@@ -119,11 +119,18 @@ public class TelegramBodyPayload {
                 TelegramDataVariableField dataFieldVariable = new TelegramDataVariableField();
                 int variableLength = dataFieldVariable.getVariableLengthFieldLength(this.bodyFieldDecrypted.getFieldParts().get(lowerBoundary));
                 if (variableLength > 0) {
+                    // store VIF meta data
                     String[] fieldParts = Arrays.copyOfRange(this.bodyFieldDecrypted.getFieldPartsAsArray(), lowerBoundary, upperBoundary);
-                    List<String> payload = this.bodyFieldDecrypted.getFieldParts().subList(upperBoundary, upperBoundary + variableLength - 2);
+
+                    lowerBoundary = upperBoundary;
+                    upperBoundary = lowerBoundary + variableLength - dif.getDataFieldLength();
+
+                    List<String> payload = this.bodyFieldDecrypted.getFieldParts().subList(lowerBoundary, upperBoundary);
+
                     dataFieldVariable.addFieldParts(fieldParts);
                     dataFieldVariable.addVariableLengthPayload(payload);
                     dataFieldVariable.parse();
+                    rec.setDataField(dataFieldVariable);
                 } else {
                     System.err.println("Cannot parse variable-field-length " + variableLength);
                 }
@@ -147,10 +154,7 @@ public class TelegramBodyPayload {
         boolean extensionBitSet = true;
         DIFETelegramField dife = null;
 
-        while(extensionBitSet) {
-            if(this.bodyFieldDecrypted.getFieldParts().size() < position) {
-                // TODO: throw exception
-            }
+        while(extensionBitSet && position < this.bodyFieldDecrypted.getFieldParts().size()) {
             dife = this.processSingleDIFEField(this.bodyFieldDecrypted.getFieldParts().get(position));
             difeList.add(dife);
             extensionBitSet = dife.isExtensionBit();
@@ -172,7 +176,7 @@ public class TelegramBodyPayload {
         boolean extensionBitSet = true;
         VIFETelegramField vife = null;
 
-        while(extensionBitSet) {
+        while(extensionBitSet && position < this.bodyFieldDecrypted.getFieldParts().size()) {
             if(this.bodyFieldDecrypted.getFieldParts().size() < position) {
                 // TODO: throw exception
             }
@@ -186,6 +190,7 @@ public class TelegramBodyPayload {
     }
 
     private VIFETelegramField processSingleVIFEField(String fieldValue) {
+        System.out.println("\t** VIFE: " + fieldValue);
         VIFETelegramField vife = new VIFETelegramField();
         vife.addFieldPart(fieldValue);
 
@@ -237,4 +242,7 @@ public class TelegramBodyPayload {
         return this.records;
     }
 
+    public String[] getEncryptedPayload() {
+        return this.bodyFieldEncrypted.getFieldPartsAsArray();
+    }
 }

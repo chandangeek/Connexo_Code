@@ -7,13 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.logging.Logger;
 
@@ -22,8 +16,9 @@ public class MerlinMbusParserTest extends TestCase {
 
     private byte[] genericMbus = ProtocolTools.getBytesFromHexString("6887876808087278563412B43401050010000004174D370000053E00000000040764E20000052E00000000041F59000000055300000000055B00004C43055F0000D64205630000C242056BCA9B39404568F8BD17BE37FD1700020000000000000421EA8600000C6D20092A220CFD0C110202104C6D0000C181441700000000440700000000441F000000003816", 2);
 
-    private static final byte[] DAILY_FRAME_ENCRYPTED = ProtocolTools.getBytesFromHexString("AF4407070777700000007A26B80A25ABD54956745D59640C2AAAB6238F88CDB424002277A53081ECEDC0BA7EC7CC09881A89582C9003E8AEF46B4CACFCD00C881A89582C9003E8AEF46B4CACFCD00CC25BCBF4821D14072424F29554B3BFE9E5CB45EBA2E92B148B093AEFB8689F53CE9E93475F6F3DB0BF7D3D411367F47B5806EE48FE4D6AAC503BCE136847BD5D3D699A0974F61FC049902701A266B20ED13E6335CF5B6B4B0DB70F9F839CED2F", "");
     private static final byte[] DAILY_FRAME_ENCRYPTED1 = ProtocolTools.getBytesFromHexString("AF447F2D3677B0FDD7EA7A000A0A25A26FC62003678CC6CFE83A23471E8D560ABC3A039A1024F0638D1BF1ECB42BC1DDFBEA7DDB6D876F5D492B46B07B7931DDFBEA7DDB6D876F5D492B46B07B793159A3C770AE0B23BA00E2F495497E7885E8801478E5A5AEFE4E94B8F9C901A194153EF17AE142774AD546B336B8D9ECB747D74F23D5A56D34DA66ACC54A034154979300A47BDD23DC68028E75DEECA20A96CCAE13CB7C36B71134F753410CCCA9", "");
+
+    private static final byte[] DAILY_FRAME_ENCRYPTED2 = ProtocolTools.getBytesFromHexString("AF4407070777700000007A26B80A25ABD54956745D59640C2AAAB6238F88CDB424002277A53081ECEDC0BA7EC7CC09881A89582C9003E8AEF46B4CACFCD00C881A89582C9003E8AEF46B4CACFCD00CC25BCBF4821D14072424F29554B3BFE9E5CB45EBA2E92B148B093AEFB8689F53CE9E93475F6F3DB0BF7D3D411367F47B5806EE48FE4D6AAC503BCE136847BD5D3D699A0974F61FC049902701A266B20ED13E6335CF5B6B4B0DB70F9F839CED2F", "");
 
     private static final byte[] DAILY_FRAME_DECRYPTED = ProtocolTools.getBytesFromHexString("AF4407070777700000007A26B80A252F2F860D6DE500A0201220041354BF00008D04931F33E201000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000123B0000223B000004933C1200000003FD971D041300041354BF00008D04931F15D20F00000000000000000000000000000000000002FD7401000F0100B8FB0A001700000070707070707070707070707070891000F7E8D2", "");
 
@@ -44,50 +39,6 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parse(genericMbus);
     }
 
-/*
-    @Test
-    public void testEncryptionBlockDecrypt() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
-        byte[] decrypted = new byte[0];
-
-        byte[] dataToDecrypt = ProtocolTools.getBytesFromHexString ("445F85D4621E087B3B3E5D3B4BD1EF6B", "");
-        final byte[] expected = ProtocolTools.getBytesFromHexString("2F2F84046D130BD428123B0000223B00", "");
-        try {
-            decrypted = parser.decrypt(dataToDecrypt, key, iv);
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-
-        assertEquals(ProtocolTools.getHexStringFromBytes(expected,""),
-                        ProtocolTools.getHexStringFromBytes(decrypted,""));
-    }
-
-    @Test
-    public void testMultipleEncryptionBlocksDecrypt() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
-        byte[] decrypted = new byte[0];
-
-        byte[] dataToDecrypt = ProtocolTools.getBytesFromHexString ("445F85D4621E087B3B3E5D3B4BD1EF6B43A25EA1C90387A941B1DBF816CF9853", "");
-        final byte[] expected = ProtocolTools.getBytesFromHexString("2F2F84046D130BD428123B0000223B00000493C31200000003FD971D041300F0", "");
-        try {
-            decrypted = parser.decryptEncryptionBlocks(dataToDecrypt, 0, key, iv);
-        } catch (Exception e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
-
-        assertEquals(ProtocolTools.getHexStringFromBytes(expected,""),
-                ProtocolTools.getHexStringFromBytes(decrypted,""));
-    }
-
-    @Test
-    public void testNrtFrameDecrypted() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
-
-        parser.parse(NRT_FRAME_ENCRYPTED);
-    }
-*/
     @Test
     public void testDailyFrameEncrypted() throws IOException, SQLException {
         MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
@@ -100,6 +51,50 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("26" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
         // date
       //  assertEquals("22.8.2022 0:0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
+
+        // snapshot value
+        assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
+        assertEquals("m^3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
+        assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
+
+    }
+
+
+    @Test
+    public void testDailyFrameEncrypted1() throws IOException, SQLException {
+        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
+
+        parser.parse(DAILY_FRAME_ENCRYPTED1);
+
+
+        assertEquals("677B0FDD7EA", parser.getTelegram().getSerialNr());
+        assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
+        assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
+
+        // date
+        assertEquals("2021-10-22 09:57:56" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
+
+        // snapshot value
+        assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
+        assertEquals("m^3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
+        assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
+
+    }
+
+
+    @Test
+    public void testDailyFrameEncrypted2() throws IOException, SQLException {
+        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
+
+        parser.parse(DAILY_FRAME_ENCRYPTED2);
+
+
+        assertEquals("677B0FDD7EA", parser.getTelegram().getSerialNr());
+        assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
+        assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
+
+        // date
+        assertEquals("2021-10-22 09:57:56" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
 
         // snapshot value
         assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
@@ -147,19 +142,17 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
 
         // min flow data
-        assertEquals("17408" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getDataField().getParsedValue());
+        assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getDataField().getParsedValue());
         assertEquals("m^3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getVif().getmUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getVif().getMultiplier());
 
         // back flow
-        assertEquals("1994775" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getDataField().getParsedValue());
+        assertEquals("18" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getDataField().getParsedValue());
         assertEquals("m^3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getmUnit().getValue());
-        assertEquals(0, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
+        assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
 
-        // error flags /?! or m3/s
-        assertEquals("4f" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getFieldParts().get(0));
-        assertEquals("m^3/s", parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getmUnit().getValue());
-        assertEquals(-2, parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getMultiplier());
+        // error flags
+        assertEquals("[1d, 04, 13]" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getDataField().getFieldParts().toString());
 
     }
 

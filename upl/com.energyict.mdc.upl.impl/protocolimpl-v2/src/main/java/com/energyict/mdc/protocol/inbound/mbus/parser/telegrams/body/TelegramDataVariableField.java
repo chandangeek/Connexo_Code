@@ -2,8 +2,7 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 
-import java.math.BigInteger;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class TelegramDataVariableField extends TelegramDataField{
@@ -25,35 +24,37 @@ public class TelegramDataVariableField extends TelegramDataField{
         int lVar = getLvar();
         int length = 0;
 
+        this.parsedValue = "";
+
         /*  LVAR = 00h - BFh        8-bit text string according to ISO 8859-1 with LVAR (0 to 191) characters.
                                     Note that a text string (like all other mutibyte data) is transmitted "Least significant byte first" */
         if ((lVar >= 0x00) && (lVar <= 0xBF)) {
             length = lVar;
-            System.out.println("LVAR = " + lVar + ": text string, length=" + length);
+            //System.out.println("LVAR = " + lVar + ": text string, length=" + length);
             parseVariableLengthFieldAsISO8859();
         }
         /* LVAR = C0h - C9h         positive BCD number with (LVAR - C0h, i.e. 0 to 9) • 2 digits (0 to 18 digits) */
         else if ((lVar >= 0xC0) && (lVar <= 0xC9)) {
             length = lVar - 0xC0;
-            System.out.println("LVAR = " + lVar + ": positive BCD, length=" + length);
+            //System.out.println("LVAR = " + lVar + ": positive BCD, length=" + length);
         }
         /* LVAR = D0h - D9h         negative BCD number with (LVAR - D0h) • 2 digits (0 to 18 digits) */
         else if ((lVar >= 0xD0) && (lVar <= 0xD9)) {
             length = lVar - 0xD0;
-            System.out.println("LVAR = " + lVar + ": negative BCD, length=" + length);
+            //System.out.println("LVAR = " + lVar + ": negative BCD, length=" + length);
         }
         /* LVAR = E0h - Efh        Binary number with (LVAR - E0h) bytes (0 to 15 bytes) */
         else if ((lVar >= 0xE0) && (lVar <= 0xEF)) {
             length = lVar - 0xE0;
-            System.out.println("LVAR = " + lVar + ": Binary number, length=" + length);
+            //System.out.println("LVAR = " + lVar + ": Binary number, length=" + length);
         }
         /* LVAR = F8h              floating point number according to IEEE 754 */
         else if (lVar == 0xF8) {
             length = lVar - 0xE0;
-            System.out.println("LVAR = " + lVar + ": floating point number according to IEEE 754, length=" + length);
+            //System.out.println("LVAR = " + lVar + ": floating point number according to IEEE 754, length=" + length);
         }
         else {
-            System.err.println("Don't know how to interpret LVAR=" + String.format("%02x", lVar));
+            //System.err.println("Don't know how to interpret LVAR=" + String.format("%02x", lVar));
         }
     }
 
@@ -108,24 +109,51 @@ public class TelegramDataVariableField extends TelegramDataField{
         return Converter.hexToInt(this.fieldParts.get(2));
     }
 
+    /*
+        WEEKLY_LOG_DIF                   =   0x8D,
+        WEEKLY_LOG_DIFE                  =   0x04,
+        WEEKLY_LOG_VIF                   =   0x93,
+        WEEKLY_LOG_VIFE                  =   0x1F,
+        WEEKLY_LOG_LVAR                  =   0x2C,
+        WEEKLY_LOG_SPACING_CONTROL_BYTE  =   0xF3,
+        WEEKLY_LOG_SPACING_VALUE         =   0x01,
+    */
     private void parseVariableLengthFieldAsISO8859() {
         int spacingControl = getSpacingControl();
         int spacingValue = getSpacingValue();
-        System.out.println("Parsing: " + Converter.convertListToString(this.payload));
-        System.out.println("\t * spacing control: " + spacingControl + " = " + String.format("%02x", spacingControl));
-        System.out.println("\t * spacing value: " + spacingValue + " = " + String.format("%02x", spacingValue));
+
+        StringBuilder parsedValues = new StringBuilder();
+
+        parsedValues.append("--- profile ---").append("\n");
+        parsedValues.append("\t * spacing control: ").append(spacingControl).append(" = ").append(String.format("%02x", spacingControl)).append("\n");
+        parsedValues.append("\t * spacing value: ").append(spacingValue).append(" = ").append(String.format("%02x", spacingValue)).append("\n");
+
         int size = 3;
         int start = 0;
-        while (start + size < payload.size()){
-            List<String> part = payload.subList(start, start + 2);
-            List<String> flags = payload.subList(start+2, start + 3);
-            BigInteger value = Converter.hexToBigInteger(part);
-            System.out.println("\t - " + value.toString());
+        int id = 0;
 
+        while (start + size < payload.size()){
+            List<String> part = payload.subList(start, start + 3);
+            Collections.reverse(part);
+
+            int b1 = Integer.parseInt(part.get(0), 16);
+            int b2 = Integer.parseInt(part.get(1), 16);
+            int b3 = Integer.parseInt(part.get(2), 16);
+
+            // force to 4 bytes to let Java handle the sign
+            int value = (b1 * 0x10000 + b2 * 0x100 + b3) * 0x100;
+            // back to the real value, but now it's signed
+            value = value / 0x100;
+
+            String parsedValue = "\t#" + id + "> " + value;
+
+            parsedValues.append(parsedValue).append("\n");
+
+            id++;
             start += size;
         }
+
+        this.parsedValue = parsedValues.toString();
     }
-
-
 
 }

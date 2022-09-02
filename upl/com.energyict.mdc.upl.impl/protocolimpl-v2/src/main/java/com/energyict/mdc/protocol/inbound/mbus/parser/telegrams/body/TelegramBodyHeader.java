@@ -124,30 +124,33 @@ public class TelegramBodyHeader {
                     break;
             }
 
+            // manufacturer specific 1
             switch ((status & 0x20) >> 4) {
                 case 0:
-                    //System.out.println("\t - no temporary error");
+                    System.out.println("\t - leakage alarm cleared");
                     break;
                 case 1:
-                    System.out.println("\t - manufacturer specific 1 [!]");
+                    System.out.println("\t - leakage alarm (MLF) [!]");
                     break;
             }
 
+            // manufacturer specific 2
             switch ((status & 0x40 >> 5) ) {
                 case 0:
-                    //System.out.println("\t - no temporary error");
+                    System.out.println("\t - overconsumption alarm cleared");
                     break;
                 case 1:
-                    System.out.println("\t - manufacturer specific 2 [!]");
+                    System.out.println("\t - actual Alarm burst (MBA) [!]");
                     break;
             }
 
+            // manufacturer specific 3
             switch ((status & 0x80 >> 6) ) {
                 case 0:
-                    //System.out.println("\t - no temporary error");
+                    System.out.println("\t - device paired");
                     break;
                 case 1:
-                    System.out.println("\t - manufacturer specific 3 [!]");
+                    System.out.println("\t - a removal (or cable cut) detected [!]");
                     break;
             }
 

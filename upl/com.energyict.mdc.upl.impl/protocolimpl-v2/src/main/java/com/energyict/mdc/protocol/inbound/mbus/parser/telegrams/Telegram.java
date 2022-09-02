@@ -11,6 +11,7 @@ import java.util.Arrays;
 
 public class Telegram {
 
+    private static final int BLOCK_SIZE = 16; /* Encryption Block size */
     private TelegramHeader header;
     private TelegramBody body;
 
@@ -60,15 +61,30 @@ public class Telegram {
 
     public boolean decryptTelegram(String aesKey) {
         if(aesKey == null){
+            this.getBody().getBodyPayload().setDecryptedTelegramBodyPayload(this.getBody().getBodyPayload().getEncryptedPayload());
             return false;
         }
         byte[] keyArr = Converter.convertStringArrToByteArray(aesKey.split(" "));
         byte[] initCTRVArr = this.getAESCBCInitVector();
-        byte[] payloadArr = Converter.convertStringListToByteArray(this.getBody().getBodyPayload().getPayloadAsList());
 
         try {
-            byte[] result = AESEncrypt.decrypt(payloadArr, keyArr, initCTRVArr);
-            this.getBody().getBodyPayload().setDecryptedTelegramBodyPayload(Converter.convertByteArrayToString(result).split(" "));
+            System.out.println("Encrypted payload: " +this.getBody().getBodyPayload().getPayloadAsString().replace(" ",""));
+
+            final int length = this.getBody().getBodyPayload().getEncryptedPayload().length;
+            int start = 0;
+            byte[] decryptedResult = new byte[length];
+
+            while (start <= length - BLOCK_SIZE) {
+                byte[] payloadArr = Converter.convertStringListToByteArray(this.getBody().getBodyPayload().getPayloadAsList().subList(start, start+BLOCK_SIZE));
+
+                //System.out.println("\t EB: " + Converter.convertByteArrayToString(payloadArr).replace(" ",""));
+                byte[] result = AESEncrypt.decrypt(payloadArr, keyArr, initCTRVArr);
+
+                System.arraycopy(result, 0, decryptedResult, start, BLOCK_SIZE);
+                start += BLOCK_SIZE;
+            }
+            this.getBody().getBodyPayload().setDecryptedTelegramBodyPayload(Converter.convertByteArrayToString(decryptedResult).split(" "));
+            System.out.println("Decrypted payload: " + Converter.convertByteArrayToString(decryptedResult).replace(" ",""));
         } catch (Exception e) {
             e.printStackTrace();
             return false;
@@ -81,8 +97,10 @@ public class Telegram {
     }
 
     public byte[] getAESCBCInitVector() {
-        return ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
-        //return this.generateAESCBCInitVector();
+        byte[] properInitVector = this.generateAESCBCInitVector();
+        byte[] dummyInitVector = ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
+        //System.out.println("Proper init-vector: " + Converter.convertByteArrayToString(properInitVector).replace(" ",""));
+        return dummyInitVector;
     }
 
     private byte[] generateAESCBCInitVector() {

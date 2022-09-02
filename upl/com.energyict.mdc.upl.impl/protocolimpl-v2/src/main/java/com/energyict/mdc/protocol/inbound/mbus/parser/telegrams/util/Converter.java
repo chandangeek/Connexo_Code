@@ -66,4 +66,8 @@ public class Converter {
     public static BigInteger hexToBigInteger(List<String> hexStringList) {
         return hexToBigInteger(convertListToString(hexStringList));
     }
+
+    public static int hexToInt(List<String> hexIntList) {
+        return hexToInt(convertListToString(hexIntList));
+    }
 }

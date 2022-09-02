@@ -4,12 +4,14 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util;
 public enum VIF_Unit_Multiplier_Masks {
     ENERGY_WH(0x07),	// E000 0xxx
     ENERGY_J(0x0F),		// E000 1xxx
+    BACK_FLOW(0x13),
     VOLUME(0x17),		// E001 0xxx
     MASS(0x1F),			// E001 1xxx
     ON_TIME(0x23),		// E010 00xx
     OPERATING_TIME(0x27),	// E010 01xx
     POWER_W(0x2F),		// E010 1xxx
     POWER_J_H(0x37),	// E011 0xxx
+    MIN_FLOW(0x3B),	// E011 1xxx
     VOLUME_FLOW(0x3F),	// E011 1xxx
     VOLUME_FLOW_EXT(0x47),	// E100 0xxx
     VOLUME_FLOW_EXT_S(0x4F),	// E100 1xxx

@@ -62,6 +62,8 @@ public class DIFTelegramField extends TelegramField {
         String difField = this.fieldParts.get(0);
         int iDifField = Converter.hexToInt(difField);
 
+        System.out.println("\n*** Parsing DIF field: " + difField + " ***");
+
         // there are some special functions where the other fields
         // don't need to be interpreted (for example 2F as a fill byte)
         switch (iDifField) {
@@ -72,6 +74,7 @@ public class DIFTelegramField extends TelegramField {
             case DIFTelegramField.FILL_BYTES_MASK:
                 this.functionType = TelegramFunctionType.SPECIAL_FUNCTION_FILL_BYTE;
                 this.dataFieldLength = 0;
+                System.out.println("\t " + functionType + " [" + dataFieldEncoding + "]");
                 return;
             case 0x3F:
                 return;
@@ -86,6 +89,7 @@ public class DIFTelegramField extends TelegramField {
         }
 
         if((iDifField & DIFTelegramField.EXTENSION_BIT) == DIFTelegramField.EXTENSION_BIT) {
+            System.out.println("\t extention = true");
             this.extensionBit = true;
         }
         if((iDifField & DIFTelegramField.LSB_SAVE_NUMBER_BIT) == DIFTelegramField.LSB_SAVE_NUMBER_BIT) {
@@ -97,6 +101,7 @@ public class DIFTelegramField extends TelegramField {
         // an integer value (this integer value is then translated to our enum value)
         this.functionType = TelegramFunctionType.values()[(iDifField & DIFTelegramField.FUNCTION_MASK) >> 4];
 
+        System.out.println("\t " + functionType + " [" + dataFieldEncoding + "]");
 
         this.parseEncodingAndLength(iDifField);
     }
@@ -139,7 +144,7 @@ public class DIFTelegramField extends TelegramField {
                 this.dataFieldEncoding = TelegramEncoding.ENCODING_BCD;
                 break;
             case 13:
-                this.dataFieldLength = 4;
+                this.dataFieldLength = 3; // FIXME -> 4 or 3?! TODO
                 this.dataFieldEncoding = TelegramEncoding.ENCODING_VARIABLE_LENGTH;
                 break;
             case 14:
@@ -152,6 +157,8 @@ public class DIFTelegramField extends TelegramField {
                 // we have already processed these values earlier
                 break;
         }
+
+        System.out.println("\t dataFieldLength=" + dataFieldLength + ", encoding=" + dataFieldEncoding);
     }
 
     public boolean isFillByte() {

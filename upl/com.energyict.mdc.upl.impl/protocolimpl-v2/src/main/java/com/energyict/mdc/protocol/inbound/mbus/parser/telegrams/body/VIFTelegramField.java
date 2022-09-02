@@ -25,8 +25,11 @@ public class VIFTelegramField extends TelegramField {
         String vifField = this.fieldParts.get(0);
         int iVifField = Converter.hexToInt(vifField);
 
+        System.out.println("\t* Parsing VIF=" + vifField);
+
         if((iVifField & VIFTelegramField.EXTENSION_BIT_MASK) == VIFTelegramField.EXTENSION_BIT_MASK) {
             this.extensionBit = true;
+            System.out.println("\t - extension = true");
         }
 
         if(iVifField == VIF_Unit_Multiplier_Masks.FIRST_EXT_VIF_CODES.getValue()) {
@@ -39,45 +42,58 @@ public class VIFTelegramField extends TelegramField {
             // first get rid of the first (extension) bit
             int iVifFieldNoExt = (iVifField & (VIFTelegramField.UNIT_MULTIPLIER_MASK));
 
+            System.out.println("\t - VIF (no ext)=" + iVifFieldNoExt);
+
+
             // first check against complete (no wildcards) bit masks
             // can't check with switch case because we need a constant value there
             if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.DATE.getValue()) {
                 this.type = VIF_Unit_Multiplier_Masks.DATE;
+                System.out.println("\t - type=DATE");
                 this.parseDate(this.parent.getDif().getDataFieldLengthAndEncoding());
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.DATE_TIME_GENERAL.getValue()) {
+                System.out.println("\t - type=DATE_TIME_GENERAL");
                 this.parseDate(this.parent.getDif().getDataFieldLengthAndEncoding());
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.UNITS_FOR_HCA.getValue()) {
                 // NO UNIT
+                System.out.println("\t - type=UNITS_FOR_HCA");
                 this.type = VIF_Unit_Multiplier_Masks.UNITS_FOR_HCA;
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.RES_THIRD_VIFE_TABLE.getValue()) {
                 // NO UNIT
+                System.out.println("\t - type=RES_THIRD_VIFE_TABLE");
                 this.type = VIF_Unit_Multiplier_Masks.RES_THIRD_VIFE_TABLE;
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.FABRICATION_NO.getValue()) {
                 // NO UNIT
+                System.out.println("\t - type=FABRICATION_NO");
                 this.type = VIF_Unit_Multiplier_Masks.FABRICATION_NO;
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.IDENTIFICATION.getValue()) {
                 // NO UNIT
+                System.out.println("\t - type=IDENTIFICATION");
                 this.type = VIF_Unit_Multiplier_Masks.IDENTIFICATION;
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.ADDRESS.getValue()) {
                 // TODO
+                System.out.println("\t - type=ADDRESS");
                 this.type = VIF_Unit_Multiplier_Masks.ADDRESS;
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.VIF_FOLLOWING.getValue()) {
                 // TODO: plain String?
+                System.out.println("\t - type=VIF_FOLLOWING");
                 this.type = VIF_Unit_Multiplier_Masks.VIF_FOLLOWING;
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.ANY_VIF.getValue()) {
                 // TODO: check 6.4
+                System.out.println("\t - type=ANY_VIF");
                 this.type = VIF_Unit_Multiplier_Masks.ANY_VIF;
             }
             else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.MANUFACTURER_SPEC.getValue()) {
                 // TODO: VIFE and data is manufacturer specification
+                System.out.println("\t - type=MANUFACTURER_SPEC");
                 this.type = VIF_Unit_Multiplier_Masks.MANUFACTURER_SPEC;
             }
             else if(parseLastTwoBitsSet(iVifFieldNoExt) == true) {

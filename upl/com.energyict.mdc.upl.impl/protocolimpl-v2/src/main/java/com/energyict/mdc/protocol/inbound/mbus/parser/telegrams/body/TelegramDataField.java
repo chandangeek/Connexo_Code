@@ -128,6 +128,10 @@ UI2 [47 to 48]
 <0 to 3> 0 = no daylight saving
                 */
                 //e5 00 a0 20 12 20
+                //date data received E500A0201220
+                //header E5
+                //actual date data 00A02012, reversed_data 1220A000, epoch_date 1661126400
+                //converted readable date 2022-08-22 00:00:00
                 int dst         = Converter.hexToInt(this.fieldParts.get(0)) & 0x40;
                 int second      = Converter.hexToInt(this.fieldParts.get(0)) & 0x3F;
                 int minutes     = Converter.hexToInt(this.fieldParts.get(1)) & 0x3F;
