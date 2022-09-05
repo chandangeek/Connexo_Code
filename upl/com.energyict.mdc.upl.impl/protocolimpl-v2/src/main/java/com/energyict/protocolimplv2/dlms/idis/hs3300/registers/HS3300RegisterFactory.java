@@ -73,7 +73,7 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
         this.issueFactory = issueFactory;
     }
 
-    public final List<CollectedRegister> readRegisters(final List<OfflineRegister> offlineRegisterList) {
+    public List<CollectedRegister> readRegisters(final List<OfflineRegister> offlineRegisterList) {
 
         // parse the requests and build the composed objects and list of attributes to read
         prepareReading(offlineRegisterList);
@@ -202,7 +202,7 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
      * Will parse all registers to be read and will create a list of actual DLMS attributes to read.
      * Also for composed registers will create sets of (value, unit, capturedTime)
      */
-    private void prepareReading(final List<OfflineRegister> offlineRegisters) {
+    protected void prepareReading(final List<OfflineRegister> offlineRegisters) {
 
         for (OfflineRegister register : offlineRegisters) {
 
@@ -230,7 +230,7 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
      * @param register
      * @param g3Mapping
      */
-    private void prepareMappedRegister(OfflineRegister register, G3Mapping g3Mapping) {
+    protected void prepareMappedRegister(OfflineRegister register, G3Mapping g3Mapping) {
         ComposedRegister composedRegister = new ComposedRegister();
 
         // the default value attribute to be read-out
@@ -261,7 +261,7 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
      * @param register
      * @param universalObject
      */
-    private void prepareStandardRegister(OfflineRegister register, UniversalObject universalObject) {
+    protected void prepareStandardRegister(OfflineRegister register, UniversalObject universalObject) {
         ComposedRegister composedRegister = new ComposedRegister();
         final int classId = universalObject.getClassID();
 
@@ -301,24 +301,24 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private void addAttributesToRead(List<DLMSAttribute> allAttributes) {
+    protected void addAttributesToRead(List<DLMSAttribute> allAttributes) {
         getDLMSAttributes().addAll(allAttributes);
     }
 
-    private void addAttributeToRead(DLMSAttribute dlmsAttribute) {
+    protected void addAttributeToRead(DLMSAttribute dlmsAttribute) {
         getDLMSAttributes().add(dlmsAttribute);
     }
 
-    private List<DLMSAttribute> getDLMSAttributes() {
+    protected List<DLMSAttribute> getDLMSAttributes() {
         return dlmsAttributes;
     }
 
-    private void addComposedRegister(ObisCode obisCode, ComposedRegister composedRegister) {
+    protected void addComposedRegister(ObisCode obisCode, ComposedRegister composedRegister) {
         getLogger().finest(" - adding for " + obisCode + " > " + composedRegister.toString());
         composedRegisterMap.put(obisCode, composedRegister);
     }
 
-    private Map<ObisCode, ComposedRegister> getComposedRegisterMap() {
+    protected Map<ObisCode, ComposedRegister> getComposedRegisterMap() {
         return composedRegisterMap;
     }
 
@@ -329,14 +329,14 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
         return plcRegisterMapper;
     }
 
-    private CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
+    protected CollectedRegister createCollectedRegister(RegisterValue registerValue, OfflineRegister offlineRegister) {
         CollectedRegister deviceRegister = collectedDataFactory.createMaximumDemandCollectedRegister(getRegisterIdentifier(offlineRegister));
         deviceRegister.setCollectedData(registerValue.getQuantity(), registerValue.getText());
         deviceRegister.setCollectedTimeStamps(registerValue.getReadTime(), registerValue.getFromTime(), registerValue.getToTime(), registerValue.getEventTime());
         return deviceRegister;
     }
 
-    private CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
+    protected CollectedRegister createFailureCollectedRegister(OfflineRegister register, ResultType resultType, Object... errorMessage) {
         CollectedRegister collectedRegister = collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
             collectedRegister.setFailureInformation(ResultType.InCompatible, issueFactory.createWarning(
@@ -353,19 +353,19 @@ public class HS3300RegisterFactory implements DeviceRegisterSupport {
         return new RegisterIdentifierById(offlineRtuRegister.getRegisterId(), offlineRtuRegister.getObisCode(), new DeviceIdentifierById(offlineRtuRegister.getDeviceId()));
     }
 
-    private void addResult(CollectedRegister collectedRegister) {
+    protected void addResult(CollectedRegister collectedRegister) {
         collectedRegisters.add(collectedRegister);
     }
 
-    private List<CollectedRegister> getCollectedRegisters() {
+    protected List<CollectedRegister> getCollectedRegisters() {
         return collectedRegisters;
     }
 
-    private DlmsSession getDlmsSession() {
+    protected DlmsSession getDlmsSession() {
         return hs3300.getDlmsSession();
     }
 
-    private Logger getLogger() {
+    protected Logger getLogger() {
         return getDlmsSession().getLogger();
     }
 }
