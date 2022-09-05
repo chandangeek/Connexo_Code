@@ -348,7 +348,7 @@ public class ACE6000ActivityCalendarController implements ActivityCalendarContro
      */
     public void writeCalendarActivationTime(Calendar activationDate) throws IOException {
         if (activationDate == null) {
-            getLogger().warning("No passiveCalendar activation date was given! No activation date will be set!");
+            getLogger().finest("No passiveCalendar activation date was given! No activation date will be set!");
         } else {
             getActivityCalendar().writeActivatePassiveCalendarTime(new OctetString(convertUnixToDeviceTimeZoneDateTime(activationDate.getTimeInMillis()).getBEREncodedByteArray(), 0));
         }
