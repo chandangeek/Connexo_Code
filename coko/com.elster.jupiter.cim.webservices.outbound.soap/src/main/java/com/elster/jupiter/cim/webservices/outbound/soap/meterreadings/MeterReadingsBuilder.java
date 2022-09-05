@@ -301,7 +301,7 @@ class MeterReadingsBuilder {
 
         BaseReading baseReading = readingWithQualities.getFirst();
         if (baseReading.getValue() != null || baseReading instanceof com.elster.jupiter.metering.readings.Reading && ((com.elster.jupiter.metering.readings.Reading) baseReading).getText() != null) {
-            reading.setValue(baseReading.getValue() != null ? baseReading.getValue().toString() : ((com.elster.jupiter.metering.readings.Reading) baseReading).getText());
+            reading.setValue(baseReading.getValue() != null ? baseReading.getValue().toPlainString() : ((com.elster.jupiter.metering.readings.Reading) baseReading).getText());
         }
 
         reading.setReportedDateTime(readingWithQualities.getFirst().getReportedDateTime());
