@@ -33,14 +33,14 @@ import java.util.logging.Logger;
  */
 public class DataRecord {
 
-    final int DEBUG=0;
+    final int DEBUG=1;
 
     private DataRecordHeader dataRecordHeader;
     private Quantity quantity;
     private String text="";
     private Date date;
 
-    DataRecord(byte[] data, int offset, TimeZone timeZone, final Logger logger) throws IOException {
+    public DataRecord(byte[] data, int offset, TimeZone timeZone, final Logger logger) throws IOException {
 
         if (DEBUG>=1) {
             System.out.println("KV_DEBUG> DataRecord, offset=" + offset);

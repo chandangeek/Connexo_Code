@@ -91,6 +91,7 @@ public class TelegramDataField extends TelegramField {
                 this.parsedValue = DateCalculator.getDate(this.fieldParts.get(0), this.fieldParts.get(1), false);
 
                 break;
+            // OK on testing (weekly, ntr)
             case DATE_TIME:
                 // Type F: Day.Month.Year Hour:Minute
                 this.parsedValue = DateCalculator.getDateTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), false);
@@ -146,6 +147,9 @@ UI2 [47 to 48]
                 int year        = (year1 >> 5) + (year2 >> 3);
 
                 this.parsedValue = DateCalculator.getDateTimeWithSeconds(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4), false);
+                break;
+            case EPOCH_TIME:
+                this.parsedValue = DateCalculator.getEpochTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4), this.fieldParts.get(5));
                 break;
             default:
                 return false;

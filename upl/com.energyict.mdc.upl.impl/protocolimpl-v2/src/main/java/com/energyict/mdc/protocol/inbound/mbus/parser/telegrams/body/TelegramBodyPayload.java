@@ -92,7 +92,8 @@ public class TelegramBodyPayload {
 
         // increase startPosition by 1 (DIF) and the number of DIFEs
         VIFTelegramField vif = new VIFTelegramField();
-        if (dif.getFunctionType() != TelegramFunctionType.USER_DEFINED_CELL_ID) {
+        if ((dif.getFunctionType() != TelegramFunctionType.USER_DEFINED_CELL_ID)
+                && (!TelegramEncoding.ENCODING_NULL.equals(dif.getDataFieldEncoding()))) {
             vif.addFieldPart(this.bodyFieldDecrypted.getFieldParts().get(startPosition + 1 + difeList.size()));
             vif.setParent(rec);
             vif.parse();
@@ -205,8 +206,13 @@ public class TelegramBodyPayload {
         vife.addFieldPart(fieldValue);
 
         if((iFieldValue & VIFTelegramField.EXTENSION_BIT_MASK) == VIFTelegramField.EXTENSION_BIT_MASK) {
-            vife.setExtensionBit(true);
-            System.out.println("\t\t - extension: true ");
+            if (iFieldValue != 0xc3) {
+                vife.setExtensionBit(true);
+                System.out.println("\t\t - extension: true ");
+            } else {
+                //vife.setExtensionBit(true);
+                System.out.println("\t - back-flow VIFE, reducing length");
+            }
         }
 
 

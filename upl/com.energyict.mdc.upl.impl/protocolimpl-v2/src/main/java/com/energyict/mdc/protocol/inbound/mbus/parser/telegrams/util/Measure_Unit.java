@@ -23,7 +23,8 @@ public enum Measure_Unit {
     MINUTES("minutes"),
     HOURS("hours"),
     DAYS("days"),
-    NONE("none");
+    NONE("none"),
+    EPOCH_TIME("epoch time"),;
 
     private String value;
 

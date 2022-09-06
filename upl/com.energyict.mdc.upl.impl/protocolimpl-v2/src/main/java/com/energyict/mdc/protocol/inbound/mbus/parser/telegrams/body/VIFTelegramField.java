@@ -238,18 +238,24 @@ public class VIFTelegramField extends TelegramField {
     private void parseDate(int dateType) {
         if(dateType == Telegram_Date_Masks.DATE.getValue()) {
             mUnit = Measure_Unit.DATE;
+            System.out.println("\t - DATE");
         }
         else if(dateType == Telegram_Date_Masks.DATE_TIME.getValue()) {
             this.type = VIF_Unit_Multiplier_Masks.DATE_TIME;
             mUnit = Measure_Unit.DATE_TIME; // TIME before
+            System.out.println("\t - DATE_TIME");
         }
         else if(dateType == Telegram_Date_Masks.EXT_TIME.getValue()) {
             this.type = VIF_Unit_Multiplier_Masks.EXTENTED_TIME;
             mUnit = Measure_Unit.DATE_TIME;
+            System.out.println("\t - DATE_TIME / EXTENDED_TIME");
         }
         else if(dateType == Telegram_Date_Masks.EXT_DATE_TIME.getValue()) {
             this.type = VIF_Unit_Multiplier_Masks.EXTENTED_DATE_TIME;
-            mUnit = Measure_Unit.DATE_TIME_S;
+            //mUnit = Measure_Unit.DATE_TIME_S;
+            //System.out.println("\t- DATE_TIME_S / EXTENTED_DATE_TIME");
+            mUnit = Measure_Unit.EPOCH_TIME;
+            System.out.println("\t - EPOCH-TIME");
         }
         else {
             // TODO: THROW EXCEPTION

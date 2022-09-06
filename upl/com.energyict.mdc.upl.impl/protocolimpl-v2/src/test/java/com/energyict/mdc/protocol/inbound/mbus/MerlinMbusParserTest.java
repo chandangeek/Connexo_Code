@@ -33,23 +33,24 @@ public class MerlinMbusParserTest extends TestCase {
     private static byte[] key = ProtocolTools.getBytesFromHexString("4FA70B24465F814A667631773A397644", "");
     private static byte[] iv = ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
 
+    /* TODO: add unencrypted
     @Test
     public void testGenericMbus() throws IOException, SQLException {
         MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
 
         parser.parse(genericMbus);
     }
+    */
 
-    @Test
     public void testDailyFrameEncrypted() throws IOException, SQLException {
         MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
 
         parser.parse(DAILY_FRAME_ENCRYPTED1);
 
 
-        assertEquals("00707707", parser.getTelegram().getSerialNr());
+        assertEquals("FDB07736", parser.getTelegram().getSerialNr());
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
-        assertEquals("26" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
+        assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
         // date
       //  assertEquals("22.8.2022 0:0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
 
@@ -74,7 +75,7 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
 
         // date
-       // assertEquals("2021-10-22 09:57:56" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
+        assertEquals("2021-10-22 09:57:56" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
 
         // snapshot value
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
@@ -100,17 +101,30 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parse(DAILY_FRAME_ENCRYPTED2);
 
 
-        assertEquals("677B0FDD7EA", parser.getTelegram().getSerialNr());
+        assertEquals("00707707", parser.getTelegram().getSerialNr());
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
-        assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
+        assertEquals("26" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
 
         // date
-        assertEquals("2021-10-22 09:57:56" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
+        assertEquals("2022-08-22 00:00:00" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
 
         // snapshot value
         assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
         assertEquals("m^3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
+
+        // profile data - todo
+
+        // max flow data
+        assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getDataField().getParsedValue());
+        assertEquals("m^3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getmUnit().getValue());
+        assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
+
+        // min flow data
+        assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getDataField().getParsedValue());
+        assertEquals("m^3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getmUnit().getValue());
+        assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getMultiplier());
+
 
     }
 
@@ -163,7 +177,7 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
 
         // error flags
-        assertEquals("[1d, 04, 13]" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getDataField().getFieldParts().toString());
+        assertEquals("[04, 13, 00]" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getDataField().getFieldParts().toString());
 
     }
 

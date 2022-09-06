@@ -1,7 +1,15 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util;
 
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
+
 public class DateCalculator {
+
+    private static final long EPOCH_2013_UNIX = 1356998400; // January 1, 2013
 
     private static int SECOND_MASK = 0x3F;		// 0011 1111
     private static int MINUTE_MASK = DateCalculator.SECOND_MASK;	// 0011 1111
@@ -112,5 +120,34 @@ public class DateCalculator {
         }
 
         return year;
+    }
+
+    /** Epoch time used in Daily payload
+     unsigned long  int  Date=drvrtc_getEpochTimestamp();
+
+     pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME]       = 0xE5;
+     pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME + 1]   = (unsigned char )Date;
+     pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME + 2]   = (unsigned char ) (Date>>8);
+     pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME + 3]   = (unsigned char ) (Date>>16);
+     pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME + 4]   = (unsigned char ) (Date>>24);
+     pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME + 5]   = 0x20;
+     */
+    public static String getEpochTime(String byte0, String byte1, String byte2, String byte3, String byte4, String byte5) {
+
+        int header = Converter.hexToInt(byte0); // expect 0xE5
+        int date1 = Converter.hexToInt(byte1);
+        int date2 = Converter.hexToInt(byte2);
+        int date3 = Converter.hexToInt(byte3);
+        int date4 = Converter.hexToInt(byte4);
+        int tail = Converter.hexToInt(byte5); // expect 0x20
+
+        int epochTimeShort = date4 * 0x1000000 + date3 * 0x10000 + date2 * 0x100 + date1;
+        long epochTime = EPOCH_2013_UNIX + epochTimeShort;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
+
+        Instant instant = Instant.ofEpochMilli(epochTime * 1000);
+        String value = formatter.format(instant);
+        return value;
     }
 }
