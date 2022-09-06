@@ -509,30 +509,27 @@ class DeviceServiceImpl implements ServerDeviceService {
 
     @Override
     public Device changeDeviceConfigurationForSingleDevice(long deviceId, long deviceVersion, long destinationDeviceConfigId, long destinationDeviceConfigVersion) {
-        Pair<Device, DeviceConfigChangeRequestImpl> lockResult = deviceDataModelService.getTransactionService().execute(() -> {
-            final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
-                    .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
-                    .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
-            Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
-            final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel()
-                    .getInstance(DeviceConfigChangeRequestImpl.class)
-                    .init(deviceConfiguration);
-            deviceConfigChangeRequest.save();
-            return Pair.of(device, deviceConfigChangeRequest);
-        });
+        final DeviceConfiguration deviceConfiguration = deviceDataModelService.deviceConfigurationService()
+                .findAndLockDeviceConfigurationByIdAndVersion(destinationDeviceConfigId, destinationDeviceConfigVersion)
+                .orElseThrow(DeviceConfigurationChangeException.noDestinationConfigFoundForVersion(thesaurus, destinationDeviceConfigId, destinationDeviceConfigVersion));
+        Device device = findAndLockDeviceByIdAndVersion(deviceId, deviceVersion).orElseThrow(DeviceConfigurationChangeException.noDeviceFoundForVersion(thesaurus, deviceId, deviceVersion));
+        final DeviceConfigChangeRequestImpl deviceConfigChangeRequest = deviceDataModelService.dataModel()
+                .getInstance(DeviceConfigChangeRequestImpl.class)
+                .init(deviceConfiguration);
+        deviceConfigChangeRequest.save();
+        Pair<Device, DeviceConfigChangeRequestImpl> lockResult = Pair.of(device, deviceConfigChangeRequest);
 
         Device modifiedDevice = null;
         try {
-            modifiedDevice = deviceDataModelService.getTransactionService()
-                    .execute(() -> new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) lockResult.getFirst()).getEventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService
-                            .deviceConfigurationService()
-                            .findDeviceConfiguration(destinationDeviceConfigId)
-                            .get()));
+            modifiedDevice = new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) lockResult.getFirst()).getEventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService
+                    .deviceConfigurationService()
+                    .findDeviceConfiguration(destinationDeviceConfigId)
+                    .get());
         } finally {
-            deviceDataModelService.getTransactionService().execute(VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved));
+            VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved);
         }
 
-        addConnectionTasksToDevice(modifiedDevice,modifiedDevice.getDeviceConfiguration());
+        addConnectionTasksToDevice(modifiedDevice, modifiedDevice.getDeviceConfiguration());
 
         return modifiedDevice;
     }
