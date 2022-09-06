@@ -43,7 +43,7 @@ public class HS3400MessageExecutor extends HS3300MessageExecutor {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         String lteAPN = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.apnAttributeName);
 
-        if(lteAPN != null){
+        if (lteAPN != null) {
             try {
                 getCosemObjectFactory().getGPRSModemSetup(GPRSModemSetup.getDefaultObisCode()).writeAPN(lteAPN);
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);

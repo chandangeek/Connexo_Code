@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-public class HS3400RegisterFactory extends HS3300RegisterFactory implements DeviceRegisterSupport{
+public class HS3400RegisterFactory extends HS3300RegisterFactory implements DeviceRegisterSupport {
     private final HS3400LtePP hs3400LtePP;
     private HS3400LteRegisterMapper hs3400LteRegisterMapper;
 
@@ -71,7 +71,7 @@ public class HS3400RegisterFactory extends HS3300RegisterFactory implements Devi
                 continue;
             }
 
-            LteMapping lteMapping= getHS3400LteRegisterMapper().getLteMapping(offlineRegister.getObisCode());
+            LteMapping lteMapping = getHS3400LteRegisterMapper().getLteMapping(offlineRegister.getObisCode());
             final ObisCode baseObisCode = lteMapping == null ? offlineRegister.getObisCode() : lteMapping.getBaseObisCode();
             final UniversalObject universalObject;
             try {

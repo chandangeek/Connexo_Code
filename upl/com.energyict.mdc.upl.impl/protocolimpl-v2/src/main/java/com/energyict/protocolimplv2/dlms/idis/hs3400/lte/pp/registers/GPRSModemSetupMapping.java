@@ -10,7 +10,7 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.io.IOException;
 
-public class GPRSModemSetupMapping extends LteMapping{
+public class GPRSModemSetupMapping extends LteMapping {
 
     private GPRSModemSetupAttributeMapping gprsModemSetupAttributeMapping;
 

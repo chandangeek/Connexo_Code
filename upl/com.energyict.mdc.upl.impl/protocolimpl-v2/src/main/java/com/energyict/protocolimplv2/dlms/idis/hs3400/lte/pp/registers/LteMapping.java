@@ -9,7 +9,7 @@ import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.HS3400LtePP;
 
 import java.io.IOException;
 
-public abstract class LteMapping{
+public abstract class LteMapping {
 
     private final ObisCode obis;
 
