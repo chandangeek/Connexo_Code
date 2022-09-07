@@ -7,7 +7,9 @@ import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -15,6 +17,7 @@ import com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300;
 import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.messages.HS3400Messaging;
 import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.properties.HS3400ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.properties.HS3400LteProperties;
+import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.registers.HS3400RegisterFactory;
 
 import java.util.List;
 
@@ -26,6 +29,7 @@ public class HS3400LtePP extends HS3300 {
 
 
     protected HS3400Messaging deviceMessaging;
+    protected HS3400RegisterFactory registerFactory;
 
     public HS3400LtePP(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
                         TariffCalendarExtractor calendarExtractor, NlsService nlsService, Converter converter,
@@ -37,7 +41,7 @@ public class HS3400LtePP extends HS3300 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-08-19$";
+        return "$Date: 2022-09-05$";
     }
 
     @Override
@@ -70,5 +74,20 @@ public class HS3400LtePP extends HS3300 {
     @Override
     public HasDynamicProperties getNewInstanceOfConfigurationSupport() {
         return new HS3400ConfigurationSupport(this.getPropertySpecService());
+    }
+
+    @Override
+    protected HS3400RegisterFactory getRegisterFactory() {
+        if (this.registerFactory == null) {
+            this.registerFactory = new HS3400RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
+        }
+        return registerFactory;
+    }
+
+    @Override
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
+        journal(getLogPrefix() + "Reading " + registers.size() + " registers");
+        // communication exceptions are handled inside readRegisters
+        return getRegisterFactory().readRegisters(registers);
     }
 }
