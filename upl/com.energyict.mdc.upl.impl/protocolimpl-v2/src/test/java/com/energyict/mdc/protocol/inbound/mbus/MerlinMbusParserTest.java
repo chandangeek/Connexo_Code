@@ -43,7 +43,7 @@ public class MerlinMbusParserTest extends TestCase {
     */
 
     public void testDailyFrameEncrypted() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
+        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext()));
 
         parser.parse(DAILY_FRAME_ENCRYPTED1);
 
@@ -64,7 +64,7 @@ public class MerlinMbusParserTest extends TestCase {
 
     @Test
     public void testDailyFrameEncrypted1() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
+        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext()));
 
         parser.parse(DAILY_FRAME_ENCRYPTED1);
 
@@ -96,7 +96,7 @@ public class MerlinMbusParserTest extends TestCase {
 
     @Test
     public void testDailyFrameEncrypted2() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
+        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext()));
 
         parser.parse(DAILY_FRAME_ENCRYPTED2);
 
@@ -131,7 +131,7 @@ public class MerlinMbusParserTest extends TestCase {
 
     @Test
     public void testWeeklyFrameEncrypted() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
+        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext()));
 
         parser.parse(WEEKLY_FRAME_ENCRYPTED);
 
@@ -151,7 +151,7 @@ public class MerlinMbusParserTest extends TestCase {
 
     @Test
     public void testNTRFrameEncrypted() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
+        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext()));
 
         parser.parse(NRT_FRAME_ENCRYPTED);
         assertEquals("00707707", parser.getTelegram().getSerialNr());

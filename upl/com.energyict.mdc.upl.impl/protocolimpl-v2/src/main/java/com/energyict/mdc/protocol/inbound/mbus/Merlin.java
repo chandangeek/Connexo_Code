@@ -1,7 +1,9 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -31,6 +33,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
     private List<CollectedData> collectedDataList;
     private MerlinMbusParser parser; // delegate parsing to dedicated class for ease of testing
     private InboundContext inboundContext; // all overhead required
+    private MerlinCollectedDataFactory factory;
 
 
     @Override
@@ -67,6 +70,10 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
+        if (this.factory != null) {
+            return factory.getDeviceIdentifier();
+        }
+
         return null;
     }
 
@@ -74,6 +81,9 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
     @Override
     public List<CollectedData> getCollectedData() {
+        if (this.factory != null) {
+            return factory.getCollectedData();
+        }
         return Collections.emptyList();
     }
 
@@ -115,7 +125,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
     private InboundContext getInboundContext() {
         if (this.inboundContext != null){
-            this.inboundContext = new InboundContext(getLogger());
+            this.inboundContext = new InboundContext(getLogger(), getContext());
         }
 
         return this.inboundContext;
@@ -135,13 +145,12 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         if (readBytes < BUFFER_SIZE){
             byte[] payload = new byte[readBytes];
             System.arraycopy(buffer, 0, payload, 0, readBytes);
-            getParser().parse(payload);
+            Telegram telegram = getParser().parse(payload);
+            this.factory = new MerlinCollectedDataFactory(telegram, getInboundContext());
         } else {
             getLogger().log("WARN: buffer overflow!");
             //TODO: keep reading
         }
-
-
     }
 
 

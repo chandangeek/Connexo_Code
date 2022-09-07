@@ -3,25 +3,7 @@ package com.energyict.mdc.protocol.inbound.mbus.parser;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
-import com.energyict.protocolimpl.mbus.core.CIField72h;
-import com.energyict.protocolimpl.mbus.core.CIField7Ah;
-import com.energyict.protocolimpl.mbus.core.DataRecord;
 import com.energyict.protocolimpl.utils.ProtocolTools;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import javax.xml.bind.DatatypeConverter;
-import java.io.IOException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.util.Arrays;
-import java.util.TimeZone;
-import java.util.logging.Logger;
 
 public class MerlinMbusParser {
     private Telegram telegram;
@@ -44,7 +26,7 @@ public class MerlinMbusParser {
         return this.telegram;
     }
 
-    public void parse(byte[] buffer){
+    public Telegram parse(byte[] buffer){
         telegram = new Telegram();
         String telegramString = ProtocolTools.getHexStringFromBytes(buffer, " ").trim();
         telegram.createTelegram(telegramString, false);
@@ -53,6 +35,8 @@ public class MerlinMbusParser {
         //telegram.decryptTelegram(null);
         telegram.parse();
         telegram.debugOutput();
+
+        return telegram;
     }
 
 }
