@@ -2,10 +2,12 @@ package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
+import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import junit.framework.TestCase;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
@@ -33,6 +35,9 @@ public class MerlinMbusParserTest extends TestCase {
     private static byte[] key = ProtocolTools.getBytesFromHexString("4FA70B24465F814A667631773A397644", "");
     private static byte[] iv = ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
 
+    @Mock
+    private InboundDiscoveryContext inboundDiscoveryContext;
+
     /* TODO: add unencrypted
     @Test
     public void testGenericMbus() throws IOException, SQLException {
@@ -41,26 +46,6 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parse(genericMbus);
     }
     */
-
-    public void testDailyFrameEncrypted() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext()));
-
-        parser.parse(DAILY_FRAME_ENCRYPTED1);
-
-
-        assertEquals("FDB07736", parser.getTelegram().getSerialNr());
-        assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
-        assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
-        // date
-      //  assertEquals("22.8.2022 0:0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
-
-        // snapshot value
-        assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
-        assertEquals("m^3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
-        assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
-
-    }
-
 
     @Test
     public void testDailyFrameEncrypted1() throws IOException, SQLException {
@@ -126,6 +111,10 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getMultiplier());
 
 
+    }
+
+    private InboundDiscoveryContext getContext() {
+        return inboundDiscoveryContext;
     }
 
 
