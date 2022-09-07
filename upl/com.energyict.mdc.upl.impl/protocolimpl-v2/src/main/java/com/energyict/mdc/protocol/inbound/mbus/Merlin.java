@@ -124,7 +124,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
     }
 
     private InboundContext getInboundContext() {
-        if (this.inboundContext != null){
+        if (this.inboundContext == null){
             this.inboundContext = new InboundContext(getLogger(), getContext());
         }
 

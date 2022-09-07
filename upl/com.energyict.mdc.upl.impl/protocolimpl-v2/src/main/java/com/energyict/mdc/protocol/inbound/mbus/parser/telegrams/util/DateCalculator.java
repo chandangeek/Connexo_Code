@@ -1,11 +1,12 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util;
 
 
-import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoField;
+import java.time.temporal.TemporalField;
 
 public class DateCalculator {
 
@@ -26,40 +27,68 @@ public class DateCalculator {
     private static int LEAP_YEAR = 0x80;		// 1000 0000
     private static int DIF_SOMMERTIME = 0xC0;	// 1100 0000
 
-    public static String getTimeWithSeconds(String secondValue, String minuteValue, String hourValue) {
-        String time = DateCalculator.getTime(minuteValue, hourValue);
-        time = time + ":" + DateCalculator.getSeconds(Converter.hexToInt(secondValue));
+    public static Instant getTimeWithSeconds(String secondValue, String minuteValue, String hourValue) {
+        Instant timeInstant = DateCalculator.getTime(minuteValue, hourValue);
+        int seconds = DateCalculator.getSeconds(Converter.hexToInt(secondValue));
 
-        return time;
+        return timeInstant.atZone(ZoneOffset.UTC)
+                .withSecond(seconds)
+                .toInstant();
     }
 
-    public static String getTime(String minuteValue, String hourValue) {
-        String time = String.valueOf(DateCalculator.getHour(Converter.hexToInt(hourValue)));
-        time = time + ":" + DateCalculator.getMinutes(Converter.hexToInt(minuteValue));
+    public static Instant getTime(String minuteValue, String hourValue) {
+        int hour = DateCalculator.getHour(Converter.hexToInt(hourValue));
+        int minutes = DateCalculator.getMinutes(Converter.hexToInt(minuteValue));
 
-        return time;
+        return Instant.now().atZone(ZoneOffset.UTC)
+                .withHour(hour)
+                .withMinute(minutes)
+                .withSecond(0)
+                .withNano(0)
+                .toInstant();
     }
 
-    public static String getDate(String dayValue, String monthValue, boolean calcHundertYear) {
-        String date = String.valueOf(DateCalculator.getDay(Converter.hexToInt(dayValue)));
-        date = date + "." + DateCalculator.getMonth(Converter.hexToInt(monthValue));
-        date = date + "." + DateCalculator.getYear(Converter.hexToInt(dayValue), Converter.hexToInt(monthValue), 0, false);
+    public static Instant getDate(String dayValue, String monthValue, boolean calcHundertYear) {
+        int day = DateCalculator.getDay(Converter.hexToInt(dayValue));
+        int month = DateCalculator.getMonth(Converter.hexToInt(monthValue));
+        int year = DateCalculator.getYear(Converter.hexToInt(dayValue), Converter.hexToInt(monthValue), 0, false);
 
-        return date;
+        return Instant.now().atZone(ZoneOffset.UTC)
+                .withDayOfMonth(day)
+                .withMonth(month)
+                .withYear(year)
+                .withHour(0)
+                .withMinute(0)
+                .withSecond(0)
+                .withNano(0)
+                .toInstant();
     }
 
-    public static String getDateTime(String minuteValue, String hourValue, String dayValue, String monthValue, boolean calcHundertYear) {
-        String date = DateCalculator.getDate(dayValue, monthValue, calcHundertYear);
-        date = date + " " + DateCalculator.getTime(minuteValue, hourValue);
+    public static Instant getDateTime(String minuteValue, String hourValue, String dayValue, String monthValue, boolean calcHundertYear) {
+        Instant dateInstant = DateCalculator.getDate(dayValue, monthValue, calcHundertYear);
 
-        return date;
+        Instant timeInstant = DateCalculator.getTime(minuteValue, hourValue);
+        LocalDateTime time = LocalDateTime.ofInstant(timeInstant, ZoneId.of("UTC"));
+
+        return dateInstant.atZone(ZoneOffset.UTC)
+                .withHour(time.getHour())
+                .withMinute(time.getMinute())
+                .withSecond(time.getSecond())
+                .toInstant();
+
     }
 
-    public static String getDateTimeWithSeconds(String seconds, String minuteValue, String hourValue, String dayValue, String monthValue, boolean calcHundertYear) {
-        String date = DateCalculator.getDate(dayValue, monthValue, calcHundertYear);
-        date = date + " " + DateCalculator.getTimeWithSeconds(seconds, minuteValue, hourValue);
+    public static Instant getDateTimeWithSeconds(String seconds, String minuteValue, String hourValue, String dayValue, String monthValue, boolean calcHundertYear) {
+        Instant dateInstant = DateCalculator.getDate(dayValue, monthValue, calcHundertYear);
 
-        return date;
+        Instant timeInstant = DateCalculator.getTimeWithSeconds(seconds, minuteValue, hourValue);
+        LocalDateTime time = LocalDateTime.ofInstant(timeInstant, ZoneId.of("UTC"));
+
+        return dateInstant.atZone(ZoneOffset.UTC)
+                .withHour(time.getHour())
+                .withMinute(time.getMinute())
+                .withSecond(time.getSecond())
+                .toInstant();
     }
 
     public static int getSeconds(int secondValue) {
@@ -132,7 +161,7 @@ public class DateCalculator {
      pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME + 4]   = (unsigned char ) (Date>>24);
      pui8buffer[DRVNB1_NBIoT_DATE_AND_TIME + 5]   = 0x20;
      */
-    public static String getEpochTime(String byte0, String byte1, String byte2, String byte3, String byte4, String byte5) {
+    public static Instant getEpochTime(String byte0, String byte1, String byte2, String byte3, String byte4, String byte5) {
 
         int header = Converter.hexToInt(byte0); // expect 0xE5
         int date1 = Converter.hexToInt(byte1);
@@ -144,10 +173,7 @@ public class DateCalculator {
         int epochTimeShort = date4 * 0x1000000 + date3 * 0x10000 + date2 * 0x100 + date1;
         long epochTime = EPOCH_2013_UNIX + epochTimeShort;
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
-
         Instant instant = Instant.ofEpochMilli(epochTime * 1000);
-        String value = formatter.format(instant);
-        return value;
+        return instant;
     }
 }

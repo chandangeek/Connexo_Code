@@ -61,11 +61,27 @@ public class MerlinCollectedDataFactory {
 
     private void extractTelegramDateTime() {
         if (telegram.getBody().getBodyPayload().getRecords().size() >= 2){
-            String dateTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue();
-            this.telegramDateTime = Instant.parse(dateTime);
+            Optional<Instant> parsedTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getTimeValue();
+            if (parsedTime.isPresent()) {
+                this.telegramDateTime = parsedTime.get();
+                inboundContext.getLogger().log("Proper telegram date-time extracted: " + parsedTime.get().toString());
+                return;
+            } else {
+                String dateTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue();
+                inboundContext.getLogger().log("Telegram date-time not extracted, doing our best to parse: " + dateTime);
+                try {
+                    this.telegramDateTime = Instant.parse(dateTime);
+                    return;
+                } catch (Exception ex) {
+                    inboundContext.getLogger().log("Could not parse " + dateTime + " to instant: " + ex.getMessage());
+                }
+            }
         } else {
-            this.telegramDateTime = Instant.now();
+            inboundContext.getLogger().log("Telegram date-time field not present");
         }
+
+        // fallback
+        this.telegramDateTime = Instant.now();
     }
 
 
@@ -81,7 +97,8 @@ public class MerlinCollectedDataFactory {
 
                 String unitName = record.getVif().getmUnit().getValue();
                 int unitScale = record.getVif().getMultiplier();
-                Unit unit = Unit.get(unitName, unitScale) ;
+
+                Unit unit = findConnexoUnitFor(unitName, unitScale);
 
                 Quantity quantity = new Quantity(valueNumeric, unit);
 
@@ -91,5 +108,17 @@ public class MerlinCollectedDataFactory {
                 collectedRegisterList.addCollectedRegister(register);
             }
         }
+    }
+
+    private Unit findConnexoUnitFor(String unitName, int unitScale) {
+        try {
+            // TODO -> use this scale properly
+            Unit unit = Unit.get(unitName, 0);
+            return unit;
+        } catch (Exception ex){
+            inboundContext.getLogger().log("Cannot get a Connexo unit for " + unitName + " with scale " + unitScale);
+        }
+
+        return Unit.getUndefined();
     }
 }

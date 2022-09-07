@@ -3,13 +3,16 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams;
 
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TelegramField {
 
     protected List<String> fieldParts;
     protected String parsedValue;
+    protected Instant timeValue;
 
     public TelegramField() {
         this.fieldParts = new ArrayList<String>();
@@ -58,4 +61,7 @@ public class TelegramField {
         return this.parsedValue;
     }
 
+    public Optional<Instant> getTimeValue() {
+        return Optional.ofNullable(timeValue);
+    }
 }

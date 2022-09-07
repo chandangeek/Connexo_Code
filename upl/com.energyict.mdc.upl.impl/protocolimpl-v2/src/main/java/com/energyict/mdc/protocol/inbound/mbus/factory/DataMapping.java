@@ -13,17 +13,17 @@ public enum DataMapping {
     INSTANTANEOUS_VOLUME(TelegramFunctionType.INSTANTANEOUS_VALUE,
                             TelegramEncoding.ENCODING_INTEGER,
                             VIF_Unit_Multiplier_Masks.VOLUME,
-                    "8.0.1.0.0.255"),
+                    "8.0.1.0.0.255"), //Bulk Billing water volume (m³)
 
     MIN_FLOW(TelegramFunctionType.MINIMUM_VALUE,
             TelegramEncoding.ENCODING_INTEGER,
             VIF_Unit_Multiplier_Masks.VOLUME_FLOW,
-            "8.0.2.0.0.255"),
+            "8.0.2.0.0.255"),   // Water flow (km³/h)
 
     MAX_FLOW(TelegramFunctionType.MAXIMUM_VALUE,
             TelegramEncoding.ENCODING_INTEGER,
             VIF_Unit_Multiplier_Masks.VOLUME_FLOW,
-            "8.0.2.0.0.255");
+            "8.0.3.0.0.255");
 
     private final TelegramFunctionType functionType;
     private final TelegramEncoding encoding;

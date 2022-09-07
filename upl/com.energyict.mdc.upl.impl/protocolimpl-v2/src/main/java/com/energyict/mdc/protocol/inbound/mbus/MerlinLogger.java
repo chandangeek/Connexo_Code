@@ -27,7 +27,7 @@ public class MerlinLogger {
     public void log(String message, byte[] buffer, int readBytes) {
         try {
             if (readBytes < BUFFER_SIZE) {
-                byte[] payload = new byte[BUFFER_SIZE];
+                byte[] payload = new byte[readBytes];
                 System.arraycopy(buffer, 0, payload, 0, readBytes);
                 log(message + " " + readBytes + ": " + ProtocolTools.bytesToHex(payload));
             } else {

@@ -8,6 +8,8 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Measure_Uni
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramEncoding;
 
 import java.math.BigInteger;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -85,20 +87,25 @@ public class TelegramDataField extends TelegramField {
      * are parsed as dates (if it is a valid date-type) in this function as well.
      */
     public boolean parseDate(Measure_Unit dateType) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
+
         switch (dateType) {
             case DATE:
                 // Type G: Day.Month.Year
-                this.parsedValue = DateCalculator.getDate(this.fieldParts.get(0), this.fieldParts.get(1), false);
-
+                this.timeValue = DateCalculator.getDate(this.fieldParts.get(0), this.fieldParts.get(1), false);
+                this.parsedValue = formatter.format(this.timeValue);
                 break;
-            // OK on testing (weekly, ntr)
+
+            /** Used by NTR frame */
             case DATE_TIME:
                 // Type F: Day.Month.Year Hour:Minute
-                this.parsedValue = DateCalculator.getDateTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), false);
+                this.timeValue = DateCalculator.getDateTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), false);
+                this.parsedValue = formatter.format(this.timeValue);
                 break;
             case TIME:
                 // Typ J: Hour:Minute:Second
-                this.parsedValue = DateCalculator.getTimeWithSeconds(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2));
+                this.timeValue = DateCalculator.getTimeWithSeconds(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2));
+                this.parsedValue = formatter.format(this.timeValue);
                 break;
             case DATE_TIME_S:
                 // Typ I: Day.Month.Year Hour:Minute:Second
@@ -146,10 +153,13 @@ UI2 [47 to 48]
                 int year2       = Converter.hexToInt(this.fieldParts.get(4)) & 0xF0 ;
                 int year        = (year1 >> 5) + (year2 >> 3);
 
-                this.parsedValue = DateCalculator.getDateTimeWithSeconds(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4), false);
+                this.timeValue = DateCalculator.getDateTimeWithSeconds(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4), false);
+                this.parsedValue = formatter.format(this.timeValue);
                 break;
             case EPOCH_TIME:
-                this.parsedValue = DateCalculator.getEpochTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4), this.fieldParts.get(5));
+                this.timeValue = DateCalculator.getEpochTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4), this.fieldParts.get(5));
+                this.parsedValue = formatter.format(this.timeValue);
+
                 break;
             default:
                 return false;

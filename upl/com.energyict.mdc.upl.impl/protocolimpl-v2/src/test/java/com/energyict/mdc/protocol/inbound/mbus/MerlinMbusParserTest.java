@@ -128,7 +128,7 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
         assertEquals("AF" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
         // date
-        assertEquals("19.8.2022 0:0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
+        assertEquals("2022-08-19 00:00:00" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
 
         // snapshot value
         assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
@@ -148,7 +148,7 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("50" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
 
         // date
-        assertEquals("20.8.2022 11:19" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
+        assertEquals("2022-08-20 11:19:00" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue());
 
         // max flow data
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
