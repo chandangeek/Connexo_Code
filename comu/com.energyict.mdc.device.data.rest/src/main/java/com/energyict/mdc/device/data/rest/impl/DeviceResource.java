@@ -442,7 +442,11 @@ public class DeviceResource {
     }
 
     public Device updateDeviceConfig(Device device, long deviceVersion, DeviceConfiguration destinationConfiguration, long deviceConfigurationVersion) {
-        return deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
+        try (TransactionContext context = transactionService.getContext()) {
+            Device updatedDevice = deviceService.changeDeviceConfigurationForSingleDevice(device.getId(), deviceVersion, destinationConfiguration.getId(), deviceConfigurationVersion);
+            context.commit();
+            return updatedDevice;
+        }
     }
 
     private void updateGateway(DeviceInfo info, Device device) {

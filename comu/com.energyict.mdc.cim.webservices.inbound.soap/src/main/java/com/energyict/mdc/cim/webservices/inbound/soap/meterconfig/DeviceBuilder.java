@@ -134,10 +134,9 @@ public class DeviceBuilder {
                         .filter(config -> newDeviceConfigurationName.equals(config.getName())).findAny()
                         .orElseThrow(getFaultMessage(meter.getDeviceName(),
                                 MessageSeeds.NO_SUCH_DEVICE_CONFIGURATION, newDeviceConfigurationName));
-                // we cannot use changeDeviceConfigurationForSingleDevice because it creates new
-                // transactions and nested transactions are not allowed
 
-                deviceService.changeDeviceConfigurationForDevices(deviceConfig, null, changedDevice.getId());
+                changedDevice = deviceService.changeDeviceConfigurationForSingleDevice(changedDevice.getId(),
+                        changedDevice.getVersion(), deviceConfig.getId(), deviceConfig.getVersion());
             }
             String currentModelNumber = changedDevice.getModelNumber();
             String currentModelVersion = changedDevice.getModelVersion();
