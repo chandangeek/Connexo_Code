@@ -517,16 +517,14 @@ class DeviceServiceImpl implements ServerDeviceService {
                 .getInstance(DeviceConfigChangeRequestImpl.class)
                 .init(deviceConfiguration);
         deviceConfigChangeRequest.save();
-        Pair<Device, DeviceConfigChangeRequestImpl> lockResult = Pair.of(device, deviceConfigChangeRequest);
-
         Device modifiedDevice = null;
         try {
-            modifiedDevice = new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) lockResult.getFirst()).getEventService()).execute((DeviceImpl) lockResult.getFirst(), deviceDataModelService
+            modifiedDevice = new DeviceConfigChangeExecutor(this, deviceDataModelService.clock(), ((DeviceImpl) device).getEventService()).execute((DeviceImpl) device, deviceDataModelService
                     .deviceConfigurationService()
                     .findDeviceConfiguration(destinationDeviceConfigId)
                     .get());
         } finally {
-            VoidTransaction.of(lockResult.getLast()::notifyDeviceInActionIsRemoved);
+            deviceConfigChangeRequest.notifyDeviceInActionIsRemoved();
         }
 
         addConnectionTasksToDevice(modifiedDevice, modifiedDevice.getDeviceConfiguration());
