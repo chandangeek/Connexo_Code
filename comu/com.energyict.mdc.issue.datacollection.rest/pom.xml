@@ -9,7 +9,6 @@
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
         <version>15.0.1-Kratos-SNAPSHOT</version>
-
     </parent>
 
     <artifactId>mdc.issue.datacollection.rest</artifactId>
@@ -173,6 +172,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>properties.rest</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search.rest</artifactId>
         </dependency>
 
         <!-- Test -->

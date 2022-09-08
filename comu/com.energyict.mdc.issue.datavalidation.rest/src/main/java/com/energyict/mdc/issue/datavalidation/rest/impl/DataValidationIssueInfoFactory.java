@@ -16,6 +16,7 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.energyict.mdc.common.device.data.Channel;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.Register;
@@ -46,6 +47,17 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
     private DeviceService deviceService;
     private volatile Thesaurus thesaurus;
 
+    public DataValidationIssueInfoFactory() {
+        // For OSGi
+    }
+
+    @Inject
+    public DataValidationIssueInfoFactory(DeviceService deviceService,
+                                          ReadingTypeInfoFactory readingTypeInfoFactory) {
+        this.deviceService = deviceService;
+        this.readingTypeInfoFactory = readingTypeInfoFactory;
+    }
+
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
@@ -58,14 +70,9 @@ public class DataValidationIssueInfoFactory implements InfoFactory<IssueDataVali
         this.readingTypeInfoFactory = new ReadingTypeInfoFactory(thesaurus);
     }
 
-    public DataValidationIssueInfoFactory() {
-    }
-
-    @Inject
-    public DataValidationIssueInfoFactory(DeviceService deviceService,
-                                          ReadingTypeInfoFactory readingTypeInfoFactory) {
-        this.deviceService = deviceService;
-        this.readingTypeInfoFactory = readingTypeInfoFactory;
+    @Reference
+    public void setInfoFactoryService(InfoFactoryService infoFactoryService) {
+        // to make sure this factory starts after the whole service
     }
 
     public DataValidationIssueInfo asInfo(IssueDataValidation issue, Class<? extends DeviceInfo> deviceInfoClass) {

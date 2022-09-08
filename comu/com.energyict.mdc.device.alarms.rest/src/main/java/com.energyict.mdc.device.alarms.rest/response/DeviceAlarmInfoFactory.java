@@ -10,6 +10,7 @@ import com.elster.jupiter.metering.events.EndDeviceEventRecord;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.energyict.mdc.common.device.data.LogBook;
 import com.energyict.mdc.device.alarms.entity.DeviceAlarm;
 import com.energyict.mdc.device.alarms.event.DeviceAlarmRelatedEvent;
@@ -32,7 +33,7 @@ public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
     private volatile LogBookService logBookService;
 
     public DeviceAlarmInfoFactory() {
-
+        // For OSGi
     }
 
     @Inject
@@ -46,6 +47,10 @@ public class DeviceAlarmInfoFactory implements InfoFactory<DeviceAlarm> {
         this.logBookService = logBookService;
     }
 
+    @Reference
+    public void setInfoFactoryService(InfoFactoryService infoFactoryService) {
+        // to make sure this factory starts after the whole service
+    }
 
     @Override
     public Object from(DeviceAlarm deviceAlarm) {

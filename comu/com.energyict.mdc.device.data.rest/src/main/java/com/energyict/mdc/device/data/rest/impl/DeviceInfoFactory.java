@@ -15,6 +15,7 @@ import com.elster.jupiter.nls.SimpleTranslationKey;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -140,6 +141,11 @@ public class DeviceInfoFactory implements InfoFactory<Device> {
     @Reference
     public void setFirmwareService(FirmwareService firmwareService) {
         this.firmwareService = firmwareService;
+    }
+
+    @Reference
+    public void setInfoFactoryService(InfoFactoryService infoFactoryService) {
+        // to make sure this factory starts after the whole service
     }
 
     public List<DeviceInfo> fromDevices(List<Device> devices) {

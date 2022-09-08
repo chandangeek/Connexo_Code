@@ -4,12 +4,15 @@
 
 package com.elster.jupiter.rest.util;
 
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 /**
  * Allows creation of an Info object based on a domain object. This interface is required to register factories to be used by dynamic search.
  */
+@ConsumerType
 public interface InfoFactory<T> {
 
     /**

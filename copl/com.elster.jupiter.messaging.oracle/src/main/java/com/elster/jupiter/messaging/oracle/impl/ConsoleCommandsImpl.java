@@ -31,7 +31,9 @@ import java.util.logging.Logger;
 /**
  * MSG console commands
  */
-@Component(name = "com.elster.jupiter.messaging.commands", service = ConsoleCommandsImpl.class,
+@Component(name = "com.elster.jupiter.messaging.commands",
+        service = ConsoleCommandsImpl.class,
+        immediate = true,
         property = {"name=" + MessageService.COMPONENTNAME + "2", "osgi.command.scope=messagingoracle",
                 "osgi.command.function=aqcreatetable",
                 "osgi.command.function=aqdroptable",

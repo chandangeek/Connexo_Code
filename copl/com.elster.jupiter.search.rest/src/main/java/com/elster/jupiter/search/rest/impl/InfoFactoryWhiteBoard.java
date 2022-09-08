@@ -19,23 +19,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * Registers which InfoFactory can be used to convert which domain object. Used by the dynamicSearchResource
  */
-@Component(name = "com.elster.jupiter.info.whiteboard.implementation" , immediate = true , service = {InfoFactoryService.class} )
+@Component(name = "com.elster.jupiter.info.whiteboard.implementation", immediate = true, service = {InfoFactoryService.class})
 public class InfoFactoryWhiteBoard implements InfoFactoryService {
 
-    private final List<InfoFactory> factories = new CopyOnWriteArrayList<>();
+    private final List<InfoFactory<?>> factories = new CopyOnWriteArrayList<>();
 
-    @Reference(name="Z-Order",cardinality= ReferenceCardinality.MULTIPLE,policy= ReferencePolicy.DYNAMIC)
-    public void addFactory(InfoFactory infoFactory) {
+    @Reference(name = "Z-Order", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
+    public void addFactory(InfoFactory<?> infoFactory) {
         factories.add(infoFactory);
     }
 
-    public void removeFactory(InfoFactory infoFactory) {
+    public void removeFactory(InfoFactory<?> infoFactory) {
         factories.removeIf(fac -> infoFactory.getDomainClass().equals(fac.getDomainClass()));
     }
 
-
     @Override
-    public InfoFactory getInfoFactoryFor(SearchDomain searchDomain) {
+    public InfoFactory<?> getInfoFactoryFor(SearchDomain searchDomain) {
         return factories.stream()
                 .filter(fac -> searchDomain.getDomainClass().isAssignableFrom(fac.getDomainClass()))
                 .findFirst()

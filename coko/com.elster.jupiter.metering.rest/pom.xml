@@ -9,12 +9,11 @@
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
         <version>15.0.1-Kratos-SNAPSHOT</version>
-
     </parent>
+
     <artifactId>metering.rest</artifactId>
     <packaging>bundle</packaging>
     <name>[Jupiter] com.elster.jupiter.metering.rest</name>
-
 
     <profiles>
         <profile>
@@ -157,6 +156,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search.rest</artifactId>
         </dependency>
 
         <dependency>

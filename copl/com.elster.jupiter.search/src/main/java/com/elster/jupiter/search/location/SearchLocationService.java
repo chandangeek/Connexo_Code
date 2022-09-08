@@ -4,12 +4,11 @@
 
 package com.elster.jupiter.search.location;
 
-import java.time.Duration;
-import java.util.List;
+import aQute.bnd.annotation.ConsumerType;
+
 import java.util.Map;
-import java.util.Optional;
 
-
+@ConsumerType
 public interface SearchLocationService {
 
     Map<Long, String> findLocations(String locationPart);
