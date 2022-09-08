@@ -13,7 +13,6 @@ package com.energyict.mdc.common.comserver;
 public interface TCPBasedInboundComPort extends IPBasedInboundComPort {
 
     interface TCPBasedInboundComPortBuilder extends IpBasedInboundComPortBuilder<TCPBasedInboundComPortBuilder, TCPBasedInboundComPort> {
-
     }
 
 }

@@ -107,7 +107,12 @@ public class MockTCPInboundComPort extends MockComPort implements TCPBasedInboun
     }
 
     @Override
-    public boolean isServletBased () {
+    public boolean isCoapBased() {
+        return false;
+    }
+
+    @Override
+    public boolean isServletBased() {
         return false;
     }
 

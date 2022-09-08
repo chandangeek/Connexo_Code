@@ -58,7 +58,12 @@ public abstract class InboundComPortImpl extends ComPortImpl implements ComPort,
     }
 
     @Override
-    public boolean isServletBased () {
+    public boolean isCoapBased() {
+        return false;
+    }
+
+    @Override
+    public boolean isServletBased() {
         return false;
     }
 

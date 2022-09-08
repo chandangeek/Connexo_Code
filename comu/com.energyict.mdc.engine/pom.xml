@@ -20,8 +20,23 @@
     </description>
 
     <properties>
+        <coap-server.version>3.6.0</coap-server.version>
         <argLine>-Xmx4g -Xms512m -Djava.util.logging.config.file=../copl/com.elster.jupiter.parent/junit-logging.properties</argLine>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>repo.eclipse.org</id>
+            <name>Californium Repository</name>
+            <url>https://repo.eclipse.org/content/repositories/californium/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -431,6 +446,12 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>http.whiteboard</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.californium</groupId>
+            <artifactId>californium-core</artifactId>
+            <version>${coap-server.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>
