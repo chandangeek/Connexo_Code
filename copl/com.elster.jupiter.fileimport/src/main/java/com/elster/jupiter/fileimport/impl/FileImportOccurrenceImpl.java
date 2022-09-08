@@ -20,10 +20,10 @@ import com.elster.jupiter.util.conditions.Condition;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -226,6 +226,15 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         logEntries.add(dataModel.getInstance(ImportLogEntryImpl.class).init(this, timestamp, level, message));
     }
 
+    @Override
+    public void log(Instant timestamp, String message, Throwable throwable) {
+        StringWriter stackTraceWriter = new StringWriter();
+        try (PrintWriter printWriter = new PrintWriter(stackTraceWriter)) {
+            throwable.printStackTrace(printWriter);
+        }
+        logEntries.add(dataModel.getInstance(ImportLogEntryImpl.class).init(this, timestamp, Level.SEVERE, message, stackTraceWriter.toString()));
+    }
+
     private void saveLogEntries() {
         Arrays.stream(getLogger().getHandlers()).filter(FileImportLogHandler.class::isInstance).forEach(handler -> ((FileImportLogHandler) handler).saveLogEntries());
     }
@@ -280,11 +289,6 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     public void setStartDate(Instant startDate) {
         this.startDate = startDate;
         save();
-    }
-
-    @Override
-    public Connection getCurrentConnection() throws SQLException {
-        return dataModel.getConnection(false);
     }
 
     @Override

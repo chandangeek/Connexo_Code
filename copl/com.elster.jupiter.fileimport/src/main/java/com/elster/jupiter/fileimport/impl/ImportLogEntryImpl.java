@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.fileimport.impl;
 
-
 import com.elster.jupiter.fileimport.FileImportOccurrence;
 import com.elster.jupiter.fileimport.ImportLogEntry;
 import com.elster.jupiter.orm.Table;
@@ -16,7 +15,6 @@ import java.time.Instant;
 import java.util.logging.Level;
 
 public class ImportLogEntryImpl implements ImportLogEntry {
-
     private Reference<FileImportOccurrence> fileImportOccurrenceReference = ValueReference.absent();
     private int position;
     private Instant timeStamp;
@@ -32,7 +30,13 @@ public class ImportLogEntryImpl implements ImportLogEntry {
         this.fileImportOccurrenceReference.set(occurrence);
         this.timeStamp = timeStamp;
         this.level = level.intValue();
-        this.message = (message == null) ? "Unknown error occured" : message.trim().substring(0, Math.min(message.trim().length(), Table.DESCRIPTION_LENGTH));
+        this.message = (message == null) ? "null" : message.trim().substring(0, Math.min(message.trim().length(), Table.DESCRIPTION_LENGTH));
+        return this;
+    }
+
+    ImportLogEntryImpl init(FileImportOccurrence occurrence, Instant timeStamp, Level level, String message, String stackTrace) {
+        init(occurrence, timeStamp, level, message);
+        this.stackTrace = stackTrace;
         return this;
     }
 

@@ -335,7 +335,7 @@ public final class FileImportServiceImpl implements FileImportService, MessageSe
 
     @Override
     public MessageHandler createMessageHandler() {
-        return new StreamImportMessageHandler(jsonService, thesaurus, clock, this, transactionService);
+        return new StreamImportMessageHandler(jsonService, thesaurus, this, transactionService);
     }
 
     @Override

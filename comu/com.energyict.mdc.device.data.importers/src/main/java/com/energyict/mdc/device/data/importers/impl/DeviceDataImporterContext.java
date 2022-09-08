@@ -24,12 +24,11 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
 import javax.inject.Inject;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.time.Clock;
 
 @Component(name = "com.energyict.mdc.device.data.importers.DeviceDataImporterContext", service = {DeviceDataImporterContext.class})
@@ -219,10 +218,6 @@ public class DeviceDataImporterContext {
 
     public Clock getClock() {
         return clock;
-    }
-
-    public Connection getConnection() throws SQLException {
-        return dataModel.getConnection(false);
     }
 
     @Reference

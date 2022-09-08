@@ -41,7 +41,7 @@ public class SecureDeviceShipmentImporter extends SecureDeviceImporterAbstract i
     @Override
     protected void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, TransportKeys transportKeys, Logger logger) {
         String securityAccessorName = deviceKey.getName();
-        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName));
+        SecurityAccessorType securityAccessorType = getSecurityAccessorType(device, securityAccessorName).orElseThrow(() -> new ImportFailedException(MessageSeeds.NO_SUCH_KEY_ACCESSOR_TYPE_ON_DEVICE_TYPE, device.getName(), securityAccessorName));
         final WrapKey wrapKey = transportKeys.get(deviceKey.getWrapKeyLabel());
         if (wrapKey == null) {
             throw new ImportFailedException(MessageSeeds.WRAP_KEY_NOT_FOUND, securityAccessorName, device.getName(), deviceKey.getWrapKeyLabel());
