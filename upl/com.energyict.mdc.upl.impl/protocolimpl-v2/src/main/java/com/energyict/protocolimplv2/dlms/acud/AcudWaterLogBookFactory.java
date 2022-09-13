@@ -1,5 +1,6 @@
 package com.energyict.protocolimplv2.dlms.acud;
 
+import com.energyict.cim.EndDeviceType;
 import com.energyict.dlms.DataContainer;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
@@ -11,6 +12,7 @@ import com.energyict.protocolimplv2.dlms.acud.events.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 public class AcudWaterLogBookFactory extends AcudLogBookFactory {
@@ -44,34 +46,43 @@ public class AcudWaterLogBookFactory extends AcudLogBookFactory {
     }
 
     protected List<MeterProtocolEvent> parseEvents(DataContainer dataContainer, ObisCode logBookObisCode) {
+        return parseWaterEvents(getProtocol().getTimeZone(), dataContainer, logBookObisCode, getProtocol().getTypeMeter());
+    }
+
+    protected List<ObisCode> getSupportedLogBooks() {
+        return Arrays.asList(supportedLogBooks);
+    }
+
+    public static List<ObisCode> getStaticSupportedLogBooks() {
+        return Arrays.asList(supportedLogBooks);
+    }
+
+    public static List<MeterProtocolEvent> parseWaterEvents(TimeZone timeZone, DataContainer dataContainer, ObisCode logBookObisCode, EndDeviceType meterType) {
         List<MeterEvent> meterEvents;
         if (logBookObisCode.equals(TIME_CHANGE_FROM_EVENT_LOG)) {
-            meterEvents = new TimeBeforeChangeEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new TimeBeforeChangeEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(TIME_CHANGE_UPTO_EVENT_LOG)) {
-            meterEvents = new TimeAfterChangeEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new TimeAfterChangeEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(EOB_RESET_EVENT_LOG)) {
-            meterEvents = new EOBResetEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new EOBResetEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(COMM_PORT_EVENT_LOG)) {
-            meterEvents = new CommPortEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new CommPortEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(POWER_LINE_CUT_EVENT_LOG)) {
-            meterEvents = new PowerLineCutEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new PowerLineCutEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(VALVE_CONTROL_EVENT_LOG)) {
-            meterEvents = new OutputValveControlEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new OutputValveControlEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(SECURITY_ASSOCIATION_EVENT_LOG)) {
-            meterEvents = new SecurityEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new SecurityEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(DISPLAY_ROLL_OVER_EVENT_LOG)) {
-            meterEvents = new RollOverToZeroEventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new RollOverToZeroEventLog(timeZone, dataContainer).getMeterEvents();
         } else if (logBookObisCode.equals(TAMPER1_EVENT_LOG)) {
-            meterEvents = new Tamper1EventLog(getProtocol().getTimeZone(), dataContainer).getMeterEvents();
+            meterEvents = new Tamper1EventLog(timeZone, dataContainer).getMeterEvents();
         } else {
             return new ArrayList<>();
         }
         return MeterEvent.mapMeterEventsToMeterProtocolEvents(meterEvents).stream().map(item -> {
-            item.getEventType().setType(getProtocol().getTypeMeter());
+            item.getEventType().setType(meterType);
             return item;
-        }).collect(Collectors.toList());    }
-
-    protected List<ObisCode> getSupportedLogBooks() {
-        return Arrays.asList(supportedLogBooks);
+        }).collect(Collectors.toList());
     }
 }

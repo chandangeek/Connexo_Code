@@ -1,7 +1,13 @@
 package com.energyict.protocolimplv2.dlms.acud;
 
 import com.energyict.cim.EndDeviceType;
+
+import com.energyict.mdc.channels.ip.InboundIpConnectionType;
+import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
+import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
+import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
@@ -71,5 +77,14 @@ public class AcudGateway extends Acud {
     @Override
     public String getVersion() {
         return "$Date: 2021-07-27 $";
+    }
+
+    @Override
+    public List<ConnectionType> getSupportedConnectionTypes() {
+        return Arrays.asList(
+                new SioOpticalConnectionType(getPropertySpecService()),
+                new RxTxOpticalConnectionType(getPropertySpecService()),
+                new OutboundTcpIpConnectionType(getPropertySpecService()),
+                new InboundIpConnectionType());
     }
 }
