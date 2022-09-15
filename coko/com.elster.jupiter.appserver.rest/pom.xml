@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>15.0.0-Kratos-SNAPSHOT</version>
+        <version>15.0.1-Kratos-SNAPSHOT</version>
 
     </parent>
     <artifactId>appserver.rest</artifactId>
