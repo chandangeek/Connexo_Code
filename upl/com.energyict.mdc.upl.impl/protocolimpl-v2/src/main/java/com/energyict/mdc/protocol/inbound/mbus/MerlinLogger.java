@@ -43,5 +43,11 @@ public class MerlinLogger {
         getLogger().info("[Merlin] " + message);
     }
 
+    public void logW(String message) {
+        getLogger().warning("[Merlin] " + message);
+    }
 
+    public void logE(String message, Throwable e) {
+        getLogger().log(Level.SEVERE, message + ": " + e.getMessage(), e);
+    }
 }

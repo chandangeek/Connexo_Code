@@ -1,39 +1,30 @@
 package com.energyict.mdc.protocol.inbound.mbus.factory;
 
-import com.energyict.cbo.Quantity;
-import com.energyict.cbo.Unit;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
-import com.energyict.obis.ObisCode;
 
-import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class MerlinCollectedDataFactory {
     private final Telegram telegram;
-    private final CollectedDataFactory collectedDataFactory;
     private final InboundContext inboundContext;
     private DeviceIdentifierBySerialNumber deviceIdentifier;
     private CollectedRegisterList collectedRegisterList;
-    private Instant telegramDateTime;
+    private CollectedLoadProfile hourlyLoadProfile;
+    private List<CollectedData> collectedDataList;
 
     public MerlinCollectedDataFactory(Telegram telegram, InboundContext inboundContext) {
         this.telegram = telegram;
         this.inboundContext = inboundContext;
-        this.collectedDataFactory = inboundContext.getInboundDiscoveryContext().getCollectedDataFactory();
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
@@ -44,81 +35,52 @@ public class MerlinCollectedDataFactory {
     }
 
     public List<CollectedData> getCollectedData() {
-        List<CollectedData> collectedDataList = new ArrayList<>();
+        if (this.collectedDataList != null) {
+            return collectedDataList;
+        }
 
-        this.collectedRegisterList = collectedDataFactory.createCollectedRegisterList(getDeviceIdentifier());
+        collectedDataList = new ArrayList<>();
 
-        extractTelegramDateTime();
+        try {
+            extractRegisters();
+        } catch (Exception ex) {
+            inboundContext.getLogger().logE("Exception while parsing registers", ex);
+        }
 
-        telegram.getBody().getBodyPayload().getRecords()
-                .forEach(this::extractRegister);
+        try {
+            extractHourlyProfile();
+        } catch (Exception ex) {
+            inboundContext.getLogger().logE("Exception while parsing hourly profile", ex);
+        }
 
-        collectedDataList.add(collectedRegisterList);
+        if (collectedRegisterList != null ) {
+            collectedDataList.add(collectedRegisterList);
+        }
 
+        if (hourlyLoadProfile != null) {
+            collectedDataList.add(hourlyLoadProfile);
+        }
 
         return collectedDataList;
     }
 
-    private void extractTelegramDateTime() {
-        if (telegram.getBody().getBodyPayload().getRecords().size() >= 2){
-            Optional<Instant> parsedTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getTimeValue();
-            if (parsedTime.isPresent()) {
-                this.telegramDateTime = parsedTime.get();
-                inboundContext.getLogger().log("Proper telegram date-time extracted: " + parsedTime.get().toString());
-                return;
-            } else {
-                String dateTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue();
-                inboundContext.getLogger().log("Telegram date-time not extracted, doing our best to parse: " + dateTime);
-                try {
-                    this.telegramDateTime = Instant.parse(dateTime);
-                    return;
-                } catch (Exception ex) {
-                    inboundContext.getLogger().log("Could not parse " + dateTime + " to instant: " + ex.getMessage());
-                }
-            }
-        } else {
-            inboundContext.getLogger().log("Telegram date-time field not present");
+    private void extractRegisters() {
+        RegisterFactory registerFactory = new RegisterFactory(telegram, inboundContext);
+        this.collectedRegisterList = registerFactory.extractRegisters();
+    }
+
+    private void extractHourlyProfile() {
+        HourlyProfileFactory hourlyProfileFactory = new HourlyProfileFactory(telegram, inboundContext);
+
+        if (telegram.getBody().getBodyPayload().getRecords().size() >= 13) { // TODO -> find a proper method
+            TelegramVariableDataRecord indexRecord = telegram.getBody().getBodyPayload().getRecords().get(3);
+            TelegramVariableDataRecord hourlyRecord = telegram.getBody().getBodyPayload().getRecords().get(4);
+
+            this.hourlyLoadProfile = hourlyProfileFactory.extractLoadProfile(hourlyRecord, indexRecord);
+
         }
 
-        // fallback
-        this.telegramDateTime = Instant.now();
     }
 
 
-    private void extractRegister(TelegramVariableDataRecord record) {
-        if (record.getVif() != null) {
-            Optional<DataMapping> dataMapping = DataMapping.getFor(record);
-            if (dataMapping != null && dataMapping.isPresent()) {
-                ObisCode  obisCode = dataMapping.get().getObisCode();
-                RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier());
-
-                String valueText = record.getDataField().getParsedValue();
-                BigDecimal valueNumeric = BigDecimal.valueOf(Long.parseLong(valueText));
-
-                String unitName = record.getVif().getmUnit().getValue();
-                int unitScale = record.getVif().getMultiplier();
-
-                Unit unit = findConnexoUnitFor(unitName, unitScale);
-
-                Quantity quantity = new Quantity(valueNumeric, unit);
-
-                CollectedRegister register = collectedDataFactory.createDefaultCollectedRegister(registerIdentifier);;
-                register.setCollectedData(quantity);
-                register.setReadTime(Date.from(telegramDateTime));
-                collectedRegisterList.addCollectedRegister(register);
-            }
-        }
-    }
-
-    private Unit findConnexoUnitFor(String unitName, int unitScale) {
-        try {
-            // TODO -> use this scale properly
-            Unit unit = Unit.get(unitName, 0);
-            return unit;
-        } catch (Exception ex){
-            inboundContext.getLogger().log("Cannot get a Connexo unit for " + unitName + " with scale " + unitScale);
-        }
-
-        return Unit.getUndefined();
-    }
 }

@@ -1,10 +1,33 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
+import com.energyict.cbo.Quantity;
+import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.HourlyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.Services;
+import com.energyict.mdc.upl.issue.Issue;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.ResultType;
+import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
+import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
+import com.energyict.obis.ObisCode;
+import com.energyict.protocol.ChannelInfo;
+import com.energyict.protocol.IntervalData;
 import com.energyict.protocolimpl.utils.ProtocolTools;
+import com.google.common.collect.Range;
 import junit.framework.TestCase;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -12,7 +35,15 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.logging.Logger;
+
+import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.calls;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MerlinMbusParserTest extends TestCase {
@@ -38,6 +69,9 @@ public class MerlinMbusParserTest extends TestCase {
     @Mock
     private InboundDiscoveryContext inboundDiscoveryContext;
 
+    @Mock
+    CollectedDataFactory collectedDataFactory ;
+
     /* TODO: add unencrypted
     @Test
     public void testGenericMbus() throws IOException, SQLException {
@@ -46,6 +80,324 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parse(genericMbus);
     }
     */
+
+    @Before
+    public void setUp(){
+        CollectedLoadProfileConfiguration lpConfig = new CollectedLoadProfileConfiguration() {
+            @Override
+            public ObisCode getObisCode() {
+                return null;
+            }
+
+            @Override
+            public String getMeterSerialNumber() {
+                return null;
+            }
+
+            @Override
+            public int getProfileInterval() {
+                return 0;
+            }
+
+            @Override
+            public void setProfileInterval(int profileInterval) {
+
+            }
+
+            @Override
+            public int getNumberOfChannels() {
+                return 0;
+            }
+
+            @Override
+            public List<ChannelInfo> getChannelInfos() {
+                return null;
+            }
+
+            @Override
+            public void setChannelInfos(List<ChannelInfo> channelInfos) {
+
+            }
+
+            @Override
+            public boolean isSupportedByMeter() {
+                return false;
+            }
+
+            @Override
+            public void setSupportedByMeter(boolean supportedByMeter) {
+
+            }
+
+            @Override
+            public ResultType getResultType() {
+                return null;
+            }
+
+            @Override
+            public List<Issue> getIssues() {
+                return null;
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, Issue issue) {
+
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+
+            }
+
+            @Override
+            public boolean isConfiguredIn(DataCollectionConfiguration comTask) {
+                return false;
+            }
+        };
+        when(collectedDataFactory.createCollectedLoadProfileConfiguration(anyObject(), anyObject())).thenReturn(lpConfig);
+
+        CollectedLoadProfile loadProfile = new CollectedLoadProfile() {
+            private List<IntervalData> collectedIntervalData;
+
+            @Override
+            public List<IntervalData> getCollectedIntervalData() {
+                return collectedIntervalData;
+            }
+
+            @Override
+            public List<ChannelInfo> getChannelInfo() {
+                return null;
+            }
+
+            @Override
+            public boolean isDoStoreOlderValues() {
+                return false;
+            }
+
+            @Override
+            public void setDoStoreOlderValues(boolean doStoreOlderValues) {
+
+            }
+
+            @Override
+            public boolean isAllowIncompleteLoadProfileData() {
+                return false;
+            }
+
+            @Override
+            public void setAllowIncompleteLoadProfileData(boolean allowIncompleteLoadProfileData) {
+
+            }
+
+            @Override
+            public LoadProfileIdentifier getLoadProfileIdentifier() {
+                return null;
+            }
+
+            @Override
+            public void setCollectedIntervalData(List<IntervalData> collectedIntervalData, List<ChannelInfo> deviceChannelInfo) {
+                this.collectedIntervalData = collectedIntervalData;
+            }
+
+            @Override
+            public Range<Instant> getCollectedIntervalDataRange() {
+                return null;
+            }
+
+            @Override
+            public String getXmlType() {
+                return null;
+            }
+
+            @Override
+            public void setXmlType(String ignore) {
+
+            }
+
+            @Override
+            public ResultType getResultType() {
+                return null;
+            }
+
+            @Override
+            public List<Issue> getIssues() {
+                return null;
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, Issue issue) {
+
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+
+            }
+
+            @Override
+            public boolean isConfiguredIn(DataCollectionConfiguration comTask) {
+                return false;
+            }
+        };
+        when(collectedDataFactory.createCollectedLoadProfile(anyObject())).thenReturn(loadProfile);
+
+
+        CollectedRegister collectedRegister = new CollectedRegister() {
+            private String text;
+            private RegisterIdentifier registerIdentifier;
+            private Quantity quantity;
+            private Date readTime;
+
+            void CollectedRegister(RegisterIdentifier registerIdentifier) {
+                this.registerIdentifier = registerIdentifier;
+            }
+
+            @Override
+            public Quantity getCollectedQuantity() {
+                return this.quantity;
+            }
+
+            @Override
+            public String getText() {
+                return this.text;
+            }
+
+            @Override
+            public Date getReadTime() {
+                return this.readTime;
+            }
+
+            @Override
+            public void setReadTime(Date readTime) {
+                this.readTime = readTime;
+            }
+
+            @Override
+            public Date getFromTime() {
+                return null;
+            }
+
+            @Override
+            public Date getToTime() {
+                return null;
+            }
+
+            @Override
+            public Date getEventTime() {
+                return null;
+            }
+
+            @Override
+            public RegisterIdentifier getRegisterIdentifier() {
+                return this.registerIdentifier;
+            }
+
+            @Override
+            public boolean isTextRegister() {
+                return false;
+            }
+
+            @Override
+            public void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime, Date eventTime) {
+
+            }
+
+            @Override
+            public void setCollectedData(Quantity collectedQuantity) {
+                this.quantity = collectedQuantity;
+            }
+
+            @Override
+            public void setCollectedData(Quantity collectedQuantity, String text) {
+                this.quantity = collectedQuantity;
+            }
+
+            @Override
+            public void setCollectedData(String text) {
+                this.text = text;
+            }
+
+            @Override
+            public void setCollectedTimeStamps(Date readTime, Date fromTime, Date toTime) {
+
+            }
+
+            @Override
+            public ResultType getResultType() {
+                return null;
+            }
+
+            @Override
+            public List<Issue> getIssues() {
+                return null;
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, Issue issue) {
+
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+
+            }
+
+            @Override
+            public boolean isConfiguredIn(DataCollectionConfiguration comTask) {
+                return false;
+            }
+        };
+
+        when(collectedDataFactory.createDefaultCollectedRegister(anyObject())).thenReturn(collectedRegister);
+
+
+        CollectedRegisterList collectedRegistersList = new CollectedRegisterList() {
+            private List<CollectedRegister> collectedRegisters = new ArrayList<>();
+
+            @Override
+            public void addCollectedRegister(CollectedRegister collectedRegister) {
+                this.collectedRegisters.add(collectedRegister);
+            }
+
+            @Override
+            public List<CollectedRegister> getCollectedRegisters() {
+                return this.collectedRegisters;
+            }
+
+            @Override
+            public DeviceIdentifier getDeviceIdentifier() {
+                return null;
+            }
+
+            @Override
+            public ResultType getResultType() {
+                return null;
+            }
+
+            @Override
+            public List<Issue> getIssues() {
+                return null;
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, Issue issue) {
+
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+
+            }
+
+            @Override
+            public boolean isConfiguredIn(DataCollectionConfiguration comTask) {
+                return false;
+            }
+        };
+        when(collectedDataFactory.createCollectedRegisterList(anyObject())).thenReturn(collectedRegistersList);
+
+        when(inboundDiscoveryContext.getCollectedDataFactory()).thenReturn(collectedDataFactory);
+    }
 
     @Test
     public void testDailyFrameEncrypted1() throws IOException, SQLException {
@@ -76,6 +428,18 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("1" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getDataField().getParsedValue());
         assertEquals("none", parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getVif().getmUnit().getValue());
         assertEquals(0, parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getVif().getMultiplier());
+
+        // profile
+        assertEquals(23, parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getDataField().getParsedIntervals().size());
+        for (int i=0; i<23; i++) {
+            assertEquals(-32768, parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getDataField().getParsedIntervals().get(i).intValue());
+        }
+
+        // nightline
+        assertEquals(8, parser.getTelegram().getBody().getBodyPayload().getRecords().get(10).getDataField().getParsedIntervals().size());
+        for (int i=0; i<8; i++) {
+            assertEquals(-32768, parser.getTelegram().getBody().getBodyPayload().getRecords().get(10).getDataField().getParsedIntervals().get(i).intValue());
+        }
     }
 
 
@@ -170,4 +534,96 @@ public class MerlinMbusParserTest extends TestCase {
 
     }
 
+    @Test
+    public void testRegisterParserDaily(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(DAILY_FRAME_ENCRYPTED2);
+
+        RegisterFactory registerFactory = new RegisterFactory(parser.getTelegram(), inboundContext);
+
+        CollectedRegisterList registers = registerFactory.extractRegisters();
+
+        assertEquals(5, registers.getCollectedRegisters().size());
+
+        assertEquals(48980, registers.getCollectedRegisters().get(0).getCollectedQuantity().intValue());
+    }
+
+    @Test
+    public void testRegisterParserWeekly(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(WEEKLY_FRAME_ENCRYPTED);
+
+        RegisterFactory registerFactory = new RegisterFactory(parser.getTelegram(), inboundContext);
+
+        CollectedRegisterList registers = registerFactory.extractRegisters();
+
+        assertEquals(1, registers.getCollectedRegisters().size());
+
+        assertEquals(48980, registers.getCollectedRegisters().get(0).getCollectedQuantity().intValue());
+    }
+
+
+    @Test
+    public void testRegisterParserNTR(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(NRT_FRAME_ENCRYPTED);
+
+        RegisterFactory registerFactory = new RegisterFactory(parser.getTelegram(), inboundContext);
+
+        CollectedRegisterList registers = registerFactory.extractRegisters();
+
+        assertEquals(3, registers.getCollectedRegisters().size());
+
+        assertEquals(18, registers.getCollectedRegisters().get(0).getCollectedQuantity().intValue());
+    }
+
+    @Test
+    public void testLoadProfileParser(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(DAILY_FRAME_ENCRYPTED2);
+
+        HourlyProfileFactory factory = new HourlyProfileFactory(parser.getTelegram(), inboundContext);
+
+        for (int i=0; i<12; i++){
+            if (i != 4) {
+                assertFalse(factory.appliesFor(parser.getTelegram().getBody().getBodyPayload().getRecords().get(i)));
+            } else {
+                assertTrue(factory.appliesFor(parser.getTelegram().getBody().getBodyPayload().getRecords().get(4)));
+            }
+        }
+
+        TelegramVariableDataRecord indexRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(3);
+        TelegramVariableDataRecord hourlyRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(4);
+
+        factory.extractProfileMetaData(hourlyRecord);
+
+        assertTrue(factory.appliesAsIndexRecord(indexRecord));
+
+        factory.extractLoadProfile(hourlyRecord, indexRecord);
+
+        long startIndex = factory.getStartIndex();
+
+        assertEquals(48980, startIndex);
+
+        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+
+        assertEquals(24, lp.getCollectedIntervalData().size());
+    }
+
+    @Test
+    public void testMidnight(){
+        Instant random = Instant.ofEpochSecond(1663854120);
+
+        Instant midnight = AbstractMerlinFactory.toMidnight(random);
+
+        assertEquals("2022-09-22T00:00:00Z", midnight.toString());
+    }
 }

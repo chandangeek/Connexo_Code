@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 public class TelegramDataVariableField extends TelegramDataField{
@@ -124,27 +125,46 @@ public class TelegramDataVariableField extends TelegramDataField{
 
         StringBuilder parsedValues = new StringBuilder();
 
+        this.parsedIntervals = new HashMap<>();
+
         parsedValues.append("--- profile ---").append("\n");
         parsedValues.append("\t * spacing control: ").append(spacingControl).append(" = ").append(String.format("%02x", spacingControl)).append("\n");
         parsedValues.append("\t * spacing value: ").append(spacingValue).append(" = ").append(String.format("%02x", spacingValue)).append("\n");
 
-        int size = 3;
+        int size = 3; // weekly
+        if (spacingControl == 0xe2 || spacingControl == 0xd2) { // hourly and nightline - TODO check what's the rule here
+            size = 2;
+        }
+
         int start = 0;
         int id = 0;
 
         while (start + size < payload.size()){
-            List<String> part = payload.subList(start, start + 3);
+            List<String> part = payload.subList(start, start + size);
             Collections.reverse(part);
 
-            int b1 = Integer.parseInt(part.get(0), 16);
-            int b2 = Integer.parseInt(part.get(1), 16);
-            int b3 = Integer.parseInt(part.get(2), 16);
+            int value;
 
-            // force to 4 bytes to let Java handle the sign
-            int value = (b1 * 0x10000 + b2 * 0x100 + b3) * 0x100;
-            // back to the real value, but now it's signed
-            value = value / 0x100;
+            if (size == 3 ) {
+                int b1 = Integer.parseInt(part.get(0), 16);
+                int b2 = Integer.parseInt(part.get(1), 16);
+                int b3 = Integer.parseInt(part.get(2), 16);
 
+                // force to 4 bytes to let Java handle the sign
+                value = (b1 * 0x10000 + b2 * 0x100 + b3) * 0x100;
+                // back to the real value, but now it's signed
+                value = value / 0x100;
+            } else {
+                int b1 = Integer.parseInt(part.get(0), 16);
+                int b2 = Integer.parseInt(part.get(1), 16);
+
+                // force to 4 bytes to let Java handle the sign
+                value = (b1 * 0x100 + b2) * 0x10000;
+                // back to the real value, but now it's signed
+                value = value / 0x10000;
+            }
+
+            this.parsedIntervals.put(id, (long) value);
             String parsedValue = "\t#" + id + "> " + value;
 
             parsedValues.append(parsedValue).append("\n");

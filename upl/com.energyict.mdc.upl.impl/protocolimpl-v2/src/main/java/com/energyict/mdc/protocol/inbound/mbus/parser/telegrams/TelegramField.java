@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class TelegramField {
@@ -13,6 +14,7 @@ public class TelegramField {
     protected List<String> fieldParts;
     protected String parsedValue;
     protected Instant timeValue;
+    protected Map<Integer, Long> parsedIntervals;
 
     public TelegramField() {
         this.fieldParts = new ArrayList<String>();
@@ -63,5 +65,9 @@ public class TelegramField {
 
     public Optional<Instant> getTimeValue() {
         return Optional.ofNullable(timeValue);
+    }
+
+    public Map<Integer, Long> getParsedIntervals() {
+        return parsedIntervals;
     }
 }
