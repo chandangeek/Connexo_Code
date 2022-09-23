@@ -5,6 +5,7 @@
 package com.energyict.mdc.rest.impl.comserver;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
@@ -39,18 +40,21 @@ public class ComPortInfoFactory {
 
     public InboundComPortInfo asInboundInfo(ComPort comPort) {
         if (ComPortType.TCP.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo)setLocalisedValue(new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort));
+            return (InboundComPortInfo) setLocalisedValue(new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort));
         }
         if (ComPortType.SERIAL.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo)setLocalisedValue(new ModemInboundComPortInfo((ModemBasedInboundComPort) comPort));
+            return (InboundComPortInfo) setLocalisedValue(new ModemInboundComPortInfo((ModemBasedInboundComPort) comPort));
         }
         if (ComPortType.UDP.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo)setLocalisedValue(new UdpInboundComPortInfo((UDPBasedInboundComPort) comPort));
+            return (InboundComPortInfo) setLocalisedValue(new UdpInboundComPortInfo((UDPBasedInboundComPort) comPort));
+        }
+        if (ComPortType.COAP.equals(comPort.getComPortType())) {
+            return (InboundComPortInfo) setLocalisedValue(new CoapInboundComPortInfo((CoapBasedInboundComPort) comPort));
         }
         if (ComPortType.SERVLET.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo)setLocalisedValue(new ServletInboundComPortInfo((ServletBasedInboundComPort) comPort));
+            return (InboundComPortInfo) setLocalisedValue(new ServletInboundComPortInfo((ServletBasedInboundComPort) comPort));
         }
-        throw new IllegalArgumentException("Unsupported InboundComPort type "+comPort.getClass().getSimpleName());
+        throw new IllegalArgumentException("Unsupported InboundComPort type " + comPort.getClass().getSimpleName());
     }
 
     public OutboundComPortInfo asOutboundInfo(ComPort comPort, EngineConfigurationService engineConfigurationService) {

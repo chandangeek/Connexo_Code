@@ -173,6 +173,10 @@ Ext.define('Mdc.model.ComServerComPort', {
             type: 'string'
         },
         {
+            name: 'useDtls',
+            type: 'boolean'
+        },
+        {
             name: 'useHttps',
             type: 'boolean'
         },

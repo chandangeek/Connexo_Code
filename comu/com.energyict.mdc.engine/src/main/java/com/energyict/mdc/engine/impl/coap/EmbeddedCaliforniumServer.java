@@ -69,6 +69,9 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         UdpConfig.register();
 
         coapServer = new CoapServer();
+        BasedCoapResource comResource = new BasedCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+        coapServer.add(comResource);
+
         int port = comPort.getPortNumber();
         Configuration config = Configuration.getStandard();
         for (InetAddress addr : NetworkInterfacesUtil.getNetworkInterfaces()) {
@@ -80,9 +83,6 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         }
 
         this.shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
-
-        BasedCoapResource comResource = new BasedCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
-        coapServer.add(comResource);
     }
 
     /**

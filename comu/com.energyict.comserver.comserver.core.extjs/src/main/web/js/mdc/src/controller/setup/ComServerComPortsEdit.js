@@ -21,6 +21,7 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         'Mdc.view.setup.comservercomports.TCPForm',
         'Mdc.view.setup.comservercomports.UDPForm',
         'Mdc.view.setup.comservercomports.SerialForm',
+        'Mdc.view.setup.comservercomports.CoapForm',
         'Mdc.view.setup.comservercomports.ServletForm',
         'Mdc.view.setup.comservercomports.ComPortPoolsGrid',
         'Mdc.view.setup.comservercomports.AddComPortPool'
@@ -93,6 +94,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             },
             '#comPortEdit #addEditButton': {
                 click: this.addClicked
+            },
+            '#comPortEdit checkbox[name=useDtls]': {
+                change: this.enablePassFields
             },
             '#comPortEdit checkbox[name=useHttps]': {
                 change: this.enablePassFields
@@ -304,6 +308,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             }
             if (values.globalModemInitStrings) {
                 globalModemInitStrings = me.parseGlobalModemStringToArray(values.globalModemInitStrings);
+            }
+            if (!values.useDtls) {
+                record.set('useDtls', false);
             }
             if (!values.useHttps) {
                 record.set('useHttps', false);
@@ -589,7 +596,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
         me.getAddComPortForm().setTitle(Uni.I18n.translate('comServerComPorts.addOutboundPort', 'MDC', 'Add outbound communication port'));
         me.getStore('Mdc.store.ComPortTypes').load({
             callback: function () {
-                var index = this.find('id', 'TYPE_SERVLET');
+                let index = this.find('id', 'TYPE_COAP');
+                index > 0 ? this.removeAt(index, 1) : null;
+                index = this.find('id', 'TYPE_SERVLET');
                 index > 0 ? this.removeAt(index, 1) : null;
                 widget.down('#comPortTypeSelect').setValue(me.portType);
             }

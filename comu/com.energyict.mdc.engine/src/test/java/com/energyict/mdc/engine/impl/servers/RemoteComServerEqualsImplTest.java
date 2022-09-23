@@ -24,7 +24,7 @@ public class RemoteComServerEqualsImplTest extends AbstractComServerEqualsContra
     }
 
     private RemoteComServer newRemoteComServerImpl(String name) {
-        final RemoteComServer remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        final RemoteComServer remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         remoteComServer.setName(name);
         return remoteComServer;
     }

@@ -32,6 +32,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.streams.DecoratedStream;
 import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComPortPoolMember;
@@ -187,6 +188,7 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
                 bind(NlsService.class).toInstance(nlsService);
                 bind(EngineConfigurationService.class).toInstance(EngineConfigurationServiceImpl.this);
                 bind(ServletBasedInboundComPort.class).to(ServletBasedInboundComPortImpl.class);
+                bind(CoapBasedInboundComPort.class).to(CoapBasedInboundComPortImpl.class);
                 bind(ModemBasedInboundComPort.class).to(ModemBasedInboundComPortImpl.class);
                 bind(TCPBasedInboundComPort.class).to(TCPBasedInboundComPortImpl.class);
                 bind(UDPBasedInboundComPort.class).to(UDPBasedInboundComPortImpl.class);

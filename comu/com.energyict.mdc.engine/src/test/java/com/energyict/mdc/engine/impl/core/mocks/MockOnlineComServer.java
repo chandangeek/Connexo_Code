@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.core.mocks;
 
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
@@ -429,6 +430,11 @@ public class MockOnlineComServer implements Cloneable, OnlineComServer {
 
     @Override
     public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
+        return null;
+    }
+
+    @Override
+    public CoapBasedInboundComPort.CoapBasedInboundComPortBuilder newCoapBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
         return null;
     }
 

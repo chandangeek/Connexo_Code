@@ -31,7 +31,7 @@ public class BasedCoapResource extends CoapResource {
     private ComServerDAO comServerDAO;
 
     public BasedCoapResource(CoapBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
-        super(comPort.getName());
+        super(comPort.getContextPath());
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.serviceProvider = serviceProvider;

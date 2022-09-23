@@ -54,6 +54,10 @@ public interface CoapBasedInboundComPort extends UDPInboundComPort {
 
     public void setTrustStoreSpecsPassword(String trustStoreSpecsPassword);
 
+    public String getContextPath();
+
+    public void setContextPath(String contextPath);
+
     interface CoapBasedInboundComPortBuilder extends UDPInboundComPortBuilder<CoapBasedInboundComPort.CoapBasedInboundComPortBuilder, CoapBasedInboundComPort> {
         public CoapBasedInboundComPortBuilder dtls(boolean dtls);
 

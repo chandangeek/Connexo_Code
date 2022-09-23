@@ -34,9 +34,9 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
     private String trustStoreSpecsFilePath;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
     private String trustStoreSpecsPassword;
-
     @NotEmpty(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY + "}")
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
+    private String contextPath;
 
     @Inject
     protected CoapBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
@@ -107,6 +107,18 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
     }
 
     @Override
+    @XmlElement
+    public String getContextPath() {
+        return contextPath;
+    }
+
+    @Override
+    public void setContextPath(String contextPath) {
+        this.contextPath = contextPath;
+    }
+
+
+    @Override
     protected void copyFrom(ComPort source) {
         super.copyFrom(source);
         CoapBasedInboundComPort mySource = (CoapBasedInboundComPort) source;
@@ -115,6 +127,7 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
         this.setKeyStoreSpecsPassword(mySource.getKeyStoreSpecsPassword());
         this.setTrustStoreSpecsFilePath(mySource.getTrustStoreSpecsFilePath());
         this.setTrustStoreSpecsPassword(mySource.getTrustStoreSpecsPassword());
+        this.setContextPath(contextPath);
     }
 
     static class CoapBasedInboundComPortBuilderImpl

@@ -200,6 +200,14 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         return comChannel;
     }
 
+    public CoapBasedExchange getCoapBasedExchange() {
+        return coapBasedExchange;
+    }
+
+    public void setCoapBasedExchange(CoapBasedExchange coapBasedExchange) {
+        this.coapBasedExchange = coapBasedExchange;
+    }
+
     @Override
     public HttpServletRequest getServletRequest() {
         return servletRequest;

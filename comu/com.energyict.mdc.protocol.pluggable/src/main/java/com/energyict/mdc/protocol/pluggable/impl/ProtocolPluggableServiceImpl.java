@@ -19,11 +19,13 @@ import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
+import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
 import com.elster.jupiter.upgrade.UpgradeService;
+import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.NotFoundException;
@@ -100,6 +102,7 @@ import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedConfigurationInformation;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
@@ -107,7 +110,6 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
-import com.energyict.mdc.upl.meterdata.CollectedDeviceCache;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
@@ -149,8 +151,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static com.elster.jupiter.orm.Version.version;
 
 /**
  * Provides an interface for the {@link ProtocolPluggableService} interface.
@@ -977,8 +977,14 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         //TODO need a proper implementation of the DataVault!
         this.dataModel.register(this.getModule());
 
-        upgradeService.register(InstallIdentifier.identifier("MultiSense", ProtocolPluggableService.COMPONENTNAME), dataModel, Installer.class, ImmutableMap.of(version(10, 3), UpgraderV10_3.class));
-
+        upgradeService.register(
+                InstallIdentifier.identifier("MultiSense", ProtocolPluggableService.COMPONENTNAME),
+                dataModel,
+                Installer.class,
+                ImmutableMap.<Version, Class<? extends Upgrader>>builder()
+                        .put(Version.version(10, 3), UpgraderV10_3.class)
+                        .put(Version.version(10, 9, 19), UpgraderV10_9_19.class)
+                        .build());
         this.installed = true;
         this.registerAllPluggableClasses();
     }

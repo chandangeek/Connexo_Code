@@ -11,7 +11,6 @@ import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
 import com.energyict.mdc.common.comserver.UDPInboundComPort;
-import com.energyict.mdc.ports.ComPortType;
 
 import javax.inject.Inject;
 
@@ -34,7 +33,6 @@ public class UDPBasedInboundComPortImpl extends UDPInboundComPortImpl implements
 
         protected UDPBasedInboundComPortBuilderImpl(UDPBasedInboundComPort udpBasedInboundComPort, String name, int numberOfSimultaneousConnections, int portNumber) {
             super(UDPBasedInboundComPortBuilder.class, udpBasedInboundComPort, name, numberOfSimultaneousConnections, portNumber);
-            comPort.setComPortType(ComPortType.TCP);
         }
     }
 }
