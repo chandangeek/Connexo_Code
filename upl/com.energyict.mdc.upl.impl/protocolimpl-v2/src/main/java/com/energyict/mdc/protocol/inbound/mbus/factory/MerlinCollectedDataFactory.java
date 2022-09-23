@@ -8,9 +8,15 @@ import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import sun.util.calendar.ZoneInfo;
 
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.TimeZone;
 
 public class MerlinCollectedDataFactory {
     private final Telegram telegram;
@@ -21,6 +27,8 @@ public class MerlinCollectedDataFactory {
     private List<CollectedData> collectedDataList;
     private FrameType frameType;
     private CollectedLoadProfile dailyLoadProfile;
+    private ZoneId timeZone;
+    public static final String PROPERTY_DEVICE_TIME_ZONE = "deviceTimeZone";
 
     public MerlinCollectedDataFactory(Telegram telegram, InboundContext inboundContext) {
         this.telegram = telegram;
@@ -40,6 +48,8 @@ public class MerlinCollectedDataFactory {
         }
 
         this.frameType = FrameType.of(telegram);
+
+        lookupDeviceProperties();
 
         if (FrameType.UNKNOWN.equals(frameType)) {
             inboundContext.getLogger().logW("Could not detect the frame type!");
@@ -80,6 +90,21 @@ public class MerlinCollectedDataFactory {
         }
 
         return collectedDataList;
+    }
+
+    protected void lookupDeviceProperties() {
+        TypedProperties protocolProperties = inboundContext.getInboundDiscoveryContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
+
+        if (protocolProperties.hasLocalValueFor(PROPERTY_DEVICE_TIME_ZONE)){
+            String configuredTimeZoneId = protocolProperties.getTypedProperty(PROPERTY_DEVICE_TIME_ZONE, TimeZone.getDefault()).getID();
+            timeZone = ZoneId.of(configuredTimeZoneId);
+            inboundContext.getLogger().log("Using configured time zone of the device: " + timeZone);
+        } else {
+            timeZone = ZoneId.systemDefault();
+            inboundContext.getLogger().log("Using system default time zone : " + timeZone);
+        }
+
+        inboundContext.setTimeZone(timeZone);
     }
 
     private void extractRegisters() {

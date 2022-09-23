@@ -39,7 +39,6 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory{
     private long calculationIndex;
     private Instant calculationTimeStamp;
 
-    //private CollectedLoadProfileConfiguration collectedLoadProfileConfiguration;
     private CollectedLoadProfile loadProfile;
     private ArrayList<ChannelInfo> loadProfileChannels;
     private List<IntervalData> collectedIntervalData;
@@ -154,11 +153,6 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory{
      * Prepare all the shitty core collected details ...
      */
     private void setupCollectedProfile(TelegramVariableDataRecord profileRecord) {
-       // this.collectedLoadProfileConfiguration = getCollectedDataFactory().createCollectedLoadProfileConfiguration(getObisCode(), getTelegram().getSerialNr());
-
-       // collectedLoadProfileConfiguration.setProfileInterval((int) getLoadProfileInterval().getSeconds());
-       // collectedLoadProfileConfiguration.setSupportedByMeter(true);
-
         // create a single channel
         int id = 0;
         String name = getObisCode().toString();
@@ -171,8 +165,6 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory{
         ChannelInfo ch1 = new ChannelInfo(id, name, unit, meterIdentification, cumulative, readingTypeMRID);
         this.loadProfileChannels = new ArrayList<>();
         loadProfileChannels.add(ch1);
-
-        //collectedLoadProfileConfiguration.setChannelInfos(loadProfileChannels);
 
         LoadProfileIdentifier loadProfileIdentifier = new LoadProfileIdentifierByObisCodeAndDevice(getObisCode(), getDeviceIdentifier());
 
@@ -190,7 +182,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory{
     }
 
     private ZoneId getTimeZone() {
-        return ZoneId.systemDefault();
+        return getInboundContext().getTimeZone();
     }
 
 

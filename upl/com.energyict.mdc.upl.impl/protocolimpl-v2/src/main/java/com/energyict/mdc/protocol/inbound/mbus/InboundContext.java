@@ -3,10 +3,13 @@ package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 
+import java.time.ZoneId;
+
 public class InboundContext {
 
     private MerlinLogger logger;
     private InboundDiscoveryContext inboundDiscoveryContext;
+    private ZoneId timeZone;
 
     public InboundContext(MerlinLogger logger, InboundDiscoveryContext context) {
         setLogger(logger);
@@ -27,5 +30,13 @@ public class InboundContext {
 
     public MerlinLogger getLogger() {
         return this.logger;
+    }
+
+    public void setTimeZone(ZoneId timeZone) {
+        this.timeZone = timeZone;
+    }
+
+    public ZoneId getTimeZone() {
+        return timeZone;
     }
 }
