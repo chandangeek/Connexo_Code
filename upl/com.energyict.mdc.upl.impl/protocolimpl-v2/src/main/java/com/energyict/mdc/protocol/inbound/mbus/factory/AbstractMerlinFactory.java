@@ -64,8 +64,8 @@ public abstract class AbstractMerlinFactory {
     }
 
 
-    public static Instant toMidnight(final Instant randomInstant) {
-        return randomInstant.atZone(ZoneId.of("UTC"))
+    public static Instant toMidnight(final Instant randomInstant, ZoneId timeZone) {
+        return randomInstant.atZone(timeZone)
                 .withNano(0)
                 .withSecond(0)
                 .withMinute(0)

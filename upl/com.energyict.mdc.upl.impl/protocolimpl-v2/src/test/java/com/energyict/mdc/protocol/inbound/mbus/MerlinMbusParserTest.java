@@ -2,15 +2,16 @@ package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.DailyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.FrameType;
+import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.HourlyProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
-import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.issue.Issue;
-import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -36,13 +37,13 @@ import org.mockito.runners.MockitoJUnitRunner;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
 import static org.mockito.Matchers.anyObject;
-import static org.mockito.Mockito.calls;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -590,7 +591,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         parser.parse(DAILY_FRAME_ENCRYPTED2);
 
-        HourlyProfileFactory factory = new HourlyProfileFactory(parser.getTelegram(), inboundContext);
+        AbstractProfileFactory factory = new HourlyProfileFactory(parser.getTelegram(), inboundContext);
 
         for (int i=0; i<12; i++){
             if (i != 4) {
@@ -622,8 +623,138 @@ public class MerlinMbusParserTest extends TestCase {
     public void testMidnight(){
         Instant random = Instant.ofEpochSecond(1663854120);
 
-        Instant midnight = AbstractMerlinFactory.toMidnight(random);
-
+        Instant midnight = AbstractMerlinFactory.toMidnight(random, ZoneId.of("UTC"));
         assertEquals("2022-09-22T00:00:00Z", midnight.toString());
+
+        Instant midnightEET = AbstractMerlinFactory.toMidnight(random, ZoneId.of("Europe/Athens"));
+        assertEquals("2022-09-21T21:00:00Z", midnightEET.toString());
+
+        Instant midnightGMT = AbstractMerlinFactory.toMidnight(random, ZoneId.of("Europe/Madrid"));
+        assertEquals("2022-09-21T22:00:00Z", midnightGMT.toString());
+
+        Instant midnightCET = AbstractMerlinFactory.toMidnight(random, ZoneId.of("Europe/Brussels"));
+        assertEquals("2022-09-21T22:00:00Z", midnightCET.toString());
+
+    }
+
+    private String pad(String s, int length) {
+        while (s.length() < length) s = s + ' ';
+        return s;
+    }
+
+    @Test
+    public void dumpPackets(){
+        dump(DAILY_FRAME_ENCRYPTED1, "DAILY FRAME #1");
+        dump(DAILY_FRAME_ENCRYPTED2, "DAILY FRAME #1");
+        dump(WEEKLY_FRAME_ENCRYPTED, "WEEKLY FRAME");
+        dump(NRT_FRAME_ENCRYPTED, "NRT FRAME");
+    }
+
+    private void dump(byte[] frame, String name) {
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(frame);
+
+        System.out.println("***** " + name + " *****");
+
+        System.out.println("#\tDIF\t DIF-FunctionType            \tDIF-Encoding                   \tVIF\t VIF-Type           \tVIF-Unit\tSCB\tSpacing");
+
+
+        for (int i=0; i < parser.getTelegram().getBody().getBodyPayload().getRecords().size(); i++) {
+            TelegramVariableDataRecord r = parser.getTelegram().getBody().getBodyPayload().getRecords().get(i);
+
+            System.out.print(i + "\t");
+            System.out.print(pad(r.getDif().getFieldPartsAsString(), 3));
+            System.out.print("\t");
+            System.out.print(pad(r.getDif().getFunctionType().toString(),30));
+            System.out.print("\t");
+            System.out.print(pad(r.getDif().getDataFieldEncoding().toString(), 33));
+            if (r.getVif() != null ) {
+                System.out.print(pad(r.getVif().getFieldPartsAsString(), 2));
+                System.out.print("\t");
+                if (r.getVif().getType() != null) {
+                    System.out.print(pad(r.getVif().getType().toString(), 20));
+                    System.out.print("\t");
+                    System.out.print(pad(r.getVif().getmUnit().toString(), 10));
+                    System.out.print("\t");
+                    if (r.getDataField().getFieldParts().size() == 3) {
+                        System.out.print(r.getDataField().getFieldParts().get(1).toString());
+                        System.out.print("\t");
+                        System.out.print(r.getDataField().getFieldParts().get(2).toString());
+                    }
+
+                } else {
+                    System.out.print(pad("-", 3));
+                }
+            } else {
+                System.out.print(pad("-", 3));
+            }
+
+            System.out.println();
+        }
+
+        System.out.println("\n\n");
+    }
+
+
+    @Test
+    public void testFrameTypeDetection(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(DAILY_FRAME_ENCRYPTED1);
+        assertEquals(FrameType.DAILY_FRAME, FrameType.of(parser.getTelegram()));
+
+        parser.parse(DAILY_FRAME_ENCRYPTED2);
+        assertEquals(FrameType.DAILY_FRAME, FrameType.of(parser.getTelegram()));
+
+        parser.parse(WEEKLY_FRAME_ENCRYPTED);
+        assertEquals(FrameType.WEEKLY_FRAME, FrameType.of(parser.getTelegram()));
+
+        parser.parse(NRT_FRAME_ENCRYPTED);
+        assertEquals(FrameType.NRT_FRAME, FrameType.of(parser.getTelegram()));
+
+
+        assertEquals(FrameType.UNKNOWN, FrameType.of(null));
+
+        assertEquals("DAILY_FRAME", FrameType.DAILY_FRAME.toString());
+    }
+
+
+
+    @Test
+    public void testLoadProfileParserDailyLP(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(WEEKLY_FRAME_ENCRYPTED);
+
+        AbstractProfileFactory factory = new DailyProfileFactory(parser.getTelegram(), inboundContext);
+
+        for (int i=0; i<5; i++){
+            if (i != 4) {
+                assertFalse(factory.appliesFor(parser.getTelegram().getBody().getBodyPayload().getRecords().get(i)));
+            } else {
+                assertTrue(factory.appliesFor(parser.getTelegram().getBody().getBodyPayload().getRecords().get(4)));
+            }
+        }
+
+        TelegramVariableDataRecord indexRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(3);
+        TelegramVariableDataRecord hourlyRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(4);
+
+        factory.extractProfileMetaData(hourlyRecord);
+
+        assertTrue(factory.appliesAsIndexRecord(indexRecord));
+
+        factory.extractLoadProfile(hourlyRecord, indexRecord);
+
+        long startIndex = factory.getStartIndex();
+
+        assertEquals(48980, startIndex);
+
+        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+
+        assertEquals(14, lp.getCollectedIntervalData().size());
     }
 }
