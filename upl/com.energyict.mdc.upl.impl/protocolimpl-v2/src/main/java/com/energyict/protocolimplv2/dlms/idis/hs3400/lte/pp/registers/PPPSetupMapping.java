@@ -43,7 +43,7 @@ public class PPPSetupMapping extends LteMapping {
 
     @Override
     public int getDLMSClassId() {
-        if(getObisCode().equalsIgnoreBAndEChannel(PPPSetup.getDefaultObisCode()) ){
+        if (getObisCode().equalsIgnoreBAndEChannel(PPPSetup.getDefaultObisCode())) {
             return DLMSClassId.PPP_SETUP.getClassId();
         } else {
             return -1;

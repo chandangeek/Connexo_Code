@@ -12,7 +12,7 @@ import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.HS3400LtePP;
 
 import java.io.IOException;
 
-public class GPRSModemSetupMapping extends LteMapping{
+public class GPRSModemSetupMapping extends LteMapping {
 
     private GPRSModemSetupAttributeMapping gprsModemSetupAttributeMapping;
 
@@ -47,7 +47,7 @@ public class GPRSModemSetupMapping extends LteMapping{
 
     @Override
     public int getDLMSClassId() {
-        if(getObisCode().equalsIgnoreBAndEChannel(GPRSModemSetup.getDefaultObisCode()) ){
+        if (getObisCode().equalsIgnoreBAndEChannel(GPRSModemSetup.getDefaultObisCode())) {
             return DLMSClassId.GPRS_SETUP.getClassId();
         } else {
             return -1;

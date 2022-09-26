@@ -47,9 +47,4 @@ public class HS3400Messaging extends HS3300Messaging {
         }
         return messageExecutor;
     }
-
-    @Override
-    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return super.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
-    }
 }

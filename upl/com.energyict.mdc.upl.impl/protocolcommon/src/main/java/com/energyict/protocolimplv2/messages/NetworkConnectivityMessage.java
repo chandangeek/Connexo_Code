@@ -738,7 +738,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         @Override
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.usernamePPPAuth, DeviceMessageConstants.usernamePPPAuthDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.passwordPPPAuth, DeviceMessageConstants.passwordPPPAuthDefaultTranslation)
             );
         }

@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-public class HS3400RegisterFactory extends HS3300RegisterFactory implements DeviceRegisterSupport{
+public class HS3400RegisterFactory extends HS3300RegisterFactory implements DeviceRegisterSupport {
     private final HS3400LtePP hs3400LtePP;
     private HS3400LteRegisterMapper hs3400LteRegisterMapper;
 

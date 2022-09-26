@@ -41,12 +41,12 @@ public class HS3400MessageExecutor extends HS3300MessageExecutor {
             changePPPAuthenticationPAP(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PPP_AUTHENTICATION_PAP_TO_NULL)) {
             changePPPAuthenticationToNull(pendingMessage);
-        } else {    // Unsupported message
+        } else {
                 collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
                 collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
                 collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
-            }
-            return collectedMessage;
+        }
+        return collectedMessage;
     }
 
     private CollectedMessage changePPPAuthenticationToNull(OfflineDeviceMessage pendingMessage) throws IOException {
@@ -71,17 +71,14 @@ public class HS3400MessageExecutor extends HS3300MessageExecutor {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
-            collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
-            collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message to write " + GPRSModemSetup.getDefaultObisCode() + "!"));
+            collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message to write " + PPPSetup.getDefaultObisCode() + "!"));
         }
-
         return collectedMessage;
     }
 
     private CollectedMessage changePPPAuthenticationPAP(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
-        String userName = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.usernamePPPAuth);
+        String userName = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.usernameAttributeName);
         String password = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.passwordPPPAuth);
         PPPSetup pppSetup = getCosemObjectFactory().getPPPSetup();
 
@@ -103,11 +100,8 @@ public class HS3400MessageExecutor extends HS3300MessageExecutor {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setFailureInformation(ResultType.NotSupported, createUnsupportedWarning(pendingMessage));
-            collectedMessage.setDeviceProtocolInformation("Message currently not supported by the protocol");
-            collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message to write " + GPRSModemSetup.getDefaultObisCode() + "!"));
+            collectedMessage.setFailureInformation(ResultType.ConfigurationMisMatch, createMessageFailedIssue(pendingMessage, "Unable to execute the message to write " + PPPSetup.getDefaultObisCode() + "!"));
         }
-
         return collectedMessage;
     }
 

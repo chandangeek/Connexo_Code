@@ -83,7 +83,7 @@ public class PPPSetupMappingAttributeMapping extends RegisterMapping {
             int numberOfArrayEntries = abstractDataType.getArray().nrOfDataTypes();
             Array lcpOptions = abstractDataType.getArray();
 
-            for (int i = 0; i  < numberOfArrayEntries; i ++) {
+            for (int i = 0; i < numberOfArrayEntries; i++) {
                 if (lcpOptions.getDataType(i).isStructure()) {
                     Structure lcpOption = lcpOptions.getDataType(i).getStructure();
                     builder.append(" IPCP Type: " + lcpOption.getDataType(0).getUnsigned8().getValue());
