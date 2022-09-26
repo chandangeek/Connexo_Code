@@ -733,8 +733,22 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation)
             );
         }
-    }
-    ;
+    },
+    CHANGE_PPP_AUTHENTICATION_PAP(4085, "Change PPP Authentication PAP") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Arrays.asList(
+                    this.stringSpec(service, DeviceMessageConstants.usernamePPPAuth, DeviceMessageConstants.usernamePPPAuthDefaultTranslation),
+                    this.stringSpec(service, DeviceMessageConstants.passwordPPPAuth, DeviceMessageConstants.passwordPPPAuthDefaultTranslation)
+            );
+        }
+    },
+    CHANGE_PPP_AUTHENTICATION_PAP_TO_NULL(4086, "Reset PPP Authentication PAP") {
+        @Override
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+            return Collections.emptyList();
+        }
+    };
 
     private static BigDecimal[] getPushSetupNumbers() {
         int[] pushSetupNumbers = new int[] { 1, 2, 3, 4, 11, 12, 13, 14};
@@ -984,6 +998,28 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         public String getDescription() {
             return description;
         }
+    }
+
+    public enum AlgorithmId {
+
+        CHAP_with_MD5((short) 5),
+        SHA_1((short) 6),
+        MS_CHAP((short) 128),
+        MS_CHAP_2((short) 129);
+        private short value;
+
+        AlgorithmId(short value) {
+            this.value = value;
+        }
+
+        public static String[] valuesAsStringArray() {
+            return Arrays.stream(values()).map(Enum::name).toArray(String[]::new);
+        }
+
+        public short getValue() {
+            return this.value;
+        }
+
     }
 
     public enum RoutingEntryType {

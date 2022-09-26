@@ -204,6 +204,11 @@ public class PPPSetup extends AbstractCosemObject {
         this.pppAuthentication = new PPPAuthenticationType(pppAuthenticationType.getBEREncodedByteArray());
     }
 
+    public void writeLCPOptions(Array lcpOptions) throws IOException {
+        write(LCP_OPTIONS.getAttributeNumber(), lcpOptions.getBEREncodedByteArray());
+        this.lcpOptions = new LCPOptionsType(lcpOptions.getBEREncodedByteArray());
+    }
+
     public class PPPAuthenticationType {
 
         public static final int CHAP_MD5 = 0x05;    // default

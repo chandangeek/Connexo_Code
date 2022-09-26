@@ -32,7 +32,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-public class HS3400RegisterFactory extends HS3300RegisterFactory implements DeviceRegisterSupport {
+public class HS3400RegisterFactory extends HS3300RegisterFactory implements DeviceRegisterSupport{
     private final HS3400LtePP hs3400LtePP;
     private HS3400LteRegisterMapper hs3400LteRegisterMapper;
 
@@ -71,7 +71,7 @@ public class HS3400RegisterFactory extends HS3300RegisterFactory implements Devi
                 continue;
             }
 
-            LteMapping lteMapping = getHS3400LteRegisterMapper().getLteMapping(offlineRegister.getObisCode());
+            LteMapping lteMapping= getHS3400LteRegisterMapper().getLteMapping(offlineRegister.getObisCode());
             final ObisCode baseObisCode = lteMapping == null ? offlineRegister.getObisCode() : lteMapping.getBaseObisCode();
             final UniversalObject universalObject;
             try {
@@ -122,7 +122,6 @@ public class HS3400RegisterFactory extends HS3300RegisterFactory implements Devi
         protected void prepareReading(final List<OfflineRegister> offlineRegisters) {
 
             for (OfflineRegister register : offlineRegisters) {
-
                 LteMapping lteMapping = getHS3400LteRegisterMapper().getLteMapping(register.getObisCode());
                 final UniversalObject universalObject;
                 final ObisCode baseObisCode = lteMapping == null ? register.getObisCode() : lteMapping.getBaseObisCode();
@@ -142,24 +141,26 @@ public class HS3400RegisterFactory extends HS3300RegisterFactory implements Devi
 
     protected void prepareMappedRegister(OfflineRegister register, LteMapping lteMapping, HS3400LtePP hs3400LtePP)  {
         ComposedRegister composedRegister = new ComposedRegister();
-
-        // the default value attribute to be read-out
-        DLMSAttribute valueAttribute = new DLMSAttribute(lteMapping.getBaseObisCode(), lteMapping.getValueAttribute(hs3400LtePP), lteMapping.getDLMSClassId());
+        DLMSAttribute valueAttribute = new DLMSAttribute(lteMapping.getBaseObisCode(), register.getObisCode().getE() , lteMapping.getDLMSClassId());
         addAttributeToRead(valueAttribute);
         composedRegister.setRegisterValue(valueAttribute);
-
-
         addComposedRegister(register.getObisCode(), composedRegister);
     }
 
     private RegisterValue parseRegisterReading(UniversalObject universalObject, ComposedCosemObject composedCosemObject, OfflineRegister offlineRegister, ComposedRegister composedRegister, ObisCode baseObisCode) throws IOException {
 
         RegisterValue registerValue;
-
         if (universalObject.getClassID() == DLMSClassId.GPRS_SETUP.getClassId()) {
             final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
             if (attribute.isOctetString()) {
                 registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.getOctetString().stringValue());
+            } else {
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
+            }
+        } else if (universalObject.getClassID() == DLMSClassId.PPP_SETUP.getClassId()) {
+            final AbstractDataType attribute = composedCosemObject.getAttribute(composedRegister.getRegisterValueAttribute());
+            if (attribute.isStructure()) {
+                registerValue = new RegisterValue(offlineRegister.getObisCode(), attribute.getStructure().toString());
             } else {
                 registerValue = new RegisterValue(offlineRegister.getObisCode(), new Quantity(attribute.toBigDecimal(), Unit.get(BaseUnit.UNITLESS)));
             }
@@ -191,6 +192,11 @@ public class HS3400RegisterFactory extends HS3300RegisterFactory implements Devi
         final int classId = universalObject.getClassID();
 
         if (classId == DLMSClassId.GPRS_SETUP.getClassId()) {
+            DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DataAttributes.VALUE.getAttributeNumber(), classId);
+            composedRegister.setRegisterValue(valueAttribute);
+        }
+
+        if (classId == DLMSClassId.PPP_SETUP.getClassId()) {
             DLMSAttribute valueAttribute = new DLMSAttribute(register.getObisCode(), DataAttributes.VALUE.getAttributeNumber(), classId);
             composedRegister.setRegisterValue(valueAttribute);
         }
