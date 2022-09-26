@@ -28,8 +28,6 @@ public abstract class AbstractMerlinFactory {
         this.collectedDataFactory = inboundContext.getInboundDiscoveryContext().getCollectedDataFactory();
     }
 
-    //each implementation must get its own CIM code
-    public abstract String getReadingTypeMRID();
 
     // each implementation must return its own OBIS-CODE
     public abstract ObisCode getObisCode();

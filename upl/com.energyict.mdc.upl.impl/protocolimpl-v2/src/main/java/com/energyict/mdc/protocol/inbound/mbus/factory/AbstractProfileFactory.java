@@ -50,6 +50,9 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory{
 
     public abstract SpacingControlByte applicableSpacingControlByte();
 
+    //each implementation must get its own CIM code
+    public abstract String getReadingTypeMRID();
+
     private Duration getLoadProfileInterval() {
         return Duration.of(applicableSpacingControlByte().getTimeAmount(), applicableSpacingControlByte().getChronoUnit());
     }

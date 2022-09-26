@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.inbound.mbus;
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.DailyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.EventFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.FrameType;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.HourlyProfileFactory;
@@ -15,16 +16,19 @@ import com.energyict.mdc.upl.issue.Issue;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
+import com.energyict.protocol.MeterProtocolEvent;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.google.common.collect.Range;
 import junit.framework.TestCase;
@@ -397,6 +401,65 @@ public class MerlinMbusParserTest extends TestCase {
         };
         when(collectedDataFactory.createCollectedRegisterList(anyObject())).thenReturn(collectedRegistersList);
 
+
+        CollectedLogBook collectedLogBook = new CollectedLogBook() {
+            private List<MeterProtocolEvent> meterEvents;
+
+            @Override
+            public List<MeterProtocolEvent> getCollectedMeterEvents() {
+                return this.meterEvents;
+            }
+
+            @Override
+            public boolean isAwareOfPushedEvents() {
+                return false;
+            }
+
+            @Override
+            public LogBookIdentifier getLogBookIdentifier() {
+                return null;
+            }
+
+            @Override
+            public void setCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
+                this.meterEvents = meterEvents;
+            }
+
+            @Override
+            public void addCollectedMeterEvents(List<MeterProtocolEvent> meterEvents) {
+                if (this.meterEvents == null){
+                    this.meterEvents = new ArrayList<>();
+                }
+                this.meterEvents.addAll(meterEvents);
+            }
+
+            @Override
+            public ResultType getResultType() {
+                return null;
+            }
+
+            @Override
+            public List<Issue> getIssues() {
+                return null;
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, Issue issue) {
+
+            }
+
+            @Override
+            public void setFailureInformation(ResultType resultType, List<Issue> issues) {
+
+            }
+
+            @Override
+            public boolean isConfiguredIn(DataCollectionConfiguration comTask) {
+                return false;
+            }
+        };
+        when(collectedDataFactory.createCollectedLogBook(anyObject())).thenReturn(collectedLogBook);
+
         when(inboundDiscoveryContext.getCollectedDataFactory()).thenReturn(collectedDataFactory);
     }
 
@@ -756,5 +819,20 @@ public class MerlinMbusParserTest extends TestCase {
         CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
 
         assertEquals(14, lp.getCollectedIntervalData().size());
+    }
+
+    @Test
+    public void testStatusEvents(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(DAILY_FRAME_ENCRYPTED1);
+
+        EventFactory eventFactory = new EventFactory(parser.getTelegram(), inboundContext);
+
+        CollectedLogBook events = eventFactory.extractEventsFromStatus();
+
+        assertEquals(3, events.getCollectedMeterEvents().size());
+
     }
 }

@@ -6,16 +6,14 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import sun.util.calendar.ZoneInfo;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.TimeZone;
 
 public class MerlinCollectedDataFactory {
@@ -29,6 +27,7 @@ public class MerlinCollectedDataFactory {
     private CollectedLoadProfile dailyLoadProfile;
     private ZoneId timeZone;
     public static final String PROPERTY_DEVICE_TIME_ZONE = "deviceTimeZone";
+    private CollectedLogBook eventsStatus;
 
     public MerlinCollectedDataFactory(Telegram telegram, InboundContext inboundContext) {
         this.telegram = telegram;
@@ -77,6 +76,12 @@ public class MerlinCollectedDataFactory {
             inboundContext.getLogger().logE("Exception while parsing daily profile", ex);
         }
 
+        try {
+            extractStatusEvents();
+        } catch (Exception ex) {
+            inboundContext.getLogger().logE("Exception while parsing status events", ex);
+        }
+
         if (collectedRegisterList != null ) {
             collectedDataList.add(collectedRegisterList);
         }
@@ -89,7 +94,16 @@ public class MerlinCollectedDataFactory {
             collectedDataList.add(dailyLoadProfile);
         }
 
+        if (eventsStatus != null) {
+            collectedDataList.add(eventsStatus);
+        }
+
         return collectedDataList;
+    }
+
+    private void extractStatusEvents() {
+        EventFactory eventsFactory = new EventFactory(telegram, inboundContext);
+        this.eventsStatus = eventsFactory.extractEventsFromStatus();
     }
 
     protected void lookupDeviceProperties() {

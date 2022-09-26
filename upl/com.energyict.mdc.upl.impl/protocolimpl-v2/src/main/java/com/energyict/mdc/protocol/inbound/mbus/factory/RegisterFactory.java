@@ -24,11 +24,6 @@ public class RegisterFactory extends AbstractMerlinFactory {
     }
 
     @Override
-    public String getReadingTypeMRID() {
-        return null; // not applicable for registers
-    }
-
-    @Override
     public ObisCode getObisCode() {
         return null; // not applicable for registers
     }
