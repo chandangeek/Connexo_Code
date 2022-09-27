@@ -2,6 +2,11 @@ package com.energyict.mdc.protocol.inbound.mbus.factory;
 
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
+import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.events.StatusEventsFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.DailyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.HourlyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -102,8 +107,18 @@ public class MerlinCollectedDataFactory {
     }
 
     private void extractStatusEvents() {
-        EventFactory eventsFactory = new EventFactory(telegram, inboundContext);
+        StatusEventsFactory eventsFactory = new StatusEventsFactory(telegram, inboundContext);
         this.eventsStatus = eventsFactory.extractEventsFromStatus();
+    }
+
+    private void extractErrorFlags() {
+        ErrorFlagsEventsFactory errorFlagsEventsFactory = new ErrorFlagsEventsFactory(telegram, inboundContext);
+
+        TelegramVariableDataRecord eventsRecord = telegram.getBody().getBodyPayload().getRecords().get(8);
+
+        if (errorFlagsEventsFactory.appliesFor(eventsRecord)) {
+            errorFlagsEventsFactory.extractEventsFromErrorFlags(eventsRecord);
+        }
     }
 
     protected void lookupDeviceProperties() {

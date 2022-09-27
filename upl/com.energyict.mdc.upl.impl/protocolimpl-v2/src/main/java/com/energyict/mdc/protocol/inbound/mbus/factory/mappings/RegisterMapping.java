@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.inbound.mbus.factory;
+package com.energyict.mdc.protocol.inbound.mbus.factory.mappings;
 
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramEncoding;
@@ -9,7 +9,7 @@ import com.energyict.obis.ObisCode;
 import java.util.Arrays;
 import java.util.Optional;
 
-public enum DataMapping {
+public enum RegisterMapping {
     INSTANTANEOUS_VOLUME(TelegramFunctionType.INSTANTANEOUS_VALUE,
                             TelegramEncoding.ENCODING_INTEGER,
                             VIF_Unit_Multiplier_Masks.VOLUME,
@@ -30,7 +30,7 @@ public enum DataMapping {
     private final VIF_Unit_Multiplier_Masks unit;
     private final ObisCode obisCode;
 
-    DataMapping(TelegramFunctionType functionType, TelegramEncoding encoding, VIF_Unit_Multiplier_Masks unit, String obisCode) {
+    RegisterMapping(TelegramFunctionType functionType, TelegramEncoding encoding, VIF_Unit_Multiplier_Masks unit, String obisCode) {
         this.functionType = functionType;
         this.encoding = encoding;
         this.unit = unit;
@@ -53,7 +53,7 @@ public enum DataMapping {
         return obisCode;
     }
 
-    public static Optional<DataMapping> getFor(TelegramVariableDataRecord record) {
+    public static Optional<RegisterMapping> getFor(TelegramVariableDataRecord record) {
         if (record.getDif() == null || record.getVif() == null) {
             return Optional.empty();
         }

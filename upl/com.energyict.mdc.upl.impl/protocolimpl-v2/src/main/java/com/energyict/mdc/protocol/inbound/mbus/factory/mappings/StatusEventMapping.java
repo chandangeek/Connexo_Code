@@ -1,4 +1,4 @@
-package com.energyict.mdc.protocol.inbound.mbus.factory;
+package com.energyict.mdc.protocol.inbound.mbus.factory.mappings;
 
 import com.energyict.protocol.MeterEvent;
 

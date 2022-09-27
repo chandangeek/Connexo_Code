@@ -2,12 +2,13 @@ package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
-import com.energyict.mdc.protocol.inbound.mbus.factory.DailyProfileFactory;
-import com.energyict.mdc.protocol.inbound.mbus.factory.EventFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.DailyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.events.StatusEventsFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.FrameType;
-import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractProfileFactory;
-import com.energyict.mdc.protocol.inbound.mbus.factory.HourlyProfileFactory;
-import com.energyict.mdc.protocol.inbound.mbus.factory.RegisterFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.AbstractProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.HourlyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
@@ -831,11 +832,57 @@ public class MerlinMbusParserTest extends TestCase {
 
         parser.parse(DAILY_FRAME_ENCRYPTED1);
 
-        EventFactory eventFactory = new EventFactory(parser.getTelegram(), inboundContext);
+        StatusEventsFactory eventFactory = new StatusEventsFactory(parser.getTelegram(), inboundContext);
 
         CollectedLogBook events = eventFactory.extractEventsFromStatus();
 
         assertEquals(7, events.getCollectedMeterEvents().size());
+    }
 
+
+    @Test
+    public void testEventFlagsDaily1() {
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(DAILY_FRAME_ENCRYPTED1);
+
+        ErrorFlagsEventsFactory factory = new ErrorFlagsEventsFactory(parser.getTelegram(), inboundContext);
+
+        TelegramVariableDataRecord eventRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(8);
+        assertTrue(factory.appliesFor(eventRecord));
+
+        CollectedLogBook events = factory.extractEventsFromErrorFlags(eventRecord);
+
+        assertEquals(2, events.getCollectedMeterEvents().size());
+        assertEquals("Clock sync", events.getCollectedMeterEvents().get(0).getMessage());
+        assertEquals("Battery usage indicator above or critical", events.getCollectedMeterEvents().get(1).getMessage());
+
+        assertEquals("Fri Oct 22 12:57:56 EEST 2021", events.getCollectedMeterEvents().get(0).getTime().toString());
+    }
+
+    @Test
+    public void testEventFlagsDaily2() {
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parse(DAILY_FRAME_ENCRYPTED2);
+
+        ErrorFlagsEventsFactory factory = new ErrorFlagsEventsFactory(parser.getTelegram(), inboundContext);
+
+        TelegramVariableDataRecord eventRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(8);
+        assertTrue(factory.appliesFor(eventRecord));
+
+        CollectedLogBook events = factory.extractEventsFromErrorFlags(eventRecord);
+
+        assertEquals(4, events.getCollectedMeterEvents().size());
+        assertEquals("Stuck meter (no consumption)", events.getCollectedMeterEvents().get(0).getMessage());
+        assertEquals("Actual Removal", events.getCollectedMeterEvents().get(1).getMessage());
+        assertEquals("High temp", events.getCollectedMeterEvents().get(2).getMessage());
+        assertEquals("Battery usage indicator above or critical", events.getCollectedMeterEvents().get(3).getMessage());
+
+        assertEquals("Mon Aug 22 03:00:00 EEST 2022", events.getCollectedMeterEvents().get(0).getTime().toString());
     }
 }

@@ -1,9 +1,9 @@
-package com.energyict.mdc.protocol.inbound.mbus.factory;
+package com.energyict.mdc.protocol.inbound.mbus.factory.events;
 
-import com.energyict.cim.EndDeviceEventType;
-import com.energyict.cim.EndDeviceEventTypeMapping;
 import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
+import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.StatusEventMapping;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -11,22 +11,19 @@ import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocolEvent;
 
 import java.util.Arrays;
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-public class EventFactory extends AbstractMerlinFactory{
+public class StatusEventsFactory extends AbstractMerlinFactory {
 
-    private static final ObisCode STANDARD_LOGBOOK = ObisCode.fromString("0.0.99.98.0.255");
-
-    public EventFactory(Telegram telegram, InboundContext inboundContext) {
+    public StatusEventsFactory(Telegram telegram, InboundContext inboundContext) {
         super(telegram, inboundContext);
     }
 
     @Override
     public ObisCode getObisCode() {
-        return STANDARD_LOGBOOK;
+        return ObisCode.fromString(STANDARD_LOGBOOK);
     }
 
     public CollectedLogBook extractEventsFromStatus() {
@@ -62,15 +59,7 @@ public class EventFactory extends AbstractMerlinFactory{
         }
 
 
-        Date eventTime = getDateOnDeviceTimeZoneFromTelegramTime();
-        int eiCode = mapping.getMeterEvent();
-        int protocolCode = 0;
-        EndDeviceEventType eventType =  EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(eiCode);
-        String message = mapping.getMessage();
-        int meterEventLogId = 0;
-        int deviceEventId = 0;
-
-        return new MeterProtocolEvent(eventTime, eiCode, protocolCode, eventType, message, meterEventLogId, deviceEventId);
+        return createEvent(mapping.getMeterEvent(), mapping.getMessage());
     }
 
 }

@@ -1,6 +1,7 @@
-package com.energyict.mdc.protocol.inbound.mbus.factory;
+package com.energyict.mdc.protocol.inbound.mbus.factory.profiles;
 
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.AbstractProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.SpacingControlByte;
 import com.energyict.obis.ObisCode;
@@ -15,9 +16,7 @@ import com.energyict.obis.ObisCode;
  *                                  48 indexes if data logger interval is configured as half hourly,
  *                                  96 indexes if data logger interval is configured as every 15 minutes.
  */
-public class HourlyProfileFactory extends AbstractProfileFactory{
-    public static final String HOURLY_PROFILE_OBISCODE = "8.0.99.1.0.255";
-    public static final String HOURLY_PROFILE_CIM = "0.0.7.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0";    //[60-minutes] Bulk Water volume (m³)
+public class HourlyProfileFactory extends AbstractProfileFactory {
 
 
     public HourlyProfileFactory(Telegram telegram, InboundContext inboundContext) {

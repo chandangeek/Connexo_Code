@@ -1,8 +1,10 @@
-package com.energyict.mdc.protocol.inbound.mbus.factory;
+package com.energyict.mdc.protocol.inbound.mbus.factory.profiles;
 
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
+import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.UnitFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.SpacingControlByte;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
@@ -25,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 
-public abstract class AbstractProfileFactory extends AbstractMerlinFactory{
+public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
 
     private static final int DEFAULT_PROTOCOL_STATUS = 0;
     private static final int DEFAULT_EI_STATUS = 0;

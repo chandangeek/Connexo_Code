@@ -1,9 +1,12 @@
-package com.energyict.mdc.protocol.inbound.mbus.factory;
+package com.energyict.mdc.protocol.inbound.mbus.factory.registers;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
+import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.RegisterMapping;
+import com.energyict.mdc.protocol.inbound.mbus.factory.UnitFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
@@ -59,7 +62,7 @@ public class RegisterFactory extends AbstractMerlinFactory {
 
     private void extractRegister(TelegramVariableDataRecord record) {
         if (record.getVif() != null) {
-            Optional<DataMapping> dataMapping = DataMapping.getFor(record);
+            Optional<RegisterMapping> dataMapping = RegisterMapping.getFor(record);
             if (dataMapping != null && dataMapping.isPresent()) {
                 ObisCode obisCode = dataMapping.get().getObisCode();
                 RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier());
