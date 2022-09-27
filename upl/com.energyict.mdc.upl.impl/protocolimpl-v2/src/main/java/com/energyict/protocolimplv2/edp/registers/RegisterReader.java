@@ -63,7 +63,8 @@ public class RegisterReader implements DeviceRegisterSupport {
                             .getEventTime());
                     collectedRegisters.add(createCollectedRegister(registerValue, register));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    protocol.journal("Failed to read obis code " + obisCode + " value: " + e.getMessage());
+                    collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported, e.getMessage()));
                 }
             } else {
                 ObisCode readObisCode = ObisCode.fromByteArray(obisCode.getLN());
@@ -126,7 +127,7 @@ public class RegisterReader implements DeviceRegisterSupport {
                         } else if (valueAttr.isOctetString()) {
                             collectedRegisters.add(createCollectedRegister(register, null, valueAttr.getOctetString().stringValue(), null));
                         } else if (valueAttr.isArray() || valueAttr.isStructure()) {
-                            createFailureCollectedRegister(register, ResultType.NotSupported);      //Not yet supported in the protocol
+                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));      //Not yet supported in the protocol
                         } else {
                             collectedRegisters.add(createCollectedRegister(register, new Quantity(valueAttr.longValue(), Unit.getUndefined()), null, null));
                         }
@@ -140,14 +141,14 @@ public class RegisterReader implements DeviceRegisterSupport {
                         String name = getCosemObjectFactory().getActivityCalendar(readObisCode).readCalendarNameActive().stringValue();
                         collectedRegisters.add(createCollectedRegister(register, null, name, null));
                     } else {
-                        createFailureCollectedRegister(register, ResultType.NotSupported);         //Not yet supported in the protocol
+                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));         //Not yet supported in the protocol
                     }
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {
                         if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                            createFailureCollectedRegister(register, ResultType.NotSupported);    //Not in the device
+                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));    //Not in the device
                         } else {
-                            createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage());     //Unexpected response
+                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));     //Unexpected response
                         }
                     }
                 }
