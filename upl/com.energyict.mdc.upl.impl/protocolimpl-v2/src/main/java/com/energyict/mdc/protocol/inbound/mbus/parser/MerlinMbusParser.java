@@ -26,12 +26,19 @@ public class MerlinMbusParser {
         return this.telegram;
     }
 
-    public Telegram parse(byte[] buffer){
+    public Telegram parseHeader(byte[] buffer){
         telegram = new Telegram();
         String telegramString = ProtocolTools.getHexStringFromBytes(buffer, " ").trim();
         telegram.createTelegram(telegramString, false);
-                                      //4FA70B24465F814A667631773A397644
-        telegram.decryptTelegram("4F A7 0B 24 46 5F 81 4A 66 76 31 77 3A 39 76 44");
+
+        return telegram;
+    }
+
+    public Telegram parse(){
+        telegram.decryptTelegram(getInboundContext().getEncryptionKey());
+
+        // TODO -> check invalid decryption, check 2f 2f, throw errors, etc
+
         //telegram.decryptTelegram(null);
         telegram.parse();
         telegram.debugOutput();

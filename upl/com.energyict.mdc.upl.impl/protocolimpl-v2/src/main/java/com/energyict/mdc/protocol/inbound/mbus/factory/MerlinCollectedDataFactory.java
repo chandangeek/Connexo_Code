@@ -31,8 +31,7 @@ public class MerlinCollectedDataFactory {
     private FrameType frameType;
     private CollectedLoadProfile dailyLoadProfile;
     private ZoneId timeZone;
-    public static final String PROPERTY_DEVICE_TIME_ZONE = "deviceTimeZone";
-    private CollectedLogBook eventsStatus;
+   private CollectedLogBook eventsStatus;
 
     public MerlinCollectedDataFactory(Telegram telegram, InboundContext inboundContext) {
         this.telegram = telegram;
@@ -52,8 +51,6 @@ public class MerlinCollectedDataFactory {
         }
 
         this.frameType = FrameType.of(telegram);
-
-        lookupDeviceProperties();
 
         if (FrameType.UNKNOWN.equals(frameType)) {
             inboundContext.getLogger().logW("Could not detect the frame type!");
@@ -87,6 +84,19 @@ public class MerlinCollectedDataFactory {
             inboundContext.getLogger().logE("Exception while parsing status events", ex);
         }
 
+        try {
+            extractErrorFlags(FrameType.DAILY_FRAME, 8);
+        } catch (Exception ex) {
+            inboundContext.getLogger().logE("Exception while parsing error flags on daily frame", ex);
+        }
+
+        try {
+            extractErrorFlags(FrameType.NRT_FRAME, 6);
+        } catch (Exception ex) {
+            inboundContext.getLogger().logE("Exception while parsing error flags on NTR frame", ex);
+        }
+
+
         if (collectedRegisterList != null ) {
             collectedDataList.add(collectedRegisterList);
         }
@@ -111,29 +121,16 @@ public class MerlinCollectedDataFactory {
         this.eventsStatus = eventsFactory.extractEventsFromStatus();
     }
 
-    private void extractErrorFlags() {
-        ErrorFlagsEventsFactory errorFlagsEventsFactory = new ErrorFlagsEventsFactory(telegram, inboundContext);
+    private void extractErrorFlags(FrameType expectedFrameType, int recordNumber) {
+        if (expectedFrameType.equals(frameType)) {
+            ErrorFlagsEventsFactory errorFlagsEventsFactory = new ErrorFlagsEventsFactory(telegram, inboundContext);
 
-        TelegramVariableDataRecord eventsRecord = telegram.getBody().getBodyPayload().getRecords().get(8);
+            TelegramVariableDataRecord eventsRecord = telegram.getBody().getBodyPayload().getRecords().get(8);
 
-        if (errorFlagsEventsFactory.appliesFor(eventsRecord)) {
-            errorFlagsEventsFactory.extractEventsFromErrorFlags(eventsRecord);
+            if (errorFlagsEventsFactory.appliesFor(eventsRecord)) {
+                errorFlagsEventsFactory.extractEventsFromErrorFlags(eventsRecord);
+            }
         }
-    }
-
-    protected void lookupDeviceProperties() {
-        TypedProperties protocolProperties = inboundContext.getInboundDiscoveryContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-
-        if (protocolProperties.hasLocalValueFor(PROPERTY_DEVICE_TIME_ZONE)){
-            String configuredTimeZoneId = protocolProperties.getTypedProperty(PROPERTY_DEVICE_TIME_ZONE, TimeZone.getDefault()).getID();
-            timeZone = ZoneId.of(configuredTimeZoneId);
-            inboundContext.getLogger().log("Using configured time zone of the device: " + timeZone);
-        } else {
-            timeZone = ZoneId.systemDefault();
-            inboundContext.getLogger().log("Using system default time zone : " + timeZone);
-        }
-
-        inboundContext.setTimeZone(timeZone);
     }
 
     private void extractRegisters() {

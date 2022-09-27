@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMetaDataExtractor;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
@@ -34,6 +35,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
     private MerlinMbusParser parser; // delegate parsing to dedicated class for ease of testing
     private InboundContext inboundContext; // all overhead required
     private MerlinCollectedDataFactory factory;
+    private MerlinMetaDataExtractor metaDataFactory;
 
 
     @Override
@@ -145,14 +147,28 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         if (readBytes < BUFFER_SIZE){
             byte[] payload = new byte[readBytes];
             System.arraycopy(buffer, 0, payload, 0, readBytes);
-            Telegram telegram = getParser().parse(payload);
-            this.factory = new MerlinCollectedDataFactory(telegram, getInboundContext());
+
+            doParse(payload);
         } else {
             getLogger().log("WARN: buffer overflow!");
             //TODO: keep reading
         }
     }
 
+    private void doParse(byte[] payload) {
+        // 1. parse only the telegram header to get meta-data
+        Telegram encryptedTelegram = getParser().parseHeader(payload);
+
+        // 2. Get Connexo core properties for the meta extracted
+        this.metaDataFactory = new MerlinMetaDataExtractor(encryptedTelegram, getInboundContext());
+
+        // 3. Decrypt and parse
+        Telegram decodedTelegram = getParser().parse();
+
+        // 4. Collect the actual data
+        this.factory = new MerlinCollectedDataFactory(decodedTelegram, getInboundContext());
+
+    }
 
 
 }
