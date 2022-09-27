@@ -105,9 +105,16 @@ public class TelegramBodyPayload {
         rec.setVif(vif);
 
         List<VIFETelegramField> vifeList = new ArrayList<VIFETelegramField>();
-        if(vif.isExtensionBit()) {
-            // increase startPosition by 2 (DIF and VIF) and the number of DIFEs
-            vifeList = this.parseVIFEFields(startPosition + 2 + difeList.size());
+        if (vif.isProfile()) {
+            System.out.println("\t* Profile detected, getting single VIFE");
+            VIFETelegramField vife = this.processSingleVIFEField(this.bodyFieldDecrypted.getFieldParts().get(startPosition + 2 + difeList.size()));
+            //startPosition = startPosition + 1;
+            vifeList.add(vife);
+        } else {
+            if (vif.isExtensionBit()) {
+                // increase startPosition by 2 (DIF and VIF) and the number of DIFEs
+                vifeList = this.parseVIFEFields(startPosition + 2 + difeList.size());
+            }
         }
 
         rec.addVifes(vifeList);
@@ -125,7 +132,16 @@ public class TelegramBodyPayload {
         if(this.bodyFieldDecrypted.getFieldParts().size() >= upperBoundary) {
             if (dif.getDataFieldEncoding().equals(TelegramEncoding.ENCODING_VARIABLE_LENGTH)){
                 TelegramDataVariableField dataFieldVariable = new TelegramDataVariableField();
-                int variableLength = dataFieldVariable.getVariableLengthFieldLength(this.bodyFieldDecrypted.getFieldParts().get(lowerBoundary));
+
+                String lVar = this.bodyFieldDecrypted.getFieldParts().get(lowerBoundary);
+                int variableLength;
+                if (vif.isProfile()) {
+                    System.out.println("\tLVAR = " + lVar + " direct conversion for profiles");
+                    variableLength = Converter.hexToInt(lVar);
+                } else {
+                    variableLength = dataFieldVariable.getVariableLengthFieldLength(lVar);
+                    System.out.println("\tLVAR = " + lVar + " conversion to " + variableLength);
+                }
                 if (variableLength > 0) {
                     // store VIF meta data
                     String[] fieldParts = Arrays.copyOfRange(this.bodyFieldDecrypted.getFieldPartsAsArray(), lowerBoundary, upperBoundary);

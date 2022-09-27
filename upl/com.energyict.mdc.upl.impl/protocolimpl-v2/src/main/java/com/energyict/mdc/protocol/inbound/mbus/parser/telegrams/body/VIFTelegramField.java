@@ -322,4 +322,10 @@ public class VIFTelegramField extends TelegramField {
         System.out.println("\tField-Unit: \t\t" + this.mUnit);
         System.out.println("\tField-Multiplier: \t" + this.multiplier);
     }
+
+    public boolean isProfile() {
+        return this.fieldParts != null
+                && this.fieldParts.size() > 0
+                && this.fieldParts.get(0).equalsIgnoreCase("93"); // TODO: check if this is an exception
+    }
 }

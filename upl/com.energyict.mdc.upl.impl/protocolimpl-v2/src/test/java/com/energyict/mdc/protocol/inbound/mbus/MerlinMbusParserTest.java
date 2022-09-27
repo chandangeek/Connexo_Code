@@ -954,8 +954,8 @@ public class MerlinMbusParserTest extends TestCase {
 
 
 
-
-    public void testDailyFram3(){
+    @Test
+    public void testDailyFrame3(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
         MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
@@ -969,7 +969,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         AbstractProfileFactory factory = new HourlyProfileFactory(parser.getTelegram(), inboundContext);
 
-        for (int i=0; i<12; i++){
+        for (int i=0; i<6; i++){
             if (i != 4) {
                 assertFalse(factory.appliesFor(parser.getTelegram().getBody().getBodyPayload().getRecords().get(i)));
             } else {
@@ -988,11 +988,14 @@ public class MerlinMbusParserTest extends TestCase {
 
         long startIndex = factory.getStartIndex();
 
-        assertEquals(48980, startIndex);
+        assertEquals(42088, startIndex);
 
         CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
 
-        assertEquals(24, lp.getCollectedIntervalData().size());
+        assertEquals(96, lp.getCollectedIntervalData().size());
+        assertEquals(42088, lp.getCollectedIntervalData().get(0).getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(42088 - 276, lp.getCollectedIntervalData().get(1).getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(42088 - 276 - 281 , lp.getCollectedIntervalData().get(2).getIntervalValues().get(0).getNumber().intValue());
     }
 
 }

@@ -25,6 +25,7 @@ public enum FrameType {        // DIF	 DIF-FunctionType                	DIF-Enco
                                 0x86,   // INSTANTANEOUS_VALUE           	ENCODING_INTEGER                 6d	EXTENTED_DATE_TIME  	EPOCH_TIME					-> telegram date&time
                                 0x04,   // INSTANTANEOUS_VALUE           	ENCODING_INTEGER                 13	VOLUME              	M3        					-> index at log base
                                 0x8d,   // INSTANTANEOUS_VALUE           	ENCODING_VARIABLE_LENGTH         93	VOLUME              	M3        	e2	01			-> hourly profile, 1h
+            /*
                                 0x12, 	// MAXIMUM_VALUE                 	ENCODING_INTEGER                 3b	VOLUME_FLOW         	M3_H      					-> max volume
                                 0x22, 	// MINIMUM_VALUE                 	ENCODING_INTEGER                 3b	VOLUME_FLOW         	M3_H      					-> min volume
                                 0x04, 	// INSTANTANEOUS_VALUE           	ENCODING_INTEGER                 93	VOLUME              	M3        					-> back flow
@@ -34,6 +35,7 @@ public enum FrameType {        // DIF	 DIF-FunctionType                	DIF-Enco
                                 0x02, 	// INSTANTANEOUS_VALUE           	ENCODING_INTEGER                 fd	-  													-> batery lifetime
                                 0x0f, 	// USER_DEFINED_CELL_ID          	ENCODING_USER_DEFINED_CELL_ID      	-  													-> cell id
                                 0x89, 	// INSTANTANEOUS_VALUE           	ENCODING_BCD                     00	ENERGY_WH           	WH        					-> padding
+                                 */
     }),
 
     NRT_FRAME(new int[]     {
@@ -62,7 +64,7 @@ public enum FrameType {        // DIF	 DIF-FunctionType                	DIF-Enco
             int nr = telegram.getBody().getBodyPayload().getRecords().size();
 
             Optional<FrameType> found = Arrays.stream(values())
-                    .filter(v -> v.expectedDIFs.length >= nr)
+                    //.filter(v -> v.expectedDIFs.length >= nr)
                     .filter(v -> {
                         boolean match = true;
                         for (int i = 0; i < min(nr, v.expectedDIFs.length); i++) {

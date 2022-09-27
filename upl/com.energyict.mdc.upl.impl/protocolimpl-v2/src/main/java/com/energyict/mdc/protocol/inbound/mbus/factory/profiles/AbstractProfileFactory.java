@@ -212,8 +212,8 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     }
 
     private void calculateInterval(Long value) {
-        // the indexes are "signed differences" (from the start index I suppose)
-        calculationIndex = startIndex + value;
+        // the indexes are "signed differences" (from the last? index I suppose)
+        calculationIndex = calculationIndex - value;
         calculationTimeStamp = calculationTimeStamp.minus(applicableSpacingControlByte().getTimeAmount(), applicableSpacingControlByte().getChronoUnit());
 
         saveCurrentInterval();
