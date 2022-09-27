@@ -2176,9 +2176,4 @@ public final class DeviceMessageConstants {
     public static final String maxShortRetriesDefaultTranslation = "Maximum Short Retries";
     public static final String maxLongRetries = "maxLongRetries";
     public static final String maxLongRetriesDefaultTranslation = "Maximum Long Retries";
-    public static final String passwordPPPAuth = "password";   // commonly used translation key
-    public static final String passwordPPPAuthDefaultTranslation = "Password";
-    public static final String algorithmIdAttributeName= "AlgorithmIdAttributeName";   // commonly used translation key
-    public static final String algorithmIdAttributeNameDefaultTranslation = "Algorithm Id Attribute";
-
 }

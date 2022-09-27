@@ -79,7 +79,7 @@ public class HS3400MessageExecutor extends HS3300MessageExecutor {
     private CollectedMessage changePPPAuthenticationPAP(OfflineDeviceMessage pendingMessage) throws IOException {
         CollectedMessage collectedMessage = createCollectedMessage(pendingMessage);
         String userName = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.usernameAttributeName);
-        String password = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.passwordPPPAuth);
+        String password = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.passwordAttributeName);
         PPPSetup pppSetup = getCosemObjectFactory().getPPPSetup();
 
         Structure papAuth = new Structure();

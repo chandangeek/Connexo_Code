@@ -739,7 +739,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.passwordPPPAuth, DeviceMessageConstants.passwordPPPAuthDefaultTranslation)
+                    this.stringSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation)
             );
         }
     },

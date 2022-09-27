@@ -207,7 +207,7 @@ public class PPPSetup extends AbstractCosemObject {
     public void writeLCPOptions(Array lcpOptions) throws IOException {
         byte[] lcpoOptionsByteArray = lcpOptions.getBEREncodedByteArray();
         write(LCP_OPTIONS.getAttributeNumber(), lcpoOptionsByteArray);
-        this.lcpOptions = new LCPOptionsType(lcpOptions.getBEREncodedByteArray());
+        this.lcpOptions = new LCPOptionsType(lcpoOptionsByteArray);
     }
 
     public class PPPAuthenticationType {
