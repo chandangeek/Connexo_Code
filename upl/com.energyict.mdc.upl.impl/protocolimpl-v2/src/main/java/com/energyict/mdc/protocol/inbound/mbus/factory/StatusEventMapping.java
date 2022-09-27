@@ -37,6 +37,7 @@ import com.energyict.protocol.MeterEvent;
 //TODO -> get proper codes!! Those are just dummy to prevent other dependencies
 public enum StatusEventMapping {
 
+    APPLICATION_OK          (false,0x03, 0,0 , "Application OK", MeterEvent.HEART_BEAT),
     APPLICATION_BUSY        (true, 0x03, 0,1 , "Application Busy", MeterEvent.APPLICATION_ALERT_START),
     APPLICATION_ERROR       (true, 0x03, 0,2 , "Application Error", MeterEvent.CRITICAL_SOFTWARE_ERROR),
     ABNORMAL_SITUATION      (true, 0x03, 0,3 , "Abnormal Situation", MeterEvent.FATAL_ERROR),
@@ -54,9 +55,9 @@ public enum StatusEventMapping {
     LEAKAGE_ALARM           (true,  0x20, 5, 1, "Leakage alarm MLF", MeterEvent.VALVE_IS_CLOSED_BUT_LEAKAGE_IS_PRESENT),
 
     OVERCONSUMPTION_CLEARED (false, 0x40, 6, 0, "Overconsumption alarm cleared", MeterEvent.PARAMETER_RESTORED),
-    OVERCONSUMPTION         (true,  0x40, 6, 1, "Overconsumption alarm cleared", MeterEvent.REGISTER_OVERFLOW),
+    OVERCONSUMPTION         (true,  0x40, 6, 1, "Actual alarm burst (MBA)", MeterEvent.REGISTER_OVERFLOW),
 
-    DEVICE_PAIRED           (true,  0x80, 7, 0, "Overconsumption alarm cleared", MeterEvent.REGISTER_OVERFLOW),
+    DEVICE_PAIRED           (true,  0x80, 7, 0, "Device paired", MeterEvent.REGISTER_OVERFLOW),
     DEVICE_REMOVAL          (true,  0x80, 7, 1, "Removal or cable cut detected", MeterEvent.COMMS_HUB_REMOVED),
 
     ;

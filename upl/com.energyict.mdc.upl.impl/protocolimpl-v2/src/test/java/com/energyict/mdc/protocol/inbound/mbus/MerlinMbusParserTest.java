@@ -650,6 +650,7 @@ public class MerlinMbusParserTest extends TestCase {
     @Test
     public void testLoadProfileParser(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
         MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
 
         parser.parse(DAILY_FRAME_ENCRYPTED2);
@@ -686,16 +687,16 @@ public class MerlinMbusParserTest extends TestCase {
     public void testMidnight(){
         Instant random = Instant.ofEpochSecond(1663854120);
 
-        Instant midnight = AbstractMerlinFactory.toMidnight(random, ZoneId.of("UTC"));
+        Instant midnight = AbstractMerlinFactory.toMidnightWithTimeZone(random, ZoneId.of("UTC"));
         assertEquals("2022-09-22T00:00:00Z", midnight.toString());
 
-        Instant midnightEET = AbstractMerlinFactory.toMidnight(random, ZoneId.of("Europe/Athens"));
+        Instant midnightEET = AbstractMerlinFactory.toMidnightWithTimeZone(random, ZoneId.of("Europe/Athens"));
         assertEquals("2022-09-21T21:00:00Z", midnightEET.toString());
 
-        Instant midnightGMT = AbstractMerlinFactory.toMidnight(random, ZoneId.of("Europe/Madrid"));
+        Instant midnightGMT = AbstractMerlinFactory.toMidnightWithTimeZone(random, ZoneId.of("Europe/Madrid"));
         assertEquals("2022-09-21T22:00:00Z", midnightGMT.toString());
 
-        Instant midnightCET = AbstractMerlinFactory.toMidnight(random, ZoneId.of("Europe/Brussels"));
+        Instant midnightCET = AbstractMerlinFactory.toMidnightWithTimeZone(random, ZoneId.of("Europe/Brussels"));
         assertEquals("2022-09-21T22:00:00Z", midnightCET.toString());
 
     }
@@ -789,6 +790,7 @@ public class MerlinMbusParserTest extends TestCase {
     @Test
     public void testLoadProfileParserDailyLP(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
         MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
 
         parser.parse(WEEKLY_FRAME_ENCRYPTED);
@@ -824,6 +826,7 @@ public class MerlinMbusParserTest extends TestCase {
     @Test
     public void testStatusEvents(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
         MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
 
         parser.parse(DAILY_FRAME_ENCRYPTED1);
@@ -832,7 +835,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         CollectedLogBook events = eventFactory.extractEventsFromStatus();
 
-        assertEquals(3, events.getCollectedMeterEvents().size());
+        assertEquals(7, events.getCollectedMeterEvents().size());
 
     }
 }

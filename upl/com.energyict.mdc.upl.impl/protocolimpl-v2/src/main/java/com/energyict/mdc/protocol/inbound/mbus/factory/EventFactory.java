@@ -54,16 +54,15 @@ public class EventFactory extends AbstractMerlinFactory{
         }
 
         if (!mapping.isError()) {
-            // just an info, return
+            // just an info
             getInboundContext().getLogger().log("Status event info " + mapping.toString());
-            return null;
+        } else {
+            // normal event
+            getInboundContext().getLogger().log("Status event: " + mapping.toString());
         }
 
-        // normal event
-        getInboundContext().getLogger().log("Status event: " + mapping.toString());
 
-
-        Date eventTime = Date.from(getTelegramDateTime());
+        Date eventTime = getDateOnDeviceTimeZoneFromTelegramTime();
         int eiCode = mapping.getMeterEvent();
         int protocolCode = 0;
         EndDeviceEventType eventType =  EndDeviceEventTypeMapping.getEventTypeCorrespondingToEISCode(eiCode);
@@ -73,4 +72,5 @@ public class EventFactory extends AbstractMerlinFactory{
 
         return new MeterProtocolEvent(eventTime, eiCode, protocolCode, eventType, message, meterEventLogId, deviceEventId);
     }
+
 }

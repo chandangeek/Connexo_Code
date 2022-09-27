@@ -12,7 +12,6 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramFun
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.VIF_Unit_Multiplier_Masks;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
-import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
 import com.energyict.protocol.IntervalData;
 import com.energyict.protocol.IntervalValue;
@@ -180,7 +179,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory{
 
     private void setStartIndex(TelegramVariableDataRecord indexRecord) {
         this.startIndex = Long.parseLong(indexRecord.getDataField().getParsedValue());
-        this.midnight = toMidnight(getTelegramDateTime(), getTimeZone());
+        this.midnight = toMidnightWithTimeZone(getTelegramDateTime(), getTimeZone());
         getInboundContext().getLogger().log("Starting load profile calculation backwards from midnight: " + midnight + ", in time-zone " + getTimeZone()) ;
     }
 

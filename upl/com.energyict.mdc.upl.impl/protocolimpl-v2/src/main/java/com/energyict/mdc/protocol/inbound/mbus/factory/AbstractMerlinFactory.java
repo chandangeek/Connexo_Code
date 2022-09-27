@@ -9,6 +9,8 @@ import com.energyict.obis.ObisCode;
 
 import java.time.Instant;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.Date;
 
 /**
  * General factory for objects available within the whole frame,
@@ -61,14 +63,31 @@ public abstract class AbstractMerlinFactory {
         return collectedDataFactory;
     }
 
+    /**
+     * Generic converter from a UTC instant to a specific time-zone
+     */
+    public static ZonedDateTime toDeviceTimeZone(final Instant someInstant, ZoneId timeZone) {
+        return someInstant.atZone(timeZone);
+    }
 
-    public static Instant toMidnight(final Instant randomInstant, ZoneId timeZone) {
-        return randomInstant.atZone(timeZone)
+
+    /**
+     * Converts a UTC instant to midnight with time zone applied
+     */
+    public static Instant toMidnightWithTimeZone(final Instant randomInstant, ZoneId timeZone) {
+        return toDeviceTimeZone(randomInstant, timeZone)
                 .withNano(0)
                 .withSecond(0)
                 .withMinute(0)
                 .withHour(0)
                 .toInstant();
+    }
+
+    /**
+     * Adjusts the telegram date/time (in UTC) to the (configured/default) device time zone
+     */
+    public Date getDateOnDeviceTimeZoneFromTelegramTime() {
+        return new Date(toDeviceTimeZone(getTelegramDateTime(), getInboundContext().getTimeZone()).toEpochSecond());
     }
 
 }
