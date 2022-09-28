@@ -68,6 +68,9 @@ public class MerlinMbusParserTest extends TestCase {
     private static final byte[] WEEKLY_FRAME_ENCRYPTED = ProtocolTools.getBytesFromHexString ("4F4407070777700000007AAF004025C7D833417B0AAC44244B50806AA42F882A39435576BAE5693869F149C12041D5510E3F227A0BFE00282A6264A79E608C32AF479ED7C061C338BD0C4251FC67AC", "");
     private static final byte[] WEEKLY_FRAME_DECRYPTED = ProtocolTools.getBytesFromHexString ("4F4407070777700000007AAF0040252F2F84046D0000D328041354BF00008D04931F2DF301000000000000F46800000080000080000080000080000080000080000080000080000080000080000080","");
 
+    private static final byte[] WEEKLY_FRAME_ENCRYPTED_2_REAL = ProtocolTools.getBytesFromHexString("4F 44 42 43 44 01 23 45 22 22 7A AF 00 40 25 F0 7D 63 02 F2 2C 32 6C 4A E0 C3 20 E2 2B AA A3 D1 8C C9 6B 16 D8 83 C2 5F F9 F8 41 90 97 F6 B9 85 C8 A4 DE 54 26 A8 36 23 88 17 C3 B2 95 BC 0F 51 C0 AF 93 B6 06 91 FE CA 1C F5 21 50 AC 9D 08".replace(" ", ""), 2);
+
+
     private static final byte[] NRT_FRAME_ENCRYPTED = ProtocolTools.getBytesFromHexString("2F4407070777700000007A50972025445F85D4621E087B3B3E5D3B4BD1EF6B43A25EA1C90387A941B1DBF816CF9853","");
     private static final byte[] NRT_FRAME_DECRYPTED = ProtocolTools.getBytesFromHexString("2F4407070777700000007A509720252F2F84046D130BD428123B0000223B00000493C31200000003FD971D041300F0","");
 
@@ -735,9 +738,12 @@ public class MerlinMbusParserTest extends TestCase {
     @Test
     public void dumpPackets(){
         dump(DAILY_FRAME_ENCRYPTED1, "DAILY FRAME #1", key1);
-        dump(DAILY_FRAME_ENCRYPTED2, "DAILY FRAME #1", key1);
+        dump(DAILY_FRAME_ENCRYPTED2, "DAILY FRAME #2", key1);
+        dump(DAILY_FRAME_ENCRYPTED3_REAL_DATA, "DAILY FRAME #3", key2);
+
         dump(WEEKLY_FRAME_ENCRYPTED, "WEEKLY FRAME", key1);
         dump(NRT_FRAME_ENCRYPTED, "NRT FRAME", key1);
+
     }
 
     private void dump(byte[] frame, String name, String key) {
@@ -998,4 +1004,51 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals(42088 - 276 - 281 , lp.getCollectedIntervalData().get(2).getIntervalValues().get(0).getNumber().intValue());
     }
 
+
+
+    @Test
+    public void testWeeklyFrame2Real(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parseHeader(WEEKLY_FRAME_ENCRYPTED_2_REAL);
+        inboundContext.setEncryptionKey(key2);
+        parser.parse();
+
+        dump(WEEKLY_FRAME_ENCRYPTED_2_REAL, "WEEKLY FRAME #2 - REAL", key2);
+        assertEquals(FrameType.WEEKLY_FRAME, FrameType.of(parser.getTelegram()));
+
+        AbstractProfileFactory factory = new DailyProfileFactory(parser.getTelegram(), inboundContext);
+
+        for (int i=0; i<5; i++){
+            if (i != 4) {
+                assertFalse(factory.appliesFor(parser.getTelegram().getBody().getBodyPayload().getRecords().get(i)));
+            } else {
+                assertTrue(factory.appliesFor(parser.getTelegram().getBody().getBodyPayload().getRecords().get(4)));
+            }
+        }
+
+        TelegramVariableDataRecord indexRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(3);
+        TelegramVariableDataRecord hourlyRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(4);
+
+        factory.extractProfileMetaData(hourlyRecord);
+
+        assertTrue(factory.appliesAsIndexRecord(indexRecord));
+
+        factory.extractLoadProfile(hourlyRecord, indexRecord);
+
+        long startIndex = factory.getStartIndex();
+
+        assertEquals(26953, startIndex);
+
+        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+
+        assertEquals(14, lp.getCollectedIntervalData().size());
+
+        assertEquals(26953, lp.getCollectedIntervalData().get(0).getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(26953, lp.getCollectedIntervalData().get(1).getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(26953 - 3133, lp.getCollectedIntervalData().get(2).getIntervalValues().get(0).getNumber().intValue());
+        assertEquals(26953 - 3133 - 3132, lp.getCollectedIntervalData().get(3).getIntervalValues().get(0).getNumber().intValue());
+    }
 }

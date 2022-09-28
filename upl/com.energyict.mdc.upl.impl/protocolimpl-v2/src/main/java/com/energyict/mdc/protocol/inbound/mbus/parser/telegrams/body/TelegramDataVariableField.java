@@ -15,47 +15,57 @@ public class TelegramDataVariableField extends TelegramDataField{
         this.payload = payload;
     }
 
+    @Override
+    public void parse() {
+        parse(true);
+    }
+
     /**
      * With data field = ‘1101b´ several data types with variable length can be used. The length of the data is given
      * after the DRH with the first byte of real data, which is here called LVAR (e.g. LVAR = 02h: ASCII string with
      * two characters follows).
      */
     @Override
-    public void parse() {
+    public void parse(boolean isProfile) {
         int lVar = getLvar();
         int length = 0;
 
         this.parsedValue = "";
 
+        if (isProfile) {
+            length = lVar;
+            parseVariableLengthFieldAsISO8859();
+        } else {
+
         /*  LVAR = 00h - BFh        8-bit text string according to ISO 8859-1 with LVAR (0 to 191) characters.
                                     Note that a text string (like all other mutibyte data) is transmitted "Least significant byte first" */
-        if ((lVar >= 0x00) && (lVar <= 0xBF)) {
-            length = lVar;
-            //System.out.println("LVAR = " + lVar + ": text string, length=" + length);
-            parseVariableLengthFieldAsISO8859();
-        }
-        /* LVAR = C0h - C9h         positive BCD number with (LVAR - C0h, i.e. 0 to 9) • 2 digits (0 to 18 digits) */
-        else if ((lVar >= 0xC0) && (lVar <= 0xC9)) {
-            length = lVar - 0xC0;
-            //System.out.println("LVAR = " + lVar + ": positive BCD, length=" + length);
-        }
-        /* LVAR = D0h - D9h         negative BCD number with (LVAR - D0h) • 2 digits (0 to 18 digits) */
-        else if ((lVar >= 0xD0) && (lVar <= 0xD9)) {
-            length = lVar - 0xD0;
-            //System.out.println("LVAR = " + lVar + ": negative BCD, length=" + length);
-        }
-        /* LVAR = E0h - Efh        Binary number with (LVAR - E0h) bytes (0 to 15 bytes) */
-        else if ((lVar >= 0xE0) && (lVar <= 0xEF)) {
-            length = lVar - 0xE0;
-            //System.out.println("LVAR = " + lVar + ": Binary number, length=" + length);
-        }
-        /* LVAR = F8h              floating point number according to IEEE 754 */
-        else if (lVar == 0xF8) {
-            length = lVar - 0xE0;
-            //System.out.println("LVAR = " + lVar + ": floating point number according to IEEE 754, length=" + length);
-        }
-        else {
-            //System.err.println("Don't know how to interpret LVAR=" + String.format("%02x", lVar));
+            if ((lVar >= 0x00) && (lVar <= 0xBF)) {
+                length = lVar;
+                //System.out.println("LVAR = " + lVar + ": text string, length=" + length);
+                parseVariableLengthFieldAsISO8859();
+            }
+            /* LVAR = C0h - C9h         positive BCD number with (LVAR - C0h, i.e. 0 to 9) • 2 digits (0 to 18 digits) */
+            else if ((lVar >= 0xC0) && (lVar <= 0xC9)) {
+                length = lVar - 0xC0;
+                //System.out.println("LVAR = " + lVar + ": positive BCD, length=" + length);
+            }
+            /* LVAR = D0h - D9h         negative BCD number with (LVAR - D0h) • 2 digits (0 to 18 digits) */
+            else if ((lVar >= 0xD0) && (lVar <= 0xD9)) {
+                length = lVar - 0xD0;
+                //System.out.println("LVAR = " + lVar + ": negative BCD, length=" + length);
+            }
+            /* LVAR = E0h - Efh        Binary number with (LVAR - E0h) bytes (0 to 15 bytes) */
+            else if ((lVar >= 0xE0) && (lVar <= 0xEF)) {
+                length = lVar - 0xE0;
+                //System.out.println("LVAR = " + lVar + ": Binary number, length=" + length);
+            }
+            /* LVAR = F8h              floating point number according to IEEE 754 */
+            else if (lVar == 0xF8) {
+                length = lVar - 0xE0;
+                //System.out.println("LVAR = " + lVar + ": floating point number according to IEEE 754, length=" + length);
+            } else {
+                //System.err.println("Don't know how to interpret LVAR=" + String.format("%02x", lVar));
+            }
         }
     }
 

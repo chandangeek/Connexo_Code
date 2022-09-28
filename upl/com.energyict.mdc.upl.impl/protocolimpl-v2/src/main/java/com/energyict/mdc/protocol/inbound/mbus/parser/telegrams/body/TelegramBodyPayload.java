@@ -108,7 +108,7 @@ public class TelegramBodyPayload {
         if (vif.isProfile()) {
             System.out.println("\t* Profile detected, getting single VIFE");
             VIFETelegramField vife = this.processSingleVIFEField(this.bodyFieldDecrypted.getFieldParts().get(startPosition + 2 + difeList.size()));
-            //startPosition = startPosition + 1;
+            vife.setExtensionBit(false);
             vifeList.add(vife);
         } else {
             if (vif.isExtensionBit()) {
@@ -153,7 +153,7 @@ public class TelegramBodyPayload {
 
                     dataFieldVariable.addFieldParts(fieldParts);
                     dataFieldVariable.addVariableLengthPayload(payload);
-                    dataFieldVariable.parse();
+                    dataFieldVariable.parse(vif.isProfile());
                     rec.setDataField(dataFieldVariable);
                 } else {
                     System.err.println("Cannot parse variable-field-length " + variableLength);

@@ -34,6 +34,8 @@ public class MerlinMetaDataExtractor {
     private void lookupDeviceProperties() {
         getDeviceIdentifier();
 
+        inboundContext.getLogger().log("Identified device: " + getDeviceIdentifier());
+
         getDeviceTimeZoneFromCore();
 
         getEncryptionKeyFromCore();
@@ -61,13 +63,14 @@ public class MerlinMetaDataExtractor {
     private void getDeviceTimeZoneFromCore() {
         TypedProperties protocolProperties = inboundContext.getInboundDiscoveryContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
 
+        String defaultEK = "01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01";
+        String encryptionKey = defaultEK;
         if (protocolProperties.hasLocalValueFor(PROPERTY_ENCRYPTION_KEY_MOCKED_PROPERTY)){
-            String encryptionKey = protocolProperties.getTypedProperty(PROPERTY_ENCRYPTION_KEY_MOCKED_PROPERTY, TimeZone.getDefault()).getID();
-            inboundContext.setEncryptionKey(encryptionKey);
-
-            // NO-NO, do not log the actual key, used only for testing and PoC!! FIXME!
-            inboundContext.getLogger().log("Using configured EK: " + encryptionKey);
+            encryptionKey = protocolProperties.getTypedProperty(PROPERTY_ENCRYPTION_KEY_MOCKED_PROPERTY, defaultEK);
         }
+        inboundContext.setEncryptionKey(encryptionKey);
+        // NO-NO, do not log the actual key, used only for testing and PoC!! FIXME!
+        inboundContext.getLogger().log("Using EK: " + encryptionKey);
 
     }
 

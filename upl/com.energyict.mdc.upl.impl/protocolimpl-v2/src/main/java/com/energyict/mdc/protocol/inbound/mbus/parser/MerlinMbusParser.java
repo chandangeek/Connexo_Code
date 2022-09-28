@@ -41,7 +41,7 @@ public class MerlinMbusParser {
 
         //telegram.decryptTelegram(null);
         telegram.parse();
-        telegram.debugOutput();
+       // telegram.debugOutput();
 
         return telegram;
     }

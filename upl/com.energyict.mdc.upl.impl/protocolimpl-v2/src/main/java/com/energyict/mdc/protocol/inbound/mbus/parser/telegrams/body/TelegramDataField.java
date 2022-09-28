@@ -31,6 +31,10 @@ public class TelegramDataField extends TelegramField {
     }
 
 
+    public void parse(boolean isProfile) {
+        parse();
+    }
+
     public void parse() {
         TelegramEncoding enc = this.parent.getDif().getDataFieldEncoding();
 
