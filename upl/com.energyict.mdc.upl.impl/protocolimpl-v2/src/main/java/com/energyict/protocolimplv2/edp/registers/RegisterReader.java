@@ -29,8 +29,10 @@ import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -63,8 +65,8 @@ public class RegisterReader implements DeviceRegisterSupport {
                             .getEventTime());
                     collectedRegisters.add(createCollectedRegister(registerValue, register));
                 } catch (IOException e) {
-                    protocol.journal("Failed to read obis code " + obisCode + " value: " + e.getMessage());
-                    collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported, e.getMessage()));
+                    String ex = e.getMessage() + "; /n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; /n"));
+                    collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, ex));
                 }
             } else {
                 ObisCode readObisCode = ObisCode.fromByteArray(obisCode.getLN());
@@ -148,7 +150,8 @@ public class RegisterReader implements DeviceRegisterSupport {
                         if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));    //Not in the device
                         } else {
-                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage()));     //Unexpected response
+                            String ex = e.getMessage() + "; /n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; /n"));
+                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, ex));     //Unexpected response
                         }
                     }
                 }
