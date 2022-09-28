@@ -65,7 +65,7 @@ public class RegisterReader implements DeviceRegisterSupport {
                             .getEventTime());
                     collectedRegisters.add(createCollectedRegister(registerValue, register));
                 } catch (IOException e) {
-                    String ex = e.getMessage() + "; /n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; /n"));
+                    String ex = e.getMessage() + "; \n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; \n"));
                     collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, ex));
                 }
             } else {
@@ -150,7 +150,7 @@ public class RegisterReader implements DeviceRegisterSupport {
                         if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
                             collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));    //Not in the device
                         } else {
-                            String ex = e.getMessage() + "; /n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; /n"));
+                            String ex = e.getMessage() + "; \n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; \n"));
                             collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, ex));     //Unexpected response
                         }
                     }
