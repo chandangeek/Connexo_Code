@@ -12,8 +12,6 @@ public class HS3400LteRegisterMapper extends LteRegisterMapper {
 
     private final DlmsSession dlmsSession;
 
-
-
     public HS3400LteRegisterMapper(DlmsSession dlmsSession) {
         super(dlmsSession.getCosemObjectFactory());
         this.dlmsSession = dlmsSession;
