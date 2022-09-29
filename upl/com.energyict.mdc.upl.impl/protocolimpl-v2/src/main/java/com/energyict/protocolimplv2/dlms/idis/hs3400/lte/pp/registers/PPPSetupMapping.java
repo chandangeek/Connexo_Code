@@ -3,7 +3,7 @@ package com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.registers;
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.DLMSClassId;
-import com.energyict.dlms.cosem.GPRSModemSetup;
+import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.mdc.upl.NoSuchRegisterException;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -12,11 +12,11 @@ import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.HS3400LtePP;
 
 import java.io.IOException;
 
-public class GPRSModemSetupMapping extends LteMapping {
+public class PPPSetupMapping extends LteMapping {
 
-    private GPRSModemSetupAttributeMapping gprsModemSetupAttributeMapping;
+    private PPPSetupMappingAttributeMapping pppSetupMappingAttributeMapping;
 
-    protected GPRSModemSetupMapping(ObisCode obis) {
+    protected PPPSetupMapping(ObisCode obis) {
         super(obis);
     }
 
@@ -34,40 +34,39 @@ public class GPRSModemSetupMapping extends LteMapping {
     public RegisterValue parse(AbstractDataType abstractDataType) throws IOException {
         instantiateMappers(null);  //Not used here
 
-        if (gprsModemSetupAttributeMapping.canRead(getObisCode())) {
-            return gprsModemSetupAttributeMapping.parse(getObisCode(), abstractDataType);
+        if (pppSetupMappingAttributeMapping.canRead(getObisCode())) {
+            return pppSetupMappingAttributeMapping.parse(getObisCode(), abstractDataType);
         }
 
         throw new NoSuchRegisterException("Register with obisCode [" + getObisCode() + "] not supported!");
     }
 
-    public int getValueAttribute(HS3400LtePP hS3400LtePP){
-        return 2;
-    }
-
     @Override
     public int getDLMSClassId() {
-        if (getObisCode().equalsIgnoreBAndEChannel(GPRSModemSetup.getDefaultObisCode())) {
-            return DLMSClassId.GPRS_SETUP.getClassId();
+        if (getObisCode().equalsIgnoreBAndEChannel(PPPSetup.getDefaultObisCode())) {
+            return DLMSClassId.PPP_SETUP.getClassId();
         } else {
             return -1;
         }
     }
 
+    public int getValueAttribute(HS3400LtePP hS3400LtePP){
+        return 5;
+    }
 
     private void instantiateMappers(CosemObjectFactory cosemObjectFactory) {
-        if (gprsModemSetupAttributeMapping == null) {
-            gprsModemSetupAttributeMapping = new GPRSModemSetupAttributeMapping(cosemObjectFactory);
+        if (pppSetupMappingAttributeMapping == null) {
+            pppSetupMappingAttributeMapping = new PPPSetupMappingAttributeMapping(cosemObjectFactory);
         }
     }
 
     public int getAttributeNumber() {
-        return getObisCode().getE();        //The E-field of the obiscode indicates which attribute is being read
+        return getObisCode().getE();
     }
 
     private RegisterValue readRegister(final ObisCode obisCode) throws IOException {
-        if (gprsModemSetupAttributeMapping.canRead(obisCode)) {
-            return gprsModemSetupAttributeMapping.readRegister(obisCode);
+        if (pppSetupMappingAttributeMapping.canRead(obisCode)) {
+            return pppSetupMappingAttributeMapping.readRegister(obisCode);
         }
         throw new NoSuchRegisterException("Register with obisCode [" + obisCode + "] not supported!");
     }

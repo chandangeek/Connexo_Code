@@ -2176,5 +2176,4 @@ public final class DeviceMessageConstants {
     public static final String maxShortRetriesDefaultTranslation = "Maximum Short Retries";
     public static final String maxLongRetries = "maxLongRetries";
     public static final String maxLongRetriesDefaultTranslation = "Maximum Long Retries";
-
 }

@@ -41,7 +41,7 @@ public class HS3400LtePP extends HS3300 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-09-05$";
+        return "$Date: 2022-09-22$";
     }
 
     @Override

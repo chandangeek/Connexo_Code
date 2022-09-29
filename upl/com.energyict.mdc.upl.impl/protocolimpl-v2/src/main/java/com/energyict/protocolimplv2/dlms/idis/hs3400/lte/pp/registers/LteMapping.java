@@ -2,7 +2,6 @@ package com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.registers;
 
 import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.cosem.CosemObjectFactory;
-import com.energyict.dlms.cosem.DLMSClassId;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.HS3400LtePP;
@@ -33,11 +32,7 @@ public abstract class LteMapping {
         return getObisCode();
     }
 
-    public int getValueAttribute(HS3400LtePP hS3400LtePP){
-        return 2;
-    }
+    public abstract int getValueAttribute(HS3400LtePP hS3400LtePP);
 
-    public int getDLMSClassId(){
-        return DLMSClassId.GPRS_SETUP.getClassId();
-    }
+    public abstract int getDLMSClassId();
 }
