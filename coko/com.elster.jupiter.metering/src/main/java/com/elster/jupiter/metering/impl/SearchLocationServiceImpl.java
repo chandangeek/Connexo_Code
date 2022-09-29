@@ -27,7 +27,6 @@ public class SearchLocationServiceImpl implements SearchLocationService {
     @Inject
     public SearchLocationServiceImpl(DataModel dataModel) {
         this.dataModel = dataModel;
-        this.ensureLocationTemplateInitialized();
     }
 
     private Map<String, String> templateMap() {
@@ -48,20 +47,23 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 .build();
     }
 
-    private void ensureLocationTemplateInitialized() {
-        String locationTemplate = getAddressTemplate();
-        if (locationTemplate != null) {
-            locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
-                    .replace("\r", "").replace("\n", "")
-                    .replace("\r\n", "").replace("\n\r", "");
-            templateMembers = locationTemplate.split(",");
+    private String[] getTemplateMembers() {
+        if (templateMembers == null) {
+            String locationTemplate = getAddressTemplate();
+            if (locationTemplate != null) {
+                locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
+                        .replace("\r", "").replace("\n", "")
+                        .replace("\r\n", "").replace("\n\r", "");
+                templateMembers = locationTemplate.split(",");
+            }
         }
+        return templateMembers;
     }
 
     @Override
     public Map<Long, String> findLocations(String inputLocation) {
         Map<Long, String> result = new LinkedHashMap<>();
-
+        String[] templateMembers = getTemplateMembers();
         if (templateMembers != null) {
             SqlBuilder locationBuilder = new SqlBuilder();
             locationBuilder.append(this.getQueryClause(inputLocation));
@@ -117,7 +119,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
             String whenClause = "";
             String mapInputLocation = mapInputLocations[j].replace("'", "''");
 
-            for (String member : templateMembers) {
+            for (String member : getTemplateMembers()) {
                 String templateMember = templateMap.get(member);
 
                 if (templateMember != null) {
@@ -181,12 +183,10 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         locationBuilder.append(" from MTR_LOCATION_TEMPLATE ");
 
         try (Connection connection = dataModel.getConnection(false);
-             PreparedStatement statement = locationBuilder.prepare(connection)) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-
-                while (resultSet.next()) {
-                    template = resultSet.getString("LOCATIONTEMPLATE");
-                }
+             PreparedStatement statement = locationBuilder.prepare(connection);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                template = resultSet.getString("LOCATIONTEMPLATE");
             }
         } catch (Exception e) {
             e.printStackTrace();
