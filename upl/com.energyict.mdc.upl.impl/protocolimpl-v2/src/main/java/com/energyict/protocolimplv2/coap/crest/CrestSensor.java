@@ -1,6 +1,6 @@
 package com.energyict.protocolimplv2.coap.crest;
 
-import com.energyict.mdc.channels.inbound.EIWebConnectionType;
+import com.energyict.mdc.channels.inbound.CoapConnectionType;
 import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -95,7 +95,7 @@ public class CrestSensor implements DeviceProtocol, SerialNumberSupport, DeviceF
 
     @Override
     public List<ConnectionType> getSupportedConnectionTypes() {
-        return Collections.singletonList(new EIWebConnectionType(propertySpecService));
+        return Collections.singletonList(new CoapConnectionType(propertySpecService));
     }
 
     @Override

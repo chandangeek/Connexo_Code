@@ -18,15 +18,27 @@ import com.energyict.mdc.upl.TypedProperties;
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.config.CoapConfig;
 import org.eclipse.californium.core.network.CoapEndpoint;
+import org.eclipse.californium.elements.Connector;
+import org.eclipse.californium.elements.UDPConnector;
 import org.eclipse.californium.elements.config.Configuration;
 import org.eclipse.californium.elements.config.UdpConfig;
 import org.eclipse.californium.elements.util.NetworkInterfacesUtil;
+import org.eclipse.californium.elements.util.SslContextUtil;
+import org.eclipse.californium.scandium.DTLSConnector;
+import org.eclipse.californium.scandium.config.DtlsConfig;
+import org.eclipse.californium.scandium.config.DtlsConnectorConfig;
+import org.eclipse.californium.scandium.dtls.x509.NewAdvancedCertificateVerifier;
+import org.eclipse.californium.scandium.dtls.x509.SingleCertificateProvider;
+import org.eclipse.californium.scandium.dtls.x509.StaticNewAdvancedCertificateVerifier;
 import org.eclipse.jetty.util.thread.QueuedThreadPool;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URI;
+import java.security.GeneralSecurityException;
+import java.security.cert.Certificate;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,6 +77,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         QueuedThreadPool threadPool = new QueuedThreadPool();
         threadPool.setName(threadPoolName);
 
+        DtlsConfig.register();
         CoapConfig.register();
         UdpConfig.register();
 
@@ -72,16 +85,26 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         BasedCoapResource comResource = new BasedCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         coapServer.add(comResource);
 
-        int port = comPort.getPortNumber();
-        Configuration config = Configuration.getStandard();
-        for (InetAddress addr : NetworkInterfacesUtil.getNetworkInterfaces()) {
-            InetSocketAddress bindToAddress = new InetSocketAddress(addr, port);
-            CoapEndpoint.Builder builder = new CoapEndpoint.Builder();
-            builder.setInetSocketAddress(bindToAddress);
-            builder.setConfiguration(config);
-            coapServer.addEndpoint(builder.build());
+        Configuration configuration = Configuration.getStandard();
+        for (InetAddress address : NetworkInterfacesUtil.getNetworkInterfaces()) {
+            InetSocketAddress socketAddress = new InetSocketAddress(address, comPort.getPortNumber());
+            if (comPort.isDtls()) {
+                try {
+                    CoapEndpoint.Builder builder = new CoapEndpoint.Builder();
+                    String keystore = comPort.getKeyStoreSpecsFilePath() + "#" + comPort.getKeyStoreSpecsPassword();
+                    String keytrust = comPort.getTrustStoreSpecsFilePath() + "#" + comPort.getTrustStoreSpecsPassword();
+                    builder.setConnector(createDtlsConnector(configuration, socketAddress, keystore, keytrust));
+                    coapServer.addEndpoint(builder.build());
+                } catch (IOException | GeneralSecurityException e) {
+                    e.printStackTrace(System.err);
+                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
+                }
+            } else {
+                CoapEndpoint.Builder builder = new CoapEndpoint.Builder();
+                builder.setConnector(createUdpConnector(configuration, socketAddress));
+                coapServer.addEndpoint(builder.build());
+            }
         }
-
         this.shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
     }
 
@@ -109,6 +132,31 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         } else {
             return port;
         }
+    }
+
+    /**
+     * Create the DTLS Connector for the endpoint.
+     */
+    private Connector createDtlsConnector(Configuration configuration, InetSocketAddress address, String keystore, String keytrust) throws GeneralSecurityException, IOException {
+        SslContextUtil.Credentials serverCredentials = SslContextUtil.loadCredentials(keystore);
+        Certificate[] serverCertificates = SslContextUtil.loadTrustedCertificates(keytrust);
+        DtlsConnectorConfig.Builder builder = DtlsConnectorConfig.builder(configuration);
+        builder.setAddress(address);
+        SingleCertificateProvider certificate = new SingleCertificateProvider(serverCredentials.getPrivateKey(), serverCredentials.getCertificateChain());
+        builder.setCertificateIdentityProvider(certificate);
+        NewAdvancedCertificateVerifier trust = StaticNewAdvancedCertificateVerifier.builder()
+                .setTrustedCertificates(serverCertificates).build();
+        builder.setAdvancedCertificateVerifier(trust);
+        DTLSConnector connector = new DTLSConnector(builder.build());
+        return connector;
+    }
+
+    /**
+     * Create the simple UDP Connector for the endpoint.
+     */
+    private Connector createUdpConnector(Configuration configuration, InetSocketAddress address) {
+        Connector connector = new UDPConnector(address, configuration);
+        return connector;
     }
 
     /**

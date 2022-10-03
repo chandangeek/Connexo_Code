@@ -453,6 +453,12 @@
         </dependency>
         <dependency>
             <groupId>org.eclipse.californium</groupId>
+            <artifactId>scandium</artifactId>
+            <version>${californium.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.californium</groupId>
             <artifactId>californium-core</artifactId>
             <version>${californium.version}</version>
             <scope>provided</scope>

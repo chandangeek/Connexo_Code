@@ -53,7 +53,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private final List<CollectedData> collectedData = new ArrayList<>();
     private CoapBasedExchange exchange;
     private InboundDiscoveryContext context;
-    private CrestObject crestObject;
+    private CrestObjectV2_1 crestObject;
     private LegacyMessageConverter messageConverter = null;
 
     public CrestSensorInboundProtocol(PropertySpecService propertySpecService) {
@@ -107,7 +107,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         try {
             String hexString = new String(Hex.encodeHex(exchange.getRequestPayload()));
             json = cborToJson(HexStringToByteArray(hexString));
-            crestObject = new ObjectMapper().readValue(json, CrestObject.class);
+            crestObject = new ObjectMapper().readValue(json, CrestObjectV2_1.class);
             handleData();
         } catch (IOException e) {
             throw ConnectionCommunicationException.unexpectedIOException(e);
@@ -161,13 +161,13 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_MEMORY_COUNTER, new Quantity(new BigDecimal(crestObject.getMem()), Unit.getUndefined())));
 
         CollectedTopology collectedTopology = getContext().getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
-        if (!Strings.isNullOrEmpty(this.crestObject.getV1M())) {
-            DeviceIdentifierBySerialNumber slave = new DeviceIdentifierBySerialNumber(getSlaveSerialNumber(crestObject.getV1M()));
+        if (!Strings.isNullOrEmpty(this.crestObject.getV1m())) {
+            DeviceIdentifierBySerialNumber slave = new DeviceIdentifierBySerialNumber(getSlaveSerialNumber(crestObject.getV1m()));
             this.collectedData.add(buildCollectedLoadProfile(slave, crestObject.getV1()));
             collectedTopology.addSlaveDevice(slave);
         }
-        if (!Strings.isNullOrEmpty(this.crestObject.getV2M())) {
-            DeviceIdentifierBySerialNumber slave = new DeviceIdentifierBySerialNumber(getSlaveSerialNumber(crestObject.getV2M()));
+        if (!Strings.isNullOrEmpty(this.crestObject.getV2m())) {
+            DeviceIdentifierBySerialNumber slave = new DeviceIdentifierBySerialNumber(getSlaveSerialNumber(crestObject.getV2m()));
             this.collectedData.add(buildCollectedLoadProfile(slave, crestObject.getV2()));
             collectedTopology.addSlaveDevice(slave);
         }
@@ -248,7 +248,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     }
 
     private int getIntervalInMinutes() {
-        switch (Integer.parseInt(crestObject.getMsi())) {
+        switch (crestObject.getMsi()) {
             case 0:
                 return 5;
             case 1:
