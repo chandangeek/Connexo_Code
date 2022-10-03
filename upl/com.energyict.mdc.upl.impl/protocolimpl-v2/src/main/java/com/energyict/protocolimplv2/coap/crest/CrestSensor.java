@@ -140,7 +140,7 @@ public class CrestSensor implements DeviceProtocol, SerialNumberSupport, DeviceF
 
     private LegacyMessageConverter getMessageConverter() {
         if (messageConverter == null) {
-            messageConverter = new CrestSensorMessageConverter(propertySpecService, nlsService, converter, keyAccessorTypeExtractor);
+            messageConverter = new CrestSensorMessageConverter(propertySpecService, nlsService, converter);
         }
         return messageConverter;
     }

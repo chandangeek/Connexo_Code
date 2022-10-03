@@ -4,8 +4,10 @@ import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.identifiers.LoadProfileIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.identifiers.RegisterDataIdentifierByObisCodeAndDevice;
 import com.energyict.mdc.upl.CoapBasedInboundDeviceProtocol;
+import com.energyict.mdc.upl.InboundDAO;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
 import com.energyict.mdc.upl.io.CoapBasedExchange;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.LegacyMessageConverter;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
@@ -52,6 +54,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private final PropertySpecService propertySpecService;
     private final List<CollectedData> collectedData = new ArrayList<>();
     private CoapBasedExchange exchange;
+    private InboundDAO inboundDAO;
     private InboundDiscoveryContext context;
     private CrestObjectV2_1 crestObject;
     private LegacyMessageConverter messageConverter = null;
@@ -94,6 +97,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     @Override
     public void initializeDiscoveryContext(InboundDiscoveryContext context) {
         this.context = context;
+        this.inboundDAO = context.getInboundDAO();
     }
 
     @Override
@@ -109,10 +113,28 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
             json = cborToJson(HexStringToByteArray(hexString));
             crestObject = new ObjectMapper().readValue(json, CrestObjectV2_1.class);
             handleData();
+            confirmSentMessagesAndSendPending();
         } catch (IOException e) {
             throw ConnectionCommunicationException.unexpectedIOException(e);
         }
         return DiscoverResultType.DATA;
+    }
+
+    private void confirmSentMessagesAndSendPending() {
+        int nrOfAcceptedMessages = 0;
+        List<OfflineDeviceMessage> pendingMessages = getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
+            nrOfAcceptedMessages++;
+            exchange.respond(getMessageConverter().toMessageEntry(pendingMessage).getContent());
+        }
+        getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+    }
+
+    private LegacyMessageConverter getMessageConverter() {
+        if (messageConverter == null) {
+            messageConverter = new CrestSensorMessageConverter(this.propertySpecService, context.getNlsService(), context.getConverter());
+        }
+        return messageConverter;
     }
 
     @Override
@@ -137,13 +159,6 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     @Override
     public boolean hasSupportForRequestsOnInbound() {
         return true;
-    }
-
-    private LegacyMessageConverter getMessageConverter() {
-        if (messageConverter == null) {
-            messageConverter = new CrestSensorMessageConverter(this.propertySpecService, context.getNlsService(), context.getConverter(), context.getKeyAccessorTypeExtractor());
-        }
-        return messageConverter;
     }
 
     private void handleData() {
