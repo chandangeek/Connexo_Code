@@ -21,6 +21,7 @@ import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidationExce
 import com.elster.jupiter.metering.CustomUsagePointMeterActivationValidator;
 import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.GasDayOptions;
+import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MessageSeeds;
 import com.elster.jupiter.metering.Meter;
 import com.elster.jupiter.metering.MeteringService;
@@ -164,7 +165,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     private UsagePointRequirementsSearchDomain usagePointRequirementsSearchDomain;
     private MetrologyConfigurationServiceImpl metrologyConfigurationService;
     private SyntheticLoadProfileService syntheticLoadProfileService;
-    private SearchLocationService searchLocationService;
+    private LocationService locationService;
+    private SearchLocationServiceImpl searchLocationService;
 
     private boolean createAllReadingTypes;
     private String[] requiredReadingTypes;
@@ -256,7 +258,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         this.metrologyConfigurationService = new MetrologyConfigurationServiceImpl(this, this.dataModel, this.thesaurus);
         this.syntheticLoadProfileService = new SyntheticLoadProfileServiceImpl(this.idsService, this.dataModel);
         this.usagePointRequirementsSearchDomain = new UsagePointRequirementsSearchDomain(this.propertySpecService, this.meteringService, this.meteringTranslationService, this.metrologyConfigurationService, this.clock, this.licenseService);
-        this.searchLocationService = new SearchLocationServiceImpl(dataModel);
+        this.locationService = new LocationServiceImpl(getDataModel());
+        this.searchLocationService = new SearchLocationServiceImpl(getDataModel());
     }
 
     private void registerDataModel(BundleContext bundleContext) {
@@ -281,7 +284,6 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                 bind(Thesaurus.class).toInstance(thesaurus);
                 bind(MessageInterpolator.class).toInstance(thesaurus);
                 bind(Clock.class).toInstance(clock);
-                bind(SearchLocationService.class).toInstance(searchLocationService);
                 bind(CustomPropertySetService.class).toInstance(customPropertySetService);
                 bind(MetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
                 bind(ServerMetrologyConfigurationService.class).toInstance(metrologyConfigurationService);
@@ -305,6 +307,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                         .annotatedWith(Names.named(CalendarTimeSeriesCacheHandlerFactory.TASK_DESTINATION))
                         .toProvider(() -> calendarTimeSeriesCacheHandlerMessageDestination);
                 bind(ThreadPrincipalService.class).toInstance(threadPrincipalService);
+                bind(LocationService.class).toInstance(locationService);
+                bind(SearchLocationService.class).toInstance(searchLocationService);
             }
         });
     }
@@ -342,7 +346,7 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         registerDataAggregationService(bundleContext);
         registerMetrologyConfigurationService(bundleContext); // Search domain must already be registered
         registerSyntheticLoadProfileService(bundleContext);
-        registerSearchLocationService(bundleContext);
+        registerLocationServices(bundleContext);
     }
 
     private Dictionary<String, Object> noServiceProperties() {
@@ -358,19 +362,6 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
                                     ServerMeteringService.class.getName()},
                             this.meteringService,
                             noServiceProperties()));
-        }
-    }
-
-    private void registerSearchLocationService(BundleContext bundleContext) {
-        ((SearchLocationServiceImpl)searchLocationService).ensureLocationTemplateInitialized();
-        if (bundleContext != null) {
-            Dictionary<String, Object> properties = new Hashtable<>();
-            properties.put("name", SearchService.COMPONENT_NAME);
-            this.serviceRegistrations.add(
-                    bundleContext.registerService(
-                            SearchLocationService.class,
-                            this.searchLocationService,
-                            properties));
         }
     }
 
@@ -424,9 +415,23 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
         if (bundleContext != null) {
             this.serviceRegistrations.add(
                     bundleContext.registerService(
-                            new String[]{
-                                    SyntheticLoadProfileService.class.getName()},
+                            SyntheticLoadProfileService.class,
                             this.syntheticLoadProfileService,
+                            noServiceProperties()));
+        }
+    }
+
+    private void registerLocationServices(BundleContext bundleContext) {
+        if (bundleContext != null) {
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            LocationService.class,
+                            locationService,
+                            noServiceProperties()));
+            this.serviceRegistrations.add(
+                    bundleContext.registerService(
+                            SearchLocationService.class,
+                            searchLocationService,
                             noServiceProperties()));
         }
     }
@@ -468,8 +473,8 @@ public class MeteringDataModelServiceImpl implements MeteringDataModelService, M
     @Override
     public List<MessageSeed> getSeeds() {
         return Stream.concat(
-                Stream.of(MessageSeeds.values()),
-                Stream.of(PrivateMessageSeeds.values()))
+                        Stream.of(MessageSeeds.values()),
+                        Stream.of(PrivateMessageSeeds.values()))
                 .collect(Collectors.toList());
     }
 

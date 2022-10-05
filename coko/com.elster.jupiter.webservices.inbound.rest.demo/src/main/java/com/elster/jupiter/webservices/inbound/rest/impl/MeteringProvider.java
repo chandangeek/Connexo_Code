@@ -7,6 +7,7 @@ package com.elster.jupiter.webservices.inbound.rest.impl;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.InboundRestEndPointProvider;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -25,6 +26,11 @@ public class MeteringProvider implements InboundRestEndPointProvider {
     @Reference
     public void setMeteringService(MeteringService meteringService) {
         this.meteringService = meteringService;
+    }
+
+    @Reference
+    public void setWebServicesService(WebServicesService webServicesService) {
+        // to make sure this endpoint does not start before the web service framework itself
     }
 
     @Override

@@ -41,6 +41,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.ServiceCallService;
@@ -188,6 +189,11 @@ public class UsagePointInfoFactory implements InfoFactory<UsagePoint> {
     @Reference
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    @Reference
+    public void setInfoFactoryService(InfoFactoryService infoFactoryService) {
+        // to make sure this factory starts after the whole service
     }
 
     @Reference

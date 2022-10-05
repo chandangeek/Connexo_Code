@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
@@ -6,6 +5,7 @@
 package com.elster.jupiter.issue.rest.impl.resource;
 
 import com.elster.jupiter.domain.util.Query;
+import com.elster.jupiter.issue.rest.request.RequestHelper;
 import com.elster.jupiter.issue.rest.response.TopIssuesInfo;
 import com.elster.jupiter.issue.security.Privileges;
 import com.elster.jupiter.issue.share.entity.IssueReason;
@@ -31,16 +31,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import static com.elster.jupiter.issue.rest.request.RequestHelper.*;
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @Path("/topissues")
 public class TopIssuesResource extends BaseResource {
-
-    public TopIssuesResource() {
-
-    }
-
     @GET
     @Transactional
     @Path("/issues")
@@ -52,18 +46,18 @@ public class TopIssuesResource extends BaseResource {
         long issueTotalUserAssignedCount = 0L;
         long issueTotalWorkGroupAssignedCount = 0L;
 
-        if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("INS")) {
+        if (appKey != null && appKey.equalsIgnoreCase("INS")) {
             issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
-                    .select(where(ISSUE_TYPE).isEqualTo(getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).get())));
-            issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                    entry.getKey().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION))
+                    .select(where(RequestHelper.ISSUE_TYPE).isEqualTo(getIssueService().findIssueType(IssueTypes.USAGEPOINT_DATA_VALIDATION.getName()).get())));
+            issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream()
+                    .filter(entry -> entry.getKey().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION))
                     .mapToLong(Map.Entry::getValue).sum();
-            issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                    entry.getKey().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION))
+            issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream()
+                    .filter(entry -> entry.getKey().equals(IssueTypes.USAGEPOINT_DATA_VALIDATION))
                     .mapToLong(Map.Entry::getValue).sum();
-        } else if (appKey != null && !appKey.isEmpty() && appKey.equalsIgnoreCase("MDC")) {
+        } else if (appKey != null && appKey.equalsIgnoreCase("MDC")) {
             issueReasons = new ArrayList<>(getIssueService().query(IssueReason.class)
-                    .select(where(ISSUE_TYPE).in(new ArrayList<IssueType>() {{
+                    .select(where(RequestHelper.ISSUE_TYPE).in(new ArrayList<IssueType>() {{
                         add(getIssueService().findIssueType(IssueTypes.DATA_COLLECTION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DATA_VALIDATION.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.DEVICE_LIFECYCLE.getName()).get());
@@ -72,44 +66,31 @@ public class TopIssuesResource extends BaseResource {
                         add(getIssueService().findIssueType(IssueTypes.MANUAL.getName()).get());
                         add(getIssueService().findIssueType(IssueTypes.WEB_SERVICE.getName()).get());
                     }})));
-            issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                    isIssue(entry.getKey()))
+            issueTotalUserAssignedCount = getIssueService().getUserOpenIssueCount(currentUser).entrySet().stream()
+                    .filter(entry -> isIssue(entry.getKey()))
                     .mapToLong(Map.Entry::getValue).sum();
-            issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream().filter(entry ->
-                    isIssue(entry.getKey()))
+            issueTotalWorkGroupAssignedCount = getIssueService().getWorkGroupWithoutUserOpenIssueCount(currentUser).entrySet().stream()
+                    .filter(entry -> isIssue(entry.getKey()))
                     .mapToLong(Map.Entry::getValue).sum();
         }
         List<IssueStatus> statuses = new ArrayList<>();
-        Stream.of(IssueStatus.IN_PROGRESS, IssueStatus.OPEN).
-
-                forEach(status ->
-
-                        getIssueService().
-
-                                findStatus(status).
-
-                                ifPresent(statuses::add));
-        Query<OpenIssue> issueQuery =
-                getIssueService().query(OpenIssue.class, IssueReason.class, IssueType.class);
-        Condition conditionReason = where(REASON).in(issueReasons);
-        Condition conditionStatus = where(STATUS).in(statuses);
-        Condition conditionUser = where(USER).isEqualTo(currentUser);
-        Condition conditionNullUser = where(USER).isNull();
-        Condition conditionWG = where(WORKGROUP).in(currentUser.getWorkGroups());
+        Stream.of(IssueStatus.IN_PROGRESS, IssueStatus.OPEN).forEach(status -> getIssueService().findStatus(status).ifPresent(statuses::add));
+        Query<OpenIssue> issueQuery = getIssueService().query(OpenIssue.class, IssueReason.class, IssueType.class);
+        Condition conditionReason = where(RequestHelper.REASON).in(issueReasons);
+        Condition conditionStatus = where(RequestHelper.STATUS).in(statuses);
+        Condition conditionUser = where(RequestHelper.USER).isEqualTo(currentUser);
+        Condition conditionNullUser = where(RequestHelper.USER).isNull();
+        Condition conditionWG = where(RequestHelper.WORKGROUP).in(currentUser.getWorkGroups());
         List<OpenIssue> issues = issueQuery.select(
-                conditionReason.
-                        and(conditionStatus).
-                        and(conditionUser.
-                                or(conditionNullUser.
-                                        and(conditionWG))), 1, 7, new Order[]{
-                                                Order.descending(PRIORITYTOTAL),
-                                                Order.ascending(DUEDATE),
-                                                Order.ascending(CREATIONDATE),
-                                                Order.ascending(DEVICE),
-                                                Order.ascending(USAGEPOINT),
-                                                Order.ascending(ISSUEID),
-                                                Order.ascending(REASON)
-                });
+                conditionReason.and(conditionStatus).and(conditionUser.or(conditionNullUser.and(conditionWG))),
+                1, 7,
+                Order.descending(RequestHelper.PRIORITYTOTAL),
+                Order.ascending(RequestHelper.DUEDATE),
+                Order.ascending(RequestHelper.CREATIONDATE),
+                Order.ascending(RequestHelper.DEVICE),
+                Order.ascending(RequestHelper.USAGEPOINT),
+                Order.ascending(RequestHelper.ISSUEID),
+                Order.ascending(RequestHelper.REASON));
         return new TopIssuesInfo(issues, issueTotalUserAssignedCount, issueTotalWorkGroupAssignedCount);
     }
 
@@ -122,5 +103,4 @@ public class TopIssuesResource extends BaseResource {
                 issueType.equals(IssueTypes.MANUAL) ||
                 issueType.equals(IssueTypes.WEB_SERVICE);
     }
-
 }

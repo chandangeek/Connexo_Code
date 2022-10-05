@@ -33,7 +33,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
 
-@Component(name = "com.elster.jupiter.transaction", service = TransactionService.class)
+@Component(name = "com.elster.jupiter.transaction", service = TransactionService.class, immediate = true)
 public class TransactionServiceImpl implements TransactionService {
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile DataSource dataSource;
@@ -100,10 +100,6 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Reference
     public void setBootstrapService(BootstrapService bootStrapService) {
-        doSetBootstrapService(bootStrapService);
-    }
-
-    private void doSetBootstrapService(BootstrapService bootStrapService) {
         this.dataSource = bootStrapService.createDataSource();
     }
 

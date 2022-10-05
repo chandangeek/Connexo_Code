@@ -24,9 +24,9 @@ import static oracle.jdbc.OracleConnection.END_TO_END_CLIENTID_INDEX;
 import static oracle.jdbc.OracleConnection.END_TO_END_MODULE_INDEX;
 import static oracle.jdbc.OracleConnection.END_TO_END_STATE_INDEX_MAX;
 
-@Component(name = "com.elster.jupiter.security.thread")
+@Component(name = "com.elster.jupiter.security.thread", service = {ThreadPrincipalService.class}, immediate = true)
 public class ThreadPrincipalServiceImpl implements ThreadPrincipalService {
-    private ThreadLocal<ThreadContext> threadContexts = new ThreadLocal<>();
+    private final ThreadLocal<ThreadContext> threadContexts = new ThreadLocal<>();
     private volatile AppServerInfoProvider appServerInfoProvider;
 
     @Override

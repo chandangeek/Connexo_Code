@@ -609,7 +609,7 @@ public class DeviceReadingsImporterFactoryTest {
     }
 
     @Test
-    public void testMoreThenYearImport() {
+    public void testMoreThanYearImport() {
         String deviceName = "Dataimporttest";
         ZonedDateTime readingDate = ZonedDateTime.of(2015, 8, 1, 0, 0, 0, 0, ZoneOffset.UTC);
         ZonedDateTime meterActivationStartDate = ZonedDateTime.of(2015, 7, 1, 0, 0, 0, 0, ZoneOffset.UTC);

@@ -91,6 +91,7 @@ import java.util.stream.Stream;
  */
 @Component(name = "com.elster.jupiter.cps",
         service = {CustomPropertySetService.class, ServerCustomPropertySetService.class, TranslationKeyProvider.class},
+        immediate = true,
         property = {
                 "name=" + CustomPropertySetService.COMPONENT_NAME,
                 "osgi.command.scope=cps",

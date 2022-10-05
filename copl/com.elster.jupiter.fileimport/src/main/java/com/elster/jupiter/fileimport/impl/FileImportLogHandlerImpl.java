@@ -10,15 +10,14 @@ import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
-
 public class FileImportLogHandlerImpl extends Handler implements FileImportLogHandler {
+    private List<LogRecord> logRecords = new ArrayList<>();
 
-    private List<LogRecord> logRecords = new ArrayList<LogRecord>();
+    private final FileImportOccurrenceImpl fileImport;
 
-    private FileImportOccurrenceImpl fileImport;
     private final int level;
 
-    public FileImportLogHandlerImpl(FileImportOccurrenceImpl fileImport){
+    public FileImportLogHandlerImpl(FileImportOccurrenceImpl fileImport) {
         this.fileImport = fileImport;
         this.level = fileImport.getImportSchedule().getLogLevel();
     }
@@ -33,7 +32,6 @@ public class FileImportLogHandlerImpl extends Handler implements FileImportLogHa
         if (record.getLevel().intValue() >= level ) {
             logRecords.add(record);
         }
-        //fileImport.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
     }
 
     @Override
@@ -44,7 +42,12 @@ public class FileImportLogHandlerImpl extends Handler implements FileImportLogHa
     @Override
     public void saveLogEntries() {
         for (LogRecord record : logRecords) {
-            fileImport.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+            Throwable thrown = record.getThrown();
+            if (thrown == null) {
+                fileImport.log(record.getLevel(), Instant.ofEpochMilli(record.getMillis()), record.getMessage());
+            } else {
+                fileImport.log(Instant.ofEpochMilli(record.getMillis()), record.getMessage(), thrown);
+            }
         }
         logRecords = new ArrayList<>();
     }

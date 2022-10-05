@@ -41,6 +41,7 @@ import org.osgi.service.http.HttpService;
 import org.osgi.service.http.NamespaceException;
 
 import javax.inject.Inject;
+import javax.validation.MessageInterpolator;
 import javax.ws.rs.core.Application;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -220,7 +221,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>>of(PageResource.class, AppResource.class, AssertionConsumerServiceResource.class, SLOResource.class, ForbiddenExceptionMapper.class);
+        return ImmutableSet.of(PageResource.class, AppResource.class, AssertionConsumerServiceResource.class, SLOResource.class, ForbiddenExceptionMapper.class);
     }
 
     List<HttpResource> getResources() {
@@ -240,23 +241,24 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
         return new AbstractBinder() {
             @Override
             protected void configure() {
-                this.bind(jsonService).to(JsonService.class);
-                this.bind(userService).to(UserService.class);
-                this.bind(queryService).to(QueryService.class);
-                this.bind(httpAuthenticationService).to(HttpAuthenticationService.class);
-                this.bind(bundleContext).to(BundleContext.class);
-                this.bind(samlResponseService).to(SamlResponseService.class);
-                this.bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
-                this.bind(thesaurus).to(Thesaurus.class);
-                this.bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);
-                this.bind(tokenService).to(TokenService.class);
+                bind(jsonService).to(JsonService.class);
+                bind(userService).to(UserService.class);
+                bind(queryService).to(QueryService.class);
+                bind(httpAuthenticationService).to(HttpAuthenticationService.class);
+                bind(bundleContext).to(BundleContext.class);
+                bind(samlResponseService).to(SamlResponseService.class);
+                bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
+                bind(thesaurus).to(Thesaurus.class);
+                bind(thesaurus).to(MessageInterpolator.class);
+                bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);
+                bind(tokenService).to(TokenService.class);
             }
         };
     }
 
     @Override
     public String getComponentName() {
-        return "HTW";
+        return COMPONENTNAME;
     }
 
     @Override

@@ -66,7 +66,10 @@ import java.util.stream.Collectors;
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.util.conditions.Where.where;
 
-@Component(name = "com.elster.jupiter.nls", service = {NlsService.class}, property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
+@Component(name = "com.elster.jupiter.nls",
+        service = {NlsService.class},
+        immediate = true,
+        property = {"name=" + NlsService.COMPONENTNAME, "osgi.command.scope=nls", "osgi.command.function=addTranslation"})
 public class NlsServiceImpl implements NlsService {
 
     private static final Pattern MESSAGE_PARAMETER_PATTERN = Pattern.compile("(\\{[^\\}]+?\\})");

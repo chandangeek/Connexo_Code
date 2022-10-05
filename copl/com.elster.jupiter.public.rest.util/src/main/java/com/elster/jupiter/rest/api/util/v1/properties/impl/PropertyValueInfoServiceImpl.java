@@ -22,6 +22,7 @@ import com.elster.jupiter.util.exception.MessageSeed;
 
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 
 import java.util.Arrays;
 import java.util.LinkedHashMap;
@@ -31,7 +32,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Component(name = "com.elster.jupiter.public.rest.v1.propertyvalueinfoservice", immediate = true, service = PropertyValueInfoService.class)
+@Component(name = "com.elster.jupiter.rest.api.util.v1.properties.impl.propertyvalueinfoservice",
+        immediate = true,
+        service = {PropertyValueInfoService.class, MessageSeedProvider.class})
 public class PropertyValueInfoServiceImpl implements PropertyValueInfoService, MessageSeedProvider {
 
     private static PropertyValueConverter DEFAULT_CONVERTER = new DefaultPropertyValueConverter();
@@ -52,6 +55,11 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService, M
         this.addPropertyValueInfoConverter(new ListPropertyValueConverter());
         this.addPropertyValueInfoConverter(new QuantityPropertyValueConverter());
         this.addPropertyValueInfoConverter(new IntegerPropertyValueConverter());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        converters.clear();
     }
 
     @Override
