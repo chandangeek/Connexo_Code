@@ -1,19 +1,22 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class TelegramBodyHeader {
 
+    private final MerlinLogger logger;
     private TelegramField ciField;
     private TelegramField accNrField;
     private TelegramField statusField;
     private TelegramField sigField;
 
-    public TelegramBodyHeader() {
-
+    public TelegramBodyHeader(MerlinLogger logger) {
+        this.logger = logger;
     }
 
     public void createTelegramBodyHeader(String[] bodyHeader) {
@@ -25,22 +28,22 @@ public class TelegramBodyHeader {
     }
 
     public void setCiField(String ciField) {
-        this.ciField = new TelegramField();
+        this.ciField = new TelegramField(logger);
         this.ciField.addFieldPart(ciField);
     }
 
     public void setAccNrField(String accNrField) {
-        this.accNrField = new TelegramField();
+        this.accNrField = new TelegramField(logger);
         this.accNrField.addFieldPart(accNrField);
     }
 
     public void setStatusField(String statusField) {
-        this.statusField = new TelegramField();
+        this.statusField = new TelegramField(logger);
         this.statusField.addFieldPart(statusField);
     }
 
     public void setSigField(String[] sigField) {
-        this.sigField = new TelegramField();
+        this.sigField = new TelegramField(logger);
         this.sigField.addFieldParts(sigField);
     }
 
@@ -70,87 +73,87 @@ public class TelegramBodyHeader {
         return this.statusField.getFieldParts().get(0);
     }
 
-    public void debugOutput() {
+    public void debugOutput(StringJoiner joiner) {
         if(this.ciField != null) {
-            System.out.println("Type of TelegramBodyHeader: " + getTelegramType());
+            joiner.add("Type of TelegramBodyHeader: " + getTelegramType());
         }
 
         if(this.accNrField != null) {
-            System.out.println("AccessNumber: " + getAccessNumber());
+            joiner.add("AccessNumber: " + getAccessNumber());
         }
 
         if(this.statusField != null) {
             // TODO: parse Status-Field
-            System.out.println("StatusField: " + this.getStatusField());
+            joiner.add("StatusField: " + this.getStatusField());
             int status = Integer.parseInt(this.getStatusField(), 16);
             switch ((status & 0x03)) {
                 case 1:
-                    System.out.println("\t - application busy [!]");
+                    joiner.add("\t - application busy [!]");
                     break;
 
                 case 2:
-                    System.out.println("\t - application error [!]");
+                    joiner.add("\t - application error [!]");
                     break;
 
                 case 3:
-                    System.out.println("\t - abnormal situation [!]");
+                    joiner.add("\t - abnormal situation [!]");
                     break;
             }
 
             switch ((status & 0x04) >> 2) {
                 case 0:
-                    System.out.println("\t - power ok");
+                    joiner.add("\t - power ok");
                     break;
                 case 1:
-                    System.out.println("\t - power low [!]");
+                    joiner.add("\t - power low [!]");
                     break;
             }
 
             switch ((status & 0x08) >> 3) {
                 case 0:
-                    System.out.println("\t - no permanent error");
+                    joiner.add("\t - no permanent error");
                     break;
                 case 1:
-                    System.out.println("\t - permanent error [!]");
+                    joiner.add("\t - permanent error [!]");
                     break;
             }
 
             switch ((status & 0x10) >> 4) {
                 case 0:
-                    System.out.println("\t - no temporary error");
+                    joiner.add("\t - no temporary error");
                     break;
                 case 1:
-                    System.out.println("\t - temporary error [!]");
+                    joiner.add("\t - temporary error [!]");
                     break;
             }
 
             // manufacturer specific 1
-            switch ((status & 0x20) >> 4) {
+            switch ((status & 0x20) >> 5) {
                 case 0:
-                    System.out.println("\t - leakage alarm cleared");
+                    joiner.add("\t - leakage alarm cleared");
                     break;
                 case 1:
-                    System.out.println("\t - leakage alarm (MLF) [!]");
+                    joiner.add("\t - leakage alarm (MLF) [!]");
                     break;
             }
 
             // manufacturer specific 2
-            switch ((status & 0x40 >> 5) ) {
+            switch ((status & 0x40 >> 6) ) {
                 case 0:
-                    System.out.println("\t - overconsumption alarm cleared");
+                    joiner.add("\t - overconsumption alarm cleared");
                     break;
                 case 1:
-                    System.out.println("\t - actual Alarm burst (MBA) [!]");
+                    joiner.add("\t - actual Alarm burst (MBA) [!]");
                     break;
             }
 
             // manufacturer specific 3
-            switch ((status & 0x80 >> 6) ) {
+            switch ((status & 0x80 >> 7) ) {
                 case 0:
-                    System.out.println("\t - device paired");
+                    joiner.add("\t - device paired");
                     break;
                 case 1:
-                    System.out.println("\t - a removal (or cable cut) detected [!]");
+                    joiner.add("\t - a removal (or cable cut) detected [!]");
                     break;
             }
 
@@ -158,8 +161,8 @@ public class TelegramBodyHeader {
 
         if(this.sigField != null) {
             // TODO: parse Sig-Field
-            System.out.println("Sig-Field1: " + this.sigField.getFieldParts().get(0));
-            System.out.println("Sig-Field2: " + this.sigField.getFieldParts().get(1));
+            joiner.add("Sig-Field1: " + this.sigField.getFieldParts().get(0));
+            joiner.add("Sig-Field2: " + this.sigField.getFieldParts().get(1));
         }
     }
 }

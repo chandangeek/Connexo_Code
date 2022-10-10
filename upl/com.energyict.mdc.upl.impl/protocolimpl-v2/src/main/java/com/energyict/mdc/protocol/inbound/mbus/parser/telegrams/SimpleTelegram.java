@@ -3,6 +3,8 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams;
 
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Measure_Unit;
 
+//TODO: delete this
+@Deprecated
 public class SimpleTelegram {
 
     private long timeStamp;

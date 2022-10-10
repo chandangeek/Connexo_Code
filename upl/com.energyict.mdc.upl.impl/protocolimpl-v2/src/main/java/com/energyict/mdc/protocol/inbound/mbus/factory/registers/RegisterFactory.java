@@ -79,7 +79,7 @@ public class RegisterFactory extends AbstractMerlinFactory {
                 register.setReadTime(Date.from(getTelegramDateTime()));
                 collectedRegisterList.addCollectedRegister(register);
 
-                getInboundContext().getLogger().log(obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
+                getInboundContext().getLogger().info(obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
             }
         }
     }

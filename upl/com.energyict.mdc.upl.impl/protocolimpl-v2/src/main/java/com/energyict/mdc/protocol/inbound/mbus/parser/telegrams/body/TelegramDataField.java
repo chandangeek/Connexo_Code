@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.DateCalculator;
@@ -13,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class TelegramDataField extends TelegramField {
 
@@ -22,14 +24,16 @@ public class TelegramDataField extends TelegramField {
     private static int REAL_SIGN = 0x80000000;			// 32-Bit (signum of real)
     private static int SIGN = 0x01;						// mask for signum
 
-    public TelegramDataField() {
-        super();
+
+
+    public TelegramDataField(MerlinLogger logger) {
+        super(logger);
     }
 
-    public TelegramDataField(TelegramVariableDataRecord parent) {
+    public TelegramDataField(TelegramVariableDataRecord parent, MerlinLogger logger) {
+        super(logger);
         this.parent = parent;
     }
-
 
     public void parse(boolean isProfile) {
         parse();
@@ -43,7 +47,7 @@ public class TelegramDataField extends TelegramField {
         int multiplier = this.parent.getVif().getMultiplier();
 
         if (length != this.fieldParts.size()) {
-            System.out.println("ERROR: wrong size");
+            logger.debug("ERROR: wrong size");
             // TODO: throw exception
             return;
         }
@@ -192,8 +196,8 @@ UI2 [47 to 48]
         this.parent = parent;
     }
 
-    public void debugOutput() {
-        System.out.println("Field-Value (bytes): \t" + this.getFieldPartsAsString());
-        System.out.println("Field-Value: \t\t" + this.parsedValue);
+    public void debugOutput(StringJoiner joiner) {
+        joiner.add("Field-Value (bytes): \t" + this.getFieldPartsAsString());
+        joiner.add("Field-Value: \t\t" + this.parsedValue);
     }
 }

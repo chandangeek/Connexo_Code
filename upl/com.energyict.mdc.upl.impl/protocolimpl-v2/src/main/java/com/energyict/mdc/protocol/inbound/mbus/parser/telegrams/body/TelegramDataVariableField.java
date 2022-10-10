@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 
 import java.util.Collections;
@@ -10,6 +11,10 @@ public class TelegramDataVariableField extends TelegramDataField{
 
     private List<String> payload;
     private int lVar;
+
+    public TelegramDataVariableField(MerlinLogger logger) {
+        super(logger);
+    }
 
     public void addVariableLengthPayload(List<String> payload) {
         this.payload = payload;
@@ -41,28 +46,28 @@ public class TelegramDataVariableField extends TelegramDataField{
                                     Note that a text string (like all other mutibyte data) is transmitted "Least significant byte first" */
             if ((lVar >= 0x00) && (lVar <= 0xBF)) {
                 length = lVar;
-                //System.out.println("LVAR = " + lVar + ": text string, length=" + length);
+                //logger.debug("LVAR = " + lVar + ": text string, length=" + length);
                 parseVariableLengthFieldAsISO8859();
             }
             /* LVAR = C0h - C9h         positive BCD number with (LVAR - C0h, i.e. 0 to 9) • 2 digits (0 to 18 digits) */
             else if ((lVar >= 0xC0) && (lVar <= 0xC9)) {
                 length = lVar - 0xC0;
-                //System.out.println("LVAR = " + lVar + ": positive BCD, length=" + length);
+                //logger.debug("LVAR = " + lVar + ": positive BCD, length=" + length);
             }
             /* LVAR = D0h - D9h         negative BCD number with (LVAR - D0h) • 2 digits (0 to 18 digits) */
             else if ((lVar >= 0xD0) && (lVar <= 0xD9)) {
                 length = lVar - 0xD0;
-                //System.out.println("LVAR = " + lVar + ": negative BCD, length=" + length);
+                //logger.debug("LVAR = " + lVar + ": negative BCD, length=" + length);
             }
             /* LVAR = E0h - Efh        Binary number with (LVAR - E0h) bytes (0 to 15 bytes) */
             else if ((lVar >= 0xE0) && (lVar <= 0xEF)) {
                 length = lVar - 0xE0;
-                //System.out.println("LVAR = " + lVar + ": Binary number, length=" + length);
+                //logger.debug("LVAR = " + lVar + ": Binary number, length=" + length);
             }
             /* LVAR = F8h              floating point number according to IEEE 754 */
             else if (lVar == 0xF8) {
                 length = lVar - 0xE0;
-                //System.out.println("LVAR = " + lVar + ": floating point number according to IEEE 754, length=" + length);
+                //logger.debug("LVAR = " + lVar + ": floating point number according to IEEE 754, length=" + length);
             } else {
                 //System.err.println("Don't know how to interpret LVAR=" + String.format("%02x", lVar));
             }

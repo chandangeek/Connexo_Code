@@ -66,7 +66,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
                     && Integer.parseInt(record.getDataField().getFieldParts().get(1), 16) == applicableSpacingControlByte().getValue()
                     && Integer.parseInt(record.getDataField().getFieldParts().get(2), 16) == applicableSpacingControlByte().getTimeAmount();
         } catch (Exception ex) {
-            getInboundContext().getLogger().logE("Error while checking applicability of record", ex);
+            getInboundContext().getLogger().error("Error while checking applicability of record", ex);
             ex.printStackTrace();
             return false;
         }
@@ -135,14 +135,14 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
 
     public CollectedLoadProfile extractLoadProfile(TelegramVariableDataRecord profileRecord, final TelegramVariableDataRecord indexRecord) {
         if (!appliesFor(profileRecord)) {
-            getInboundContext().getLogger().logW("This profile record cannot be decoded by this factory!");
+            getInboundContext().getLogger().warn("This profile record cannot be decoded by this factory!");
             return null;
         }
 
         extractProfileMetaData(profileRecord);
 
         if (!appliesAsIndexRecord(indexRecord)) {
-            getInboundContext().getLogger().logW("Invalid index record, it doesn't match the profile record");
+            getInboundContext().getLogger().warn("Invalid index record, it doesn't match the profile record");
             return null;
         }
 
@@ -182,7 +182,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     private void setStartIndex(TelegramVariableDataRecord indexRecord) {
         this.startIndex = Long.parseLong(indexRecord.getDataField().getParsedValue());
         this.midnight = toMidnightWithTimeZone(getTelegramDateTime(), getTimeZone());
-        getInboundContext().getLogger().log("Starting load profile calculation backwards from midnight: " + midnight + ", in time-zone " + getTimeZone()) ;
+        getInboundContext().getLogger().info("Starting load profile calculation backwards from midnight: " + midnight + ", in time-zone " + getTimeZone()) ;
     }
 
     private ZoneId getTimeZone() {
@@ -224,7 +224,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     }
 
     private void saveCurrentInterval() {
-        getInboundContext().getLogger().log(calculationTimeStamp.toString() + " = " + calculationIndex);
+        getInboundContext().getLogger().info(calculationTimeStamp.toString() + " = " + calculationIndex);
         IntervalValue intervalValue = new IntervalValue(calculationIndex, DEFAULT_PROTOCOL_STATUS, DEFAULT_EI_STATUS);
 
         IntervalData interval = new IntervalData(Date.from(calculationTimeStamp));

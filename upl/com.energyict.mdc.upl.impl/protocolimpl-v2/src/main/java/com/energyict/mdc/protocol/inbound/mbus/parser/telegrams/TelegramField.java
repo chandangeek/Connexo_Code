@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 
 import java.time.Instant;
@@ -11,13 +12,15 @@ import java.util.Optional;
 
 public class TelegramField {
 
+    protected final MerlinLogger logger;
     protected List<String> fieldParts;
     protected String parsedValue;
     protected Instant timeValue;
     protected Map<Integer, Long> parsedIntervals;
 
-    public TelegramField() {
+    public TelegramField(MerlinLogger logger) {
         this.fieldParts = new ArrayList<String>();
+        this.logger = logger;
     }
 
     public void addFieldPart(String value) {

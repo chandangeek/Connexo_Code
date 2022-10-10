@@ -1,12 +1,15 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.header;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class  TelegramHeader {
 
+    private final MerlinLogger logger;
     private TelegramField lField;
     private TelegramField cField;
     private TelegramField mField;
@@ -15,8 +18,8 @@ public class  TelegramHeader {
     public static int headerLengthCRC = 11;
     public static int headerLengthNoCRC = 9;
 
-    public TelegramHeader() {
-
+    public TelegramHeader(MerlinLogger logger) {
+        this.logger = logger;
     }
 
     public void createTelegramHeader(String header) {
@@ -84,27 +87,27 @@ public class  TelegramHeader {
     }
 
     public void setLField(String lField) {
-        this.lField = new TelegramField();
+        this.lField = new TelegramField(logger);
         this.lField.addFieldPart(lField);
     }
 
     public void setCField(String cField) {
-        this.cField = new TelegramField();
+        this.cField = new TelegramField(logger);
         this.cField.addFieldPart(cField);
     }
 
     public void setMField(String[] mField) {
-        this.mField = new TelegramField();
+        this.mField = new TelegramField(logger);
         this.mField.addFieldParts(mField);
     }
 
     public void setAField(String[] aField) {
-        this.aField = new TelegramField();
+        this.aField = new TelegramField(logger);
         this.aField.addFieldParts(aField);
     }
 
     public void setCRCField(String[] crcField) {
-        this.crcField = new TelegramField();
+        this.crcField = new TelegramField(logger);
         this.crcField.addFieldParts(crcField);
     }
 
@@ -118,27 +121,27 @@ public class  TelegramHeader {
         return aesCbcInitVectorPart;
     }
 
-    public void debugOutput() {
+    public void debugOutput(StringJoiner joiner) {
         if(this.lField != null) {
-            System.out.println("Length of Telegram: " + this.lField.getFieldParts().get(0));
+            joiner.add("Length of Telegram: " + this.lField.getFieldParts().get(0));
         }
         if(this.cField != null) {
-            System.out.println("C-Field (mode): " + this.cField.getFieldParts().get(0));
+            joiner.add("C-Field (mode): " + this.cField.getFieldParts().get(0));
         }
         if(this.mField != null) {
             String manufacturer =  this.mField.getFieldParts().get(0) + this.mField.getFieldParts().get(1);
-            System.out.println("M-Field (manufacturer): " + manufacturer);
+            joiner.add("M-Field (manufacturer): " + manufacturer);
         }
         if(this.aField != null) {
             String serialNr =  this.aField.getFieldParts().get(3) + this.aField.getFieldParts().get(2) +
                     this.aField.getFieldParts().get(1) + this.aField.getFieldParts().get(0);
-            System.out.println("A-Field: ");
-            System.out.println("\tSerialNumber: " + serialNr);
-            System.out.println("\tVersion: " + this.aField.getFieldParts().get(4));
-            System.out.println("\tType: " + this.aField.getFieldParts().get(5));
+            joiner.add("A-Field: ");
+            joiner.add("\tSerialNumber: " + serialNr);
+            joiner.add("\tVersion: " + this.aField.getFieldParts().get(4));
+            joiner.add("\tType: " + this.aField.getFieldParts().get(5));
         }
         if(this.crcField != null) {
-            System.out.println("CRC: " + this.crcField.getFieldParts().get(0) + " " +
+            joiner.add("CRC: " + this.crcField.getFieldParts().get(0) + " " +
                     "" + this.crcField.getFieldParts().get(1));
         }
     }

@@ -52,10 +52,10 @@ public class StatusEventsFactory extends AbstractMerlinFactory {
 
         if (!mapping.isError()) {
             // just an info
-            getInboundContext().getLogger().log("Status event info " + mapping.toString());
+            getInboundContext().getLogger().info("Status event info " + mapping.toString());
         } else {
             // normal event
-            getInboundContext().getLogger().log("Status event: " + mapping.toString());
+            getInboundContext().getLogger().info("Status event: " + mapping.toString());
         }
 
 

@@ -27,7 +27,7 @@ public class MerlinMbusParser {
     }
 
     public Telegram parseHeader(byte[] buffer){
-        telegram = new Telegram();
+        telegram = new Telegram(getLogger());
         String telegramString = ProtocolTools.getHexStringFromBytes(buffer, " ").trim();
         telegram.createTelegram(telegramString, false);
 
@@ -35,15 +35,34 @@ public class MerlinMbusParser {
     }
 
     public Telegram parse(){
-        telegram.decryptTelegram(getInboundContext().getEncryptionKey());
 
+        boolean result = telegram.decryptTelegram(getInboundContext().getEncryptionKey());
+
+        if (result) {
+            if (isDecryptionOk()) {
+                telegram.parse();
+                // telegram.debugOutput();
+
+                return telegram;
+            } else {
+                getLogger().error("Decryption is not correct!");
+            }
+        } else {
+            getLogger().error("Could not decrypt telegram!");
+        }
         // TODO -> check invalid decryption, check 2f 2f, throw errors, etc
 
-        //telegram.decryptTelegram(null);
-        telegram.parse();
-       // telegram.debugOutput();
+        return null;
+    }
 
-        return telegram;
+    private boolean isDecryptionOk() {
+        try {
+            return "2f".equalsIgnoreCase(telegram.getBody().getBodyPayload().getDecryptedPayloadAsList().get(0))
+                    && "2f".equalsIgnoreCase(telegram.getBody().getBodyPayload().getDecryptedPayloadAsList().get(1));
+        } catch (Exception ex) {
+            getLogger().error("Could not check if decryption is ok");
+            return false;
+        }
     }
 
 }

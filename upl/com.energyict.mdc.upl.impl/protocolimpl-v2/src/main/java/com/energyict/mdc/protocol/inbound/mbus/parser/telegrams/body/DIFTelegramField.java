@@ -1,10 +1,13 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramEncoding;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramFunctionType;
+
+import java.util.StringJoiner;
 
 public class DIFTelegramField extends TelegramField {
 
@@ -54,15 +57,15 @@ public class DIFTelegramField extends TelegramField {
     private int dataFieldLength = 0;
     private TelegramEncoding dataFieldEncoding = TelegramEncoding.ENCODING_NULL;
 
-    public DIFTelegramField() {
-
+    public DIFTelegramField(MerlinLogger logger) {
+        super(logger);
     }
 
     public void parse() {
         String difField = this.fieldParts.get(0);
         int iDifField = Converter.hexToInt(difField);
 
-        System.out.println("\n*** Parsing DIF field: " + difField + " ***");
+        logger.debug("\n*** Parsing DIF field: " + difField + " ***");
 
         // there are some special functions where the other fields
         // don't need to be interpreted (for example 2F as a fill byte)
@@ -78,7 +81,7 @@ public class DIFTelegramField extends TelegramField {
             case DIFTelegramField.FILL_BYTES_MASK:
                 this.functionType = TelegramFunctionType.SPECIAL_FUNCTION_FILL_BYTE;
                 this.dataFieldLength = 0;
-                System.out.println("\t " + functionType + " [" + dataFieldEncoding + "]");
+                logger.debug("\t " + functionType + " [" + dataFieldEncoding + "]");
                 return;
             case 0x3F:
                 return;
@@ -93,7 +96,7 @@ public class DIFTelegramField extends TelegramField {
         }
 
         if((iDifField & DIFTelegramField.EXTENSION_BIT) == DIFTelegramField.EXTENSION_BIT) {
-            System.out.println("\t - extension = true");
+            logger.debug("\t - extension = true");
             this.extensionBit = true;
         }
         if((iDifField & DIFTelegramField.LSB_SAVE_NUMBER_BIT) == DIFTelegramField.LSB_SAVE_NUMBER_BIT) {
@@ -105,7 +108,7 @@ public class DIFTelegramField extends TelegramField {
         // an integer value (this integer value is then translated to our enum value)
         this.functionType = TelegramFunctionType.values()[(iDifField & DIFTelegramField.FUNCTION_MASK) >> 4];
 
-        System.out.println("\t " + functionType + " [" + dataFieldEncoding + "]");
+        logger.debug("\t " + functionType + " [" + dataFieldEncoding + "]");
 
         this.parseEncodingAndLength(iDifField);
     }
@@ -167,7 +170,7 @@ public class DIFTelegramField extends TelegramField {
                 break;
         }
 
-        System.out.println("\t dataFieldLength=" + dataFieldLength + ", encoding=" + dataFieldEncoding);
+        logger.debug("\t dataFieldLength=" + dataFieldLength + ", encoding=" + dataFieldEncoding);
     }
 
     public boolean isFillByte() {
@@ -214,14 +217,14 @@ public class DIFTelegramField extends TelegramField {
         this.dataFieldEncoding = dataFieldEncoding;
     }
 
-    public void debugOutput() {
-        System.out.println("DIF-Field: ");
-        System.out.println("\tExtension-Bit: \t\t" + this.extensionBit);
-        System.out.println("\tSaveNumber-Bit: \t" + this.saveNumberBit);
-        System.out.println("\tFunction-Type: \t\t" + this.functionType);
-        System.out.println("\tDataField: \t\t" + Integer.toBinaryString(this.dataFieldLengthAndEncoding));
-        System.out.println("\tDataFieldEncoding: \t" + this.dataFieldEncoding);
-        System.out.println("\tDataFieldLength: \t" + this.dataFieldLength);
+    public void debugOutput(StringJoiner joiner) {
+        joiner.add("DIF-Field: ");
+        joiner.add("\tExtension-Bit: \t\t" + this.extensionBit);
+        joiner.add("\tSaveNumber-Bit: \t" + this.saveNumberBit);
+        joiner.add("\tFunction-Type: \t\t" + this.functionType);
+        joiner.add("\tDataField: \t\t" + Integer.toBinaryString(this.dataFieldLengthAndEncoding));
+        joiner.add("\tDataFieldEncoding: \t" + this.dataFieldEncoding);
+        joiner.add("\tDataFieldLength: \t" + this.dataFieldLength);
     }
 
 }

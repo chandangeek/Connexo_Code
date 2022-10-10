@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramEncoding;
@@ -9,26 +10,29 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramFun
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class TelegramBodyPayload {
 
+    private final MerlinLogger logger;
     private TelegramField bodyFieldEncrypted;
     private TelegramField bodyFieldDecrypted;
     private List<TelegramVariableDataRecord> records;
     private boolean hasBeenEncrypted = true;
 
-    public TelegramBodyPayload() {
-        this.bodyFieldEncrypted = new TelegramField();
-        this.bodyFieldDecrypted = new TelegramField();
+    public TelegramBodyPayload(MerlinLogger logger) {
+        this.logger = logger;
+        this.bodyFieldEncrypted = new TelegramField(logger);
+        this.bodyFieldDecrypted = new TelegramField(logger);
     }
 
     public void createTelegramBodyPayload(String[] bodyPayload) {
-        this.bodyFieldEncrypted = new TelegramField();
+        this.bodyFieldEncrypted = new TelegramField(logger);
         this.bodyFieldEncrypted.addFieldParts(bodyPayload);
     }
 
     public void setDecryptedTelegramBodyPayload(String[] bodyPayload) {
-        this.bodyFieldDecrypted = new TelegramField();
+        this.bodyFieldDecrypted = new TelegramField(logger);
         this.bodyFieldDecrypted.addFieldParts(bodyPayload);
     }
 
@@ -47,16 +51,16 @@ public class TelegramBodyPayload {
                 this.parseVariableDataRecord(startPosition + 1);
 
                 if(this.records.size() != 2) {
-                    System.err.println("Invalid record size: " + this.records.size());
+                    logger.error("Invalid record size: " + this.records.size());
                     // TODO: throw exception
                 }
 
                 if(!this.records.get(0).getDif().isFillByte()) {
-                    System.err.println("Fill byte 1 is invalid: " + this.records.get(0).getDif().getFieldParts().get(0));
+                    logger.error("Fill byte 1 is invalid: " + this.records.get(0).getDif().getFieldParts().get(0));
                     // TODO: throw exception because first two records need to be 2F in encryption mode
                 }
                 if(!this.records.get(1).getDif().isFillByte()) {
-                    System.err.println("Fill byte 1 is invalid: " + this.records.get(1).getDif().getFieldParts().get(0));
+                    logger.error("Fill byte 1 is invalid: " + this.records.get(1).getDif().getFieldParts().get(0));
                     // TODO: throw exception because first two records need to be 2F in encryption mode
                 }
                 startPosition = 2;
@@ -69,8 +73,8 @@ public class TelegramBodyPayload {
     }
 
     private int parseVariableDataRecord(int startPosition) {
-        TelegramVariableDataRecord rec = new TelegramVariableDataRecord();
-        DIFTelegramField dif = new DIFTelegramField();
+        TelegramVariableDataRecord rec = new TelegramVariableDataRecord(logger);
+        DIFTelegramField dif = new DIFTelegramField(logger);
         dif.addFieldPart(this.bodyFieldDecrypted.getFieldParts().get(startPosition));
         dif.parse();
 
@@ -91,7 +95,7 @@ public class TelegramBodyPayload {
         rec.addDifes(difeList);
 
         // increase startPosition by 1 (DIF) and the number of DIFEs
-        VIFTelegramField vif = new VIFTelegramField();
+        VIFTelegramField vif = new VIFTelegramField(logger);
         if ((dif.getFunctionType() != TelegramFunctionType.USER_DEFINED_CELL_ID)
                 && (!TelegramEncoding.ENCODING_NULL.equals(dif.getDataFieldEncoding()))) {
             vif.addFieldPart(this.bodyFieldDecrypted.getFieldParts().get(startPosition + 1 + difeList.size()));
@@ -106,7 +110,7 @@ public class TelegramBodyPayload {
 
         List<VIFETelegramField> vifeList = new ArrayList<VIFETelegramField>();
         if (vif.isProfile()) {
-            System.out.println("\t* Profile detected, getting single VIFE");
+            logger.debug("\t* Profile detected, getting single VIFE");
             VIFETelegramField vife = this.processSingleVIFEField(this.bodyFieldDecrypted.getFieldParts().get(startPosition + 2 + difeList.size()));
             vife.setExtensionBit(false);
             vifeList.add(vife);
@@ -131,16 +135,16 @@ public class TelegramBodyPayload {
 
         if(this.bodyFieldDecrypted.getFieldParts().size() >= upperBoundary) {
             if (dif.getDataFieldEncoding().equals(TelegramEncoding.ENCODING_VARIABLE_LENGTH)){
-                TelegramDataVariableField dataFieldVariable = new TelegramDataVariableField();
+                TelegramDataVariableField dataFieldVariable = new TelegramDataVariableField(logger);
 
                 String lVar = this.bodyFieldDecrypted.getFieldParts().get(lowerBoundary);
                 int variableLength;
                 if (vif.isProfile()) {
-                    System.out.println("\tLVAR = " + lVar + " direct conversion for profiles");
+                    logger.debug("\tLVAR = " + lVar + " direct conversion for profiles");
                     variableLength = Converter.hexToInt(lVar);
                 } else {
                     variableLength = dataFieldVariable.getVariableLengthFieldLength(lVar);
-                    System.out.println("\tLVAR = " + lVar + " conversion to " + variableLength);
+                    logger.debug("\tLVAR = " + lVar + " conversion to " + variableLength);
                 }
                 if (variableLength > 0) {
                     // store VIF meta data
@@ -156,10 +160,10 @@ public class TelegramBodyPayload {
                     dataFieldVariable.parse(vif.isProfile());
                     rec.setDataField(dataFieldVariable);
                 } else {
-                    System.err.println("Cannot parse variable-field-length " + variableLength);
+                    logger.warn("Cannot parse variable-field-length " + variableLength);
                 }
             } else {
-                TelegramDataField dataField = new TelegramDataField(rec);
+                TelegramDataField dataField = new TelegramDataField(rec, logger);
                 String[] fieldParts = Arrays.copyOfRange(this.bodyFieldDecrypted.getFieldPartsAsArray(), lowerBoundary, upperBoundary);
                 dataField.addFieldParts(fieldParts);
 
@@ -189,8 +193,8 @@ public class TelegramBodyPayload {
     }
 
     private DIFETelegramField processSingleDIFEField(String fieldValue) {
-        System.out.println("\t# DIFE: " + fieldValue);
-        DIFETelegramField dife = new DIFETelegramField();
+        logger.debug("\t# DIFE: " + fieldValue);
+        DIFETelegramField dife = new DIFETelegramField(logger);
         dife.addFieldPart(fieldValue);
 
         return dife;
@@ -215,22 +219,21 @@ public class TelegramBodyPayload {
     }
 
     private VIFETelegramField processSingleVIFEField(String fieldValue) {
-        System.out.println("\t** VIFE: " + fieldValue);
+        logger.debug("\t** VIFE: " + fieldValue);
 
         int iFieldValue = Converter.hexToInt(fieldValue);
-        VIFETelegramField vife = new VIFETelegramField();
+        VIFETelegramField vife = new VIFETelegramField(logger);
         vife.addFieldPart(fieldValue);
 
         if((iFieldValue & VIFTelegramField.EXTENSION_BIT_MASK) == VIFTelegramField.EXTENSION_BIT_MASK) {
             if (iFieldValue != 0xc3) {
                 vife.setExtensionBit(true);
-                System.out.println("\t\t - extension: true ");
+                logger.debug("\t\t - extension: true ");
             } else {
                 //vife.setExtensionBit(true);
-                System.out.println("\t - back-flow VIFE, reducing length");
+                logger.debug("\t - back-flow VIFE, reducing length");
             }
         }
-
 
         return vife;
     }
@@ -259,20 +262,20 @@ public class TelegramBodyPayload {
         this.hasBeenEncrypted = hasBeenEncrypted;
     }
 
-    public void debugOutput() {
-        System.out.println("-------------------------------------------------------------");
-        System.out.println("-------------------- BEGIN BODY PAYLOAD ---------------------");
-        System.out.println("-------------------------------------------------------------");
-        System.out.println("Encrypted: " + this.hasBeenEncrypted);
+    public void debugOutput(StringJoiner joiner) {
+        joiner.add("-------------------------------------------------------------");
+        joiner.add("-------------------- BEGIN BODY PAYLOAD ---------------------");
+        joiner.add("-------------------------------------------------------------");
+        joiner.add("Encrypted: " + this.hasBeenEncrypted);
         if(this.records != null) {
             for(int i = 0; i < this.records.size(); i++) {
-                System.out.println("RECORD: " + i);
-                this.records.get(i).debugOutput();
+                joiner.add("RECORD: " + i);
+                this.records.get(i).debugOutput(joiner);
             }
         }
-        System.out.println("-------------------------------------------------------------");
-        System.out.println("--------------------- END BODY PAYLOAD ----------------------");
-        System.out.println("-------------------------------------------------------------");
+        joiner.add("-------------------------------------------------------------");
+        joiner.add("--------------------- END BODY PAYLOAD ----------------------");
+        joiner.add("-------------------------------------------------------------");
     }
 
     public List<TelegramVariableDataRecord> getRecords() {

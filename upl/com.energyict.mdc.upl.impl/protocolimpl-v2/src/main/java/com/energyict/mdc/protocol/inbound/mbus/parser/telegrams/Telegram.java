@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramBody;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.header.TelegramHeader;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.AESEncrypt;
@@ -8,23 +9,28 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class Telegram {
 
     private static final int BLOCK_SIZE = 16; /* Encryption Block size */
+    private final MerlinLogger logger;
     private TelegramHeader header;
     private TelegramBody body;
 
-    public Telegram() {
-        this.header = new TelegramHeader();
-        this.body = new TelegramBody();
+    public Telegram(MerlinLogger logger) {
+        this.logger = logger;
+        this.header = new TelegramHeader(logger);
+        this.body = new TelegramBody(logger);
     }
 
-    public Telegram(TelegramHeader header, TelegramBody body) {
+    /*
+    public Telegram(MerlinLogger logger, TelegramHeader header, TelegramBody body) {
         super();
+        this.logger = logger;
         this.header = header;
         this.body = body;
-    }
+    }*/
 
     public void createTelegram(String telegram, boolean crc) {
         this.createTelegram(telegram.split(" "), crc);
@@ -32,7 +38,7 @@ public class Telegram {
 
     public void createTelegram(String[] telegram, boolean crc) {
         int headerLength = TelegramHeader.headerLengthCRC;
-        if(crc == false) {
+        if (!crc) {
             headerLength = TelegramHeader.headerLengthNoCRC;
         }
 
@@ -68,7 +74,7 @@ public class Telegram {
         byte[] initCTRVArr = this.getAESCBCInitVector();
 
         try {
-            System.out.println("Encrypted payload: " +this.getBody().getBodyPayload().getPayloadAsString().replace(" ",""));
+            logger.debug("Encrypted payload: " +this.getBody().getBodyPayload().getPayloadAsString().replace(" ",""));
 
             final int length = this.getBody().getBodyPayload().getEncryptedPayload().length;
             int start = 0;
@@ -77,16 +83,17 @@ public class Telegram {
             while (start <= length - BLOCK_SIZE) {
                 byte[] payloadArr = Converter.convertStringListToByteArray(this.getBody().getBodyPayload().getPayloadAsList().subList(start, start+BLOCK_SIZE));
 
-                //System.out.println("\t EB: " + Converter.convertByteArrayToString(payloadArr).replace(" ",""));
+                //logger.debug("\t EB: " + Converter.convertByteArrayToString(payloadArr).replace(" ",""));
                 byte[] result = AESEncrypt.decrypt(payloadArr, keyArr, initCTRVArr);
 
                 System.arraycopy(result, 0, decryptedResult, start, BLOCK_SIZE);
                 start += BLOCK_SIZE;
             }
             this.getBody().getBodyPayload().setDecryptedTelegramBodyPayload(Converter.convertByteArrayToString(decryptedResult).split(" "));
-            System.out.println("Decrypted payload: " + Converter.convertByteArrayToString(decryptedResult).replace(" ",""));
+            logger.debug("Decrypted payload: " + Converter.convertByteArrayToString(decryptedResult).replace(" ",""));
         } catch (Exception e) {
             e.printStackTrace();
+            logger.error("Error decrypting telegram", e);
             return false;
         }
         return true;
@@ -99,7 +106,7 @@ public class Telegram {
     public byte[] getAESCBCInitVector() {
         byte[] properInitVector = this.generateAESCBCInitVector();
         byte[] dummyInitVector = ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
-        //System.out.println("Proper init-vector: " + Converter.convertByteArrayToString(properInitVector).replace(" ",""));
+        //logger.debug("Proper init-vector: " + Converter.convertByteArrayToString(properInitVector).replace(" ",""));
         return dummyInitVector;
     }
 
@@ -113,13 +120,15 @@ public class Telegram {
         return aesCbcInitVector;
     }
 
-    public void debugOutput() {
+    public String debugOutput() {
+        StringJoiner joiner = new StringJoiner("\n");
         if(this.header != null) {
-            this.header.debugOutput();
+            this.header.debugOutput(joiner);
         }
         if(this.body != null) {
-            this.body.debugOutput();
+            this.body.debugOutput(joiner);
         }
+        return joiner.toString();
     }
 
     public String getSerialNr() {

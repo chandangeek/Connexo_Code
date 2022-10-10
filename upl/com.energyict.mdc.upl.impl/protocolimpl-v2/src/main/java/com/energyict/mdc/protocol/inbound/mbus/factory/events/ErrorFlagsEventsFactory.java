@@ -48,7 +48,7 @@ public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
                     // VIFE TODO
             );
         } catch (Exception ex) {
-            getInboundContext().getLogger().logE("Error while checking applicability of record", ex);
+            getInboundContext().getLogger().error("Error while checking applicability of record", ex);
             ex.printStackTrace();
             return false;
         }
@@ -59,7 +59,7 @@ public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
         List<String> parts = eventsRecord.getDataField().getFieldParts();
 
         if (parts == null || parts.size() != 3) {
-            getInboundContext().getLogger().log("Invalid number of parts received for error flags extraction");
+            getInboundContext().getLogger().info("Invalid number of parts received for error flags extraction");
             return null;
         }
 
@@ -94,7 +94,7 @@ public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
             return null; // bit not set
         }
 
-        getInboundContext().getLogger().log("Error flag: " + mapping.getMessage());
+        getInboundContext().getLogger().info("Error flag: " + mapping.getMessage());
         return createEvent(mapping.getEventCode(), mapping.getMessage());
     }
 

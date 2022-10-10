@@ -34,7 +34,7 @@ public class MerlinMetaDataExtractor {
     private void lookupDeviceProperties() {
         getDeviceIdentifier();
 
-        inboundContext.getLogger().log("Identified device: " + getDeviceIdentifier());
+        inboundContext.getLogger().info("Identified device: " + getDeviceIdentifier());
 
         getDeviceTimeZoneFromCore();
 
@@ -51,10 +51,10 @@ public class MerlinMetaDataExtractor {
         if (protocolProperties.hasLocalValueFor(PROPERTY_DEVICE_TIME_ZONE)){
             String configuredTimeZoneId = protocolProperties.getTypedProperty(PROPERTY_DEVICE_TIME_ZONE, TimeZone.getDefault()).getID();
             timeZone = ZoneId.of(configuredTimeZoneId);
-            inboundContext.getLogger().log("Using configured time zone of the device: " + timeZone);
+            inboundContext.getLogger().info("Using configured time zone of the device: " + timeZone);
         } else {
             timeZone = ZoneId.systemDefault();
-            inboundContext.getLogger().log("Using system default time zone : " + timeZone);
+            inboundContext.getLogger().info("Using system default time zone : " + timeZone);
         }
 
         inboundContext.setTimeZone(timeZone);
@@ -70,7 +70,7 @@ public class MerlinMetaDataExtractor {
         }
         inboundContext.setEncryptionKey(encryptionKey);
         // NO-NO, do not log the actual key, used only for testing and PoC!! FIXME!
-        inboundContext.getLogger().log("Using EK: " + encryptionKey);
+        inboundContext.getLogger().info("Using EK: " + encryptionKey);
 
     }
 

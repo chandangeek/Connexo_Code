@@ -20,7 +20,7 @@ public class UnitFactory {
         try {
             UnitFactory.findConnexoUnitFor(unitName, unitScale);
         } catch (Exception ex){
-            inboundContext.getLogger().log("Cannot get a Connexo unit for " + unitName + " with scale " + unitScale);
+            inboundContext.getLogger().info("Cannot get a Connexo unit for " + unitName + " with scale " + unitScale);
         }
 
         return Unit.getUndefined();

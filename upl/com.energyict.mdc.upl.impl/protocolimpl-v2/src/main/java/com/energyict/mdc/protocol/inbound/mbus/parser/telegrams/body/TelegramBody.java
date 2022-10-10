@@ -1,16 +1,21 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
+
 import java.util.Arrays;
+import java.util.StringJoiner;
 
 public class  TelegramBody {
 
+    private final MerlinLogger logger;
     private TelegramBodyHeader bodyHeader;
     private TelegramBodyPayload bodyPayload;
 
-    public TelegramBody() {
-        this.bodyHeader = new TelegramBodyHeader();
-        this.bodyPayload = new TelegramBodyPayload();
+    public TelegramBody(MerlinLogger logger) {
+        this.logger = logger;
+        this.bodyHeader = new TelegramBodyHeader(logger);
+        this.bodyPayload = new TelegramBodyPayload(logger);
     }
 
     public TelegramBodyHeader getBodyHeader() {
@@ -47,12 +52,12 @@ public class  TelegramBody {
         return this.getBodyPayload().getRecords().get(3).getDataField().getParsedValue();
     }
 
-    public void debugOutput() {
+    public void debugOutput(StringJoiner joiner) {
         if(this.bodyHeader != null) {
-            this.bodyHeader.debugOutput();
+            this.bodyHeader.debugOutput(joiner);
         }
         if(this.bodyPayload != null) {
-            this.bodyPayload.debugOutput();
+            this.bodyPayload.debugOutput(joiner);
         }
     }
 }

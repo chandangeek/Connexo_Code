@@ -14,12 +14,10 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.TypedProperties;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.TimeZone;
 
 public class MerlinCollectedDataFactory {
     private final Telegram telegram;
@@ -53,9 +51,9 @@ public class MerlinCollectedDataFactory {
         this.frameType = FrameType.of(telegram);
 
         if (FrameType.UNKNOWN.equals(frameType)) {
-            inboundContext.getLogger().logW("Could not detect the frame type!");
+            inboundContext.getLogger().warn("Could not detect the frame type!");
         } else {
-            inboundContext.getLogger().log("Frame type detected: " + frameType);
+            inboundContext.getLogger().info("Frame type detected: " + frameType);
         }
 
         collectedDataList = new ArrayList<>();
@@ -63,37 +61,37 @@ public class MerlinCollectedDataFactory {
         try {
             extractRegisters();
         } catch (Exception ex) {
-            inboundContext.getLogger().logE("Exception while parsing registers", ex);
+            inboundContext.getLogger().error("Exception while parsing registers", ex);
         }
 
         try {
             extractHourlyProfile();
         } catch (Exception ex) {
-            inboundContext.getLogger().logE("Exception while parsing hourly profile", ex);
+            inboundContext.getLogger().error("Exception while parsing hourly profile", ex);
         }
 
         try {
             extractDailyProfile();
         } catch (Exception ex) {
-            inboundContext.getLogger().logE("Exception while parsing daily profile", ex);
+            inboundContext.getLogger().error("Exception while parsing daily profile", ex);
         }
 
         try {
             extractStatusEvents();
         } catch (Exception ex) {
-            inboundContext.getLogger().logE("Exception while parsing status events", ex);
+            inboundContext.getLogger().error("Exception while parsing status events", ex);
         }
 
         try {
             extractErrorFlags(FrameType.DAILY_FRAME, 8);
         } catch (Exception ex) {
-            inboundContext.getLogger().logE("Exception while parsing error flags on daily frame", ex);
+            inboundContext.getLogger().error("Exception while parsing error flags on daily frame", ex);
         }
 
         try {
             extractErrorFlags(FrameType.NRT_FRAME, 6);
         } catch (Exception ex) {
-            inboundContext.getLogger().logE("Exception while parsing error flags on NTR frame", ex);
+            inboundContext.getLogger().error("Exception while parsing error flags on NTR frame", ex);
         }
 
 

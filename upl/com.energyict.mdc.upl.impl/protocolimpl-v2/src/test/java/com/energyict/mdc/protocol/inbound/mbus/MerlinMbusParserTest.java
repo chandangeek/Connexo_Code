@@ -472,6 +472,7 @@ public class MerlinMbusParserTest extends TestCase {
         };
         when(collectedDataFactory.createCollectedLogBook(anyObject())).thenReturn(collectedLogBook);
 
+        when(inboundDiscoveryContext.getLogger()).thenReturn(Logger.getAnonymousLogger());
         when(inboundDiscoveryContext.getCollectedDataFactory()).thenReturn(collectedDataFactory);
     }
 
@@ -756,6 +757,8 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parseHeader(frame);
         inboundContext.setEncryptionKey(key);
         parser.parse();
+
+        System.out.println(parser.getTelegram().debugOutput());
 
         System.out.println("***** " + name + " *****");
 

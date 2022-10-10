@@ -1,11 +1,15 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 
+import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringJoiner;
 
 public class TelegramVariableDataRecord {
 
+    private final MerlinLogger logger;
     private DIFTelegramField dif;
     private List<DIFETelegramField> difes;
     private VIFTelegramField vif;
@@ -13,14 +17,18 @@ public class TelegramVariableDataRecord {
 
     private TelegramDataField dataField;
 
+    public TelegramVariableDataRecord(MerlinLogger logger) {
+        this.logger = logger;
+    }
+
     public void parse() {
-        this.dif = new DIFTelegramField();
+        this.dif = new DIFTelegramField(logger);
         this.dif.parse();
-        this.vif = new VIFTelegramField();
+        this.vif = new VIFTelegramField(logger);
         this.vif.setParent(this);
         this.vif.parse();
 
-        this.dataField = new TelegramDataField();
+        this.dataField = new TelegramDataField(logger);
         this.dataField.setParent(this);
         this.dataField.parse();
     }
@@ -67,15 +75,15 @@ public class TelegramVariableDataRecord {
         this.dataField = dataField;
     }
 
-    public void debugOutput() {
-        System.out.println("VARIABLE DATA RECORD: ");
+    public void debugOutput(StringJoiner joiner) {
+        joiner.add("VARIABLE DATA RECORD: ");
         if(this.dif != null) {
-            this.dif.debugOutput();
+            this.dif.debugOutput(joiner);
         }
 
         if(this.difes != null) {
             for(int i = 0; i < this.difes.size(); i++) {
-                this.difes.get(i).debugOutput();
+                this.difes.get(i).debugOutput(joiner);
             }
         }
 
@@ -85,14 +93,14 @@ public class TelegramVariableDataRecord {
 
         if(this.vifes != null) {
             for(int i = 0; i < this.vifes.size(); i++) {
-                this.vifes.get(i).debugOutput();
+                this.vifes.get(i).debugOutput(joiner);
             }
         }
 
         if(this.dataField != null) {
-            this.dataField.debugOutput();
+            this.dataField.debugOutput(joiner);
         }
-        System.out.println("==================================================");
+        joiner.add("==================================================");
     }
 
 }

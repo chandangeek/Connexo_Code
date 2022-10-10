@@ -12,19 +12,19 @@ public class TelegramDateTimeFactory {
         if (telegram.getBody().getBodyPayload().getRecords().size() >= 2){
             Optional<Instant> parsedTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getTimeValue();
             if (parsedTime.isPresent()) {
-                inboundContext.getLogger().log("Proper telegram date-time extracted: " + parsedTime.get().toString());
+                inboundContext.getLogger().info("Proper telegram date-time extracted: " + parsedTime.get().toString());
                 return parsedTime.get();
             } else {
                 String dateTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue();
-                inboundContext.getLogger().log("Telegram date-time not extracted, doing our best to parse: " + dateTime);
+                inboundContext.getLogger().info("Telegram date-time not extracted, doing our best to parse: " + dateTime);
                 try {
                     return Instant.parse(dateTime);
                 } catch (Exception ex) {
-                    inboundContext.getLogger().log("Could not parse " + dateTime + " to instant: " + ex.getMessage());
+                    inboundContext.getLogger().info("Could not parse " + dateTime + " to instant: " + ex.getMessage());
                 }
             }
         } else {
-            inboundContext.getLogger().log("Telegram date-time field not present");
+            inboundContext.getLogger().info("Telegram date-time field not present");
         }
 
         // fallback

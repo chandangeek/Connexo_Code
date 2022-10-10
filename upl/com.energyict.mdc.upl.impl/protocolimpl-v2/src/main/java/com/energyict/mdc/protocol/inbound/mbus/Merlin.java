@@ -142,7 +142,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         byte[] buffer = new byte[BUFFER_SIZE];
         getComChannel().startReading();
         final int readBytes = getComChannel().read(buffer);
-        getLogger().log("Received", buffer, readBytes);
+        getLogger().info("Received", buffer, readBytes);
 
         if (readBytes < BUFFER_SIZE){
             byte[] payload = new byte[readBytes];
@@ -150,7 +150,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
             doParse(payload);
         } else {
-            getLogger().log("WARN: buffer overflow!");
+            getLogger().info("WARN: buffer overflow!");
             //TODO: keep reading
         }
     }
