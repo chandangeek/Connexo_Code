@@ -22,6 +22,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
@@ -174,7 +175,14 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_MEASUREMENT_SEND_INTERVAL, new Quantity(new BigDecimal(crestObject.getMsi()), Unit.getUndefined())));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_FOTA_MESSAGE_COUNTER, new Quantity(new BigDecimal(crestObject.getFmc()), Unit.getUndefined())));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_MEMORY_COUNTER, new Quantity(new BigDecimal(crestObject.getMem()), Unit.getUndefined())));
-
+        List<Integer> temperatures = crestObject.getT1();
+        if (!temperatures.isEmpty()) {
+            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_TEMPERATURE, new Quantity(new BigDecimal(temperatures.get(temperatures.size() - 1)), Unit.get(BaseUnit.DEGREE_CELSIUS))));
+        }
+        List<Integer> percents = crestObject.getH1();
+        if (!percents.isEmpty()) {
+            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_HUMIDITY, new Quantity(new BigDecimal(percents.get(percents.size() - 1)), Unit.get(BaseUnit.PERCENT))));
+        }
         CollectedTopology collectedTopology = getContext().getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
         if (!Strings.isNullOrEmpty(this.crestObject.getV1m())) {
             DeviceIdentifierBySerialNumber slave = new DeviceIdentifierBySerialNumber(getSlaveSerialNumber(crestObject.getV1m()));
@@ -198,7 +206,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         int intervalInMinutes = getIntervalInMinutes();
         int intervalHours = intervalInMinutes / 60;
         int intervalMinutes = intervalInMinutes % 60;
-        ObisCode loadProfileObisCode = new ObisCode(0, 0, 96, intervalHours, intervalMinutes, 255);
+        ObisCode loadProfileObisCode = new ObisCode(1, 0, 96, intervalHours, intervalMinutes, 255);
         LoadProfileIdentifier lpi = new LoadProfileIdentifierByObisCodeAndDevice(loadProfileObisCode, deviceIdentifier);
         CollectedLoadProfile collectedLoadProfile = getContext().getCollectedDataFactory().createCollectedLoadProfile(lpi);
         collectedLoadProfile.setCollectedIntervalData(buildIntervalDataFromV1(v1), buildChannelMap());
