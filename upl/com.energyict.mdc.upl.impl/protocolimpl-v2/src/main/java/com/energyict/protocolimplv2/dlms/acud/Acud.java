@@ -5,6 +5,7 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -55,16 +56,13 @@ import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.logging.Level;
 
 public abstract class Acud extends AbstractDlmsProtocol {
 
     /**
-     * Predefiened obis codes for the Acud meter
+     * Predefined obis codes for the Acud meter
      */
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FIRMWARE_VERSION_OBIS_CODE = ObisCode.fromString("0.0.0.2.0.255");
@@ -334,5 +332,22 @@ public abstract class Acud extends AbstractDlmsProtocol {
 
     protected Converter getConverter() {
         return converter;
+    }
+
+    @Override
+    public void setTime(Date newMeterTime) {
+        try {
+            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
+            dateTime.useUnspecifiedAsDeviation(getDlmsSessionProperties().useUndefinedAsTimeDeviation());
+            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTime);
+        } catch (IOException e) {
+            journal(getLogPrefix() + e.getMessage());
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
+        }
+    }
+
+
+    protected String getLogPrefix() {
+        return "[" + this.getSerialNumber() + "] ";
     }
 }
