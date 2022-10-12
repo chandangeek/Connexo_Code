@@ -1,10 +1,12 @@
 package com.energyict.mdc.upl;
 
+import aQute.bnd.annotation.ConsumerType;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 
 /**
  * Interface used to signal special offline device requirements for an inbound protocol
  */
+@ConsumerType
 public interface OfflineDeviceRequirements {
 
     /**
