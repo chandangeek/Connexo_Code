@@ -111,7 +111,7 @@ public class Beacon3100PushEventNotification extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-12-29$";
+        return "$Date: 2022-10-12$";
     }
 
     @Override
