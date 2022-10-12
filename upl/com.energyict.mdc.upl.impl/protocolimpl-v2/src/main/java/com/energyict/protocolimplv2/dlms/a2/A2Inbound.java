@@ -78,7 +78,7 @@ public class A2Inbound implements BinaryInboundDeviceProtocol {
         this.inboundDAO = context.getInboundDAO();
         readFrameCounter(comChannel);
         setDlmsSession(createDlmsSession(comChannel, getDlmsProperties()));
-        return DiscoverResultType.DATA;
+        return DiscoverResultType.IDENTIFIER;
     }
 
     private void readFrameCounter(ComChannel comChannel) {
