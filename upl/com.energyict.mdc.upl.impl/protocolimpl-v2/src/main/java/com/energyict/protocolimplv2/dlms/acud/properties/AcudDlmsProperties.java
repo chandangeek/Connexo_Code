@@ -3,7 +3,6 @@ package com.energyict.protocolimplv2.dlms.acud.properties;
 
 import com.energyict.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocol.exception.DeviceConfigurationException;
-import com.energyict.protocolimplv2.dlms.idis.am500.properties.IDISConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 public class AcudDlmsProperties extends DlmsProperties {
@@ -42,9 +41,5 @@ public class AcudDlmsProperties extends DlmsProperties {
 
     public boolean isOverwriteServerLowerMacAddress() {
         return getProperties().<Boolean>getTypedProperty(OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false);
-    }
-
-    public boolean useUndefinedAsTimeDeviation() {
-        return getProperties().<Boolean>getTypedProperty(IDISConfigurationSupport.USE_UNDEFINED_AS_TIME_DEVIATION, false);
     }
 }

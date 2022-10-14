@@ -103,7 +103,9 @@ public abstract class Acud extends AbstractDlmsProtocol {
     }
 
     @Override
-    public String getVersion() { return "$Date: 2022-10-14";}
+    public String getVersion() {
+        return "$Date: 2022-10-14";
+    }
 
     @Override
     public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
