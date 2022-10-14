@@ -6,6 +6,7 @@ import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -337,9 +338,10 @@ public abstract class Acud extends AbstractDlmsProtocol {
     @Override
     public void setTime(Date newMeterTime) {
         try {
-            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
-            dateTime.useUnspecifiedAsDeviation(getDlmsSessionProperties().useUndefinedAsTimeDeviation());
-            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTime);
+            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime,   getTimeZone());
+            byte [] berEncodedData = dateTime.getBEREncodedByteArray();
+            AXDRDateTime dateTimeWithAXDRDateTimeDeviationTypePositive  = new AXDRDateTime(berEncodedData,  AXDRDateTimeDeviationType.Positive );
+            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTimeWithAXDRDateTimeDeviationTypePositive);
         } catch (IOException e) {
             journal(getLogPrefix() + e.getMessage());
             throw DLMSIOExceptionHandler.handle(e, getDlmsSessionProperties().getRetries() + 1);
