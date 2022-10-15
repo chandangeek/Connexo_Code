@@ -64,6 +64,7 @@ public class A2ProfileDataReader {
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW      = ObisCode.fromString("7.0.43.45.0.255");
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW_TIME = ObisCode.fromString("7.0.43.45.5.255");
 
+    protected static final int ASYNCHRONOUS_CAPTURE_PERIOD = 0;
     private static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
 
     protected final A2 protocol;
@@ -419,7 +420,7 @@ public class A2ProfileDataReader {
         if (!EIStoredValues.OBISCODE_BILLING_PROFILE.equals(loadProfileObisCode)) {
             try {
                 AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
-                getIntervalMap().put(loadProfileObisCode, MONTHLY_LOAD_PROFILE_OBISCODE.equals(loadProfileObisCode) ? 0 : attribute.intValue());
+                getIntervalMap().put(loadProfileObisCode, MONTHLY_LOAD_PROFILE_OBISCODE.equals(loadProfileObisCode) ? ASYNCHRONOUS_CAPTURE_PERIOD : attribute.intValue());
             } catch (IOException e) {
                 throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
             }

@@ -58,7 +58,7 @@ public class EI7LoadProfileDataReader extends A2ProfileDataReader {
                 offlineDevice.getAllProperties().getTypedProperty(DATA_VOLUME_SCALAR_PROPERTY, EI7_DEFAULT_DATA_VOLUME_SCALAR_PROPERTY));
 
         // COMMUNICATION-3953 Hardcode Load Profile channels in EI6 2021 and EI7 protocols to gain connection time
-        intervalMap.put(MONTHLY_LOAD_PROFILE_OBISCODE, 0);
+        intervalMap.put(MONTHLY_LOAD_PROFILE_OBISCODE, ASYNCHRONOUS_CAPTURE_PERIOD);
         intervalMap.put(DAILY_LOAD_PROFILE_OBISCODE, 86400);
         intervalMap.put(HOURLY_LOAD_PROFILE_OBISCODE, 3600);
         intervalMap.put(HALF_HOUR_LOAD_PROFILE_OBISCODE, 1800);
