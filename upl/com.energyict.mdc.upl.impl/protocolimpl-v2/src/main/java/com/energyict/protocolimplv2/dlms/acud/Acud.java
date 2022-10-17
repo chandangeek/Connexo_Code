@@ -5,6 +5,8 @@ import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connection.HHUSignOnV2;
 import com.energyict.dlms.DLMSCache;
 import com.energyict.dlms.UniversalObject;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
+import com.energyict.dlms.axrdencoding.util.AXDRDateTimeDeviationType;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
@@ -18,6 +20,7 @@ import com.energyict.mdc.upl.DeviceFunction;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
 import com.energyict.mdc.upl.ManufacturerInformation;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessage;
@@ -45,6 +48,7 @@ import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
+import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.acud.messages.AcudMessaging;
@@ -53,18 +57,18 @@ import com.energyict.protocolimplv2.dlms.acud.properties.AcudConfigurationSuppor
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.hhusignon.IEC1107HHUSignOn;
 import com.energyict.protocolimplv2.messages.CreditDeviceMessage;
-
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Date;
 
 public abstract class Acud extends AbstractDlmsProtocol {
 
     /**
-     * Predefiened obis codes for the Acud meter
+     * Predefined obis codes for the Acud meter
      */
     private static final ObisCode SERIAL_NUMBER_OBISCODE = ObisCode.fromString("0.0.96.1.0.255");
     private static final ObisCode FIRMWARE_VERSION_OBIS_CODE = ObisCode.fromString("0.0.0.2.0.255");
@@ -334,5 +338,23 @@ public abstract class Acud extends AbstractDlmsProtocol {
 
     protected Converter getConverter() {
         return converter;
+    }
+
+    @Override
+    public void setTime(Date newMeterTime) {
+        try {
+            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
+            byte[] berEncodedData = dateTime.getBEREncodedByteArray();
+            AXDRDateTime dateTimeWithDeviationTypePositive = new AXDRDateTime(berEncodedData, AXDRDateTimeDeviationType.Positive);
+            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTimeWithDeviationTypePositive);
+        } catch (IOException exception) {
+            ProtocolException protocolException = new ProtocolException(getLogPrefix() + exception.getMessage());
+            journal(getLogPrefix() + exception.getMessage());
+            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
+        }
+    }
+
+    protected String getLogPrefix() {
+        return "[" + this.getSerialNumber() + "] ";
     }
 }
