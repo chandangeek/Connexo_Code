@@ -89,7 +89,8 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             required: true,
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.contextPath', 'MDC', 'Context path'),
-            name: 'contextPath'
+            name: 'contextPath',
+            vtype: 'checkForBlacklistCharacters'
         },
         {
             xtype: 'checkbox',
@@ -104,7 +105,8 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.keyStorePath', 'MDC', 'Key store file path'),
             itemId: 'keyStoreFilePath',
             disabled: true,
-            name: 'keyStoreFilePath'
+            name: 'keyStoreFilePath',
+            vtype: 'checkForBlacklistCharacters'
         },
         {
             xtype: 'password-field',
@@ -121,7 +123,8 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             disabled: true,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePath', 'MDC', 'Trust store file path'),
             itemId: 'trustStoreFilePath',
-            name: 'trustStoreFilePath'
+            name: 'trustStoreFilePath',
+            vtype: 'checkForBlacklistCharacters'
         },
         {
             xtype: 'password-field',

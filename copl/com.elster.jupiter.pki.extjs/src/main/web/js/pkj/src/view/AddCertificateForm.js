@@ -52,7 +52,8 @@ Ext.define('Pkj.view.AddCertificateForm', {
                 itemId: 'pkj-certificate-add-form-alias',
                 allowBlank: false,
                 anchor: '40%',
-                hidden: me.importMode
+                hidden: me.importMode,
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 xtype: 'certificate-file-field',

@@ -15,7 +15,8 @@ Ext.define('Mdc.view.setup.registertype.RegisterTypeFilter', {
                 {
                     xtype: 'textfield',
                     name: 'name',
-                    fieldLabel: Uni.I18n.translate('general.name','MDC','Name')
+                    fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                    vtype: 'checkForBlacklistCharacters'
                 }
             ]
         }

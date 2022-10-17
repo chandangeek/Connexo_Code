@@ -39,7 +39,8 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     itemId: 'mdc-security-accessor-name-textfield',
                     fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                     required: true,
-                    allowBlank: false
+                    allowBlank: false,
+                    vtype: 'checkForBlacklistCharacters',
                 },
                 {
                     xtype: 'textareafield',

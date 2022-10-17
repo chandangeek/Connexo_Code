@@ -18,14 +18,16 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
-                            labelAlign: 'top'
+                            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                            labelAlign: 'top',
+                            vtype: 'checkForBlacklistCharacters'
                         },
                         {
                             xtype: 'textfield',
                             name: 'obis',
                             fieldLabel: 'OBIS code',
-                            labelAlign: 'top'
+                            labelAlign: 'top',
+                            vtype: 'checkForBlacklistCharacters'
                         }
                     ]
                 }

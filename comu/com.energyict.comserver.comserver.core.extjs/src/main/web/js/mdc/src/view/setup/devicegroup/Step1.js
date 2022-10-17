@@ -37,7 +37,8 @@ Ext.define('Mdc.view.setup.devicegroup.Step1', {
                     afterrender: function (field) {
                         field.focus(false, 200);
                     }
-                }
+                },
+                vtype: 'checkForBlacklistCharacters'
             }
         ];
 

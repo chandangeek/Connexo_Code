@@ -57,7 +57,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     value: text,
                     width: 320,
                     msgTarget: 'under',
-                    margin: '0 0 5 0 '
+                    margin: '0 0 5 0 ',
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'defaultButton',
@@ -84,7 +85,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     inputType: 'password',
                     margin: '0 5 5 0',
                     width: 320,
-                    msgTarget: 'under'
+                    msgTarget: 'under',
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'defaultButton',
@@ -414,7 +416,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     margin: '0 5 5 0',
                     width: 320,
-                    readOnly: true
+                    readOnly: true,
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'button',
@@ -450,7 +453,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     margin: '0 5 5 0',
                     width: 320,
-                    readOnly: true
+                    readOnly: true,
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'button',
@@ -486,7 +490,8 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     margin: '0 5 5 0',
                     width: 320,
-                    readOnly: true
+                    readOnly: true,
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'button',

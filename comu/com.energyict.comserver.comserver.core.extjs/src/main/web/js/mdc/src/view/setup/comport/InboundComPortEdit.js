@@ -64,12 +64,13 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 listeners: {
                                     afterrender: function (field) {
                                         field.focus(false, 200);
                                     }
-                                }
+                                },
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'combobox',
@@ -84,7 +85,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'description',
-                                fieldLabel: 'description'
+                                fieldLabel: 'description',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'numberfield',
@@ -101,7 +103,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'portNumber',
-                                fieldLabel: 'portNumber'
+                                fieldLabel: 'portNumber',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'inbound-com-port-pool-combo',
@@ -127,12 +130,14 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'ringCount',
-                                fieldLabel: 'ringCount'
+                                fieldLabel: 'ringCount',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'maximumNumberOfDialErrors',
-                                fieldLabel: 'maximumNumberOfDialErrors'
+                                fieldLabel: 'maximumNumberOfDialErrors',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'timeInfoField',
@@ -157,7 +162,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'atCommandTry',
-                                fieldLabel: 'atCommandTry'
+                                fieldLabel: 'atCommandTry',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'combobox',
@@ -287,7 +293,8 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'contextPath',
-                                fieldLabel: 'contextPath'
+                                fieldLabel: 'contextPath',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'checkbox',
@@ -299,22 +306,26 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'keyStoreFilePath',
-                                fieldLabel: 'keyStoreFilePath'
+                                fieldLabel: 'keyStoreFilePath',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'trustStoreFilePath',
-                                fieldLabel: 'trustStoreFilePath'
+                                fieldLabel: 'trustStoreFilePath',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'keyStorePassword',
-                                fieldLabel: 'keyStorePassword'
+                                fieldLabel: 'keyStorePassword',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'trustStorePassword',
-                                fieldLabel: 'trustStorePassword'
+                                fieldLabel: 'trustStorePassword',
+                                vtype: 'checkForBlacklistCharacters'
                             }
                         ]
                     },

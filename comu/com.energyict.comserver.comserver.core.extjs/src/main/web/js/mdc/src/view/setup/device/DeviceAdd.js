@@ -68,7 +68,8 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                     afterrender: function (field) {
                                         field.focus(false, 200);
                                     }
-                                }
+                                },
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',

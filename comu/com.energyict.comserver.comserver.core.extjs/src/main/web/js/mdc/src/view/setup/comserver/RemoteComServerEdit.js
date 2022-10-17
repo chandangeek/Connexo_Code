@@ -51,7 +51,8 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('general.name','MDC','Name')
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'checkbox',
@@ -115,13 +116,15 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'queryAPIUsername',
-                                fieldLabel: 'queryAPIUsername'
+                                fieldLabel: 'queryAPIUsername',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
-                                inputType:'password',
+                                inputType: 'password',
                                 name: 'queryAPIPassword',
-                                fieldLabel: 'queryAPIPassword'
+                                fieldLabel: 'queryAPIPassword',
+                                vtype: 'checkForBlacklistCharacters'
                             }
                         ]},
                     {
@@ -136,12 +139,14 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'queryAPIPostUri',
-                                fieldLabel: 'queryAPIPostUri'
+                                fieldLabel: 'queryAPIPostUri',
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'eventRegistrationUri',
-                                fieldLabel: 'eventRegistrationUri'
+                                fieldLabel: 'eventRegistrationUri',
+                                vtype: 'checkForBlacklistCharacters'
                             }
                         ]
                     }

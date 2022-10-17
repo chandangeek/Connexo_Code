@@ -44,7 +44,8 @@ Ext.define('Dlc.devicelifecyclestates.view.Edit', {
                         afterrender: function (field) {
                             field.focus(false, 200);
                         }
-                    }
+                    },
+                    vtype: 'checkForBlacklistCharacters',
                 },
                 {
                     xtype: 'displayfield',

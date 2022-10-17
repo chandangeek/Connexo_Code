@@ -38,10 +38,11 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
                         itemId: 'name',
                         required: true,
                         listeners: {
-                            afterrender: function(field) {
+                            afterrender: function (field) {
                                 field.focus(false, 200);
                             }
-                        }
+                        },
+                        vtype: 'validateForHtmlTags'
                     },
                     {
                         xtype: 'textareafield',

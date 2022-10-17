@@ -53,10 +53,11 @@ Ext.define('Dlc.devicelifecycles.view.AddForm', {
                 enforceMaxLength: true,
                 maxLength: 80,
                 listeners: {
-                    afterrender: function(field) {
+                    afterrender: function (field) {
                         field.focus(false, 200);
                     }
-                }
+                },
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 xtype: 'fieldcontainer',

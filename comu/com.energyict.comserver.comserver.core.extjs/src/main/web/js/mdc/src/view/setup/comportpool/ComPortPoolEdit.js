@@ -50,10 +50,11 @@ Ext.define('Mdc.view.setup.comportpool.ComPortPoolEdit', {
                     width: 600,
                     required: true,
                     listeners: {
-                        afterrender: function(field) {
+                        afterrender: function (field) {
                             field.focus(false, 200);
                         }
-                    }
+                    },
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'displayfield',

@@ -43,7 +43,8 @@ Ext.define('Mdc.view.setup.licensedprotocol.Detail', {
                                 id: 'protocolJavaClassName',
                                 readOnly: true,
                                 autoWidth: true,
-                                size: 50
+                                size: 50,
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
@@ -51,7 +52,8 @@ Ext.define('Mdc.view.setup.licensedprotocol.Detail', {
                                 fieldLabel: 'Version',
                                 autoWidth: true,
                                 readOnly: true,
-                                size: 50
+                                size: 50,
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {"xtype": 'setupProtocolFamilies'}
                         ]

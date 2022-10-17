@@ -30,17 +30,20 @@ Ext.define('Mdc.view.setup.comservercomports.SerialForm', {
         {
             xtype: 'textfield',
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.globalModemInitStrings', 'MDC', 'Global modem initialization'),
-            name: 'globalModemInitStrings'
+            name: 'globalModemInitStrings',
+            vtype: 'checkForBlacklistCharacters'
         },
         {
             xtype: 'textfield',
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.modemInit', 'MDC', 'Modem initialization'),
-            name: 'modemInitStrings'
+            name: 'modemInitStrings',
+            vtype: 'checkForBlacklistCharacters'
         },
         {
             xtype: 'textfield',
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.addrSelector', 'MDC', 'Address selector'),
-            name: 'addressSelector'
+            name: 'addressSelector',
+            vtype: 'checkForBlacklistCharacters'
         },
         {
             xtype: 'inbound-com-port-pool-combo',

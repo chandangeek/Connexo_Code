@@ -45,7 +45,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.MultiElementSlaveDeviceAdd', {
                 enforceMaxLength: true,
                 allowBlank: false,
                 validateOnBlur: false,
-                validateOnChange: false
+                validateOnChange: false,
+                vtype: 'checkForBlacklistCharacters'
             }
         ];
         me.callParent(arguments);

@@ -49,10 +49,11 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     required: true,
                     width: 600,
                     listeners: {
-                        afterrender: function(field) {
+                        afterrender: function (field) {
                             field.focus(false, 200);
                         }
-                    }
+                    },
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'displayfield',
@@ -213,7 +214,8 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                     name: 'serverName',
                     width: 600,
                     required: true,
-                    blankText:Uni.I18n.translate('general.required.field', 'MDC', 'This field is required')
+                    blankText: Uni.I18n.translate('general.required.field', 'MDC', 'This field is required'),
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'fieldcontainer',
@@ -238,6 +240,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                     name: 'serverMonitorUrl',
                                     width: 335,
                                     required: false,
+                                    vtype: 'checkForBlacklistCharacters'
                                 }
                             ]
                         },
