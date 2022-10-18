@@ -77,6 +77,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 itemId: 'deviceAddSerial',
                                 fieldLabel: Uni.I18n.translate('deviceAdd.serialNumber', 'MDC', 'Serial number'),
                                 maxLength: 80,
+                                vtype: 'checkForBlacklistCharacters',
                                 enforceMaxLength: true
                             },
                             {
@@ -92,6 +93,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                             itemId: 'deviceAddManufacturer',
                             fieldLabel: Uni.I18n.translate('deviceAdd.manufacturer', 'MDC', 'Manufacturer'),
                             maxLength: 80,
+                            vtype: 'checkForBlacklistCharacters',
                             enforceMaxLength: true
                         },
                             {
@@ -100,6 +102,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 itemId: 'deviceAddModelNumber',
                                 fieldLabel: Uni.I18n.translate('deviceAdd.modelNumber', 'MDC', 'Model number'),
                                 maxLength: 80,
+                                vtype: 'checkForBlacklistCharacters',
                                 enforceMaxLength: true
                             },
                             {
@@ -108,6 +111,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 itemId: 'deviceAddModelVersion',
                                 fieldLabel: Uni.I18n.translate('deviceAdd.modelVersion', 'MDC', 'Model version'),
                                 maxLength: 80,
+                                vtype: 'checkForBlacklistCharacters',
                                 enforceMaxLength: true
                             },
                             {
@@ -159,6 +163,7 @@ Ext.define('Mdc.view.setup.device.DeviceAdd', {
                                 itemId: 'deviceAddBatch',
                                 fieldLabel: Uni.I18n.translate('deviceAdd.batch', 'MDC', 'Batch'),
                                 maxLength: 80,
+                                vtype: 'checkForBlacklistCharacters',
                                 enforceMaxLength: true
                             },
                             {
