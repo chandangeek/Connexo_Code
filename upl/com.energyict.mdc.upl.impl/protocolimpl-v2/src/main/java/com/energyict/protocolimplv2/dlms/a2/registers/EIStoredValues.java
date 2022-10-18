@@ -151,7 +151,7 @@ public class EIStoredValues implements StoredValues {
     }
 
     private Unit getUnit(ObisCode baseObisCode) throws IOException {
-        Map<ObisCode, Unit> unitMap = a2.getProfileDataReader().readUnits(null, Arrays.asList(baseObisCode));
+        Map<ObisCode, Unit> unitMap = a2.getProfileDataReader().readUnits(OBISCODE_BILLING_PROFILE, Arrays.asList(baseObisCode));
         return unitMap.get(baseObisCode);
     }
 

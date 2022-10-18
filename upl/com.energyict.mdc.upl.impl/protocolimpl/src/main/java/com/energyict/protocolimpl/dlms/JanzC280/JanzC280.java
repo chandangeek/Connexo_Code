@@ -153,7 +153,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: Wed Dec 28 16:35:58 2016 +0100 $";
+        return "$Date: Wed Sep 14 11:00:00 2022 +0200 $";
     }
 
     @Override
@@ -326,13 +326,8 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
-        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.ADDRESSING_MODE, PropertyTranslationKeys.DLMS_ADDRESSING_MODE, false));
-        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.CONNECTION, PropertyTranslationKeys.DLMS_CONNECTION, false));
-        propertySpecs.add(this.stringSpec(PROPNAME_SERVER_LOWER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_LOWER_MAC_ADDRESS, false));
-        propertySpecs.add(this.stringSpec(PROPNAME_SERVER_UPPER_MAC_ADDRESS, PropertyTranslationKeys.DLMS_SERVER_UPPER_MAC_ADDRESS, false));
         propertySpecs.add(this.stringSpec(PROPERTY_FORCEDTOREADCACHE, PropertyTranslationKeys.DLMS_FORCE_TO_READ_CACHE, false));
         propertySpecs.add(this.stringSpec(DlmsProtocolProperties.PK_TIMEOUT, PropertyTranslationKeys.DLMS_TIMEOUT, false));
-        propertySpecs.add(this.stringSpec(DlmsProtocolProperties.PK_RETRIES, PropertyTranslationKeys.DLMS_RETRIES, false));
         return propertySpecs;
     }
 

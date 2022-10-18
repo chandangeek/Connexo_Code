@@ -41,6 +41,7 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.exception.ConnectionCommunicationException;
 import com.energyict.protocolimpl.dlms.as220.ProfileLimiter;
 import com.energyict.protocolimplv2.dlms.a2.A2;
+import com.energyict.protocolimplv2.dlms.a2.registers.EIStoredValues;
 import com.energyict.protocolimplv2.dlms.a2.registers.FirmwareVersion;
 import com.energyict.protocolimplv2.dlms.ei7.profiles.EI7LoadProfileDataReader;
 
@@ -63,6 +64,7 @@ public class A2ProfileDataReader {
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW      = ObisCode.fromString("7.0.43.45.0.255");
     private static final ObisCode MAXIMUM_CONVENTIONAL_CONV_GAS_FLOW_TIME = ObisCode.fromString("7.0.43.45.5.255");
 
+    protected static final int ASYNCHRONOUS_CAPTURE_PERIOD = 0;
     private static final int DAILY_LOAD_PROFILE_ONEMORE_INTERVAL = -1;
 
     protected final A2 protocol;
@@ -415,10 +417,10 @@ public class A2ProfileDataReader {
 
         ComposedCosemObject composedCosemObject = new ComposedCosemObject(protocol.getDlmsSession(), protocol.getDlmsSessionProperties().isBulkRequest(), new ArrayList<>(attributes.values()));
 
-        if (loadProfileObisCode != null) {
+        if (!EIStoredValues.OBISCODE_BILLING_PROFILE.equals(loadProfileObisCode)) {
             try {
                 AbstractDataType attribute = composedCosemObject.getAttribute(profileIntervalAttribute);
-                getIntervalMap().put(loadProfileObisCode, attribute.intValue());
+                getIntervalMap().put(loadProfileObisCode, MONTHLY_LOAD_PROFILE_OBISCODE.equals(loadProfileObisCode) ? ASYNCHRONOUS_CAPTURE_PERIOD : attribute.intValue());
             } catch (IOException e) {
                 throw DLMSIOExceptionHandler.handle(e, protocol.getDlmsSessionProperties().getRetries() + 1);
             }
@@ -427,7 +429,7 @@ public class A2ProfileDataReader {
         for (ObisCode channelObisCode : channelObisCodes) {
             DLMSAttribute dlmsAttribute = attributes.get(channelObisCode);
             try {
-                if (channelObisCode.equals(CURRENT_DIAGNOSTIC_OBISCODE)) {
+                if (channelObisCode.equals(CURRENT_DIAGNOSTIC_OBISCODE) && EIStoredValues.OBISCODE_BILLING_PROFILE.equals(loadProfileObisCode)) {
                     result.put(channelObisCode, Unit.getUndefined());
                 } else {
                     Structure structure = composedCosemObject.getAttribute(dlmsAttribute).getStructure();
@@ -472,7 +474,8 @@ public class A2ProfileDataReader {
     }
 
     protected boolean isProfileStatus(ObisCode obisCode) {
-        return (obisCode.getA() == 0 && obisCode.getB() >= 0 && obisCode.getC() == 96 && obisCode.getD() == 10 && obisCode.getE() == 7 && obisCode.getF() == 255);
+        return (obisCode.getA() == 0 && obisCode.getB() >= 0 && obisCode.getC() == 96 && obisCode.getD() == 10 && obisCode.getE() == 7 && obisCode.getF() == 255)
+                || CURRENT_DIAGNOSTIC_OBISCODE.equalsIgnoreBChannel(obisCode);
     }
 
     private boolean isClock(ObisCode obisCode) {

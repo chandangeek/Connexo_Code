@@ -5,9 +5,7 @@
 package com.elster.jupiter.issue.rest;
 
 
-import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
-import com.elster.jupiter.issue.share.IssueFilter;
 import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.IssueAssignee;
@@ -44,6 +42,7 @@ import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.anyVararg;
+import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -126,14 +125,14 @@ public class TopIssuesResourceTest extends IssueRestApplicationJerseyTest {
 
     @Test
     public void getTopIssues() {
-        Finder<? extends Issue> issueFinder = mock(Finder.class);
-        doReturn(issueFinder).when(issueService).findIssues(any(IssueFilter.class), anyVararg());
+        Query<Issue> issueQuery = mock(Query.class);
+        doReturn(issueQuery).when(issueService).query(same(OpenIssue.class), anyVararg());
         when(issueService.findStatus(anyString())).thenReturn(Optional.empty());
         when(issue.getSnoozeDateTime()).thenReturn(Optional.empty());
         when(issue.getDevice().getLocation()).thenReturn(Optional.empty());
         List<? extends Issue> issues = Collections.singletonList(issue);
-        doReturn(issues).when(issueFinder).find();
-        Map response = target("/topissues/issues").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get(Map.class);
+        doReturn(issues).when(issueQuery).select(any(Condition.class), anyInt(), anyInt(), anyVararg());
+        Map<?, ?> response = target("/topissues/issues").request().header("X-CONNEXO-APPLICATION-NAME", "MDC").get(Map.class);
         defaultTopTaskAsserts(response);
     }
 

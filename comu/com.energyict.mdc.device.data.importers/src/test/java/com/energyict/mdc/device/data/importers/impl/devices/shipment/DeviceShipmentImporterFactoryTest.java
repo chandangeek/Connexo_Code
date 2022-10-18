@@ -22,7 +22,6 @@ import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Collections;
@@ -68,8 +67,6 @@ public class DeviceShipmentImporterFactoryTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private Connection connection;
-    @Mock
     private DataModel dataModel;
 
     @Before
@@ -82,7 +79,6 @@ public class DeviceShipmentImporterFactoryTest {
         when(ormService.getDataModels()).thenReturn(Collections.singletonList(dataModel));
         context.setOrmService(ormService);
         when(context.getThesaurus()).thenReturn(thesaurus);
-        when(context.getConnection()).thenReturn(connection);
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {

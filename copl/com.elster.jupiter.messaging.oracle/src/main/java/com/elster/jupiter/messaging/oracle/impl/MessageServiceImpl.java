@@ -34,7 +34,9 @@ import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
 /**
  * Osgi Component class.
  */
-@Component(name = "com.elster.jupiter.messaging", service = {MessageService.class},
+@Component(name = "com.elster.jupiter.messaging",
+        service = {MessageService.class},
+        immediate = true,
         property = {"name=" + MessageService.COMPONENTNAME})
 public class MessageServiceImpl implements MessageService {
 

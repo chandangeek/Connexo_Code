@@ -18,9 +18,6 @@ import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.BaseException;
 import com.elster.jupiter.util.json.JsonService;
 
-import java.sql.Connection;
-import java.sql.Savepoint;
-import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,19 +27,16 @@ import java.util.logging.Level;
  * MessageHandler that interprets messages to contain FileImportMessages, and that consequently passes the matching FileImport instance to the configured FileImporter.
  */
 class StreamImportMessageHandler implements MessageHandler {
-
     private final JsonService jsonService;
     private final FileImportService fileImportService;
     private final TransactionService transactionService;
     private final Thesaurus thesaurus;
-    private final Clock clock;
 
     private transient ServerFileImportOccurrence fileImportOccurrence;
 
-    public StreamImportMessageHandler(JsonService jsonService, Thesaurus thesaurus, Clock clock, FileImportService fileImportService, TransactionService transactionService) {
+    public StreamImportMessageHandler(JsonService jsonService, Thesaurus thesaurus, FileImportService fileImportService, TransactionService transactionService) {
         this.jsonService = jsonService;
         this.thesaurus = thesaurus;
-        this.clock = clock;
         this.fileImportService = fileImportService;
         this.transactionService = transactionService;
     }
@@ -62,69 +56,35 @@ class StreamImportMessageHandler implements MessageHandler {
                 FileImporterFactory fileImporterFactory = getFileImporterFactory(importerName);
 
                 if (fileImporterFactory.requiresTransaction()) {
-                    Connection connection = fileImportOccurrence.getCurrentConnection();
-                    Savepoint savepoint = connection.setSavepoint();
-                    try {
-                        FileImporter importer = createFileImporter(fileImportOccurrence, fileImporterFactory);
-                        importer.process(fileImportOccurrence);
-                    } catch (Exception ex) {
-                        connection.rollback(savepoint);
-                        throw ex;
-                    } finally {
-                        fileImportOccurrence.save();
-                        connection.close();
-                    }
+                    // execute in this transaction
+                    FileImporter importer = createFileImporter(fileImportOccurrence, fileImporterFactory);
+                    importer.process(fileImportOccurrence);
                 } else {
+                    // save the occurrence for post-processing without transaction
                     this.fileImportOccurrence = fileImportOccurrence;
-                    this.fileImportOccurrence.save();
                 }
             } catch (Exception e) {
                 handleException(fileImportOccurrence, e);
+            } finally {
+                fileImportOccurrence.save();
             }
         }
     }
 
-    private void handleException(ServerFileImportOccurrence occurrence, Exception ex) {
-        String message = ex.getLocalizedMessage();
-        if (BaseException.class.isAssignableFrom(ex.getClass())) {
-            message = "(" + ((BaseException) ex).getErrorCode() + ") " + message;
-        }
-
-        occurrence.getLogger().log(Level.SEVERE, message, ex);
-        if (Status.PROCESSING.equals(occurrence.getStatus())) {
-            occurrence.markFailure(ex.getLocalizedMessage());
-        }
-
-        occurrence.save();
-    }
-
-
     @Override
     public void onMessageDelete(Message message) {
-        if (fileImportOccurrence == null) {
-            return;
+        if (fileImportOccurrence != null) {
+            try {
+                FileImporterFactory fileImporterFactory = getFileImporterFactory(fileImportOccurrence.getImportSchedule().getImporterName());
+                FileImporter importer = createFileImporter(fileImportOccurrence, fileImporterFactory);
+                importer.process(new TransactionWrappedFileImportOccurenceImpl(transactionService, fileImportOccurrence));
+            } catch (Exception ex) {
+                transactionService.run(() -> handleException(fileImportOccurrence, ex));
+            } finally {
+                transactionService.run(() -> fileImportOccurrence.save());
+                fileImportOccurrence = null;
+            }
         }
-
-        try {
-            runFileImportProcessing();
-        } catch (Exception ex) {
-            transactionService.run(() -> {
-                handleException(fileImportOccurrence, ex);
-            });
-        } finally {
-            runCleanup();
-        }
-    }
-
-    private void runFileImportProcessing() {
-        FileImporterFactory fileImporterFactory = getFileImporterFactory(fileImportOccurrence.getImportSchedule().getImporterName());
-        FileImporter importer = createFileImporter(fileImportOccurrence, fileImporterFactory);
-        importer.process(new TransactionWrappedFileImportOccurenceImpl(transactionService, fileImportOccurrence));
-    }
-
-    private FileImporterFactory getFileImporterFactory(String importerName) {
-        return fileImportService.getImportFactory(importerName)
-                .orElseThrow(() -> new NoSuchDataImporter(thesaurus, importerName));
     }
 
     private FileImporter createFileImporter(FileImportOccurrence fileImportOccurrence, FileImporterFactory fileImporterFactory) {
@@ -136,13 +96,20 @@ class StreamImportMessageHandler implements MessageHandler {
         return fileImporterFactory.createImporter(propertyMap);
     }
 
+    private void handleException(ServerFileImportOccurrence occurrence, Exception ex) {
+        String message = ex.getLocalizedMessage();
+        if (BaseException.class.isAssignableFrom(ex.getClass())) {
+            message = "(" + ((BaseException) ex).getErrorCode() + ") " + message;
+        }
+        occurrence.getLogger().log(Level.SEVERE, message, ex);
+        if (Status.PROCESSING.equals(occurrence.getStatus())) {
+            occurrence.markFailure(ex.getLocalizedMessage());
+        }
+    }
 
-    private void runCleanup() {
-        transactionService.run(() -> {
-            fileImportOccurrence.save();
-        });
-
-        fileImportOccurrence = null;
+    private FileImporterFactory getFileImporterFactory(String importerName) {
+        return fileImportService.getImportFactory(importerName)
+                .orElseThrow(() -> new NoSuchDataImporter(thesaurus, importerName));
     }
 
     private Object getDefaultValue(FileImporterFactory fileImporterFactory, FileImporterProperty property) {
@@ -154,7 +121,7 @@ class StreamImportMessageHandler implements MessageHandler {
         FileImportOccurrence fileImportOccurrence = null;
         FileImportMessage fileImportMessage = getFileImportMessage(message);
         if (fileImportMessage != null) {
-            fileImportOccurrence = fileImportService.getFileImportOccurrence(fileImportMessage.fileImportId).get();
+            fileImportOccurrence = fileImportService.getFileImportOccurrence(fileImportMessage.fileImportId).orElse(null);
         }
         return (ServerFileImportOccurrence) fileImportOccurrence;
     }

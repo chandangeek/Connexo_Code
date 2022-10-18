@@ -29,8 +29,10 @@ import com.energyict.protocolimplv2.edp.CX20009;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Copyrights EnergyICT
@@ -63,7 +65,8 @@ public class RegisterReader implements DeviceRegisterSupport {
                             .getEventTime());
                     collectedRegisters.add(createCollectedRegister(registerValue, register));
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    String ex = e.getMessage() + "; \n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; \n"));
+                    collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, ex));
                 }
             } else {
                 ObisCode readObisCode = ObisCode.fromByteArray(obisCode.getLN());
@@ -126,7 +129,7 @@ public class RegisterReader implements DeviceRegisterSupport {
                         } else if (valueAttr.isOctetString()) {
                             collectedRegisters.add(createCollectedRegister(register, null, valueAttr.getOctetString().stringValue(), null));
                         } else if (valueAttr.isArray() || valueAttr.isStructure()) {
-                            createFailureCollectedRegister(register, ResultType.NotSupported);      //Not yet supported in the protocol
+                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));      //Not yet supported in the protocol
                         } else {
                             collectedRegisters.add(createCollectedRegister(register, new Quantity(valueAttr.longValue(), Unit.getUndefined()), null, null));
                         }
@@ -140,14 +143,15 @@ public class RegisterReader implements DeviceRegisterSupport {
                         String name = getCosemObjectFactory().getActivityCalendar(readObisCode).readCalendarNameActive().stringValue();
                         collectedRegisters.add(createCollectedRegister(register, null, name, null));
                     } else {
-                        createFailureCollectedRegister(register, ResultType.NotSupported);         //Not yet supported in the protocol
+                        collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));         //Not yet supported in the protocol
                     }
                 } catch (IOException e) {
                     if (DLMSIOExceptionHandler.isUnexpectedResponse(e, protocol.getDlmsSession().getProperties().getRetries() + 1)) {
                         if (DLMSIOExceptionHandler.isNotSupportedDataAccessResultException(e)) {
-                            createFailureCollectedRegister(register, ResultType.NotSupported);    //Not in the device
+                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.NotSupported));    //Not in the device
                         } else {
-                            createFailureCollectedRegister(register, ResultType.InCompatible, e.getMessage());     //Unexpected response
+                            String ex = e.getMessage() + "; \n" + Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; \n"));
+                            collectedRegisters.add(createFailureCollectedRegister(register, ResultType.InCompatible, ex));     //Unexpected response
                         }
                     }
                 }
@@ -160,9 +164,9 @@ public class RegisterReader implements DeviceRegisterSupport {
             resultType, Object... arguments) {
         CollectedRegister collectedRegister = this.collectedDataFactory.createDefaultCollectedRegister(getRegisterIdentifier(register));
         if (resultType == ResultType.InCompatible) {
-            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "registerXissue: " + arguments[0], register.getObisCode(), arguments[0]));
+            collectedRegister.setFailureInformation(ResultType.InCompatible, this.issueFactory.createWarning(register.getObisCode(), "Unexpected response: " + arguments[0], register.getObisCode(), arguments[0]));
         } else {
-            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "registerXnotsupported: " + register.getObisCode().toString(), register.getObisCode()));
+            collectedRegister.setFailureInformation(ResultType.NotSupported, this.issueFactory.createWarning(register.getObisCode(), "Register is not supported: " + register.getObisCode().toString(), register.getObisCode()));
         }
         return collectedRegister;
     }

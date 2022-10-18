@@ -10,7 +10,6 @@ import com.energyict.dlms.axrdencoding.Unsigned32;
 import com.energyict.dlms.axrdencoding.Unsigned8;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.exception.DataParseException;
-import com.energyict.protocolimplv2.dlms.ei7.EI7Const;
 
 import java.io.IOException;
 import java.util.Date;
@@ -36,9 +35,12 @@ public class Frame30 extends Frame {
 	private DailyReadings[] intervalData;       // Interval data
 
 	public static class ObisConst {
+		public static final ObisCode TIMEOUT_SESSION_MAX_DURATION                      = ObisCode.fromString("0.2.94.39.52.255");
+		public static final ObisCode TIMEOUT_INACTIVITY                                = ObisCode.fromString("0.3.94.39.52.255");
+		public static final ObisCode TIMEOUT_NETWORK_ATTACH                            = ObisCode.fromString("0.4.94.39.52.255");
 		public static final ObisCode DISCONNECT_CONTROL_BOOL                           = ObisCode.fromString("0.0.96.3.10.255");
 		public static final ObisCode DISCONNECT_CONTROL_ENUM                           = ObisCode.fromString("0.1.96.3.10.255");
-		public static final ObisCode MANAGEMENT_FRAMECOUNTER_ON_LINE                   = ObisCode.fromString("0.0.43.1.1.255");
+		public static final ObisCode MANAGEMENT_FRAME_COUNTER_ON_LINE                  = ObisCode.fromString("0.0.43.1.1.255");
 		public static final ObisCode METROLOGICAL_EVENT_COUNTER                        = ObisCode.fromString("0.0.96.15.1.255");
 		public static final ObisCode EVENT_COUNTER                                     = ObisCode.fromString("0.0.96.15.2.255");
 		public static final ObisCode CURRENT_DIAGNOSTIC                                = ObisCode.fromString("7.0.96.5.1.255");
@@ -57,8 +59,9 @@ public class Frame30 extends Frame {
 
 		try {
 			// Register part
-			newFrame.unixTime = new Unsigned32(getByteArray(data, 1, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
-			newFrame.gprsTimeout = new TimeoutGPRS();
+
+			newFrame.unixTime                          = new Unsigned32(getByteArray(data, 1, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
+			newFrame.gprsTimeout                       = new TimeoutGPRS();
 			newFrame.gprsTimeout.sessionMaxDuration    = new Unsigned32(getByteArray(data, 5, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
 			newFrame.gprsTimeout.inactivityTimeout     = new Unsigned32(getByteArray(data, 9, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
 			newFrame.gprsTimeout.networkAttachTimeout  = new Unsigned32(getByteArray(data, 13, Unsigned32.SIZE, AxdrType.DOUBLE_LONG_UNSIGNED), 0);
@@ -104,14 +107,12 @@ public class Frame30 extends Frame {
 	public final void save(FiveConsumer<ObisCode, Long, ScalerUnit, Date, String> saveRegisterFunc, BiConsumer<ObisCode, DailyReadings[]> saveLoadProfileFunc, Function<Unsigned32, Date> getDateTime, boolean isGPRS) {
 		Date dateTime = getDateTime.apply(unixTime);
 
-		ObisCode timeoutObisCode = isGPRS ? EI7Const.GPRS_TIMEOUT : EI7Const.NBIoT_TIMEOUT;
-		saveRegisterFunc.accept(timeoutObisCode.setB(2), gprsTimeout.sessionMaxDuration.longValue(), null, dateTime, null);
-		saveRegisterFunc.accept(timeoutObisCode.setB(3), gprsTimeout.inactivityTimeout.longValue(), null, dateTime, null);
-		saveRegisterFunc.accept(timeoutObisCode.setB(4), gprsTimeout.sessionMaxDuration.longValue(), null, dateTime, null);
-
+		saveRegisterFunc.accept(ObisConst.TIMEOUT_SESSION_MAX_DURATION, gprsTimeout.sessionMaxDuration.longValue(), null, dateTime, null);
+		saveRegisterFunc.accept(ObisConst.TIMEOUT_INACTIVITY, gprsTimeout.inactivityTimeout.longValue(), null, dateTime, null);
+		saveRegisterFunc.accept(ObisConst.TIMEOUT_NETWORK_ATTACH, gprsTimeout.networkAttachTimeout.longValue(), null, dateTime, null);
 		saveRegisterFunc.accept(ObisConst.DISCONNECT_CONTROL_BOOL, disconnectControlB.getBooleanObject().longValue(),null, dateTime, null);
 		saveRegisterFunc.accept(ObisConst.DISCONNECT_CONTROL_ENUM, disconnectControlE.getTypeEnum().longValue(), null, dateTime, null);
-		saveRegisterFunc.accept(ObisConst.MANAGEMENT_FRAMECOUNTER_ON_LINE, managementFcOnline.longValue(), null, dateTime, null);
+		saveRegisterFunc.accept(ObisConst.MANAGEMENT_FRAME_COUNTER_ON_LINE, managementFcOnline.longValue(), null, dateTime, null);
 		saveRegisterFunc.accept(ObisConst.METROLOGICAL_EVENT_COUNTER, methodEventHandler.longValue(), null, dateTime, null);
 		saveRegisterFunc.accept(ObisConst.EVENT_COUNTER, eventCounter.longValue(),null, dateTime, null);
 		saveRegisterFunc.accept(ObisConst.CURRENT_DIAGNOSTIC, currentDiagnostic.longValue(),null, dateTime, null);

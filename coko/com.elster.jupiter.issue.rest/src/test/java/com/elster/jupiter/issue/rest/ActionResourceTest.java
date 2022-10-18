@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.mockito.Matchers;
 
 import static com.elster.jupiter.issue.rest.request.RequestHelper.ISSUE_TYPE;
+import static com.elster.jupiter.issue.rest.request.RequestHelper.REASON;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -104,13 +105,17 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
 
-        when(query.select(Matchers.<Condition> anyObject())).thenReturn(actionTypes);
+        when(query.select(Matchers.anyObject())).thenReturn(actionTypes);
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
         when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
-        when(issueService.findReason(null)).thenReturn(Optional.empty());
+        when(issueService.findReason(REASON_NAME)).thenReturn(Optional.empty());
         PropertyInfo propertyInfo = new PropertyInfo("property", "property", null, null, false);
         when(propertyValueInfoService.getPropertyInfos(any())).thenReturn(Collections.singletonList(propertyInfo));
-        String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
+        String response = target("/actions")
+                .queryParam(ISSUE_TYPE, issueType.getKey())
+                .queryParam(REASON, REASON_NAME)
+                .request()
+                .get(String.class);
 
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(2);
@@ -134,12 +139,16 @@ public class ActionResourceTest extends IssueRestApplicationJerseyTest {
         @SuppressWarnings("unchecked")
         Query<IssueActionType> query = mock(Query.class);
 
-        when(query.select(Matchers.<Condition> anyObject())).thenReturn(actionTypes);
+        when(query.select(Matchers.any(Condition.class))).thenReturn(actionTypes);
         when(issueActionService.getActionTypeQuery()).thenReturn(query);
         when(issueService.findIssueType(issueType.getKey())).thenReturn(Optional.of(issueType));
-        when(issueService.findReason(null)).thenReturn(Optional.empty());
+        when(issueService.findReason(REASON_NAME)).thenReturn(Optional.empty());
 
-        String response = target("/actions").queryParam(ISSUE_TYPE, issueType.getKey()).request().get(String.class);
+        String response = target("/actions")
+                .queryParam(ISSUE_TYPE, issueType.getKey())
+                .queryParam(REASON, REASON_NAME)
+                .request()
+                .get(String.class);
 
         JsonModel json = JsonModel.model(response);
         assertThat(json.<Number>get("$.total")).isEqualTo(2);

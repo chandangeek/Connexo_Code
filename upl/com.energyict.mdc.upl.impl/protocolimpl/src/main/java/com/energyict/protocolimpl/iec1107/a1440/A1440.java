@@ -375,7 +375,7 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2021-12-03$";
+        return "$Date: 2022-09-30$";
     }
 
     @Override
@@ -677,6 +677,9 @@ public class A1440 extends PluggableMeterProtocol implements HHUEnabler, HalfDup
                 return new RegisterValue(obis, readSpecialRegister(this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
             }
             if ("0.0.97.97.1.255".equals(obis.toString())) {
+                return new RegisterValue(obis, readSpecialRegister(this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
+            }
+            if ("1.1.96.56.0.255".equals(obis.toString())) {
                 return new RegisterValue(obis, readSpecialRegister(this.a1440ObisCodeMapper.getObisMap().get(obis.toString())));
             }
 
