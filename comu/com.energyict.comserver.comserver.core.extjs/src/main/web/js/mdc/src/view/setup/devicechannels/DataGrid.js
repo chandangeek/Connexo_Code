@@ -101,6 +101,7 @@ Ext.define('Mdc.view.setup.devicechannels.DataGrid', {
                     stripCharsRe: /[^-0-9\.]/,
                     selectOnFocus: true,
                     validateOnChange: true,
+                    vtype: 'checkForBlacklistCharacters',
                     fieldStyle: 'text-align: right'
                 },
                 dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.deviceDataEditActions,

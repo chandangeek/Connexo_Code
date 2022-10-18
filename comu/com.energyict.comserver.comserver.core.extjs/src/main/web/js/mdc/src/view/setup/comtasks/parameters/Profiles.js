@@ -62,7 +62,8 @@ Ext.define('Mdc.view.setup.comtasks.parameters.Profiles', {
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     flex: 1,
-                    value: 60
+                    value: 60,
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'communication-tasks-parameters-timecombo',

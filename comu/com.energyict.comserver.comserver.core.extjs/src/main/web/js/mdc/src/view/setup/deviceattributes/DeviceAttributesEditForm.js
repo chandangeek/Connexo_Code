@@ -111,6 +111,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'modelVersionEdit',
                 itemId: 'modelVersionEdit',
                 xtype: 'textfield',
+                vtype: 'checkForBlacklistCharacters',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.modelVersion', 'MDC', 'Model version')
             },
             {
@@ -187,6 +188,7 @@ Ext.define('Mdc.view.setup.deviceattributes.DeviceAttributesEditForm', {
                 name: 'batchEdit',
                 xtype: 'textfield',
                 itemId: 'batchEdit',
+                vtype: 'checkForBlacklistCharacters',
                 fieldLabel: Uni.I18n.translate('deviceGeneralInformation.batch', 'MDC', 'Batch')
             },
             {

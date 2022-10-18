@@ -27,6 +27,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Synchronize', {
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     value: 5,
+                    vtype: 'checkForBlacklistCharacters',
                     flex: 1
                 },
                 {
@@ -53,6 +54,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Synchronize', {
                     name: 'maximumclockdifference',
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
+                    vtype: 'checkForBlacklistCharacters',
                     value: 1,
                     flex: 1
                 },
@@ -80,6 +82,7 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Synchronize', {
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     value: 1,
+                    vtype: 'checkForBlacklistCharacters',
                     flex: 1
                 },
                 {

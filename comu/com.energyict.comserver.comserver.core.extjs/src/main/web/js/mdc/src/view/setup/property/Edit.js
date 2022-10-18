@@ -589,6 +589,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     value: text,
                     margin: '0 5 5 0',
+                    vtype: 'checkForBlacklistCharacters',
                     width: 320
                    // vtype: 'ean18'
                 },
@@ -616,6 +617,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     itemId: key,
                     value: text,
                     margin: '0 5 5 0',
+                    vtype: 'checkForBlacklistCharacters',
                     width: 320
                //     vtype: 'ean13',
                 },

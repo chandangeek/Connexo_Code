@@ -143,6 +143,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.billing.Edit', {
                                 name: 'value',
                                 maskRe: /[0-9\.]+/,
                                 itemId: 'valueTextField',
+                                vtype: 'checkForBlacklistCharacters',
                                 allowBlank:false
                             },
                             {

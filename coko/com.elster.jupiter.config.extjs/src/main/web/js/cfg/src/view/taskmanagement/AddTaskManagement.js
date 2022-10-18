@@ -25,6 +25,7 @@ Ext.define('Cfg.view.taskmanagement.AddTaskManagement', {
                 required: true,
                 fieldLabel: Uni.I18n.translate('general.name', 'CFG', 'Name'),
                 enforceMaxLength: true,
+                vtype: 'checkForBlacklistCharacters',
                 maxLength: 80,
                 listeners: {
                     afterrender: function (field) {

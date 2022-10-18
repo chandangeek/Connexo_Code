@@ -299,6 +299,7 @@ Ext.define('Mdc.securityaccessors.view.AddEditSecurityAccessor', {
                     hidden: true,
                     required: true,
                     allowBlank: false,
+                    vtype: 'checkForBlacklistCharacters',
                     emptyText: Uni.I18n.translate('securityaccessors.keySizes', 'MDC', 'Input size ...')
                 },
                 {

@@ -87,6 +87,7 @@ Ext.define('Mdc.view.setup.deviceregisterdata.flags.Edit', {
                                 xtype: 'textfield',
                                 name: 'value',
                                 maskRe: /[0-9]+/,
+                                vtype: 'checkForBlacklistCharacters',
                                 itemId: 'valueTextField'
                             }
                         ]
