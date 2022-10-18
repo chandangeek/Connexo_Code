@@ -78,7 +78,7 @@ Ext.define('Dxp.view.tasks.Add', {
                                 field.focus(false, 200);
                             }
                         },
-                        vtype: 'validateForHtmlTags'
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'combobox',

@@ -52,7 +52,7 @@ Ext.define('Cfg.view.validationtask.Add', {
                                 field.focus(false, 200);
                             }
                         },
-                        vtype: 'validateForHtmlTags'
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'combobox',

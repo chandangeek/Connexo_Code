@@ -52,7 +52,7 @@ Ext.define('Est.estimationtasks.view.AddEdit', {
                                 field.focus(false, 200);
                             }
                         },
-                        vtype: 'validateForHtmlTags'
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'combobox',

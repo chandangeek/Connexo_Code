@@ -42,14 +42,16 @@ Ext.define('Est.estimationrulesets.view.RuleSetEdit', {
                                 field.focus(false, 200);
                             }
                         },
-                        vtype: 'validateForHtmlTags'
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'textareafield',
                         fieldLabel: Uni.I18n.translate('general.description', 'EST', 'Description'),
                         name: 'description',
                         itemId: 'description',
-                        minHeight: 100
+                        required: false,
+                        minHeight: 100,
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'fieldcontainer',

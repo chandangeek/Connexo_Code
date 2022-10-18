@@ -50,7 +50,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
                                 field.labelEl.setOpacity(1);
                             }
                         },
-                        vtype: 'validateForHtmlTags'
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'combobox',
@@ -63,7 +63,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
                                 field.labelEl.setOpacity(1);
                             }
                         },
-                        vtype: 'validateForHtmlTags'
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'reading-type-displayfield',
