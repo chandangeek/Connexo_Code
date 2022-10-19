@@ -74,7 +74,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
             checkForBlacklistCharacters: function (value, field) {
                 return !(/\<(.*?)\>/.test(value)) && !(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value));
             },
-            checkForBlacklistCharactersText: Uni.I18n.translate('general.htmltag.msg', 'UNI', 'Invalid charecters')
+            checkForBlacklistCharactersText: Uni.I18n.translate('general.htmltag.msg', 'UNI', 'Invalid characters')
         });
     },
 

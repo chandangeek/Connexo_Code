@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
@@ -26,8 +27,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
                             xtype: 'textfield',
                             name: 'obis',
                             fieldLabel: 'OBIS code',
-                            labelAlign: 'top',
-                            vtype: 'checkForBlacklistCharacters'
+                            labelAlign: 'top'
                         }
                     ]
                 }

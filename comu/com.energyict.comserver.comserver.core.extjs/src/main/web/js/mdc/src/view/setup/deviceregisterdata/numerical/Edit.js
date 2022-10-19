@@ -101,7 +101,6 @@ Ext.define('Mdc.view.setup.deviceregisterdata.numerical.Edit', {
                                 maskRe: /[0-9\.]+/,
                                 itemId: 'valueTextField',
                                 margin: '0 5 0 0',
-                                vtype: 'checkForBlacklistCharacters',
                                 allowBlank: false
                             },
                             {
