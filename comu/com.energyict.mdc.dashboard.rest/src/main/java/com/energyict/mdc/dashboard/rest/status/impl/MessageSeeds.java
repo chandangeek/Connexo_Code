@@ -23,6 +23,7 @@ public enum MessageSeeds implements MessageSeed {
     UNSUPPORTED_KPI_PERIOD(10, "UnsupportedKpiPeriod", "Read-outs are not available for this period"),
     CONCURRENT_RUN_TITLE(11, "ConcurrentRunTitle", "Failed to run ''{0}''"),
     CONCURRENT_RUN_BODY(12, "ConcurrentRunMessage", "{0} has changed since the page was last updated."),
+    UNSUPPORTED_ACTION(13, "UnsupportedAction", "Bulk action isn''t allowed if no filters are selected on communications page."),
     ;
 
     private final int number;

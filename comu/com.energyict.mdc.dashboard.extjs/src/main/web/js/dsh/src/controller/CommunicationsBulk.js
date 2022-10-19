@@ -112,10 +112,9 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             selectionGrid = wizard.down('bulk-selection-grid'),
             action = wizard.down('#communications-bulk-action-radiogroup').getValue().action,
             data = {},
-            url;
-
+            url,
+            filterItems = me.getFilterObjectFromQueryString();
         if (selectionGrid.isAllSelected()) {
-            var filterItems = me.getFilterObjectFromQueryString();
             data.filter = {};
             for (var dataIndex in filterItems) {
                 var value = filterItems[dataIndex];
@@ -153,17 +152,22 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
 
         wizard.setLoading(true);
 
-        Ext.Ajax.request({
-            url: url,
-            method: 'PUT',
-            jsonData: data,
-            callback: function (options, success) {
-                if (wizard.rendered) {
-                    wizard.setLoading(false);
-                    wizard.down('#cmbw-step4').setResultMessage(action, success);
+        if (filterItems.deviceTypes == undefined && filterItems.deviceGroups == undefined && filterItems.comTasks == undefined && filterItems.comSchedules == undefined && filterItems.currentStates == undefined && filterItems.latestResults == undefined && filterItems.connectionMethods == undefined && filterItems.startInterval == undefined && filterItems.finishInterval == undefined) {
+            wizard.setLoading(false);
+            wizard.down('#cmbw-step4').setResultMessage(action, false, filterItems);
+        } else {
+            Ext.Ajax.request({
+                url: url,
+                method: 'PUT',
+                jsonData: data,
+                callback: function (options, success, filterItems) {
+                    if (wizard.rendered) {
+                        wizard.setLoading(false);
+                        wizard.down('#cmbw-step4').setResultMessage(action, success, filterItems);
+                    }
                 }
-            }
-        });
+            });
+        }
     },
 
     setLoading: function(loadingState) {
