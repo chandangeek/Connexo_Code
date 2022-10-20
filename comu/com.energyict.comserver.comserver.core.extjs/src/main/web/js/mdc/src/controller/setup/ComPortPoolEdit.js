@@ -203,7 +203,7 @@ Ext.define('Mdc.controller.setup.ComPortPoolEdit', {
         timeUnitsStore.load(function () {
             taskExecutionTimeoutUnit = this.findRecord('timeUnit', model.get('taskExecutionTimeout').timeUnit);
             if (taskExecutionTimeoutUnit) {
-                taskExecutionTimeout = {count: model.get('taskExecutionTimeout').count, timeUnit: taskExecutionTimeoutUnit.get('localizedValue')},
+                taskExecutionTimeout = {count: model.get('taskExecutionTimeout').count, timeUnit: taskExecutionTimeoutUnit.get('timeUnit')},
                 model.beginEdit();
                 model.set('taskExecutionTimeout', taskExecutionTimeout);
                 model.endEdit();
