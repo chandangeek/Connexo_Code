@@ -164,7 +164,7 @@ Ext.define('Dsh.controller.Communications', {
 
 
         if (record) {
-            if(record.get('connectionTask').comSessionId !== 0) {
+            if (record.get('connectionTask').comSessionId !== 0) {
                 connPreview.down('uni-button-action').setDisabled(false);
             } else {
                 connPreview.down('uni-button-action').setDisabled(true);
@@ -185,16 +185,16 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewCommunicationLog: function (record) {
-        location.href = '#/devices/' +record.get('device').name
-        + '/communicationtasks/' + record.get('comTask').id
-        + '/history/' + record.get('sessionId')
-        + '/viewlog' +
-        '?logLevels=Error&logLevels=Warning&logLevels=Information';
+        location.href = '#/devices/' + record.get('device').name
+            + '/communicationtasks/' + record.get('comTask').id
+            + '/history/' + record.get('sessionId')
+            + '/viewlog' +
+            '?logLevels=Error&logLevels=Warning&logLevels=Information';
     },
 
     viewConnectionLog: function (record) {
         location.href = '#/devices/' + record.get('device').name + '/connectionmethods/' + record.get('connectionTask').id + '/history/' + record.get('connectionTask').comSessionId + '/viewlog' +
-        '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
+            '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
     onGenerateReport: function () {

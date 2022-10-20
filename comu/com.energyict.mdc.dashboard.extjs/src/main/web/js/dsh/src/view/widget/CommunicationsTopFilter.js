@@ -221,56 +221,57 @@ Ext.define('Dsh.view.widget.CommunicationsTopFilter', {
             comTaskFilter.enable();
         }
     },
-        onBeforeLoad: function (store, options) {
-            var me = this,
-                params = {};
-            var btn = Ext.ComponentQuery.query("#btn-communications-bulk-action");
-            var generateReportBtn = Ext.ComponentQuery.query("#generate-report");
-            var exportBtn = Ext.ComponentQuery.query("#exportBtn");
+
+    onBeforeLoad: function (store, options) {
+        var me = this,
+            params = {};
+        var btn = Ext.ComponentQuery.query("#btn-communications-bulk-action");
+        var generateReportBtn = Ext.ComponentQuery.query("#generate-report");
+        var exportBtn = Ext.ComponentQuery.query("#exportBtn");
 
 
-            options.params = options.params || {};
+        options.params = options.params || {};
 
-            // Memory proxy.
-            if (me.hasActiveFilter()) {
-                var tempParams = me.getFilterParams(false, !me.filterObjectEnabled);
+        // Memory proxy.
+        if (me.hasActiveFilter()) {
+            var tempParams = me.getFilterParams(false, !me.filterObjectEnabled);
 
-                if (me.filterObjectEnabled) {
-                    params[me.filterObjectParam] = me.createFiltersObject(tempParams);
-                } else {
-                    params = tempParams;
-                }
-            }
-
-            if (me.historyEnabled) {
-                me.updateHistoryState();
-            }
-
-            Ext.apply(options.params, params);
-            store.filterParams = params;
-            if(Ext.decode(options.params.filter, true).length > 0){
-                Ext.Array.forEach(btn, function (record) {
-                    record.setDisabled(false);
-                });
-                Ext.Array.forEach(generateReportBtn, function (record) {
-                    record.setDisabled(false);
-                });
-                Ext.Array.forEach(exportBtn, function (record) {
-                    record.setDisabled(false);
-                });
+            if (me.filterObjectEnabled) {
+                params[me.filterObjectParam] = me.createFiltersObject(tempParams);
             } else {
+                params = tempParams;
+            }
+        }
 
-                Ext.Array.forEach(btn, function (record) {
-                    record.setDisabled(true);
-                });
-                Ext.Array.forEach(generateReportBtn, function (record) {
-                    record.setDisabled(true);
-                });
-                Ext.Array.forEach(exportBtn, function (record) {
-                    record.setDisabled(true);
-                });
-            }
-            me.enableClearAll(Ext.decode(options.params.filter, true) || []);
-            }
+        if (me.historyEnabled) {
+            me.updateHistoryState();
+        }
+
+        Ext.apply(options.params, params);
+        store.filterParams = params;
+        if(Ext.decode(options.params.filter, true).length > 0){
+            Ext.Array.forEach(btn, function (record) {
+                record.setDisabled(false);
+            });
+            Ext.Array.forEach(generateReportBtn, function (record) {
+                record.setDisabled(false);
+            });
+            Ext.Array.forEach(exportBtn, function (record) {
+                record.setDisabled(false);
+            });
+        } else {
+
+            Ext.Array.forEach(btn, function (record) {
+                record.setDisabled(true);
+            });
+            Ext.Array.forEach(generateReportBtn, function (record) {
+                record.setDisabled(true);
+            });
+            Ext.Array.forEach(exportBtn, function (record) {
+                record.setDisabled(true);
+            });
+        }
+        me.enableClearAll(Ext.decode(options.params.filter, true) || []);
+    }
 
 });

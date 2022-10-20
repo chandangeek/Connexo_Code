@@ -121,17 +121,17 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DSH', '{0} - {1} of {2} communications'),
                 displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
                 emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display'),
-                items:[
+                items: [
                     {
                         xtype:'button',
                         itemId:'generate-report',
                         hidden: !Uni.store.Apps.checkApp('Facts'),
                         privileges: Yfn.privileges.Yellowfin.view,
-                        text:Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
+                        text: Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
                     },
                     {
-                        xtype:'button',
-                        itemId:'btn-communications-bulk-action',
+                        xtype: 'button',
+                        itemId: 'btn-communications-bulk-action',
                         privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                         text: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action')
                     }

@@ -235,9 +235,9 @@ public class CommunicationResource {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        String user ="";
-        if(null != securityContext) {
-           user = securityContext.getUserPrincipal().getName();
+        String user = "";
+        if (null != securityContext) {
+            user = securityContext.getUserPrincipal().getName();
         }
         return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow", user);
     }
@@ -252,8 +252,8 @@ public class CommunicationResource {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        String user ="";
-        if(null != securityContext) {
+        String user = "";
+        if (null != securityContext) {
             user = securityContext.getUserPrincipal().getName();
         }
         return queueCommunicationBulkAction(communicationsBulkRequestInfo, "runNow", user);
