@@ -269,7 +269,7 @@ public class CommunicationResource {
                 //ignore if any failure
             }
         } else {
-            LOGGER.log(Level.INFO, "CONM-3085: Number of communication tasks selected by " + user + " are: " + communicationsBulkRequestInfo.communications.size());
+            LOGGER.log(Level.INFO, "CONM-3550: Number of communication tasks selected by " + user + " are: " + communicationsBulkRequestInfo.communications.size());
         }
         if (communicationsBulkRequestInfo.filter != null) {
             if (communicationsBulkRequestInfo.filter.device == null

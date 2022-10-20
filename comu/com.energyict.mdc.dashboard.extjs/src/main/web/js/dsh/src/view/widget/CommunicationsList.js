@@ -150,28 +150,28 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
         me.callParent(arguments);
     },
     initActions: function () {
-            var me = this,
-                bulkActionBtn = me.down("#btn-communications-bulk-action");
-            bulkActionBtn.on('click', me.applyFilters, me);
-        },
-        applyFilters: function () {
-            var me = this,
-                pagingToolbarTop = Ext.Array.findBy(Ext.ComponentQuery.query('pagingtoolbartop'), function (toolbar) {
-                    return toolbar.store.$className === me.store.$className;
-                }),
-                pagingToolbarBottom = Ext.Array.findBy(Ext.ComponentQuery.query('pagingtoolbarbottom'), function (toolbar) {
-                    return toolbar.store.$className === me.store.$className;
-                });
+        var me = this,
+            bulkActionBtn = me.down("#btn-communications-bulk-action");
+        bulkActionBtn.on('click', me.applyFilters, me);
+    },
+    applyFilters: function () {
+        var me = this,
+            pagingToolbarTop = Ext.Array.findBy(Ext.ComponentQuery.query('pagingtoolbartop'), function (toolbar) {
+                return toolbar.store.$className === me.store.$className;
+            }),
+            pagingToolbarBottom = Ext.Array.findBy(Ext.ComponentQuery.query('pagingtoolbarbottom'), function (toolbar) {
+                return toolbar.store.$className === me.store.$className;
+            });
 
-            if (pagingToolbarTop) {
-                pagingToolbarTop.resetPaging();
-            }
-            if (pagingToolbarBottom) {
-                pagingToolbarBottom.resetPaging();
-            }
-            if (Ext.isDefined(me.store)) {
-                me.store.load();
-            }
-            }
+        if (pagingToolbarTop) {
+            pagingToolbarTop.resetPaging();
+        }
+        if (pagingToolbarBottom) {
+            pagingToolbarBottom.resetPaging();
+        }
+        if (Ext.isDefined(me.store)) {
+            me.store.load();
+        }
+    }
 });
 
