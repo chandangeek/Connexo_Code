@@ -6,6 +6,7 @@ import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFa
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.StatusEventsFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.DailyProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.HourlyProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.NightlineProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
@@ -29,7 +30,8 @@ public class MerlinCollectedDataFactory {
     //private FrameType frameType;
     private CollectedLoadProfile dailyLoadProfile;
     private ZoneId timeZone;
-   private CollectedLogBook eventsStatus;
+    private CollectedLogBook eventsStatus;
+    private CollectedLoadProfile nightLineProfile;
 
     public MerlinCollectedDataFactory(Telegram telegram, InboundContext inboundContext) {
         this.telegram = telegram;
@@ -115,6 +117,7 @@ public class MerlinCollectedDataFactory {
     private void extractAllProfiles() {
         HourlyProfileFactory hourlyProfileFactory = new HourlyProfileFactory(telegram, inboundContext);
         DailyProfileFactory dailyProfileFactory = new DailyProfileFactory(telegram, inboundContext);
+        NightlineProfileFactory nightlineProfileFactory = new NightlineProfileFactory(telegram, inboundContext);
 
         // always the index record is before the profile record
         List<TelegramVariableDataRecord> records = telegram.getBody().getBodyPayload().getRecords();
@@ -140,6 +143,17 @@ public class MerlinCollectedDataFactory {
                 }
             } catch (Exception ex) {
                 inboundContext.getLogger().error("Exception while extracting daily profile", ex);
+            }
+
+
+            // check if can be decoded as nightline profile
+            try {
+                CollectedLoadProfile tentative = nightlineProfileFactory.extractLoadProfile(profileRecord, indexRecord);
+                if (tentative != null) {
+                    this.nightLineProfile = tentative;
+                }
+            } catch (Exception ex) {
+                inboundContext.getLogger().error("Exception while extracting nightline profile", ex);
             }
         }
     }

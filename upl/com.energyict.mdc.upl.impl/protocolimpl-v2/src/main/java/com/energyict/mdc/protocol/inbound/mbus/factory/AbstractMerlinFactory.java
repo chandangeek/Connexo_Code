@@ -33,6 +33,9 @@ public abstract class AbstractMerlinFactory {
     public static final String HOURLY_PROFILE_OBISCODE = "8.0.99.1.0.255";
     public static final String HOURLY_PROFILE_CIM = "0.0.7.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0";    //[60-minutes] Bulk Water volume (m³)
 
+    public static final String NIGHTLINE_PROFILE_OBISCODE = "8.0.99.3.0.255";
+    public static final String NIGHTLINE_PROFILE_CIM = "0.0.7.1.1.9.58.0.0.0.0.0.0.0.0.0.42.0";    //[60-minutes] Bulk Water volume (m³)
+
     public static final String STANDARD_LOGBOOK = "0.0.99.98.0.255";
 
 

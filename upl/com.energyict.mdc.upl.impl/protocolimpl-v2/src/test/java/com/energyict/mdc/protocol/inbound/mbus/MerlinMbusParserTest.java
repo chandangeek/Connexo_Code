@@ -2,14 +2,14 @@ package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.FrameType;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
-import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.ErrorFlagsMapping;
-import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.StatusEventMapping;
-import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.DailyProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.StatusEventsFactory;
-import com.energyict.mdc.protocol.inbound.mbus.factory.FrameType;
+import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.ErrorFlagsMapping;
+import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.StatusEventMapping;
 import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.AbstractProfileFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.DailyProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.HourlyProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
@@ -51,7 +51,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyObject;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -260,7 +262,7 @@ public class MerlinMbusParserTest extends TestCase {
         when(collectedDataFactory.createCollectedLoadProfile(anyObject())).thenReturn(loadProfile);
 
 
-        CollectedRegister collectedRegister = new com.energyict.mdc.upl.meterdata.CollectedRegister() {
+        CollectedRegister collectedRegister= new com.energyict.mdc.upl.meterdata.CollectedRegister() {
             private String text;
             private RegisterIdentifier registerIdentifier;
             private Quantity quantity;
@@ -366,7 +368,11 @@ public class MerlinMbusParserTest extends TestCase {
             }
         };
 
-        when(collectedDataFactory.createDefaultCollectedRegister(anyObject())).thenReturn(collectedRegister);
+
+        doReturn(collectedRegister)
+                .when(collectedDataFactory)
+                        .createDefaultCollectedRegister(any(RegisterIdentifier.class));
+        //when(collectedDataFactory.createDefaultCollectedRegister(anyObject())).thenReturn(collectedRegister);
 
 
         CollectedRegisterList collectedRegistersList = new CollectedRegisterList() {
@@ -637,6 +643,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         CollectedRegisterList registers = registerFactory.extractRegisters();
 
+        // TODO check hot to nigh index
         assertEquals(5, registers.getCollectedRegisters().size());
 
         assertEquals(48980, registers.getCollectedRegisters().get(0).getCollectedQuantity().intValue());

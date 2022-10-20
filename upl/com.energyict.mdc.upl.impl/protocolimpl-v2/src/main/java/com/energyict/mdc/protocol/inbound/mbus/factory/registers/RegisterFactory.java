@@ -57,13 +57,24 @@ public class RegisterFactory extends AbstractMerlinFactory {
 
                 Quantity quantity = new Quantity(valueNumeric, unit);
 
-                CollectedRegister register = getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);;
+                CollectedRegister register = getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
                 register.setCollectedData(quantity);
                 register.setReadTime(Date.from(getTelegramDateTime()));
-                collectedRegisterList.addCollectedRegister(register);
-
-                getInboundContext().getLogger().info(obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
+                if (!alreadyContainsObis(obisCode)) {
+                    collectedRegisterList.addCollectedRegister(register);
+                    getInboundContext().getLogger().info("[Reg:" + record + "] " + obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
+                } else {
+                    getInboundContext().getLogger().warn("[Reg:" + record + "] DUPLICATE identifiers matching " + obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
+                }
+            } else {
+                getInboundContext().getLogger().info("[Reg:" + record + "] - Not Applicable to any mapping");
             }
         }
+    }
+
+    private boolean alreadyContainsObis(ObisCode obisCode) {
+        return collectedRegisterList.getCollectedRegisters().stream()
+                .filter(r -> r.getRegisterIdentifier() != null)
+                .anyMatch(r -> obisCode.equals(r.getRegisterIdentifier().getRegisterObisCode()));
     }
 }

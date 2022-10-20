@@ -111,5 +111,13 @@ public class TelegramVariableDataRecord {
         joiner.add("==================================================");
     }
 
+    @Override
+    public String toString() {
+        StringJoiner joiner = new StringJoiner(",");
+
+        joiner.add("DIF=" + getDif().getFieldPartsAsString());
+        joiner.add("VIF=" + getVif().getFieldPartsAsString());
+        return joiner.toString();
+    }
 }
 

@@ -6,7 +6,7 @@ public enum SpacingControlByte {
     /** Signed difference, hours */
     INDEX_HOUR_SPACING_CONTROL_BYTE(0xE2, 1, ChronoUnit.HOURS),
 
-    INDEX_MINUTE_SPACING_CON_BYTE(0xD2, 15, ChronoUnit.MINUTES),
+    NIGHTLINE_15_MINUTES_SPACING_CON_BYTE(0xD2, 15, ChronoUnit.MINUTES),
 
     WEEKLY_LOG_SPACING_CONTROL_BYTE(0xF3, 1, ChronoUnit.DAYS); // to check?!
 

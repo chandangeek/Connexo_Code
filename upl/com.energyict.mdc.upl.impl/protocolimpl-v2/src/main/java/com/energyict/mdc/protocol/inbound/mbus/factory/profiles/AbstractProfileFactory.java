@@ -189,7 +189,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
 
 
     private void calculateLoadProfile(TelegramVariableDataRecord record) {
-        startCalculation(getStartIndex(), getTelegramDateTime());
+        startCalculation(getStartIndex(), getStartReferenceTimeStamp());
 
         Map<Integer, Long> intervals = record.getDataField().getParsedIntervals();
         intervals.keySet()
@@ -202,10 +202,18 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
 
     }
 
+    /** From where to start the load profile calculations */
+    protected Instant getStartReferenceTimeStamp() {
+        return getMidnight();
+    }
+
+    public Instant getMidnight() {
+        return midnight;
+    }
 
     private void startCalculation(long startIndex, Instant startDateTime) {
         this.calculationIndex = startIndex;
-        this.calculationTimeStamp = midnight;
+        this.calculationTimeStamp = startDateTime;
         saveCurrentInterval();
     }
 

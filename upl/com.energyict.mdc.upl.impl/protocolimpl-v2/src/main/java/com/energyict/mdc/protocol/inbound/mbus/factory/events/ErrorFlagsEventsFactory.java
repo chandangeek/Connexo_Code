@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
 
     public static final String VIF_SECOND_EXTENSION_TABLE = "fd";
+    public static final int EVENT_FLAG_DIF = 0x03;
 
     public ErrorFlagsEventsFactory(Telegram telegram, InboundContext inboundContext) {
         super(telegram, inboundContext);
@@ -39,13 +40,16 @@ public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
         return TelegramFunctionType.INSTANTANEOUS_VALUE;
     }
 
+    private int applicableDIF() {
+        return EVENT_FLAG_DIF;
+    }
 
     public boolean appliesFor(TelegramVariableDataRecord record) {
         try {
             return (applicableDataFieldEncoding().equals(record.getDif().getDataFieldEncoding())
                     && applicableFunctionType().equals(record.getDif().getFunctionType())
                     && VIF_SECOND_EXTENSION_TABLE.equalsIgnoreCase(record.getVif().getFieldPartsAsString())
-                    // VIFE TODO
+                    && applicableDIF() == record.getDif().getFieldAsByteArray()[0]
             );
         } catch (Exception ex) {
             getInboundContext().getLogger().error("Error while checking applicability of error flags record", ex);

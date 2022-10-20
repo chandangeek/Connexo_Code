@@ -65,7 +65,7 @@ public class DIFTelegramField extends TelegramField {
         String difField = this.fieldParts.get(0);
         int iDifField = Converter.hexToInt(difField);
 
-        logger.debug("\n*** Parsing DIF field: " + difField + " ***");
+        logger.debug("*** Parsing DIF field: " + difField + " ***");
 
         // there are some special functions where the other fields
         // don't need to be interpreted (for example 2F as a fill byte)
