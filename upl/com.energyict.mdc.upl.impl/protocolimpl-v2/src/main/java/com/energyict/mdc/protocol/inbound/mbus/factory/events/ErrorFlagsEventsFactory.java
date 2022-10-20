@@ -48,7 +48,7 @@ public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
                     // VIFE TODO
             );
         } catch (Exception ex) {
-            getInboundContext().getLogger().error("Error while checking applicability of record", ex);
+            getInboundContext().getLogger().error("Error while checking applicability of error flags record", ex);
             ex.printStackTrace();
             return false;
         }

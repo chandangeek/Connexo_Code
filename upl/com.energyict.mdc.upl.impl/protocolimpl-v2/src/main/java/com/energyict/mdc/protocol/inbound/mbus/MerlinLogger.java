@@ -61,7 +61,7 @@ public class MerlinLogger {
     public void debug(String message) {
         if (getLogger().isLoggable(Level.FINEST)) {
             getLogger().finest(LOG_PREFIX + message);
-            System.out.println(message);
+            //System.out.println(message);
         }
     }
 

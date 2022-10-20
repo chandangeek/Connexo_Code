@@ -26,7 +26,7 @@ public class MerlinCollectedDataFactory {
     private CollectedRegisterList collectedRegisterList;
     private CollectedLoadProfile hourlyLoadProfile;
     private List<CollectedData> collectedDataList;
-    private FrameType frameType;
+    //private FrameType frameType;
     private CollectedLoadProfile dailyLoadProfile;
     private ZoneId timeZone;
    private CollectedLogBook eventsStatus;
@@ -48,14 +48,6 @@ public class MerlinCollectedDataFactory {
             return collectedDataList;
         }
 
-        this.frameType = FrameType.of(telegram);
-
-        if (FrameType.UNKNOWN.equals(frameType)) {
-            inboundContext.getLogger().warn("Could not detect the frame type!");
-        } else {
-            inboundContext.getLogger().info("Frame type detected: " + frameType);
-        }
-
         collectedDataList = new ArrayList<>();
 
         try {
@@ -65,15 +57,9 @@ public class MerlinCollectedDataFactory {
         }
 
         try {
-            extractHourlyProfile();
+            extractAllProfiles();
         } catch (Exception ex) {
-            inboundContext.getLogger().error("Exception while parsing hourly profile", ex);
-        }
-
-        try {
-            extractDailyProfile();
-        } catch (Exception ex) {
-            inboundContext.getLogger().error("Exception while parsing daily profile", ex);
+            inboundContext.getLogger().error("Exception while parsing profiles", ex);
         }
 
         try {
@@ -83,17 +69,10 @@ public class MerlinCollectedDataFactory {
         }
 
         try {
-            extractErrorFlags(FrameType.DAILY_FRAME, 8);
+            extractErrorFlags();
         } catch (Exception ex) {
             inboundContext.getLogger().error("Exception while parsing error flags on daily frame", ex);
         }
-
-        try {
-            extractErrorFlags(FrameType.NRT_FRAME, 6);
-        } catch (Exception ex) {
-            inboundContext.getLogger().error("Exception while parsing error flags on NTR frame", ex);
-        }
-
 
         if (collectedRegisterList != null ) {
             collectedDataList.add(collectedRegisterList);
@@ -119,16 +98,13 @@ public class MerlinCollectedDataFactory {
         this.eventsStatus = eventsFactory.extractEventsFromStatus();
     }
 
-    private void extractErrorFlags(FrameType expectedFrameType, int recordNumber) {
-        if (expectedFrameType.equals(frameType)) {
-            ErrorFlagsEventsFactory errorFlagsEventsFactory = new ErrorFlagsEventsFactory(telegram, inboundContext);
+    private void extractErrorFlags() {
+        ErrorFlagsEventsFactory errorFlagsEventsFactory = new ErrorFlagsEventsFactory(telegram, inboundContext);
 
-            TelegramVariableDataRecord eventsRecord = telegram.getBody().getBodyPayload().getRecords().get(8);
+        telegram.getBody().getBodyPayload().getRecords().stream()
+                .filter(errorFlagsEventsFactory::appliesFor)
+                .forEach(errorFlagsEventsFactory::extractEventsFromErrorFlags);
 
-            if (errorFlagsEventsFactory.appliesFor(eventsRecord)) {
-                errorFlagsEventsFactory.extractEventsFromErrorFlags(eventsRecord);
-            }
-        }
     }
 
     private void extractRegisters() {
@@ -136,30 +112,37 @@ public class MerlinCollectedDataFactory {
         this.collectedRegisterList = registerFactory.extractRegisters();
     }
 
-    private void extractHourlyProfile() {
-        if (!FrameType.DAILY_FRAME.equals(frameType)) {
-            return;
+    private void extractAllProfiles() {
+        HourlyProfileFactory hourlyProfileFactory = new HourlyProfileFactory(telegram, inboundContext);
+        DailyProfileFactory dailyProfileFactory = new DailyProfileFactory(telegram, inboundContext);
+
+        // always the index record is before the profile record
+        List<TelegramVariableDataRecord> records = telegram.getBody().getBodyPayload().getRecords();
+        for(int i = 1; i < records.size() - 1; i++) {
+            TelegramVariableDataRecord indexRecord = telegram.getBody().getBodyPayload().getRecords().get(i-1);
+            TelegramVariableDataRecord profileRecord = telegram.getBody().getBodyPayload().getRecords().get(i);
+
+            // check if can be decoded as hourly profile, the factory does the cross-checks
+            try {
+                CollectedLoadProfile tentative = hourlyProfileFactory.extractLoadProfile(profileRecord, indexRecord);
+                if (tentative != null ) {
+                    this.hourlyLoadProfile = tentative;
+                }
+            } catch (Exception ex) {
+                inboundContext.getLogger().error("Exception while extracting hourly profile", ex);
+            }
+
+            // check if can be decoded as weekly profile
+            try {
+                CollectedLoadProfile tentative = dailyProfileFactory.extractLoadProfile(profileRecord, indexRecord);
+                if (tentative != null) {
+                    this.dailyLoadProfile = tentative;
+                }
+            } catch (Exception ex) {
+                inboundContext.getLogger().error("Exception while extracting daily profile", ex);
+            }
         }
-        HourlyProfileFactory profileFactory = new HourlyProfileFactory(telegram, inboundContext);
-
-        // for the known frames (weekly, daily) the ENCODING_VARIABLE_LENGTH field is always 4 and 3 is always the start index
-        TelegramVariableDataRecord indexRecord = telegram.getBody().getBodyPayload().getRecords().get(3);
-        TelegramVariableDataRecord hourlyRecord = telegram.getBody().getBodyPayload().getRecords().get(4);
-
-        this.hourlyLoadProfile = profileFactory.extractLoadProfile(hourlyRecord, indexRecord);
     }
 
-    private void extractDailyProfile() {
-        if (!FrameType.WEEKLY_FRAME.equals(frameType)) {
-            return;
-        }
-        DailyProfileFactory profileFactory = new DailyProfileFactory(telegram, inboundContext);
-
-        // for the known frames (weekly, daily) the ENCODING_VARIABLE_LENGTH field is always 4 and 3 is always the start index
-        TelegramVariableDataRecord indexRecord = telegram.getBody().getBodyPayload().getRecords().get(3);
-        TelegramVariableDataRecord hourlyRecord = telegram.getBody().getBodyPayload().getRecords().get(4);
-
-        this.dailyLoadProfile = profileFactory.extractLoadProfile(hourlyRecord, indexRecord);
-    }
 
 }

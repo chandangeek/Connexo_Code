@@ -52,6 +52,14 @@ public class TelegramVariableDataRecord {
         return vif;
     }
 
+    public List<DIFETelegramField> getDifes() {
+        return difes;
+    }
+
+    public List<VIFETelegramField> getVifes() {
+        return vifes;
+    }
+
     public void setVif(VIFTelegramField vif) {
         this.vif = vif;
     }

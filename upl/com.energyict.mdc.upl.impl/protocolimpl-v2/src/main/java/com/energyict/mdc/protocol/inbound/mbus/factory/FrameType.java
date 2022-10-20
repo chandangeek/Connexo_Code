@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 
 import static java.lang.Math.min;
 
+@Deprecated // should be able to be flexible and do not depend on it
 public enum FrameType {        // DIF	 DIF-FunctionType                	DIF-Encoding                   	VIF	 VIF-Type           	VIF-Unit	SCB	Spacing
 
     WEEKLY_FRAME(new int[]  {

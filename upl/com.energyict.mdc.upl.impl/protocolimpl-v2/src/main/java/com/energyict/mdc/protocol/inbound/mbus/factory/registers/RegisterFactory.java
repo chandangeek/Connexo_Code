@@ -36,25 +36,8 @@ public class RegisterFactory extends AbstractMerlinFactory {
 
         extractTelegramDateTime();
 
-        switch (getTelegram().getBody().getBodyPayload().getRecords().size()){
-            case 13:
-            case 14:
-                // parse as Daily Data Packet Structure
-
-
-            case 5:
-                // parse as Weekly Data Packet Structure
-
-            case 7:
-                // parse as NRT Data Packet Structure
-
-
-            default:
-                // extract everything we can:
-                getTelegram().getBody().getBodyPayload().getRecords()
-                        .forEach(this::extractRegister);
-        }
-
+        getTelegram().getBody().getBodyPayload().getRecords()
+                .forEach(this::extractRegister);
 
         return collectedRegisterList;
     }

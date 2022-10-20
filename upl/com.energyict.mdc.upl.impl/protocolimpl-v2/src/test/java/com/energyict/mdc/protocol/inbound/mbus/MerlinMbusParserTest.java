@@ -2,6 +2,7 @@ package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.cbo.Quantity;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.ErrorFlagsMapping;
 import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.StatusEventMapping;
 import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.DailyProfileFactory;
@@ -259,7 +260,7 @@ public class MerlinMbusParserTest extends TestCase {
         when(collectedDataFactory.createCollectedLoadProfile(anyObject())).thenReturn(loadProfile);
 
 
-        CollectedRegister collectedRegister = new CollectedRegister() {
+        CollectedRegister collectedRegister = new com.energyict.mdc.upl.meterdata.CollectedRegister() {
             private String text;
             private RegisterIdentifier registerIdentifier;
             private Quantity quantity;
@@ -744,6 +745,7 @@ public class MerlinMbusParserTest extends TestCase {
         dump(DAILY_FRAME_ENCRYPTED1, "DAILY FRAME #1", key1);
         dump(DAILY_FRAME_ENCRYPTED2, "DAILY FRAME #2", key1);
         dump(DAILY_FRAME_ENCRYPTED3_REAL_DATA, "DAILY FRAME #3", key2);
+        dump(DAILY_FRAME_ENCRYPTED4_REAL_DATA, "DAILY FRAME #4", key2);
 
         dump(WEEKLY_FRAME_ENCRYPTED, "WEEKLY FRAME", key1);
         dump(NRT_FRAME_ENCRYPTED, "NRT FRAME", key1);
@@ -758,34 +760,48 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setEncryptionKey(key);
         parser.parse();
 
-        System.out.println(parser.getTelegram().debugOutput());
+        //System.out.println(parser.getTelegram().debugOutput());
 
         System.out.println("***** " + name + " *****");
 
-        System.out.println("#\tDIF\t DIF-FunctionType            \tDIF-Encoding                   \tVIF\t VIF-Type           \tVIF-Unit\tSCB\tSpacing");
+        String SEP = " | ";
+        System.out.println(" # " + SEP + "DIF" + SEP + "DIF-FunctionType              " + SEP + "DIF-Encoding                     " + SEP + "VIF" + SEP + " VIF-Type           " + SEP + "VIF-Unit  " + SEP + "SCB" + SEP + "Sp." + SEP +" VIFEx ");
+        //System.out.println("#\tDIF\t DIF-FunctionType                         \tDIF-Encoding                               \tVIF\t VIF-Type           \tVIF-Unit\tSCB\tSpacing");
 
 
         for (int i=0; i < parser.getTelegram().getBody().getBodyPayload().getRecords().size(); i++) {
             TelegramVariableDataRecord r = parser.getTelegram().getBody().getBodyPayload().getRecords().get(i);
 
-            System.out.print(i + "\t");
+            System.out.print(pad("" + i,3));
+            System.out.print(SEP);
             System.out.print(pad(r.getDif().getFieldPartsAsString(), 3));
-            System.out.print("\t");
+            System.out.print(SEP);
             System.out.print(pad(r.getDif().getFunctionType().toString(),30));
-            System.out.print("\t");
+            System.out.print(SEP);
             System.out.print(pad(r.getDif().getDataFieldEncoding().toString(), 33));
+            System.out.print(SEP);
             if (r.getVif() != null ) {
-                System.out.print(pad(r.getVif().getFieldPartsAsString(), 2));
-                System.out.print("\t");
+                System.out.print(pad(r.getVif().getFieldPartsAsString(), 3)); // VIF
+                System.out.print(SEP);
                 if (r.getVif().getType() != null) {
                     System.out.print(pad(r.getVif().getType().toString(), 20));
-                    System.out.print("\t");
+                    System.out.print(SEP);
                     System.out.print(pad(r.getVif().getmUnit().toString(), 10));
-                    System.out.print("\t");
+                    System.out.print(SEP);
                     if (r.getDataField().getFieldParts().size() == 3) {
-                        System.out.print(r.getDataField().getFieldParts().get(1).toString());
-                        System.out.print("\t");
-                        System.out.print(r.getDataField().getFieldParts().get(2).toString());
+                        System.out.print(r.getDataField().getFieldParts().get(1).toString()); // SCB
+                        System.out.print(SEP);
+                        System.out.print(r.getDataField().getFieldParts().get(2).toString()); // SPACING
+                    } else {
+                        System.out.print("--");
+                        System.out.print(SEP);
+                        System.out.print("--");
+                    }
+
+                    System.out.print(SEP);
+                    for (int v = 0; v < r.getVifes().size(); v++){
+                        System.out.print(r.getVifes().get(v).getFieldPartsAsString());
+                        System.out.print(SEP);
                     }
 
                 } else {
@@ -1138,5 +1154,38 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals(ErrorFlagsMapping.BATTERY_USAGE_INDICATOR.getMessage(), errorFlags.getCollectedMeterEvents().get(1).getMessage());
 
     }
+
+
+    @Test
+    public void testDailyFrame3Factory(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parseHeader(DAILY_FRAME_ENCRYPTED3_REAL_DATA);
+        inboundContext.setEncryptionKey(key2);
+        parser.parse();
+
+        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+
+        assertEquals(3, factory.getCollectedData().size());
+    }
+
+    @Test
+    public void testDailyFrame1Factory(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parseHeader(DAILY_FRAME_ENCRYPTED1);
+        inboundContext.setEncryptionKey(key1);
+        parser.parse();
+
+        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+
+        assertEquals(3, factory.getCollectedData().size());
+    }
+
+
 
 }

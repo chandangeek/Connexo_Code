@@ -70,7 +70,17 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
             ex.printStackTrace();
             return false;
         }
+    }
 
+    public boolean appliesAsIndexRecord(TelegramVariableDataRecord indexRecord) {
+        if (getFieldType() == null || getMeasureUnit() == null) {
+            return false;
+        }
+
+        return TelegramFunctionType.INSTANTANEOUS_VALUE.equals(indexRecord.getDif().getFunctionType())
+                && TelegramEncoding.ENCODING_INTEGER.equals(indexRecord.getDif().getDataFieldEncoding())
+                && getFieldType().equals(indexRecord.getVif().getType())
+                && getMeasureUnit().equals(indexRecord.getVif().getmUnit());
     }
 
     public TelegramEncoding applicableDataFieldEncoding() {
@@ -109,18 +119,6 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
         return startIndex;
     }
 
-    public boolean appliesAsIndexRecord(TelegramVariableDataRecord indexRecord) {
-        if (getFieldType() == null || getMeasureUnit() == null) {
-            return false;
-        }
-
-        return TelegramFunctionType.INSTANTANEOUS_VALUE.equals(indexRecord.getDif().getFunctionType())
-                && TelegramEncoding.ENCODING_INTEGER.equals(indexRecord.getDif().getDataFieldEncoding())
-                && getFieldType().equals(indexRecord.getVif().getType())
-                && getMeasureUnit().equals(indexRecord.getVif().getmUnit());
-    }
-
-
     public CollectedLoadProfile getCollectedLoadProfile(){
         return this.loadProfile;
     }
@@ -135,14 +133,14 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
 
     public CollectedLoadProfile extractLoadProfile(TelegramVariableDataRecord profileRecord, final TelegramVariableDataRecord indexRecord) {
         if (!appliesFor(profileRecord)) {
-            getInboundContext().getLogger().warn("This profile record cannot be decoded by this factory!");
+            getInboundContext().getLogger().debug("This profile record cannot be decoded by this factory (DIF=" + profileRecord.getDif().getFieldPartsAsString() + ")");
             return null;
         }
 
         extractProfileMetaData(profileRecord);
 
         if (!appliesAsIndexRecord(indexRecord)) {
-            getInboundContext().getLogger().warn("Invalid index record, it doesn't match the profile record");
+            getInboundContext().getLogger().debug("Invalid index record, it doesn't match the profile record (DIF=" + profileRecord.getDif().getFieldPartsAsString() + ")");
             return null;
         }
 
