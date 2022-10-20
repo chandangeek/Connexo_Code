@@ -8,6 +8,7 @@ import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessageAttribute;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
@@ -52,6 +53,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.EndOfDSTAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.StartOfDSTAttributeName;
@@ -59,12 +61,20 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TimeZ
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeout;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDayMap;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDestionation1;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDestionation;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectGSMRegistrationTimeout;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectMode;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectRepetitions;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectRepetitionsDelay;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.clientMacAddress;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStartTime1;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStartTime2;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStartTime3;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStartTime4;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStopTime1;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStopTime2;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStopTime3;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.communicationWindowStopTime4;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorValveEnablePassword;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.enableDSTAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.firmwareUpdateActivationDateAttributeName;
@@ -75,7 +85,6 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.portN
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.sessionTimeoutAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.simPincode;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.usernameAttributeName;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.windowAttributeName;
 
 
 public class A2MessageExecutor extends AbstractMessageExecutor {
@@ -298,25 +307,170 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         String mode = getDeviceMessageAttributeValue(pendingMessage, autoConnectMode);
         String repetitions = getDeviceMessageAttributeValue(pendingMessage, autoConnectRepetitions);
         String repetitionsDelay = getDeviceMessageAttributeValue(pendingMessage, autoConnectRepetitionsDelay);
-        String window = getDeviceMessageAttributeValue(pendingMessage, windowAttributeName);
+        String startDate1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime1);
+        //String startTime1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime1);
+        String stopDate1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime1);
+        //String stopTime1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime1);
+        //String ignoreTimeFrame2 = getDeviceMessageAttributeValue(pendingMessage, communicationWindowStartDate2IsIgnored);
+        String startDate2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime2);
+        //String startTime2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime2);
+        String stopDate2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime2);
+        //String stopTime2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime2);
+        //String ignoreTimeFrame3 = getDeviceMessageAttributeValue(pendingMessage, communicationWindowStartDate3IsIgnored);
+        String startDate3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime3);
+        //String startTime3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime3);
+        String stopDate3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime3);
+        //String stopTime3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime3);
+        //String ignoreTimeFrame4 = getDeviceMessageAttributeValue(pendingMessage, communicationWindowStartDate4IsIgnored);
+        String startDate4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime4);
+        //String startTime4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime4);
+        String stopDate4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime4);
+        //String stopTime4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime4);
         String dayMap = getDeviceMessageAttributeValue(pendingMessage, autoConnectDayMap);
-        String destination = getDeviceMessageAttributeValue(pendingMessage, autoConnectDestionation1);
+        String destination = getDeviceMessageAttributeValue(pendingMessage, autoConnectDestionation);
         String port = getDeviceMessageAttributeValue(pendingMessage, portNumberAttributeName);
         String gsmRegistrationTimeout = getDeviceMessageAttributeValue(pendingMessage, autoConnectGSMRegistrationTimeout);
         String cosemSessionTimeout = getDeviceMessageAttributeValue(pendingMessage, autoConnectCosemSessionRegistrationTimeout);
 
         AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
-        autoConnect.writeMode(NetworkConnectivityMessage.AutoConnectMode.modeForDescription(mode).getMode());
-        autoConnect.writeRepetitions(Integer.parseInt(repetitions));
-        autoConnect.writeRepetitionDelay(Integer.parseInt(repetitionsDelay));
+        NetworkConnectivityMessage.AutoConnectModeA2 autoConnectMode = NetworkConnectivityMessage.AutoConnectModeA2.modeForDescription(mode);
+        //autoConnect.writeMode(autoConnectMode.getMode());
+       // autoConnect.writeRepetitions(Integer.parseInt(repetitions));
+       // autoConnect.writeRepetitionDelay(Integer.parseInt(repetitionsDelay));
         Array windowList = new Array();
-        windowList.addDataType(OctetString.fromString(window));
+        if (!NetworkConnectivityMessage.AutoConnectModeA2.Inactive.equals(autoConnectMode)) {
+            if (startDate1 != null && stopDate1 != null) {
+                windowList.addDataType(getWindowFrame(startDate1, stopDate1, autoConnectMode));
+            } else {
+                getProtocol().journal(Level.SEVERE, "Calling window is absent. Please set the boundary dates.");
+                throw new IOException("Calling window is absent. Please set the boundary dates.");
+            }
+            if (startDate2 != null && stopDate2 != null) {
+                windowList.addDataType(getWindowFrame(startDate2, stopDate2, autoConnectMode));
+            }
+            if (startDate3 != null && stopDate3 != null) {
+                windowList.addDataType(getWindowFrame(startDate3, stopDate3, autoConnectMode));
+            }
+            if (startDate4 != null && stopDate4 != null) {
+                windowList.addDataType(getWindowFrame(startDate4, stopDate4, autoConnectMode));
+            }
+        }
+        /*windowList.addDataType(getWindowFrame(startDate1, startTime1, stopDate1, stopTime1));
+        if (!Boolean.getBoolean(ignoreTimeFrame2)) {
+            windowList.addDataType(getWindowFrame(startDate2, startTime2, stopDate2, stopTime2));
+        }
+        if (!Boolean.getBoolean(ignoreTimeFrame3)) {
+            windowList.addDataType(getWindowFrame(startDate3, startTime3, stopDate3, stopTime3));
+        }
+        if (!Boolean.getBoolean(ignoreTimeFrame4)) {
+            windowList.addDataType(getWindowFrame(startDate4, startTime4, stopDate4, stopTime4));
+        }*/
         autoConnect.writeCallingWindow(new Array(windowList));
         writeIpAddressAndPort(destination, port, autoConnect);
-        autoConnect.writeDayMap(Long.parseLong(dayMap));
+        autoConnect.writeDayMap(Long.parseLong(dayMap, 16));
         autoConnect.writeGSMRegistrationTimeout(Integer.parseInt(gsmRegistrationTimeout));
         autoConnect.writeCosemSessionTimeout(Integer.parseInt(cosemSessionTimeout));
     }
+
+    private Structure getWindowFrame(String startDateString, String endDateString, NetworkConnectivityMessage.AutoConnectModeA2 modeA2) throws IOException {
+        Structure windowFrameStructure = new Structure();
+        Date startDate = new Date(Long.parseLong(startDateString));
+        Date stopDate = new Date(Long.parseLong(endDateString));
+
+        byte[] startDateBytes = convertDateToBEREncodedByteArray(startDate);
+        byte[] stopDateBytes = convertDateToBEREncodedByteArray(stopDate);
+        if (NetworkConnectivityMessage.AutoConnectModeA2.Active.equals(modeA2)) {
+            windowFrameStructure.addDataType(new OctetString(startDateBytes, 0));
+            windowFrameStructure.addDataType(new OctetString(stopDateBytes, 0));
+        } else if (NetworkConnectivityMessage.AutoConnectModeA2.DailyActive.equals(modeA2)) {
+            for (int i = 2; i < 7; i++) {
+                startDateBytes[i] = (byte) 0xFF;
+                stopDateBytes[i] = (byte) 0xFF;
+            }
+            windowFrameStructure.addDataType(new OctetString(startDateBytes, 0));
+            windowFrameStructure.addDataType(new OctetString(stopDateBytes, 0));
+        }
+        return windowFrameStructure;
+    }
+
+
+    /*private Structure getWindowFrame(String startDateString, String startTimeString, String endDateString, String endTimeString) throws IOException {
+        Structure windowFrameStructure = new Structure();
+        windowFrameStructure.addDataType(new OctetString(getWindowFrame(startDateString, startTimeString), 0));
+        windowFrameStructure.addDataType(new OctetString(getWindowFrame(endDateString, endTimeString), 0));
+        return windowFrameStructure;
+    }
+
+
+    private byte[] getWindowFrame(String dateString, String timeString) throws IOException {
+        Calendar startTimeDeviceTimezone = ProtocolUtils.getCleanCalendar(getProtocol().getTimeZone());
+        OctetString startDateOctetString = null;
+        OctetString startTimeOctetString = null;
+
+        AXDRTime axdrTime = new AXDRTime();
+        axdrTime.decode(timeString);
+
+        if (dateString == null) {
+            startDateOctetString = AXDRDate.encode(0xFFFF, 0xFF, 0xFF, 0xFF);
+            Calendar startTimeUTC = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("UTC"));
+            startTimeUTC.setTimeInMillis(0); // 1970-01-01T00:00:00
+            startTimeUTC.set(Calendar.HOUR_OF_DAY, axdrTime.getHour());
+            startTimeUTC.set(Calendar.MINUTE, axdrTime.getMinutes());
+            startTimeUTC.set(Calendar.SECOND, axdrTime.getSeconds());
+            startTimeDeviceTimezone.setTimeInMillis(startTimeUTC.getTimeInMillis());
+            AXDRTime axdrTimeDeviceTimezone = new AXDRTime();
+            axdrTimeDeviceTimezone.decode(startTimeDeviceTimezone.get(Calendar.HOUR_OF_DAY) + ":" + startTimeDeviceTimezone.get(Calendar.MINUTE) + ":" + startTimeDeviceTimezone.get(Calendar.SECOND));
+            startTimeOctetString = axdrTimeDeviceTimezone.getOctetString();
+
+        } else {
+            Calendar startDateUTC = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("UTC"));
+            startDateUTC.setTimeInMillis(Long.parseLong(dateString));
+            int hourInUtc = startDateUTC.get(Calendar.HOUR_OF_DAY);
+            int timezoneShift = 0;
+            int shitfDate = 0;
+
+            if (hourInUtc < 12) {
+                // Original timezone shift
+                timezoneShift = - hourInUtc;
+
+                if (axdrTime.getHour() + timezoneShift < 0) {
+
+                }
+            }
+            if (hourInUtc > 12) {
+                timezoneShift = 24 - hourInUtc;
+                if (axdrTime.getHour() + timezoneShift > 24) {
+                    shitfDate++;
+                }
+            }
+
+
+            startDateUTC.set(Calendar.HOUR_OF_DAY, axdrTime.getHour());
+            startDateUTC.set(Calendar.MINUTE, axdrTime.getMinutes());
+            startDateUTC.set(Calendar.SECOND, axdrTime.getSeconds());
+
+            startTimeDeviceTimezone.setTimeInMillis(startDateUTC.getTimeInMillis());
+            startDateOctetString = AXDRDate.encode(startTimeDeviceTimezone.get(Calendar.YEAR), startTimeDeviceTimezone.get(Calendar.MONTH), startTimeDeviceTimezone.get(Calendar.DAY_OF_MONTH), startTimeDeviceTimezone.get(Calendar.DAY_OF_WEEK));
+            AXDRTime axdrTimeDeviceTimezone = new AXDRTime();
+            axdrTimeDeviceTimezone.decode(startTimeDeviceTimezone.get(Calendar.HOUR_OF_DAY) + ":" + startTimeDeviceTimezone.get(Calendar.MINUTE) + ":" + startTimeDeviceTimezone.get(Calendar.SECOND));
+            startTimeOctetString = axdrTimeDeviceTimezone.getOctetString();
+        }
+
+        byte[] startDateOctetStringBytes = startDateOctetString.toByteArray();
+        byte[] startTimeOctetStringBytes = startTimeOctetString.toByteArray();
+        int headerSize = 2;
+        byte[] startDateTimeBytes = new byte[headerSize + startDateOctetStringBytes.length + startTimeOctetStringBytes.length + 3];
+        startDateTimeBytes[0] = AxdrType.OCTET_STRING.getTag();
+        startDateTimeBytes[1] = 0xC; // size
+        System.arraycopy(startDateOctetStringBytes, 0, startDateTimeBytes, headerSize, startDateOctetStringBytes.length);
+        System.arraycopy(startTimeOctetStringBytes,0, startDateTimeBytes, headerSize + startDateOctetStringBytes.length, startTimeOctetStringBytes.length);
+        int deviationUnspecified = 0x8000;
+        startDateTimeBytes[11] = (byte) ((deviationUnspecified>>8)&0xFF);
+        startDateTimeBytes[12] = (byte) (deviationUnspecified&0xFF);
+        startDateTimeBytes[13] = (byte) 0; //status (DST)
+
+        return startDateTimeBytes;
+    }*/
 
     private void writeIpAddressAndPort(String destination, String port, AutoConnect autoConnect) throws IOException {
         ProtocolUtils.validateIpAddress(destination);
@@ -402,6 +556,15 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
 
     private byte[] convertDateToBEREncodedByteArray(Date date) {
         return new AXDRDateTime(date, getProtocol().getTimeZone()).getBEREncodedByteArray();
+    }
+
+    protected String getDeviceMessageOptionalAttributeValue(OfflineDeviceMessage offlineDeviceMessage, String attributeName) throws ProtocolException {
+        for (OfflineDeviceMessageAttribute offlineDeviceMessageAttribute : offlineDeviceMessage.getDeviceMessageAttributes()) {
+            if (offlineDeviceMessageAttribute.getName().equals(attributeName)) {
+                return offlineDeviceMessageAttribute.getValue();
+            }
+        }
+        return null;
     }
 
 }

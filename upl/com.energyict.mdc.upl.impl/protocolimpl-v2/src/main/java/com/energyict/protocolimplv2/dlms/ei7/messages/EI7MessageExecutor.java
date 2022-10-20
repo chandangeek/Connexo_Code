@@ -88,6 +88,7 @@ public class EI7MessageExecutor extends A2MessageExecutor {
             } else {
                 super.executeMessage(pendingMessage, collectedMessage);
             }
+            //TODO remove error handling here, leave it to executePendingMessages()
         } catch (IOException e) {
             collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
             collectedMessage.setDeviceProtocolInformation(e.getMessage());

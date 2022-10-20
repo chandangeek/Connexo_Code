@@ -3,9 +3,11 @@ package com.energyict.protocolimplv2.messages;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HexString;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.security.KeyAccessorType;
+
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.messages.nls.TranslationKeyImpl;
 
@@ -29,19 +31,19 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     ACTIVATE_WAKEUP_MECHANISM(4001, "Activate wakeup mechanism") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     DEACTIVATE_SMS_WAKEUP(4002, "Deactivate sms wakeup") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     CHANGE_GPRS_USER_CREDENTIALS(4003, "Change the GPRS user credentials") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation),
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation)
@@ -50,7 +52,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_GPRS_APN_CREDENTIALS(4004, "Change the GPRS APN credentials") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.apnAttributeName, DeviceMessageConstants.apnAttributeDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation),
@@ -61,31 +63,31 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     // will be a semicolon separated string (maybe in the future this will be a StringListAspectEditor ...
     ADD_PHONENUMBERS_TO_WHITE_LIST(4005, "Add phonenumbers to white list") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.whiteListPhoneNumbersAttributeName, DeviceMessageConstants.whiteListPhoneNumbersAttributeDefaultTranslation));
         }
     },
     ADD_MANAGED_PHONENUMBERS_TO_WHITE_LIST(4006, "Add managed phonenumbers to white list") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeName, DeviceMessageConstants.managedWhiteListPhoneNumbersAttributeDefaultTranslation));
         }
     },
     CHANGE_SMS_CENTER_NUMBER(4007, "Change the sms center phone number") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.smsCenterPhoneNumberAttributeName, DeviceMessageConstants.smsCenterPhoneNumberAttributeDefaultTranslation));
         }
     },
     CHANGE_DEVICE_PHONENUMBER(4008, "Change the device phone number") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.devicePhoneNumberAttributeName, DeviceMessageConstants.devicePhoneNumberAttributeDefaultTranslation));
         }
     },
     CHANGE_GPRS_IP_ADDRESS_AND_PORT(4009, "Change the IP address and port number") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.ipAddressAttributeName, DeviceMessageConstants.ipAddressAttributeDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.portNumberAttributeName, DeviceMessageConstants.portNumberAttributeDefaultTranslation)
@@ -94,7 +96,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_WAKEUP_FREQUENCY(4010, "Change the wakeup frequency") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(
                     this.stringSpec(
                             service,
@@ -104,7 +106,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_INACTIVITY_TIMEOUT(4011, "Change inactivity timeout") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.inactivityTimeoutAttributeName, DeviceMessageConstants.inactivityTimeoutAttributeDefaultTranslation));
         }
     },
@@ -112,67 +114,67 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     //EIWeb messages
     SetProxyServer(4012, "Set proxy server") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetProxyServerAttributeName, DeviceMessageConstants.SetProxyServerAttributeDefaultTranslation));
         }
     },
     SetProxyUsername(4013, "Set proxy user name") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetProxyUsernameAttributeName, DeviceMessageConstants.SetProxyUsernameAttributeDefaultTranslation));
         }
     },
     SetProxyPassword(4014, "Set proxy password") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetProxyPasswordAttributeName, DeviceMessageConstants.SetProxyPasswordAttributeDefaultTranslation));
         }
     },
     SetDHCP(4015, "Set DHCP") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetDHCPAttributeName, DeviceMessageConstants.SetDHCPAttributeDefaultTranslation));
         }
     },
     SetDHCPTimeout(4016, "Set DHCP timeout") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetDHCPTimeoutAttributeName, DeviceMessageConstants.SetDHCPTimeoutAttributeDefaultTranslation));
         }
     },
     SetIPAddress(4017, "Set IP address") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetIPAddressAttributeName, DeviceMessageConstants.SetIPAddressAttributeDefaultTranslation));
         }
     },
     SetSubnetMask(4018, "Set subnet mask") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetSubnetMaskAttributeName, DeviceMessageConstants.SetSubnetMaskAttributeDefaultTranslation));
         }
     },
     SetGateway(4019, "Set gateway") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetGatewayAttributeName, DeviceMessageConstants.SetGatewayAttributeDefaultTranslation));
         }
     },
     SetNameServer(4020, "Set name server") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetNameServerAttributeName, DeviceMessageConstants.SetNameServerAttributeDefaultTranslation));
         }
     },
     SetHttpPort(4021, "Set HTTP port") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetHttpPortAttributeName, DeviceMessageConstants.SetHttpPortAttributeDefaultTranslation));
         }
     },
     ConfigureKeepAliveSettings(4022, "Configure keepalive settings") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.NetworkConnectivityIPAddressAttributeName, DeviceMessageConstants.NetworkConnectivityIPAddressAttributeDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.NetworkConnectivityIntervalAttributeName, DeviceMessageConstants.NetworkConnectivityIntervalAttributeDefaultTranslation)
@@ -181,19 +183,19 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     PreferGPRSUpstreamCommunication(4023, "Prefer GPRS upstream communication") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.preferGPRSUpstreamCommunication, DeviceMessageConstants.preferGPRSUpstreamCommunicationDefaultTranslation));
         }
     },
     EnableModemWatchdog(4024, "Enable modem watchdog") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.enableModemWatchdog, DeviceMessageConstants.enableModemWatchdogDefaultTranslation));
         }
     },
     SetModemWatchdogParameters(4025, "Write modem watchdog parameters") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.modemWatchdogInterval, DeviceMessageConstants.modemWatchdogIntervalDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.PPPDaemonResetThreshold, DeviceMessageConstants.PPPDaemonResetThresholdDefaultTranslation),
@@ -204,67 +206,67 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     ClearWhiteList(4026, "Clear white list") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     EnableWhiteList(4027, "Enable usage of white list") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     DisableWhiteList(4028, "Disable usage of white list") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     EnableOperatingWindow(4029, "Enable usage of operating window") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     DisableOperatingWindow(4030, "Disable usage of operating window") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     SetOperatingWindowStartTime(4031, "Set operating window start time") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.timeSpec(service, DeviceMessageConstants.startTime, DeviceMessageConstants.startTimeDefaultTranslation));
         }
     },
     SetOperatingWindowEndTime(4032, "Set operating window end time") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.timeSpec(service, DeviceMessageConstants.endTime, DeviceMessageConstants.endTimeDefaultTranslation));
         }
     },
     RunMeterDiscovery(4033, "Run meter discovery") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     RunAlarmMeterDiscovery(4034, "Run alarm meter discovery") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     RunRepeaterCall(4035, "Run repeater call") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     SetNetworkManagementParameters(4036, "Set network management parameters") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.discoverDuration, DeviceMessageConstants.discoverDurationDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.discoverInterval, DeviceMessageConstants.discoverIntervalDefaultTranslation),
@@ -276,37 +278,37 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SetUseDHCPFlag(4037, "Use DHCP") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.booleanSpec(service, DeviceMessageConstants.SetDHCPAttributeName, DeviceMessageConstants.SetDHCPAttributeDefaultTranslation));
         }
     },
     SetPrimaryDNSAddress(4038, "Set primary DNS address") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.primaryDNSAddressAttributeName, DeviceMessageConstants.primaryDNSAddressAttributeDefaultTranslation));
         }
     },
     SetSecondaryDNSAddress(4039, "Set secondary DNS address") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.secondaryDNSAddressAttributeName, DeviceMessageConstants.secondaryDNSAddressAttributeDefaultTranslation));
         }
     },
     SetAutoConnectMode(4040, "Set GPRS connect mode") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.gprsModeAttributeName, DeviceMessageConstants.gprsModeAttributeDefaultTranslation));
         }
     },
     ChangeSessionTimeout(4041, "Change session timeout") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.sessionTimeoutAttributeName, DeviceMessageConstants.sessionTimeoutAttributeDefaultTranslation));
         }
     },
     SetCyclicMode(4042, "Set cyclic mode") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpecBuilder(service, DeviceMessageConstants.day, DeviceMessageConstants.dayDefaultTranslation).setDefaultValue(BigDecimal.ZERO).finish(),
                     this.bigDecimalSpec(service, DeviceMessageConstants.hour, DeviceMessageConstants.hourDefaultTranslation),
@@ -317,7 +319,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SetPreferredDateMode(4043, "Set preferred date mode") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpecBuilder(service, DeviceMessageConstants.day, DeviceMessageConstants.dayDefaultTranslation).setDefaultValue(BigDecimal.ZERO).finish(),
                     this.bigDecimalSpec(service, DeviceMessageConstants.hour, DeviceMessageConstants.hourDefaultTranslation),
@@ -328,7 +330,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SetWANConfiguration(4044, "Set WAN configuration") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.Destination1IPAddressAttributeName, DeviceMessageConstants.Destination1IPAddressAttributeDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.Destination2IPAddressAttributeName, DeviceMessageConstants.Destination2IPAddressAttributeDefaultTranslation)
@@ -337,7 +339,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     WakeupParameters(4045, "Set wakeup parameters") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.wakeupPeriodAttributeName, DeviceMessageConstants.wakeupPeriodAttributeDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.inactivityTimeoutAttributeName, DeviceMessageConstants.inactivityTimeoutAttributeDefaultTranslation)
@@ -346,7 +348,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     PreferredNetworkOperatorList(4046, "Set preferred network operator") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return IntStream
                     .range(1, 11)
                     .mapToObj(number -> this.networkOperatorSpec(service, number))
@@ -355,7 +357,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     ConfigureAutoAnswer(4047, "Configure auto answer") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.windowAttributeName, DeviceMessageConstants.windowAttributeDefaultTranslation, getPossibleValues(1, 6)),
                     this.stringSpec(service, DeviceMessageConstants.autoAnswerStartTime, DeviceMessageConstants.autoAnswerStartTimeDefaultTranslation),
@@ -365,13 +367,13 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     DisableAutoAnswer(4048, "Disable auto answer") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.windowAttributeName, DeviceMessageConstants.windowAttributeDefaultTranslation, getPossibleValues(1, 6)));
         }
     },
     ConfigureAutoConnect(4049, "Configure auto connect") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.windowAttributeName, DeviceMessageConstants.windowAttributeDefaultTranslation, getPossibleValues(1, 2)),
                     this.stringSpec(service, DeviceMessageConstants.autoConnectMode, DeviceMessageConstants.autoConnectModeDefaultTranslation, AutoConnectMode.SpecifiedTime.description, AutoConnectMode.InsideWindow.description),
@@ -384,13 +386,13 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     DisableAutoConnect(4050, "Disable auto connect") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.bigDecimalSpec(service, DeviceMessageConstants.windowAttributeName, DeviceMessageConstants.windowAttributeDefaultTranslation, getPossibleValues(1, 2)));
         }
     },
     SetModemWatchdogParameters2(4051, "Write modem watchdog parameters") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.durationSpec(service, DeviceMessageConstants.modemWatchdogInterval, DeviceMessageConstants.modemWatchdogIntervalDefaultTranslation),
                     this.durationSpec(service, DeviceMessageConstants.modemWatchdogInitialDelay, DeviceMessageConstants.modemWatchdogInitialDelayDefaultTranslation),
@@ -402,7 +404,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     EnableNetworkInterfaces(4052, "Enable network interfaces") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.booleanSpec(service, DeviceMessageConstants.ETHERNET_WAN, DeviceMessageConstants.ETHERNET_WANDefaultTranslation),
                     this.booleanSpec(service, DeviceMessageConstants.ETHERNET_LAN, DeviceMessageConstants.ETHERNET_LANDefaultTranslation),
@@ -414,13 +416,13 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SetHttpsPort(4053, "Set HTTPS Port") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.singletonList(this.stringSpec(service, DeviceMessageConstants.SetHttpsPortAttributeName, DeviceMessageConstants.SetHttpsPortAttributeDefaultTranslation));
         }
     },
     EnableNetworkInterfacesForSetupObject(4054, "Enable network interfaces for setup object") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.setupObjectAttributeName, DeviceMessageConstants.setupObjectAttributeDefaultTranslation)
                             .addValues(BeaconSetupObject.getSetupObjectValues())
@@ -435,7 +437,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     ADD_ROUTING_ENTRY(4055, "Add a new routing entry to the routing setup") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.routingEntryType, DeviceMessageConstants.routingEntryTypeDefaultTranslation)
                             .addValues(RoutingEntryType.getDescriptionValues())
@@ -450,7 +452,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     REMOVE_ROUTING_ENTRY(4056, "Remove routing entry") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.routingEntryId, DeviceMessageConstants.routingEntryIdDefaultTranslation)
             );
@@ -458,13 +460,13 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     RESET_ROUTER(4057, "Reset router") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
     SET_VPN_ENABLED_OR_DISABLED(4058, "Set VPN enabled or disabled") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.booleanSpec(service, DeviceMessageConstants.vpnEnabled, DeviceMessageConstants.vpnEnabledDefaultTranslation)
             );
@@ -472,7 +474,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_TYPE(4059, "Set VPN type") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.vpnType, DeviceMessageConstants.vpnTypeDefaultTranslation)
                             .addValues(VPNType.getDescriptionValues())
@@ -482,7 +484,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_GATEWAY_ADDRESS(4060, "Set gateway address") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.vpnGatewayAddress, DeviceMessageConstants.vpnGatewayAddressDefaultTranslation)
             );
@@ -490,7 +492,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_AUTHENTICATION_TYPE(4061, "Set authentication type") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.vpnAuthenticationType, DeviceMessageConstants.vpnAuthenticationTypeDefaultTranslation)
                             .addValues(VPNAuthenticationType.getDescriptionValues())
@@ -500,7 +502,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_LOCAL_IDENTIFIER(4062, "Set local identifier used during IKE SA") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.vpnLocalIdentifier, DeviceMessageConstants.vpnLocalIdentifierDefaultTranslation)
             );
@@ -508,7 +510,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_REMOTE_IDENTIFIER(4063, "Set remote identifier expected during IKE SA") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.vpnRemoteIdentifier, DeviceMessageConstants.vpnRemoteIdentifierDefaultTranslation)
             );
@@ -516,7 +518,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_REMOTE_CERTIFICATE(4065, "Set remote certificate expected during IKE") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.vpnRemoteCertificate, DeviceMessageConstants.vpnRemoteCertificateDefaultTranslation)
             );
@@ -524,7 +526,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_SHARED_SECRET(4066, "Set shared secret used during IKE") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.keyAccessorTypeReferenceSpec(service, DeviceMessageConstants.vpnSharedSecret, DeviceMessageConstants.vpnSharedSecretDefaultTranslation)
             );
@@ -532,7 +534,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_VIRTUAL_IP_ENABLED_OR_DISABLED(4067, "Set virtual IP, enabled or disabled") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.booleanSpec(service, DeviceMessageConstants.vpnVirtualIPEnabled, DeviceMessageConstants.vpnVirtualIPEnabledDefaultTranslation)
             );
@@ -540,7 +542,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     SET_VPN_IP_COMPRESSION_ENABLED_OR_DISABLED(4068, "Set IP compression, enabled or disabled") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.booleanSpec(service, DeviceMessageConstants.vpnIPCompressionEnabled, DeviceMessageConstants.vpnIPCompressionEnabledDefaultTranslation)
             );
@@ -548,14 +550,14 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     REFRESH_VPN_CONFIG(4069, "Refresh VPN config") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     },
 
     ADD_ROUTING_ENTRY_USING_CONFIGURED_IPV6_IN_GENERAL_PROPERTIES(4070, "Add a new routing entry using IPv6AddressAndPrefixLength property") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.booleanSpec(service, DeviceMessageConstants.cleanUpExistingEntry, DeviceMessageConstants.cleanUpExistingEntryDefaultTranslation, true)
             );
@@ -564,7 +566,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     CHANGE_SNMP_AGENT_CONFIGURATION(4071, "Change SNMP agent configuration") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.snmpSystemContact, DeviceMessageConstants.snmpSystemContactDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.snmpSystemLocation, DeviceMessageConstants.snmpSystemLocationDefaultTranslation),
@@ -583,7 +585,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     CHANGE_SNMP_AGENT_USER_NAME(4072, "Change SNMP agent user name") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.snmpUserProfile, DeviceMessageConstants.snmpUserProfileDefaultTranslation)
                         .addValues(SNMPUserProfileType.getDescriptionValues())
@@ -595,7 +597,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     CHANGE_SNMP_AGENT_USER_PASSPHRASES(4073, "Change SNMP agent user passphrases") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.snmpUserProfile, DeviceMessageConstants.snmpUserProfileDefaultTranslation)
                             // The public user profile (0) does not hold any credentials, and therefore cannot be used in this method.
@@ -609,7 +611,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     ENABLE_SNMP_USER_PROFILE(4074, "Enable/disable a SNMP user profile") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpecBuilder(service, DeviceMessageConstants.snmpUserProfile, DeviceMessageConstants.snmpUserProfileDefaultTranslation)
                             .addValues(SNMPUserProfileType.getDescriptionValues())
@@ -621,7 +623,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     CHANGE_LTE_APN_NAME(4075, "Change the LTE APN name") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.apnAttributeName, DeviceMessageConstants.apnAttributeDefaultTranslation)
             );
@@ -630,7 +632,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     CHANGE_LTE_PING_ADDRESS(4076, "Change the LTE ping address") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.uplinkPingDestinationAddress, DeviceMessageConstants.enableUplinkPingDefaultTranslation)
             );
@@ -639,7 +641,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     CONFIGURE_INTERFACE_LOCKOUT_PARAMETERS(4077, "Configure interface lockout parameters") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.remoteShellMaxLoginAttempts, DeviceMessageConstants.remoteShellMaxLoginAttemptsDefaultTranslation),
                     this.durationSpec(service, DeviceMessageConstants.remoteShellLockoutDuration, DeviceMessageConstants.remoteShellLockoutDurationDefaultTranslation),
@@ -656,15 +658,50 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CONFIGURE_AUTO_CONNECT_A2(4078, "Configure auto connect for A2 protocol") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectMode, DeviceMessageConstants.autoConnectModeDefaultTranslation, AutoConnectMode.SpecifiedTime.description, AutoConnectMode.InsideWindow.description),
+                    this.stringSpec(service, DeviceMessageConstants.autoConnectMode, DeviceMessageConstants.autoConnectModeDefaultTranslation,
+                            AutoConnectModeA2.Inactive.description,
+                            AutoConnectModeA2.Active.description,
+                            AutoConnectModeA2.DailyActive.description),
                     this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitions, DeviceMessageConstants.autoConnectRepetitionsDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitionsDelay, DeviceMessageConstants.autoConnectRepetitionsDelayDefaultTranslation),
-                    this.bigDecimalSpec(service, DeviceMessageConstants.windowAttributeName, DeviceMessageConstants.windowAttributeDefaultTranslation, getPossibleValues(1, 2)),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectDestionation1, DeviceMessageConstants.autoConnectDestionation1DefaultTranslation),
+
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime1, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation1),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime1, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation1),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime2, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation2),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime2, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation2),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime3, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation3),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime3, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation3),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime4, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation4),
+                    this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime4, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation4),
+
+                   /* this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate1, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation1),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime1, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation1),
+                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate1, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation1),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime1, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation1),
+
+                    this.booleanSpec(service, DeviceMessageConstants.communicationWindowStartDate2IsIgnored, DeviceMessageConstants.communicationWindowStartDate2IsIgnoredTranslation, true),
+                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate2, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation2),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime2, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation2),
+                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate2, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation2),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime2, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation2),
+
+                    this.booleanSpec(service, DeviceMessageConstants.communicationWindowStartDate3IsIgnored, DeviceMessageConstants.communicationWindowStartDate3IsIgnoredTranslation, true),
+                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate3, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation3),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime3, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation3),
+                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate3, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation3),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime3, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation3),
+
+                    this.booleanSpec(service, DeviceMessageConstants.communicationWindowStartDate4IsIgnored, DeviceMessageConstants.communicationWindowStartDate4IsIgnoredTranslation, true),
+                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate4, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation4),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime4, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation4),
+                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate4, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation4),
+                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime4, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation4),*/
+
+                    this.stringSpec(service, DeviceMessageConstants.autoConnectDestionation, DeviceMessageConstants.autoConnectDestionationDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.portNumberAttributeName, DeviceMessageConstants.portNumberAttributeDefaultTranslation),
-                    this.stringSpec(service, DeviceMessageConstants.autoConnectDayMap, DeviceMessageConstants.autoConnectDayMapDefaultTranslation),
+                    this.hexStringSpecOfExactLengthWithDefault(service, DeviceMessageConstants.autoConnectDayMap, DeviceMessageConstants.autoConnectDayMapDefaultTranslation, 8, converter.hexFromString("FFFFFFFF")),
                     this.stringSpec(service, DeviceMessageConstants.autoConnectGSMRegistrationTimeout, DeviceMessageConstants.autoConnectGSMRegistrationTimeoutDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeout, DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeoutDefaultTranslation)
             );
@@ -672,7 +709,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_SIM_PIN(4079, "Change the sim PIN code") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.simPincode, DeviceMessageConstants.simPincodeDefaultTranslation)
             );
@@ -680,7 +717,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_PUSH_SCHEDULER(4080, "Change push scheduler") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.schedulerNumber, DeviceMessageConstants.schedulerNumberDefaultTranslation, getPossibleValues(1, 4)),
                     this.dateTimeSpec(service, DeviceMessageConstants.executionTime, DeviceMessageConstants.executionTimeDefaultTranslation)
@@ -689,7 +726,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_PUSH_SETUP(4081, "Change push setup parameters") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.pushNumber, DeviceMessageConstants.pushNumberDefaultTranslation, getPushSetupNumbers()),
                     this.stringSpec(service, DeviceMessageConstants.pushObjectList, DeviceMessageConstants.pushObjectListDefaultTranslation),
@@ -706,7 +743,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_ORPHAN_STATE_THRESHOLD(4082, "Change orphan state threshold") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.bigDecimalSpec(service, DeviceMessageConstants.threshold, DeviceMessageConstants.thresholdDefaultTranslation, new BigDecimal(5))
             );
@@ -715,7 +752,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
 
     CHANGE_NETWORK_TIMEOUT(4083, "Change network timeout") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.timeoutObject, DeviceMessageConstants.timeoutObjectDefaultTranslation, NetworkConnectivityMessage.TimeoutType.getTypes()),
                     this.bigDecimalSpec(service, DeviceMessageConstants.sessionMaxDuration, DeviceMessageConstants.sessionMaxDurationDefaultTranslation),
@@ -726,7 +763,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_NBIOT_APN_CREDENTIALS(4084, "Change the NB-IOT APN credentials") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.apnAttributeName, DeviceMessageConstants.apnAttributeDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation),
@@ -736,7 +773,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_PPP_AUTHENTICATION_PAP(4085, "Change PPP Authentication PAP") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Arrays.asList(
                     this.stringSpec(service, DeviceMessageConstants.usernameAttributeName, DeviceMessageConstants.usernameAttributeDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.passwordAttributeName, DeviceMessageConstants.passwordAttributeDefaultTranslation)
@@ -745,7 +782,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     },
     CHANGE_PPP_AUTHENTICATION_PAP_TO_NULL(4086, "Reset PPP Authentication PAP") {
         @Override
-        protected List<PropertySpec> getPropertySpecs(PropertySpecService service) {
+        protected List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter) {
             return Collections.emptyList();
         }
     };
@@ -1089,6 +1126,37 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         }
     }
 
+    public enum AutoConnectModeA2 {
+        Inactive(0,"Scheduler is not active"),
+        Active(104,"Scheduler is active"),
+        DailyActive(200,"Scheduler is active once a day"),
+        Invalid(-1, "Invalid mode");
+
+        private final int mode;
+        private final String description;
+
+        AutoConnectModeA2(int mode, String description) {
+            this.mode = mode;
+            this.description = description;
+        }
+
+        public static AutoConnectModeA2 modeForDescription(String description) {
+            return Stream
+                    .of(values())
+                    .filter(each -> each.getDescription().equals(description))
+                    .findFirst()
+                    .orElse(Invalid);
+        }
+
+        public int getMode() {
+            return mode;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+    }
+
     private final long id;
     private final String defaultNameTranslation;
 
@@ -1139,12 +1207,41 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                 .toArray(BigDecimal[]::new);
     }
 
+    protected PropertySpec optDateSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .dateSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
     protected PropertySpec timeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
                 .timeSpec()
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
+                .markRequired()
+                .finish();
+    }
+
+    protected PropertySpec optTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .timeSpec()
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .finish();
+    }
+
+    public PropertySpec hexStringSpecOfExactLengthWithDefault(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation, int length, HexString defaultValue) {
+        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
+        return service
+                .hexStringSpecOfExactLength(length)
+                .named(deviceMessageConstantKey, translationKey)
+                .describedAs(translationKey.description())
+                .setDefaultValue(defaultValue)
                 .markRequired()
                 .finish();
     }
@@ -1168,14 +1265,14 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
         return NetworkConnectivityMessage.class.getSimpleName() + "." + this.toString();
     }
 
-    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service);
+    protected abstract List<PropertySpec> getPropertySpecs(PropertySpecService service, Converter converter);
 
     @Override
     public DeviceMessageSpec get(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {
         return new DeviceMessageSpecImpl(
                 id, new TranslationKeyImpl(this.getNameResourceKey(), this.defaultNameTranslation),
                 DeviceMessageCategories.NETWORK_AND_CONNECTIVITY,
-                this.getPropertySpecs(propertySpecService),
+                this.getPropertySpecs(propertySpecService, converter),
                 propertySpecService, nlsService, converter);
     }
 
