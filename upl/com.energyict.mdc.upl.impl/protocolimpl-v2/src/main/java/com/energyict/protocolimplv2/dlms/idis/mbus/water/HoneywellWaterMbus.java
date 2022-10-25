@@ -38,7 +38,6 @@ import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolcommon.exceptions.CodingException;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
-import com.energyict.protocolimplv2.messages.MBusSetupDeviceMessage;
 import com.energyict.protocolimplv2.security.InheritedAuthenticationDeviceAccessLevel;
 import com.energyict.protocolimplv2.security.InheritedEncryptionDeviceAccessLevel;
 
@@ -54,21 +53,22 @@ public abstract class HoneywellWaterMbus implements DeviceProtocol {
     private final PropertySpecService propertySpecService;
     private final Converter converter;
 
-    public NlsService getNlsService() {
-        return nlsService;
-    }
-    public PropertySpecService getPropertySpecService() { return propertySpecService; }
-    public Converter getConverter(){return converter;}
-
     public HoneywellWaterMbus(NlsService nlsService, PropertySpecService propertySpecService, Converter converter) {
         this.nlsService = nlsService;
         this.propertySpecService = propertySpecService;
         this.converter = converter;
     }
 
-    @Override
-    public String getSerialNumber() {
-        return null;
+    public NlsService getNlsService() {
+        return nlsService;
+    }
+
+    public PropertySpecService getPropertySpecService() {
+        return propertySpecService;
+    }
+
+    public Converter getConverter(){
+        return converter;
     }
 
     @Override
@@ -116,26 +116,26 @@ public abstract class HoneywellWaterMbus implements DeviceProtocol {
     }
 
     @Override
-    public List<DeviceMessageSpec> getSupportedMessages() {
-        List<DeviceMessageSpec> listOfDeviceMessageSpec= new ArrayList<>();
-        listOfDeviceMessageSpec.add(MBusSetupDeviceMessage.Decommission.get(propertySpecService, nlsService, converter));
-        listOfDeviceMessageSpec.add(MBusSetupDeviceMessage.SetEncryptionKeys.get(propertySpecService, nlsService, converter));
-        listOfDeviceMessageSpec.add(MBusSetupDeviceMessage.UseCorrectedValues.get(propertySpecService, nlsService, converter));
-        listOfDeviceMessageSpec.add(MBusSetupDeviceMessage.UseUncorrectedValues.get(propertySpecService, nlsService, converter));
-        return listOfDeviceMessageSpec;
-    }
-
-    @Override
     public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
         return Optional.empty();
     }
 
     @Override
     public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec, Object messageAttribute) {
-        return null;
+        return messageAttribute.toString();
+    }
+
+    @Override
+    public String getSerialNumber() {
+        return "Unknown";
     }
 
     //############## Unsupported methods ##############//
+
+    @Override
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        throw CodingException.unsupportedMethod(this.getClass(), "getSupportedMessages");
+    }
 
     @Override
     public void logOn() {
@@ -258,5 +258,4 @@ public abstract class HoneywellWaterMbus implements DeviceProtocol {
     public CollectedFirmwareVersion getFirmwareVersions() {
         throw CodingException.unsupportedMethod(this.getClass(), "getFirmwareVersions");
     }
-
 }
