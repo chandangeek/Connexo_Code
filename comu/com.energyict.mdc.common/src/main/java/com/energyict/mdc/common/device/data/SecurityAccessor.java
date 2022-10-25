@@ -58,12 +58,12 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.el
     /**
      * Sets/unsets service key flag for the key.
      */
-    public void setServiceKey(boolean serviceKey);
+    void setServiceKey(boolean serviceKey);
 
     /**
      * @return {@code true} if security accessor has service key, {@code false} otherwise.
      */
-    public boolean isServiceKey();
+    boolean isServiceKey();
 
     // The element below is only used during JSON xml (un)marshalling.
     @XmlElement(name = "type")
@@ -71,7 +71,9 @@ public interface SecurityAccessor<T extends SecurityValueWrapper> extends com.el
         return this.getClass().getName();
     }
 
-    public default void setXmlType(String ignore) {}
+    default void setXmlType(String ignore) {
+    }
 
-    default void touch(){};
+    default void touch() {
+    }
 }

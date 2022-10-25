@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @ProviderType
 public interface DeviceInFirmwareCampaign {
+    FirmwareCampaign getFirmwareCampaign();
 
     Device getDevice();
 

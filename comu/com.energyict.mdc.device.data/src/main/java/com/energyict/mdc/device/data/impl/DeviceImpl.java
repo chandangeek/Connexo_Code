@@ -1081,10 +1081,10 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         for (ConfigurationSecurityProperty configurationSecurityProperty : securityPropertySet.getConfigurationSecurityProperties()) {
             Optional<SecurityAccessor> optionalKeyAccessor = getSecurityAccessors()
                     .stream()
-                    .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getName().equals(configurationSecurityProperty.getSecurityAccessorType().getName()))
+                    .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getName().equals(configurationSecurityProperty.getSecurityAccessorType().getName()))
                     .findFirst();
-            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualPassphraseWrapperReference().isPresent()) {
-                Object actualValue = optionalKeyAccessor.get().getActualPassphraseWrapperReference().get();
+            if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
+                Object actualValue = optionalKeyAccessor.get().getActualValue().get();
                 Object adaptedValue = TypedPropertiesValueAdapter.adaptActualValueToUPLValue(actualValue, configurationSecurityProperty.getSecurityAccessorType());
                 securityProperties.setProperty(configurationSecurityProperty.getName(), adaptedValue);
             }
@@ -1695,7 +1695,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     @Override
     public Optional<SecurityAccessor> getSecurityAccessor(SecurityAccessorType securityAccessorType) {
         Optional<SecurityAccessor> securityAccessor = keyAccessors.stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getId() == securityAccessorType.getId())
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getId() == securityAccessorType.getId())
                 .findAny();
         if (securityAccessor.isPresent()) {
             return securityAccessor;
@@ -1743,8 +1743,8 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void removeSecurityAccessor(SecurityAccessor securityAccessor) {
-        validateManageable(securityAccessor.getKeyAccessorTypeReference());
-        this.getSecurityAccessor(securityAccessor.getKeyAccessorTypeReference()).ifPresent(keyAccessors::remove);
+        validateManageable(securityAccessor.getSecurityAccessorType());
+        this.getSecurityAccessor(securityAccessor.getSecurityAccessorType()).ifPresent(keyAccessors::remove);
     }
 
     @Override

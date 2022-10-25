@@ -137,7 +137,7 @@ public enum TableSpecs {
         }
     },
 
-    FWC_CAMPAIGN_VERSION_SNAPSHOT{
+    FWC_CAMPAIGN_VERSION_SNAPSHOT {
         @Override
         void addTo(DataModel dataModel) {
             Table<FirmwareCampaignVersionStateShapshot> table = dataModel.addTable(name(), FirmwareCampaignVersionStateShapshot.class).since(version(10, 7));
@@ -186,7 +186,7 @@ public enum TableSpecs {
                     .map(FirmwareCampaignVersionSnapshotImpl.Fields.AUX_FW_DEP.fieldName())
                     .add();
 
-            table.primaryKey("FWC_PK_VERSION_SNAPSHOT").on(firmwareCampaignColumn, cps,version,type).add();
+            table.primaryKey("FWC_PK_VERSION_SNAPSHOT").on(firmwareCampaignColumn, cps, version, type).add();
             table.foreignKey("FK_FWC_VRST_TO_CAMPAIGN")
                     .on(firmwareCampaignColumn, cps)
                     .references(FirmwareCampaignDomainExtension.class)
@@ -211,7 +211,7 @@ public enum TableSpecs {
             addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_CURRENT_FW, "'N'");
             addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_FINAL, "'Y'");
             addCheckConfigurationColumnFor10_7(table, FirmwareCampaignManagementOptionsImpl.Fields.CHK_MASTER_FW_TEST, "'N'");
-            table.primaryKey("FWC_PK_CHECK_OPTIONS").on(firmwareCampaignColumn,cps).add();
+            table.primaryKey("FWC_PK_CHECK_OPTIONS").on(firmwareCampaignColumn, cps).add();
             table.foreignKey("FK_FWC_CHECKOPT_TO_CAMPAIGN")
                     .on(firmwareCampaignColumn, cps)
                     .references(FirmwareCampaignDomainExtension.class)

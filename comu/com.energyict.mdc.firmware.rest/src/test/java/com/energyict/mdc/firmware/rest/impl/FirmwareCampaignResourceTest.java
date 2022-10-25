@@ -185,7 +185,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number) firmwareCampaign.getDeviceType().getId()).intValue());
         assertThat(jsonModel.<String>get("$.deviceType.localizedValue")).isEqualTo(firmwareCampaign.getDeviceType().getName());
         assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number)firmwareCampaign.getValidationComTaskId()).intValue());
-        assertThat(jsonModel.<Number>get("$.calendarUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getFirmwareUploadComTaskId()).intValue());
+        assertThat(jsonModel.<Number>get("$.firmwareUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getFirmwareUploadComTaskId()).intValue());
     }
 
     @Test
@@ -228,8 +228,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         firmwareCampaignInfo.status = new IdWithNameInfo(DefaultState.ONGOING.name(),"Ongoing");
         firmwareCampaignInfo.validationComTask = new IdWithNameInfo(2L,"comTaskName");
         firmwareCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0L,"Minimize connections");
-        firmwareCampaignInfo.calendarUploadConnectionStrategy = new IdWithNameInfo(0L,"As soon as possible");
-        firmwareCampaignInfo.calendarUploadComTask = new IdWithNameInfo(1L,"comTaskName");
+        firmwareCampaignInfo.firmwareUploadConnectionStrategy = new IdWithNameInfo(0L,"As soon as possible");
+        firmwareCampaignInfo.firmwareUploadComTask = new IdWithNameInfo(1L,"comTaskName");
         ArrayList<PropertyInfo> propertyInfos = new ArrayList<>();
         propertyInfos.add(new PropertyInfo("Firmware file", "FirmwareDeviceMessage.upgrade.userfile", new PropertyValueInfo<>(8, ""), null, true));
         firmwareCampaignInfo.properties = propertyInfos;
@@ -279,7 +279,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.MINIMIZE_CONNECTIONS));
         when(comtask.getName()).thenReturn("comTaskName");
-        when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
+        when(taskService.findComTask(anyLong())).thenReturn(Optional.of(comtask));
         return firmwareCampaign;
     }
 }

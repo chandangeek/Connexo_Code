@@ -30,7 +30,7 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
     }
 
     public static <T extends SecurityValueWrapper> SecurityAccessor<T> of(Thesaurus thesaurus, Device device, com.elster.jupiter.pki.SecurityAccessor<T> defaultValue) {
-        switch (defaultValue.getKeyAccessorTypeReference().getKeyType().getCryptographicType()) {
+        switch (defaultValue.getSecurityAccessorType().getKeyType().getCryptographicType()) {
             case Certificate:
             case ClientCertificate:
             case TrustedCertificate:
@@ -51,18 +51,18 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
     }
 
     @Override
-    public SecurityAccessorType getKeyAccessorTypeReference() {
-        return defaultValue.getKeyAccessorTypeReference();
+    public SecurityAccessorType getSecurityAccessorType() {
+        return defaultValue.getSecurityAccessorType();
     }
 
     @Override
-    public Optional<T> getActualPassphraseWrapperReference() {
-        return defaultValue.getActualPassphraseWrapperReference();
+    public Optional<T> getActualValue() {
+        return defaultValue.getActualValue();
     }
 
     @Override
-    public void setActualPassphraseWrapperReference(T newWrapperValue) {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+    public void setActualValue(T newValueWrapper) {
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
@@ -72,32 +72,32 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
 
     @Override
     public void setTempValue(T newValueWrapper) {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
     public void renew() {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
     public void swapValues() {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
     public void clearTempValue() {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
     public void clearActualValue() {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
     public void save() {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
@@ -107,7 +107,7 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
 
     @Override
     public void delete() {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override
@@ -132,7 +132,7 @@ public abstract class CentrallyManagedDeviceSecurityAccessor<T extends SecurityV
 
     @Override
     public void setServiceKey(boolean serviceKey) {
-        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getKeyAccessorTypeReference());
+        throw new UnmanageableSecurityAccessorException(thesaurus, defaultValue.getSecurityAccessorType());
     }
 
     @Override

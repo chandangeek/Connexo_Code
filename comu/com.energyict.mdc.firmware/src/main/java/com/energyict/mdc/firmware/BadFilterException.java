@@ -6,8 +6,8 @@ package com.energyict.mdc.firmware;
 
 public class BadFilterException extends RuntimeException {
 
-    public BadFilterException(String message){
-         super(message);
+    public BadFilterException(String message) {
+        super(message);
     }
 
 }

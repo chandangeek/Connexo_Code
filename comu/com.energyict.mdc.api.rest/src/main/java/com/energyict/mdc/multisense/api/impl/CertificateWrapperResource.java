@@ -111,7 +111,7 @@ public class CertificateWrapperResource {
         Device device = deviceService.findDeviceByMrid(mRID)
                 .orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         SecurityAccessor securityAccessor = getSecurityAccessor(keyAccessorType, device);
-        String alias = getCertificateType(securityAccessor.getKeyAccessorTypeReference()).getPrefix() + device.getSerialNumber();
+        String alias = getCertificateType(securityAccessor.getSecurityAccessorType()).getPrefix() + device.getSerialNumber();
         return securityManagementService
                 .findCertificateWrappers(Where.where("alias").like("*-" + alias))
                 .stream()
@@ -124,7 +124,7 @@ public class CertificateWrapperResource {
 
     private SecurityAccessor getSecurityAccessor(String name, Device device) {
         return device.getSecurityAccessors().stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getName().equals(name))
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getName().equals(name))
                 .findAny()
                 .orElseThrow(() -> device.getDeviceType().getSecurityAccessorTypes().stream().anyMatch(sat -> sat.getName().equals(name)) ?
                         exceptionFactory.newException(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_KEYACCESSOR_FOR_DEVICE) :

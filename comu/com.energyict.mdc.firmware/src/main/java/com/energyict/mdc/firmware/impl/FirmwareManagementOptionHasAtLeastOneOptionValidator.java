@@ -9,7 +9,7 @@ import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
-public class FirmwareManagementOptionHasAtLeastOneOptionValidator  implements ConstraintValidator<FirmwareManagementOptionHasAtLeastOneOption, FirmwareManagementOptions> {
+public class FirmwareManagementOptionHasAtLeastOneOptionValidator implements ConstraintValidator<FirmwareManagementOptionHasAtLeastOneOption, FirmwareManagementOptions> {
 
     @Override
     public void initialize(FirmwareManagementOptionHasAtLeastOneOption constraintAnnotation) {
@@ -18,7 +18,7 @@ public class FirmwareManagementOptionHasAtLeastOneOptionValidator  implements Co
 
     @Override
     public boolean isValid(FirmwareManagementOptions value, ConstraintValidatorContext context) {
-        if (value.getOptions().isEmpty()){
+        if (value.getOptions().isEmpty()) {
             context.disableDefaultConstraintViolation();
             context.buildConstraintViolationWithTemplate(context.getDefaultConstraintMessageTemplate())
                     .addPropertyNode("allowedOptions")

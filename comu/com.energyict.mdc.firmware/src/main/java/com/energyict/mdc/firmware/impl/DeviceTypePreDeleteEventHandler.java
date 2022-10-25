@@ -17,7 +17,7 @@ import org.osgi.service.component.annotations.Reference;
  * Listens to 'pre_delete' event of {@link DeviceType}
  * in order to remove mapping with firmware signature check security accessor {@link SecurityAccessorOnDeviceType}.
  */
-@Component(name="com.energyict.mdc.firmware.impl.DeviceTypePreDeleteEventHandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.firmware.impl.DeviceTypePreDeleteEventHandler", service = TopicHandler.class, immediate = true)
 public class DeviceTypePreDeleteEventHandler implements TopicHandler {
     private volatile FirmwareService firmwareService;
 

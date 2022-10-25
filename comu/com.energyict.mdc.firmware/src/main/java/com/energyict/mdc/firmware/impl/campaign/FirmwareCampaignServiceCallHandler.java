@@ -21,7 +21,7 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
-    private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
+    private final FirmwareCampaignServiceImpl firmwareCampaignService;
 
     @Inject
     public FirmwareCampaignServiceCallHandler(FirmwareServiceImpl firmwareService) {

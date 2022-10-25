@@ -86,12 +86,12 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
     private final DataModel ddcDataModel;
 
-    private Reference<ServiceCall> serviceCall = Reference.empty();
+    private final Reference<ServiceCall> serviceCall = Reference.empty();
 
     @IsPresent
-    private Reference<Device> device = Reference.empty();
-    private Reference<ServiceCall> parent = Reference.empty();
-    private Reference<DeviceMessage> deviceMessage = Reference.empty();
+    private final Reference<Device> device = Reference.empty();
+    private final Reference<ServiceCall> parent = Reference.empty();
+    private final Reference<DeviceMessage> deviceMessage = Reference.empty();
 
 
     @Inject
@@ -331,7 +331,8 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
         return firmwareComTaskExecution;
     }
 
-    private FirmwareCampaignDomainExtension getFirmwareCampaign() {
+    @Override
+    public FirmwareCampaignDomainExtension getFirmwareCampaign() {
         return getParent().getExtension(FirmwareCampaignDomainExtension.class).get();
     }
 

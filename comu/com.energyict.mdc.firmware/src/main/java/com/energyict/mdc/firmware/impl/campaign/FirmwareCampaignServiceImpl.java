@@ -29,7 +29,6 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
-import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
@@ -67,7 +66,7 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
     private final OrmService ormService;
     private final Thesaurus thesaurus;
     private final MeteringGroupsService meteringGroupsService;
-    private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
+    private final List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
     private final RegisteredCustomPropertySet registeredCustomPropertySet;
     private final EventService eventService;
     private final TaskService taskService;
@@ -106,11 +105,6 @@ public class FirmwareCampaignServiceImpl implements FirmwareCampaignService {
 
     private Optional<ServiceCallType> getServiceCallType(ServiceCallTypes serviceCallType) {
         return serviceCallService.findServiceCallType(serviceCallType.getTypeName(), serviceCallType.getTypeVersion());
-    }
-
-    @Override
-    public ComTask getComTaskById(long id) {
-        return taskService.findComTask(id).get();
     }
 
     @Override

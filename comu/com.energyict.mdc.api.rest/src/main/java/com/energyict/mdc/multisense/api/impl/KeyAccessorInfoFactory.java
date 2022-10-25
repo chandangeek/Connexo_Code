@@ -52,7 +52,7 @@ public class KeyAccessorInfoFactory extends SelectableFieldFactory<KeyAccessorIn
         return Link.fromUriBuilder(getDeviceUriBuilder(uriInfo))
                 .rel(relation.rel())
                 .title("Key accessor")
-                .build(device.getmRID(), securityAccessor.getKeyAccessorTypeReference().getName());
+                .build(device.getmRID(), securityAccessor.getSecurityAccessorType().getName());
     }
 
     private UriBuilder getDeviceUriBuilder(UriInfo uriInfo) {
@@ -70,10 +70,10 @@ public class KeyAccessorInfoFactory extends SelectableFieldFactory<KeyAccessorIn
     @Override
     protected Map<String, PropertyCopier<KeyAccessorInfo, SecurityAccessor>> buildFieldMap() {
         Map<String, PropertyCopier<KeyAccessorInfo, SecurityAccessor>> map = new HashMap<>();
-        map.put("name", ((keyAccessorInfo, keyAccessor, uriInfo) -> keyAccessorInfo.name = keyAccessor.getKeyAccessorTypeReference().getName()));
+        map.put("name", ((keyAccessorInfo, keyAccessor, uriInfo) -> keyAccessorInfo.name = keyAccessor.getSecurityAccessorType().getName()));
         map.put("keyAccessorType", ((keyAccessorInfo, keyAccessor, uriInfo) -> keyAccessorInfo.keyAccessorType = keyAccessorTypeInfoFactoryProvider.get().asLink(
                 keyAccessor.getDevice().getDeviceType(),
-                keyAccessor.getKeyAccessorTypeReference(),
+                keyAccessor.getSecurityAccessorType(),
                 Relation.REF_RELATION,
                 uriInfo
         )));

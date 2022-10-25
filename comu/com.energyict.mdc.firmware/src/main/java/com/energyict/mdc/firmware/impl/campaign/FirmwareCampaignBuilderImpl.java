@@ -33,7 +33,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     private TimeDuration validationTimeout;
     private ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     private FirmwareType firmwareType;
-    private Map<PropertySpec, Object> properties;
+    private final Map<PropertySpec, Object> properties;
     private Long firmwareUploadComTaskId;
     private ConnectionStrategy firmwareUploadConnectionStrategy;
     private Long validationComTaskId;

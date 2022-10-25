@@ -64,20 +64,20 @@ public class FirmwareCampaignHandlerTest {
     @Mock
     private FirmwareVersion firmwareVersion;
 
-    private FirmwareCampaignServiceImpl firmwareCampaignService = mock(FirmwareCampaignServiceImpl.class);
-    private ServiceCallService serviceCallService = mock(ServiceCallService.class);
-    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    private final FirmwareCampaignServiceImpl firmwareCampaignService = mock(FirmwareCampaignServiceImpl.class);
+    private final ServiceCallService serviceCallService = mock(ServiceCallService.class);
+    private final Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private FirmwareCampaignHandler firmwareCampaignHandler;
-    private ComTaskExecution firmwareComTaskExecution = createFirmwareTaskMock();
-    private ComTaskExecution verificationComTaskExecution = createVerificationTaskMock();
-    private LocalEvent event = mock(LocalEvent.class);
-    private com.elster.jupiter.events.EventType eventType = mock(EventType.class);
-    private ServiceCall serviceCall = mock(ServiceCall.class);
-    private ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
-    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
-    private DeviceInFirmwareCampaign firmwareItem = mock(DeviceInFirmwareCampaign.class);
-    private FirmwareCampaignDomainExtension firmwareCampaign = createMockCampaign();
-    private ServiceCall parentSc = mock(ServiceCall.class);
+    private final ComTaskExecution firmwareComTaskExecution = createFirmwareTaskMock();
+    private final ComTaskExecution verificationComTaskExecution = createVerificationTaskMock();
+    private final LocalEvent event = mock(LocalEvent.class);
+    private final com.elster.jupiter.events.EventType eventType = mock(EventType.class);
+    private final ServiceCall serviceCall = mock(ServiceCall.class);
+    private final ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
+    private final TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
+    private final DeviceInFirmwareCampaign firmwareItem = mock(DeviceInFirmwareCampaign.class);
+    private final FirmwareCampaignDomainExtension firmwareCampaign = createMockCampaign();
+    private final ServiceCall parentSc = mock(ServiceCall.class);
 
     private final static String MANUAL_COMTASKEXECUTION_COMPLETED = "com/energyict/mdc/device/data/manualcomtaskexecution/COMPLETED";
     private final static String MANUAL_COMTASKEXECUTION_FAILED = "com/energyict/mdc/device/data/manualcomtaskexecution/FAILED";

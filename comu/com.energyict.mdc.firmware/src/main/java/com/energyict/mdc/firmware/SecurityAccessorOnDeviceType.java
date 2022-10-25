@@ -12,9 +12,14 @@ import aQute.bnd.annotation.ProviderType;
 @ProviderType
 public interface SecurityAccessorOnDeviceType {
     DeviceType getDeviceType();
+
     SecurityAccessor getSecurityAccessor();
+
     void delete();
+
     void save();
+
     void update();
+
     SecurityAccessorOnDeviceType init(DeviceType deviceType, SecurityAccessor securityAccessor);
 }

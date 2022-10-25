@@ -2,7 +2,7 @@
  * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification', {
+Ext.define('Fwc.firmwarecampaigns.view.FirmwareVersionsSpecification', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.firmware-specifications',
     itemId: 'firmware-specifications',

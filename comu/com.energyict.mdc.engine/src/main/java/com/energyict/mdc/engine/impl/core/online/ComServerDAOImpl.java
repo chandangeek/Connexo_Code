@@ -747,11 +747,11 @@ public class ComServerDAOImpl implements ComServerDAO {
                 .map(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType())
                 .map(securityAccessorType -> device.getSecurityAccessor(securityAccessorType).orElseGet(() -> device.newSecurityAccessor(securityAccessorType)))
                 .ifPresent(securityAccessor -> {
-                    HsmKey hsmKey = (HsmKey) getServiceProvider().securityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                    HsmKey hsmKey = (HsmKey) getServiceProvider().securityManagementService().newSymmetricKeyWrapper(securityAccessor.getSecurityAccessorType());
                     byte[] key = DatatypeConverter.parseHexBinary(newKey.split(":")[1]);
                     String label = new String(DatatypeConverter.parseHexBinary(newKey.split(":")[0]));
                     hsmKey.setKey(key, label);
-                    securityAccessor.setActualPassphraseWrapperReference(hsmKey);
+                    securityAccessor.setActualValue(hsmKey);
                     securityAccessor.save();
                 });
     }
@@ -789,11 +789,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     private void updateDeviceSecurityAccessor(SecurityAccessor securityAccessor, Object propertyValue) {
 
         this.executeTransaction(() -> {
-            if (securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
-                Object actualValue = securityAccessor.getActualPassphraseWrapperReference().get();
+            if (securityAccessor.getActualValue().isPresent()) {
+                Object actualValue = securityAccessor.getActualValue().get();
                 if (actualValue instanceof PlaintextSymmetricKey) {
                     if (((PlaintextSymmetricKey) actualValue).getKey().isPresent()) { //we need an actual key to be present in order to know what algorithm to choose for the the new key
-                        SymmetricKeyWrapper symmetricKeyWrapper = getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                        SymmetricKeyWrapper symmetricKeyWrapper = getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getSecurityAccessorType());
                         ((PlaintextSymmetricKey) symmetricKeyWrapper).setKey(new SecretKeySpec(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((PlaintextSymmetricKey) actualValue).getKey()
                                 .get()
                                 .getAlgorithm()));
@@ -809,7 +809,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                     //TODO: see what should we do in case of certificates...
                     throw new UnsupportedOperationException("Not supported to automatically update the security accessor that models a certificate ");
                 } else if (actualValue instanceof HsmKey) {
-                    HsmKey hsmKey = (HsmKey) getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                    HsmKey hsmKey = (HsmKey) getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getSecurityAccessorType());
                     hsmKey.setKey(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((HsmKey) actualValue).getLabel());
                     updateSecurityAccessorActualKeyValue(securityAccessor, hsmKey);
                 }
@@ -821,13 +821,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private void updateSecurityAccessorActualKeyValue(SecurityAccessor securityAccessor, SymmetricKeyWrapper symmetricKeyWrapper) {
-        securityAccessor.setActualPassphraseWrapperReference(symmetricKeyWrapper);
+        securityAccessor.setActualValue(symmetricKeyWrapper);
         securityAccessor.clearTempValue();
         securityAccessor.save();
     }
 
     private void swapTempAndActualKeys(SecurityAccessor securityAccessor) {
-        if (securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getTempValue().isPresent()) {
+        if (securityAccessor.getActualValue().isPresent() && securityAccessor.getTempValue().isPresent()) {
             securityAccessor.swapValues();
             securityAccessor.clearTempValue();
             securityAccessor.save();

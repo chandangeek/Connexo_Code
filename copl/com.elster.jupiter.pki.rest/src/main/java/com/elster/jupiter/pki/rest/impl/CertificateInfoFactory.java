@@ -108,7 +108,7 @@ public class CertificateInfoFactory implements CertificateFormatter {
 
         info.securityAccessors = accessors.stream()
                 .limit(3)
-                .map(accessor -> accessor.getKeyAccessorTypeReference().getName())
+                .map(accessor -> accessor.getSecurityAccessorType().getName())
                 .sorted()
                 .collect(Collectors.toList());
         info.devices = devices.stream()

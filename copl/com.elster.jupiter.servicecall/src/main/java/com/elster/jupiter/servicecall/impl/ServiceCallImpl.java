@@ -362,10 +362,11 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public void transitionWithLockIfPossible(DefaultState state) {
         if (canTransitionTo(state)) {
-            ServiceCall serviceCall = serviceCallService.lockServiceCall(this.getId()).get();
-            if (serviceCall.canTransitionTo(state)) {
-                serviceCall.requestTransition(state);
-            }
+            serviceCallService.lockServiceCall(this.getId()).ifPresent(sc -> {
+                if (sc.canTransitionTo(state)) {
+                    sc.requestTransition(state);
+                }
+            });
         }
     }
 }

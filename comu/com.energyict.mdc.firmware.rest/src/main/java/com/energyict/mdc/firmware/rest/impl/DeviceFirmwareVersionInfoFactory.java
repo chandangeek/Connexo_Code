@@ -198,7 +198,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                    && !helper.firmwareUploadTaskIsBusy()
+                    && !helper.isFirmwareUploadTaskBusy()
                     && helper.isPendingMessage(message);
         }
 
@@ -232,7 +232,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                && helper.firmwareUploadTaskIsBusy()
+                && helper.isFirmwareUploadTaskBusy()
                 && DeviceMessageStatus.PENDING.equals(message.getStatus());
         }
 
@@ -275,8 +275,8 @@ public class DeviceFirmwareVersionInfoFactory {
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
                     && releaseDateInPast(message, helper)
-                    && (helper.firmwareUploadTaskIsFailed() && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
-                    || !helper.firmwareUploadTaskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
+                    && (helper.isFirmwareUploadTaskFailed() && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
+                    || !helper.isFirmwareUploadTaskFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
         }
 
         private boolean releaseDateInPast(DeviceMessage message, FirmwareManagementDeviceUtils helper){
@@ -396,9 +396,9 @@ public class DeviceFirmwareVersionInfoFactory {
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
                     && helper.getUploadMessageForActivationMessage(message).isPresent()
-                    && (helper.firmwareUploadTaskIsFailed()
+                    && (helper.isFirmwareUploadTaskFailed()
                     && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
-                    || !helper.firmwareUploadTaskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
+                    || !helper.isFirmwareUploadTaskFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
         }
 
         @Override

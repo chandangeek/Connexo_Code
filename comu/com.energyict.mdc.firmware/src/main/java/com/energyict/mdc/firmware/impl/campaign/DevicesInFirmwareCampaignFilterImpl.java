@@ -28,8 +28,8 @@ import java.util.stream.Collectors;
  */
 public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCampaignFilter {
 
-    private FirmwareCampaignService firmwareCampaignService;
-    private DeviceService deviceService;
+    private final FirmwareCampaignService firmwareCampaignService;
+    private final DeviceService deviceService;
 
     private Optional<Long> firmwareCampaignId = Optional.empty();
     private Set<Long> deviceIds;

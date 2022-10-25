@@ -65,7 +65,7 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
                     serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().startFirmwareProcess();
                 } else {
                     if (!oldState.isOpen()) {
-                        serviceCall.getParent().filter(parent -> parent.canTransitionTo(DefaultState.ONGOING ))
+                        serviceCall.getParent().filter(parent -> parent.canTransitionTo(DefaultState.ONGOING))
                                 .ifPresent(parent -> parent.requestTransition(DefaultState.ONGOING));
                     }
                     serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().retryFirmwareProcess();

@@ -7,7 +7,6 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
@@ -34,7 +33,7 @@ public class NoDowngradeFirmwareCheck implements FirmwareCheck {
     @Override
     public void execute(FirmwareCheckManagementOptions options, FirmwareManagementDeviceUtils deviceUtils, FirmwareVersion firmwareVersion) throws FirmwareCheckException {
         Device device = deviceUtils.getDevice();
-        if (options.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)){
+        if (options.isActivated(FirmwareCheckManagementOption.CURRENT_FIRMWARE_CHECK)) {
             if (!deviceUtils.isReadOutAfterLastFirmwareUpgrade()) {
                 throw new FirmwareCheckException(thesaurus, MessageSeeds.DEVICE_FIRMWARE_NOT_READOUT);
             }

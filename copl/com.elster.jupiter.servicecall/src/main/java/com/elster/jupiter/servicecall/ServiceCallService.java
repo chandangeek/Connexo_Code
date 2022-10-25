@@ -6,7 +6,6 @@ package com.elster.jupiter.servicecall;
 
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.messaging.DestinationSpec;
-import com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl;
 
 import aQute.bnd.annotation.ProviderType;
 
@@ -22,6 +21,8 @@ public interface ServiceCallService {
     String COMPONENT_NAME = "SCS";
     String SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME = "ServiceCallIssues";
     String SERVICE_CALLS_ISSUE_DESTINATION_NAME = "ServiceCallIssues";
+    String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
+    String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
 
     /**
      * Get all known service call life cycles in tghe system, support paging.
@@ -74,7 +75,7 @@ public interface ServiceCallService {
      * @return
      */
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication) {
-        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, null);
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, SERVICE_CALLS_DESTINATION_NAME, null);
     }
 
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle) {
@@ -82,7 +83,7 @@ public interface ServiceCallService {
     }
 
     default ServiceCallTypeBuilder createServiceCallType(String name, String versionName, ServiceCallLifeCycle serviceCallLifeCycle, String reservedByApplication, DefaultState retryState) {
-        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, retryState);
+        return createServiceCallType(name, versionName, serviceCallLifeCycle, reservedByApplication, SERVICE_CALLS_DESTINATION_NAME, retryState);
     }
 
     /**

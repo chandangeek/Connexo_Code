@@ -33,11 +33,11 @@ public interface FirmwareManagementDeviceUtils {
 
     boolean messageContainsActiveFirmwareVersion(DeviceMessage message);
 
-    boolean firmwareUploadTaskIsBusy();
+    boolean isFirmwareUploadTaskBusy();
 
     boolean verifyFirmwareVersionTaskIsBusy();
 
-    boolean firmwareUploadTaskIsFailed();
+    boolean isFirmwareUploadTaskFailed();
 
     boolean verifyFirmwareVersionTaskIsFailed();
 

@@ -262,7 +262,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(deviceNames);
         when(securityManagementService.streamDirectoryCertificateUsages())
                 .thenReturn(FakeBuilder.initBuilderStub(Arrays.asList(dirUsage1, dirUsage2), QueryStream.class));
-        when(accessor.getKeyAccessorTypeReference()).thenReturn(accessorType);
+        when(accessor.getSecurityAccessorType()).thenReturn(accessorType);
         when(accessorType.getName()).thenReturn(accessorName);
         when(dirUsage1.getDirectoryName()).thenReturn(dirUsageName1);
         when(dirUsage2.getDirectoryName()).thenReturn(dirUsageName2);
@@ -354,7 +354,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
         when(securityManagementService.getCertificateAssociatedDevicesNames(cert)).thenReturn(Collections.singletonList(deviceName));
         when(securityManagementService.streamDirectoryCertificateUsages())
                 .thenReturn(FakeBuilder.initBuilderStub(Collections.singletonList(dirUsage), QueryStream.class));
-        when(accessor.getKeyAccessorTypeReference()).thenReturn(accessorType);
+        when(accessor.getSecurityAccessorType()).thenReturn(accessorType);
         when(accessorType.getName()).thenReturn(accessorName);
         when(dirUsage.getDirectoryName()).thenReturn(dirUsageName);
 
@@ -472,7 +472,7 @@ public class CertificateWrapperResourceTest extends PkiApplicationTest {
 
         when(securityManagementService.streamDirectoryCertificateUsages())
                 .thenReturn(FakeBuilder.initBuilderStub(Collections.emptyList(), QueryStream.class));
-        when(accessor.getKeyAccessorTypeReference()).thenReturn(accessorType);
+        when(accessor.getSecurityAccessorType()).thenReturn(accessorType);
         when(accessorType.getName()).thenReturn(accessorName);
         when(dirUsage.getDirectoryName()).thenReturn(dirUsageName);
 

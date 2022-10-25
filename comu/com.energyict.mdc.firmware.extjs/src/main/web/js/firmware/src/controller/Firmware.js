@@ -15,7 +15,7 @@ Ext.define('Fwc.controller.Firmware', {
         'Fwc.view.firmware.FirmwareEdit',
         'Fwc.view.firmware.FirmwareVersionsOverview',
         'Mdc.view.setup.devicetype.SideMenu',
-        'Fwc.firmwarecampaigns.view.FirmvareVersionsSpecification'
+        'Fwc.firmwarecampaigns.view.FirmwareVersionsSpecification'
     ],
 
     requires: [

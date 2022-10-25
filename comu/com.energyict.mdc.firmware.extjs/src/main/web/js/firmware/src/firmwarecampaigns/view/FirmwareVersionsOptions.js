@@ -2,7 +2,7 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
+Ext.define('Fwc.firmwarecampaigns.view.FirmwareVersionsOptions', {
     extend: 'Ext.form.FieldContainer',
     alias: 'widget.firmware-version-options',
     required: true,
@@ -10,7 +10,7 @@ Ext.define('Fwc.firmwarecampaigns.view.FirmvareVersionsOptions', {
         type: 'vbox',
         align: 'left'
     },
-    store: 'Fwc.firmwarecampaigns.store.FirmvareVersionsOptions',
+    store: 'Fwc.firmwarecampaigns.store.FirmwareVersionsOptions',
     isDependenciesSetted: false,
 
     initComponent: function () {

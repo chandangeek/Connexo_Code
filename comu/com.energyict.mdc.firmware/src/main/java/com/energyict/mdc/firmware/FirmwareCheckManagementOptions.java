@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.firmware;
 
-import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
-
 import aQute.bnd.annotation.ProviderType;
 
 import java.util.EnumSet;
@@ -18,7 +16,7 @@ public interface FirmwareCheckManagementOptions {
      * If statuses are applicable, empty set of statuses means deactivation of the check option.
      *
      * @param checkManagementOption The check option to activate.
-     * @param firmwareStatuses The set of {@link FirmwareStatus FirmwareStatuses} to activate the provided check option with.
+     * @param firmwareStatuses      The set of {@link FirmwareStatus FirmwareStatuses} to activate the provided check option with.
      */
     void activateFirmwareCheckWithStatuses(FirmwareCheckManagementOption checkManagementOption, Set<FirmwareStatus> firmwareStatuses);
 

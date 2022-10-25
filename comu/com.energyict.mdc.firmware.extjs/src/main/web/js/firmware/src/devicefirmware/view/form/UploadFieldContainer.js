@@ -33,8 +33,8 @@ Ext.define('Fwc.devicefirmware.view.form.UploadFieldContainer', {
                     submitValue: false
                 },
                 items: [
-                    { itemId: 'newTarget', boxLabel: Uni.I18n.translate('general.now', 'FWC', 'Now'), name: me.groupName, inputValue: true, checked: true },
-                    { itemId: 'oldTarget', name: me.groupName, inputValue: false}
+                    {itemId: 'newTarget', boxLabel: Uni.I18n.translate('general.now', 'FWC', 'Now'), name: me.groupName, inputValue: true, checked: true},
+                    {itemId: 'oldTarget', name: me.groupName, inputValue: false}
                 ],
                 listeners: {
                     change: function (field, newValue) {

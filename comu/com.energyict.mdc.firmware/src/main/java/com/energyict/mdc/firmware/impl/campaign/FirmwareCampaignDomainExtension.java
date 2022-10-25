@@ -108,13 +108,13 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private final FirmwareServiceImpl firmwareService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
 
-    private Reference<ServiceCall> serviceCall = Reference.empty();
+    private final Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent
-    private Reference<DeviceType> deviceType = Reference.empty();
+    private final Reference<DeviceType> deviceType = Reference.empty();
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceGroup;
@@ -352,7 +352,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         serviceCall.update(this);
         serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
         FirmwareCampaignServiceImpl firmwareCampaignService = firmwareService.getFirmwareCampaignService();
-        try(QueryStream<? extends DeviceInFirmwareCampaign> streamItems = firmwareCampaignService.streamDevicesInCampaigns()) {
+        try (QueryStream<? extends DeviceInFirmwareCampaign> streamItems = firmwareCampaignService.streamDevicesInCampaigns()) {
             List<? extends DeviceInFirmwareCampaign> items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
                     .select();
             if (items.isEmpty()) {

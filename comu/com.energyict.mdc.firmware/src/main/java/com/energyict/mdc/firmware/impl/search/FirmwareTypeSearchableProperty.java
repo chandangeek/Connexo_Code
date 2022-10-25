@@ -44,7 +44,6 @@ public class FirmwareTypeSearchableProperty implements SearchableProperty {
         return this;
     }
 
-
     @Override
     public SearchDomain getDomain() {
         return null;
@@ -113,15 +112,15 @@ public class FirmwareTypeSearchableProperty implements SearchableProperty {
 
                     firmwareTypes.add(FirmwareType.METER);
                     if (constrainingValues
-                        .stream()
-                        .map(DeviceType.class::cast)
-                        .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
+                            .stream()
+                            .map(DeviceType.class::cast)
+                            .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
                                     .map(deviceProtocolPluggableClass -> (deviceProtocolPluggableClass.getDeviceProtocol() != null)
                                             && deviceProtocolPluggableClass.getDeviceProtocol().supportsCommunicationFirmwareVersion())
                                     .orElse(false))) {
                         firmwareTypes.add(FirmwareType.COMMUNICATION);
                     }
-                    if(constrainingValues
+                    if (constrainingValues
                             .stream()
                             .map(DeviceType.class::cast)
                             .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()
@@ -130,7 +129,7 @@ public class FirmwareTypeSearchableProperty implements SearchableProperty {
                                     .orElse(false))) {
                         firmwareTypes.add(FirmwareType.CA_CONFIG_IMAGE);
                     }
-                    if(constrainingValues
+                    if (constrainingValues
                             .stream()
                             .map(DeviceType.class::cast)
                             .anyMatch(deviceType -> deviceType.getDeviceProtocolPluggableClass()

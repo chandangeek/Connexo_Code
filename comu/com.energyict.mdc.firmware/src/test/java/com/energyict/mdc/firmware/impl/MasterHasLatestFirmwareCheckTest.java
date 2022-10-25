@@ -255,7 +255,7 @@ public class MasterHasLatestFirmwareCheckTest extends AbstractFirmwareCheckTest 
 
         expectSuccess();
         verifyZeroInteractions(master, masterDeviceType, masterFirmwareDeviceUtils);
-        verify(firmwareService, never()).getMaximumFirmware(eq(masterDeviceType),anySetOf(FirmwareType.class), anySetOf(FirmwareStatus.class));
+        verify(firmwareService, never()).getMaximumFirmware(eq(masterDeviceType), anySetOf(FirmwareType.class), anySetOf(FirmwareStatus.class));
         verify(firmwareService, never()).getActiveFirmwareVersion(eq(master), any(FirmwareType.class));
         verify(firmwareService, never()).isFirmwareTypeSupported(eq(masterDeviceType), any(FirmwareType.class));
     }

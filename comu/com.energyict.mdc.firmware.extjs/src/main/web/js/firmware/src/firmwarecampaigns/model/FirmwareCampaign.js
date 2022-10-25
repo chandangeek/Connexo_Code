@@ -9,7 +9,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
         'Fwc.model.DeviceType',
         'Fwc.model.FirmwareType',
         'Fwc.model.DeviceGroup',
-        'Fwc.firmwarecampaigns.model.FirmvareVersionsOption'
+        'Fwc.firmwarecampaigns.model.FirmwareVersionsOption'
     ],
     fields: [
         'id',
@@ -80,7 +80,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             defaultValue: undefined
         },
         {
-            name: 'calendarUploadComTask',
+            name: 'firmwareUploadComTask',
             type: 'auto',
             useNull: true,
             defaultValue: undefined
@@ -90,7 +90,7 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
             useNull: true,
             defaultValue: undefined
         }, {
-            name: 'calendarUploadConnectionStrategy',
+            name: 'firmwareUploadConnectionStrategy',
             type: 'auto',
             useNull: true,
             defaultValue: undefined
@@ -114,11 +114,11 @@ Ext.define('Fwc.firmwarecampaigns.model.FirmwareCampaign', {
         {
             type: 'hasOne',
             name: 'checkOptions',
-            model: 'Fwc.firmwarecampaigns.model.FirmvareVersionsOption',
+            model: 'Fwc.firmwarecampaigns.model.FirmwareVersionsOption',
             associationKey: 'checkOptions',
             foreignKey: 'checkOptions',
-            getterName: 'getFirmvareVersionsOptions',
-            setterName: 'setFirmvareVersionsOptions',
+            getterName: 'getFirmwareVersionsOptions',
+            setterName: 'setFirmwareVersionsOptions',
             reader: {
                 type: 'json'
             }

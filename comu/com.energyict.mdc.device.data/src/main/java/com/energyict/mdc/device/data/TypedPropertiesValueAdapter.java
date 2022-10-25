@@ -107,11 +107,11 @@ public class TypedPropertiesValueAdapter {
     private static Object adaptKeyAccessorTypeToUPLValue(Device device, SecurityAccessorType securityAccessorType) {
         Optional<SecurityAccessor> optionalKeyAccessor = device.getSecurityAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().getId() == securityAccessorType.getId())
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().getId() == securityAccessorType.getId())
                 .findFirst();
 
-        if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualPassphraseWrapperReference().isPresent()) {
-            Object actualValue = optionalKeyAccessor.get().getActualPassphraseWrapperReference().get();
+        if (optionalKeyAccessor.isPresent() && optionalKeyAccessor.get().getActualValue().isPresent()) {
+            Object actualValue = optionalKeyAccessor.get().getActualValue().get();
             return adaptActualValueToUPLValue(actualValue, securityAccessorType);
         }
         return null; // Return value as-is

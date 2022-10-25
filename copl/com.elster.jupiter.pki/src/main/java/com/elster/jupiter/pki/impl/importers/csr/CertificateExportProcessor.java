@@ -6,9 +6,7 @@ import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.MessageSeeds;
-import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Where;
 
@@ -26,14 +24,12 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.util.Base64;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipOutputStream;
@@ -205,7 +201,7 @@ public class CertificateExportProcessor {
             // no signature available
             return "".getBytes();
         }
-        CertificateWrapper certificateWrapper = securityAccessor.getActualPassphraseWrapperReference()
+        CertificateWrapper certificateWrapper = securityAccessor.getActualValue()
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
         return getSignature(certificateWrapper, bytes, logger.getThesaurus());
     }

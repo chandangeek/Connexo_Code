@@ -2,13 +2,13 @@
  * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
  */
 
-Ext.define('Fwc.firmwarecampaigns.store.ComTasksForSendCalendar', {
+Ext.define('Fwc.firmwarecampaigns.store.FWComTask', {
   extend: 'Ext.data.Store',
   requires: [
-      'Fwc.firmwarecampaigns.model.ComTaskForSendCalendar'
+      'Fwc.firmwarecampaigns.model.FWComTask'
   ],
   autoLoad: false,
-  model: 'Fwc.firmwarecampaigns.model.ComTaskForSendCalendar',
+  model: 'Fwc.firmwarecampaigns.model.FWComTask',
   proxy: {
       type: 'rest',
       urlTpl: '/api/fwc/field/firmwareuploadcomtasks?type={deviceTypeId}',

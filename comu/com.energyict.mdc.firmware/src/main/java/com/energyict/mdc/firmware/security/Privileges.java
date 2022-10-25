@@ -47,7 +47,7 @@ public enum Privileges implements TranslationKey {
     }
 
     public interface Constants {
-        String ADMINISTRATE_FIRMWARE_CAMPAIGN  = "privilege.administrate.firmware.campaign";
+        String ADMINISTRATE_FIRMWARE_CAMPAIGN = "privilege.administrate.firmware.campaign";
         String VIEW_FIRMWARE_CAMPAIGN = "privilege.view.firmware.campaign";
     }
 }

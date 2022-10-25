@@ -52,16 +52,16 @@ public class SecurityAccessorInfoFactoryImpl implements SecurityAccessorInfoFact
     @Override
     public SecurityAccessorInfo from(SecurityAccessor<?> securityAccessor) {
         SecurityAccessorInfo info = new SecurityAccessorInfo();
-        info.id = securityAccessor.getKeyAccessorTypeReference().getId();
-        info.name = securityAccessor.getKeyAccessorTypeReference().getName();
-        info.description = securityAccessor.getKeyAccessorTypeReference().getDescription();
+        info.id = securityAccessor.getSecurityAccessorType().getId();
+        info.name = securityAccessor.getSecurityAccessorType().getName();
+        info.description = securityAccessor.getSecurityAccessorType().getDescription();
         info.swapped = securityAccessor.isSwapped();
         info.version = securityAccessor.getVersion();
         info.modificationDate = securityAccessor.getModTime();
         info.canGeneratePassiveKey = true;
         info.hasTempValue = securityAccessor.getTempValue().isPresent();
-        info.hasActualValue = securityAccessor.getActualPassphraseWrapperReference().isPresent();
-        securityAccessor.getActualPassphraseWrapperReference().ifPresent(ka -> ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
+        info.hasActualValue = securityAccessor.getActualValue().isPresent();
+        securityAccessor.getActualValue().ifPresent(ka -> ka.getExpirationTime().ifPresent(expiration -> info.expirationTime = expiration));
         return info;
     }
 
@@ -89,11 +89,11 @@ public class SecurityAccessorInfoFactoryImpl implements SecurityAccessorInfoFact
     public SecurityAccessorInfo asCertificate(SecurityAccessor<?> securityAccessor,
                                               PropertyValuesResourceProvider aliasTypeAheadPropertyResourceProvider,
                                               PropertyDefaultValuesProvider trustStoreValuesProvider) {
-        SecurityAccessorInfo info = setProperties(from(securityAccessor), securityManagementService.getPropertySpecs(securityAccessor.getKeyAccessorTypeReference()),
+        SecurityAccessorInfo info = setProperties(from(securityAccessor), securityManagementService.getPropertySpecs(securityAccessor.getSecurityAccessorType()),
                 getPropertiesActualValue(securityAccessor), getPropertiesTempValue(securityAccessor),
                 aliasTypeAheadPropertyResourceProvider, trustStoreValuesProvider);
         if (securityAccessor instanceof CertificateAccessor) {
-            ((CertificateAccessor) securityAccessor).getActualPassphraseWrapperReference()
+            ((CertificateAccessor) securityAccessor).getActualValue()
                     .ifPresent(cw -> cw.getLastReadDate().ifPresent(date -> info.lastReadDate = date));
         }
         return info;
@@ -109,7 +109,7 @@ public class SecurityAccessorInfoFactoryImpl implements SecurityAccessorInfoFact
     @Override
     public TypedProperties getPropertiesActualValue(SecurityAccessor<?> securityAccessor) {
         TypedProperties actualTypedProperties = TypedProperties.empty();
-        securityAccessor.getActualPassphraseWrapperReference().ifPresent(ka -> ka.getProperties().forEach(actualTypedProperties::setProperty));
+        securityAccessor.getActualValue().ifPresent(ka -> ka.getProperties().forEach(actualTypedProperties::setProperty));
         return actualTypedProperties;
     }
 }

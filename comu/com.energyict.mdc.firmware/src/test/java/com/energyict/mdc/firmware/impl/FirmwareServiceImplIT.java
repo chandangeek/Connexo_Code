@@ -291,11 +291,11 @@ public class FirmwareServiceImplIT extends PersistenceTest {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
         deviceConfiguration.activate();
         Device device = inMemoryPersistence.getInjector().getInstance(DeviceService.class)
-                .newDevice(deviceConfiguration ,"MyDevice", "mridOfMyDevice", Instant.now() );
+                .newDevice(deviceConfiguration, "MyDevice", "mridOfMyDevice", Instant.now());
 
         FirmwareService firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion1", FirmwareStatus.FINAL, FirmwareType.METER, "firmwareVersion1")
-                .initFirmwareFile(new byte[] {11}).create();
+                .initFirmwareFile(new byte[]{11}).create();
 
         assertThat(firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())).isFalse();
 

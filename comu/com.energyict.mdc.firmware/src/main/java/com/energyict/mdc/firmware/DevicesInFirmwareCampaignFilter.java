@@ -17,6 +17,7 @@ public interface DevicesInFirmwareCampaignFilter {
 
     /**
      * Sets the single {@link FirmwareCampaign} criterion of the filter
+     *
      * @param firmwareCampaignId criterion:  id of the firmware campaign
      * @return the filter
      */
@@ -24,6 +25,7 @@ public interface DevicesInFirmwareCampaignFilter {
 
     /**
      * Sets a List of {@link com.elster.jupiter.servicecall.DefaultState} as criterion of the filter
+     *
      * @param firmwareManagementDeviceStatusKeys: each DefaultState is uniquely defined by its key()
      * @return the filter
      */
@@ -31,6 +33,7 @@ public interface DevicesInFirmwareCampaignFilter {
 
     /**
      * Returns the filter's condition
+     *
      * @return the filter's condition
      */
     Condition getCondition();

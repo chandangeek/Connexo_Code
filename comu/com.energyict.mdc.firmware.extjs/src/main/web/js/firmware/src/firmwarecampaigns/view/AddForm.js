@@ -13,9 +13,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
         'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
-        'Fwc.firmwarecampaigns.view.FirmvareVersionsOptions',
+        'Fwc.firmwarecampaigns.view.FirmwareVersionsOptions',
         'Fwc.firmwarecampaigns.store.ComTasksForValidate',
-        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
+        'Fwc.firmwarecampaigns.store.FWComTask'
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -233,10 +233,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'combobox',
                 itemId: 'fwc-campaign-allowed-comtask',
-                name: 'calendarUploadComTask',
-                store: 'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
+                name: 'firmwareUploadComTask',
+                store: 'Fwc.firmwarecampaigns.store.FWComTask',
                 fieldLabel: Uni.I18n.translate(
-                    'general.calendarUploadComTask',
+                    'general.firmwareUploadComTask',
                     'FWC',
                     'Firmware upload communication task'
                 ),
@@ -269,7 +269,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     {
                         xtype: 'combobox',
                         itemId: 'fwc-campaign-send-connection-strategy',
-                        name: 'calendarUploadConnectionStrategy',
+                        name: 'firmwareUploadConnectionStrategy',
                         store: 'Fwc.firmwarecampaigns.store.ConnectionStrategy',
                         queryMode: 'local',
                         displayField: 'name',
@@ -290,7 +290,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-send-connection-strategy-reset',
                         handler: function() {
-                            this.down('[name=calendarUploadConnectionStrategy]').reset();
+                            this.down('[name=firmwareUploadConnectionStrategy]').reset();
                             me.down('#fwc-campaign-send-connection-strategy-reset').disable();
                         },
                         scope: me,
@@ -434,8 +434,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.setLoading();
             }
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
-            var firmvareVersionsView = me.down('#firmware-version-options');
-            var firmvareVersionsStore = firmvareVersionsView.store;
+            var firmwareVersionsView = me.down('#firmware-version-options');
+            var firmwareVersionsStore = firmwareVersionsView.store;
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
             me.updateComTasksComponents(newValue);
@@ -445,12 +445,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
     updateComTasksComponents: function(deviceTypeId){
         var me = this;
         var record = me.getRecord();
-        var sendComtaskField = me.down("[name=calendarUploadComTask]");
+        var sendComtaskField = me.down("[name=firmwareUploadComTask]");
         me.down('#fwc-campaign-send-connection-strategy-container').show();
         sendComtaskField.show();
         sendComtaskField.getStore().getProxy().setUrl(deviceTypeId);
         sendComtaskField.getStore().load(function(){
-            sendComtaskField.setValue(record.get('calendarUploadComTask') && record.get('calendarUploadComTask').id);
+            sendComtaskField.setValue(record.get('firmwareUploadComTask') && record.get('firmwareUploadComTask').id);
         });
         var validationComTask = me.down("[name=validationComTask]");
         validationComTask.getStore().getProxy().setUrl(deviceTypeId);
@@ -485,11 +485,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         firmwareManagementOptions.getProxy().extraParams = {};
         firmwareManagementOptions.load(1, {
             success: function (record) {
-                var firmvareVersionsView = me.down('#firmware-version-options');
-                var firmvareVersionsStore = firmvareVersionsView.store;
-                firmvareVersionsStore.loadRawData([record.data.checkOptions]);
-                firmvareVersionsView.fillChecksAccordingStore();
-                firmvareVersionsView.show();
+                var firmwareVersionsView = me.down('#firmware-version-options');
+                var firmwareVersionsStore = firmwareVersionsView.store;
+                firmwareVersionsStore.loadRawData([record.data.checkOptions]);
+                firmwareVersionsView.fillChecksAccordingStore();
+                firmwareVersionsView.show();
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
                     showDescription: true,
                     showOnlyLabelForSingleItem: true,
@@ -555,9 +555,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     loadRecord: function (record) {
         var me = this;
-        var calendarUploadComTask = record.get('calendarUploadComTask');
+        var firmwareUploadComTask = record.get('firmwareUploadComTask');
         var validationComTask = record.get('validationComTask');
-        var calendarUploadConnectionStrategy = record.get('calendarUploadConnectionStrategy');
+        var firmwareUploadConnectionStrategy = record.get('firmwareUploadConnectionStrategy');
         var validationConnectionStrategy = record.get('validationConnectionStrategy');
 
 
@@ -565,10 +565,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         me.down('property-form').loadRecord(record);
 
         me.getForm().setValues({
-            calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
+            firmwareUploadComTask: firmwareUploadComTask && firmwareUploadComTask.id,
             validationComTask: validationComTask && validationComTask.id,
-            calendarUploadConnectionStrategy: calendarUploadConnectionStrategy
-                ? calendarUploadConnectionStrategy.id
+            firmwareUploadConnectionStrategy: firmwareUploadConnectionStrategy
+                ? firmwareUploadConnectionStrategy.id
                 : me.defaultConnectionStrategy,
             validationConnectionStrategy: validationConnectionStrategy
                 ? validationConnectionStrategy.id
@@ -630,12 +630,12 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
                 me.down('#fwc-campaign-unique-firmware-version-field').setDisabled(true);
 
-                var firmvareVersionsView = me.down('#firmware-version-options');
-                var firmvareVersionsStore = firmvareVersionsView.store;
-                firmvareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
-                firmvareVersionsView.fillChecksAccordingStore();
-                firmvareVersionsView.show();
-                firmvareVersionsView.disable();
+                var firmwareVersionsView = me.down('#firmware-version-options');
+                var firmwareVersionsStore = firmwareVersionsView.store;
+                firmwareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
+                firmwareVersionsView.fillChecksAccordingStore();
+                firmwareVersionsView.show();
+                firmwareVersionsView.disable();
             },
             setProperties = function() {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());

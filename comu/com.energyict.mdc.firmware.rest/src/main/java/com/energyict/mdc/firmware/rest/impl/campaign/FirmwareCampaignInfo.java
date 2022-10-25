@@ -41,8 +41,8 @@ public class FirmwareCampaignInfo {
     public TimeDurationInfo validationTimeout;
     public IdWithNameInfo serviceCall;
 
-    public IdWithNameInfo calendarUploadComTask;
-    public IdWithNameInfo calendarUploadConnectionStrategy;
+    public IdWithNameInfo firmwareUploadComTask;
+    public IdWithNameInfo firmwareUploadConnectionStrategy;
 
     public IdWithNameInfo validationComTask;
     public IdWithNameInfo validationConnectionStrategy;

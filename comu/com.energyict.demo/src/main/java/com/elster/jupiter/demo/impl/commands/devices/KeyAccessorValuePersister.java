@@ -46,10 +46,10 @@ public class KeyAccessorValuePersister {
     public void persistKeyAccessorValue(Device device, String keyAccessorTypeName, String newContent) {
         SecurityAccessorType securityAccessorType = findCorrespondingKeyAccessorType(device.getDeviceConfiguration().getDeviceType(), keyAccessorTypeName);
         SecurityAccessor<SecurityValueWrapper> securityAccessor = findCorrespondingKeyAccessor(device, securityAccessorType);
-        if (!securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
+        if (!securityAccessor.getActualValue().isPresent()) {
             createNewActualValue(securityAccessor);
         }
-        setPropertyOnSecurityAccessor(securityAccessor.getActualPassphraseWrapperReference().get(), newContent);
+        setPropertyOnSecurityAccessor(securityAccessor.getActualValue().get(), newContent);
     }
 
     private SecurityAccessorType findCorrespondingKeyAccessorType(DeviceType deviceType, String keyAccessorTypeName) {
@@ -63,25 +63,25 @@ public class KeyAccessorValuePersister {
     private SecurityAccessor<SecurityValueWrapper> findCorrespondingKeyAccessor(Device device, SecurityAccessorType securityAccessorType) {
         return device.getSecurityAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().equals(securityAccessorType))
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().equals(securityAccessorType))
                 .findFirst()
                 .orElseGet(() -> device.newSecurityAccessor(securityAccessorType));
     }
 
     private void createNewActualValue(SecurityAccessor<SecurityValueWrapper> securityAccessor) {
         SecurityValueWrapper newValue;
-        switch (securityAccessor.getKeyAccessorTypeReference().getKeyType().getCryptographicType()) {
+        switch (securityAccessor.getSecurityAccessorType().getKeyType().getCryptographicType()) {
             case SymmetricKey:
-                newValue = securityManagementService.newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                newValue = securityManagementService.newSymmetricKeyWrapper(securityAccessor.getSecurityAccessorType());
                 break;
             case Passphrase:
-                newValue = securityManagementService.newPassphraseWrapper(securityAccessor.getKeyAccessorTypeReference());
+                newValue = securityManagementService.newPassphraseWrapper(securityAccessor.getSecurityAccessorType());
                 break;
             default:
                 throw new IllegalStateException("Import of values of this security accessor is not supported: " + securityAccessor
-                        .getKeyAccessorTypeReference().getName());
+                        .getSecurityAccessorType().getName());
         }
-        securityAccessor.setActualPassphraseWrapperReference(newValue);
+        securityAccessor.setActualValue(newValue);
         securityAccessor.save();
     }
 

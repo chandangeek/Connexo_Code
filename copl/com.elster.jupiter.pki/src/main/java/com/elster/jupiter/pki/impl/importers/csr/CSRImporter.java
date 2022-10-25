@@ -110,7 +110,7 @@ class CSRImporter implements FileImporter {
 
     private void verifyInputFileSignature(ReusableInputStream reusableInputStream) {
         SecurityAccessor<CertificateWrapper> certificateAccessor = (SecurityAccessor<CertificateWrapper>) properties.get(CSRImporterTranslatedProperty.IMPORT_SECURITY_ACCESSOR.getPropertyKey());
-        CertificateWrapper certificateWrapper = certificateAccessor.getActualPassphraseWrapperReference()
+        CertificateWrapper certificateWrapper = certificateAccessor.getActualValue()
                 .orElseThrow(() -> new IllegalStateException("There is no active certificate in centrally managed security accessor!"));
         Certificate certificate = certificateWrapper.getCertificate()
                 .orElseThrow(() -> new SignatureCheckFailedException(thesaurus, MessageSeeds.NO_CERTIFICATE_IN_WRAPPER, certificateWrapper.getAlias()));

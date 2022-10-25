@@ -43,7 +43,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)): ''
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : ''
                 }
 
             },
@@ -53,7 +53,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)): '-'
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
                 }
 
             },

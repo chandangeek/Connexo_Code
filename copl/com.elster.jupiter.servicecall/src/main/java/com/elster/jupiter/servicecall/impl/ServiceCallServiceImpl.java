@@ -89,9 +89,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    final static String SERVICECALLS_RAW_QUEUE_TABLE = "SERVICECALLS_RAWQUEUETAB";
-    final static String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
-    public final static String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+    static final String SERVICECALLS_RAW_QUEUE_TABLE = "SERVICECALLS_RAWQUEUETAB";
 
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;

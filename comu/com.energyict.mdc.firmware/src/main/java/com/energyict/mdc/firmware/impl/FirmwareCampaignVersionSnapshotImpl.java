@@ -44,7 +44,7 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
+    private final Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
     private String firmwareVersion;
     private FirmwareType firmwareType;
     private FirmwareStatus firmwareStatus;
@@ -79,7 +79,7 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
 
     @Override
     public void save() {
-        try(QueryStream<FirmwareCampaignVersionStateShapshot> firmwareCampaignVersionStateShapshotQueryStream =dataModel.stream(FirmwareCampaignVersionStateShapshot.class)) {
+        try (QueryStream<FirmwareCampaignVersionStateShapshot> firmwareCampaignVersionStateShapshotQueryStream = dataModel.stream(FirmwareCampaignVersionStateShapshot.class)) {
             if (firmwareCampaignVersionStateShapshotQueryStream
                     .filter(Where.where(Fields.FWRCAMPAIGN.fieldName()).isEqualTo(firmwareCampaign.get()))
                     .filter(Where.where(Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType))
@@ -91,7 +91,7 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
         }
     }
 
-    FirmwareCampaign getFirmwareCampaign(){
+    FirmwareCampaign getFirmwareCampaign() {
         return this.firmwareCampaign.get();
     }
 

@@ -160,8 +160,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     private volatile RegisteredCustomPropertySet registeredCustomPropertySet;
     private volatile DeviceConfigurationService deviceConfigurationService;
 
-    private List<CustomPropertySet> customPropertySets = new ArrayList<>();
-    private List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
+    private final List<CustomPropertySet> customPropertySets = new ArrayList<>();
+    private final List<FirmwareCheck> firmwareChecks = new CopyOnWriteArrayList<>();
 
 
     // For OSGI
@@ -669,8 +669,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public void validateFirmwareFileSignature(DeviceType deviceType, SecurityAccessor securityAccessor, File firmwareFile) {
         Optional<DeviceProtocolPluggableClass> protocol = deviceType.getDeviceProtocolPluggableClass();
-        if (protocol.isPresent() && securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper) {
-            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualPassphraseWrapperReference().get();
+        if (protocol.isPresent() && securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
+            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
             if (certificateWrapper.getCertificate().isPresent()) {
                 X509Certificate x509Certificate = certificateWrapper.getCertificate().get();
                 PublicKey publicKey = x509Certificate.getPublicKey();
@@ -820,14 +820,14 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Privileges.values(),
-                PropertyTranslationKeys.values(),
-                TranslationKeys.values(),
-                FirmwareType.values(),
-                new TranslationKey[]{FirmwareCheck.CHECK_PREFIX},
-                FirmwareCheckTranslationKeys.values(),
-                FirmwareStatusTranslationKeys.values()
-        )
+                        Privileges.values(),
+                        PropertyTranslationKeys.values(),
+                        TranslationKeys.values(),
+                        FirmwareType.values(),
+                        new TranslationKey[]{FirmwareCheck.CHECK_PREFIX},
+                        FirmwareCheckTranslationKeys.values(),
+                        FirmwareStatusTranslationKeys.values()
+                )
                 .flatMap(Arrays::stream)
                 .collect(Collectors.toList());
     }

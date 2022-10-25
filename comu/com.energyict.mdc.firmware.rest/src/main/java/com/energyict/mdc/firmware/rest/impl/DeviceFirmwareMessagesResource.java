@@ -296,7 +296,7 @@ public class DeviceFirmwareMessagesResource {
                    .withActualVersion(upgradeMessage::getVersion).build();
         }
         FirmwareManagementDeviceUtils firmwareManagementDeviceUtils = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.firmwareUploadTaskIsBusy()) {
+        if (upgradeMessage.getStatus() != DeviceMessageStatus.WAITING && firmwareManagementDeviceUtils.isFirmwareUploadTaskBusy()) {
             throw exceptionFactory.newException(MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
         }
         upgradeMessage.revoke();
@@ -384,7 +384,7 @@ public class DeviceFirmwareMessagesResource {
                 .filter(message -> !firmwareUpgradeExecution.isPresent()
                         || firmwareUpgradeExecution.get().getLastExecutionStartTimestamp() == null
                         || !message.getReleaseDate().isBefore(firmwareUpgradeExecution.get().getLastExecutionStartTimestamp()))
-                .count() == 0 && !helper.firmwareUploadTaskIsBusy();
+                .count() == 0 && !helper.isFirmwareUploadTaskBusy();
     }
 
     /**

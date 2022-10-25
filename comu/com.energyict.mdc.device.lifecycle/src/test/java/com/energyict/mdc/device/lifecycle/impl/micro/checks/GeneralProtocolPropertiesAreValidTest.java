@@ -155,7 +155,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
         SecurityAccessor accessor = mock(SecurityAccessor.class);
         SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
-        when(accessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(securityValueWrapper));
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
         when(device.getSecurityAccessor(requiredKey)).thenReturn(Optional.of(accessor));
         when(device.getSecurityAccessor(optionalKey)).thenReturn(Optional.of(accessor));
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
@@ -178,7 +178,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
         SecurityAccessor accessor = mock(SecurityAccessor.class);
         SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
-        when(accessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(securityValueWrapper));
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
         when(device.getSecurityAccessor(requiredKey)).thenReturn(Optional.of(accessor));
         when(device.getSecurityAccessor(optionalKey)).thenReturn(Optional.empty());
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
@@ -201,9 +201,9 @@ public class GeneralProtocolPropertiesAreValidTest {
         properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
         SecurityAccessor accessor = mock(SecurityAccessor.class);
         SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
-        when(accessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(securityValueWrapper));
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
         SecurityAccessor optionalAccessor = mock(SecurityAccessor.class);
-        when(optionalAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+        when(optionalAccessor.getActualValue()).thenReturn(Optional.empty());
         when(device.getSecurityAccessor(requiredKey)).thenReturn(Optional.of(accessor));
         when(device.getSecurityAccessor(optionalKey)).thenReturn(Optional.of(optionalAccessor));
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
@@ -226,7 +226,7 @@ public class GeneralProtocolPropertiesAreValidTest {
         properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
         SecurityAccessor accessor = mock(SecurityAccessor.class);
         SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
-        when(accessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(securityValueWrapper));
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
         when(device.getSecurityAccessor(requiredKey)).thenReturn(Optional.empty());
         when(device.getSecurityAccessor(optionalKey)).thenReturn(Optional.of(accessor));
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);
@@ -249,9 +249,9 @@ public class GeneralProtocolPropertiesAreValidTest {
         properties.setProperty(OPTIONAL_PROPERTY_NAME, optionalKey);
         SecurityAccessor accessor = mock(SecurityAccessor.class);
         SecurityValueWrapper securityValueWrapper = mock(SecurityValueWrapper.class);
-        when(accessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(securityValueWrapper));
+        when(accessor.getActualValue()).thenReturn(Optional.of(securityValueWrapper));
         SecurityAccessor requiredAccessor = mock(SecurityAccessor.class);
-        when(requiredAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+        when(requiredAccessor.getActualValue()).thenReturn(Optional.empty());
         when(device.getSecurityAccessor(requiredKey)).thenReturn(Optional.of(requiredAccessor));
         when(device.getSecurityAccessor(optionalKey)).thenReturn(Optional.of(accessor));
         when(this.device.getDeviceProtocolProperties()).thenReturn(properties);

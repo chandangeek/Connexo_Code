@@ -22,10 +22,10 @@ import java.util.Set;
  */
 public class FirmwareVersionFilterImpl implements FirmwareVersionFilter {
 
-    private DeviceType deviceType;
-    private Set<FirmwareType> firmwareTypes = new HashSet<>();
-    private Set<FirmwareStatus> firmwareStatuses = new HashSet<>();
-    private Set<String> firmwareVersions = new HashSet<>();
+    private final DeviceType deviceType;
+    private final Set<FirmwareType> firmwareTypes = new HashSet<>();
+    private final Set<FirmwareStatus> firmwareStatuses = new HashSet<>();
+    private final Set<String> firmwareVersions = new HashSet<>();
     private Range<Integer> rankRange = Range.all();
 
     public FirmwareVersionFilterImpl(DeviceType deviceType) {

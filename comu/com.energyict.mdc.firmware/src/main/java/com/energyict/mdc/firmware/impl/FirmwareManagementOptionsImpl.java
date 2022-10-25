@@ -46,7 +46,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<DeviceType> deviceType = ValueReference.absent();
+    private final Reference<DeviceType> deviceType = ValueReference.absent();
     private boolean install;
     private boolean activate;
     private boolean activateOnDate;
@@ -67,7 +67,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
     private long version;
 
     private final DataModel dataModel;
-    
+
     @Inject
     public FirmwareManagementOptionsImpl(DataModel dataModel) {
         this.dataModel = dataModel;
@@ -223,7 +223,7 @@ public class FirmwareManagementOptionsImpl implements FirmwareManagementOptions 
         this.activateOnDate = false;
     }
 
-    DeviceType getDeviceType(){
+    DeviceType getDeviceType() {
         return this.deviceType.get();
     }
 }

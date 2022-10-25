@@ -40,7 +40,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class FirmwareHistoryImplIT extends PersistenceTest {
     private static final long DEVICE_PROTOCOL_PLUGGABLE_CLASS_ID = 139;
-    private static final byte[] FIRMWARE_FILE = new byte[]{1,2,3,4,5,6,7,8};
+    private static final byte[] FIRMWARE_FILE = new byte[]{1, 2, 3, 4, 5, 6, 7, 8};
 
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -63,12 +63,14 @@ public class FirmwareHistoryImplIT extends PersistenceTest {
         deviceType = inMemoryPersistence.getInjector().getInstance(DeviceConfigurationService.class).newDeviceType("MyDeviceType", deviceProtocolPluggableClass);
         deviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
         deviceConfiguration.activate();
-        device = inMemoryPersistence.getInjector().getInstance(DeviceService.class).newDevice(deviceConfiguration ,"MyDevice", "mridOfMyDevice", Instant.now() );
+        device = inMemoryPersistence.getInjector().getInstance(DeviceService.class).newDevice(deviceConfiguration, "MyDevice", "mridOfMyDevice", Instant.now());
 
         firmwareService = inMemoryPersistence.getFirmwareService();
         firmwareVersion1 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion1", FirmwareStatus.FINAL, FirmwareType.METER, "firmwareVersion1").initFirmwareFile(FIRMWARE_FILE).create();
-        firmwareVersion2 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion2", FirmwareStatus.FINAL, FirmwareType.COMMUNICATION,"firmwareVersion2").initFirmwareFile(FIRMWARE_FILE).create();
-        firmwareVersion3 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion3", FirmwareStatus.FINAL, FirmwareType.METER,"firmwareVersion3").initFirmwareFile(FIRMWARE_FILE).create();
+        firmwareVersion2 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion2", FirmwareStatus.FINAL, FirmwareType.COMMUNICATION, "firmwareVersion2")
+                .initFirmwareFile(FIRMWARE_FILE)
+                .create();
+        firmwareVersion3 = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion3", FirmwareStatus.FINAL, FirmwareType.METER, "firmwareVersion3").initFirmwareFile(FIRMWARE_FILE).create();
 
         LocalDateTime now = LocalDateTime.now();
         Instant twoMonthsAgo = Instant.ofEpochSecond(now.minus(2, ChronoUnit.MONTHS).toEpochSecond(ZoneOffset.UTC));
@@ -85,14 +87,14 @@ public class FirmwareHistoryImplIT extends PersistenceTest {
 
     @Test
     @Transactional
-    public void firmwareVersionCountTest(){
+    public void firmwareVersionCountTest() {
         assertTrue(firmwareService.getActiveFirmwareVersion(device, FirmwareType.COMMUNICATION).isPresent());
         assertTrue(firmwareService.getActiveFirmwareVersion(device, FirmwareType.METER).isPresent());
     }
 
     @Test
     @Transactional
-    public void historyTest(){
+    public void historyTest() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceFirmwareHistory history = firmwareService.getFirmwareHistory(device);
         assertThat(history.history()).hasSize(3);
@@ -100,7 +102,7 @@ public class FirmwareHistoryImplIT extends PersistenceTest {
 
     @Test
     @Transactional
-    public void historySortTest(){
+    public void historySortTest() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceFirmwareHistory history = firmwareService.getFirmwareHistory(device);
         List<DeviceFirmwareVersionHistoryRecord> records = history.history();
@@ -111,7 +113,7 @@ public class FirmwareHistoryImplIT extends PersistenceTest {
 
     @Test
     @Transactional
-    public void historyTestForFirmwareType(){
+    public void historyTestForFirmwareType() {
         FirmwareServiceImpl firmwareService = inMemoryPersistence.getFirmwareService();
         DeviceFirmwareHistory history = firmwareService.getFirmwareHistory(device);
         assertThat(history.history(FirmwareType.METER)).hasSize(2);
