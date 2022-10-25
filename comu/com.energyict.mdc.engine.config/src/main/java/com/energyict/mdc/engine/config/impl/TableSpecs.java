@@ -128,6 +128,7 @@ public enum TableSpecs {
             table.column("FLOWCONTROL").varChar().map("serialPortConfiguration.flowControl").add();
             // ServletBasedInboundComPortImpl
             table.column("HTTPS").varChar(1).conversion(ColumnConversion.NUMBER2BOOLEAN).map("https").add();
+            table.column("DTLS").varChar(1).conversion(ColumnConversion.NUMBER2BOOLEAN).map("dtls").since(Version.version(10, 9, 19)).add();
             table.column("KEYSTOREPATH").varChar().map("keyStoreSpecsFilePath").add();
             table.column("KEYSTOREPASSWORD").varChar().map("keyStoreSpecsPassword").add();
             table.column("TRUSTSTOREPATH").varChar().map("trustStoreSpecsFilePath").add();

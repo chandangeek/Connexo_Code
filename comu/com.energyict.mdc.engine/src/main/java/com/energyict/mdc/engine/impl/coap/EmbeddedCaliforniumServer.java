@@ -1,19 +1,15 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.impl.coap;
 
-import com.elster.jupiter.properties.BasicPropertySpec;
-import com.elster.jupiter.properties.LongFactory;
 import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
-import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
-import com.energyict.mdc.upl.TypedProperties;
 
 import org.eclipse.californium.core.CoapServer;
 import org.eclipse.californium.core.config.CoapConfig;
@@ -27,6 +23,8 @@ import org.eclipse.californium.elements.util.SslContextUtil;
 import org.eclipse.californium.scandium.DTLSConnector;
 import org.eclipse.californium.scandium.config.DtlsConfig;
 import org.eclipse.californium.scandium.config.DtlsConnectorConfig;
+import org.eclipse.californium.scandium.dtls.CertificateType;
+import org.eclipse.californium.scandium.dtls.pskstore.AdvancedSinglePskStore;
 import org.eclipse.californium.scandium.dtls.x509.NewAdvancedCertificateVerifier;
 import org.eclipse.californium.scandium.dtls.x509.SingleCertificateProvider;
 import org.eclipse.californium.scandium.dtls.x509.StaticNewAdvancedCertificateVerifier;
@@ -36,10 +34,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -57,22 +53,14 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
      * The number of seconds that accepted requests are allowed to complete
      * during the graceful shutdown.
      */
-    private static final int GRACEFUL_SHUTDOWN_SECONDS = 3;
     private final static String INBOUND_COMPORT_SERVICE = "Californium_InboundComportService";
-    private final static String EVENT_MECHANISM = "Californium_EventMechanism";
     private final ShutdownFailureLogger shutdownFailureLogger;
     private CoapServer coapServer;
     private String threadPoolName;
     private boolean startCommandGiven = false;
     private boolean stopCommandGiven = false;
 
-    private EmbeddedCaliforniumServer(ShutdownFailureLogger shutdownFailureLogger) {
-        super();
-        this.shutdownFailureLogger = shutdownFailureLogger;
-    }
-
     private EmbeddedCaliforniumServer(CoapBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
-        super();
         threadPoolName = INBOUND_COMPORT_SERVICE;
         QueuedThreadPool threadPool = new QueuedThreadPool();
         threadPool.setName(threadPoolName);
@@ -84,28 +72,15 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         coapServer = new CoapServer();
         BasedCoapResource comResource = new BasedCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
         coapServer.add(comResource);
-
-        Configuration configuration = Configuration.getStandard();
-        for (InetAddress address : NetworkInterfacesUtil.getNetworkInterfaces()) {
-            InetSocketAddress socketAddress = new InetSocketAddress(address, comPort.getPortNumber());
-            if (comPort.isDtls()) {
-                try {
-                    CoapEndpoint.Builder builder = new CoapEndpoint.Builder();
-                    String keystore = comPort.getKeyStoreSpecsFilePath() + "#" + comPort.getKeyStoreSpecsPassword();
-                    String keytrust = comPort.getTrustStoreSpecsFilePath() + "#" + comPort.getTrustStoreSpecsPassword();
-                    builder.setConnector(createDtlsConnector(configuration, socketAddress, keystore, keytrust));
-                    coapServer.addEndpoint(builder.build());
-                } catch (IOException | GeneralSecurityException e) {
-                    e.printStackTrace(System.err);
-                    LOGGER.log(Level.SEVERE, e.getMessage(), e);
-                }
-            } else {
-                CoapEndpoint.Builder builder = new CoapEndpoint.Builder();
-                builder.setConnector(createUdpConnector(configuration, socketAddress));
-                coapServer.addEndpoint(builder.build());
+        shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
+        try {
+            for (InetAddress address : NetworkInterfacesUtil.getNetworkInterfaces()) {
+                coapServer.addEndpoint(new CoapEndpoint.Builder().setConnector(createConnector(address, comPort)).build());
             }
+        } catch (IOException | GeneralSecurityException e) {
+            e.printStackTrace(System.err);
+            LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
-        this.shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
     }
 
     /**
@@ -125,48 +100,40 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         return new EmbeddedCaliforniumServer(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    private static int getPortNumber(URI uri, int defaultPort) {
-        int port = uri.getPort();
-        if (port == -1) {
-            return defaultPort;
-        } else {
-            return port;
+    /**
+     * Create the Endpoint connector.
+     */
+    private Connector createConnector(InetAddress address, CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
+        Configuration configuration = Configuration.getStandard();
+        if (comPort.isDtls()) {
+            return new DTLSConnector(DtlsConnectorConfig.builder(configuration)
+                    .setAddress(new InetSocketAddress(address, comPort.getPortNumber()))
+                    .setAdvancedPskStore(new AdvancedSinglePskStore(comPort.getContextPath(), "1111111111111111".getBytes()))
+                    .setCertificateIdentityProvider(getCertificateProvider(comPort))
+                    .setAdvancedCertificateVerifier(getCertificateVerifier(comPort)).build());
         }
+        return new UDPConnector(new InetSocketAddress(address, comPort.getPortNumber()), configuration);
     }
 
-    /**
-     * Create the DTLS Connector for the endpoint.
-     */
-    private Connector createDtlsConnector(Configuration configuration, InetSocketAddress address, String keystore, String keytrust) throws GeneralSecurityException, IOException {
-        SslContextUtil.Credentials serverCredentials = SslContextUtil.loadCredentials(keystore);
-        Certificate[] serverCertificates = SslContextUtil.loadTrustedCertificates(keytrust);
-        DtlsConnectorConfig.Builder builder = DtlsConnectorConfig.builder(configuration);
-        builder.setAddress(address);
-        SingleCertificateProvider certificate = new SingleCertificateProvider(serverCredentials.getPrivateKey(), serverCredentials.getCertificateChain());
-        builder.setCertificateIdentityProvider(certificate);
-        NewAdvancedCertificateVerifier trust = StaticNewAdvancedCertificateVerifier.builder()
-                .setTrustedCertificates(serverCertificates).build();
-        builder.setAdvancedCertificateVerifier(trust);
-        DTLSConnector connector = new DTLSConnector(builder.build());
-        return connector;
+    private SingleCertificateProvider getCertificateProvider(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
+        SslContextUtil.Credentials dtlsCredentials = getDtlsCredentials(comPort);
+        SingleCertificateProvider certProvider = new SingleCertificateProvider(dtlsCredentials.getPrivateKey(), dtlsCredentials.getCertificateChain(), CertificateType.RAW_PUBLIC_KEY, CertificateType.X_509);
+        return certProvider;
     }
 
-    /**
-     * Create the simple UDP Connector for the endpoint.
-     */
-    private Connector createUdpConnector(Configuration configuration, InetSocketAddress address) {
-        Connector connector = new UDPConnector(address, configuration);
-        return connector;
+    private SslContextUtil.Credentials getDtlsCredentials(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
+        return SslContextUtil.loadCredentials(comPort.getKeyStoreSpecsFilePath(), comPort.getContextPath(), comPort.getKeyStoreSpecsPassword()
+                .toCharArray(), comPort.getKeyStoreSpecsPassword().toCharArray());
     }
 
-    /**
-     * Get the maxIdleTime property that is defined on the discovery protocol of the ComPort pool.
-     */
-    private int getMaxIdleTime(CoapBasedInboundComPort comPort) {
-        BasicPropertySpec idleTime = new BasicPropertySpec(new LongFactory());
-        PluggableClass discoveryProtocolPluggableClass = comPort.getComPortPool().getDiscoveryProtocolPluggableClass();
-        TypedProperties properties = discoveryProtocolPluggableClass.getProperties(Arrays.asList(idleTime));
-        return properties.getTypedProperty(MAX_IDLE_TIME, MAX_IDLE_TIME_DEFAULT_VALUE).intValue();
+    private NewAdvancedCertificateVerifier getCertificateVerifier(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
+        Certificate[] dtlsCertificates = getDtlsCertificates(comPort);
+        NewAdvancedCertificateVerifier certTrust = StaticNewAdvancedCertificateVerifier.builder().setTrustedCertificates(dtlsCertificates).setTrustAllRPKs().build();
+        return certTrust;
+    }
+
+    private Certificate[] getDtlsCertificates(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
+        return SslContextUtil.loadTrustedCertificates(comPort.getTrustStoreSpecsFilePath(), comPort.getContextPath(), comPort.getTrustStoreSpecsPassword().toCharArray());
     }
 
     @Override
@@ -221,7 +188,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
     }
 
     public interface ServiceProvider {
-        public WebSocketEventPublisherFactory webSocketEventPublisherFactory();
+        WebSocketEventPublisherFactory webSocketEventPublisherFactory();
     }
 
     private interface ShutdownFailureLogger {

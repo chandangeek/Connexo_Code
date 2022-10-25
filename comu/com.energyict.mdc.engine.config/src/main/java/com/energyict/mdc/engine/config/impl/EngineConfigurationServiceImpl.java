@@ -213,7 +213,8 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
                         .put(version(10, 4, 3), V10_4_3SimpleUpgrader.class)
                         .put(version(10, 4, 9), V10_4_9SimpleUpgrader.class)
                         .put(version(10, 6, 1), V10_6_1SimpleUpgrader.class)
-                        .put(version(10, 7, 1), V10_7_1SimpleUpgrader.class).build());
+                        .put(version(10, 7, 1), V10_7_1SimpleUpgrader.class)
+                        .put(version(10, 9, 19), UpgraderV10_9_19.class).build());
 
     }
 

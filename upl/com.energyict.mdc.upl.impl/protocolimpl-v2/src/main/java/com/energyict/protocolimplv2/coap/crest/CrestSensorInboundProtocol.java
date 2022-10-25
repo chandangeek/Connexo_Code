@@ -159,7 +159,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     @Override
     public boolean hasSupportForRequestsOnInbound() {
-        return true;
+        return false;
     }
 
     private void handleData() {
