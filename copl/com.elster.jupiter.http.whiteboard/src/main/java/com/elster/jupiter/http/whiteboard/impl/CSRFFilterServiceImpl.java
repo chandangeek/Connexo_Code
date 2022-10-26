@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.http.whiteboard.impl;
@@ -8,6 +9,7 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.users.CSRFService;
 
+import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
@@ -51,6 +53,8 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
     private volatile CSRFService csrfService;
 
+    private BundleContext bundleContext;
+
     public CSRFFilterServiceImpl() {
     }
 
@@ -58,11 +62,12 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     public CSRFFilterServiceImpl(CSRFService csrfService) {
         super();
         setCSRFService(csrfService);
-        activate();
+        activate(null);
     }
 
     @Activate
-    public void activate() {
+    public void activate(BundleContext context) {
+        this.bundleContext = context;
     }
 
     @Reference
@@ -96,6 +101,11 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String getBlackListedCharecters() {
+        return bundleContext.getProperty("blackListedCharecters");
     }
 
     private boolean isFormSubmitRequest(HttpServletRequest request) {

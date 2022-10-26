@@ -95,7 +95,7 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('deviceLifeCycles.confirmWindow.removeMsg', 'DLC', 'This device life cycle will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'DLC', "Remove '{0}'?",[record.get('name')]),
+            title: Uni.I18n.translate('general.removex', 'DLC', "Remove '{0}'?", [record.get('name')]),
             config: {
                 me: me,
                 record: record,
@@ -268,33 +268,36 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
                 ? router.getRoute('administration/devicelifecycles/devicelifecycle').buildUrl()
                 : router.getRoute('administration/devicelifecycles').buildUrl();
 
-        if (!formErrorsPanel.isHidden()) {
+        if (form.isValid()) {
             formErrorsPanel.hide();
             form.getForm().clearInvalid();
+            record.set('name', form.down('#device-life-cycle-name').getValue());
+            page.setLoading();
+            record.save({
+                backUrl: backUrl,
+                success: function () {
+                    window.location.href = backUrl;
+                    if (btn.action === 'edit') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.edit.successMsg', 'DLC', 'Device life cycle saved'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.add.successMsg', 'DLC', 'Device life cycle added'));
+                    }
+                },
+                failure: function (record, operation) {
+                    var json = Ext.decode(operation.response.responseText, true);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
+                },
+                callback: function () {
+                    page.setLoading(false);
+                }
+            });
+        } else {
+            formErrorsPanel.show();
         }
-        record.set('name', form.down('#device-life-cycle-name').getValue());
-        page.setLoading();
-        record.save({
-            backUrl: backUrl,
-            success: function () {
-                window.location.href = backUrl;
-                if (btn.action === 'edit') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.edit.successMsg', 'DLC', 'Device life cycle saved'));
-                } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.add.successMsg', 'DLC', 'Device life cycle added'));
-                }
-            },
-            failure: function (record, operation) {
-                var json = Ext.decode(operation.response.responseText, true);
-                if (json && json.errors) {
-                    form.getForm().markInvalid(json.errors);
-                    formErrorsPanel.show();
-                }
-            },
-            callback: function () {
-                page.setLoading(false);
-            }
-        });
+
     },
 
     showDeviceLifeCycleOverview: function (deviceLifeCycleId) {

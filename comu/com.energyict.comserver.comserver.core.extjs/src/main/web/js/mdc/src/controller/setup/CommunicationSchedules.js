@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 Ext.define('Mdc.controller.setup.CommunicationSchedules', {
@@ -28,6 +29,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         {ref: 'communicationSchedulePreview', selector: '#communicationSchedulePreview'},
         {ref: 'communicationScheduleView', selector: '#CommunicationSchedulesSetup'},
         {ref: 'communicationSchedulePreviewForm', selector: '#communicationSchedulePreviewForm'},
+        {ref: 'toggleDefaultMenuItem', selector: '#toggleDefaultMenuItem'},
         {ref: 'communicationScheduleEditForm', selector: '#communicationScheduleEditForm'},
         {ref: 'communicationTaskGrid', selector: '#communicationTaskGridFromSchedule'},
         {ref: 'communicationTaskSelectionGrid', selector: '#communicationTaskGridFromSchedule'},
@@ -48,7 +50,8 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             '#communicationSchedulesGrid actioncolumn': {
                 editCommunicationSchedule: this.editCommunicationScheduleHistory,
                 deleteCommunicationSchedule: this.deleteCommunicationSchedule,
-                cloneCommunicationSchedule: this.cloneCommunicationSchedule
+                cloneCommunicationSchedule: this.cloneCommunicationSchedule,
+                toggleDefault: this.toggleDefaultConnectionMethod
             },
             '#comTasksOnForm actioncolumn': {
                 deleteComTask: this.deleteComTask
@@ -73,6 +76,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             },
             '#communicationSchedulePreview menuitem[action=cloneCommunicationSchedule]': {
                 click: this.cloneCommunicationSchedule
+            },
+            '#communicationSchedulePreview menuitem[action=toggleDefault]': {
+                click: this.toggleDefaultConnectionMethod
             },
             'addCommunicationTaskWindow #addCommunicationTasksToSchedule': {
                 click: this.addCommunicationTasksToSchedule
@@ -201,7 +207,17 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         var communicationSchedule = this.getCommunicationSchedulesGrid().getSelectionModel().getLastSelected(),
             preview = this.getCommunicationSchedulePreview(),
             previewForm = this.getCommunicationSchedulePreviewForm(),
-            taskList = '';
+            taskList = '',
+            me = this;
+
+        var toggleDefaultMenuItemText =
+            communicationSchedule.get('isDefault') ?
+                Uni.I18n.translate('general.unsetAsDefault', 'MDC', 'Remove as default') :
+                Uni.I18n.translate('connectionmethod.setAsDefault', 'MDC', 'Set as default');
+
+        if (this.getToggleDefaultMenuItem()) {
+            this.getToggleDefaultMenuItem().setText(toggleDefaultMenuItemText);
+        }
 
         preview.setTitle(Ext.String.htmlEncode(communicationSchedule.get('name')));
         previewForm.loadRecord(communicationSchedule);
@@ -216,6 +232,33 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         })
     },
 
+    toggleDefaultConnectionMethod: function (connectionMethod) {
+        var me = this;
+
+        if (connectionMethod.get('isDefault') === true) {
+            connectionMethod.set('isDefault', false);
+        } else {
+            connectionMethod.set('isDefault', true);
+        }
+
+        //connectionMethod.getProxy().extraParams = ({deviceType: me.deviceTypeId, deviceConfig: me.deviceConfigurationId});
+        connectionMethod.save({
+            isNotEdit: true,
+            success: function () {
+                if (connectionMethod.get('isDefault') === true) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.setAsDefault', 'MDC', 'Connection method set as default'));
+                } else {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('connectionmethod.acknowledgment.removeDefault', 'MDC', 'Connection method removed as default'));
+                }
+            },
+            callback: function () {
+                me.getCommunicationSchedulesStore().load();
+                this.previewCommunicationSchedule();
+            }
+        });
+    },
+
+
     saveCommunicationSchedule: function () {
         var me = this,
             values = this.getCommunicationScheduleEditForm().getValues(),
@@ -224,7 +267,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             backUrl = router.getRoute('administration/communicationschedules').buildUrl();
 
 
-        if (this.record) {
+        if (this.record && this.getCommunicationScheduleEditForm().getForm().isValid()) {
             this.record.set(values);
             me.getCommunicationScheduleEditForm().getForm().clearInvalid();
             me.hideErrorPanel();
@@ -262,8 +305,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     editView.setLoading(false);
                 }
             });
+        } else {
+            me.showErrorPanel();
         }
-
     },
 
     addCommunicationTask: function () {
@@ -376,7 +420,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         me.record.set('mRID', null)
         me.mode = 'clone';
         me.getApplication().fireEvent('loadCommunicationSchedule', me.cloneRecord);
-        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
+        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
         widget.down('#communicationScheduleEditForm').loadRecord(me.record);
         widget.down('#noComTasksSelectedMsg').hide();
         widget.down('#comTasksOnForm').show();

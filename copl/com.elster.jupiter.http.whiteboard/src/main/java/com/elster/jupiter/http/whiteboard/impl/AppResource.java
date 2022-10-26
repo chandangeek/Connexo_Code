@@ -1,11 +1,14 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.license.License;
+import com.elster.jupiter.users.CSRFService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
@@ -13,9 +16,14 @@ import com.elster.jupiter.util.json.JsonService;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +40,10 @@ public class AppResource {
     private JsonService jsonService;
     @Inject
     private HttpAuthenticationService authenticationService;
+
+    @Inject
+    private CSRFFilterService csrfFilterService;
+
 
     @GET
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
@@ -81,6 +93,12 @@ public class AppResource {
         userService.removeLoggedUser(user);
         authenticationService.logout(request, response);
 
+    }
+
+    @GET
+    @Path("/blacklistedcharecters")
+    public Response getBlackListedCharecters(@Context HttpServletResponse response) {
+        return Response.ok(csrfFilterService.getBlackListedCharecters()).build();
     }
 
     private AppInfo appInfo(App app) {

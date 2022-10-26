@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 
@@ -10,6 +11,7 @@ import aQute.bnd.annotation.ProviderType;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.time.Instant;
 
 /**
  * Insert your comments here.
@@ -22,5 +24,8 @@ public interface CSRFFilterService {
     public void createCSRFToken(String sessionId);
     public void removeUserSession(String sessionId);
     public String getCSRFToken(String sessionId);
+
     public boolean handleCSRFSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
+    public String getBlackListedCharecters();
 }

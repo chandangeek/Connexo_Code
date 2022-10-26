@@ -470,8 +470,7 @@ Ext.define('Cfg.controller.Tasks', {
                     var res = Ext.JSON.decode(response.responseText);
                     confWindow.update(res.errors[0].msg);
                     confWindow.setVisible(true);
-                }
-                else {
+                } else {
                     confWindow.destroy();
                 }
             },
@@ -550,145 +549,149 @@ Ext.define('Cfg.controller.Tasks', {
 
         var record = me.taskModel || Ext.create('Cfg.model.ValidationTask');
 
-        form.getForm().clearInvalid();
-        record.beginEdit();
-        if (!formErrorsPanel.isHidden()) {
-            formErrorsPanel.hide();
-        }
-
-        record.set('name', form.down('#txt-task-name').getValue());
-        record.set('logLevel', form.down('#cfg-validation-task-add-loglevel').getValue());
-
-        if (dataSourcesContainer) {
-            dataSourcesContainer.setDataSourcesToRecord(record);
-        }
-
-        startOnDate = moment(form.down('#start-on').getValue()).valueOf();
-        if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
-            timeUnitValue = form.down('#cbo-recurrence-type').getValue();
-            dayOfMonth = moment(startOnDate).date();
-            if (dayOfMonth >= 29) {
-                lastDayOfMonth = true;
+        if (form.isValid()) {
+            form.getForm().clearInvalid();
+            record.beginEdit();
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
             }
-            hours = form.down('#date-time-field-hours').getValue();
-            minutes = form.down('#date-time-field-minutes').getValue();
-            switch (timeUnitValue) {
-                case 'years':
-                    record.set('schedule', {
-                        count: form.down('#num-recurrence-number').getValue(),
-                        timeUnit: timeUnitValue,
-                        offsetMonths: moment(startOnDate).month() + 1,
-                        offsetDays: dayOfMonth,
-                        lastDayOfMonth: lastDayOfMonth,
-                        dayOfWeek: null,
-                        offsetHours: hours,
-                        offsetMinutes: minutes,
-                        offsetSeconds: 0
-                    });
-                    break;
-                case 'months':
-                    record.set('schedule', {
-                        count: form.down('#num-recurrence-number').getValue(),
-                        timeUnit: timeUnitValue,
-                        offsetMonths: 0,
-                        offsetDays: dayOfMonth,
-                        lastDayOfMonth: lastDayOfMonth,
-                        dayOfWeek: null,
-                        offsetHours: hours,
-                        offsetMinutes: minutes,
-                        offsetSeconds: 0
-                    });
-                    break;
-                case 'weeks':
-                    record.set('schedule', {
-                        count: form.down('#num-recurrence-number').getValue(),
-                        timeUnit: timeUnitValue,
-                        offsetMonths: 0,
-                        offsetDays: 0,
-                        lastDayOfMonth: lastDayOfMonth,
-                        dayOfWeek: moment(startOnDate).format('dddd').toUpperCase(),
-                        offsetHours: hours,
-                        offsetMinutes: minutes,
-                        offsetSeconds: 0
-                    });
-                    break;
-                case 'days':
-                    record.set('schedule', {
-                        count: form.down('#num-recurrence-number').getValue(),
-                        timeUnit: timeUnitValue,
-                        offsetMonths: 0,
-                        offsetDays: 0,
-                        lastDayOfMonth: lastDayOfMonth,
-                        dayOfWeek: null,
-                        offsetHours: hours,
-                        offsetMinutes: minutes,
-                        offsetSeconds: 0
-                    });
-                    break;
-                case 'hours':
-                    record.set('schedule', {
-                        count: form.down('#num-recurrence-number').getValue(),
-                        timeUnit: timeUnitValue,
-                        offsetMonths: 0,
-                        offsetDays: 0,
-                        lastDayOfMonth: lastDayOfMonth,
-                        dayOfWeek: null,
-                        offsetHours: hours,
-                        offsetMinutes: minutes,
-                        offsetSeconds: 0
-                    });
-                    break;
-                case 'minutes':
-                    record.set('schedule', {
-                        count: form.down('#num-recurrence-number').getValue(),
-                        timeUnit: timeUnitValue,
-                        offsetMonths: 0,
-                        offsetDays: 0,
-                        lastDayOfMonth: lastDayOfMonth,
-                        dayOfWeek: null,
-                        offsetHours: hours,
-                        offsetMinutes: minutes,
-                        offsetSeconds: 0
-                    });
-                    break;
+
+            record.set('name', form.down('#txt-task-name').getValue());
+            record.set('logLevel', form.down('#cfg-validation-task-add-loglevel').getValue());
+
+            if (dataSourcesContainer) {
+                dataSourcesContainer.setDataSourcesToRecord(record);
             }
-        } else {
 
-            record.set('schedule', null);
-        }
-        record.set('nextRun', startOnDate);
+            startOnDate = moment(form.down('#start-on').getValue()).valueOf();
+            if (form.down('#rgr-validation-tasks-recurrence-trigger').getValue().recurrence) {
+                timeUnitValue = form.down('#cbo-recurrence-type').getValue();
+                dayOfMonth = moment(startOnDate).date();
+                if (dayOfMonth >= 29) {
+                    lastDayOfMonth = true;
+                }
+                hours = form.down('#date-time-field-hours').getValue();
+                minutes = form.down('#date-time-field-minutes').getValue();
+                switch (timeUnitValue) {
+                    case 'years':
+                        record.set('schedule', {
+                            count: form.down('#num-recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: moment(startOnDate).month() + 1,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'months':
+                        record.set('schedule', {
+                            count: form.down('#num-recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: dayOfMonth,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'weeks':
+                        record.set('schedule', {
+                            count: form.down('#num-recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: moment(startOnDate).format('dddd').toUpperCase(),
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'days':
+                        record.set('schedule', {
+                            count: form.down('#num-recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'hours':
+                        record.set('schedule', {
+                            count: form.down('#num-recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                    case 'minutes':
+                        record.set('schedule', {
+                            count: form.down('#num-recurrence-number').getValue(),
+                            timeUnit: timeUnitValue,
+                            offsetMonths: 0,
+                            offsetDays: 0,
+                            lastDayOfMonth: lastDayOfMonth,
+                            dayOfWeek: null,
+                            offsetHours: hours,
+                            offsetMinutes: minutes,
+                            offsetSeconds: 0
+                        });
+                        break;
+                }
+            } else {
 
-        page.setLoading(true);
-        record.endEdit();
-        record.save({
-            backUrl: button.action === 'editTask' && me.fromDetails
-                ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
-                : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
-            success: function () {
-                if (button.action === 'editTask' && me.fromDetails) {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});
-                } else {
-                    me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
-                }
-                if (button.action === 'editTask') {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
-                } else {
-                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
-                }
-            },
-            failure: function (record, operation) {
-                if (operation.response.status == 400) {
-                    var json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        form.getForm().markInvalid(json.errors);
-                        formErrorsPanel.show();
+                record.set('schedule', null);
+            }
+            record.set('nextRun', startOnDate);
+
+            page.setLoading(true);
+            record.endEdit();
+            record.save({
+                backUrl: button.action === 'editTask' && me.fromDetails
+                    ? me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').buildUrl({taskId: record.getId()})
+                    : me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').buildUrl(),
+                success: function () {
+                    if (button.action === 'editTask' && me.fromDetails) {
+                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks/validationtask').forward({taskId: record.getId()});
+                    } else {
+                        me.getController('Uni.controller.history.Router').getRoute('administration/validationtasks').forward();
                     }
+                    if (button.action === 'editTask') {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.editValidationTask.successMsg.saved', 'CFG', 'Validation task saved'));
+                    } else {
+                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('validationTasks.addValidationTask.successMsg', 'CFG', 'Validation task added'));
+                    }
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status == 400) {
+                        var json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            form.getForm().markInvalid(json.errors);
+                            formErrorsPanel.show();
+                        }
+                    }
+                },
+                callback: function () {
+                    page.setLoading(false);
                 }
-            },
-            callback: function () {
-                page.setLoading(false);
-            }
-        })
+            })
+        } else {
+            formErrorsPanel.show();
+        }
     },
 
     onRecurrenceTriggerChange: function (field, newValue, oldValue) {

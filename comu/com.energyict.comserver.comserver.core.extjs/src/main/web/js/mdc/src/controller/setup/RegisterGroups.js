@@ -217,33 +217,36 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
             selected = form.down('#editRegisterGroupGridField').getSelectionModel().getSelection(),
             backUrl = '#/administration/registergroups/';
 
-        record.set(values);
-        record.registerTypes().removeAll();
-        record.registerTypes().add(selected);
+        if (form.isValid()) {
+            record.set(values);
+            record.registerTypes().removeAll();
+            record.registerTypes().add(selected);
+            baseForm.clearInvalid();
+            me.hideErrorPanel();
+            record.save({
+                backUrl: backUrl,
+                success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', me.mode === 'edit'
+                        ? Uni.I18n.translate('registergroup.saved', 'MDC', 'Register group saved')
+                        : Uni.I18n.translate('registergroup.added', 'MDC', 'Register group added')
+                    );
+                    location.href = backUrl;
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status === 409) {
+                        return
+                    }
+                    var json = Ext.decode(operation.response.responseText, true);
 
-        baseForm.clearInvalid();
-        me.hideErrorPanel();
-        record.save({
-            backUrl: backUrl,
-            success: function (record) {
-                me.getApplication().fireEvent('acknowledge', me.mode === 'edit'
-                    ? Uni.I18n.translate('registergroup.saved', 'MDC', 'Register group saved')
-                    : Uni.I18n.translate('registergroup.added', 'MDC', 'Register group added')
-                );
-                location.href = backUrl;
-            },
-            failure: function (record, operation) {
-                if (operation.response.status === 409) {
-                    return
+                    if (json && json.errors) {
+                        baseForm.markInvalid(json.errors);
+                    }
+                    me.showErrorPanel();
                 }
-                var json = Ext.decode(operation.response.responseText, true);
-
-                if (json && json.errors) {
-                    baseForm.markInvalid(json.errors);
-                }
-                me.showErrorPanel();
-            }
-        });
+            });
+        } else {
+            me.showErrorPanel();
+        }
     },
 
     removeRegisterGroup: function (itemToRemove) {
@@ -251,7 +254,7 @@ Ext.define('Mdc.controller.setup.RegisterGroups', {
 
         Ext.create('Uni.view.window.Confirmation').show({
             msg: Uni.I18n.translate('registerGroup.deleteRegisterGroup', 'MDC', 'The register group will no longer be available.'),
-            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?",[itemToRemove.get('name')]),
+            title: Uni.I18n.translate('general.removex', 'MDC', "Remove '{0}'?", [itemToRemove.get('name')]),
             fn: function (action) {
                 if (action === 'confirm') {
                     me.removeRegisterGroupInDatabase(itemToRemove);
