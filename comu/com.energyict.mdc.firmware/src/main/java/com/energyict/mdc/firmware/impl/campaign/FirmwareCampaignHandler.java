@@ -24,12 +24,14 @@ import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.TranslationKeys;
+import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
 import javax.inject.Inject;
 import java.security.Principal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
@@ -197,7 +199,10 @@ public class FirmwareCampaignHandler extends EventHandler<LocalEvent> {
                 DeviceInFirmwareCampaign firmwareItem = firmwareCampaignService.findActiveFirmwareItemByDevice(device).get();
                 ServiceCall serviceCall = firmwareItem.getServiceCall();
                 if (device.getMessages().stream().filter(deviceMessage -> deviceMessage.getSpecification().getCategory().getId() == 9)
-                        .filter(deviceMessage -> deviceMessage.getAttributes().stream().anyMatch(attr -> attr.getValue().equals(firmwareCampaignOptional.get().getFirmwareVersion())))
+                        .filter(deviceMessage -> deviceMessage.getAttributes().stream()
+                                .map(DeviceMessageAttribute::getValue)
+                                .filter(Objects::nonNull)
+                                .anyMatch(val -> val.equals(firmwareCampaignOptional.get().getFirmwareVersion())))
                         .anyMatch(deviceMessage -> deviceMessage.getStatus().equals(DeviceMessageStatus.PENDING)
                                 || deviceMessage.getStatus().equals(DeviceMessageStatus.WAITING))) {
                     serviceCallService.lockServiceCall(serviceCall.getId());
