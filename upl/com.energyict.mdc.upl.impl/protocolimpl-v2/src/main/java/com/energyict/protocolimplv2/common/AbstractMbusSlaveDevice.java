@@ -1,4 +1,4 @@
-package com.energyict.protocolimplv2.dlms.idis.mbus.water;
+package com.energyict.protocolimplv2.common;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceFunction;
@@ -47,13 +47,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class HoneywellWaterMbus implements DeviceProtocol {
+public abstract class AbstractMbusSlaveDevice implements DeviceProtocol {
 
     private final NlsService nlsService;
     private final PropertySpecService propertySpecService;
     private final Converter converter;
 
-    public HoneywellWaterMbus(NlsService nlsService, PropertySpecService propertySpecService, Converter converter) {
+    public AbstractMbusSlaveDevice(NlsService nlsService, PropertySpecService propertySpecService, Converter converter) {
         this.nlsService = nlsService;
         this.propertySpecService = propertySpecService;
         this.converter = converter;

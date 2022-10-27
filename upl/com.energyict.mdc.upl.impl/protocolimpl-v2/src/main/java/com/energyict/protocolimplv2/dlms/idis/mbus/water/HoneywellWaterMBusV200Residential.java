@@ -4,7 +4,9 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
-public class HoneywellWaterMBusV200Residential extends HoneywellWaterMbus {
+import com.energyict.protocolimplv2.common.AbstractMbusSlaveDevice;
+
+public class HoneywellWaterMBusV200Residential extends AbstractMbusSlaveDevice {
 
     public HoneywellWaterMBusV200Residential(NlsService nlsService, PropertySpecService propertySpecService, Converter converter) {
         super(nlsService, propertySpecService, converter);
