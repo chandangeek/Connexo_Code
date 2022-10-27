@@ -126,6 +126,9 @@ public class DeviceBuilder {
                 }
             }
 
+            changedDevice = deviceService.findAndLockDeviceById(changedDevice.getId())
+                    .orElseThrow(getFaultMessage(meter.getDeviceName(), MessageSeeds.NO_SUCH_DEVICE, changedDevice.getId()));
+
             validateSecurityKeyChangeIsAllowedOnUpdate(changedDevice, meter.getSecurityInfo());
 
             if (newDeviceConfigurationName != null
