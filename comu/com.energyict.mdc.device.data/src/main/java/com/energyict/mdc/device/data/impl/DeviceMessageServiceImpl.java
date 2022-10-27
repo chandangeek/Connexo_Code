@@ -102,11 +102,6 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
     }
 
     @Override
-    public Optional<DeviceMessage> findAndLockDeviceMessageById(long id) {
-        return Optional.ofNullable(this.deviceDataModelService.dataModel().mapper(DeviceMessage.class).lock(id));
-    }
-
-    @Override
     public Optional<DeviceMessage> findAndLockDeviceMessageByIdAndVersion(long id, long version) {
         return this.deviceDataModelService.dataModel().mapper(DeviceMessage.class).lockObjectIfVersion(version, id);
     }

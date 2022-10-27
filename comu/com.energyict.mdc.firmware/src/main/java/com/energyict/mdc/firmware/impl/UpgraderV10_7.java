@@ -8,9 +8,9 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.util.Pair;
-
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
