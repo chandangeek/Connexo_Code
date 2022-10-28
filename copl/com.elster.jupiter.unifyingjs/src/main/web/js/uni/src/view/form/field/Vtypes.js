@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 /**
@@ -12,6 +13,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
     hexstringRegex: /^[a-f_A-F_0-9]*$/,
 
     init: function () {
+        var me = this;
         this.validateNonEmptyString();
         this.validateHexString();
         this.validateEan13String();
@@ -22,7 +24,15 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateDoubleExtension();
         this.validateCertificateFile();
         this.validateImportFileExtension();
-        this.validateForBlacklistCharacters();
+        Ext.Ajax.defaultHeaders = {};
+
+        Ext.Ajax.request({
+            url: '../../api/apps/apps/blacklistedcharecters',
+            method: 'GET',
+            success: function (data) {
+                me.validateForBlacklistCharacters(data.responseText);
+            }
+        });
     },
 
     validateCertificateFile: function () {
@@ -68,11 +78,12 @@ Ext.define('Uni.view.form.field.Vtypes', {
         });
     },
 
-    validateForBlacklistCharacters: function () {
+    validateForBlacklistCharacters: function (characters) {
         var me = this;
         Ext.apply(Ext.form.VTypes, {
             checkForBlacklistCharacters: function (value, field) {
-                return !(/\<(.*?)\>/.test(value)) && !(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value));
+                var regexObj = new RegExp("[" + characters + "]");
+                return !(/\<(.*?)\>/.test(value)) && !(regexObj.test(value));
             },
             checkForBlacklistCharactersText: Uni.I18n.translate('general.htmltag.msg', 'UNI', 'Invalid characters')
         });

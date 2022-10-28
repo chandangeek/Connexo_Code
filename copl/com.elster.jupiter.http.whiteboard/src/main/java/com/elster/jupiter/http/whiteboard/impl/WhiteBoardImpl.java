@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.http.whiteboard.impl;
 
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.http.whiteboard.App;
+import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.http.whiteboard.HttpAuthenticationService;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.http.whiteboard.MessageSeeds;
@@ -18,6 +20,7 @@ import com.elster.jupiter.http.whiteboard.impl.saml.sso.AssertionConsumerService
 import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
+import com.elster.jupiter.users.blacklist.BlackListTokenService;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
@@ -83,6 +86,8 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile TokenService<UserJWT> tokenService;
     private volatile SAMLSingleLogoutService samlSingleLogoutService;
 
+    private volatile BlackListTokenService blackListTokenService;
+    private volatile CSRFFilterService csrfFilterService;
     private final Object registrationLock = new Object();
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
@@ -119,6 +124,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setCsrfFilterService(CSRFFilterService csrfFilterService) {
+        this.csrfFilterService = csrfFilterService;
     }
 
     @Reference
@@ -164,6 +174,11 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     @Reference
     public void setSamlSingleLogoutService(SAMLSingleLogoutService samlSingleLogoutService) {
         this.samlSingleLogoutService = samlSingleLogoutService;
+    }
+
+    @Reference
+    public void setBlackListTokenService(BlackListTokenService blackListTokenService) {
+        this.blackListTokenService = blackListTokenService;
     }
 
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
@@ -248,8 +263,10 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 bind(bundleContext).to(BundleContext.class);
                 bind(samlResponseService).to(SamlResponseService.class);
                 bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
+                bind(blackListTokenService).to(BlackListTokenService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(thesaurus).to(MessageInterpolator.class);
+                bind(csrfFilterService).to(CSRFFilterService.class);
                 bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);
                 bind(tokenService).to(TokenService.class);
             }
