@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.orm.impl;
@@ -14,7 +15,7 @@ import com.elster.jupiter.orm.TransactionRequiredException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
-import com.elster.jupiter.orm.associations.references.RefAnyImpl;
+import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.internal.TableSpecs;
 import com.elster.jupiter.orm.schema.ExistingConstraint;
 import com.elster.jupiter.orm.schema.ExistingTable;
@@ -25,7 +26,6 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionEvent;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Registration;
-import com.elster.jupiter.util.ResultWrapper;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -44,45 +44,35 @@ import javax.validation.ValidationProviderResolver;
 import java.nio.file.FileSystem;
 import java.security.Principal;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 @Component(name = "com.elster.jupiter.orm", immediate = true, service = {OrmService.class}, property = "name=" + OrmService.COMPONENTNAME)
 public final class OrmServiceImpl implements OrmService {
-    private static final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
-    private static final String ENABLE_AUDIT_PROPERTY = "enable.auditing";
 
     private volatile DataSource dataSource;
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile Clock clock;
-    private volatile long evictionTime;
-    private volatile boolean cacheEnabled;
     private volatile FileSystem fileSystem;
     private volatile Publisher publisher;
     private volatile JsonService jsonService;
     private volatile ValidationProviderResolver validationProviderResolver;
-    private final Map<String, DataModelImpl> dataModels = Collections.synchronizedMap(new HashMap<>());
+    private final Map<String, DataModelImpl> dataModels = new ConcurrentHashMap<>();
     private volatile SchemaInfoProvider schemaInfoProvider;
     private volatile TransactionService transactionService;
+    private final String ENABLE_PARTITION_PROPERTY = "enable.partitioning";
     private String enablePartition;
-    private String enableAuditing;
     private Registration clearCacheOnRollBackRegistration;
-    private BundleContext bundleContext;
 
     // For OSGi purposes
     public OrmServiceImpl() {
@@ -124,7 +114,7 @@ public final class OrmServiceImpl implements OrmService {
 
     @Override
     public DataModelImpl newDataModel(String name, String description) {
-        return new DataModelImpl(this).init(name, description, Version.latest());
+        return new DataModelImpl(transactionService, this).init(name, description, Version.latest());
     }
 
     public void register(DataModelImpl dataModel) {
@@ -133,10 +123,6 @@ public final class OrmServiceImpl implements OrmService {
 
     private DataModel getOrmDataModel() {
         return dataModels.get(COMPONENTNAME);
-    }
-
-    public TransactionService getTransactionService() {
-        return transactionService;
     }
 
     private DataModel getExistingTablesDataModel() {
@@ -151,20 +137,8 @@ public final class OrmServiceImpl implements OrmService {
         return threadPrincipalService.getPrincipal();
     }
 
-    public String getEnableAuditing() {
-        return enableAuditing;
-    }
-
     public String getEnablePartition() {
         return enablePartition;
-    }
-
-    public long getEvictionTime() {
-        return evictionTime;
-    }
-
-    public boolean isCacheEnabled() {
-        return cacheEnabled;
     }
 
     @Reference
@@ -216,42 +190,6 @@ public final class OrmServiceImpl implements OrmService {
         this.transactionService = transactionService;
     }
 
-    private void setEvictionTime(String evictionTime) {
-        String[] time = evictionTime.split(":");
-        long count = Long.valueOf(time[0]);
-        int timeUnitCode = Integer.valueOf(time[1]);
-        switch (timeUnitCode) {
-            case Calendar.MILLISECOND:
-                this.evictionTime = count;
-                break;
-            case Calendar.SECOND:
-                this.evictionTime = count * 1000;
-                break;
-            case Calendar.MINUTE:
-                this.evictionTime = count * 1000 * 60;
-                break;
-            case Calendar.HOUR:
-                this.evictionTime = count * 1000 * 60 * 60;
-                break;
-            case Calendar.DAY_OF_MONTH:
-                this.evictionTime = count * 1000 * 60 * 60 * 24;
-                break;
-            case Calendar.WEEK_OF_YEAR:
-                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7;
-                break;
-            case Calendar.MONTH:
-                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7 * 30;
-                break;
-            case Calendar.YEAR:
-                this.evictionTime = count * 1000 * 60 * 60 * 24 * 7 * 365;
-                break;
-        }
-    }
-
-    private void setCacheEnabled(String enableCache) {
-        this.cacheEnabled = enableCache.equals("1");
-    }
-
     private DataModel createDataModel(boolean register) {
         DataModelImpl result = newDataModel(OrmService.COMPONENTNAME, "Object Relational Mapper");
         for (TableSpecs spec : TableSpecs.values()) {
@@ -265,73 +203,10 @@ public final class OrmServiceImpl implements OrmService {
 
     @Activate
     public void activate(BundleContext context) {
-        enableAuditing = context.getProperty(ENABLE_AUDIT_PROPERTY);
         enablePartition = context.getProperty(ENABLE_PARTITION_PROPERTY);
         createDataModel(false);
         createExistingTableDataModel();
         clearCacheOnRollBackRegistration = publisher.addSubscriber(new ClearCachesOnTransactionRollBack());
-        this.bundleContext = context;
-        prepareSysProperties();
-    }
-
-
-    private void prepareSysProperties() {
-
-        String createTableStatement = "CREATE TABLE SYP_PROP " +
-                "( KEY varchar2(" + Table.NAME_LENGTH + ") NOT NULL," +
-                " VERSIONCOUNT number DEFAULT 1 NOT NULL,"+
-                " CREATETIME number DEFAULT 0 NOT NULL,"+
-                " MODTIME number DEFAULT 0 NOT NULL,"+
-                " USERNAME varchar2(" + Table.NAME_LENGTH + ") DEFAULT ('install/upgrade') NOT NULL,"+
-                " VALUE varchar2(" + Table.NAME_LENGTH + ")  NOT NULL," +
-                "CONSTRAINT PK_SYP_PROP PRIMARY KEY (KEY))";
-
-
-        try (Connection connection = getConnection(false)) {
-            try (Statement statement = connection.createStatement()) {
-                statement.execute(createTableStatement);
-            } catch (SQLException e) {
-                //Catch exception ORA-00955: name is already used by an existing object.
-            }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-
-
-        String evictionTime = readSystemPropertyValue("evictiontime", "300:13");
-        String enablecache = readSystemPropertyValue("enablecache", "1");
-
-        setEvictionTime(evictionTime);
-        setCacheEnabled(enablecache);
-    }
-
-    private String readSystemPropertyValue(String propertyName, String defaultValue) {
-        String getSystemPropertySql = "SELECT VALUE FROM SYP_PROP WHERE KEY='" + propertyName + "'";
-        String systemPropertyValue = "";
-        try (Connection connection = getConnection(false);
-             Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(getSystemPropertySql)) {
-            if (resultSet.next()) {
-                systemPropertyValue = resultSet.getString("VALUE");
-            }
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
-        if (systemPropertyValue.isEmpty()) {
-            setSystemPropertyValue(propertyName, defaultValue);
-            systemPropertyValue = defaultValue;
-        }
-        return systemPropertyValue;
-    }
-
-    private void setSystemPropertyValue(String key, String value) {
-        String insertSystemPropertySql = "INSERT INTO SYP_PROP (KEY, VALUE) VALUES('" + key + "','" + value + "')";
-        try (Connection connection = getConnection(false);
-             Statement statement = connection.createStatement()) {
-            statement.execute(insertSystemPropertySql);
-        } catch (SQLException e) {
-            throw new UnderlyingSQLFailedException(e);
-        }
     }
 
     @Deactivate
@@ -399,9 +274,7 @@ public final class OrmServiceImpl implements OrmService {
 
     @Override
     public List<DataModel> getDataModels() {
-        synchronized (dataModels) {
             return new ArrayList<>(dataModels.values());
-        }
     }
 
     Module getModule(final DataModel dataModel) {
@@ -421,7 +294,7 @@ public final class OrmServiceImpl implements OrmService {
     public void invalidateCache(String componentName, String tableName) {
         DataModelImpl dataModel = dataModels.get(componentName);
         if (dataModel != null) {
-            dataModel.renewCache(tableName);
+        	dataModel.renewCache(tableName);
         }
     }
 
@@ -467,63 +340,54 @@ public final class OrmServiceImpl implements OrmService {
                 if (table.hasJournal()) {
                     existingJournalTable = existingTablesDataModel.mapper(ExistingTable.class).getEager(table.getJournalTableName());
                 }
-                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(),
-                        existingJournalTable.map(ExistingTable::getName).orElse(null),
-                        processedTables, model.getTables());
+                addTableToExistingModel(existingDataModel, existingTablesDataModel, table.getName(), (existingJournalTable.isPresent() ? existingJournalTable.get().getName() : null), processedTables, model.getTables());
             }
         }
         return existingDataModel;
     }
 
-    private void addTableToExistingModel(DataModelImpl existingModel,
-                                         DataModel databaseTablesModel,
-                                         String tableName,
-                                         String journalTableName,
-                                         Set<String> processedTables,
-                                         List<? extends Table> tablesToBeProcessed) {
+    private void addTableToExistingModel(DataModelImpl existingModel, DataModel databaseTablesModel, String tableName, String journalTableName, Set<String> processedTables, List<? extends Table> tablesToBeProcessed) {
         if (processedTables.add(tableName)) {
-            databaseTablesModel.mapper(ExistingTable.class).getEager(tableName).ifPresent(userTable -> {
+            Optional<ExistingTable> existingTable = databaseTablesModel.mapper(ExistingTable.class).getEager(tableName);
+            if (existingTable.isPresent()) {
+                ExistingTable userTable = existingTable.get();
+
                 userTable.addColumnsTo(existingModel, journalTableName);
-                userTable.addIndexesTo(existingModel);
-                userTable.addLocalTableConstraintsTo(existingModel);
-                userTable.getConstraints().stream()
-                        .filter(ExistingConstraint::isForeignKey)
-                        .map(ExistingConstraint::getReferencedTableName)
-                        .filter(referencedTableName -> !tableName.equalsIgnoreCase(referencedTableName)
-                                && existingModel.getTable(referencedTableName) == null)
-                        .forEach(referencedTableName -> {
+
+                for (ExistingConstraint existingConstraint : userTable.getConstraints()) {
+                    if (existingConstraint.isForeignKey()) {
+                        String referencedTableName = existingConstraint.getReferencedTableName();
+                        if (!tableName.equalsIgnoreCase(referencedTableName) && existingModel.getTable(referencedTableName) == null) {
                             String refJournalTableName = tablesToBeProcessed.stream()
                                     .filter(table -> table.getName().equals(referencedTableName))
                                     .map(Table::getJournalTableName)
                                     .filter(Objects::nonNull)
                                     .findAny()
                                     .orElse(null);
+
                             addTableToExistingModel(existingModel, databaseTablesModel, referencedTableName, refJournalTableName, processedTables, tablesToBeProcessed);
-                        });
-                userTable.addForeignKeyConstraintsTo(existingModel);
-            });
+                        }
+                    }
+                }
+                userTable.addConstraintsTo(existingModel);
+            }
         }
     }
 
-    @Override
-    public void dropJournal(Instant upTo, Logger logger) {
-        dataModels.values().forEach(dataModel -> dataModel.dropJournal(upTo, logger));
-    }
+	@Override
+	public void dropJournal(Instant upTo, Logger logger) {
+		dataModels.values().forEach(dataModel -> dataModel.dropJournal(upTo, logger));
+	}
 
-    @Override
-    public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
-        dataModels.values().forEach(dataModel -> dataModel.dropAuto(lifeCycleClass, upTo, logger));
-    }
+	@Override
+	public void dropAuto(LifeCycleClass lifeCycleClass, Instant upTo, Logger logger) {
+		dataModels.values().forEach(dataModel -> dataModel.dropAuto(lifeCycleClass, upTo, logger));
+	}
 
-    @Override
-    public ResultWrapper<String> createPartitions(Instant upTo, Logger logger, boolean dryRun) {
-        ResultWrapper<String> result = new ResultWrapper();
-        dataModels.values().forEach(dataModel -> {
-            logger.log(Level.INFO, "Create partitions for data model '" + dataModel.getName() + "'.");
-            result.adopt(dataModel.createPartitions(upTo, logger, dryRun));
-        });
-        return result;
-    }
+	@Override
+	public void createPartitions(Instant upTo, Logger logger) {
+		dataModels.values().forEach(dataModel -> dataModel.createPartitions(upTo, logger));
+	}
 
     @Override
     public DataModelUpgrader getDataModelUpgrader(Logger logger) {
@@ -540,7 +404,7 @@ public final class OrmServiceImpl implements OrmService {
     }
 
     public DataModel getFullModel() {
-        DataModelImpl fullModel = new DataModelImpl(this);
+        DataModelImpl fullModel = new DataModelImpl(transactionService, this);
         dataModels.values().forEach(fullModel::addAllTables);
         return fullModel;
     }
@@ -562,16 +426,5 @@ public final class OrmServiceImpl implements OrmService {
         public Class<?>[] getClasses() {
             return new Class<?>[]{TransactionEvent.class};
         }
-    }
-
-    @Override
-    public boolean isTest() {
-        return Optional.ofNullable(schemaInfoProvider).map(SchemaInfoProvider::isTestSchemaProvider)
-                .orElse(false);
-    }
-
-    @Override
-    public String getProperty(String key) {
-        return Optional.ofNullable(bundleContext).map(context -> context.getProperty(key)).orElse(null);
     }
 }

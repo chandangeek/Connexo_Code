@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.orm.impl;
@@ -7,6 +8,7 @@ package com.elster.jupiter.orm.impl;
 import com.elster.jupiter.orm.Column;
 import com.elster.jupiter.orm.DataDropper;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.sql.SqlBuilder;
 
 import java.sql.Connection;
@@ -16,19 +18,21 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.function.BiFunction;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class DataDropperImpl implements DataDropper {
-    private static final long BATCH_SIZE = 50_000L;
-    private static final long DELAY_BETWEEN_BATCH_DELETE = 1000L;
+    private static final long BATCH_SIZE = 5_000L;
+
+    private final TransactionService transactionService;
     private final DataModelImpl dataModel;
     private final String tableName;
     private final Logger logger;
     private Instant upTo;
 
     private static final BiFunction<DataModelImpl, String, Optional<String>> TABLE_REF_COLUMN = (dataMdl, tblName) ->
-            Optional.<TableImpl>ofNullable(dataMdl.getTable(tblName)).<Column>flatMap(TableImpl::partitionColumn).<String>map(Column::getName);
+            Optional.<TableImpl>ofNullable(dataMdl.getTable(tblName)).<Column>flatMap(TableImpl::partitionColumn).map(Column::getName);
 
 
     private static final BiFunction<DataModelImpl, String, Optional<String>> IDS_TABLE_REF_COLUMN = (dataMdl, tblName) -> {
@@ -42,14 +46,14 @@ public class DataDropperImpl implements DataDropper {
 
     private static final BiFunction<DataModelImpl, String, Optional<String>> JOURNAL_TABLE_REF_COLUMN = (dataMdl, tblName) -> {
         String referenceColumn = "JOURNALTIME";
-        if (Stream.of("JRNL", "JNRL").filter(suffix -> tblName.toUpperCase().endsWith(suffix)).findFirst().isPresent()) {
+        if (Stream.of("JRNL", "JNRL").anyMatch(suffix -> tblName.toUpperCase().endsWith(suffix))) {
             return Optional.of(referenceColumn);
         }
         return Optional.empty();
     };
 
-
-    DataDropperImpl(DataModelImpl dataModel, String tableName, Logger logger) {
+    DataDropperImpl(TransactionService transactionService, DataModelImpl dataModel, String tableName, Logger logger) {
+        this.transactionService = transactionService;
         this.dataModel = dataModel;
         this.tableName = tableName;
         this.logger = logger;
@@ -71,43 +75,12 @@ public class DataDropperImpl implements DataDropper {
         Optional<String> columnName = getReferenceColumnName();
         if (columnName.isPresent() && hasColumn(columnName.get())) {
             long upToMillis = upTo.toEpochMilli();
-            long totalNbOfRowsToDelete = getTotalNbOfRowsToDelete(columnName.get(), upToMillis);
-            deleteRowsInBatch(columnName.get(), upToMillis, totalNbOfRowsToDelete);
+            long totalNumberOfRows = getTotalNbOfRowsToDelete(columnName.get(), upToMillis);
+            if (totalNumberOfRows > 0) {
+                deleteRowsInBatch(columnName.get(), upToMillis, totalNumberOfRows);
+            }
         } else {
             logger.warning("Cannot delete rows from table " + tableName + "! No reference column found!");
-        }
-    }
-
-    private long getTotalNbOfRowsToDelete(String columnName, long upToMillis) throws SQLException {
-        long totalNbOfRowsToDelete = 0;
-        try (Connection connection = dataModel.getConnection(false)) {
-            try (PreparedStatement countSt = countRowsSql(tableName, columnName, upToMillis).prepare(connection)) {
-                try (ResultSet rs = countSt.executeQuery()) {
-                    if (rs.next()) {
-                        totalNbOfRowsToDelete = rs.getLong(1);
-                        logger.info("Found " + totalNbOfRowsToDelete + " rows to be deleted from " + tableName);
-                    }
-                }
-            }
-        }
-        return totalNbOfRowsToDelete;
-    }
-
-    private void deleteRowsInBatch(String columnName, long upToMillis, long totalNbOfRowsToDelete) throws SQLException {
-        while (totalNbOfRowsToDelete > 0) {
-            long nbOfRowsToBeDeleted = Math.min(totalNbOfRowsToDelete, BATCH_SIZE);
-            try (Connection connection = dataModel.getConnection(true)) {
-                try (PreparedStatement deleteSt = prepareDeleteRowsSql(tableName, columnName, upToMillis, nbOfRowsToBeDeleted, connection)) {
-                    int nbOfDeletedRows = deleteSt.executeUpdate();
-                    logger.info("Deleted " + nbOfRowsToBeDeleted + " rows from table " + tableName + " containing entries with " + columnName +
-                            " up to " + Instant.ofEpochMilli(upToMillis));
-                    if (nbOfDeletedRows == 0) {
-                        return;
-                    }
-                }
-            }
-            totalNbOfRowsToDelete -= nbOfRowsToBeDeleted;
-            delay(DELAY_BETWEEN_BATCH_DELETE);
         }
     }
 
@@ -116,21 +89,55 @@ public class DataDropperImpl implements DataDropper {
                 .map(f -> f.apply(dataModel, tableName)).filter(Optional::isPresent).map(Optional::get).findFirst();
     }
 
-    private boolean hasColumn(String columnName) throws SQLException {
+    private long getTotalNbOfRowsToDelete(String columnName, long upToMillis) throws SQLException {
+        long totalNumberOfRows = 0;
         try (Connection connection = dataModel.getConnection(false)) {
-            try (ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), tableName, columnName)) {
-                return resultSet.next();
+            try (PreparedStatement columnSearchPs = columnSearchSql(tableName, columnName).prepare(connection)) {
+                try (ResultSet columnSearchRs = columnSearchPs.executeQuery()) {
+                    if (columnSearchRs.next() && columnName.equalsIgnoreCase(columnSearchRs.getString(1))) {
+                        try (PreparedStatement countSt = countRowsSql(tableName, columnName, upToMillis).prepare(connection)) {
+                            try (ResultSet rs = countSt.executeQuery()) {
+                                if (rs.next()) {
+                                    totalNumberOfRows = rs.getLong(1);
+                                    logger.info("Found " + totalNumberOfRows + " rows to be deleted from " + tableName);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return totalNumberOfRows;
+    }
+
+    private void deleteRowsInBatch(String columnName, long upToMillis, long totalNumberOfRows) {
+        long remaining = totalNumberOfRows;
+        while (remaining > 0) {
+            long countToDelete = Math.min(remaining, BATCH_SIZE);
+            try {
+                executeBatch(columnName, upToMillis, countToDelete);
+                remaining -= countToDelete;
+            } catch (SQLException e) {
+                logger.log(Level.SEVERE, "Failed to execute batch for table " + tableName, e);
             }
         }
     }
 
-    private PreparedStatement prepareDeleteRowsSql(String tableName, String columnName, long untilDate, long untilRowNum, Connection connection) throws SQLException {
-        SqlBuilder builder = deleteRowsSql(tableName, columnName, untilDate, untilRowNum);
-        logger.fine("Command for rows deletion '" + builder.toString() + "'.");
-        return builder.prepare(connection);
+    private void executeBatch(String columnName, long upToMillis, long countToDelete) throws SQLException {
+        transactionService.runInIndependentTransaction(() -> {
+            try (Connection connection = dataModel.getConnection(true);
+                 PreparedStatement statement = deleteRowsSql(columnName, upToMillis, countToDelete).prepare(connection)) {
+                logger.fine("Trying to execute one batch for cleaning table " + tableName);
+                int deletedCount = statement.executeUpdate();
+                if (deletedCount > 0) {
+                    logger.info("Deleted " + deletedCount + " rows from table " + tableName + " containing entries with " + columnName +
+                            " up to " + Instant.ofEpochMilli(upToMillis));
+                }
+            }
+        });
     }
 
-    private SqlBuilder deleteRowsSql(String tableName, String columnName, long untilDate, long untilRowNum) {
+    private SqlBuilder deleteRowsSql(String columnName, long untilDate, long countToDelete) {
         SqlBuilder builder = new SqlBuilder("DELETE FROM ");
         builder.append(tableName);
         builder.append(" WHERE ");
@@ -138,7 +145,7 @@ public class DataDropperImpl implements DataDropper {
         builder.append(" <= ");
         builder.addLong(untilDate);
         builder.append(" AND rownum <= ");
-        builder.addLong(untilRowNum);
+        builder.addLong(countToDelete);
         return builder;
     }
 
@@ -152,11 +159,22 @@ public class DataDropperImpl implements DataDropper {
         return builder;
     }
 
-    private void delay(long ms) {
-        try {
-            Thread.sleep(ms);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+    private SqlBuilder columnSearchSql(String tableName, String columnName) {
+        SqlBuilder builder = new SqlBuilder("SELECT column_name FROM user_tab_cols ");
+        builder.append(" WHERE table_name = '");
+        builder.append(tableName);
+        builder.append("'");
+        builder.append(" AND column_name = '");
+        builder.append(columnName);
+        builder.append("'");
+        return builder;
+    }
+
+    private boolean hasColumn(String columnName) throws SQLException {
+        try (Connection connection = dataModel.getConnection(false)) {
+            try (ResultSet resultSet = connection.getMetaData().getColumns(connection.getCatalog(), connection.getSchema(), tableName, columnName)) {
+                return resultSet.next();
+            }
         }
     }
 

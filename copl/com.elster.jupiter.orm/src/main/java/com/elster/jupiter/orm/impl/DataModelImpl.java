@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.orm.impl;
@@ -20,10 +21,10 @@ import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.orm.associations.RefAny;
 import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
-import com.elster.jupiter.orm.associations.references.RefAnyImpl;
+import com.elster.jupiter.orm.associations.impl.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
-import com.elster.jupiter.util.ResultWrapper;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.RangeSet;
@@ -77,6 +78,7 @@ public class DataModelImpl implements DataModel {
 
     // transient fields
     private Injector injector;
+    private final TransactionService transactionService;
     private final OrmServiceImpl ormService;
     private boolean registered;
     private Optional<Boolean> isInstalled = Optional.empty();
@@ -84,7 +86,8 @@ public class DataModelImpl implements DataModel {
     private Version version;
 
     @Inject
-    DataModelImpl(OrmService ormService) {
+    DataModelImpl(TransactionService transactionService, OrmService ormService) {
+        this.transactionService = transactionService;
         this.ormService = (OrmServiceImpl) ormService;
         this.enablePartition = Optional.ofNullable(this.ormService.getEnablePartition()).orElse("true");
     }
@@ -170,7 +173,7 @@ public class DataModelImpl implements DataModel {
         checkNotRegistered();
         checkActiveBuilder();
         if (getTable(tableName) != null) {
-            throw new IllegalArgumentException("Component already has table " + tableName);
+            throw new IllegalArgumentException("Component has already table " + tableName);
         }
         TableImpl<T> table = TableImpl.from(this, schema, tableName, api);
         add(table);
@@ -337,7 +340,10 @@ public class DataModelImpl implements DataModel {
                 }
             }
             try (ResultSet resultSet = statement.executeQuery("SELECT * FROM v$option WHERE parameter = 'Partitioning'")) {
-                return resultSet.next() && resultSet.getBoolean("value");
+                if (resultSet.next()) {
+                    return resultSet.getBoolean("value");
+                }
+                return false;
             }
         } catch (SQLException e) {
             throw new UnderlyingSQLFailedException(e);
@@ -352,14 +358,18 @@ public class DataModelImpl implements DataModel {
         if (oracleVersion.length < 2) {
             return false;
         }
+
         //The Oracle version should be higher than 12.2...
-        return !(Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2);
+        if (Double.parseDouble(oracleVersion[0] + "." + oracleVersion[1]) < 12.2) {
+            return false;
+        }
+        return true;
     }
 
-    public Optional<TableImpl<?>> getTable(Class<?> clazz) {
+    public Optional<TableImpl<?>> getTableImpl(Class<?> clazz) {
         for (TableImpl<?> table : getTables()) {
             if (table.maps(clazz)) {
-                return Optional.of(table);
+                return Optional.<TableImpl<?>>of(table);
             }
         }
         return Optional.empty();
@@ -380,7 +390,7 @@ public class DataModelImpl implements DataModel {
                 .getDataModels()
                 .stream()
                 .map(DataModelImpl.class::cast)
-                .map(dataModel -> dataModel.getTable(clazz))
+                .map(dataModel -> dataModel.getTableImpl(clazz))
                 .flatMap(Functions.asStream())
                 .findFirst()
                 .map(table -> getInstance(RefAnyImpl.class).init(reference, table))
@@ -411,7 +421,7 @@ public class DataModelImpl implements DataModel {
         allModules[modules.length] = getModule();
         injector = Guice.createInjector(allModules);
         for (TableImpl<?> each : getTables(getVersion())) {
-            each.prepare(ormService.getEvictionTime(), ormService.isCacheEnabled());
+            each.prepare();
         }
         this.ormService.register(this);
         registered = true;
@@ -501,7 +511,6 @@ public class DataModelImpl implements DataModel {
         return root.with(mappers);
     }
 
-    @Override
     public <T> QueryStream<T> stream(Class<T> api) {
         return new QueryStreamImpl<>(mapper(api));
     }
@@ -614,29 +623,19 @@ public class DataModelImpl implements DataModel {
                 .forEach(table -> table.dropData(upTo, logger));
     }
 
-    public ResultWrapper<String> createPartitions(Instant upTo, Logger logger, boolean dryRun) {
-        ResultWrapper<String> result = new ResultWrapper();
+    public void createPartitions(Instant upTo, Logger logger) {
         if (getSqlDialect().hasPartitioning()) {
             getTables().stream()
                     .filter(table -> table.getPartitionMethod() == PartitionMethod.RANGE)
-                    .forEach(table -> {
-                        try {
-                            logger.log(Level.INFO, "Creating partition for table " + table.getName() + " up to " + upTo + "...");
-                            partitionCreator(table.getName(), logger).create(upTo, dryRun);
-                        } catch (Exception ex) {
-                            result.addFailedObject(table.getName());
-                            logger.log(Level.SEVERE, "Failed to create partition for table '" + table.getName() + "', up to " + upTo + ". Exception: " + ex.getLocalizedMessage() + ".");
-                            ex.printStackTrace();
-                        }
-                    });
+                    .forEach(table -> partitionCreator(table.getName(), logger).create(upTo));
         }
-        return result;
     }
+
 
     @Override
     public DataDropper dataDropper(String tableName, Logger logger) {
         return getSqlDialect().hasPartitioning() ? new PartitionDataDropperImpl(this, tableName, logger) :
-                new DataDropperImpl(this, tableName, logger);
+                new DataDropperImpl(transactionService, this, tableName, logger);
     }
 
     @Override
@@ -645,36 +644,8 @@ public class DataModelImpl implements DataModel {
     }
 
     void addAllTables(DataModelImpl other) {
-        other.getTables().forEach(this::add);
-    }
-
-    @Override
-    public String getRefreshJobStatement(String jobName, String jobAction, int minRefreshInterval) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" DBMS_SCHEDULER.CREATE_JOB ");
-        sqlBuilder.append(" ( ");
-        sqlBuilder.append(" JOB_NAME            => '").append(jobName).append("', ");
-        sqlBuilder.append(" JOB_TYPE            => 'PLSQL_BLOCK', ");
-        sqlBuilder.append(" JOB_ACTION          => '").append(jobAction).append("', ");
-        sqlBuilder.append(" NUMBER_OF_ARGUMENTS => 0, ");
-        sqlBuilder.append(" START_DATE          => SYSTIMESTAMP, ");
-        sqlBuilder.append(" REPEAT_INTERVAL     => 'FREQ=MINUTELY;INTERVAL=").append(minRefreshInterval).append("', ");
-        sqlBuilder.append(" END_DATE            => NULL, ");
-        sqlBuilder.append(" ENABLED             => TRUE, ");
-        sqlBuilder.append(" AUTO_DROP           => FALSE, ");
-        sqlBuilder.append(" COMMENTS            => 'JOB TO REFRESH' ");
-        sqlBuilder.append(" ); ");
-        sqlBuilder.append(" END;");
-        return sqlBuilder.toString();
-    }
-
-    @Override
-    public String getDropJobStatement(String jobName) {
-        StringBuilder sqlBuilder = new StringBuilder();
-        sqlBuilder.append(" BEGIN ");
-        sqlBuilder.append(" dbms_scheduler.drop_job(job_name => '").append(jobName).append("'); ");
-        sqlBuilder.append(" END;");
-        return sqlBuilder.toString();
+        other.getTables()
+                .stream()
+                .forEach(this::add);
     }
 }
