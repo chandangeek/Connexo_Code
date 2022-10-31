@@ -13,7 +13,6 @@ Ext.define('Uni.view.form.field.Vtypes', {
     hexstringRegex: /^[a-f_A-F_0-9]*$/,
 
     init: function () {
-        var me = this;
         this.validateNonEmptyString();
         this.validateHexString();
         this.validateEan13String();
@@ -24,15 +23,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateDoubleExtension();
         this.validateCertificateFile();
         this.validateImportFileExtension();
-        Ext.Ajax.defaultHeaders = {};
-
-        Ext.Ajax.request({
-            url: '../../api/apps/apps/blacklistedcharecters',
-            method: 'GET',
-            success: function (data) {
-                me.validateForBlacklistCharacters(data.responseText);
-            }
-        });
+        this.validateForBlacklistCharacters();
     },
 
     validateCertificateFile: function () {
@@ -78,12 +69,11 @@ Ext.define('Uni.view.form.field.Vtypes', {
         });
     },
 
-    validateForBlacklistCharacters: function (characters) {
+    validateForBlacklistCharacters: function () {
         var me = this;
         Ext.apply(Ext.form.VTypes, {
             checkForBlacklistCharacters: function (value, field) {
-                var regexObj = new RegExp("[" + characters + "]");
-                return !(/\<(.*?)\>/.test(value)) && !(regexObj.test(value));
+                return !(/\<(.*?)\>/.test(value)) && !(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value));
             },
             checkForBlacklistCharactersText: Uni.I18n.translate('general.htmltag.msg', 'UNI', 'Invalid characters')
         });

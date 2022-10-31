@@ -87,7 +87,7 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile SAMLSingleLogoutService samlSingleLogoutService;
 
     private volatile BlackListTokenService blackListTokenService;
-    private volatile CSRFFilterService csrfFilterService;
+
     private final Object registrationLock = new Object();
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
@@ -126,10 +126,6 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
         this.jsonService = jsonService;
     }
 
-    @Reference
-    public void setCsrfFilterService(CSRFFilterService csrfFilterService) {
-        this.csrfFilterService = csrfFilterService;
-    }
 
     @Reference
     public void setLicenseService(LicenseService licenseService) {
@@ -266,7 +262,6 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 bind(blackListTokenService).to(BlackListTokenService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(thesaurus).to(MessageInterpolator.class);
-                bind(csrfFilterService).to(CSRFFilterService.class);
                 bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);
                 bind(tokenService).to(TokenService.class);
             }

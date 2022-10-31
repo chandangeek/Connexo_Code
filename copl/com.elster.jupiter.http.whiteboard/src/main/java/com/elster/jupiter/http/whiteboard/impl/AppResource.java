@@ -97,8 +97,8 @@ public class AppResource {
 
     @GET
     @Path("/blacklistedcharecters")
-    public String getBlackListedCharecters(@Context HttpServletResponse response) {
-        return csrfFilterService.getBlackListedCharecters();
+    public Response getBlackListedCharecters(@Context HttpServletResponse response) {
+        return Response.ok(csrfFilterService.getBlackListedCharecters()).build();
     }
 
     private AppInfo appInfo(App app) {
