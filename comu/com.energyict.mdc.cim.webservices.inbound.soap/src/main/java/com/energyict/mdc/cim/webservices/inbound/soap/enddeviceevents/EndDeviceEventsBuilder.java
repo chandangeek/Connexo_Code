@@ -126,9 +126,8 @@ public class EndDeviceEventsBuilder {
             EndDeviceEventType eventType = meteringService.getEndDeviceEventType(eventTypeCode)
                     .orElseThrow(faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NO_END_DEVICE_EVENT_TYPE_WITH_REF, eventTypeCode));
 
-            EndDeviceEventRecordBuilder builder = endDevice.addEventRecord(eventType, createdDate);
+            EndDeviceEventRecordBuilder builder = endDevice.addEventRecord(eventType, createdDate, getLogBook(endDevice).getId());
 
-            builder.setLogBookId(getLogBook(endDevice).getId());
             mrid.ifPresent(builder::setmRID);
             builder.setSeverity(severity);
             name.ifPresent(builder::setName);

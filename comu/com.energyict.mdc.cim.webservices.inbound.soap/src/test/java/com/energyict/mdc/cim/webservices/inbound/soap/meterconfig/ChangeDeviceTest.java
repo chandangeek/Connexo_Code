@@ -10,7 +10,6 @@ import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 
@@ -31,7 +30,6 @@ import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKeys;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
-import org.junit.Ignore;
 import org.w3._2001._04.xmlenc.CipherDataType;
 import org.w3._2001._04.xmlenc.EncryptedDataType;
 
@@ -42,7 +40,6 @@ import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
-
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -50,7 +47,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -89,7 +85,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         mockDevice();
     }
 
-    @Ignore @Test
+    @Test
     public void testChangeDeviceSuccessfully() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -156,7 +152,7 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
     }
 
-    @Ignore @Test
+    @Test
     public void testChangeDeviceFailsWhenStateIsNotAllowed() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -208,7 +204,6 @@ public class ChangeDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore
     @Test
     public void testChangeDeviceShouldFailDuringKeyImportWhenStateIsAllowedButKeyImportIsNotSetupProperly()
             throws Exception {

@@ -47,7 +47,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -140,7 +139,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         when(endDeviceEvent.getProperties()).thenReturn(eventData);
     }
 
-    @Ignore @Test
+    @Test
     public void testNoMetersInSyncRequest() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
@@ -166,7 +165,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testNoMetersOrGroupsInAsyncRequest() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
@@ -199,7 +198,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testNoMeterOrGroupIdentifiersInRequest() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
@@ -232,7 +231,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testMissingStartPeriodInRequest() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
@@ -267,7 +266,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testInvalidPeriodInRequest() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
@@ -305,7 +304,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessfulGet() throws Exception {
         // Prepare request
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
@@ -338,7 +337,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         assertThat(endDeviceEvent.getEndDeviceEventDetails().get(0).getValue()).isEqualTo("B");
     }
 
-    @Ignore @Test
+    @Test
     public void testNoReplyAddress() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
@@ -364,7 +363,7 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testSyncModeNotSupported() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();
         GetEndDeviceEventsRequestMessageType endDeviceEventsRequest = createGetEndDeviceEventsRequest(getEndDeviceEvents);
@@ -392,7 +391,6 @@ public class GetEndDeviceEventsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore
     @Test
     public void testOutboundNotConfigured() throws Exception {
         GetEndDeviceEvents getEndDeviceEvents = new GetEndDeviceEvents();

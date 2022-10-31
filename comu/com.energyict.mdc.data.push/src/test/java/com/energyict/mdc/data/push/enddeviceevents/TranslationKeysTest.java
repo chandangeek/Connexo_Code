@@ -2,11 +2,9 @@
  * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
  */
 
-package com.energyict.mdc.sap.soap.custom;
+package com.energyict.mdc.data.push.enddeviceevents;
 
 import com.elster.jupiter.nls.TranslationKey;
-
-import com.energyict.mdc.data.push.enddeviceevents.EndDeviceEventMessageHandlerFactory;
 
 import java.util.HashSet;
 import java.util.Set;

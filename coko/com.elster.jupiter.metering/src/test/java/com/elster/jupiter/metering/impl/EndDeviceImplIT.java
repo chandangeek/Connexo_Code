@@ -82,7 +82,7 @@ public class EndDeviceImplIT {
         MeteringService meteringService = inMemoryPersistentModule.getMeteringService();
         List<EndDeviceEventType> availableEndDeviceEventTypes = meteringService.getAvailableEndDeviceEventTypes();
         endDevice = meteringService.findAmrSystem(1).get().createEndDevice("1", "1");
-        eventRecord = endDevice.addEventRecord(availableEndDeviceEventTypes.get(0), date).create();
+        eventRecord = endDevice.addEventRecord(availableEndDeviceEventTypes.get(0), date, 1).create();
         List<EndDeviceEventRecord> deviceEvents = endDevice.getDeviceEvents(Range.atLeast(date));
         assertThat(deviceEvents).contains(eventRecord);
         List<EndDeviceEventType> endDeviceEventTypes = new ArrayList<>(meteringService.getAvailableEndDeviceEventTypes());

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         when(deviceServiceCall2.getState()).thenReturn(DefaultState.FAILED);
     }
 
-    @Ignore @Test
+    @Test
     public void testCancelEndDeviceControlsFaultMessages() throws Exception {
         // No payload
         EndDeviceControlsRequestMessageType requestMessage = endDeviceControlsMessageObjectFactory.createEndDeviceControlsRequestMessageType();
@@ -118,7 +117,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertFaultMessages(() -> executeEndDeviceControlsEndpoint.cancelEndDeviceControls(requestMessage), codeToMessageMap);
     }
 
-    @Ignore @Test
+    @Test
     public void testCancelEndDeviceControlsSuccessfully() throws Exception {
         EndDeviceControlsRequestMessageType requestMessage = createRequest();
 
@@ -134,7 +133,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testCancelEndDeviceControlsFailed() throws Exception {
         when(endDeviceControlsDomainExtension.getTriggerDate()).thenReturn(PAST_DATE);
         EndDeviceControlsRequestMessageType requestMessage = createRequest();
@@ -156,7 +155,6 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore
     @Test
     public void testCancelEndDeviceControlsPartialSuccessfully() throws Exception {
         when(subServiceCall.newChildCall(deviceServiceCallType)).thenReturn(childServiceCallBuilder);

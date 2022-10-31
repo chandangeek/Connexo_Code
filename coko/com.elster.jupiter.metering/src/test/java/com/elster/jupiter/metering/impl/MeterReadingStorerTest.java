@@ -47,7 +47,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MeterReadingStorerTest {
-
+    private static final long LOGBOOK_ID = 11;
     private static final String EVENTTYPECODE = "3.7.12.242";
     private static final Instant DATE = ZonedDateTime.of(2012, 12, 19, 11, 20, 33, 0, ZoneId.systemDefault()).toInstant();
     private static final long METER_ID = 165;
@@ -89,7 +89,7 @@ public class MeterReadingStorerTest {
             }
         });
         when(endDeviceEventTypeFactory.getOptional(EVENTTYPECODE)).thenReturn(Optional.of(eventType));
-        when(eventRecordFactory.getOptional(METER_ID, EVENTTYPECODE, DATE)).thenReturn(Optional.empty());
+        when(eventRecordFactory.getOptional(METER_ID, EVENTTYPECODE, DATE, LOGBOOK_ID)).thenReturn(Optional.empty());
         when(meter.getId()).thenReturn(METER_ID);
         when(eventType.getMRID()).thenReturn(EVENTTYPECODE);
     }
@@ -104,6 +104,7 @@ public class MeterReadingStorerTest {
         EndDeviceEventImpl endDeviceEvent = EndDeviceEventImpl.of(EVENTTYPECODE, DATE);
         HashMap<String, String> eventData = new HashMap<>();
         eventData.put("A", "B");
+        endDeviceEvent.setLogBookId(LOGBOOK_ID);
         endDeviceEvent.setEventData(eventData);
         endDeviceEvent.setReason("reason");
         endDeviceEvent.setSeverity("INFO");

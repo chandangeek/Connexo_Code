@@ -7,7 +7,6 @@ package com.energyict.mdc.cim.webservices.inbound.soap.enddeviceevents;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.issue.share.entity.IssueStatus;
 import com.elster.jupiter.metering.CimAttributeNames;
-import com.elster.jupiter.metering.CimUsagePointAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.users.User;
@@ -36,7 +35,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -47,8 +45,8 @@ import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
     @Mock
@@ -105,7 +103,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), END_DEVICE_MRID);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseEndDeviceEventSuccessfully() throws Exception {
         // Prepare request
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
@@ -138,7 +136,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         assertThat(event.getSeverity()).isEqualTo(END_DEVICE_EVENT_SEVERITY);
     }
 
-    @Ignore @Test
+    @Test
     public void testWarningIfMoreThanOneEndDeviceEventSpecified() throws Exception {
         // Prepare request
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
@@ -165,7 +163,7 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         assertThat(reply.getError().get(0).getDetails()).isEqualTo(MessageSeeds.UNSUPPORTED_BULK_OPERATION.translate(thesaurus, "EndDeviceEvents.EndDeviceEvent"));
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceFailedWithLocalizedException() throws Exception {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         EndDeviceEvent endDeviceEvent = createEndDeviceEvent();
@@ -200,7 +198,6 @@ public class ClosedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         }
     }
 
-    @Ignore
     @Test
     public void testInvalidSeverity() throws Exception {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();

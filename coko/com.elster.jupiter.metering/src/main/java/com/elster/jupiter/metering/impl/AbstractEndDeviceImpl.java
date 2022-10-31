@@ -315,8 +315,8 @@ abstract class AbstractEndDeviceImpl<S extends AbstractEndDeviceImpl<S>> impleme
     }
 
     @Override
-    public EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant date) {
-        return new EndDeviceEventRecordBuilderImpl(deviceEventFactory, this, type, date);
+    public EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant date, long logBookId) {
+        return new EndDeviceEventRecordBuilderImpl(deviceEventFactory, this, type, date, logBookId);
     }
 
     @Override

@@ -9,6 +9,7 @@ import com.elster.jupiter.cim.webservices.outbound.soap.SendMeterReadingsProvide
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.QueryParameters;
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.hsm.HsmEnergyService;
 import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.messaging.DestinationSpec;
@@ -218,6 +219,7 @@ public abstract class AbstractMockActivator {
         when(serviceCallType.newServiceCall()).thenReturn(builder);
         when(serviceCall.newChildCall(any(ServiceCallType.class))).thenReturn(builder);
         when(messageService.getDestinationSpec(FutureComTaskExecutionHandlerFactory.FUTURE_COM_TASK_EXECUTION_DESTINATION)).thenReturn(Optional.of(destinationSpec));
+        when(messageService.getDestinationSpec(EventService.JUPITER_EVENTS)).thenReturn(Optional.empty());
         when(messageService.getQueueTableSpec("MSG_RAWTOPICTABLE")).thenReturn(Optional.of(queueTableSpec));
         when(queueTableSpec.createDestinationSpec(anyString(), anyInt())).thenReturn(destinationSpec);
         when(ormService.newDataModel(InboundSoapEndpointsActivator.COMPONENT_NAME, "Multisense SOAP webservices")).thenReturn(upgradeService.newNonOrmDataModel());
