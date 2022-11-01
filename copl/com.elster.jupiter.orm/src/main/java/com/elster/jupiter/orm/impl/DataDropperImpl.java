@@ -92,17 +92,11 @@ public class DataDropperImpl implements DataDropper {
     private long getTotalNbOfRowsToDelete(String columnName, long upToMillis) throws SQLException {
         long totalNumberOfRows = 0;
         try (Connection connection = dataModel.getConnection(false)) {
-            try (PreparedStatement columnSearchPs = columnSearchSql(tableName, columnName).prepare(connection)) {
-                try (ResultSet columnSearchRs = columnSearchPs.executeQuery()) {
-                    if (columnSearchRs.next() && columnName.equalsIgnoreCase(columnSearchRs.getString(1))) {
-                        try (PreparedStatement countSt = countRowsSql(tableName, columnName, upToMillis).prepare(connection)) {
-                            try (ResultSet rs = countSt.executeQuery()) {
-                                if (rs.next()) {
-                                    totalNumberOfRows = rs.getLong(1);
-                                    logger.info("Found " + totalNumberOfRows + " rows to be deleted from " + tableName);
-                                }
-                            }
-                        }
+            try (PreparedStatement countSt = countRowsSql(tableName, columnName, upToMillis).prepare(connection)) {
+                try (ResultSet rs = countSt.executeQuery()) {
+                    if (rs.next()) {
+                        totalNumberOfRows = rs.getLong(1);
+                        logger.info("Found " + totalNumberOfRows + " rows to be deleted from " + tableName);
                     }
                 }
             }
@@ -156,17 +150,6 @@ public class DataDropperImpl implements DataDropper {
         builder.append(columnName);
         builder.append(" <= ");
         builder.addLong(until);
-        return builder;
-    }
-
-    private SqlBuilder columnSearchSql(String tableName, String columnName) {
-        SqlBuilder builder = new SqlBuilder("SELECT column_name FROM user_tab_cols ");
-        builder.append(" WHERE table_name = '");
-        builder.append(tableName);
-        builder.append("'");
-        builder.append(" AND column_name = '");
-        builder.append(columnName);
-        builder.append("'");
         return builder;
     }
 

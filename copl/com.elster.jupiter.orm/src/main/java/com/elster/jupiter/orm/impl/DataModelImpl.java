@@ -87,9 +87,9 @@ public class DataModelImpl implements DataModel {
     private Version version;
 
     @Inject
-    DataModelImpl(TransactionService transactionService, OrmService ormService) {
-        this.transactionService = transactionService;
+    DataModelImpl(OrmService ormService) {
         this.ormService = (OrmServiceImpl) ormService;
+        this.transactionService = this.ormService.getTransactionService();
         this.enablePartition = Optional.ofNullable(this.ormService.getEnablePartition()).orElse("true");
     }
 

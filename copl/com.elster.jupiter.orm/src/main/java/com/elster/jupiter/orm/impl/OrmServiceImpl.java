@@ -125,7 +125,7 @@ public final class OrmServiceImpl implements OrmService {
 
     @Override
     public DataModelImpl newDataModel(String name, String description) {
-        return new DataModelImpl(transactionService, this).init(name, description, Version.latest());
+        return new DataModelImpl(this).init(name, description, Version.latest());
     }
 
     public void register(DataModelImpl dataModel) {
@@ -541,7 +541,7 @@ public final class OrmServiceImpl implements OrmService {
     }
 
     public DataModel getFullModel() {
-        DataModelImpl fullModel = new DataModelImpl(transactionService, this);
+        DataModelImpl fullModel = new DataModelImpl(this);
         dataModels.values().forEach(fullModel::addAllTables);
         return fullModel;
     }
