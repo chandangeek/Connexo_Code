@@ -422,6 +422,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     HONEYWELL_HS3400_LTE_PP(349, "com.energyict.protocolimplv2.dlms.idis.hs3400.lte.pp.HS3400LtePP"),
     HONEYWELL_HS3400_PLC_PP(350, "com.energyict.protocolimplv2.dlms.idis.hs3400.plc.pp.HS3400PlcPP"),
 
+    HONEYWELL_V200_MBUS(351, "com.energyict.protocolimplv2.dlms.idis.mbus.water.HoneywellWaterMBusV200Residential"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),
