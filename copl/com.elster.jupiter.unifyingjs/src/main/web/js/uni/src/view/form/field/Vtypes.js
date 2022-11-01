@@ -30,7 +30,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
         var me = this;
         Ext.apply(Ext.form.VTypes, {
             certificateFileUpload: function (val, field) {
-                var fileName = /^.*\.(pem|cert)$/i;
+                var fileName = /^.*\.(pem|cer)$/i;
                 return fileName.test(val) && me.checkLength(val);
             },
             certificateFileUploadText: Uni.I18n.translate('general.certficateValidationFailed.msg', 'UNI', 'File must be "pem" or "cert" format, with a single extension')
