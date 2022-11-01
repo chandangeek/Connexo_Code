@@ -402,8 +402,9 @@ public class MultiSenseHeadEndInterfaceImpl implements MultiSenseHeadEndInterfac
 
     private void scheduleComTaskExecution(ComTaskExecution comTaskExecution, Instant instant) {
         connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
-        comTaskExecution = getLockedComTaskExecution(comTaskExecution.getId())
-                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecution.getId())));
+        long comTaskExecutionId = comTaskExecution.getId();
+        comTaskExecution = getLockedComTaskExecution(comTaskExecutionId)
+                .orElseThrow(() -> new IllegalStateException(thesaurus.getFormat(MessageSeeds.NO_SUCH_COM_TASK_EXECUTION).format(comTaskExecutionId)));
         comTaskExecution.addNewComTaskExecutionTrigger(instant);
         comTaskExecution.updateNextExecutionTimestamp();
     }

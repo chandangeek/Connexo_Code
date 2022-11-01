@@ -148,9 +148,7 @@ public class MultisenseHeadEndInterfaceTest {
     @Mock
     private EndDeviceControlType contactorOpenEndDeviceControlType;
     @Mock
-    private EndDeviceControlType contactoCloseEndDeviceControlType;
-    @Mock
-    private volatile CommunicationTaskService communicationTaskService;
+    private EndDeviceControlType contactorCloseEndDeviceControlType;
     @Mock
     private volatile PriorityComTaskService priorityComTaskService;
     @Mock
@@ -200,7 +198,7 @@ public class MultisenseHeadEndInterfaceTest {
         when(channelSpec.getReadingType()).thenReturn(readingType);
         when(device.getDeviceConfiguration().getChannelSpecs()).thenReturn(Collections.singletonList(channelSpec));
         when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.OPEN_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactorOpenEndDeviceControlType));
-        when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactoCloseEndDeviceControlType));
+        when(meteringService.getEndDeviceControlType(EndDeviceControlTypeMapping.CLOSE_REMOTE_SWITCH.getEndDeviceControlTypeMRID())).thenReturn(Optional.of(contactorCloseEndDeviceControlType));
     }
 
     @Test
@@ -222,7 +220,7 @@ public class MultisenseHeadEndInterfaceTest {
         assertEquals(1, endDeviceCapabilities.getConfiguredReadingTypes().size());
         assertEquals(readingType, endDeviceCapabilities.getConfiguredReadingTypes().get(0));
         assertEquals(2, endDeviceCapabilities.getSupportedControlTypes().size());
-        assertArrayEquals(Arrays.asList(contactoCloseEndDeviceControlType, contactorOpenEndDeviceControlType).toArray(), endDeviceCapabilities.getSupportedControlTypes().toArray());
+        assertArrayEquals(Arrays.asList(contactorCloseEndDeviceControlType, contactorOpenEndDeviceControlType).toArray(), endDeviceCapabilities.getSupportedControlTypes().toArray());
     }
 
     @Test

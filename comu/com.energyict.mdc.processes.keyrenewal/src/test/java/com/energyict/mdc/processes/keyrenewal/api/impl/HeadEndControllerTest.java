@@ -45,9 +45,8 @@ import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
+import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 
@@ -306,7 +305,7 @@ public class HeadEndControllerTest {
 
         MultiSenseHeadEndInterface multiSenseHeadEndInterface2 = new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService,
                 meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory,
-                threadPrincipalService, clock, connectionTaskService, communicationTaskService, priorityComTaskService, engineConfigurationService);
+                threadPrincipalService, clock, communicationTaskService, connectionTaskService, priorityComTaskService, engineConfigurationService);
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(multiSenseHeadEndInterface2));
 
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);

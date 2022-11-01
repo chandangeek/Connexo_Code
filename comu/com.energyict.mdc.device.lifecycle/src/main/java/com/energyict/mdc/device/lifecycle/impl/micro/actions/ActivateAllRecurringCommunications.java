@@ -8,6 +8,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ComTaskExecutionBuilder;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.DeviceService;

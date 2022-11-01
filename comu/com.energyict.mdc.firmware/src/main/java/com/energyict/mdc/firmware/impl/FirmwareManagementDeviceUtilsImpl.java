@@ -289,11 +289,11 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public Optional<ComTaskExecution> getFirmwareComTaskExecution() {
-        if (firmwareComTaskExecution.isPresent()) {
-            Optional<ConnectionTask> ct = connectionTaskService.findAndLockConnectionTaskById(this.firmwareComTaskExecution.get().getConnectionTaskId());
-            return communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.get().getId());
+        if (firmwareComTaskExecution != null) {
+            connectionTaskService.findAndLockConnectionTaskById(this.firmwareComTaskExecution.getConnectionTaskId());
+            firmwareComTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.getId()).orElse(null);
         }
-        return this.firmwareComTaskExecution;
+        return Optional.ofNullable(firmwareComTaskExecution);
     }
 
     @Override

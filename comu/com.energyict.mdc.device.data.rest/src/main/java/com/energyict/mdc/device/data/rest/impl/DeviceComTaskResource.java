@@ -90,6 +90,7 @@ public class DeviceComTaskResource {
                                  DeviceComTaskInfoFactory deviceComTaskInfoFactory,
                                  TaskService taskService,
                                  CommunicationTaskService communicationTaskService,
+                                 EngineConfigurationService engineConfigurationService,
                                  TopologyService topologyService,
                                  ComTaskExecutionSessionInfoFactory comTaskExecutionSessionInfoFactory,
                                  ComSessionInfoFactory comSessionInfoFactory,

@@ -82,8 +82,8 @@ public class FirmwareComTaskResource {
                 .filter(cte -> cte.getComTask().getId() == comTaskId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
-        connectionTaskService.findAndLockConnectionTaskById(firmwareComTaskExecution.getConnectionTaskId());
-        communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
+        connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+        communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
         String taskRetried = comTaskExecution.isFirmware()
                 ? thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_RETRIED).format()
                 : thesaurus.getSimpleFormat(MessageSeeds.VERIFICATION_RETRIED).format();
