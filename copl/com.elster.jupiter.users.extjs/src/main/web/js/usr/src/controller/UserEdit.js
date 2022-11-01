@@ -140,6 +140,8 @@ Ext.define('Usr.controller.UserEdit', {
                     }
                 }
             });
+        } else {
+            formErrorsPanel.show();
         }
     }
 });
