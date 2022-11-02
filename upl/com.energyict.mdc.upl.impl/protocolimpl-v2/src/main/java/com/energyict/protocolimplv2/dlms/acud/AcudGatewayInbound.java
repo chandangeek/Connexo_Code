@@ -17,8 +17,9 @@ import java.util.TimeZone;
 
 import static com.energyict.dlms.common.DlmsProtocolProperties.TIMEZONE;
 
-
 public class AcudGatewayInbound extends PushEventNotification {
+    private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Africa/Cairo");
+
     private AcudGatewayDataPushNotificationParser parser;
     private DlmsProperties dlmsProperties;
     protected AcudConfigurationSupport dlmsConfigurationSupport;
@@ -41,7 +42,7 @@ public class AcudGatewayInbound extends PushEventNotification {
     @Override
     public void setUPLProperties(TypedProperties properties) {
         super.setUPLProperties(properties);
-        this.timeZone = properties.getTypedProperty(TIMEZONE, TimeZone.getTimeZone("GMT"));
+        this.timeZone = properties.getTypedProperty(TIMEZONE, DEFAULT_TIMEZONE);
     }
 
     @Override
@@ -77,7 +78,7 @@ public class AcudGatewayInbound extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "2022-09-07";
+        return "2022-11-03";
     }
 
 
