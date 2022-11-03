@@ -51,8 +51,8 @@ public class AcudGasLogBookFactory extends AcudLogBookFactory {
         return Arrays.asList(supportedLogBooks);
     }
 
-    public static List<ObisCode> getStaticSupportedLogBooks() {
-        return Arrays.asList(supportedLogBooks);
+    public static boolean isLogBookSupported(ObisCode obisCode) {
+        return Arrays.asList(supportedLogBooks).contains(obisCode);
     }
 
     public static List<MeterProtocolEvent> parseGasEvents(TimeZone timeZone, DataContainer dataContainer, ObisCode logBookObisCode, EndDeviceType meterType) {

@@ -78,8 +78,7 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
         getComChannel().startReading();
         final int readBytes = getComChannel().read(header);
 
-        Supplier<String> message2 = () -> "Received frame  [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header);
-        getContext().getLogger().info(message2);
+        getContext().getLogger().info(() -> "Received header  [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header));
 
         if (readBytes != 3) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out 3 bytes but received " + readBytes + " bytes instead..."));
@@ -102,8 +101,7 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
         byte[] frame = new byte[length - 1];
         final int moreReadBytes = getComChannel().read(frame);
 
-        Supplier<String> message = () -> "Received frame [" + moreReadBytes + "]: " + ProtocolTools.getHexStringFromBytes(frame);
-        getContext().getLogger().info(message);
+        getContext().getLogger().info(() -> "Received frame [" + moreReadBytes + "]: " + ProtocolTools.getHexStringFromBytes(frame));
 
         if (moreReadBytes != length - 1) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out full frame (" + length + " bytes), but received " + moreReadBytes + " bytes instead..."));
@@ -145,11 +143,11 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
         dataContainer.parseObjectList(data, null);
 
         List<MeterProtocolEvent> meterProtocolEvents = new ArrayList<>();
-        if (AcudElectricLogBookFactory.getStaticSupportedLogBooks().contains(logbookObisCode)) {
+        if (AcudElectricLogBookFactory.isLogBookSupported(logbookObisCode)) {
             meterProtocolEvents = AcudElectricLogBookFactory.parseElectricityEvents(this.timeZone, dataContainer, logbookObisCode, EndDeviceType.ELECTRICMETER);
-        } else if (AcudGasLogBookFactory.getStaticSupportedLogBooks().contains(logbookObisCode)) {
+        } else if (AcudGasLogBookFactory.isLogBookSupported(logbookObisCode)) {
             meterProtocolEvents = AcudGasLogBookFactory.parseGasEvents(this.timeZone, dataContainer, logbookObisCode, EndDeviceType.GASMETER);
-        } else if (AcudWaterLogBookFactory.getStaticSupportedLogBooks().contains(logbookObisCode)) {
+        } else if (AcudWaterLogBookFactory.isLogBookSupported(logbookObisCode)) {
             meterProtocolEvents = AcudWaterLogBookFactory.parseWaterEvents(this.timeZone, dataContainer, logbookObisCode, EndDeviceType.WATERMETER);
         } else {
             throw DataParseException.ioException(new ProtocolException("Unsupported logbook: " + logbookObisCode));
