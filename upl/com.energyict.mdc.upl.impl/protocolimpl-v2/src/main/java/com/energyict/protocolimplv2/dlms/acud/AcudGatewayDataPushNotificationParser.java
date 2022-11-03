@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.acud;
 
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
@@ -19,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TimeZone;
-import java.util.function.Supplier;
 
 public class AcudGatewayDataPushNotificationParser extends EventPushNotificationParser {
     private DeviceIdentifierBySerialNumber slaveSerialNumberIdentifier;
@@ -31,6 +34,7 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
         this.timeZone = timeZone;
     }
 
+    @Override
     public void readAndParseInboundFrame() {
         ByteBuffer inboundFrame = readInboundFrame();
         byte[] header = new byte[17];
@@ -48,6 +52,7 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
         readAndParseInboundFrame(inboundFrame);
     }
 
+    @Override
     public DeviceIdentifier getDeviceIdentifier() {
         return deviceIdentifier;
     }
@@ -73,12 +78,13 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
      * [length-1]                    -> 7E, Frame end
      * @return ByteBuffer
      */
+    @Override
     public ByteBuffer readInboundFrame() {
         byte[] header = new byte[3];
         getComChannel().startReading();
         final int readBytes = getComChannel().read(header);
 
-        getContext().getLogger().info(() -> "Received header  [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header));
+        getContext().getLogger().info(() -> "Received header [" + readBytes + "]: " + ProtocolTools.getHexStringFromBytes(header));
 
         if (readBytes != 3) {
             throw DataParseException.ioException(new ProtocolException("Attempted to read out 3 bytes but received " + readBytes + " bytes instead..."));
@@ -124,6 +130,7 @@ public class AcudGatewayDataPushNotificationParser extends EventPushNotification
      *                   Unsigned16
      * }
      */
+    @Override
     protected void parsePlainEventAPDU(ByteBuffer inboundFrame) {
         short something = inboundFrame.get();
         int classId = inboundFrame.getShort();

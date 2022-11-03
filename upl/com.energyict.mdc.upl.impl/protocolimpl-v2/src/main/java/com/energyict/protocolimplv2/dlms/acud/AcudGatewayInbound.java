@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.acud;
 
 import com.energyict.mdc.protocol.inbound.g3.PushEventNotification;
@@ -9,7 +13,6 @@ import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.nls.PropertyTranslationKeys;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
-import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +24,7 @@ public class AcudGatewayInbound extends PushEventNotification {
     private static final TimeZone DEFAULT_TIMEZONE = TimeZone.getTimeZone("Africa/Cairo");
 
     private AcudGatewayDataPushNotificationParser parser;
-    private DlmsProperties dlmsProperties;
+    private AcudDlmsProperties dlmsProperties;
     protected AcudConfigurationSupport dlmsConfigurationSupport;
 
     private PropertySpecService propertySpecService;
@@ -55,14 +58,14 @@ public class AcudGatewayInbound extends PushEventNotification {
 
     @Override
     public DeviceIdentifier getDeviceIdentifier() {
-            return getEventPushNotificationParser().getDeviceIdentifier();
+        return getEventPushNotificationParser().getDeviceIdentifier();
     }
 
     public AcudDlmsProperties getDlmsProperties() {
         if (dlmsProperties == null) {
             dlmsProperties = new AcudDlmsProperties();
         }
-        return (AcudDlmsProperties) dlmsProperties;
+        return dlmsProperties;
     }
 
     protected AcudConfigurationSupport getDlmsConfigurationSupport() {
@@ -80,6 +83,4 @@ public class AcudGatewayInbound extends PushEventNotification {
     public String getVersion() {
         return "2022-11-03";
     }
-
-
 }
