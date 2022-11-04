@@ -313,7 +313,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     }
 
     public void setBundleContext(BundleContext bundleContext) {
-        IssueServiceImpl.bundleContext = bundleContext;
+        this.bundleContext = bundleContext;
     }
 
 

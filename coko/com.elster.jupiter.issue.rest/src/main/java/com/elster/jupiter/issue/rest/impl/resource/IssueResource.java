@@ -112,7 +112,7 @@ public class IssueResource extends BaseResource {
     private static final int ISSUE_BATCH_SIZE = 1000;
 
     @Inject
-    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, IssueService issueService, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService,
+    public IssueResource(IssueResourceHelper issueResourceHelper, IssueInfoFactory issueInfoFactory, ConcurrentModificationExceptionFactory conflictFactory, IssueInfoFactoryService issueInfoFactoryService, IssueService issueService,
                          TransactionService transactionService, LocationService locationService, Clock clock, IssueResourceUtility issueResourceUtility, EventService eventService) {
         this.issueResourceHelper = issueResourceHelper;
         this.issueInfoFactory = issueInfoFactory;
@@ -391,6 +391,7 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.ASSIGN_ISSUE)
+    @Deprecated
     public Response assignIssues(AssignIssueRequest request, @BeanParam JsonQueryFilter filter, @Context SecurityContext securityContext) {
         User performer = (User) securityContext.getUserPrincipal();
         ActionInfo info = transactionService.execute(new AssignIssueTransaction(request, performer, getIssueProvider(request, filter)));
@@ -419,6 +420,7 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ASSIGN_ISSUE, Privileges.Constants.CLOSE_ISSUE})
+    @Deprecated
     public Response bulkSnooze(BulkSnoozeRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
         User performer = (User) securityContext.getUserPrincipal();
         ActionInfo info = transactionService.execute(new BulkSnoozeTransaction(request, performer, getIssueProvider(request, filter), getThesaurus(), clock));

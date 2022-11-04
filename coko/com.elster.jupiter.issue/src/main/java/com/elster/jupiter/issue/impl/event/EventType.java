@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.elster.jupiter.issue.impl.event;
 
 import com.elster.jupiter.events.EventService;
