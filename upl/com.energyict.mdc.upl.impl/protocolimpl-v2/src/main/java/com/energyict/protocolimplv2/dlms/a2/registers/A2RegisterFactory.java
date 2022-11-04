@@ -74,7 +74,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
 
     private List<ObisCode> binaryMaps16BitObisCodes = Arrays.asList(VALVE_CONFIGURATION_PGV);
     private List<ObisCode> binaryMaps8BitObisCodes = Arrays.asList(VALVE_CLOSURE_CAUSE, UNITS_DEVICE_STATUS);
-    private List<ObisCode> firmwareVersionObisCodes = Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION);
+    protected List<ObisCode> firmwareVersionObisCodes = Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION);
 
     private DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis();
 
@@ -161,6 +161,8 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                     } else if (isFirmwareVersion(obisCode)) {
                         String description = decodeFirmwareVersion(octetString);
                         registerValue = new RegisterValue(obisCode, description);
+                    } else if(isLanguageTableVersion(obisCode)){
+                        registerValue = new RegisterValue(obisCode, getLanguageTableVersion(octetString));
                     } else {
                         // only the signatures remain
                         registerValue = new RegisterValue(obisCode, getHexString(octetString));
@@ -268,11 +270,19 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
+    protected String getLanguageTableVersion(OctetString octetString) {
+        return Hex.encodeHexString(octetString.getOctetStr());
+    }
+
+    protected boolean isLanguageTableVersion(ObisCode obisCode) {
+        return false;
+    }
+
     private boolean isFirmwareVersion(ObisCode obisCode) {
         return firmwareVersionObisCodes.contains(obisCode);
     }
 
-    protected String decodeFirmwareVersion(OctetString octetString) {
+    public String decodeFirmwareVersion(OctetString octetString) {
         byte[] value = octetString.getOctetStr();
         int version = (((((int) value[0]) & 0xFF) << 8) | (((int) value[1]) & 0xFF)) & 0xFFFF;
         int commit = (((((int) value[2]) & 0xFF) << 8) | (((int) value[3]) & 0xFF)) & 0xFFFF;
@@ -291,7 +301,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                 "\ncommit number =", Integer.toString(commit), "\ndate =", date);
     }
 
-    private String getHexString(OctetString octetString) {
+    protected String getHexString(OctetString octetString) {
         return Hex.encodeHexString(octetString.getOctetStr());
     }
 
