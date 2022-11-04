@@ -62,8 +62,7 @@ Ext.define('Cfg.configuration.view.RuleWithAttributesEdit', {
                             afterrender: function (field) {
                                 field.labelEl.setOpacity(1);
                             }
-                        },
-                        vtype: 'checkForBlacklistCharacters'
+                        }
                     },
                     {
                         xtype: 'reading-type-displayfield',
