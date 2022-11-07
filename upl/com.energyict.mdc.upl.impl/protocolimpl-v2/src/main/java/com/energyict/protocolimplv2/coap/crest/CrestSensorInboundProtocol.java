@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.coap.crest;
 
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
@@ -37,7 +41,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.cbor.CBORFactory;
 import com.fasterxml.jackson.dataformat.cbor.CBORParser;
 import com.google.common.base.Strings;
-import org.apache.commons.codec.binary.Hex;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -77,14 +80,6 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         return stringWriter.toString();
     }
 
-    private static byte[] HexStringToByteArray(String s) {
-        byte[] data = new byte[s.length() / 2];
-        for (int i = 0; i < s.length(); i += 2) {
-            data[i / 2] = (Integer.decode("0x" + s.charAt(i) + s.charAt(i + 1))).byteValue();
-        }
-        return data;
-    }
-
     @Override
     public void init(CoapBasedExchange exchange) {
         this.exchange = exchange;
@@ -108,27 +103,29 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     @Override
     public DiscoverResultType doDiscovery() {
-        String json;
+        byte[] cborInput = exchange.getRequestPayload();
         try {
-            String hexString = new String(Hex.encodeHex(exchange.getRequestPayload()));
-            json = cborToJson(HexStringToByteArray(hexString));
+            String json = cborToJson(cborInput);
             crestObject = new ObjectMapper().readValue(json, CrestObjectV2_1.class);
             handleData();
-            confirmSentMessagesAndSendPending();
+            sendOkAndMessages();
         } catch (IOException e) {
+            sendKoAndError(e);
             throw ConnectionCommunicationException.unexpectedIOException(e);
         }
         return DiscoverResultType.DATA;
     }
 
-    private void confirmSentMessagesAndSendPending() {
+    private void sendOkAndMessages() {
         int nrOfAcceptedMessages = 0;
         List<OfflineDeviceMessage> pendingMessages = getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
         for (OfflineDeviceMessage pendingMessage : pendingMessages) {
             nrOfAcceptedMessages++;
             exchange.respond(getMessageConverter().toMessageEntry(pendingMessage).getContent());
+            getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+            return;
         }
-        getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+        exchange.respond("OK");
     }
 
     private LegacyMessageConverter getMessageConverter() {
@@ -177,11 +174,11 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_MEMORY_COUNTER, new Quantity(new BigDecimal(crestObject.getMem()), Unit.getUndefined())));
         List<Integer> temperatures = crestObject.getT1();
         if (!temperatures.isEmpty()) {
-            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_TEMPERATURE, new Quantity(new BigDecimal(temperatures.get(temperatures.size() - 1)), Unit.get(BaseUnit.DEGREE_CELSIUS))));
+            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_TEMPERATURE, new Quantity(new BigDecimal(temperatures.get(temperatures.size() - 1) / (double) 10), Unit.get(BaseUnit.DEGREE_CELSIUS))));
         }
         List<Integer> percents = crestObject.getH1();
         if (!percents.isEmpty()) {
-            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_HUMIDITY, new Quantity(new BigDecimal(percents.get(percents.size() - 1)), Unit.get(BaseUnit.PERCENT))));
+            collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_AIR_HUMIDITY, new Quantity(new BigDecimal(percents.get(percents.size() - 1) / (double) 10), Unit.get(BaseUnit.PERCENT))));
         }
         CollectedTopology collectedTopology = getContext().getCollectedDataFactory().createCollectedTopology(getDeviceIdentifier());
         if (!Strings.isNullOrEmpty(this.crestObject.getV1m())) {
@@ -325,5 +322,9 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
+    }
+
+    private void sendKoAndError(Exception e) {
+        exchange.respond("KO\n" + e.getMessage());
     }
 }

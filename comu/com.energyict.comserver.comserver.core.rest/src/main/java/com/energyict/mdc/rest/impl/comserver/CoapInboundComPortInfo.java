@@ -20,6 +20,7 @@ public class CoapInboundComPortInfo extends InboundComPortInfo<CoapBasedInboundC
     public CoapInboundComPortInfo(CoapBasedInboundComPort comPort) {
         super(comPort);
         this.useDtls = comPort.isDtls();
+        this.useSharedKeys = comPort.isSharedKeys();
         this.keyStoreFilePath = comPort.getKeyStoreSpecsFilePath();
         this.keyStorePassword = comPort.getKeyStoreSpecsPassword();
         this.trustStoreFilePath = comPort.getTrustStoreSpecsFilePath();
@@ -34,6 +35,10 @@ public class CoapInboundComPortInfo extends InboundComPortInfo<CoapBasedInboundC
         Optional<Boolean> useDtls = Optional.ofNullable(this.useDtls);
         if (useDtls.isPresent()) {
             source.setDtls(useDtls.get());
+        }
+        Optional<Boolean> useSharedKeys = Optional.ofNullable(this.useSharedKeys);
+        if (useSharedKeys.isPresent()) {
+            source.setSharedKeys(useSharedKeys.get());
         }
         Optional<String> keyStoreFilePath = Optional.ofNullable(this.keyStoreFilePath);
         if (keyStoreFilePath.isPresent()) {
@@ -70,6 +75,7 @@ public class CoapInboundComPortInfo extends InboundComPortInfo<CoapBasedInboundC
         return super.build(
                 builder.
                         dtls(useDtls).
+                        sharedKeys(useSharedKeys).
                         bufferSize(bufferSize).
                         keyStoreSpecsFilePath(keyStoreFilePath).
                         keyStoreSpecsPassword(keyStorePassword).

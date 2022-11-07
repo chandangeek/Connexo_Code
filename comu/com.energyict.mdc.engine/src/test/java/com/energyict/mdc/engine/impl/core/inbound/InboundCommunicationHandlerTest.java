@@ -67,12 +67,15 @@ import com.energyict.mdc.protocol.api.services.HexService;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.upl.TypedProperties;
+import com.energyict.mdc.upl.io.CoapBasedExchange;
 import com.energyict.mdc.upl.issue.Problem;
 import com.energyict.mdc.upl.issue.Warning;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineDeviceContext;
+
+import com.energyict.obis.ObisCode;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -89,7 +92,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
-import com.energyict.obis.ObisCode;
 import org.assertj.core.api.Condition;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -417,6 +419,11 @@ public class InboundCommunicationHandlerTest {
         this.testCommunicationWhenServerIsBusy(this.newServletInboundDiscoveryContext());
     }
 
+    @Test
+    public void testCoapCommunicationWhenServerIsBusy() throws ExecutionException, InterruptedException {
+        this.testCommunicationWhenServerIsBusy(this.newCoapInboundDiscoveryContext());
+    }
+
     private void testCommunicationWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         DeviceIdentifier deviceIdentifier = mock(DeviceIdentifier.class);
@@ -457,6 +464,11 @@ public class InboundCommunicationHandlerTest {
         this.testComSessionShadowWhenServerIsBusy(this.newServletInboundDiscoveryContext());
     }
 
+    @Test
+    public void testComSessionShadowForCoapCommunicationWhenServerIsBusy() throws ExecutionException, InterruptedException {
+        this.testComSessionShadowWhenServerIsBusy(this.newCoapInboundDiscoveryContext());
+    }
+
     private void testComSessionShadowWhenServerIsBusy(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         DeviceIdentifierById deviceIdentifier = new DeviceIdentifierById(DEVICE_ID);
         Device device = getMockedDevice();
@@ -492,6 +504,11 @@ public class InboundCommunicationHandlerTest {
     @Test
     public void testSuccessFulSevletCommunication() throws ExecutionException, InterruptedException {
         this.testSuccessFulCommunication(this.newServletInboundDiscoveryContext(), true);
+    }
+
+    @Test
+    public void testSuccessFulCoapCommunication() throws ExecutionException, InterruptedException {
+        this.testSuccessFulCommunication(this.newCoapInboundDiscoveryContext(), true);
     }
 
     @Test
@@ -585,6 +602,11 @@ public class InboundCommunicationHandlerTest {
         this.testComSessionShadowForSuccessFulCommunication(this.newServletInboundDiscoveryContext());
     }
 
+    @Test
+    public void testComSessionShadowForSuccessFulCoapCommunication() throws ExecutionException, InterruptedException {
+        this.testComSessionShadowForSuccessFulCommunication(this.newCoapInboundDiscoveryContext());
+    }
+
     private void testComSessionShadowForSuccessFulCommunication(InboundDiscoveryContextImpl context) throws ExecutionException, InterruptedException {
         InboundDeviceProtocol inboundDeviceProtocol = mock(InboundDeviceProtocol.class);
         DeviceProtocolPluggableClass deviceProtocolPluggableClass = mock(DeviceProtocolPluggableClass.class);
@@ -634,6 +656,11 @@ public class InboundCommunicationHandlerTest {
     @Test
     public void testSuccessFulServletCommunicationWithHandOverToProtocol() throws ExecutionException, InterruptedException {
         this.testSuccessFulCommunicationWithHandOverToProtocol(this.newServletInboundDiscoveryContext());
+    }
+
+    @Test
+    public void testSuccessFulCoapCommunicationWithHandOverToProtocol() throws ExecutionException, InterruptedException {
+        this.testSuccessFulCommunicationWithHandOverToProtocol(this.newCoapInboundDiscoveryContext());
     }
 
     private void testSuccessFulCommunicationWithHandOverToProtocol(InboundDiscoveryContextImpl inboundDiscoveryContext) throws ExecutionException, InterruptedException {
@@ -741,6 +768,12 @@ public class InboundCommunicationHandlerTest {
 
     private InboundDiscoveryContextImpl newServletInboundDiscoveryContext() {
         InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, mock(HttpServletRequest.class), mock(HttpServletResponse.class), this.connectionTaskService);
+        this.initializeInboundDiscoveryContext(context);
+        return context;
+    }
+
+    private InboundDiscoveryContextImpl newCoapInboundDiscoveryContext() {
+        InboundDiscoveryContextImpl context = new InboundDiscoveryContextImpl(this.comPort, mock(CoapBasedExchange.class), this.connectionTaskService);
         this.initializeInboundDiscoveryContext(context);
         return context;
     }

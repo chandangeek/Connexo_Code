@@ -245,6 +245,13 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 fieldLabel: 'useDtls'
                             },
                             {
+                                xtype: 'checkbox',
+                                inputValue: true,
+                                uncheckedValue: 'false',
+                                name: 'useSharedKeys',
+                                fieldLabel: 'useSharedKeys'
+                            },
+                            {
                                 xtype: 'textfield',
                                 name: 'keyStoreFilePath',
                                 fieldLabel: 'keyStoreFilePath'

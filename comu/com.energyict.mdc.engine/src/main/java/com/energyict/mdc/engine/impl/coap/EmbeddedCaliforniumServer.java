@@ -24,18 +24,21 @@ import org.eclipse.californium.scandium.DTLSConnector;
 import org.eclipse.californium.scandium.config.DtlsConfig;
 import org.eclipse.californium.scandium.config.DtlsConnectorConfig;
 import org.eclipse.californium.scandium.dtls.CertificateType;
-import org.eclipse.californium.scandium.dtls.pskstore.AdvancedSinglePskStore;
+import org.eclipse.californium.scandium.dtls.pskstore.AdvancedMultiPskStore;
 import org.eclipse.californium.scandium.dtls.x509.NewAdvancedCertificateVerifier;
 import org.eclipse.californium.scandium.dtls.x509.SingleCertificateProvider;
 import org.eclipse.californium.scandium.dtls.x509.StaticNewAdvancedCertificateVerifier;
-import org.eclipse.jetty.util.thread.QueuedThreadPool;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.security.GeneralSecurityException;
 import java.security.cert.Certificate;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -45,35 +48,30 @@ import java.util.logging.Logger;
  */
 public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
 
-    public static final String MAX_IDLE_TIME = "maxIdleTime";
-    public static final BigDecimal MAX_IDLE_TIME_DEFAULT_VALUE = BigDecimal.valueOf(200000);
+    private static final String COAP_CONFIGURATION_FILE = "com.energyict.mdc.engine.coap.configfile";
     private static final Logger LOGGER = Logger.getLogger(EmbeddedCaliforniumServer.class.getName());
 
     /**
      * The number of seconds that accepted requests are allowed to complete
      * during the graceful shutdown.
      */
-    private final static String INBOUND_COMPORT_SERVICE = "Californium_InboundComportService";
+
     private final ShutdownFailureLogger shutdownFailureLogger;
     private CoapServer coapServer;
-    private String threadPoolName;
+    private Configuration coapConfig;
+    private BasedCoapResource coapResource;
     private boolean startCommandGiven = false;
     private boolean stopCommandGiven = false;
 
     private EmbeddedCaliforniumServer(CoapBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
-        threadPoolName = INBOUND_COMPORT_SERVICE;
-        QueuedThreadPool threadPool = new QueuedThreadPool();
-        threadPool.setName(threadPoolName);
-
         DtlsConfig.register();
         CoapConfig.register();
         UdpConfig.register();
-
-        coapServer = new CoapServer();
-        BasedCoapResource comResource = new BasedCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
-        coapServer.add(comResource);
-        shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
         try {
+            coapConfig = createCoapConfiguration();
+            coapServer = new CoapServer(coapConfig);
+            coapResource = new BasedCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+            coapServer.add(coapResource);
             for (InetAddress address : NetworkInterfacesUtil.getNetworkInterfaces()) {
                 coapServer.addEndpoint(new CoapEndpoint.Builder().setConnector(createConnector(address, comPort)).build());
             }
@@ -81,6 +79,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
             e.printStackTrace(System.err);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         }
+        shutdownFailureLogger = new ComPortShutdownFailureLogger(comPort);
     }
 
     /**
@@ -100,25 +99,57 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         return new EmbeddedCaliforniumServer(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
     }
 
-    /**
-     * Create the Endpoint connector.
-     */
-    private Connector createConnector(InetAddress address, CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
-        Configuration configuration = Configuration.getStandard();
-        if (comPort.isDtls()) {
-            return new DTLSConnector(DtlsConnectorConfig.builder(configuration)
-                    .setAddress(new InetSocketAddress(address, comPort.getPortNumber()))
-                    .setAdvancedPskStore(new AdvancedSinglePskStore(comPort.getContextPath(), "1111111111111111".getBytes()))
-                    .setCertificateIdentityProvider(getCertificateProvider(comPort))
-                    .setAdvancedCertificateVerifier(getCertificateVerifier(comPort)).build());
+    private static byte[] hexStringToByteArray(String s) {
+        byte data[] = new byte[s.length() / 2];
+        for (int i = 0; i < s.length(); i += 2) {
+            data[i / 2] = (Integer.decode("0x" + s.charAt(i) + s.charAt(i + 1))).byteValue();
         }
-        return new UDPConnector(new InetSocketAddress(address, comPort.getPortNumber()), configuration);
+        return data;
+    }
+
+    private Configuration createCoapConfiguration() {
+        Bundle bundle = FrameworkUtil.getBundle(getClass());
+        if (bundle != null) {
+            String coapConfig = bundle.getBundleContext().getProperty(COAP_CONFIGURATION_FILE);
+            if (coapConfig != null) {
+                File configFile = new File(coapConfig);
+                if (configFile.exists() && configFile.isFile()) {
+                    return Configuration.createStandardWithFile(configFile);
+                }
+            }
+        }
+        return Configuration.getStandard();
+    }
+
+    private Connector createConnector(InetAddress address, CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
+        if (comPort.isDtls()) {
+            DtlsConnectorConfig.Builder builder = DtlsConnectorConfig.builder(coapConfig);
+            builder.setAddress(new InetSocketAddress(address, comPort.getPortNumber()));
+            if (comPort.isSharedKeys()) {
+                builder.setAdvancedPskStore(getPskStore(comPort));
+                return new DTLSConnector(builder.build());
+            }
+            builder.setCertificateIdentityProvider(getCertificateProvider(comPort));
+            builder.setAdvancedCertificateVerifier(getCertificateVerifier(comPort));
+            return new DTLSConnector(builder.build());
+        }
+        return new UDPConnector(new InetSocketAddress(address, comPort.getPortNumber()), coapConfig);
+    }
+
+    private AdvancedMultiPskStore getPskStore(CoapBasedInboundComPort comPort) throws IOException {
+        AdvancedMultiPskStore pskStore = new AdvancedMultiPskStore();
+        if (comPort.isSharedKeys()) {
+            String keyStore = comPort.getKeyStoreSpecsFilePath();
+            if (keyStore != null && !keyStore.isEmpty()) {
+                loadPskStore(pskStore, new File(keyStore));
+            }
+        }
+        return pskStore;
     }
 
     private SingleCertificateProvider getCertificateProvider(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
         SslContextUtil.Credentials dtlsCredentials = getDtlsCredentials(comPort);
-        SingleCertificateProvider certProvider = new SingleCertificateProvider(dtlsCredentials.getPrivateKey(), dtlsCredentials.getCertificateChain(), CertificateType.RAW_PUBLIC_KEY, CertificateType.X_509);
-        return certProvider;
+        return new SingleCertificateProvider(dtlsCredentials.getPrivateKey(), dtlsCredentials.getCertificateChain(), CertificateType.RAW_PUBLIC_KEY, CertificateType.X_509);
     }
 
     private SslContextUtil.Credentials getDtlsCredentials(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
@@ -128,8 +159,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
 
     private NewAdvancedCertificateVerifier getCertificateVerifier(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
         Certificate[] dtlsCertificates = getDtlsCertificates(comPort);
-        NewAdvancedCertificateVerifier certTrust = StaticNewAdvancedCertificateVerifier.builder().setTrustedCertificates(dtlsCertificates).setTrustAllRPKs().build();
-        return certTrust;
+        return StaticNewAdvancedCertificateVerifier.builder().setTrustedCertificates(dtlsCertificates).setTrustAllRPKs().build();
     }
 
     private Certificate[] getDtlsCertificates(CoapBasedInboundComPort comPort) throws IOException, GeneralSecurityException {
@@ -209,6 +239,19 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
             String message = "Embedded coap server for communication port " + this.comPort.getName() + "(" + this.comPort.getComServer().getName() + ") failed to stop";
             logger.info(message);
             logger.log(Level.FINE, message, e);
+        }
+    }
+
+    private void loadPskStore(AdvancedMultiPskStore pskStore, File keyStoreFile) throws IOException {
+        if (keyStoreFile.exists() && keyStoreFile.isFile()) {
+            try (FileReader fr = new FileReader(keyStoreFile)) {
+                Properties properties = new Properties();
+                properties.load(fr);
+                for (String key : properties.stringPropertyNames()) {
+                    byte[] keyBytes = hexStringToByteArray(properties.getProperty(key));
+                    pskStore.setKey(key, keyBytes);
+                }
+            }
         }
     }
 }

@@ -76,6 +76,14 @@ Ext.define('Mdc.view.setup.comservercomports.forms.COAP', {
                     }
                 },
                 {
+                    fieldLabel: Uni.I18n.translate('comServerComPorts.form.sharedKeys', 'MDC', 'Use pre shared keys'),
+                    name: 'useSharedKeys',
+                    hidden: true,
+                    renderer: function (value) {
+                        return value ? Uni.I18n.translate('general.yes', 'MDC', 'Yes') : Uni.I18n.translate('general.no', 'MDC', 'No');
+                    }
+                },
+                {
                     fieldLabel: Uni.I18n.translate('comports.preview.keyStoreFilePath', 'MDC', 'Key store file path'),
                     name: 'keyStoreFilePath'
                 },

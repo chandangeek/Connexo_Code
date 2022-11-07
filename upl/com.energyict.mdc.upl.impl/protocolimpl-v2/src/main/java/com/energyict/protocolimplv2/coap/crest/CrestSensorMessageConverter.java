@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.coap.crest;
 
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
@@ -21,12 +25,7 @@ import java.util.Map;
 
 /**
  * Represents a MessageConverter that maps the Crest Sensor payload to the message
- * <p/>
- * Copyrights EnergyICT
- * Date: 8/03/13
- * Time: 16:26
  */
-
 public class CrestSensorMessageConverter extends AbstractMessageConverter {
 
     public CrestSensorMessageConverter(PropertySpecService propertySpecService, NlsService nlsService, Converter converter) {

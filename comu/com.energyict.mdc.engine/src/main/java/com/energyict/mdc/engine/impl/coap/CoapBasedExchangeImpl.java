@@ -1,7 +1,12 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.coap;
 
 import com.energyict.mdc.upl.io.CoapBasedExchange;
 
+import org.eclipse.californium.core.coap.CoAP;
 import org.eclipse.californium.core.server.resources.CoapExchange;
 
 public class CoapBasedExchangeImpl implements CoapBasedExchange {
@@ -25,6 +30,11 @@ public class CoapBasedExchangeImpl implements CoapBasedExchange {
     @Override
     public void respond(String payload) {
         coapExchange.respond(payload);
+    }
+
+    @Override
+    public void respond(CoapCode coapCode, String payload) {
+        coapExchange.respond(CoAP.ResponseCode.valueOf(coapCode.value), payload);
     }
 
     @Override

@@ -118,6 +118,14 @@ Ext.define('Mdc.view.setup.comservercomports.CoapForm', {
             boxLabel: Uni.I18n.translate('comServerComPorts.form.dtls', 'MDC', 'Use dtls')
         },
         {
+            xtype: 'checkbox',
+            name: 'useSharedKeys',
+            itemId: 'useSharedKeys',
+            disabled: true,
+            fieldLabel: ' ',
+            boxLabel: Uni.I18n.translate('comServerComPorts.form.sharedKeys', 'MDC', 'Use pre shared keys')
+        },
+        {
             xtype: 'textfield',
             required: true,
             allowBlank: false,
@@ -129,6 +137,7 @@ Ext.define('Mdc.view.setup.comservercomports.CoapForm', {
         {
             xtype: 'password-field',
             required: true,
+            allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.keyStorePass', 'MDC', 'Key store access password'),
             itemId: 'keyStorePassword',
             disabled: true,
@@ -146,6 +155,7 @@ Ext.define('Mdc.view.setup.comservercomports.CoapForm', {
         {
             xtype: 'password-field',
             required: true,
+            allowBlank: false,
             disabled: true,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePass', 'MDC', 'Trust store access password'),
             itemId: 'trustStorePassword',

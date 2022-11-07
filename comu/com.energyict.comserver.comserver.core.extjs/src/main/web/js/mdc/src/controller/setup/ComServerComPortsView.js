@@ -177,13 +177,14 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                                     break;
                             }
                         } else if (record.get('comPortType').id.substring(5) == 'SERVLET') {
-                            let useHttps = record.get('useHttps');
+                            var useHttps = record.get('useHttps');
                             form.down('displayfield[name=keyStoreFilePath]').setVisible(useHttps);
                             form.down('#mdc-coap-port-preview-keyStoreAccessPasswordContainer').setVisible(useHttps);
                             form.down('displayfield[name=trustStoreFilePath]').setVisible(useHttps);
                             form.down('#mdc-coap-port-preview-trustStoreAccessPasswordContainer').setVisible(useHttps);
                         } else if (record.get('comPortType').id.substring(5) == 'COAP') {
-                            let useDtls = record.get('useDtls');
+                            var useDtls = record.get('useDtls');
+                            form.down('displayfield[name=useSharedKeys]').setVisible(useDtls);
                             form.down('displayfield[name=keyStoreFilePath]').setVisible(useDtls);
                             form.down('#mdc-coap-port-preview-keyStoreAccessPasswordContainer').setVisible(useDtls);
                             form.down('displayfield[name=trustStoreFilePath]').setVisible(useDtls);

@@ -15,11 +15,22 @@ public interface CoapBasedInboundComPort extends UDPInboundComPort {
      * the DTLS security to ensure that the communication
      * with is secured and encrypted.
      *
-     * @return A flag that indicates if the HTTPS protocol should be used
+     * @return A flag that indicates if the DTLS protocol should be used
      */
     public boolean isDtls();
 
     public void setDtls(boolean dtls);
+
+    /**
+     * Tests if this CoapBasedInboundComPort is using the DTLS security with Pre-Shared Key mode.
+     * In this mode, communication is symmetrically encrypted and authenticated using the same secret key,
+     * shared between the server and the client to ensure that the communication is secured and encrypted.
+     *
+     * @return A flag that indicates if the pre share keys should be used
+     */
+    public boolean isSharedKeys();
+
+    public void setSharedKeys(boolean sharedKeys);
 
     /**
      * Gets the specifications of the KeyStore that holds
@@ -60,6 +71,8 @@ public interface CoapBasedInboundComPort extends UDPInboundComPort {
 
     interface CoapBasedInboundComPortBuilder extends UDPInboundComPortBuilder<CoapBasedInboundComPort.CoapBasedInboundComPortBuilder, CoapBasedInboundComPort> {
         public CoapBasedInboundComPortBuilder dtls(boolean dtls);
+
+        public CoapBasedInboundComPortBuilder sharedKeys(boolean sharedKeys);
 
         public CoapBasedInboundComPortBuilder keyStoreSpecsFilePath(String uri);
 

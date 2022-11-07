@@ -23,6 +23,7 @@ Ext.define('Mdc.model.InboundComPort', {
         'atCommandTimeout',
         {name: 'contextPath', type: 'string', useNull: true},
         {name: 'useDtls', type: 'boolean', useNull: true},
+        {name: 'useSharedKeys', type: 'boolean', useNull: true},
         {name: 'useHttps', type: 'boolean', useNull: true},
         {name: 'keyStoreFilePath', type: 'string', useNull: true},
         {name: 'trustStoreFilePath', type: 'string', useNull: true},

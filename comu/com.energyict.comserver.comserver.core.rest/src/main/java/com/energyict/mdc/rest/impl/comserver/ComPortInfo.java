@@ -71,6 +71,7 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public Integer portNumber;
     public Integer bufferSize;
     public Boolean useDtls;
+    public Boolean useSharedKeys;
     public Boolean useHttps;
     public String keyStoreFilePath;
     public String trustStoreFilePath;

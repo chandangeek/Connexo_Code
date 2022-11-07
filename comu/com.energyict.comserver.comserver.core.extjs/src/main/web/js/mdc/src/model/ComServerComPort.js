@@ -177,6 +177,10 @@ Ext.define('Mdc.model.ComServerComPort', {
             type: 'boolean'
         },
         {
+            name: 'useSharedKeys',
+            type: 'boolean'
+        },
+        {
             name: 'useHttps',
             type: 'boolean'
         },

@@ -6147,6 +6147,8 @@ MDC;REST;comServerComPorts.form.errorNum;Max. Anzahl an Anwahl-Fehlern
 MDC;REST;comServerComPorts.form.flowControl;Ablaufsteuerung
 MDC;REST;comServerComPorts.form.globalModemInitStrings;Allgemeine Modem-Initialisierung
 MDC;REST;comServerComPorts.form.https;HTTPS verwenden
+MDC;REST;comServerComPorts.form.dtls;DTLS verwenden
+MDC;REST;comServerComPorts.form.sharedKeys;Vorab geteilt
 MDC;REST;comServerComPorts.form.keyStorePass;Keystore-Zugangs-Passwort.
 MDC;REST;comServerComPorts.form.keyStorePath;Keystore-Dateipfad
 MDC;REST;comServerComPorts.form.modemInit;Modemstart

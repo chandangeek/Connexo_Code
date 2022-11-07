@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.mdc.engine.impl.coap;
 
 import com.elster.jupiter.users.User;
@@ -31,11 +35,15 @@ public class BasedCoapResource extends CoapResource {
     private ComServerDAO comServerDAO;
 
     public BasedCoapResource(CoapBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
-        super(comPort.getContextPath());
+        super(normalizedContextPath(comPort.getContextPath()));
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.serviceProvider = serviceProvider;
         this.deviceCommandExecutor = deviceCommandExecutor;
+    }
+
+    public static String normalizedContextPath(String contextPath) {
+        return contextPath != null ? contextPath.replaceAll("/", "_") : null;
     }
 
     @Override
@@ -138,6 +146,6 @@ public class BasedCoapResource extends CoapResource {
     }
 
     public String getVersion() {
-        return "$Date: 2012-10-11 17:21:47 +0200 $";
+        return "$Date: 2012-10-25 17:21:47 +0200 $";
     }
 }

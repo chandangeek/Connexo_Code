@@ -34,7 +34,7 @@ public class NotEmptyFilePathAndPasswordsValidator implements ConstraintValidato
 
     private boolean isCoapBasedInboundComPortValid(CoapBasedInboundComPort value, ConstraintValidatorContext context) {
         boolean violations = false;
-        if (value.isDtls()) {
+        if (value.isDtls() && !value.isSharedKeys()) {
             if (Checks.is(value.getKeyStoreSpecsFilePath()).emptyOrOnlyWhiteSpace()) {
                 context.buildConstraintViolationWithTemplate(constraintAnnotation.message()).addPropertyNode("keyStoreSpecsFilePath").addConstraintViolation();
                 violations = true;

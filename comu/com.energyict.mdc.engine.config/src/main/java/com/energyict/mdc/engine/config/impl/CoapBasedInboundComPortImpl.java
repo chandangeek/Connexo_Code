@@ -26,6 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
 public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl implements CoapBasedInboundComPort, UDPInboundComPort, InboundComPort, ComPort {
 
     private boolean dtls;
+    private boolean sharedKeys;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
     private String keyStoreSpecsFilePath;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
@@ -62,6 +63,17 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
     @Override
     public void setDtls(boolean dtls) {
         this.dtls = dtls;
+    }
+
+    @Override
+    @XmlElement
+    public boolean isSharedKeys() {
+        return dtls ? sharedKeys : false;
+    }
+
+    @Override
+    public void setSharedKeys(boolean sharedKeys) {
+        this.sharedKeys = sharedKeys;
     }
 
     @Override
@@ -123,6 +135,7 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
         super.copyFrom(source);
         CoapBasedInboundComPort mySource = (CoapBasedInboundComPort) source;
         this.setDtls(mySource.isDtls());
+        this.setSharedKeys(mySource.isSharedKeys());
         this.setKeyStoreSpecsFilePath(mySource.getKeyStoreSpecsFilePath());
         this.setKeyStoreSpecsPassword(mySource.getKeyStoreSpecsPassword());
         this.setTrustStoreSpecsFilePath(mySource.getTrustStoreSpecsFilePath());
@@ -142,6 +155,11 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
         @Override
         public CoapBasedInboundComPortBuilder dtls(boolean dtls) {
             comPort.setDtls(dtls);
+            return this;
+        }
+
+        public CoapBasedInboundComPortBuilder sharedKeys(boolean sharedKeys) {
+            comPort.setSharedKeys(sharedKeys);
             return this;
         }
 
