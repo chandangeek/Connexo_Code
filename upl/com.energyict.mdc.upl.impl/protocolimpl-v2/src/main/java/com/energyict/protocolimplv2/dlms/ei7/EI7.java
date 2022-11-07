@@ -100,7 +100,7 @@ public class EI7 extends A2 {
             AbstractDataType valueAttr = firmwareData.getValueAttr();
 
             if (valueAttr.isOctetString()) {
-                return(registerFactory.decodeFirmwareVersion(valueAttr.getOctetString()));
+                return(getEI7RegisterFactory().decodeFirmwareVersion(valueAttr.getOctetString()));
             }
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
