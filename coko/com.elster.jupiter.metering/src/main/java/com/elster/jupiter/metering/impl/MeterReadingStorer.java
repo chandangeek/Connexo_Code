@@ -193,10 +193,9 @@ public class MeterReadingStorer {
     }
 
     private EndDeviceEventRecord createEventRecord(EndDeviceEventType found, EndDeviceEvent sourceEvent, Instant readingDate) {
-        EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found, sourceEvent.getCreatedDateTime());
+        EndDeviceEventRecordImpl eventRecord = deviceEventFactory.get().init(meter, found, sourceEvent.getCreatedDateTime(), sourceEvent.getLogBookId());
         eventRecord.updateProperties(sourceEvent.getEventData());
         eventRecord.setmRID(sourceEvent.getMRID());
-        eventRecord.setLogBookId(sourceEvent.getLogBookId());
         eventRecord.setReason(sourceEvent.getReason());
         eventRecord.setSeverity(sourceEvent.getSeverity());
         eventRecord.setStatus(sourceEvent.getStatus());

@@ -44,7 +44,6 @@ import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Answers;
@@ -123,22 +122,21 @@ public class CustomMeterReadingItemDataSelectorTest {
         assertTrue(result.isPresent());
         assertThat(result.get().getMeterReading().getIntervalBlocks().size()).isEqualTo(1);
         assertThat(result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().size()).isEqualTo(6);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord())
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord())
                 .isInstanceOf(ZeroIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord())
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord())
                 .isInstanceOf(ZeroIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord())
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord())
                 .isInstanceOf(ZeroIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord())
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord())
                 .isInstanceOf(ZeroIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord())
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord())
                 .isInstanceOf(ZeroIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord())
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord())
                 .isInstanceOf(ZeroIntervalReadingImpl.class);
     }
 
     @Test
-    @Ignore
     public void testSelectFullData() {
         doReturn(Arrays.asList(reading1, reading2, reading3, reading4, reading5, reading6, reading7)).when(readingContainer).getReadings(any(), any());
         when(reading1.getValue()).thenReturn(BigDecimal.ONE);
@@ -172,7 +170,6 @@ public class CustomMeterReadingItemDataSelectorTest {
     }
 
     @Test
-    @Ignore
     public void testSelectContinuousData() {
         when(selectorConfig.isExportContinuousData()).thenReturn(true);
         doReturn(Arrays.asList(reading1, reading2, reading3, reading4, reading5, reading6, reading7)).when(readingContainer).getReadings(any(), any());
@@ -215,7 +212,6 @@ public class CustomMeterReadingItemDataSelectorTest {
     }
 
     @Test
-    @Ignore
     public void testSelectGaps() {
         when(sapCustomPropertySets.getProfileId(eq(readingContainer), eq(readingType), any()))
                 .thenReturn(ImmutableMap.of("1001", TreeRangeSet.create(Collections.singletonList(FIRST_TO_LAST))));
@@ -230,19 +226,18 @@ public class CustomMeterReadingItemDataSelectorTest {
         assertTrue(result.isPresent());
         assertThat(result.get().getMeterReading().getIntervalBlocks().size()).isEqualTo(1);
         assertThat(result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().size()).isEqualTo(6);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(3));
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord()).isSameAs(reading3);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord()).isSameAs(reading4);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord()).isSameAs(reading5);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(3));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord()).isSameAs(reading3);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord()).isSameAs(reading4);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord()).isSameAs(reading5);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
     }
 
     @Test
-    @Ignore
     public void testSelectTwoProfiles() {
         RangeSet<Instant> rangeSet1 = TreeRangeSet.create();
         rangeSet1.add(Range.openClosed(Instant.from(FIRST), Instant.from(FIRST).plus(2, ChronoUnit.HOURS)));
@@ -263,19 +258,18 @@ public class CustomMeterReadingItemDataSelectorTest {
         assertTrue(result.isPresent());
         assertThat(result.get().getMeterReading().getIntervalBlocks().size()).isEqualTo(1);
         assertThat(result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().size()).isEqualTo(6);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(3));
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord()).isSameAs(reading3);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord()).isSameAs(reading4);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord()).isSameAs(reading5);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(3));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord()).isSameAs(reading3);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord()).isSameAs(reading4);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord()).isSameAs(reading5);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
     }
 
     @Test
-    @Ignore
     public void testSelectTwoProfilesWithGapsBetween() {
         RangeSet<Instant> rangeSet1 = TreeRangeSet.create();
         rangeSet1.add(Range.openClosed(Instant.from(FIRST), Instant.from(FIRST).plus(2, ChronoUnit.HOURS)));
@@ -296,16 +290,16 @@ public class CustomMeterReadingItemDataSelectorTest {
         assertTrue(result.isPresent());
         assertThat(result.get().getMeterReading().getIntervalBlocks().size()).isEqualTo(1);
         assertThat(result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().size()).isEqualTo(7);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord()).isSameAs(reading1);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord()).isSameAs(reading2);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(2));
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord()).isSameAs(reading5);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(6)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
-        assertThat(((IntervalReadingImpl)result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(6)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(0)).getIntervalReadingRecord()).isSameAs(reading1);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(1)).getIntervalReadingRecord()).isSameAs(reading2);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(2)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(2));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(3)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(4)).getIntervalReadingRecord()).isSameAs(reading5);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(5)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(6)).getIntervalReadingRecord()).isInstanceOf(GapsIntervalReadingImpl.class);
+        assertThat(((IntervalReadingImpl) result.get().getMeterReading().getIntervalBlocks().get(0).getIntervals().get(6)).getIntervalReadingRecord().getValue()).isEqualTo(BigDecimal.valueOf(5));
     }
 }

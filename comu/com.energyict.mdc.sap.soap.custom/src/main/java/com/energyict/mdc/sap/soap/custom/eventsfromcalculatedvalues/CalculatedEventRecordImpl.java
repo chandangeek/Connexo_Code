@@ -81,11 +81,6 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
     }
 
     @Override
-    public void setLogBookId(long logBookId) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void setLogBookPosition(int logBookPosition) {
         throw new UnsupportedOperationException();
     }
