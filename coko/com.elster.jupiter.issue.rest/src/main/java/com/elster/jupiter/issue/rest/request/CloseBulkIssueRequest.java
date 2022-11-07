@@ -1,5 +1,10 @@
 package com.elster.jupiter.issue.rest.request;
 
+/*
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 import com.elster.jupiter.issue.share.entity.Issue;
 import com.elster.jupiter.issue.share.entity.OpenIssue;
 import com.elster.jupiter.users.User;
