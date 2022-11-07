@@ -245,8 +245,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             record = me.getBulkRecord(),
             requestData = me.getRequestData(record),
             operation = record.get('operation'),
-            isRetry = (operation == 'retrycomm') || (operation == 'retrycommnow') || (operation == 'retryconn'),
-            requestUrl = operation == 'assign' || 'setpriority' || 'close' ? '/api/isu/issues/' + operation : '/api/idc/issues/' + operation,
+            isRetry = (operation === 'retrycomm') || (operation === 'retrycommnow') || (operation === 'retryconn'),
+            requestUrl = (operation === 'assign' ||
+                operation === 'setpriority' ||
+                operation === 'close') ? '/api/isu/issues/' + operation : '/api/idc/issues/' + operation,
             warnIssues = [],
             failedIssues = [],
             params = [],
@@ -305,24 +307,17 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             method: 'PUT',
             params: params,
             jsonData: requestData,
-            timeout: 120000,
+            timeout: 300000,
             success: function (response) {
-                  var obj;
-                if (operation != 'setpriority') {
-                     obj = Ext.decode(response.responseText).data;
-                   }
-                   else {
-                    obj = Ext.decode(response.responseText);
-                   }
-                    successCount = obj.success.length;
-                    successMessage='',
+                var obj = Ext.decode(response.responseText).data;
+                var successCount = obj.success.length;
+                var successMessage = '',
                     warnCount = 0,
                     failedCount = 0,
-                    warnMessage='',
-                    failedMessage='',
+                    warnMessage = '',
+                    failedMessage = '',
                     warnList = '',
                     failList = '';
-
                 if (!Ext.isEmpty(obj.success)) {
                     switch (operation) {
                         case 'assign':
@@ -364,36 +359,36 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         case 'retrycomm':
                             if (successCount > 0) {
                                 successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.retrycomm.success.result', successCount, 'ISU',
-                                        "No communication tasks have been retriggered",
-                                        "Communication tasks have been retriggered for {0} issue",
-                                        "Communication tasks have been retriggered for {0} issues") + '\</h3\>\<br\>';
+                                    "No communication tasks have been retriggered",
+                                    "Communication tasks have been retriggered for {0} issue",
+                                    "Communication tasks have been retriggered for {0} issues") + '\</h3\>\<br\>';
                             }
                             break;
                         case 'retrycommnow':
                             if (successCount > 0) {
                                 successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.retrycomm.success.result', successCount, 'ISU',
-                                        "No communication tasks have been retriggered",
-                                        "Communication tasks have been retriggered for {0} issue",
-                                        "Communication tasks have been retriggered for {0} issues") + '\</h3\>\<br\>';
+                                    "No communication tasks have been retriggered",
+                                    "Communication tasks have been retriggered for {0} issue",
+                                    "Communication tasks have been retriggered for {0} issues") + '\</h3\>\<br\>';
                             }
                             break;
                         case 'retryconn':
                             if (successCount > 0) {
                                 successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.retryconn.success.result', successCount, 'ISU',
-                                        "No connections have been retriggered",
-                                        "Connections have been retriggered for {0} issue",
-                                        "Connections have been retriggered for {0} issues") + '\</h3\>\<br\>';
+                                    "No connections have been retriggered",
+                                    "Connections have been retriggered for {0} issue",
+                                    "Connections have been retriggered for {0} issues") + '\</h3\>\<br\>';
                             }
                             break;
 
                         case 'setpriority':
                             if (successCount > 0) {
-                                if(record.get('allIssues')){
+                                if (record.get('allIssues')) {
                                     successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.setpriority.successAllIssues.result', successCount, 'ISU',
                                         "-",
                                         "Successfully set priority for {0} issue",
                                         "Successfully set priority for {0} issues") + '\</h3\>\<br\>';
-                                }else{
+                                } else {
                                     successMessage = '\<h3\>' + Uni.I18n.translatePlural('issues.setpriority.successSelectedIssues.result', successCount, 'ISU',
                                         "-",
                                         "Successfully set priority for {0} selected issue",
@@ -469,7 +464,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                     switch (operation) {
                         case 'assign':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.assign.unable.results', warnCount, 'ISU', '-','<h3 style="color: #eb5642">Unable to assign one issue</h3><br>', '<h3 style="color: #eb5642">Unable to assign {0} issues</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('issues.assign.unable.results', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to assign one issue</h3><br>', '<h3 style="color: #eb5642">Unable to assign {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
                                 failedMessage = Uni.I18n.translatePlural('issues.assign.failed.results', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Failed to assign one issue</h3><br>', '<h3 style="color: #eb5642">Failed to assign {0} issues</h3><br>') + failList;
@@ -477,7 +472,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             break;
                         case 'close':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.close.unable.results', warnCount, 'ISU', '-','<h3 style="color: #eb5642">Unable to close one issue</h3><br>', '<h3 style="color: #eb5642">Unable to close {0} issues</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('issues.close.unable.results', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to close one issue</h3><br>', '<h3 style="color: #eb5642">Unable to close {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
                                 failedMessage = Uni.I18n.translatePlural('issues.close.failed.results', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Failed to close one issue</h3><br>', '<h3 style="color: #eb5642">Failed to close {0} issues</h3><br>') + failList;
@@ -486,24 +481,24 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                         case 'retrycomm':
                             if (warnCount > 0) {
                                 warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.results', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to retry communication tasks for {0} issue</h3><br>',
-                                        '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
+                                    '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
                             }
                             break;
                         case 'retrycommnow':
                             if (warnCount > 0) {
                                 warnMessage = Uni.I18n.translatePlural('issues.retrycomm.unable.results', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to retry communication tasks for {0} issue</h3><br>',
-                                        '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
+                                    '<h3>Unable to retry communication tasks for {0} issues</h3><br>') + warnList;
                             }
                             break;
                         case 'retryconn':
                             if (warnCount > 0) {
                                 warnMessage = Uni.I18n.translatePlural('issues.retryconn.unable.results', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to retry connections for {0} issue</h3><br>',
-                                        '<h3>Unable to retry connections for {0} issues</h3><br>') + warnList;
+                                    '<h3>Unable to retry connections for {0} issues</h3><br>') + warnList;
                             }
                             break;
                         case 'setpriority':
                             if (warnCount > 0) {
-                                warnMessage = Uni.I18n.translatePlural('issues.setpriority.unable.results', warnCount, 'ISU', '-','<h3 style="color: #eb5642">Unable to set priority for one issue</h3><br>', '<h3 style="color: #eb5642">Unable to set priority for {0} issues</h3><br>') + warnList;
+                                warnMessage = Uni.I18n.translatePlural('issues.setpriority.unable.results', warnCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to set priority for one issue</h3><br>', '<h3 style="color: #eb5642">Unable to set priority for {0} issues</h3><br>') + warnList;
                             }
                             if (failedCount > 0) {
                                 failedMessage = Uni.I18n.translatePlural('issues.setpriority.failed.results', failedCount, 'ISU', '-', '<h3 style="color: #eb5642">Unable to set priority for one issue</h3><br>', '<h3 style="color: #eb5642">Unable to set priority for {0} issues</h3><br>') + failList;
@@ -522,6 +517,27 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
                 step5panel.removeAll(true);
 
+                if (response.status === 202) {
+                    var msg = '\<h3\>' + Uni.I18n.translate('issue.background.message', 'ISU', 'Closing has started and will continue in the background') + '\</h3\>\<br\>';
+                    var messageParams = {
+                        type: 'success',
+                        msgBody: [
+                            {html: msg}
+                        ],
+                        closeBtn: false
+                    };
+                    messageParams.btns = [
+                        {
+                            itemId: 'btn-finish',
+                            text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'), ui: 'action', hnd: function () {
+                                step5panel.removeAll(true);
+                                Ext.History.back();
+                            }
+                        }
+                    ];
+                    var messagePanel = Ext.widget('message-panel', messageParams);
+                    step5panel.add(messagePanel);
+                }
                 if (warnCount > 0) {
                     var warnMessageParams = {
                         type: 'attention',
@@ -550,12 +566,16 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             {html: failedMessage}
                         ],
                         btns: [
-                            {text: "Retry", hnd: function () {
-                                me.fireEvent('retryRequest', wizard, failedIssues);
-                            }},
-                            {text: "Finish", hnd: function () {
-                                Ext.History.back();
-                            }}
+                            {
+                                text: "Retry", hnd: function () {
+                                    me.fireEvent('retryRequest', wizard, failedIssues);
+                                }
+                            },
+                            {
+                                text: "Finish", hnd: function () {
+                                    Ext.History.back();
+                                }
+                            }
                         ],
                         closeBtn: false
                     };
@@ -576,9 +596,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                             {
                                 itemId: 'btn-finish',
                                 text: Uni.I18n.translate('general.finish', 'ISU', 'Finish'), ui: 'action', hnd: function () {
-                                step5panel.removeAll(true);
-                                Ext.History.back();
-                            }}
+                                    step5panel.removeAll(true);
+                                    Ext.History.back();
+                                }
+                            }
                         ];
                     }
                     var successPanel = Ext.widget('message-panel', successMsgParams);
@@ -769,7 +790,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 });
                 break;
             case 'setpriority':
-                view ='set-priority-form';
+                view = 'set-priority-form';
                 widget = Ext.widget(view, {
                     labelWidth: 120,
                     controlsWidth: 500
@@ -864,10 +885,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
             case 'close':
                 if (!record.get('allIssues')) {
                     message = Uni.I18n.translatePlural('issues.selectedIssues.close.withCount', record.get('issues').length, 'ISU', '-', '<h3>Close one issue?</h3><br>', '<h3>Close {0} issues?</h3><br>')
-                        + Uni.I18n.translate('issues.selectedIssues.willBeClosed','ISU', 'The selected issue(s) will be closed with status "<b>{0}</b>"', [record.get('statusName')]);
+                        + Uni.I18n.translate('issues.selectedIssues.willBeClosed', 'ISU', 'The selected issue(s) will be closed with status "<b>{0}</b>"', [record.get('statusName')]);
                 } else {
                     message = Uni.I18n.translate('issues.allIssues.willBeClosed.title', 'ISU', '<h3>Close all issues?</h3><br>')
-                        + Uni.I18n.translate('issues.allIssues.willBeClosed', 'ISU', 'All issues will be closed with status "<b>{0}</b>"',[record.get('statusName')]);
+                        + Uni.I18n.translate('issues.allIssues.willBeClosed', 'ISU', 'All issues will be closed with status "<b>{0}</b>"', [record.get('statusName')]);
                 }
                 break;
 
@@ -904,10 +925,10 @@ Ext.define('Isu.controller.BulkChangeIssues', {
                 record.set('priority', formPanel.down("#num-urgency").getValue() + ":" + formPanel.down("#num-impact").getValue());
                 if (record.get('allIssues')) {
                     message = Uni.I18n.translate('issues.allIssues.setPriority.title', 'ISU', '<h3>Set priority for all issues?</h3><br>')
-                        + Uni.I18n.translate('issues.allIssues.setPriority', 'ISU', 'All issues will have the priority set to {0}',[formPanel.down("#priority-label").text]);
-                   }else {
+                        + Uni.I18n.translate('issues.allIssues.setPriority', 'ISU', 'All issues will have the priority set to {0}', [formPanel.down("#priority-label").text]);
+                } else {
                     message = Uni.I18n.translatePlural('issues.selectedIssues.setPriority.withCount', record.get('issues').length, 'ISU', '-', '<h3>Set priority for one issue?</h3><br>', '<h3>Set priority for {0} issues?</h3><br>')
-                        + Uni.I18n.translate('issues.selectedIssues.setPriority','ISU', 'The priority of the selected issue(s) will be set to {0}', [formPanel.down("#priority-label").text]);
+                        + Uni.I18n.translate('issues.selectedIssues.setPriority', 'ISU', 'The priority of the selected issue(s) will be set to {0}', [formPanel.down("#priority-label").text]);
                 }
                 break;
             case 'snooze':
@@ -941,7 +962,7 @@ Ext.define('Isu.controller.BulkChangeIssues', {
 
     getIssueType: function (array, value) {
         for (var i = 0; i < array.length; i++) {
-            if (array[i].id === value && array[i].title.indexOf('estimate') >= 0 ) {
+            if (array[i].id === value && array[i].title.indexOf('estimate') >= 0) {
                 return "datavalidation";
             }
         }

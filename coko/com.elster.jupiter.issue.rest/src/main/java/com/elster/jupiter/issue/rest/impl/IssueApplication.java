@@ -1,9 +1,11 @@
 /*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.issue.rest.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.TranslationKeys;
 import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
@@ -88,6 +90,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile Clock clock;
+    private volatile EventService eventService;
     private volatile IssueResourceUtility issueResourceUtility;
 
     @Override
@@ -187,6 +190,11 @@ public class IssueApplication extends Application implements TranslationKeyProvi
         this.clock = clock;
     }
 
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
+    }
+
     @Override
     public String getComponentName() {
         return ISSUE_REST_COMPONENT;
@@ -236,6 +244,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
             bind(clock).to(Clock.class);
             bind(issueResourceUtility).to(IssueResourceUtility.class);
+            bind(eventService).to(EventService.class);
         }
     }
 

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.issue.impl.service;
@@ -17,12 +18,14 @@ import com.elster.jupiter.issue.impl.database.TableSpecs;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_2;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_3;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_4;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_4_39;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_4_9;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_5;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_6;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_7;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_7_2;
 import com.elster.jupiter.issue.impl.database.UpgraderV10_8;
+import com.elster.jupiter.issue.impl.database.UpgraderV10_9_21;
 import com.elster.jupiter.issue.impl.database.groups.IssuesGroupOperation;
 import com.elster.jupiter.issue.impl.module.Installer;
 import com.elster.jupiter.issue.impl.module.MessageSeeds;
@@ -159,9 +162,9 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile ThreadPrincipalService threadPrincipalService;
     private volatile NlsService nlsService;
     private volatile Thesaurus thesaurus;
-    private Set<ComponentAndLayer> alreadyJoined = ConcurrentHashMap.newKeySet();
+    private final Set<ComponentAndLayer> alreadyJoined = ConcurrentHashMap.newKeySet();
     private final Object thesaurusLock = new Object();
-    private static BundleContext bundleContext;
+    private BundleContext bundleContext;
 
 
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
@@ -179,7 +182,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile IssueResourceUtility issueResourceUtility;
 
     private final Map<String, IssueActionFactory> issueActionFactories = new ConcurrentHashMap<>();
-    private volatile Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
+    private final Map<String, CreationRuleTemplate> creationRuleTemplates = new ConcurrentHashMap<>();
     private final List<IssueProvider> issueProviders = new ArrayList<>();
     private final List<IssueWebServiceClient> issueWebServiceClients = new ArrayList<>();
     private final List<IssueCreationValidator> issueCreationValidators = new CopyOnWriteArrayList<>();
@@ -272,11 +275,13 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
                         .put(version(10, 3), UpgraderV10_3.class)
                         .put(version(10, 4), UpgraderV10_4.class)
                         .put(version(10, 4, 9), UpgraderV10_4_9.class)
+                        .put(version(10, 4, 39), UpgraderV10_4_39.class)
                         .put(version(10, 5), UpgraderV10_5.class)
                         .put(version(10, 6), UpgraderV10_6.class)
                         .put(version(10, 7), UpgraderV10_7.class)
                         .put(version(10, 7, 2), UpgraderV10_7_2.class)
                         .put(version(10, 8), UpgraderV10_8.class)
+                        .put(version(10, 9, 21), UpgraderV10_9_21.class)
                         .build()
         );
     }
@@ -445,8 +450,8 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(Privileges.values()))
+                        Arrays.stream(TranslationKeys.values()),
+                        Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -1022,7 +1027,6 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         if (filter.getUntilSnoozeDateTime().isPresent()) {
             condition = condition.and(where("snoozeDateTime").isLessThan(filter.getUntilSnoozeDateTime().get()));
         }
-
         return condition;
     }
 
