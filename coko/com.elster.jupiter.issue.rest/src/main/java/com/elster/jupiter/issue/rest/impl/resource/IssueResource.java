@@ -444,7 +444,9 @@ public class IssueResource extends BaseResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed(Privileges.Constants.CLOSE_ISSUE)
+    @Deprecated
     public Response closeIssues(CloseIssueRequest request, @Context SecurityContext securityContext, @BeanParam JsonQueryFilter filter) {
+        /* TODO this method should be refactored when FE implements dynamic actions for bulk operations */
         User performer = (User) securityContext.getUserPrincipal();
         ActionInfo response = new ActionInfo();
         List<OpenIssue> issues = getOpenIssuesListToClose(request, response, getIssueProvider(request, filter));

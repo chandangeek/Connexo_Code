@@ -164,7 +164,7 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
     private volatile Thesaurus thesaurus;
     private final Set<ComponentAndLayer> alreadyJoined = ConcurrentHashMap.newKeySet();
     private final Object thesaurusLock = new Object();
-    private static BundleContext bundleContext;
+    private BundleContext bundleContext;
 
 
     private volatile KnowledgeBuilderFactoryService knowledgeBuilderFactoryService;
