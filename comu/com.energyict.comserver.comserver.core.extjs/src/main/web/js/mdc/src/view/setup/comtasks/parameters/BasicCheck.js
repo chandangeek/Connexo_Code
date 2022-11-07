@@ -67,7 +67,6 @@ Ext.define('Mdc.view.setup.comtasks.parameters.BasicCheck', {
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     flex: 1,
-                    vtype: 'checkForBlacklistCharacters',
                     value: 60
                 },
                 {

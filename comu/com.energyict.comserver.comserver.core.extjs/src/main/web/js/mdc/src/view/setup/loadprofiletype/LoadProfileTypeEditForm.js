@@ -31,7 +31,7 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeEditForm', {
             xtype: 'textfield',
             itemId: 'txt-load-profile-type-name',
             name: 'name',
-            regex: /[a-zA-Z0-9]+$/,
+            regex: /[a-zA-Z0-9]+/,
             required: true,
             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
             msgTarget: 'under'

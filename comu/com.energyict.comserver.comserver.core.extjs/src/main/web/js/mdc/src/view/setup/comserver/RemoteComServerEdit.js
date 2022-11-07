@@ -123,8 +123,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                                 xtype: 'textfield',
                                 inputType: 'password',
                                 name: 'queryAPIPassword',
-                                fieldLabel: 'queryAPIPassword',
-                                vtype: 'checkForBlacklistCharacters'
+                                fieldLabel: 'queryAPIPassword'
                             }
                         ]},
                     {
@@ -140,7 +139,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                                 xtype: 'textfield',
                                 name: 'queryAPIPostUri',
                                 fieldLabel: 'queryAPIPostUri',
-                                vtype: 'checkForBlacklistCharacters'
+                                vtype: 'checkURLForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',

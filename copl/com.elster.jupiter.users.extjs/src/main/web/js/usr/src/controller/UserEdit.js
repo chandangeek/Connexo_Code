@@ -5,8 +5,7 @@
 Ext.define('Usr.controller.UserEdit', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-    ],
+    requires: [],
 
     stores: [
         'Usr.store.UserGroups',
@@ -88,7 +87,7 @@ Ext.define('Usr.controller.UserEdit', {
 
                     Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                         callback: function (domain) {
-                            if (!domain.get('manageGroupsInternal')|| me.isLocalAdmin(user)) {
+                            if (!domain.get('manageGroupsInternal') || me.isLocalAdmin(user)) {
                                 panel.down('[itemId=selectRoles]').disable();
                             }
 

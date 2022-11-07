@@ -90,7 +90,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             allowBlank: false,
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.contextPath', 'MDC', 'Context path'),
             name: 'contextPath',
-            vtype: 'checkForBlacklistCharacters'
+            vtype: 'checkURLForBlacklistCharacters'
         },
         {
             xtype: 'checkbox',

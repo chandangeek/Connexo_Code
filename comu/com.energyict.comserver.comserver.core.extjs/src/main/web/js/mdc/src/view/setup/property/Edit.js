@@ -85,8 +85,7 @@ Ext.define('Mdc.view.setup.property.Edit', {
                     inputType: 'password',
                     margin: '0 5 5 0',
                     width: 320,
-                    msgTarget: 'under',
-                    vtype: 'checkForBlacklistCharacters'
+                    msgTarget: 'under'
                 },
                 {
                     xtype: 'defaultButton',

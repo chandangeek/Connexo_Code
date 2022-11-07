@@ -130,14 +130,12 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'ringCount',
-                                fieldLabel: 'ringCount',
-                                vtype: 'checkForBlacklistCharacters'
+                                fieldLabel: 'ringCount'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'maximumNumberOfDialErrors',
-                                fieldLabel: 'maximumNumberOfDialErrors',
-                                vtype: 'checkForBlacklistCharacters'
+                                fieldLabel: 'maximumNumberOfDialErrors'
                             },
                             {
                                 xtype: 'timeInfoField',
@@ -162,8 +160,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'atCommandTry',
-                                fieldLabel: 'atCommandTry',
-                                vtype: 'checkForBlacklistCharacters'
+                                fieldLabel: 'atCommandTry'
                             },
                             {
                                 xtype: 'combobox',
@@ -294,7 +291,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 xtype: 'textfield',
                                 name: 'contextPath',
                                 fieldLabel: 'contextPath',
-                                vtype: 'checkForBlacklistCharacters'
+                                vtype: 'checkURLForBlacklistCharacters'
                             },
                             {
                                 xtype: 'checkbox',

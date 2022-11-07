@@ -52,7 +52,6 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingForm', {
                             regex: /[a-zA-Z0-9]+/,
                             allowBlank: false,
                             fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
-                            vtype: 'checkForBlacklistCharacters',
                             msgTarget: 'under'
                         },
                         {

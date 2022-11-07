@@ -27,7 +27,6 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Set', {
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     value: 5,
-                    vtype: 'checkForBlacklistCharacters',
                     flex: 1
                 },
                 {
@@ -54,7 +53,6 @@ Ext.define('Mdc.view.setup.comtasks.parameters.time.Set', {
                     maskRe: /[0-9]+/,
                     margin: '0 10 0 0',
                     value: 1,
-                    vtype: 'checkForBlacklistCharacters',
                     flex: 1
                 },
                 {

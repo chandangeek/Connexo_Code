@@ -240,7 +240,7 @@ Ext.define('Mdc.view.setup.comserver.ComServerEdit', {
                                     name: 'serverMonitorUrl',
                                     width: 335,
                                     required: false,
-                                    vtype: 'checkForBlacklistCharacters'
+                                    vtype: 'checkURLForBlacklistCharacters'
                                 }
                             ]
                         },

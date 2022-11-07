@@ -118,6 +118,7 @@ Ext.onReady(function () {
     // </debug>
     Ext.Ajax.on("beforerequest", function (conn, options) {
         var xAuthToken = localStorage.getItem('X-AUTH-TOKEN');
+        delete conn.defaultHeaders['X-CSRF-TOKEN'];
         var isXCSRFTokenPresent;
         /*  Ext.Array.forEach(conn.defaultHeaders.spilt(';'), function (header){
               if(header === 'X-CSRF-TOKEN'){
