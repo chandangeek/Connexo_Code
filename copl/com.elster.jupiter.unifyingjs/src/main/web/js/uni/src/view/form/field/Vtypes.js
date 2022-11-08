@@ -79,7 +79,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
         });
         Ext.apply(Ext.form.VTypes, {
             checkURLForBlacklistCharacters: function (value, field) {
-                return !(/[<>&%';|*]/.test(value));
+                return !(/[<>]/.test(value));
             },
             checkURLForBlacklistCharactersText: Uni.I18n.translate('general.htmltag.msg', 'UNI', 'Invalid characters')
         });

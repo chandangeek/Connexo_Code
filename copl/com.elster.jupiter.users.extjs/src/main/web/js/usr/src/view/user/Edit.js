@@ -74,8 +74,7 @@ Ext.define('Usr.view.user.Edit', {
                             {
                                 name: 'domain',
                                 fieldLabel: Uni.I18n.translate('user.userdirectory', 'USR', 'User directory'),
-                                width: 650,
-                                vtype: 'checkForBlacklistCharacters',
+                                width: 650
                             },
                             {
                                 name: 'email',
