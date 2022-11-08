@@ -31,12 +31,13 @@ import java.io.IOException;
 import java.util.List;
 
 public class EI7 extends A2 {
-   protected EI7RegisterFactory registerFactory = null;
-
+    
     /*Predefined OBIS Code for EI7 meter */
     private static final ObisCode FIRMWARE_VERSION_METROLOGICAL_OBIS_CODE = ObisCode.fromString("7.0.0.2.1.255");
     private static final ObisCode FIRMWARE_VERSION_APPLICATION_OBIS_CODE = ObisCode.fromString("7.1.0.2.1.255");
     private static final ObisCode FIRMWARE_VERSION_BOOTLOADER_OBIS_CODE = ObisCode.fromString("7.3.0.2.1.255");
+
+    protected EI7RegisterFactory registerFactory = null;
 
     public EI7(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
                NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
@@ -58,7 +59,6 @@ public class EI7 extends A2 {
             setDeviceCache(new DLMSCache());
         }
         DLMSCache dlmsCache = getDeviceCache();
-
         readObjectList();
         dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
     }
@@ -77,7 +77,6 @@ public class EI7 extends A2 {
             firmwareVersionsCollectedData.setActiveAuxiliaryFirmwareVersion(getActiveAuxiliaryFirmwareVersion());
             return firmwareVersionsCollectedData;
         }
-
         return super.getFirmwareVersions(serialNumber);
     }
 
@@ -98,7 +97,6 @@ public class EI7 extends A2 {
             journal("Collecting firmware version from " + firmwareObiscode);
             Data firmwareData = getDlmsSession().getCosemObjectFactory().getData(firmwareObiscode);
             AbstractDataType valueAttr = firmwareData.getValueAttr();
-
             if (valueAttr.isOctetString()) {
                 return(getEI7RegisterFactory().decodeFirmwareVersion(valueAttr.getOctetString()));
             }
