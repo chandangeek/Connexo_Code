@@ -27,10 +27,6 @@ public class EI7RegisterFactory extends A2RegisterFactory {
 
     private final EI7 protocol;
 
-    @Override
-    protected List<ObisCode> getFirmwareVersionObisCodes() {
-        return Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION, BOOTLOADER_FIRMWARE_VERSION);
-    }
     public EI7RegisterFactory(EI7 ei7, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory) {
         super(ei7, collectedDataFactory, issueFactory);
         this.protocol = ei7;
@@ -70,6 +66,11 @@ public class EI7RegisterFactory extends A2RegisterFactory {
         int language = (int) value[2] & 0xFF;
         int languageTableVersion = (int) value[3] & 0xFF;
 
-        return major+"."+minor+"."+language+"."+languageTableVersion;
+        return major + "." + minor + "." + language + "." + languageTableVersion;
+    }
+
+    @Override
+    protected List<ObisCode> getFirmwareVersionObisCodes() {
+        return Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION, BOOTLOADER_FIRMWARE_VERSION);
     }
 }
