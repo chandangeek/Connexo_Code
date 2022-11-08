@@ -104,7 +104,6 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 xtype: 'textfield',
                                 name: 'portNumber',
                                 fieldLabel: 'portNumber',
-                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'inbound-com-port-pool-combo',
