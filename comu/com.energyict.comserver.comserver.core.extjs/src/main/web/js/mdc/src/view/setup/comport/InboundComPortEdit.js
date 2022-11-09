@@ -290,7 +290,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 xtype: 'textfield',
                                 name: 'contextPath',
                                 fieldLabel: 'contextPath',
-                                vtype: 'checkURLForBlacklistCharacters'
+                                vtype: 'checkForPathBlacklistCharacters'
                             },
                             {
                                 xtype: 'checkbox',
@@ -303,25 +303,23 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 xtype: 'textfield',
                                 name: 'keyStoreFilePath',
                                 fieldLabel: 'keyStoreFilePath',
-                                vtype: 'checkForBlacklistCharacters'
+                                vtype: 'checkForPathBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'trustStoreFilePath',
                                 fieldLabel: 'trustStoreFilePath',
-                                vtype: 'checkForBlacklistCharacters'
+                                vtype: 'checkForPathBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'keyStorePassword',
-                                fieldLabel: 'keyStorePassword',
-                                vtype: 'checkForBlacklistCharacters'
+                                fieldLabel: 'keyStorePassword'
                             },
                             {
                                 xtype: 'textfield',
                                 name: 'trustStorePassword',
-                                fieldLabel: 'trustStorePassword',
-                                vtype: 'checkForBlacklistCharacters'
+                                fieldLabel: 'trustStorePassword'
                             }
                         ]
                     },

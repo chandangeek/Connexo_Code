@@ -106,7 +106,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             itemId: 'keyStoreFilePath',
             disabled: true,
             name: 'keyStoreFilePath',
-            vtype: 'checkForBlacklistCharacters'
+            vtype: 'checkForPathBlacklistCharacters'
         },
         {
             xtype: 'password-field',

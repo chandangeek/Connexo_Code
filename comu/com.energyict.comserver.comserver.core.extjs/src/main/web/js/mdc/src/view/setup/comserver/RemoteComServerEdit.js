@@ -145,7 +145,7 @@ Ext.define('Mdc.view.setup.comserver.RemoteComServerEdit', {
                                 xtype: 'textfield',
                                 name: 'eventRegistrationUri',
                                 fieldLabel: 'eventRegistrationUri',
-                                vtype: 'checkForBlacklistCharacters'
+                                vtype: 'checkURLForBlacklistCharacters'
                             }
                         ]
                     }

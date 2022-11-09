@@ -75,13 +75,21 @@ Ext.define('Uni.view.form.field.Vtypes', {
             checkForBlacklistCharacters: function (value, field) {
                 return !(/[<>?&%':;|*]/.test(value));
             },
-            checkForBlacklistCharactersText: Uni.I18n.translate('general.htmltag.msg', 'UNI', 'Invalid characters')
+            checkForBlacklistCharactersText: Uni.I18n.translate('general.blackListCharacter.msg', 'UNI', 'Invalid characters')
         });
+
         Ext.apply(Ext.form.VTypes, {
             checkURLForBlacklistCharacters: function (value, field) {
-                return !(/[<>]/.test(value));
+                return !(/[<>|]/.test(value));
             },
-            checkURLForBlacklistCharactersText: Uni.I18n.translate('general.htmltag.msg', 'UNI', 'Invalid characters')
+            checkURLForBlacklistCharactersText: Uni.I18n.translate('general.URLBlacklistCharacters.msg', 'UNI', 'Invalid characters')
+        });
+
+        Ext.apply(Ext.form.VTypes, {
+            checkForPathBlacklistCharacters: function (value, field) {
+                return !(/[<>&%';|*]/.test(value));
+            },
+            checkForPathBlacklistCharactersText: Uni.I18n.translate('general.pathFieldBlackListCharacters.msg', 'UNI', 'Invalid characters')
         });
     },
 
