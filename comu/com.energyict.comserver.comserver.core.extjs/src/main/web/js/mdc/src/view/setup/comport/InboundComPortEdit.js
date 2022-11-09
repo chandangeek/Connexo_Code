@@ -103,7 +103,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'portNumber',
-                                fieldLabel: 'portNumber',
+                                fieldLabel: 'portNumber'
                             },
                             {
                                 xtype: 'inbound-com-port-pool-combo',
@@ -290,7 +290,7 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                                 xtype: 'textfield',
                                 name: 'contextPath',
                                 fieldLabel: 'contextPath',
-                                vtype: 'checkForPathBlacklistCharacters'
+                                vtype: 'checkURLForBlacklistCharacters'
                             },
                             {
                                 xtype: 'checkbox',

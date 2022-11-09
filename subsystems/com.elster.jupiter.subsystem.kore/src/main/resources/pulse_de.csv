@@ -5897,7 +5897,12 @@ UNI;REST;uni.requiredField;Dieses Feld ist erforderlich.
 UNI;REST;usage.point.micro.action.description.CancelAllServiceCalls;Löst eine Anforderung zum Abbruch aller aktiven Dienstaufrufe an der angegebenen Verwendungsstelle aus.
 UNI;REST;validation.activeRules;Aktive Regeln
 UNI;REST;validation.inactiveRules;Inaktive Regeln
+UNI;REST;validation.invalidCertificateFormat;Die Datei muss im "pem"- oder "cer"-Format mit einer einzigen Erweiterung vorliegen
+UNI;REST;validation.doubleExtensionValidationFailed;Der Dateiname sollte eine und nur eine Erweiterung enthalten.
+UNI;REST;validation.invalidImportFileFormat;Die Datei muss im Format "csv", "txt", "xlsx", "xls", "xml" oder "zip" mit einer einzigen Erweiterung vorliegen
+UNI;REST;validation.invalidFirmwareFileFormat;Die Datei muss im "bin"- oder "dat"-Format mit einer einzigen Erweiterung vorliegen
 UNI;REST;validation.invalidFileFormat;Ungültiges Dateiformat
+UNI;REST;general.blackListCharacters;Ungültige Zeichen
 UNI;REST;validation.ruleSetName;Validierungsregelsatz
 UNI;REST;validationResults.last.days[0];{0} Tage
 UNI;REST;validationResults.last.days[1];{0} Tag
