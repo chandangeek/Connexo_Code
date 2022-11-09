@@ -33,9 +33,7 @@ import java.util.List;
 public class EI7 extends A2 {
     
     /*Predefined OBIS Code for EI7 meter */
-    private static final ObisCode FIRMWARE_VERSION_METROLOGICAL_OBIS_CODE = ObisCode.fromString("7.0.0.2.1.255");
     private static final ObisCode FIRMWARE_VERSION_APPLICATION_OBIS_CODE = ObisCode.fromString("7.1.0.2.1.255");
-    private static final ObisCode FIRMWARE_VERSION_BOOTLOADER_OBIS_CODE = ObisCode.fromString("7.3.0.2.1.255");
 
     protected EI7RegisterFactory registerFactory = null;
 
@@ -73,23 +71,13 @@ public class EI7 extends A2 {
         if (offlineDevice.getSerialNumber().equals(serialNumber)) {
             CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
             firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getActiveMeterFirmwareVersion());
-            firmwareVersionsCollectedData.setActiveCommunicationFirmwareVersion(getActiveCommunicationFirmwareVersion());
-            firmwareVersionsCollectedData.setActiveAuxiliaryFirmwareVersion(getActiveAuxiliaryFirmwareVersion());
             return firmwareVersionsCollectedData;
         }
         return super.getFirmwareVersions(serialNumber);
     }
 
     public String getActiveMeterFirmwareVersion(){
-        return  getFirmwareVersion(FIRMWARE_VERSION_METROLOGICAL_OBIS_CODE);
-    }
-
-    public String getActiveCommunicationFirmwareVersion(){
         return  getFirmwareVersion(FIRMWARE_VERSION_APPLICATION_OBIS_CODE);
-    }
-
-    public String getActiveAuxiliaryFirmwareVersion(){
-        return getFirmwareVersion(FIRMWARE_VERSION_BOOTLOADER_OBIS_CODE);
     }
 
     public String getFirmwareVersion(ObisCode firmwareObiscode) {
@@ -104,16 +92,6 @@ public class EI7 extends A2 {
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
         return "";
-    }
-
-    @Override
-    public boolean supportsCommunicationFirmwareVersion() {
-        return true;
-    }
-
-    @Override
-    public boolean supportsAuxiliaryFirmwareVersion() {
-        return true;
     }
 
     @Override
