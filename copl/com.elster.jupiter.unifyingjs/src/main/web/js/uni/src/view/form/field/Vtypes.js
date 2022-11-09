@@ -33,7 +33,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
                 var fileName = /^.*\.(pem|cer)$/i;
                 return fileName.test(val) && me.checkLength(val);
             },
-            certificateFileUploadText: Uni.I18n.translate('validation.invalidCertificateFormat', 'UNI', 'File must be "pem" or "cert" format, with a single extension')
+            certificateFileUploadText: Uni.I18n.translate('general.certficateValidationFailed.msg', 'UNI', 'File must be "pem" or "cert" format, with a single extension')
         });
     },
 
@@ -43,7 +43,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
             fileUpload: function (val, field) {
                 return me.checkLength(val);
             },
-            fileUploadText: Uni.I18n.translate('validation.doubleExtensionValidationFailed', 'UNI', 'File name should contain one and only one extension.')
+            fileUploadText: Uni.I18n.translate('general.doubleExtensionValidationFailed.msg', 'UNI', 'File name should contain one and only one extension.')
         });
     },
 
@@ -54,7 +54,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
                 var fileName = /^.*\.(csv|txt|xlsx|zip\.signed|xls|xml|zip)$/i;
                 return fileName.test(val) && me.checkLength(val);
             },
-            importFileUploadText: Uni.I18n.translate('validation.invalidImportFileFormat', 'UNI', 'File must be "csv", "txt", "xlsx" "xls", "xml", or "zip" format, with a single extension')
+            importFileUploadText: Uni.I18n.translate('general.importValidationFailed.msg', 'UNI', 'File must be "csv", "txt", "xlsx" "xls", "xml", or "zip" format, with a single extension')
         });
     },
 
@@ -65,7 +65,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
                 var fileName = /^.*\.(bin|dat)$/i;
                 return fileName.test(val) && me.checkLength(val);
             },
-            firmwareFileUploadText: Uni.I18n.translate('validation.invalidFirmwareFileFormat', 'UNI', 'File must be "bin" or "dat" format, with a single extension')
+            firmwareFileUploadText: Uni.I18n.translate('general.firmwareValidationFailed.msg', 'UNI', 'File must be "bin" or "dat" format, with a single extension')
         });
     },
 
@@ -82,14 +82,14 @@ Ext.define('Uni.view.form.field.Vtypes', {
             checkURLForBlacklistCharacters: function (value, field) {
                 return !(/[<>|]/.test(value));
             },
-            checkURLForBlacklistCharactersText: Uni.I18n.translate('general.blackListCharacters', 'UNI', 'Invalid characters')
+            checkURLForBlacklistCharactersText: Uni.I18n.translate('validation.blackListCharacters', 'UNI', 'Invalid characters')
         });
 
         Ext.apply(Ext.form.VTypes, {
             checkForPathBlacklistCharacters: function (value, field) {
                 return !(/[<>&%';|*]/.test(value));
             },
-            checkForPathBlacklistCharactersText: Uni.I18n.translate('general.blackListCharacters', 'UNI', 'Invalid characters')
+            checkForPathBlacklistCharactersText: Uni.I18n.translate('validation.blackListCharacters', 'UNI', 'Invalid characters')
         });
     },
 

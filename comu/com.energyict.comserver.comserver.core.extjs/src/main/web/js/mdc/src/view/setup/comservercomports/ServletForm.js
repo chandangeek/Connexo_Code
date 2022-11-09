@@ -124,7 +124,7 @@ Ext.define('Mdc.view.setup.comservercomports.ServletForm', {
             fieldLabel: Uni.I18n.translate('comServerComPorts.form.trustStorePath', 'MDC', 'Trust store file path'),
             itemId: 'trustStoreFilePath',
             name: 'trustStoreFilePath',
-            vtype: 'checkForBlacklistCharacters'
+            vtype: 'checkForPathBlacklistCharacters'
         },
         {
             xtype: 'password-field',
