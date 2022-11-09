@@ -256,7 +256,9 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         cal.setTime(givenDate);
         cal.add(Calendar.MINUTE, 1); // add 1 minute, sometimes the value is reported on the last minute of the previous interval
         int intervalInMinutes = getIntervalInMinutes();
-        if (intervalInMinutes < 60) {
+        if (0 == intervalInMinutes) {
+            cal.set(Calendar.MINUTE, 0);
+        } else if (intervalInMinutes < 60) {
             cal.set(Calendar.MINUTE, (cal.get(Calendar.MINUTE) / intervalInMinutes) * intervalInMinutes);
         } else if (intervalInMinutes == 60) {
             cal.set(Calendar.MINUTE, 0);
