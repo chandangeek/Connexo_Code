@@ -59,7 +59,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
     private final static ObisCode ON_DEMAND_SNAPSHOT_TIME = ObisCode.fromString("0.0.94.39.8.255");
     private final static ObisCode LEAKAGE_TEST_PARAMETERS = ObisCode.fromString("0.0.94.39.26.255");
     private final static ObisCode SYNCHRONIZATION_REGISTERS = ObisCode.fromString("0.0.94.39.20.255");
-    private final static ObisCode BATERY_CHANGE_AUTHORIZATION = ObisCode.fromString("0.0.94.39.14.255");
+    private final static ObisCode BATTERY_CHANGE_AUTHORIZATION = ObisCode.fromString("0.0.94.39.14.255");
     private final static ObisCode VALVE_CONFIGURATION_PGV = ObisCode.fromString("0.0.94.39.3.255");
     private final static ObisCode VALVE_CLOSURE_CAUSE = ObisCode.fromString("0.0.94.39.7.255");
     private final static ObisCode UNITS_DEVICE_STATUS = ObisCode.fromString("7.0.96.5.0.255");
@@ -74,7 +74,6 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
 
     private List<ObisCode> binaryMaps16BitObisCodes = Arrays.asList(VALVE_CONFIGURATION_PGV);
     private List<ObisCode> binaryMaps8BitObisCodes = Arrays.asList(VALVE_CLOSURE_CAUSE, UNITS_DEVICE_STATUS);
-    private List<ObisCode> firmwareVersionObisCodes = Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION);
 
     private DateTimeFormatter dateTimeFormatter = ISODateTimeFormat.dateTimeNoMillis();
 
@@ -161,6 +160,8 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                     } else if (isFirmwareVersion(obisCode)) {
                         String description = decodeFirmwareVersion(octetString);
                         registerValue = new RegisterValue(obisCode, description);
+                    } else if (isLanguageTableVersion(obisCode)){
+                        registerValue = new RegisterValue(obisCode, getLanguageTableVersion(octetString));
                     } else {
                         // only the signatures remain
                         registerValue = new RegisterValue(obisCode, getHexString(octetString));
@@ -219,7 +220,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                 Quantity quantity = new Quantity(register.getValueAttr().toBigDecimal(), getDataVolumeUnit(obisCode), getDataVolumeScalar(obisCode)); // EI6 and EI7 uses scalar and unit for data volume registers
 
                 // process Battery change authorization structure
-                if (obisCode.equals(BATERY_CHANGE_AUTHORIZATION)) {
+                if (obisCode.equals(BATTERY_CHANGE_AUTHORIZATION)) {
                     Structure structure = register.getValueAttr().getStructure();
                     String authorization = Integer.toBinaryString(structure.getDataType(0).getUnsigned8().getValue());
                     int presetDuration = structure.getDataType(1).getUnsigned8().getValue();
@@ -268,11 +269,23 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
         }
     }
 
-    private boolean isFirmwareVersion(ObisCode obisCode) {
-        return firmwareVersionObisCodes.contains(obisCode);
+    protected String getLanguageTableVersion(OctetString octetString) {
+        return Hex.encodeHexString(octetString.getOctetStr());
     }
 
-    protected String decodeFirmwareVersion(OctetString octetString) {
+    protected boolean isLanguageTableVersion(ObisCode obisCode) {
+        return false;
+    }
+
+    private boolean isFirmwareVersion(ObisCode obisCode) {
+        return getFirmwareVersionObisCodes().contains(obisCode);
+    }
+
+    protected List<ObisCode> getFirmwareVersionObisCodes() {
+        return Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION);
+    }
+
+    public String decodeFirmwareVersion(OctetString octetString) {
         byte[] value = octetString.getOctetStr();
         int version = (((((int) value[0]) & 0xFF) << 8) | (((int) value[1]) & 0xFF)) & 0xFFFF;
         int commit = (((((int) value[2]) & 0xFF) << 8) | (((int) value[3]) & 0xFF)) & 0xFFFF;
@@ -291,7 +304,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                 "\ncommit number =", Integer.toString(commit), "\ndate =", date);
     }
 
-    private String getHexString(OctetString octetString) {
+    protected String getHexString(OctetString octetString) {
         return Hex.encodeHexString(octetString.getOctetStr());
     }
 
