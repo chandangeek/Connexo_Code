@@ -101,7 +101,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testNormalAuthenticationNoSession() throws Exception {
+    public void testNormalAuthenticationNoSession() {
         when(httpSession.getAttribute("userName")).thenReturn(null);
         when(httpSession.getAttribute("password")).thenReturn(null);
         when(authorizationPolicy.getUserName()).thenReturn("admin");
@@ -113,7 +113,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testAuthenticationWrongPassword() throws Exception {
+    public void testAuthenticationWrongPassword() {
         when(httpSession.getAttribute("userName")).thenReturn(null);
         when(httpSession.getAttribute("password")).thenReturn(null);
         when(authorizationPolicy.getUserName()).thenReturn("admin");
@@ -130,7 +130,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testAuthenticationNotInRole() throws Exception {
+    public void testAuthenticationNotInRole() {
         Group special = mock(Group.class);
         when(endPointConfiguration.getGroup()).thenReturn(Optional.of(special));
 
@@ -150,7 +150,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testAuthenticationNoRole() throws Exception {
+    public void testAuthenticationNoRole() {
         when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
 
         when(httpSession.getAttribute("userName")).thenReturn(null);
@@ -164,7 +164,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testAuthenticationNoRoleWrongPassword() throws Exception {
+    public void testAuthenticationNoRoleWrongPassword() {
         when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
 
         when(httpSession.getAttribute("userName")).thenReturn(null);
@@ -183,7 +183,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testAuthenticationExceptionOccurs() throws Exception {
+    public void testAuthenticationExceptionOccurs() {
         RuntimeException toBeThrown = new RuntimeException();
         doThrow(toBeThrown).when(userService).authenticateBase64(anyString(), anyString());
 
@@ -202,7 +202,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testAuthenticationNoPrivilege() throws Exception {
+    public void testAuthenticationNoPrivilege() {
         when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
 
         when(httpSession.getAttribute("userName")).thenReturn(null);
@@ -222,7 +222,7 @@ public class AuthenticationInInterceptorTest {
     }
 
     @Test
-    public void testAuthenticationNotEnoughPrivileges() throws Exception {
+    public void testWebServiceCanBeUsedByEitherApplication() {
         when(endPointConfiguration.getGroup()).thenReturn(Optional.empty());
 
         when(httpSession.getAttribute("userName")).thenReturn(null);
@@ -233,13 +233,8 @@ public class AuthenticationInInterceptorTest {
         when(user.hasPrivilege(eq("INS"), anyString())).thenReturn(false);
         when(webService.getApplicationName()).thenReturn(ApplicationSpecific.WebServiceApplicationName.MULTISENSE_INSIGHT.getName());
 
-        try {
-            authorizationInInterceptor.handleMessage(message);
-            fail("Expected security exception");
-        } catch (Fault se) {
-            assertThat(se.getMessage(), is("Not authorized"));
-            verify(webServicesService).failOccurrence(1L, "User admin denied access: no privileges");
-        }
+        authorizationInInterceptor.handleMessage(message);
+        verify(endPointConfiguration, never()).log(any(LogLevel.class), anyString());
         verify(endPointConfiguration, never()).log(anyString(), any(Exception.class));
     }
 }
