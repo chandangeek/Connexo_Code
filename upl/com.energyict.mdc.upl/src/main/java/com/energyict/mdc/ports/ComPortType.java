@@ -28,13 +28,6 @@ public enum ComPortType {
         }
     },
 
-    COAP {
-        @Override
-        public String toString() {
-            return "TYPE_COAP";
-        }
-    },
-
     SERVLET {
         @Override
         public String toString() {
@@ -46,6 +39,13 @@ public enum ComPortType {
         @Override
         public String toString() {
             return "TYPE_EXTERNAL_SERVLET";
+        }
+    },
+
+    COAP {
+        @Override
+        public String toString() {
+            return "TYPE_COAP";
         }
     };
 
