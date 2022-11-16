@@ -436,8 +436,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 "MODTIME= " + modTime +
                 "USERNAME=" + userName +
                 "VERSION=" + version;
-
-
     }
 
     @Override

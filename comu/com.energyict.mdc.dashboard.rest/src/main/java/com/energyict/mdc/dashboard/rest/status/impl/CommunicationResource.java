@@ -20,7 +20,6 @@ import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.PartialConnectionTask;
-import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
@@ -53,7 +52,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
-import java.security.Principal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -72,9 +70,7 @@ import static java.util.stream.Collectors.toSet;
 @Path("/communications")
 public class CommunicationResource {
     private static final int MAX_RECORDS_PER_PAGE = 1000;
-
     private static final Logger LOGGER = Logger.getLogger(CommunicationResource.class.getName());
-
 
     private final CommunicationTaskService communicationTaskService;
     private final SchedulingService schedulingService;
@@ -223,13 +219,14 @@ public class CommunicationResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response runCommunicationWithPriority(@PathParam("comTaskExecId") long comTaskExecId, ComTaskExecutionInfo info) {
         info.id = comTaskExecId;
+        lockConnectionTask(comTaskExecId);
         ComTaskExecution comTaskExecution = resourceHelper.getLockedComTaskExecution(info.id, info.version)
                 .orElseThrow(conflictFactory.conflict()
                         .withActualVersion(() -> resourceHelper.getCurrentComTaskExecutionVersion(info.id))
                         .withMessageTitle(MessageSeeds.CONCURRENT_RUN_TITLE, info.name)
                         .withMessageBody(MessageSeeds.CONCURRENT_RUN_BODY, info.name)
                         .supplier());
-        PriorityComTaskExecutionLink priorityComTaskExecutionLink = resourceHelper.getLockedPriorityComTaskExecution(comTaskExecution);
+        resourceHelper.getPriorityComTaskExecution(comTaskExecution);
         comTaskExecution.runNow();
         return Response.status(Response.Status.OK).build();
     }
@@ -310,7 +307,7 @@ public class CommunicationResource {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);
             }
 
-        } else if (communicationsBulkRequestInfo != null && communicationsBulkRequestInfo.communications != null) {
+        } else if (communicationsBulkRequestInfo.communications != null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
                 communicationsBulkRequestInfo.communications.forEach(c -> processMessagePost(new ComTaskExecutionQueueMessage(c, action), destinationSpec.get()));
@@ -353,7 +350,6 @@ public class CommunicationResource {
         return jsonQueryFilter;
     }
 
-
     private ComTaskExecutionFilterSpecification buildFilterFromJsonQuery(JsonQueryFilter jsonQueryFilter) throws Exception {
         ComTaskExecutionFilterSpecification filter = new ComTaskExecutionFilterSpecification();
 
@@ -389,7 +385,7 @@ public class CommunicationResource {
 
         if (jsonQueryFilter.hasProperty(FilterOption.deviceGroups.name())) {
             filter.deviceGroups = new HashSet<>();
-            jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).stream().forEach(id -> filter.deviceGroups.add(meteringGroupsService.findEndDeviceGroup(id).get()));
+            jsonQueryFilter.getLongList(FilterOption.deviceGroups.name()).forEach(id -> filter.deviceGroups.add(meteringGroupsService.findEndDeviceGroup(id).get()));
         }
 
         if (jsonQueryFilter.hasProperty(FilterOption.startIntervalFrom.name()) || jsonQueryFilter.hasProperty(FilterOption.startIntervalTo.name())) {
@@ -442,9 +438,8 @@ public class CommunicationResource {
                     .stream()
                     .distinct()
                     .filter(pct -> connectionMethods.contains(pct.getName()))
-                    .map(pct -> pct.getId())
+                    .map(PartialConnectionTask::getId)
                     .collect(Collectors.toList());
-
         }
 
         if (jsonQueryFilter.hasProperty(FilterOption.location.name())) {
@@ -476,5 +471,4 @@ public class CommunicationResource {
         destinationSpec.message(json).send();
         return Response.ok().entity("{\"success\":\"true\"}").build();
     }
-
 }

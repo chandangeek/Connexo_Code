@@ -55,7 +55,7 @@ public class ResourceHelper {
                 .filter(candidate -> !candidate.isObsolete());
     }
 
-    PriorityComTaskExecutionLink getLockedPriorityComTaskExecution(ComTaskExecution comTaskExecution) {
+    PriorityComTaskExecutionLink getPriorityComTaskExecution(ComTaskExecution comTaskExecution) {
         Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(comTaskExecution);
         return priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(comTaskExecution));
     }

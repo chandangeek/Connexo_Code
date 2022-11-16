@@ -95,18 +95,18 @@ public class DeviceContactorResource {
         Device device = deviceService.findDeviceByMrid(mRID).orElseThrow(exceptionFactory.newExceptionSupplier(Response.Status.NOT_FOUND, MessageSeeds.NO_SUCH_DEVICE));
         DeviceMessageId deviceMessageId = getMessageId(contactorInfo);
         ComTaskEnablement comTaskEnablement = getComTaskEnablementForDeviceMessage(device, deviceMessageId);
-        Optional<ComTaskExecution> existingComTaskExecution = device.getComTaskExecutions().stream()
+        ComTaskExecution comTaskExecution = device.getComTaskExecutions().stream()
                 .filter(cte -> cte.getComTask().getId() == comTaskEnablement.getComTask().getId())
-                .findFirst();
+                .findFirst()
+                .orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement));
         long messageId = createDeviceMessageOnDevice(contactorInfo, device, deviceMessageId);
-        existingComTaskExecution.ifPresent(comTaskExecution -> connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId()));
-        existingComTaskExecution.flatMap(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
-                .orElseGet(() -> createAdHocComTaskExecution(device, comTaskEnablement)).runNow();
-
-        URI uri = uriInfo.getBaseUriBuilder().
-                path(DeviceMessageResource.class).
-                path(DeviceMessageResource.class, "getDeviceMessage").
-                build(mRID, messageId);
+        connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+        communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())
+                .ifPresent(ComTaskExecution::runNow);
+        URI uri = uriInfo.getBaseUriBuilder()
+                .path(DeviceMessageResource.class)
+                .path(DeviceMessageResource.class, "getDeviceMessage")
+                .build(mRID, messageId);
 
         LinkInfo linkInfo = new LinkInfo();
         linkInfo.link = Link.fromUri(uri).build();

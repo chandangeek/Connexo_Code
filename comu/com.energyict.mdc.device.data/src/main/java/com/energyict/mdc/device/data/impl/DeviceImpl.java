@@ -1234,8 +1234,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public ScheduledConnectionTaskBuilder getScheduledConnectionTaskBuilder(PartialOutboundConnectionTask partialOutboundConnectionTask) {
-        ScheduledConnectionTaskBuilderForDevice scheduledConnectionTaskBuilderForDevice = new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
-        return scheduledConnectionTaskBuilderForDevice;
+        return new ScheduledConnectionTaskBuilderForDevice(this, partialOutboundConnectionTask);
     }
 
     @Override
@@ -1870,7 +1869,6 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
     public List<DeviceMessage> getMessages() {
         return Collections.unmodifiableList(this.deviceMessages);
     }
-
 
     @Override
     public List<DeviceMessage> getMessagesByState(DeviceMessageStatus status) {

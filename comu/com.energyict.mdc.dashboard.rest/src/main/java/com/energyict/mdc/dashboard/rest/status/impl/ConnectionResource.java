@@ -19,6 +19,7 @@ import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.PagedInfoList;
 import com.elster.jupiter.rest.util.Transactional;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.time.Interval;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
@@ -360,8 +361,12 @@ public class ConnectionResource {
             scheduledConnectionTask.getScheduledComTasks().stream()
                     .filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus()))
                     .filter(comTaskExecution -> !comTaskExecution.isObsolete())
-                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
-                    .map(Optional::get)
+                    .map(ComTaskExecution::getId)
+                    .sorted()
+                    .map(communicationTaskService::findAndLockComTaskExecutionById)
+                    .flatMap(Functions.asStream())
+                    .filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus()))
+                    .filter(comTaskExecution -> !comTaskExecution.isObsolete())
                     .forEach(ComTaskExecution::runNow);
 
             scheduledConnectionTask.scheduleNow();
@@ -392,7 +397,7 @@ public class ConnectionResource {
         } else if (connectionsBulkRequestInfo != null && connectionsBulkRequestInfo.connections != null) {
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(ConnectionTaskService.CONNECTION_RESCHEDULER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
-                connectionsBulkRequestInfo.connections.stream().forEach(c -> processMessagePost(new RescheduleConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec.get()));
+                connectionsBulkRequestInfo.connections.forEach(c -> processMessagePost(new RescheduleConnectionTaskQueueMessage(c, "scheduleNow"), destinationSpec.get()));
                 return Response.status(Response.Status.OK).build();
             } else {
                 throw exceptionFactory.newException(MessageSeeds.NO_SUCH_MESSAGE_QUEUE);

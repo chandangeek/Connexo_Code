@@ -1348,7 +1348,7 @@ public class ResourceHelper {
         return input;
     }
 
-    public PriorityComTaskExecutionLink getLockedPriorityComTaskExecution(ComTaskExecution cte) {
+    public PriorityComTaskExecutionLink getPriorityComTaskExecution(ComTaskExecution cte) {
         Optional<PriorityComTaskExecutionLink> priorityComTaskExecutionLink = priorityComTaskService.findByComTaskExecution(cte);
         return priorityComTaskExecutionLink.orElseGet(() -> priorityComTaskService.from(cte));
     }
