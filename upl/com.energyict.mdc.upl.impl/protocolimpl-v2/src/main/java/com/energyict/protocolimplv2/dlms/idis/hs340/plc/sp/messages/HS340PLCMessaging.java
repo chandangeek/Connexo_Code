@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.hs340.plc.sp.messages;
 
 import com.energyict.mdc.upl.issue.IssueFactory;
@@ -19,9 +23,13 @@ import com.energyict.protocolimplv2.messages.PLCConfigurationDeviceMessage;
 import java.util.Arrays;
 import java.util.List;
 
+
 public class HS340PLCMessaging extends HS3300Messaging {
 
-    public HS340PLCMessaging(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory, PropertySpecService propertySpecService, NlsService nlsService, Converter converter, TariffCalendarExtractor calendarExtractor, CertificateWrapperExtractor certificateWrapperExtractor, DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
+    public HS340PLCMessaging(AbstractDlmsProtocol protocol, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+                             PropertySpecService propertySpecService, NlsService nlsService, Converter converter,
+                             TariffCalendarExtractor calendarExtractor, CertificateWrapperExtractor certificateWrapperExtractor,
+                             DeviceMessageFileExtractor messageFileExtractor, KeyAccessorTypeExtractor keyAccessorTypeExtractor) {
         super(protocol, collectedDataFactory, issueFactory, propertySpecService, nlsService, converter, calendarExtractor, certificateWrapperExtractor, messageFileExtractor, keyAccessorTypeExtractor);
     }
 

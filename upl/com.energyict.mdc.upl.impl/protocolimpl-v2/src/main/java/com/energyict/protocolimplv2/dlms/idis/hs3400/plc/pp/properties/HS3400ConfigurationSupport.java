@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.energyict.protocolimplv2.dlms.idis.hs3400.plc.pp.properties;
 
 import com.energyict.mdc.upl.properties.PropertySpec;
@@ -6,6 +10,7 @@ import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300Configurat
 
 import java.util.Arrays;
 import java.util.List;
+
 
 public class HS3400ConfigurationSupport extends HS3300ConfigurationSupport {
 
