@@ -1,7 +1,5 @@
 package com.energyict.protocolimplv2.dlms.landisAndGyr;
 
-import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.protocolimplv2.HdlcDlmsSession;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
@@ -33,6 +31,8 @@ import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.mdc.upl.tasks.support.DeviceLogBookSupport;
 import com.energyict.mdc.upl.tasks.support.DeviceRegisterSupport;
+
+import com.energyict.dlms.DLMSCache;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocol.LogBookReader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
@@ -54,140 +54,140 @@ import static com.energyict.dlms.common.DlmsProtocolProperties.READCACHE_PROPERT
 
 public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 
-	private NlsService nlsService;
-	private Converter converter;
+    private NlsService nlsService;
+    private Converter converter;
 
-	private HasDynamicProperties zmyConfSupport     = new ZMYDlmsConfigurationSupport(getPropertySpecService());
-	private DlmsProperties zmyProperties            = new ZMYProperties();
-	private DeviceRegisterSupport registerFactory   = new ZMYRegisterFactory(this);
-	private LoadProfileBuilder loadProfileBuilder   = new ZMYLoadProfileBuilder(this);
-	private DeviceLogBookSupport logBookFactory     = new ZMYLogBookFactory(this);
-	private ZMYMessaging zmyMessaging               = new ZMYMessaging(new ZMYMessageExecutor(this), converter,
-			nlsService, this.getPropertySpecService());
+    private HasDynamicProperties zmyConfSupport = new ZMYDlmsConfigurationSupport(getPropertySpecService());
+    private DlmsProperties zmyProperties = new ZMYProperties();
+    private DeviceRegisterSupport registerFactory = new ZMYRegisterFactory(this);
+    private LoadProfileBuilder loadProfileBuilder = new ZMYLoadProfileBuilder(this);
+    private DeviceLogBookSupport logBookFactory = new ZMYLogBookFactory(this);
+    private ZMYMessaging zmyMessaging = new ZMYMessaging(new ZMYMessageExecutor(this), converter,
+            nlsService, this.getPropertySpecService());
 
-	public ZMY(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
-	           NlsService nlsService, Converter converter) {
-		super(propertySpecService, collectedDataFactory, issueFactory);
-		this.nlsService = nlsService;
-		this.converter = converter;
-	}
+    public ZMY(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
+               NlsService nlsService, Converter converter) {
+        super(propertySpecService, collectedDataFactory, issueFactory);
+        this.nlsService = nlsService;
+        this.converter = converter;
+    }
 
-	@Override
-	public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
-		this.offlineDevice = offlineDevice;
-		getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
-		setDlmsSession(new HdlcDlmsSession(comChannel, getDlmsSessionProperties()));
-	}
+    @Override
+    public List<? extends ConnectionType> getSupportedConnectionTypes() {
+        return Arrays.asList(
+                (ConnectionType) new OutboundTcpIpConnectionType());
+    }
 
-	@Override
-	public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
-		return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
-	}
+    @Override
+    public String getProtocolDescription() {
+        return "Landis+Gyr E570 DLMS";
+    }
 
-	@Override
-	public DeviceFunction getDeviceFunction() {
-		return DeviceFunction.NONE;
-	}
+    @Override
+    public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
+        return loadProfileBuilder.fetchLoadProfileConfiguration(loadProfilesToRead);
+    }
 
-	@Override
-	public ManufacturerInformation getManufacturerInformation() {
-		return new ManufacturerInformation(Manufacturer.LandisAndGyr);
-	}
+    @Override
+    public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
+        return loadProfileBuilder.getLoadProfileData(loadProfiles);
+    }
 
-	@Override
-	public List<? extends ConnectionType> getSupportedConnectionTypes() {
-		return Arrays.asList(
-				(ConnectionType) new OutboundTcpIpConnectionType());
-	}
+    @Override
+    public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
+        return logBookFactory.getLogBookData(logBooks);
+    }
 
-	@Override
-	public String getProtocolDescription() {
-		return "Landis+Gyr E570 DLMS";
-	}
+    @Override
+    public List<DeviceMessageSpec> getSupportedMessages() {
+        return zmyMessaging.getSupportedMessages();
+    }
 
-	@Override
-	public List<CollectedLoadProfileConfiguration> fetchLoadProfileConfiguration(List<LoadProfileReader> loadProfilesToRead) {
-		return loadProfileBuilder.fetchLoadProfileConfiguration(loadProfilesToRead);
-	}
+    @Override
+    public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
+        return zmyMessaging.executePendingMessages(pendingMessages);
+    }
 
-	@Override
-	public List<CollectedLoadProfile> getLoadProfileData(List<LoadProfileReader> loadProfiles) {
-		return loadProfileBuilder.getLoadProfileData(loadProfiles);
-	}
+    @Override
+    public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
+        return zmyMessaging.updateSentMessages(sentMessages);
+    }
 
-	@Override
-	public List<CollectedLogBook> getLogBookData(List<LogBookReader> logBooks) {
-		return logBookFactory.getLogBookData(logBooks);
-	}
+    @Override
+    public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec,
+                         Object messageAttribute) {
+        return zmyMessaging.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
+    }
 
-	@Override
-	public List<DeviceMessageSpec> getSupportedMessages() {
-		return zmyMessaging.getSupportedMessages();
-	}
+    @Override
+    public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
+        return Optional.empty();
+    }
 
-	@Override
-	public CollectedMessageList executePendingMessages(List<OfflineDeviceMessage> pendingMessages) {
-		return zmyMessaging.executePendingMessages(pendingMessages);
-	}
+    @Override
+    public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
+        return Arrays.asList(
+                new SerialDeviceProtocolDialect(this.getPropertySpecService(), nlsService),
+                new TcpDeviceProtocolDialect(this.getPropertySpecService(), nlsService));
+    }
 
-	@Override
-	public CollectedMessageList updateSentMessages(List<OfflineDeviceMessage> sentMessages) {
-		return zmyMessaging.updateSentMessages(sentMessages);
-	}
+    @Override
+    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
+        return registerFactory.readRegisters(registers);
+    }
 
-	@Override
-	public Optional<String> prepareMessageContext(Device device, OfflineDevice offlineDevice, DeviceMessage deviceMessage) {
-		return Optional.empty();
-	}
+    @Override
+    public String getVersion() {
+        return "$Date: 2022-01-27 13:00:00 +0300 (Thu, 27 Jan 2022)$";
+    }
 
-	@Override
-	public String format(OfflineDevice offlineDevice, OfflineDeviceMessage offlineDeviceMessage, PropertySpec propertySpec,
-	                     Object messageAttribute) {
-		return zmyMessaging.format(offlineDevice, offlineDeviceMessage, propertySpec, messageAttribute);
-	}
+    @Override
+    public void init(OfflineDevice offlineDevice, ComChannel comChannel) {
+        this.offlineDevice = offlineDevice;
+        getDlmsSessionProperties().setSerialNumber(offlineDevice.getSerialNumber());
+        setDlmsSession(new ZMYDlmsSession(comChannel, getDlmsSessionProperties()));
+    }
 
-	@Override
-	public List<DeviceProtocolDialect> getDeviceProtocolDialects() {
-		return Arrays.asList(
-				new SerialDeviceProtocolDialect(this.getPropertySpecService(), nlsService),
-				new TcpDeviceProtocolDialect(this.getPropertySpecService(), nlsService));
-	}
+    @Override
+    public List<DeviceProtocolCapabilities> getDeviceProtocolCapabilities() {
+        return Arrays.asList(DeviceProtocolCapabilities.PROTOCOL_MASTER, DeviceProtocolCapabilities.PROTOCOL_SESSION);
+    }
 
-	@Override
-	public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-		return registerFactory.readRegisters(registers);
-	}
+    @Override
+    public DeviceFunction getDeviceFunction() {
+        return DeviceFunction.NONE;
+    }
 
-	@Override
-	public String getVersion() {
-		return "$Date: 2022-01-27 13:00:00 +0300 (Thu, 27 Jan 2022)$";
-	}
+    @Override
+    public ManufacturerInformation getManufacturerInformation() {
+        return new ManufacturerInformation(Manufacturer.LandisAndGyr);
+    }
 
-	@Override
-	protected HasDynamicProperties getDlmsConfigurationSupport() {
-		return zmyConfSupport;
-	}
+    /**
+     * Method to check whether the cache needs to be read out or not, if so the read will be forced
+     */
+    @Override
+    protected void checkCacheObjects() {
+        if (getDeviceCache() == null) {
+            setDeviceCache(new DLMSCache());
+        }
+        DLMSCache dlmsCache = getDeviceCache();
 
-	@Override
-	public DlmsProperties getDlmsSessionProperties() {
-		return zmyProperties;
-	}
+        if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().getProperties().getTypedProperty(READCACHE_PROPERTY, false)) {
+            readObjectList();
+            dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
+        } else {
+            getDlmsSession().getMeterConfig().setInstantiatedObjectList(dlmsCache.getObjectList());
+        }
+    }
 
-	/**
-	 * Method to check whether the cache needs to be read out or not, if so the read will be forced
-	 */
-	@Override
-	protected void checkCacheObjects() {
-		if (getDeviceCache() == null) {
-			setDeviceCache(new DLMSCache());
-		}
-		DLMSCache dlmsCache = getDeviceCache();
+    @Override
+    public DlmsProperties getDlmsSessionProperties() {
+        return zmyProperties;
+    }
 
-		if (dlmsCache.getObjectList() == null || getDlmsSessionProperties().getProperties().getTypedProperty(READCACHE_PROPERTY, false)) {
-			readObjectList();
-			dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());  // save object list in cache
-		} else {
-			getDlmsSession().getMeterConfig().setInstantiatedObjectList(dlmsCache.getObjectList());
-		}
-	}
+    @Override
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
+        return zmyConfSupport;
+    }
 }
