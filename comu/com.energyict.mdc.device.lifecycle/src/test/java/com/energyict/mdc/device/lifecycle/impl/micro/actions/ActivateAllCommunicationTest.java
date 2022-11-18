@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -22,7 +23,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 @RunWith(MockitoJUnitRunner.class)
 public class ActivateAllCommunicationTest {
@@ -44,6 +44,12 @@ public class ActivateAllCommunicationTest {
         ComTaskExecution comTaskExecution2 = mock(ComTaskExecution.class);
         when(comTaskExecution1.getId()).thenReturn(1L);
         when(comTaskExecution2.getId()).thenReturn(2L);
+        ComTask comTask1 = mock(ComTask.class);
+        ComTask comTask2 = mock(ComTask.class);
+        when(comTask1.getId()).thenReturn(1L);
+        when(comTask2.getId()).thenReturn(2L);
+        when(comTaskExecution1.getComTask()).thenReturn(comTask1);
+        when(comTaskExecution2.getComTask()).thenReturn(comTask2);
         when(communicationTaskService.findAndLockComTaskExecutionById(1)).thenReturn(Optional.of(comTaskExecution1));
         when(communicationTaskService.findAndLockComTaskExecutionById(2)).thenReturn(Optional.of(comTaskExecution2));
         comTaskExecution1.putOnHold();
@@ -54,7 +60,6 @@ public class ActivateAllCommunicationTest {
         ActivateAllCommunication microAction = this.getTestInstance();
         microAction.execute(this.device, Instant.now(), Collections.emptyList());
 
-
         Assert.assertFalse(comTaskExecution1.isOnHold());
         Assert.assertFalse(comTaskExecution2.isOnHold());
     }
@@ -62,5 +67,4 @@ public class ActivateAllCommunicationTest {
     private ActivateAllCommunication getTestInstance() {
         return new ActivateAllCommunication(thesaurus, deviceService, this.communicationTaskService, this.connectionTaskService);
     }
-
 }

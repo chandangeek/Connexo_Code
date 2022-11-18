@@ -946,7 +946,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         if (informConnectionTask) {
             this.getConnectionTask().ifPresent(ct -> {
                 if (!calledByConnectionTask) {
-                    ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this);
+                    ((ServerConnectionTask<?, ?>) ct).scheduledComTaskRescheduled(this);
                 }
                 calledByConnectionTask = false;
             });
@@ -1726,7 +1726,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     public abstract static class AbstractComTaskExecutionBuilder implements ComTaskExecutionBuilder {
-
         private final ComTaskExecutionImpl comTaskExecution;
 
         protected AbstractComTaskExecutionBuilder(ComTaskExecutionImpl instance) {
@@ -1738,19 +1737,19 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask) {
+        public AbstractComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
+        public AbstractComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
             this.comTaskExecution.setConnectionFunction(connectionFunction);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask) {
+        public AbstractComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             this.comTaskExecution.setUseDefaultConnectionTask(false);
             this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
@@ -1758,25 +1757,25 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionBuilder priority(int priority) {
+        public AbstractComTaskExecutionBuilder priority(int priority) {
             this.comTaskExecution.setPlannedPriority(priority);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
+        public AbstractComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
             this.comTaskExecution.setIgnoreNextExecutionSpecsForInbound(ignoreNextExecutionSpecsForInbound);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder scheduleNow() {
+        public AbstractComTaskExecutionBuilder scheduleNow() {
             this.comTaskExecution.scheduleNow();
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder runNow() {
+        public AbstractComTaskExecutionBuilder runNow() {
             this.comTaskExecution.runNow();
             return this;
         }
@@ -1792,10 +1791,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public ComTaskExecution add() {
             this.comTaskExecution.prepareForSaving();
-            this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this.comTaskExecution));
+            this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask<?, ?>) ct).scheduledComTaskRescheduled(this.comTaskExecution));
             return this.comTaskExecution;
         }
 

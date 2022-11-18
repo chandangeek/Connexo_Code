@@ -7,13 +7,12 @@ package com.energyict.mdc.device.data.impl.messagehandlers;
 import com.elster.jupiter.messaging.Message;
 import com.elster.jupiter.messaging.subscriber.MessageHandler;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.data.tasks.ComTaskExecutionQueueMessage;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
-import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -27,14 +26,17 @@ public class CommunicationTaskBatchMessageHandler implements MessageHandler {
     private ConnectionTaskService connectionTaskService;
     private JsonService jsonService;
 
+    public MessageHandler init(CommunicationTaskService communicationTaskService, JsonService jsonService, ConnectionTaskService connectionTaskService) {
+        this.communicationTaskService = communicationTaskService;
+        this.jsonService = jsonService;
+        this.connectionTaskService = connectionTaskService;
+        return this;
+    }
+
     @Override
     public void process(Message message) {
         ComTaskExecutionQueueMessage comTaskExecutionQueueMessage = jsonService.deserialize(message.getPayload(), ComTaskExecutionQueueMessage.class);
         ComTaskExecution comTaskExecution = communicationTaskService.findComTaskExecution(comTaskExecutionQueueMessage.comTaskExecId).orElseThrow(() -> new RuntimeException());
-        long comTaskId = comTaskExecution.getId();
-        Optional<ConnectionTask> ct = connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
-        comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskId)
-                .orElseThrow(() -> new IllegalStateException("ComTaskExecution with id: " + comTaskId + " not found."));
         switch (comTaskExecutionQueueMessage.action) {
             case "scheduleNow":
                 scheduleNow(comTaskExecution);
@@ -49,7 +51,10 @@ public class CommunicationTaskBatchMessageHandler implements MessageHandler {
 
     private void runNow(ComTaskExecution comTaskExecution) {
         if (!comTaskExecution.isObsolete()) {
-            communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
+            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+            communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())
+                    .filter(Predicates.not(ComTaskExecution::isObsolete))
+                    .ifPresent(ComTaskExecution::runNow);
             LOGGER.info("ComTaskExecution '" + comTaskExecution.getId() + "': runNow()");
         } else {
             LOGGER.info("ComTaskExecution '" + comTaskExecution.getId() + "' skipped: it is obsolete");
@@ -58,22 +63,13 @@ public class CommunicationTaskBatchMessageHandler implements MessageHandler {
 
     private void scheduleNow(ComTaskExecution comTaskExecution) {
         if (!comTaskExecution.isObsolete()) {
-            comTaskExecution.scheduleNow();
+            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+            communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())
+                    .filter(Predicates.not(ComTaskExecution::isObsolete))
+                    .ifPresent(ComTaskExecution::scheduleNow);
             LOGGER.info("ComTaskExecution '" + comTaskExecution.getId() + "': scheduleNow()");
         } else {
             LOGGER.info("ComTaskExecution '" + comTaskExecution.getId() + "' skipped: it is obsolete");
         }
-    }
-
-    @Override
-    public void onMessageDelete(Message message) {
-
-    }
-
-    public MessageHandler init(CommunicationTaskService communicationTaskService, JsonService jsonService, ConnectionTaskService connectionTaskService) {
-        this.communicationTaskService = communicationTaskService;
-        this.jsonService = jsonService;
-        this.connectionTaskService = connectionTaskService;
-        return this;
     }
 }

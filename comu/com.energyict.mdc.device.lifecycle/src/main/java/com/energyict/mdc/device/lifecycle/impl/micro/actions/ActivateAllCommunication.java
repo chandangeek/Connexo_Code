@@ -5,6 +5,7 @@
 package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 
 import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.MicroAction;
@@ -19,7 +20,7 @@ import com.energyict.mdc.device.lifecycle.impl.ServerMicroAction;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -31,7 +32,6 @@ import java.util.stream.Collectors;
  * @since 2020-03-26 (16:58)
  */
 public class ActivateAllCommunication extends TranslatableServerMicroAction {
-
     protected final DeviceService deviceService;
     private final CommunicationTaskService communicationTaskService;
     private final ConnectionTaskService connectionTaskService;
@@ -46,22 +46,28 @@ public class ActivateAllCommunication extends TranslatableServerMicroAction {
     @Override
     public void execute(Device device, Instant effectiveTimestamp, List<ExecutableActionProperty> properties) {
         device.getConnectionTasks().stream()
-                .map(connectionTask -> connectionTaskService.findAndLockConnectionTaskById(connectionTask.getId()))
-                .map(Optional::get)
+                .map(ConnectionTask::getId)
+                .sorted()
+                .map(connectionTaskService::findAndLockConnectionTaskById)
+                .flatMap(Functions.asStream())
                 .forEach(ConnectionTask::activate);
         device.getComTaskExecutions().stream()
-                .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
-                .map(Optional::get)
+                .map(ComTaskExecution::getId)
+                .sorted()
+                .map(communicationTaskService::findAndLockComTaskExecutionById)
+                .flatMap(Functions.asStream())
                 .forEach(ComTaskExecution::resume);
         deviceService.findDeviceById(device.getId())
-                .ifPresent(modDevice -> modDevice.getDeviceConfiguration().getComTaskEnablements().stream()
-                        .filter(comTaskEnablement -> !modDevice.getComTaskExecutions().stream()
-                                .map(comTaskExecution -> comTaskExecution.getComTask().getId())
-                                .collect(Collectors.toList())
-                                .contains(comTaskEnablement.getComTask().getId()))
-                        .map(comTaskEnablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(modDevice, comTaskEnablement).add())
-                        .filter(ComTaskExecution::isOnHold)
-                        .forEach(ComTaskExecution::resume));
+                .ifPresent(modDevice -> {
+                    Set<Long> comTasksWithExecutions = modDevice.getComTaskExecutions().stream()
+                            .map(comTaskExecution -> comTaskExecution.getComTask().getId())
+                            .collect(Collectors.toSet());
+                    modDevice.getDeviceConfiguration().getComTaskEnablements().stream()
+                            .filter(comTaskEnablement -> !comTasksWithExecutions.contains(comTaskEnablement.getComTask().getId()))
+                            .map(comTaskEnablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(modDevice, comTaskEnablement).add())
+                            .filter(ComTaskExecution::isOnHold)
+                            .forEach(ComTaskExecution::resume);
+                });
     }
 
     @Override

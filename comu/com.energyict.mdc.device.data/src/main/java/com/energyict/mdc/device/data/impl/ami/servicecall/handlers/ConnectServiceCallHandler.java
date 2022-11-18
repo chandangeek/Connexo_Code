@@ -51,10 +51,6 @@ public class ConnectServiceCallHandler extends AbstractContactorOperationService
         super.setDeviceService(deviceService);
         super.setThesaurus(thesaurus);
         super.setCompletionOptionsCallBack(completionOptionsCallBack);
-        super.setConnectionTaskService(connectionTaskService);
-        super.setCommunicationTaskService(communicationTaskService);
-        super.setEngineConfigurationService(engineConfigurationService);
-        super.setPriorityComTaskService(priorityComTaskService);
         super.setDeviceMessageService(deviceMessageService);
     }
 
@@ -74,28 +70,8 @@ public class ConnectServiceCallHandler extends AbstractContactorOperationService
     }
 
     @Reference
-    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
-        super.setConnectionTaskService(connectionTaskService);
-    }
-
-    @Reference
-    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
-        super.setCommunicationTaskService(communicationTaskService);
-    }
-
-    @Reference
     public void setNlsService(NlsService nlsService) {
         super.setThesaurus(nlsService.getThesaurus(DeviceDataServices.COMPONENT_NAME, Layer.DOMAIN));
-    }
-
-    @Reference
-    public void setEngineConfigurationService(EngineConfigurationService engineConfigurationService) {
-        super.setEngineConfigurationService(engineConfigurationService);
-    }
-
-    @Reference
-    public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
-        super.setPriorityComTaskService(priorityComTaskService);
     }
 
     @Reference

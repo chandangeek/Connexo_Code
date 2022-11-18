@@ -12,10 +12,12 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.impl.tasks.ServerCommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.scheduling.SchedulingService;
+
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.event.EventConstants;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -73,6 +75,7 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
             long maxId = this.getLong("maxId", messageProperties);
             Optional<ComSchedule> comSchedule = this.schedulingService.findSchedule(comScheduleId);
             List<ComTaskExecution> comTaskExecutions = this.communicationTaskService.findComTaskExecutionsByComScheduleWithinRange(comSchedule.get(), minId, maxId);
+            comTaskExecutions.sort(Comparator.comparing(ComTaskExecution::getId));
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
                 long comTaskExecutionId = comTaskExecution.getId();

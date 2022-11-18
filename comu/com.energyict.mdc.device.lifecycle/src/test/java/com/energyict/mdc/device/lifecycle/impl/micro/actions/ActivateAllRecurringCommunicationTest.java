@@ -3,6 +3,7 @@ package com.energyict.mdc.device.lifecycle.impl.micro.actions;
 import com.elster.jupiter.nls.Thesaurus;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
@@ -46,7 +47,15 @@ public class ActivateAllRecurringCommunicationTest {
         when(comTaskExecution2.isOnHold()).thenReturn(true);
         ComTaskExecution comTaskExecution3 = mock(ComTaskExecution.class);
         when(comTaskExecution3.isOnHold()).thenReturn(false);
-
+        ComTask comTask1 = mock(ComTask.class);
+        when(comTask1.getId()).thenReturn(1L);
+        when(comTaskExecution1.getComTask()).thenReturn(comTask1);
+        ComTask comTask2 = mock(ComTask.class);
+        when(comTask2.getId()).thenReturn(2L);
+        when(comTaskExecution2.getComTask()).thenReturn(comTask2);
+        ComTask comTask3 = mock(ComTask.class);
+        when(comTask3.getId()).thenReturn(3L);
+        when(comTaskExecution3.getComTask()).thenReturn(comTask3);
         when(this.device.getComTaskExecutions()).thenReturn(Arrays.asList(comTaskExecution1, comTaskExecution2, comTaskExecution3));
         when(this.device.getDeviceConfiguration()).thenReturn(mock(DeviceConfiguration.class));
         when(deviceService.findDeviceById(anyLong())).thenReturn(Optional.of(device));

@@ -244,8 +244,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            helper
-                    .getFirmwareComTaskExecution()
+            helper.getFirmwareComTaskExecution()
                     .map(ComTaskExecution::getExecutionStartedTimestamp)
                     .ifPresent(startedTimestamp -> properties.put(UPLOAD_START_DATE, startedTimestamp.toEpochMilli()));
             return properties;

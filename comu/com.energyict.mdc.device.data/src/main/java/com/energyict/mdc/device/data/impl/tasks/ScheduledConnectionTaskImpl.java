@@ -20,6 +20,8 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
@@ -63,10 +65,10 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -215,21 +217,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
                 this.doAsSoonAsPossibleSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.LATER);
             } else {
                 this.doMinimizeConnectionsSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.LATER);
-            }
-        }
-    }
-
-    /**
-     * Updates the next execution timestamps of the dependent ComTaskExecutions.
-     */
-    private void rescheduleComTaskExecutions() {
-        for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
-            if (!comTaskExecution.isOnHold()) {
-                if (comTaskExecution.usesSharedSchedule()) {
-                    communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::updateNextExecutionTimestamp);
-                } else {
-                    communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(cte -> cte.schedule(comTaskExecution.getNextExecutionTimestamp()));
-                }
             }
         }
     }
@@ -466,12 +453,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public Instant scheduleNow() {
-        this.getScheduledComTasks().stream().
-                filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus())).
-                filter(comTaskExecution -> !comTaskExecution.isObsolete()).
-                map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())).
-                map(Optional::get).
-                forEach(ComTaskExecution::runNow);
+        this.getScheduledComTasks().stream()
+                .filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus()))
+                .filter(comTaskExecution -> !comTaskExecution.isObsolete())
+                .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                .flatMap(Functions.asStream())
+                .filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus()))
+                .filter(comTaskExecution -> !comTaskExecution.isObsolete())
+                .forEach(ComTaskExecution::runNow);
         return scheduleConnectionNow();
     }
 
@@ -516,16 +506,19 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void triggerComTasks(Instant when) {
-        for (ComTaskExecution scheduledComTask : this.getScheduledComTasks()) {
-            if (this.needsTriggering(scheduledComTask)) {
-                communicationTaskService.findAndLockComTaskExecutionById(scheduledComTask.getId()).ifPresent(comTaskExecution -> comTaskExecution.schedule(when));
-            }
-        }
+        getScheduledComTasks().stream()
+                .filter(this::needsTriggering)
+                .filter(Predicates.not(ComTaskExecution::isObsolete))
+                .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                .map(scheduledComTask -> communicationTaskService.findAndLockComTaskExecutionById(scheduledComTask.getId()))
+                .flatMap(Functions.asStream())
+                .filter(this::needsTriggering)
+                .filter(Predicates.not(ComTaskExecution::isObsolete))
+                .forEach(comTaskExecution -> comTaskExecution.schedule(when));
     }
 
     private boolean needsTriggering(ComTaskExecution scheduledComTask) {
-        Set<TaskStatus> taskStatusesThatRequireTriggering = EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold, TaskStatus.Busy));
-        return taskStatusesThatRequireTriggering.contains(scheduledComTask.getStatus());
+        return EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold, TaskStatus.Busy)).contains(scheduledComTask.getStatus());
     }
 
     @Override

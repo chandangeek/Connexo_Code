@@ -87,6 +87,7 @@ import com.elster.jupiter.util.Ranges;
 import com.elster.jupiter.util.conditions.Operator;
 import com.elster.jupiter.util.geo.SpatialCoordinates;
 import com.elster.jupiter.util.json.JsonService;
+import com.elster.jupiter.util.streams.Functions;
 import com.elster.jupiter.util.streams.Predicates;
 import com.elster.jupiter.util.time.Interval;
 import com.elster.jupiter.validation.DataValidationStatus;
@@ -257,8 +258,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -1328,13 +1331,11 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public AdHocComTaskExecutionBuilderForDevice newAdHocComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        comTaskEnablement.getPartialConnectionTask().ifPresent(partialConnectionTask -> connectionTaskService.findAndLockConnectionTaskById(partialConnectionTask.getId()));
         return new AdHocComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
     }
 
     @Override
     public ComTaskExecutionBuilder newFirmwareComTaskExecution(ComTaskEnablement comTaskEnablement) {
-        comTaskEnablement.getPartialConnectionTask().ifPresent(partialConnectionTask -> connectionTaskService.findAndLockConnectionTaskById(partialConnectionTask.getId()));
         return new FirmwareComTaskExecutionBuilderForDevice(comTaskExecutionProvider, comTaskEnablement);
     }
 
@@ -1529,26 +1530,25 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     @Override
     public void runStatusInformationTask(Consumer<ComTaskExecution> requestedAction) {
-        Optional<ComTaskExecution> comTaskExecution = Optional.empty();
+        ComTaskExecution comTaskExecution = null;
         Optional<ComTaskExecution> bestComTaskExecution = getComTaskExecutions().stream()
                 .filter(cte -> containsStatusInformationProtocolTask(cte.getProtocolTasks()))
-                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getProtocolTasks(), cte2.getProtocolTasks()))
-                .findFirst();
+                .min((cte1, cte2) -> compareProtocolTasks(cte1.getProtocolTasks(), cte2.getProtocolTasks()));
         Optional<ComTaskEnablement> bestComTaskEnablement = getDeviceConfiguration().getComTaskEnablements().stream()
                 .filter(comTaskEnablement -> containsStatusInformationProtocolTask(comTaskEnablement.getComTask().getProtocolTasks()))
-                .sorted((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()))
-                .findFirst();
+                .min((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()));
         if (bestComTaskExecution.isPresent()) {
-            comTaskExecution = bestComTaskExecution;
-            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.get().getConnectionTaskId());
+            comTaskExecution = bestComTaskExecution.get();
+            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
         } else if (bestComTaskEnablement.isPresent()) {
             comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
         }
-        if (!comTaskExecution.isPresent()) {
+        if (comTaskExecution == null) {
             throw new NoStatusInformationTaskException();
         }
-        comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.get().getId());
-        requestedAction.accept(comTaskExecution.get());
+        comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())
+                .orElseThrow(NoStatusInformationTaskException::new);
+        requestedAction.accept(comTaskExecution);
     }
 
     @Override
@@ -2987,7 +2987,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         dataModel.update(this, "passiveCalendar", "plannedPassiveCalendar");
     }
 
-    private Optional<ComTaskExecution> createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
+    private ComTaskExecution createAdHocComTaskExecutionToRunNow(ComTaskEnablement enablement) {
         ComTaskExecutionBuilder comTaskExecutionBuilder = newAdHocComTaskExecution(enablement);
         if (enablement.hasPartialConnectionTask()) {
             getConnectionTasks()
@@ -2999,7 +2999,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
         ComTaskExecution comTaskExecution = comTaskExecutionBuilder.add();
         save();
-        return Optional.of(comTaskExecution);
+        return comTaskExecution;
     }
 
     private boolean containsStatusInformationProtocolTask(List<ProtocolTask> protocolTasks) {
@@ -3231,13 +3231,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
+    static class LogBookUpdaterForDevice extends LogBookImpl.LogBookUpdater {
         LogBookUpdaterForDevice(LogBookImpl logBook) {
             super(logBook);
         }
     }
 
-    class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
+    static class LoadProfileUpdaterForDevice extends LoadProfileImpl.LoadProfileUpdater {
 
         LoadProfileUpdaterForDevice(LoadProfileImpl loadProfile) {
             super(loadProfile);
@@ -3397,13 +3397,12 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
 
     private class ScheduledComTaskExecutionBuilderForDevice
             extends ComTaskExecutionImpl.AbstractComTaskExecutionBuilder {
-
-        private List<ComTaskExecutionImpl.SingleScheduledComTaskExecutionBuilder> comTaskExecutionsBuilders = new ArrayList<>();
-        private List<ComTaskExecutionUpdater> comTaskExecutionsUpdaters = new ArrayList<>();
-
+        private final List<ComTaskExecutionImpl.SingleScheduledComTaskExecutionBuilder> comTaskExecutionsBuilders = new ArrayList<>();
+        private final List<ComTaskExecutionUpdater> comTaskExecutionsUpdaters;
 
         private ScheduledComTaskExecutionBuilderForDevice(Provider<ComTaskExecutionImpl> comTaskExecutionProvider, ComSchedule comSchedule) {
             super(comTaskExecutionProvider.get());
+            Set<ComTaskExecution> toUpdate = new TreeSet<>(Comparator.comparingLong(ComTaskExecution::getId));
             DeviceImpl.this.getDeviceConfiguration()
                     .getComTaskEnablements()
                     .stream()
@@ -3416,13 +3415,19 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                             if (existingComTaskExecution.get().usesSharedSchedule() && existingComTaskExecution.get().getComSchedule().get().getId() != comSchedule.getId()) {
                                 throw new CannotSetMultipleComSchedulesWithSameComTask(comSchedule, DeviceImpl.this, thesaurus);
                             }
-                            comTaskExecutionsUpdaters.add(existingComTaskExecution.get().getUpdater().addSchedule(comSchedule));
+                            toUpdate.add(existingComTaskExecution.get());
                         } else { // create
                             ComTaskExecutionImpl scheduledComTaskExecution = comTaskExecutionProvider.get();
                             scheduledComTaskExecution.initializeForScheduledComTask(DeviceImpl.this, comTaskEnablement, comSchedule);
                             comTaskExecutionsBuilders.add(new ComTaskExecutionImpl.SingleScheduledComTaskExecutionBuilder(scheduledComTaskExecution));
                         }
                     });
+            comTaskExecutionsUpdaters = toUpdate.stream()
+                    .map(this::lock)
+                    .flatMap(Functions.asStream())
+                    .map(ComTaskExecution::getUpdater)
+                    .map(updater -> updater.addSchedule(comSchedule))
+                    .collect(toList());
         }
 
         @Override
@@ -3432,111 +3437,108 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
             } else {
                 return this.comTaskExecutionsUpdaters.get(0).getComTaskExecution();
             }
-
         }
 
         @Override
         public ScheduledComTaskExecutionBuilderForDevice useDefaultConnectionTask(boolean useDefaultConnectionTask) {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(builder -> builder.useDefaultConnectionTask(useDefaultConnectionTask));
-            comTaskExecutionsUpdaters.stream()
+            comTaskExecutionsUpdaters
                     .forEach(updater -> updater.useDefaultConnectionTask(useDefaultConnectionTask));
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
-            comTaskExecutionsBuilders.stream()
+        public ScheduledComTaskExecutionBuilderForDevice setConnectionFunction(ConnectionFunction connectionFunction) {
+            comTaskExecutionsBuilders
                     .forEach(builder -> builder.setConnectionFunction(connectionFunction));
-            comTaskExecutionsUpdaters.stream()
+            comTaskExecutionsUpdaters
                     .forEach(updater -> updater.setConnectionFunction(connectionFunction));
             return this;
         }
 
         @Override
         public ScheduledComTaskExecutionBuilderForDevice connectionTask(ConnectionTask<?, ?> connectionTask) {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(builder -> builder.connectionTask(connectionTask));
-            comTaskExecutionsUpdaters.stream()
+            comTaskExecutionsUpdaters
                     .forEach(updater -> updater.connectionTask(connectionTask));
             return this;
         }
 
         @Override
         public ScheduledComTaskExecutionBuilderForDevice priority(int priority) {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(builder -> builder.priority(priority));
-            comTaskExecutionsUpdaters.stream()
+            comTaskExecutionsUpdaters
                     .forEach(updater -> updater.priority(priority));
             return this;
         }
 
         @Override
         public ScheduledComTaskExecutionBuilderForDevice ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(builder -> builder.ignoreNextExecutionSpecForInbound(ignoreNextExecutionSpecsForInbound));
-            comTaskExecutionsUpdaters.stream()
+            comTaskExecutionsUpdaters
                     .forEach(updater -> updater.ignoreNextExecutionSpecForInbound(ignoreNextExecutionSpecsForInbound));
             return this;
         }
 
         @Override
         public ScheduledComTaskExecutionBuilderForDevice scheduleNow() {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::scheduleNow);
             comTaskExecutionsUpdaters.stream()
                     .map(ComTaskExecutionUpdater::getComTaskExecution)
-                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
-                    .map(Optional::get)
                     .forEach(ComTaskExecution::scheduleNow);
             return this;
         }
 
         @Override
         public ScheduledComTaskExecutionBuilderForDevice runNow() {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::runNow);
             comTaskExecutionsUpdaters.stream()
                     .map(ComTaskExecutionUpdater::getComTaskExecution)
-                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
-                    .map(Optional::get)
                     .forEach(ComTaskExecution::runNow);
             return this;
         }
 
         @Override
         public void putOnHold() {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::putOnHold);
             comTaskExecutionsUpdaters.stream()
                     .map(ComTaskExecutionUpdater::getComTaskExecution)
-                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
-                    .map(Optional::get)
                     .forEach(ComTaskExecution::putOnHold);
         }
 
         @Override
         public void resume() {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(ComTaskExecutionImpl.AbstractComTaskExecutionBuilder::resume);
             comTaskExecutionsUpdaters.stream()
                     .map(ComTaskExecutionUpdater::getComTaskExecution)
-                    .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
-                    .map(Optional::get)
                     .forEach(ComTaskExecution::resume);
         }
 
         @Override
         public ComTaskExecution add() {
-            comTaskExecutionsBuilders.stream()
+            comTaskExecutionsBuilders
                     .forEach(builder -> {
                         ComTaskExecution execution = builder.add();
                         DeviceImpl.this.add((ComTaskExecutionImpl) execution);
                     });
             LOGGER.info("CXO-11731: Update comtask execution from DeviceImpl.");
-            comTaskExecutionsUpdaters.stream()
+            comTaskExecutionsUpdaters
                     .forEach(ComTaskExecutionUpdater::update);
             return getComTaskExecution();
+        }
+
+        private Optional<ComTaskExecution> lock(ComTaskExecution comTaskExecution) {
+            long comTaskId = comTaskExecution.getId();
+            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+            return communicationTaskService.findAndLockComTaskExecutionById(comTaskId);
         }
     }
 
@@ -3585,7 +3587,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private class CIMLifecycleDatesImpl implements CIMLifecycleDates {
+    private static class CIMLifecycleDatesImpl implements CIMLifecycleDates {
         private final EndDevice koreDevice;
         private final LifecycleDates koreLifecycleDates;
 
@@ -3667,7 +3669,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private class NoCimLifecycleDates implements CIMLifecycleDates {
+    private static class NoCimLifecycleDates implements CIMLifecycleDates {
         @Override
         public Optional<Instant> getManufacturedDate() {
             return Optional.empty();
@@ -3740,7 +3742,7 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
         }
     }
 
-    private class CanUpdateMeterActivationLast implements Comparator<SyncDeviceWithKoreMeter> {
+    private static class CanUpdateMeterActivationLast implements Comparator<SyncDeviceWithKoreMeter> {
         @Override
         public int compare(SyncDeviceWithKoreMeter o1, SyncDeviceWithKoreMeter o2) {
             int a = o1.canUpdateCurrentMeterActivation() ? 1 : 0;
