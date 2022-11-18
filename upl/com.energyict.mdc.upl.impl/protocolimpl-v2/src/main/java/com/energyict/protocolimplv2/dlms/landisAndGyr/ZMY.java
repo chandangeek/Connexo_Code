@@ -138,7 +138,7 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-01-27 13:00:00 +0300 (Thu, 27 Jan 2022)$";
+        return "$Date: 2022-11-18 13:00:00 +0300 (Fr, 18 Nov 2022)$";
     }
 
     @Override
