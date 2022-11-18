@@ -1,6 +1,8 @@
 package com.energyict.protocolimplv2.dlms.landisAndGyr;
 
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
+import com.energyict.mdc.channels.serial.modem.rxtx.RxTxAtModemConnectionType;
+import com.energyict.mdc.channels.serial.modem.serialio.SioAtModemConnectionType;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.tasks.SerialDeviceProtocolDialect;
 import com.energyict.mdc.tasks.TcpDeviceProtocolDialect;
@@ -75,7 +77,9 @@ public class ZMY extends AbstractDlmsProtocol implements SerialNumberSupport {
     @Override
     public List<? extends ConnectionType> getSupportedConnectionTypes() {
         return Arrays.asList(
-                (ConnectionType) new OutboundTcpIpConnectionType());
+                new OutboundTcpIpConnectionType(this.getPropertySpecService()),
+                new SioAtModemConnectionType(this.getPropertySpecService()),
+                new RxTxAtModemConnectionType(this.getPropertySpecService()));
     }
 
     @Override
