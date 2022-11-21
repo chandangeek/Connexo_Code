@@ -38,7 +38,13 @@ public enum RegisterMapping {
               TelegramFunctionType.INSTANTANEOUS_VALUE,
               TelegramEncoding.ENCODING_INTEGER,
               VIF_Unit_Multiplier_Masks.VOLUME,
-            "8.0.5.0.0.255");
+            "8.0.5.0.0.255"),
+
+    BATTERY_LIFETIME(0x02, 0xfd, 0,
+            TelegramFunctionType.INSTANTANEOUS_VALUE,
+            TelegramEncoding.ENCODING_INTEGER,
+            null,
+            "0.0.96.6.6.255");
 
 
     private final TelegramFunctionType functionType;
@@ -95,7 +101,16 @@ public enum RegisterMapping {
         return Arrays.stream(values())
                 .filter(v -> v.getEncoding().equals(record.getDif().getDataFieldEncoding()))
                 .filter(v -> v.getFunctionType().equals(record.getDif().getFunctionType()))
-                .filter(v -> v.getUnit().equals(record.getVif().getType()))
+                .filter(v -> {
+                                if (v.getUnit() == null) {
+                                    return true; // not needed
+                                }
+                                if (record.getVif().getType() != null) {
+                                    return v.getUnit().equals(record.getVif().getType());
+                                } else {
+                                    return true;
+                                }
+                            })
                 .filter(v -> v.getDif() == record.getDif().getFieldAsByteArray()[0])
                 .filter(v -> v.getVif() == record.getVif().getFieldAsByteArray()[0])
                 .filter(v -> {

@@ -62,12 +62,12 @@ public class RegisterFactory extends AbstractMerlinFactory {
                 register.setReadTime(Date.from(getTelegramDateTime()));
                 if (!alreadyContainsObis(obisCode)) {
                     collectedRegisterList.addCollectedRegister(register);
-                    getInboundContext().getLogger().info("[Reg:" + record + "] " + obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
+                    getInboundContext().getLogger().info("[Rec: " + record + "] " + obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ") - " + dataMapping.get().name());
                 } else {
-                    getInboundContext().getLogger().warn("[Reg:" + record + "] DUPLICATE identifiers matching " + obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
+                    getInboundContext().getLogger().warn("[Rec: " + record + "] DUPLICATE identifiers matching " + obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
                 }
             } else {
-                getInboundContext().getLogger().info("[Reg:" + record + "] - Not Applicable to any mapping");
+                getInboundContext().getLogger().info("[Rec: " + record + "] - Not Applicable to any mapping");
             }
         }
     }
