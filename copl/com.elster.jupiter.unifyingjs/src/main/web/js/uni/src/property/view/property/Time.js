@@ -95,17 +95,10 @@ Ext.define('Uni.property.view.property.Time', {
     getValue: function () {
         var hourValue = this.getHoursField().getValue(),
             minValue = this.getMinutesField().getValue();
-        if (hourValue !== null && hourValue !== '' &&
-            minValue !== null && minValue !== '' /*&& (hourValue !== 0 || minValue !== 0)*/) {
-            // For time property timezone shift should not be applied. These are fixed hour and minute.
-            var newDate = new Date(1970, 0, 1, hourValue, minValue, 0, 0); // Date in local timezone
-            var offset = newDate.getTimezoneOffset(); // minutes (ex., -60 or -120)
-            var seconds = newDate.getTime() / 1000; // time in seconds in UTC
-            if (seconds < 0) {
-                seconds += 86400;
-            }
-            //seconds -=  offset * 60; // get seconds from minutes, compensate timezone shift
-            return seconds;
+        if (hourValue !== null && hourValue !== '' && hourValue !== 0 &&
+                minValue !== null && minValue !== '' && minValue !== 0) {
+             var newDate = new Date(1970, 0, 1, hourValue, minValue, 0, 0);
+             return newDate.getTime() / 1000; // time in seconds
         }
         this.getHoursField().setValue(null);
         this.getMinutesField().setValue(null);

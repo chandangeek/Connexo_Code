@@ -459,7 +459,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-11-11$";
+        return "$Date: 2022-11-24$";
     }
 
     protected A2Messaging getProtocolMessaging() {

@@ -666,7 +666,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                             AutoConnectModeA2.DailyActive.description),
                     this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitions, DeviceMessageConstants.autoConnectRepetitionsDefaultTranslation),
                     this.bigDecimalSpec(service, DeviceMessageConstants.autoConnectRepetitionsDelay, DeviceMessageConstants.autoConnectRepetitionsDelayDefaultTranslation),
-
                     this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime1, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation1),
                     this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime1, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation1),
                     this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime2, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation2),
@@ -675,30 +674,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                     this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime3, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation3),
                     this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime4, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation4),
                     this.optDateTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime4, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation4),
-
-                   /* this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate1, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation1),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime1, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation1),
-                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate1, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation1),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime1, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation1),
-
-                    this.booleanSpec(service, DeviceMessageConstants.communicationWindowStartDate2IsIgnored, DeviceMessageConstants.communicationWindowStartDate2IsIgnoredTranslation, true),
-                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate2, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation2),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime2, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation2),
-                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate2, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation2),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime2, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation2),
-
-                    this.booleanSpec(service, DeviceMessageConstants.communicationWindowStartDate3IsIgnored, DeviceMessageConstants.communicationWindowStartDate3IsIgnoredTranslation, true),
-                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate3, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation3),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime3, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation3),
-                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate3, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation3),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime3, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation3),
-
-                    this.booleanSpec(service, DeviceMessageConstants.communicationWindowStartDate4IsIgnored, DeviceMessageConstants.communicationWindowStartDate4IsIgnoredTranslation, true),
-                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStartDate4, DeviceMessageConstants.communicationWindowStartDateDefaultTranslation4),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStartTime4, DeviceMessageConstants.communicationWindowStartTimeDefaultTranslation4),
-                    this.optDateSpec(service, DeviceMessageConstants.communicationWindowStopDate4, DeviceMessageConstants.communicationWindowStopDateDefaultTranslation4),
-                    this.optTimeSpec(service, DeviceMessageConstants.communicationWindowStopTime4, DeviceMessageConstants.communicationWindowStopTimeDefaultTranslation4),*/
-
                     this.stringSpec(service, DeviceMessageConstants.autoConnectDestionation, DeviceMessageConstants.autoConnectDestionationDefaultTranslation),
                     this.stringSpec(service, DeviceMessageConstants.portNumberAttributeName, DeviceMessageConstants.portNumberAttributeDefaultTranslation),
                     this.hexStringSpecOfExactLengthWithDefault(service, DeviceMessageConstants.autoConnectDayMap, DeviceMessageConstants.autoConnectDayMapDefaultTranslation, 8, converter.hexFromString("FFFFFFFF")),
@@ -1129,7 +1104,7 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
     public enum AutoConnectModeA2 {
         Inactive(0,"Scheduler is not active"),
         Active(104,"Scheduler is active"),
-        DailyActive(200,"Scheduler is active once a day"),
+        DailyActive(200,"Scheduler is active every day"),
         Invalid(-1, "Invalid mode");
 
         private final int mode;
@@ -1207,15 +1182,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                 .toArray(BigDecimal[]::new);
     }
 
-    protected PropertySpec optDateSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .dateSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
-                .finish();
-    }
-
     protected PropertySpec timeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
         TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
         return service
@@ -1223,15 +1189,6 @@ public enum NetworkConnectivityMessage implements DeviceMessageSpecSupplier {
                 .named(deviceMessageConstantKey, translationKey)
                 .describedAs(translationKey.description())
                 .markRequired()
-                .finish();
-    }
-
-    protected PropertySpec optTimeSpec(PropertySpecService service, String deviceMessageConstantKey, String deviceMessageConstantDefaultTranslation) {
-        TranslationKeyImpl translationKey = new TranslationKeyImpl(deviceMessageConstantKey, deviceMessageConstantDefaultTranslation);
-        return service
-                .timeSpec()
-                .named(deviceMessageConstantKey, translationKey)
-                .describedAs(translationKey.description())
                 .finish();
     }
 

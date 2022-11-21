@@ -24,7 +24,6 @@ import com.energyict.protocolimplv2.messages.NetworkConnectivityMessage;
 import com.energyict.protocolimplv2.messages.SecurityMessage;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractDlmsMessaging;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -106,14 +105,14 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.contactorActivationDateAttributeName) ||
-            propertySpec.getName().equals(DeviceMessageConstants.StartOfDSTAttributeName) ||
-            propertySpec.getName().equals(DeviceMessageConstants.EndOfDSTAttributeName) ||
+                propertySpec.getName().equals(DeviceMessageConstants.StartOfDSTAttributeName) ||
+                propertySpec.getName().equals(DeviceMessageConstants.EndOfDSTAttributeName) ||
                 propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime1) ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime1)  ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime1) ||
                 propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime2) ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime2)  ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime2) ||
                 propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime3) ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime3)  ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime3) ||
                 propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime4) ||
                 propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime4)) {
             return String.valueOf(((Date) messageAttribute).getTime());
@@ -123,16 +122,6 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newEncryptionKeyAttributeName)) {
             return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);
-        } else if (propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime1) ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime1)  ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime2) ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime2)  ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime3) ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime3)  ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime4) ||
-                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime4)) {
-            LocalTime timeOfDay = (LocalTime) messageAttribute;
-            return String.valueOf(timeOfDay.getHour() + ":" + timeOfDay.getMinute() + ":" + timeOfDay.getSecond());
         } else {
             return messageAttribute.toString();
         }

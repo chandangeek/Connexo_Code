@@ -324,24 +324,13 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         String repetitions = getDeviceMessageAttributeValue(pendingMessage, autoConnectRepetitions);
         String repetitionsDelay = getDeviceMessageAttributeValue(pendingMessage, autoConnectRepetitionsDelay);
         String startDate1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime1);
-        //String startTime1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime1);
         String stopDate1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime1);
-        //String stopTime1 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime1);
-        //String ignoreTimeFrame2 = getDeviceMessageAttributeValue(pendingMessage, communicationWindowStartDate2IsIgnored);
         String startDate2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime2);
-        //String startTime2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime2);
         String stopDate2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime2);
-        //String stopTime2 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime2);
-        //String ignoreTimeFrame3 = getDeviceMessageAttributeValue(pendingMessage, communicationWindowStartDate3IsIgnored);
         String startDate3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime3);
-        //String startTime3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime3);
         String stopDate3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime3);
-        //String stopTime3 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime3);
-        //String ignoreTimeFrame4 = getDeviceMessageAttributeValue(pendingMessage, communicationWindowStartDate4IsIgnored);
         String startDate4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime4);
-        //String startTime4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime4);
         String stopDate4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime4);
-        //String stopTime4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime4);
         String dayMap = getDeviceMessageAttributeValue(pendingMessage, autoConnectDayMap);
         String destination = getDeviceMessageAttributeValue(pendingMessage, autoConnectDestionation);
         String port = getDeviceMessageAttributeValue(pendingMessage, portNumberAttributeName);
@@ -350,16 +339,16 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
 
         AutoConnect autoConnect = getCosemObjectFactory().getAutoConnect();
         NetworkConnectivityMessage.AutoConnectModeA2 autoConnectMode = NetworkConnectivityMessage.AutoConnectModeA2.modeForDescription(mode);
-        //autoConnect.writeMode(autoConnectMode.getMode());
-       // autoConnect.writeRepetitions(Integer.parseInt(repetitions));
-       // autoConnect.writeRepetitionDelay(Integer.parseInt(repetitionsDelay));
+        autoConnect.writeMode(autoConnectMode.getMode());
+        autoConnect.writeRepetitions(Integer.parseInt(repetitions));
+        autoConnect.writeRepetitionDelay(Integer.parseInt(repetitionsDelay));
         Array windowList = new Array();
         if (!NetworkConnectivityMessage.AutoConnectModeA2.Inactive.equals(autoConnectMode)) {
             if (startDate1 != null && stopDate1 != null) {
                 windowList.addDataType(getWindowFrame(startDate1, stopDate1, autoConnectMode));
             } else {
-                getProtocol().journal(Level.SEVERE, "Calling window is absent. Please set the boundary dates.");
-                throw new IOException("Calling window is absent. Please set the boundary dates.");
+                getProtocol().journal(Level.SEVERE, "Calling window is absent. Please set the boundary dates. Filling in the Date part is mandatory. For everyday mode, put in any date.");
+                throw new IOException("Calling window is absent. Please set the boundary dates. Filling in the Date part is mandatory. For everyday mode, put in any date.");
             }
             if (startDate2 != null && stopDate2 != null) {
                 windowList.addDataType(getWindowFrame(startDate2, stopDate2, autoConnectMode));
@@ -371,16 +360,6 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
                 windowList.addDataType(getWindowFrame(startDate4, stopDate4, autoConnectMode));
             }
         }
-        /*windowList.addDataType(getWindowFrame(startDate1, startTime1, stopDate1, stopTime1));
-        if (!Boolean.getBoolean(ignoreTimeFrame2)) {
-            windowList.addDataType(getWindowFrame(startDate2, startTime2, stopDate2, stopTime2));
-        }
-        if (!Boolean.getBoolean(ignoreTimeFrame3)) {
-            windowList.addDataType(getWindowFrame(startDate3, startTime3, stopDate3, stopTime3));
-        }
-        if (!Boolean.getBoolean(ignoreTimeFrame4)) {
-            windowList.addDataType(getWindowFrame(startDate4, startTime4, stopDate4, stopTime4));
-        }*/
         autoConnect.writeCallingWindow(new Array(windowList));
         writeIpAddressAndPort(destination, port, autoConnect);
         autoConnect.writeDayMap(Long.parseLong(dayMap, 16));
@@ -408,85 +387,6 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         }
         return windowFrameStructure;
     }
-
-
-    /*private Structure getWindowFrame(String startDateString, String startTimeString, String endDateString, String endTimeString) throws IOException {
-        Structure windowFrameStructure = new Structure();
-        windowFrameStructure.addDataType(new OctetString(getWindowFrame(startDateString, startTimeString), 0));
-        windowFrameStructure.addDataType(new OctetString(getWindowFrame(endDateString, endTimeString), 0));
-        return windowFrameStructure;
-    }
-
-
-    private byte[] getWindowFrame(String dateString, String timeString) throws IOException {
-        Calendar startTimeDeviceTimezone = ProtocolUtils.getCleanCalendar(getProtocol().getTimeZone());
-        OctetString startDateOctetString = null;
-        OctetString startTimeOctetString = null;
-
-        AXDRTime axdrTime = new AXDRTime();
-        axdrTime.decode(timeString);
-
-        if (dateString == null) {
-            startDateOctetString = AXDRDate.encode(0xFFFF, 0xFF, 0xFF, 0xFF);
-            Calendar startTimeUTC = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("UTC"));
-            startTimeUTC.setTimeInMillis(0); // 1970-01-01T00:00:00
-            startTimeUTC.set(Calendar.HOUR_OF_DAY, axdrTime.getHour());
-            startTimeUTC.set(Calendar.MINUTE, axdrTime.getMinutes());
-            startTimeUTC.set(Calendar.SECOND, axdrTime.getSeconds());
-            startTimeDeviceTimezone.setTimeInMillis(startTimeUTC.getTimeInMillis());
-            AXDRTime axdrTimeDeviceTimezone = new AXDRTime();
-            axdrTimeDeviceTimezone.decode(startTimeDeviceTimezone.get(Calendar.HOUR_OF_DAY) + ":" + startTimeDeviceTimezone.get(Calendar.MINUTE) + ":" + startTimeDeviceTimezone.get(Calendar.SECOND));
-            startTimeOctetString = axdrTimeDeviceTimezone.getOctetString();
-
-        } else {
-            Calendar startDateUTC = ProtocolUtils.getCleanCalendar(TimeZone.getTimeZone("UTC"));
-            startDateUTC.setTimeInMillis(Long.parseLong(dateString));
-            int hourInUtc = startDateUTC.get(Calendar.HOUR_OF_DAY);
-            int timezoneShift = 0;
-            int shitfDate = 0;
-
-            if (hourInUtc < 12) {
-                // Original timezone shift
-                timezoneShift = - hourInUtc;
-
-                if (axdrTime.getHour() + timezoneShift < 0) {
-
-                }
-            }
-            if (hourInUtc > 12) {
-                timezoneShift = 24 - hourInUtc;
-                if (axdrTime.getHour() + timezoneShift > 24) {
-                    shitfDate++;
-                }
-            }
-
-
-            startDateUTC.set(Calendar.HOUR_OF_DAY, axdrTime.getHour());
-            startDateUTC.set(Calendar.MINUTE, axdrTime.getMinutes());
-            startDateUTC.set(Calendar.SECOND, axdrTime.getSeconds());
-
-            startTimeDeviceTimezone.setTimeInMillis(startDateUTC.getTimeInMillis());
-            startDateOctetString = AXDRDate.encode(startTimeDeviceTimezone.get(Calendar.YEAR), startTimeDeviceTimezone.get(Calendar.MONTH), startTimeDeviceTimezone.get(Calendar.DAY_OF_MONTH), startTimeDeviceTimezone.get(Calendar.DAY_OF_WEEK));
-            AXDRTime axdrTimeDeviceTimezone = new AXDRTime();
-            axdrTimeDeviceTimezone.decode(startTimeDeviceTimezone.get(Calendar.HOUR_OF_DAY) + ":" + startTimeDeviceTimezone.get(Calendar.MINUTE) + ":" + startTimeDeviceTimezone.get(Calendar.SECOND));
-            startTimeOctetString = axdrTimeDeviceTimezone.getOctetString();
-        }
-
-        byte[] startDateOctetStringBytes = startDateOctetString.toByteArray();
-        byte[] startTimeOctetStringBytes = startTimeOctetString.toByteArray();
-        int headerSize = 2;
-        byte[] startDateTimeBytes = new byte[headerSize + startDateOctetStringBytes.length + startTimeOctetStringBytes.length + 3];
-        startDateTimeBytes[0] = AxdrType.OCTET_STRING.getTag();
-        startDateTimeBytes[1] = 0xC; // size
-        System.arraycopy(startDateOctetStringBytes, 0, startDateTimeBytes, headerSize, startDateOctetStringBytes.length);
-        System.arraycopy(startTimeOctetStringBytes,0, startDateTimeBytes, headerSize + startDateOctetStringBytes.length, startTimeOctetStringBytes.length);
-        int deviationUnspecified = 0x8000;
-        startDateTimeBytes[11] = (byte) ((deviationUnspecified>>8)&0xFF);
-        startDateTimeBytes[12] = (byte) (deviationUnspecified&0xFF);
-        startDateTimeBytes[13] = (byte) 0; //status (DST)
-
-        return startDateTimeBytes;
-    }*/
 
     private void writeIpAddressAndPort(String destination, String port, AutoConnect autoConnect) throws IOException {
         ProtocolUtils.validateIpAddress(destination);
