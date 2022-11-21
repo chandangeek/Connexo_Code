@@ -8,6 +8,7 @@ import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.DailyProfileFact
 import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.HourlyProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.NightlineProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.status.CellInfoFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.upl.meterdata.CollectedData;
@@ -30,7 +31,7 @@ public class MerlinCollectedDataFactory {
     //private FrameType frameType;
     private CollectedLoadProfile dailyLoadProfile;
     private ZoneId timeZone;
-    private CollectedLogBook eventsStatus;
+    private List<CollectedLogBook> collectedLogBooks;
     private CollectedLoadProfile nightLineProfile;
 
     public MerlinCollectedDataFactory(Telegram telegram, InboundContext inboundContext) {
@@ -51,6 +52,10 @@ public class MerlinCollectedDataFactory {
         }
 
         collectedDataList = new ArrayList<>();
+
+        inboundContext.getLogger().info("Collecting data for " + getDeviceIdentifier());
+
+        collectedRegisterList = inboundContext.getInboundDiscoveryContext().getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
 
         try {
             extractRegisters();
@@ -73,7 +78,13 @@ public class MerlinCollectedDataFactory {
         try {
             extractErrorFlags();
         } catch (Exception ex) {
-            inboundContext.getLogger().error("Exception while parsing error flags on daily frame", ex);
+            inboundContext.getLogger().error("Exception while parsing error flags", ex);
+        }
+
+        try {
+            extractCellInfo();
+        } catch (Exception ex) {
+            inboundContext.getLogger().error("Exception while parsing cell info", ex);
         }
 
         if (collectedRegisterList != null ) {
@@ -88,16 +99,13 @@ public class MerlinCollectedDataFactory {
             collectedDataList.add(dailyLoadProfile);
         }
 
-        if (eventsStatus != null) {
-            collectedDataList.add(eventsStatus);
-        }
-
         return collectedDataList;
     }
 
     private void extractStatusEvents() {
         StatusEventsFactory eventsFactory = new StatusEventsFactory(telegram, inboundContext);
-        this.eventsStatus = eventsFactory.extractEventsFromStatus();
+        CollectedLogBook eventsStatusLogBook = eventsFactory.extractEventsFromStatus();
+        addCollectedLogbook(eventsStatusLogBook);
     }
 
     private void extractErrorFlags() {
@@ -105,13 +113,26 @@ public class MerlinCollectedDataFactory {
 
         telegram.getBody().getBodyPayload().getRecords().stream()
                 .filter(errorFlagsEventsFactory::appliesFor)
-                .forEach(errorFlagsEventsFactory::extractEventsFromErrorFlags);
+                .map(errorFlagsEventsFactory::extractEventsFromErrorFlags)
+                .forEach(this::addCollectedLogbook);
 
     }
 
+    private void addCollectedLogbook(CollectedLogBook collectedLogBook) {
+        collectedDataList.add(collectedLogBook);
+    }
+
+    private void extractCellInfo() {
+        CellInfoFactory cellInfoFactory = new CellInfoFactory(telegram, inboundContext);
+
+        telegram.getBody().getBodyPayload().getRecords().stream()
+                .filter(cellInfoFactory::appliesFor)
+                .forEach(r -> cellInfoFactory.extractCellInformation(r, collectedRegisterList));
+    }
+
     private void extractRegisters() {
-        RegisterFactory registerFactory = new RegisterFactory(telegram, inboundContext);
-        this.collectedRegisterList = registerFactory.extractRegisters();
+        RegisterFactory registerFactory = new RegisterFactory(telegram, inboundContext, collectedRegisterList);
+        registerFactory.extractRegisters();
     }
 
     private void extractAllProfiles() {

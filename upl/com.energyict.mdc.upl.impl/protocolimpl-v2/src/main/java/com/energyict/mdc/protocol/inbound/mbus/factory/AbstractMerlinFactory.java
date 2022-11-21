@@ -57,6 +57,9 @@ public abstract class AbstractMerlinFactory {
     }
 
     public Instant getTelegramDateTime() {
+        if (telegramDateTime == null) {
+            extractTelegramDateTime();
+        }
         return telegramDateTime;
     }
 

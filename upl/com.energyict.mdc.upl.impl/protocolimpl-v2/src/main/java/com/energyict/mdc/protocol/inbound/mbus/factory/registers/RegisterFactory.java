@@ -22,8 +22,9 @@ public class RegisterFactory extends AbstractMerlinFactory {
 
     private CollectedRegisterList collectedRegisterList;
 
-    public RegisterFactory(Telegram telegram, InboundContext inboundContext) {
+    public RegisterFactory(Telegram telegram, InboundContext inboundContext, CollectedRegisterList collectedRegisterList) {
         super(telegram, inboundContext);
+        this.collectedRegisterList = collectedRegisterList;
     }
 
     @Override
@@ -31,15 +32,11 @@ public class RegisterFactory extends AbstractMerlinFactory {
         return null; // not applicable for registers
     }
 
-    public CollectedRegisterList extractRegisters() {
-        this.collectedRegisterList = getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
-
+    public void extractRegisters() {
         extractTelegramDateTime();
 
         getTelegram().getBody().getBodyPayload().getRecords()
                 .forEach(this::extractRegister);
-
-        return collectedRegisterList;
     }
 
 
@@ -73,8 +70,13 @@ public class RegisterFactory extends AbstractMerlinFactory {
     }
 
     private boolean alreadyContainsObis(ObisCode obisCode) {
+        if (collectedRegisterList == null) {
+            return false;
+        }
+
         return collectedRegisterList.getCollectedRegisters().stream()
                 .filter(r -> r.getRegisterIdentifier() != null)
+                .filter(r -> r.getRegisterIdentifier().getRegisterObisCode() != null)
                 .anyMatch(r -> obisCode.equals(r.getRegisterIdentifier().getRegisterObisCode()));
     }
 }
