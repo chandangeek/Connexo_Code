@@ -38,9 +38,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
-
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -97,7 +95,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         when(deviceService.findDeviceByName(DEVICE_NAME)).thenReturn(Optional.of(device));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoMetersInMeterConfig() {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -122,7 +120,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testGetMeterConfigSuccessfully() throws Exception {
         mockMeterConfigFactoryWithCas();
 
@@ -190,7 +188,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         assertThat(responseMeter.getMeterCustomAttributeSet().get(2).getId()).isEqualTo(VERSIONED_CPS_ID);
     }
 
-    @Ignore @Test
+    @Test
     public void testGetMeterConfigSuccessfullyWithSystemMeterStatusSource() throws Exception {
         when(meterConfigFactory.asGetMeterConfig(any(Device.class), any(PingResult.class), eq(true))).thenReturn(meterConfig);
         when(meterConfig.getMeter()).thenReturn(Arrays.asList(createMeterWithMeterStatus()));
@@ -262,7 +260,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         assertThat(responseMeter.getMeterStatus().getContactorStatus().getActivationDate()).isEqualTo(CONTACTOR_ACTIVATION_DATE);
     }
 
-    @Ignore @Test
+    @Test
     public void testGetMeterConfigNotSupportedMeterStatusSource() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -290,7 +288,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testGetMeterConfigAsyncNotSupportedMeterStatusSource() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -319,7 +317,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testWrongPingField() throws Exception {
         // Prepare request
         MeterConfig meterConfigInRequest = new MeterConfig();
@@ -346,7 +344,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessfullyPing() throws Exception {
         when(meterConfigFactory.asGetMeterConfig(any(Device.class), any(PingResult.class), eq(true))).thenReturn(meterConfig);
         when(meterConfig.getMeter()).thenReturn(Arrays.asList(createMeterWithPing(PingResult.SUCCESSFUL)));
@@ -369,7 +367,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         assertThat(response.getPayload().getMeterConfig().getMeter().get(0).getPingResult()).isEqualTo("Successful");
     }
 
-    @Ignore @Test
+    @Test
     public void testFailedPing() throws Exception {
         when(meterConfigFactory.asGetMeterConfig(any(Device.class), any(PingResult.class), eq(true))).thenReturn(meterConfig);
         when(meterConfig.getMeter()).thenReturn(Arrays.asList(createMeterWithPing(PingResult.FAILED)));
@@ -398,7 +396,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
                 .translate(thesaurus));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         meterConfig.getMeter().add(createDefaultMeter());
@@ -413,7 +411,6 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore
     @Test
     public void testOutboundNotConfigured() {
         MeterConfig meterConfig = new MeterConfig();

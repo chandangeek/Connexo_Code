@@ -49,7 +49,7 @@ public interface EndDevice extends HasId, IdentifiedObject {
 
     Optional<HeadEndInterface> getHeadEndInterface();
 
-    EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant);
+    EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant, long logBookId);
 
     List<EndDeviceEventRecord> getDeviceEvents(Range<Instant> range);
 

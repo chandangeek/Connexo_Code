@@ -122,7 +122,7 @@ public class MailIssueActionTest extends BaseTest{
             }
 
             @Override
-            public EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant) {
+            public EndDeviceEventRecordBuilder addEventRecord(EndDeviceEventType type, Instant instant, long logBookId) {
                 return null;
             }
 

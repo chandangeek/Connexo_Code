@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.issue.impl.module;
 
 import com.elster.jupiter.domain.util.QueryService;
+import com.elster.jupiter.issue.impl.event.BulkCloseIssueHandlerFactory;
 import com.elster.jupiter.issue.impl.service.IssueServiceImpl;
 import com.elster.jupiter.issue.impl.service.PropertyFactoriesProviderImpl;
 import com.elster.jupiter.issue.share.IssueResourceUtility;
@@ -47,5 +49,6 @@ public class IssueModule extends AbstractModule {
         bind(PropertyFactoriesProvider.class).to(PropertyFactoriesProviderImpl.class).in(Scopes.SINGLETON);
         bind(IssueService.class).to(IssueServiceImpl.class).in(Scopes.SINGLETON);
         bind(IssueResourceUtility.class).to(IssueResourceUtilityImpl.class);
+        bind(BulkCloseIssueHandlerFactory.class).in(Scopes.SINGLETON);
     }
 }

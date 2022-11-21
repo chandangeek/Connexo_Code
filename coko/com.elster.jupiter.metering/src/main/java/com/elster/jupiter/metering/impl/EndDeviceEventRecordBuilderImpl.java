@@ -17,8 +17,8 @@ public class EndDeviceEventRecordBuilderImpl implements EndDeviceEventRecordBuil
 
     private EndDeviceEventRecordImpl underConstruction;
 
-    public EndDeviceEventRecordBuilderImpl(Provider<EndDeviceEventRecordImpl> deviceEventFactory, EndDevice endDevice, EndDeviceEventType type, Instant date) {
-        underConstruction = deviceEventFactory.get().init(endDevice, type, date);
+    public EndDeviceEventRecordBuilderImpl(Provider<EndDeviceEventRecordImpl> deviceEventFactory, EndDevice endDevice, EndDeviceEventType type, Instant date, long logBookId) {
+        underConstruction = deviceEventFactory.get().init(endDevice, type, date, logBookId);
     }
 
     @Override
@@ -42,12 +42,6 @@ public class EndDeviceEventRecordBuilderImpl implements EndDeviceEventRecordBuil
     @Override
     public EndDeviceEventRecordBuilder setIssuerTrackingID(String issuerTrackingID) {
         underConstruction.setIssuerTrackingID(issuerTrackingID);
-        return this;
-    }
-
-    @Override
-    public EndDeviceEventRecordBuilder setLogBookId(long logBookId) {
-        underConstruction.setLogBookId(logBookId);
         return this;
     }
 

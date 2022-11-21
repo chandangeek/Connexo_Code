@@ -27,6 +27,7 @@ import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.PPPSetup;
 import com.energyict.dlms.cosem.SingleActionSchedule;
+import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -286,10 +287,25 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         ImageTransfer.ImageBlockSupplier dataSupplier = new ImageTransfer.ByteArrayImageBlockSupplier(imageData);
         imageTransfer.enableImageTransfer();
         imageTransfer.initializeAndTransferBlocks(dataSupplier, false, imageIdentifier);
-        if (imageTransfer.getImageTransferStatus().getValue() == 1) {
+        if (imageTransfer.getImageTransferStatus().getValue() == ImageTransferStatus.TRANSFER_INITIATED.getValue()) {
             imageTransfer.checkAndSendMissingBlocks();
+            getProtocol().journal("Image has been uploaded to the device. Image transfer status is " + ImageTransferStatus.TRANSFER_INITIATED.getValue() + ": " + ImageTransferStatus.TRANSFER_INITIATED.getInfo());
         }
-        // The device will start verification and activation wil be done on the date that is specified in the imageIdentifier.
+        // If the activation date is in the future, verification and activation will be started by device on the date that is specified in the imageIdentifier.
+        // If the activation date is in the past, verification and activation won't be started by device for some FW versions.
+        int imageTransferStatusValue = imageTransfer.getImageTransferStatus().getValue();
+        if (imageTransferStatusValue == ImageTransferStatus.TRANSFER_INITIATED.getValue()) {
+            // If verification and activation hasn't been started automatically after a full image transfer and the date is in the past, do it manually
+            if (Long.parseLong(activationEpochString) < Instant.now().toEpochMilli()) {
+                getProtocol().journal("Verification and activation hasn't been started automatically and the activation date is in the past. Sending the activation request.");
+                imageTransfer.imageActivation();
+            } else {
+                getProtocol().journal("The activation date is in the future, verification and activation will be started by device on the date that is specified");
+            }
+        } else {
+            getProtocol().journal("Image transfer status is " + imageTransferStatusValue + ": " + ImageTransferStatus.fromValue(imageTransferStatusValue).getInfo() +
+                    ". No explicit activation request is to be sent.");
+        }
     }
 
     private void changeSessionTimeout(OfflineDeviceMessage pendingMessage) throws IOException {

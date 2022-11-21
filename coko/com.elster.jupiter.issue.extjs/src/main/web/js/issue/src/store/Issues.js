@@ -9,6 +9,7 @@ Ext.define('Isu.store.Issues', {
     autoLoad: false,
     proxy: {
         type: 'rest',
+        timeout: 120000,
         url: '/api/isu/issues',
         reader: {
             type: 'json',

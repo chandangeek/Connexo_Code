@@ -28,16 +28,14 @@ import com.energyict.protocolimplv2.dlms.ei7.registers.EI7RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class EI7 extends A2 {
-   protected EI7RegisterFactory registerFactory = null;
+    
+    /*Predefined OBIS Code for EI7 meter */
+    private static final ObisCode FIRMWARE_VERSION_APPLICATION_OBIS_CODE = ObisCode.fromString("7.1.0.2.1.255");
 
-    /*Predefined OBIS Code for EI7 meter - What is the firmware version obis code???????? */
-//    private static final ObisCode FIRMWARE_VERSION_OBIS_CODE = ObisCode.fromString("0.0.0.2.0.255");
-    private static final ObisCode FIRMWARE_VERSION_OBIS_CODE = ObisCode.fromString("7.1.0.2.1.255");
-    String firmwareFinalVersion = new String();
+    protected EI7RegisterFactory registerFactory = null;
 
     public EI7(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
                NlsService nlsService, Converter converter, DeviceMessageFileExtractor messageFileExtractor,
@@ -59,7 +57,6 @@ public class EI7 extends A2 {
             setDeviceCache(new DLMSCache());
         }
         DLMSCache dlmsCache = getDeviceCache();
-
         readObjectList();
         dlmsCache.saveObjectList(getDlmsSession().getMeterConfig().getInstantiatedObjectList());
     }
@@ -73,45 +70,29 @@ public class EI7 extends A2 {
     public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
         if (offlineDevice.getSerialNumber().equals(serialNumber)) {
             CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
-            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getFirmwareVersion());
+            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getActiveMeterFirmwareVersion());
             return firmwareVersionsCollectedData;
         }
         return super.getFirmwareVersions(serialNumber);
     }
 
-    public String getFirmwareVersion() {
-        try {
-
-            Data firmwareData = getDlmsSession().getCosemObjectFactory().getData(FIRMWARE_VERSION_OBIS_CODE);
-            AbstractDataType valueAttr = firmwareData.getValueAttr();
-
-            if (valueAttr.isOctetString()) {
-
-                byte[] berEncodedByteArray = valueAttr.getOctetString().getBEREncodedByteArray();
-                byte[] finalArray = Arrays.copyOfRange(berEncodedByteArray, 2, berEncodedByteArray.length);
-
-                int versionNumber = 0;
-                int commitNumber = 0;
-                if (finalArray.length > 2) {
-                    versionNumber = (finalArray[0] << 8) + finalArray[1];
-                }
-                if (finalArray.length > 4) {
-                    commitNumber = (finalArray[2] << 8) + finalArray[3];
-                }
-
-                int major = (versionNumber & 0xF800) >> 11;
-                int minor = (versionNumber & 0x07C0) >> 6;
-                int fix = versionNumber & 0x003F;
-
-                firmwareFinalVersion = String.format("%s.%s.%s", major, minor, fix);
-            }
-        } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle((IOException) e, getDlmsSession().getProperties().getRetries() + 1);
-        }
-
-        return firmwareFinalVersion;
+    public String getActiveMeterFirmwareVersion(){
+        return  getFirmwareVersion(FIRMWARE_VERSION_APPLICATION_OBIS_CODE);
     }
 
+    public String getFirmwareVersion(ObisCode firmwareObiscode) {
+        try {
+            journal("Collecting firmware version from " + firmwareObiscode);
+            Data firmwareData = getDlmsSession().getCosemObjectFactory().getData(firmwareObiscode);
+            AbstractDataType valueAttr = firmwareData.getValueAttr();
+            if (valueAttr.isOctetString()) {
+                return(getEI7RegisterFactory().decodeFirmwareVersion(valueAttr.getOctetString()));
+            }
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
+        }
+        return "";
+    }
 
     @Override
     public String getProtocolDescription() {
@@ -120,7 +101,7 @@ public class EI7 extends A2 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-08-03$";
+        return "$Date: 2022-11-07$";
     }
 
     @Override

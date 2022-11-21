@@ -43,8 +43,8 @@ public class DataMapperWriter<T> {
         return dataMapper.getSqlGenerator();
     }
 
-    private Connection getConnection(boolean tranactionRequired) throws SQLException {
-        return getTable().getDataModel().getConnection(tranactionRequired);
+    private Connection getConnection(boolean transactionRequired) throws SQLException {
+        return getTable().getDataModel().getConnection(transactionRequired);
     }
 
     private long getNext(Connection connection, String sequence) throws SQLException {
@@ -288,7 +288,7 @@ public class DataMapperWriter<T> {
     }
 
     private boolean isAuditEnabled() {
-        return getAuditEnabledProperty().toLowerCase().equals("true");
+        return getAuditEnabledProperty().equalsIgnoreCase("true");
     }
 
     private String getAuditEnabledProperty() {

@@ -117,21 +117,21 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
                 xtype: 'pagingtoolbartop',
                 dock: 'top',
                 store: me.store,
-                needCustomExporter: true,
+                needFilteredCustomExporter: true,
                 displayMsg: Uni.I18n.translate('communication.widget.details.displayMsg', 'DSH', '{0} - {1} of {2} communications'),
                 displayMoreMsg: Uni.I18n.translate('communication.widget.details.displayMoreMsg', 'DSH', '{0} - {1} of more than {2} communications'),
                 emptyMsg: Uni.I18n.translate('communication.widget.details.emptyMsg', 'DSH', 'There are no communications to display'),
-                items:[
+                items: [
                     {
                         xtype:'button',
                         itemId:'generate-report',
                         hidden: !Uni.store.Apps.checkApp('Facts'),
                         privileges: Yfn.privileges.Yellowfin.view,
-                        text:Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
+                        text: Uni.I18n.translate('generatereport.generateReportButton', 'DSH', 'Generate report')
                     },
                     {
-                        xtype:'button',
-                        itemId:'btn-communications-bulk-action',
+                        xtype: 'button',
+                        itemId: 'btn-communications-bulk-action',
                         privileges: Mdc.privileges.Device.viewOrAdministrateOrOperateDeviceCommunication,
                         text: Uni.I18n.translate('general.bulkAction', 'DSH', 'Bulk action')
                     }
@@ -148,6 +148,30 @@ Ext.define('Dsh.view.widget.CommunicationsList', {
             }
         ];
         me.callParent(arguments);
+    },
+    initActions: function () {
+        var me = this,
+            bulkActionBtn = me.down("#btn-communications-bulk-action");
+        bulkActionBtn.on('click', me.applyFilters, me);
+    },
+    applyFilters: function () {
+        var me = this,
+            pagingToolbarTop = Ext.Array.findBy(Ext.ComponentQuery.query('pagingtoolbartop'), function (toolbar) {
+                return toolbar.store.$className === me.store.$className;
+            }),
+            pagingToolbarBottom = Ext.Array.findBy(Ext.ComponentQuery.query('pagingtoolbarbottom'), function (toolbar) {
+                return toolbar.store.$className === me.store.$className;
+            });
+
+        if (pagingToolbarTop) {
+            pagingToolbarTop.resetPaging();
+        }
+        if (pagingToolbarBottom) {
+            pagingToolbarBottom.resetPaging();
+        }
+        if (Ext.isDefined(me.store)) {
+            me.store.load();
+        }
     }
 });
 

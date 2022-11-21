@@ -8,8 +8,11 @@ import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.HS3300;
+import com.energyict.protocolimplv2.dlms.idis.hs340.plc.sp.messages.HS340PLCMessaging;
+import com.energyict.protocolimplv2.dlms.idis.hs340.plc.sp.properties.HS340ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.idis.hs340.plc.sp.properties.HS340PlcProperties;
 
 /**
@@ -17,6 +20,8 @@ import com.energyict.protocolimplv2.dlms.idis.hs340.plc.sp.properties.HS340PlcPr
  * Protocol release notes: https://confluence.honeywell.com/pages/viewpage.action?pageId=657053974
  */
 public class HS340PlcSP extends HS3300 {
+
+    protected HS340PLCMessaging deviceMessaging;
 
     public HS340PlcSP(PropertySpecService propertySpecService, CollectedDataFactory collectedDataFactory, IssueFactory issueFactory,
                        TariffCalendarExtractor calendarExtractor, NlsService nlsService, Converter converter,
@@ -28,7 +33,7 @@ public class HS340PlcSP extends HS3300 {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-08-10$";
+        return "$Date: 2022-11-08$";
     }
 
     @Override
@@ -44,4 +49,18 @@ public class HS340PlcSP extends HS3300 {
         return (HS340PlcProperties) dlmsProperties;
     }
 
+    @Override
+    protected HS340PLCMessaging getDeviceMessaging() {
+        if (this.deviceMessaging == null) {
+            this.deviceMessaging = new HS340PLCMessaging(this, getCollectedDataFactory(), getIssueFactory(),
+                    getPropertySpecService(), nlsService, converter, calendarExtractor, certificateWrapperExtractor,
+                    messageFileExtractor, keyAccessorTypeExtractor);
+        }
+        return this.deviceMessaging;
+    }
+
+    @Override
+    protected HasDynamicProperties getNewInstanceOfConfigurationSupport() {
+        return new HS340ConfigurationSupport(this.getPropertySpecService());
+    }
 }

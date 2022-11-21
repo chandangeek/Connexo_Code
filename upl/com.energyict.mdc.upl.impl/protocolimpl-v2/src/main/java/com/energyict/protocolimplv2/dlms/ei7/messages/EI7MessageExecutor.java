@@ -1,5 +1,12 @@
 package com.energyict.protocolimplv2.dlms.ei7.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+
 import com.energyict.dlms.axrdencoding.Array;
 import com.energyict.dlms.axrdencoding.AxdrType;
 import com.energyict.dlms.axrdencoding.CosemTime;
@@ -13,14 +20,6 @@ import com.energyict.dlms.axrdencoding.util.AXDRDateTime;
 import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.NbiotPushScheduler;
 import com.energyict.dlms.cosem.NbiotPushSetup;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.a2.messages.A2MessageExecutor;
@@ -71,29 +70,24 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         this.keyAccessorTypeExtractor = keyAccessorTypeExtractor;
     }
 
-    protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) {
-        try {
-            if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PUSH_SCHEDULER)) {
-                writePushScheduler(pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PUSH_SETUP)) {
-                writePushSetup(pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD)) {
-                writeOrphanStateThreshold(pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_NETWORK_TIMEOUT)) {
-                writeNetworkTimeout(pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL_EI6_7)) {
-                renewKey(pendingMessage);
-            } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.GAS_DAY_CONFIGURATION)) {
-                setGasDay(pendingMessage);
-            } else {
-                super.executeMessage(pendingMessage, collectedMessage);
-            }
-            //TODO remove error handling here, leave it to executePendingMessages()
-        } catch (IOException e) {
-            collectedMessage.setNewDeviceMessageStatus(DeviceMessageStatus.FAILED);
-            collectedMessage.setDeviceProtocolInformation(e.getMessage());
-            collectedMessage.setFailureInformation(ResultType.InCompatible, createMessageFailedIssue(pendingMessage, e));
+    @Override
+    protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
+        if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PUSH_SCHEDULER)) {
+            writePushScheduler(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_PUSH_SETUP)) {
+            writePushSetup(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_ORPHAN_STATE_THRESHOLD)) {
+            writeOrphanStateThreshold(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(NetworkConnectivityMessage.CHANGE_NETWORK_TIMEOUT)) {
+            writeNetworkTimeout(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(SecurityMessage.KEY_RENEWAL_EI6_7)) {
+            renewKey(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.GAS_DAY_CONFIGURATION)) {
+            setGasDay(pendingMessage);
+        } else {
+            super.executeMessage(pendingMessage, collectedMessage);
         }
+        // Error handling is done by the A2::executePendingMessages()
         return collectedMessage;
     }
 
@@ -129,11 +123,19 @@ public class EI7MessageExecutor extends A2MessageExecutor {
     private void writePushScheduler(OfflineDeviceMessage pendingMessage) throws IOException {
         ObisCode pushObisCode = null;
         int schedulerNumber = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.schedulerNumber));
-        switch(schedulerNumber){
-            case 1: pushObisCode = PUSH_SCHEDULER_1; break;
-            case 2: pushObisCode = PUSH_SCHEDULER_2; break;
-            case 3: pushObisCode = PUSH_SCHEDULER_3; break;
-            case 4: pushObisCode = PUSH_SCHEDULER_4; break;
+        switch (schedulerNumber) {
+            case 1:
+                pushObisCode = PUSH_SCHEDULER_1;
+                break;
+            case 2:
+                pushObisCode = PUSH_SCHEDULER_2;
+                break;
+            case 3:
+                pushObisCode = PUSH_SCHEDULER_3;
+                break;
+            case 4:
+                pushObisCode = PUSH_SCHEDULER_4;
+                break;
         }
         NbiotPushScheduler nbiotPushScheduler = getCosemObjectFactory().getNbiotPushScheduler(pushObisCode);
         String executionTime = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, DeviceMessageConstants.executionTime).getValue();
@@ -146,14 +148,30 @@ public class EI7MessageExecutor extends A2MessageExecutor {
         ObisCode pushObisCode = null;
         int pushNumber = Integer.parseInt(getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.pushNumber));
         switch (pushNumber) {
-            case 1:  pushObisCode = PUSH_SETUP_1; break;
-            case 2:  pushObisCode = PUSH_SETUP_2; break;
-            case 3:  pushObisCode = PUSH_SETUP_3; break;
-            case 4:  pushObisCode = PUSH_SETUP_4; break;
-            case 11: pushObisCode = PUSH_SETUP_11; break;
-            case 12: pushObisCode = PUSH_SETUP_12; break;
-            case 13: pushObisCode = PUSH_SETUP_13; break;
-            case 14: pushObisCode = PUSH_SETUP_14; break;
+            case 1:
+                pushObisCode = PUSH_SETUP_1;
+                break;
+            case 2:
+                pushObisCode = PUSH_SETUP_2;
+                break;
+            case 3:
+                pushObisCode = PUSH_SETUP_3;
+                break;
+            case 4:
+                pushObisCode = PUSH_SETUP_4;
+                break;
+            case 11:
+                pushObisCode = PUSH_SETUP_11;
+                break;
+            case 12:
+                pushObisCode = PUSH_SETUP_12;
+                break;
+            case 13:
+                pushObisCode = PUSH_SETUP_13;
+                break;
+            case 14:
+                pushObisCode = PUSH_SETUP_14;
+                break;
         }
         String pushObjectList = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.pushObjectList);
         String transportTypeString = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.transportTypeAttributeName);

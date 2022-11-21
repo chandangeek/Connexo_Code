@@ -79,7 +79,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             var a = wizard.down('bulk-selection-grid').down('#checkAllButton').isDisabled();
             selectionGrid.getDockedItems()[0].items.items[0].setBoxLabel("<b>All communications</b>  &nbsp &nbsp Count of communication tasks: " + selectionGrid.totalCount);
 
-            if(a) {
+            if (a) {
                 selectionGrid.getSelectionModel().select(records, true);
                 selectionGrid.down('#selectionCounter').setText(selectionGrid.counterTextFn([selectionGrid.getSelectionModel().getSelection().length, selectionGrid.totalCount]));
                 wizard.down('bulk-selection-grid').down('#checkAllButton').setDisabled(true);
@@ -97,12 +97,12 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
         });
         communicationsTasksBufferedStore.loadPage(1, {
             params: {
-                filter : me.getFilterObjectStringFromQueryString()
+                filter: me.getFilterObjectStringFromQueryString()
             }
         });
     },
 
-    onStoreLoaded: function() {
+    onStoreLoaded: function () {
         this.setLoading(false);
     },
 
@@ -112,24 +112,22 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             selectionGrid = wizard.down('bulk-selection-grid'),
             action = wizard.down('#communications-bulk-action-radiogroup').getValue().action,
             data = {},
-            url;
-
+            url,
+            filterItems = me.getFilterObjectFromQueryString();
         if (selectionGrid.isAllSelected()) {
-            var filterItems = me.getFilterObjectFromQueryString();
             data.filter = {};
             for (var dataIndex in filterItems) {
                 var value = filterItems[dataIndex];
                 if (filterItems.hasOwnProperty(dataIndex) && Ext.isDefined(value) && !Ext.isEmpty(value)
                     && dataIndex != 'limit' && dataIndex != 'start'
                     && dataIndex != 'startInterval' && dataIndex != 'finishInterval') {
-                    //CONM-2553
-                    if(dataIndex == 'startIntervalFrom'){
+                    if (dataIndex == 'startIntervalFrom') {
                         dataIndex = 'strtFrom'
-                    }else if(dataIndex == 'startIntervalTo'){
+                    } else if (dataIndex == 'startIntervalTo') {
                         dataIndex = 'strtTo'
-                    }else if(dataIndex == 'finishIntervalTo'){
+                    } else if (dataIndex == 'finishIntervalTo') {
                         dataIndex = 'finishTo'
-                    }else if(dataIndex == 'finishIntervalFrom'){
+                    } else if (dataIndex == 'finishIntervalFrom') {
                         dataIndex = 'finishFrom'
                     }
                     data.filter[dataIndex] = value;
@@ -153,20 +151,25 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
 
         wizard.setLoading(true);
 
-        Ext.Ajax.request({
-            url: url,
-            method: 'PUT',
-            jsonData: data,
-            callback: function (options, success) {
-                if (wizard.rendered) {
-                    wizard.setLoading(false);
-                    wizard.down('#cmbw-step4').setResultMessage(action, success);
+        if (filterItems.deviceTypes == undefined && filterItems.deviceGroups == undefined && filterItems.comTasks == undefined && filterItems.comSchedules == undefined && filterItems.currentStates == undefined && filterItems.latestResults == undefined && filterItems.connectionMethods == undefined && filterItems.startInterval == undefined && filterItems.finishInterval == undefined) {
+            wizard.setLoading(false);
+            wizard.down('#cmbw-step4').setResultMessage(action, false, filterItems);
+        } else {
+            Ext.Ajax.request({
+                url: url,
+                method: 'PUT',
+                jsonData: data,
+                callback: function (options, success, filterItems) {
+                    if (wizard.rendered) {
+                        wizard.setLoading(false);
+                        wizard.down('#cmbw-step4').setResultMessage(action, success, filterItems);
+                    }
                 }
-            }
-        });
+            });
+        }
     },
 
-    setLoading: function(loadingState) {
+    setLoading: function (loadingState) {
         this.getWizard().setLoading(loadingState);
     },
 
@@ -236,7 +239,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             step1View = wizard.down('#cmbw-step1'),
             selectionGrid = step1View.down('bulk-selection-grid'),
             selectedCount;
-        if(selectionGrid.isAllSelected()){
+        if (selectionGrid.isAllSelected()) {
             selectedCount = Dsh.controller.CommunicationsBulk.totalCount
         } else {
             selectedCount = selectionGrid.getSelectedItems().length
@@ -280,7 +283,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
         }
     },
 
-    getFilterObjectStringFromQueryString: function() {
+    getFilterObjectStringFromQueryString: function () {
         var filterObject = this.getFilterObjectFromQueryString(),
             result = [];
 
@@ -298,17 +301,17 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
         return Ext.encode(result);
     },
 
-    getFilterObjectFromQueryString: function() {
+    getFilterObjectFromQueryString: function () {
         var filterObject = Uni.util.QueryString.getQueryStringValues(false);
         this.adaptFilterObject(filterObject);
         return filterObject;
     },
 
-    adaptFilterObject: function(filterObject) {
+    adaptFilterObject: function (filterObject) {
         // Assure that properties that are expected to be an int array, are indeed int arrays
 
         var props = ['deviceTypes', 'deviceGroups', 'comTasks', 'comSchedules'];
-        Ext.Array.each(props, function(prop) {
+        Ext.Array.each(props, function (prop) {
             if (filterObject.hasOwnProperty(prop)) {
                 if (Ext.isArray(filterObject[prop])) {
                     for (i = 0; i < filterObject[prop].length; i++) {
@@ -322,8 +325,7 @@ Ext.define('Dsh.controller.CommunicationsBulk', {
             }
         });
 
-        //CONM-2507
-        Ext.Array.each(['currentStates', 'latestResults', 'connectionMethods'], function(prop) {
+        Ext.Array.each(['currentStates', 'latestResults', 'connectionMethods'], function (prop) {
             if (filterObject.hasOwnProperty(prop)) {
                 if (!Ext.isArray(filterObject[prop])) {
                     filterObject[prop] = [filterObject[prop]];

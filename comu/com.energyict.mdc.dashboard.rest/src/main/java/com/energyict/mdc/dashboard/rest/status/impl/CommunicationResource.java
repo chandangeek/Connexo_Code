@@ -115,8 +115,13 @@ public class CommunicationResource {
     @Consumes("application/json")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
+    public Response getCommunications(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) throws Exception {
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
+        String user = "";
+        if (null != securityContext) {
+            user = securityContext.getUserPrincipal().getName();
+        }
+        LOGGER.log(Level.INFO, "CONM-3550: Get Com tasks filter applied by " + user + " with filter properties:: comTasks: " + jsonQueryFilter.getComplexProperty("comTasks") + ", device: " + jsonQueryFilter.getComplexProperty("device") + ", connectionMethods: " + jsonQueryFilter.getComplexProperty("connectionMethods") + ", deviceTypes: " + jsonQueryFilter.getComplexProperty("deviceTypes") + ", deviceGroups: " + jsonQueryFilter.getComplexProperty("deviceGroups") + ", latestResults: " + jsonQueryFilter.getComplexProperty("latestResults") + ", currentStates: " + jsonQueryFilter.getComplexProperty("currentStates") + ", comSchedules: " + jsonQueryFilter.getComplexProperty("comSchedules") + ", startIntervalFrom: " + jsonQueryFilter.getComplexProperty("startIntervalFrom") + ", startIntervalTo: " + jsonQueryFilter.getComplexProperty("startIntervalTo") + ", finishIntervalFrom: " + jsonQueryFilter.getComplexProperty("finishIntervalFrom") + ", finishIntervalTo: " + jsonQueryFilter.getComplexProperty("finishIntervalTo"));
         if (!queryParameters.getStart().isPresent() || !queryParameters.getLimit().isPresent()) {
             return Response.status(Response.Status.BAD_REQUEST).build();
         }
@@ -155,7 +160,12 @@ public class CommunicationResource {
     @Path("/count")
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response getCommunicationsCount(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) throws Exception {
+    public Response getCommunicationsCount(@BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters, @Context SecurityContext securityContext) throws Exception {
+        String user = "";
+        if (null != securityContext) {
+            user = securityContext.getUserPrincipal().getName();
+        }
+        LOGGER.log(Level.INFO, "CONM-3550: Get count of Com tasks by " + user + " with filter properties:: comTasks: " + jsonQueryFilter.getComplexProperty("comTasks") + ", device: " + jsonQueryFilter.getComplexProperty("device") + ", connectionMethods: " + jsonQueryFilter.getComplexProperty("connectionMethods") + ", deviceTypes: " + jsonQueryFilter.getComplexProperty("deviceTypes") + ", deviceGroups: " + jsonQueryFilter.getComplexProperty("deviceGroups") + ", latestResults: " + jsonQueryFilter.getComplexProperty("latestResults") + ", currentStates: " + jsonQueryFilter.getComplexProperty("currentStates") + ", comSchedules: " + jsonQueryFilter.getComplexProperty("comSchedules") + ", startIntervalFrom: " + jsonQueryFilter.getComplexProperty("startIntervalFrom") + ", startIntervalTo: " + jsonQueryFilter.getComplexProperty("startIntervalTo") + ", finishIntervalFrom: " + jsonQueryFilter.getComplexProperty("finishIntervalFrom") + ", finishIntervalTo: " + jsonQueryFilter.getComplexProperty("finishIntervalTo"));
         ComTaskExecutionFilterSpecification filter = buildFilterFromJsonQuery(jsonQueryFilter);
         return Response.ok(communicationTaskService.getCommunicationTasksCount(filter)).build();
     }
@@ -225,9 +235,9 @@ public class CommunicationResource {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        String user ="";
-        if(null != securityContext) {
-           user = securityContext.getUserPrincipal().getName();
+        String user = "";
+        if (null != securityContext) {
+            user = securityContext.getUserPrincipal().getName();
         }
         return queueCommunicationBulkAction(communicationsBulkRequestInfo, "scheduleNow", user);
     }
@@ -242,21 +252,47 @@ public class CommunicationResource {
         if (!verifyAppServerExists(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION) || !verifyAppServerExists(CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION)) {
             throw exceptionFactory.newException(MessageSeeds.NO_APPSERVER);
         }
-        String user ="";
-        if(null != securityContext) {
+        String user = "";
+        if (null != securityContext) {
             user = securityContext.getUserPrincipal().getName();
         }
         return queueCommunicationBulkAction(communicationsBulkRequestInfo, "runNow", user);
     }
 
     private Response queueCommunicationBulkAction(CommunicationsBulkRequestInfo communicationsBulkRequestInfo, String action, String user) throws Exception {
-        if (communicationsBulkRequestInfo != null && communicationsBulkRequestInfo.filter != null) {
+        if (communicationsBulkRequestInfo.filter != null) {
             ObjectMapper mapper = new ObjectMapper();
             mapper.writeValueAsString(communicationsBulkRequestInfo.filter);
             try {
-                LOGGER.log(Level.INFO, "CommunicationResource:: Bulk Action Filter by user::"+ user +" " + new ObjectMapper().writeValueAsString(communicationsBulkRequestInfo.filter));
+                LOGGER.log(Level.INFO, "CONM-3550: Bulk Action Filter by " + user + " with filter properties: " + new ObjectMapper().writeValueAsString(communicationsBulkRequestInfo.filter) + " with the action : " + action);
             } catch (Exception e) {
                 //ignore if any failure
+            }
+        } else {
+            LOGGER.log(Level.INFO, "CONM-3550: Number of communication tasks selected by " + user + " are: " + communicationsBulkRequestInfo.communications.size());
+        }
+        if (communicationsBulkRequestInfo.filter != null) {
+            if (communicationsBulkRequestInfo.filter.device == null
+                    && (communicationsBulkRequestInfo.filter.deviceTypes == null
+                    || communicationsBulkRequestInfo.filter.deviceTypes.isEmpty())
+                    && (communicationsBulkRequestInfo.filter.deviceGroups == null
+                    || communicationsBulkRequestInfo.filter.deviceGroups.isEmpty())
+                    && (communicationsBulkRequestInfo.filter.comTasks == null
+                    || communicationsBulkRequestInfo.filter.comTasks.isEmpty())
+                    && (communicationsBulkRequestInfo.filter.comSchedules == null
+                    || communicationsBulkRequestInfo.filter.comSchedules.isEmpty())
+                    && (communicationsBulkRequestInfo.filter.currentStates == null
+                    || communicationsBulkRequestInfo.filter.currentStates.isEmpty())
+                    && (communicationsBulkRequestInfo.filter.latestResults == null
+                    || communicationsBulkRequestInfo.filter.latestResults.isEmpty())
+                    && (communicationsBulkRequestInfo.filter.connectionMethods == null
+                    || communicationsBulkRequestInfo.filter.connectionMethods.isEmpty())
+                    && communicationsBulkRequestInfo.filter.startIntervalFrom == null
+                    && communicationsBulkRequestInfo.filter.startIntervalTo == null
+                    && communicationsBulkRequestInfo.filter.finishIntervalFrom == null
+                    && communicationsBulkRequestInfo.filter.finishIntervalTo == null) {
+                LOGGER.log(Level.WARNING, "CONM-3550: User " + user + " triggered bulk action of communication tasks with action " + action + " without applying any filters. Therefore, the comtasks are not queued.");
+                throw exceptionFactory.newException(MessageSeeds.UNSUPPORTED_ACTION);
             }
             Optional<DestinationSpec> destinationSpec = messageService.getDestinationSpec(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION);
             if (destinationSpec.isPresent()) {
