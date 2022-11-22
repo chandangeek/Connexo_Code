@@ -93,17 +93,20 @@ public class CellInfoFactory extends AbstractMerlinFactory {
         RegisterIdentifier registerIdentifier = new RegisterDataIdentifierByObisCodeAndDevice(obisCode, getDeviceIdentifier());
 
         Unit unit = Unit.getUndefined();
-        CollectedRegister register = getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
+        CollectedRegister register;
 
         Object value = registerMapping.extractValue(data);
 
         if (value instanceof Integer) {
+            register = getCollectedDataFactory().createDefaultCollectedRegister(registerIdentifier);
             BigDecimal valueNumeric = BigDecimal.valueOf((Integer) value);
             Quantity quantity = new Quantity(valueNumeric, unit);
             register.setCollectedData(quantity);
 
             getInboundContext().getLogger().info("CellInfo/" +  registerMapping.name() + "=" + valueNumeric);
         } else {
+            register = getCollectedDataFactory().createTextCollectedRegister(registerIdentifier);
+
             String valueText = ProtocolTools.bytesToHex((byte[]) value);
             register.setCollectedData(valueText);
 
