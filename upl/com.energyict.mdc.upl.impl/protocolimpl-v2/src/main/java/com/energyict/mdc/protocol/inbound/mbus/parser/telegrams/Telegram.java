@@ -14,23 +14,18 @@ import java.util.StringJoiner;
 public class Telegram {
 
     private static final int BLOCK_SIZE = 16; /* Encryption Block size */
+    public static final String MAGIC_SIGNATURE_BYTE = "2f";
+
     private final MerlinLogger logger;
     private TelegramHeader header;
     private TelegramBody body;
+    private boolean decryptionState;
 
     public Telegram(MerlinLogger logger) {
         this.logger = logger;
         this.header = new TelegramHeader(logger);
         this.body = new TelegramBody(logger);
     }
-
-    /*
-    public Telegram(MerlinLogger logger, TelegramHeader header, TelegramBody body) {
-        super();
-        this.logger = logger;
-        this.header = header;
-        this.body = body;
-    }*/
 
     public void createTelegram(String telegram, boolean crc) {
         this.createTelegram(telegram.split(" "), crc);
@@ -70,7 +65,7 @@ public class Telegram {
             this.getBody().getBodyPayload().setDecryptedTelegramBodyPayload(this.getBody().getBodyPayload().getEncryptedPayload());
             return false;
         }
-        byte[] keyArr = Converter.convertStringArrToByteArray(aesKey.split(" "));
+        byte[] keyArr = Converter.convertStringToByteArray(aesKey);
         byte[] initCTRVArr = this.getAESCBCInitVector();
 
         try {
@@ -90,7 +85,15 @@ public class Telegram {
                 start += BLOCK_SIZE;
             }
             this.getBody().getBodyPayload().setDecryptedTelegramBodyPayload(Converter.convertByteArrayToString(decryptedResult).split(" "));
-            logger.debug("Decrypted payload: " + Converter.convertByteArrayToString(decryptedResult).replace(" ",""));
+
+            String decryptedPayload = Converter.convertByteArrayToString(decryptedResult).replace(" ", "");
+            logger.debug("Decrypted payload: " + decryptedPayload);
+
+            checkDecryptionSignature();
+
+            if (decryptionError()) {
+                logger.error("Cannot decrypt telegram! Decrypted payload is: [" + decryptedPayload + "]");
+            }
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error decrypting telegram", e);
@@ -100,8 +103,19 @@ public class Telegram {
     }
 
     public void parse() {
-        this.body.parse();
+        if (isDecryptedCorrect()) {
+            this.body.parse();
+        }
     }
+
+    public boolean isDecryptedCorrect() {
+        return decryptionState;
+    }
+
+    public boolean decryptionError() {
+        return !decryptionState;
+    }
+
 
     public byte[] getAESCBCInitVector() {
         byte[] properInitVector = this.generateAESCBCInitVector();
@@ -143,4 +157,19 @@ public class Telegram {
         return this.getBody().getEnergyValue();
     }
 
+    /**
+     * The magic 2 bytes (2F2F) must be present in the first blocks of the telegram
+     *
+     * @return true if the decryption was successful
+     */
+    private boolean checkDecryptionSignature() {
+        this.decryptionState = false;
+        try {
+            this.decryptionState = MAGIC_SIGNATURE_BYTE.equalsIgnoreCase(this.getBody().getBodyPayload().getDecryptedPayloadAsList().get(0))
+                    && MAGIC_SIGNATURE_BYTE.equalsIgnoreCase(this.getBody().getBodyPayload().getDecryptedPayloadAsList().get(1));
+        } catch (Exception ex) {
+            logger.error("Could not check if decryption is ok or not", ex);
+        }
+        return this.decryptionState;
+    }
 }

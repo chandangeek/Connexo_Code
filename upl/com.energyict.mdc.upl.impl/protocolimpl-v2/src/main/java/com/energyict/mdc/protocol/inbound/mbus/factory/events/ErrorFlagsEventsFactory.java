@@ -13,6 +13,7 @@ import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MeterProtocolEvent;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -72,6 +73,8 @@ public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
 
         extractTelegramDateTime();
 
+        List<MeterProtocolEvent> allMeterEvents = new ArrayList<>();
+
         for (int efIndex = 0; efIndex < parts.size(); efIndex++) {
             byte efByte = Byte.parseByte(parts.get(efIndex), 16);
             final int finalEfIndex = efIndex + 1;
@@ -80,9 +83,10 @@ public class ErrorFlagsEventsFactory extends AbstractMerlinFactory {
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
 
-            errorFlagsEvents.addCollectedMeterEvents(meterEvents);
-
+            allMeterEvents.addAll(meterEvents);
         }
+
+        errorFlagsEvents.addCollectedMeterEvents(allMeterEvents);
 
         return errorFlagsEvents;
     }

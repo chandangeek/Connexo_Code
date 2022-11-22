@@ -39,30 +39,14 @@ public class MerlinMbusParser {
         boolean result = telegram.decryptTelegram(getInboundContext().getEncryptionKey());
 
         if (result) {
-            if (isDecryptionOk()) {
-                telegram.parse();
-                // telegram.debugOutput();
-
-                return telegram;
-            } else {
-                getLogger().error("Decryption is not correct!");
-            }
+            telegram.parse();
+            return telegram;
         } else {
             getLogger().error("Could not decrypt telegram!");
         }
-        // TODO -> check invalid decryption, check 2f 2f, throw errors, etc
 
         return null;
     }
 
-    private boolean isDecryptionOk() {
-        try {
-            return "2f".equalsIgnoreCase(telegram.getBody().getBodyPayload().getDecryptedPayloadAsList().get(0))
-                    && "2f".equalsIgnoreCase(telegram.getBody().getBodyPayload().getDecryptedPayloadAsList().get(1));
-        } catch (Exception ex) {
-            getLogger().error("Could not check if decryption is ok");
-            return false;
-        }
-    }
 
 }

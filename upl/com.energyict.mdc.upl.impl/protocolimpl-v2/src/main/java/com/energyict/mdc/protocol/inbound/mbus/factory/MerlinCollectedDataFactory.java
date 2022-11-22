@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus.factory;
 
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
+import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.StatusEventsFactory;
@@ -12,10 +13,13 @@ import com.energyict.mdc.protocol.inbound.mbus.factory.status.CellInfoFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
+import com.energyict.obis.ObisCode;
 
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -28,7 +32,7 @@ public class MerlinCollectedDataFactory {
     private CollectedRegisterList collectedRegisterList;
     private CollectedLoadProfile hourlyLoadProfile;
     private List<CollectedData> collectedDataList;
-    //private FrameType frameType;
+
     private CollectedLoadProfile dailyLoadProfile;
     private ZoneId timeZone;
     private List<CollectedLogBook> collectedLogBooks;
@@ -53,9 +57,14 @@ public class MerlinCollectedDataFactory {
 
         collectedDataList = new ArrayList<>();
 
+        if (! telegram.isDecryptedCorrect()) {
+            inboundContext.getLogger().error("Cannot decode data because is not decrypted correctly, for " + getDeviceIdentifier());
+            return collectedDataList;
+        }
+
         inboundContext.getLogger().info("Collecting data for " + getDeviceIdentifier());
 
-        collectedRegisterList = inboundContext.getInboundDiscoveryContext().getCollectedDataFactory().createCollectedRegisterList(getDeviceIdentifier());
+        createCollectionContainers();
 
         try {
             extractRegisters();
@@ -99,7 +108,17 @@ public class MerlinCollectedDataFactory {
             collectedDataList.add(dailyLoadProfile);
         }
 
+        if (collectedLogBooks.size() > 0) {
+            collectedDataList.addAll(collectedLogBooks);
+        }
+
         return collectedDataList;
+    }
+
+    private void createCollectionContainers() {
+        collectedLogBooks = new ArrayList<>();
+        CollectedDataFactory factory = inboundContext.getInboundDiscoveryContext().getCollectedDataFactory();
+        collectedRegisterList = factory.createCollectedRegisterList(getDeviceIdentifier());
     }
 
     private void extractStatusEvents() {

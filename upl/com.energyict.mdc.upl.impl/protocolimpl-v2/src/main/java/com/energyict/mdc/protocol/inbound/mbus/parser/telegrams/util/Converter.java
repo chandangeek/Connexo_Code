@@ -20,6 +20,30 @@ public class Converter {
         return hexString.toString();
     }
 
+    public static byte[] convertStringToByteArray(String inputStr) {
+        inputStr = inputStr
+                .replace(" ","")
+                .replace(".","")
+                .replace(":","")
+                .replace("-","")
+                .replace(";","")
+                .replace("/","")
+                ;
+
+        if (inputStr.length() % 2 == 1 ){
+            inputStr = "0" + inputStr;
+        }
+
+        String[] parts = new String[inputStr.length() / 2];
+
+        for (int i = 0; i < parts.length; i++) {
+            int index = i * 2;
+            parts[i] = inputStr.substring(index, index + 2);
+        }
+
+        return Converter.convertStringListToByteArray(Arrays.asList(parts));
+    }
+
     public static byte[] convertStringArrToByteArray(String[] inputStr) {
         return Converter.convertStringListToByteArray(Arrays.asList(inputStr));
     }

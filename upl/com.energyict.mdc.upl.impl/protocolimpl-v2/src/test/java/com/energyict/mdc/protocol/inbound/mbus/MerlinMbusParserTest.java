@@ -14,6 +14,7 @@ import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.HourlyProfileFac
 import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.status.CellInfoFactory;
 import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedDataFactory;
+import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedLogBook;
 import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedRegisterList;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
@@ -92,6 +93,25 @@ public class MerlinMbusParserTest extends TestCase {
         when(inboundDiscoveryContext.getLogger()).thenReturn(Logger.getAnonymousLogger());
         when(inboundDiscoveryContext.getCollectedDataFactory()).thenReturn(collectedDataFactory);
     }
+
+    @Test
+    public void testStringConversions(){
+        byte[] expected = { (byte)0x4F, (byte)0xA7, (byte)0x0B, (byte)0x24, (byte)0x46, (byte)0x5F, (byte)0x81, (byte)0x4A,
+                            (byte)0x66, (byte)0x76, (byte)0x31, (byte)0x77, (byte)0x3A, (byte)0x39, (byte)0x76, (byte)0x44};
+
+        // space-delimited
+        byte[] res = Converter.convertStringToByteArray(key1);
+        assertArrayEquals(expected, res);
+
+        //strange characters
+        byte[] res1 = Converter.convertStringToByteArray(" " + key1 + " .. ");
+        assertArrayEquals(expected, res1);
+
+        // no spaces
+        byte[] res2 = Converter.convertStringToByteArray("4FA70B24465F814A667631773A397644");
+        assertArrayEquals(expected, res2);
+    }
+
 
     @Test
     public void testDailyFrameEncrypted1() throws IOException, SQLException {
@@ -498,9 +518,9 @@ public class MerlinMbusParserTest extends TestCase {
 
         StatusEventsFactory eventFactory = new StatusEventsFactory(parser.getTelegram(), inboundContext);
 
-        CollectedLogBook events = eventFactory.extractEventsFromStatus();
+        CollectedLogBook standardLogBook = eventFactory.extractEventsFromStatus();
 
-        assertEquals(7, events.getCollectedMeterEvents().size());
+        assertEquals(7, standardLogBook.getCollectedMeterEvents().size());
     }
 
 
@@ -519,13 +539,13 @@ public class MerlinMbusParserTest extends TestCase {
         TelegramVariableDataRecord eventRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(8);
         assertTrue(factory.appliesFor(eventRecord));
 
-        CollectedLogBook events = factory.extractEventsFromErrorFlags(eventRecord);
+        CollectedLogBook standardLogBook = factory.extractEventsFromErrorFlags(eventRecord);
 
-        assertEquals(2, events.getCollectedMeterEvents().size());
-        assertEquals("Clock sync", events.getCollectedMeterEvents().get(0).getMessage());
-        assertEquals("Battery usage indicator above or critical", events.getCollectedMeterEvents().get(1).getMessage());
+        assertEquals(2, standardLogBook.getCollectedMeterEvents().size());
+        assertEquals("Clock sync", standardLogBook.getCollectedMeterEvents().get(0).getMessage());
+        assertEquals("Battery usage indicator above or critical", standardLogBook.getCollectedMeterEvents().get(1).getMessage());
 
-        assertEquals("Fri Oct 22 12:57:56 EEST 2021", events.getCollectedMeterEvents().get(0).getTime().toString());
+        assertEquals("Fri Oct 22 12:57:56 EEST 2021", standardLogBook.getCollectedMeterEvents().get(0).getTime().toString());
     }
 
     @Test
@@ -543,15 +563,15 @@ public class MerlinMbusParserTest extends TestCase {
         TelegramVariableDataRecord eventRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(8);
         assertTrue(factory.appliesFor(eventRecord));
 
-        CollectedLogBook events = factory.extractEventsFromErrorFlags(eventRecord);
+        CollectedLogBook standardLogBook = factory.extractEventsFromErrorFlags(eventRecord);
 
-        assertEquals(4, events.getCollectedMeterEvents().size());
-        assertEquals("Stuck meter (no consumption)", events.getCollectedMeterEvents().get(0).getMessage());
-        assertEquals("Actual Removal", events.getCollectedMeterEvents().get(1).getMessage());
-        assertEquals("High temp", events.getCollectedMeterEvents().get(2).getMessage());
-        assertEquals("Battery usage indicator above or critical", events.getCollectedMeterEvents().get(3).getMessage());
+        assertEquals(4, standardLogBook.getCollectedMeterEvents().size());
+        assertEquals("Stuck meter (no consumption)", standardLogBook.getCollectedMeterEvents().get(0).getMessage());
+        assertEquals("Actual Removal", standardLogBook.getCollectedMeterEvents().get(1).getMessage());
+        assertEquals("High temp", standardLogBook.getCollectedMeterEvents().get(2).getMessage());
+        assertEquals("Battery usage indicator above or critical", standardLogBook.getCollectedMeterEvents().get(3).getMessage());
 
-        assertEquals("Mon Aug 22 03:00:00 EEST 2022", events.getCollectedMeterEvents().get(0).getTime().toString());
+        assertEquals("Mon Aug 22 03:00:00 EEST 2022", standardLogBook.getCollectedMeterEvents().get(0).getTime().toString());
     }
 
 
@@ -570,15 +590,15 @@ public class MerlinMbusParserTest extends TestCase {
         TelegramVariableDataRecord eventRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(6);
         assertTrue(factory.appliesFor(eventRecord));
 
-        CollectedLogBook events = factory.extractEventsFromErrorFlags(eventRecord);
+        CollectedLogBook standardLogBook = factory.extractEventsFromErrorFlags(eventRecord);
 
-        assertEquals(4, events.getCollectedMeterEvents().size());
-        assertEquals("Stuck meter (no consumption)", events.getCollectedMeterEvents().get(0).getMessage());
-        assertEquals("Actual Removal", events.getCollectedMeterEvents().get(1).getMessage());
-        assertEquals("High temp", events.getCollectedMeterEvents().get(2).getMessage());
-        assertEquals("Battery usage indicator above or critical", events.getCollectedMeterEvents().get(3).getMessage());
+        assertEquals(4, standardLogBook.getCollectedMeterEvents().size());
+        assertEquals("Stuck meter (no consumption)", standardLogBook.getCollectedMeterEvents().get(0).getMessage());
+        assertEquals("Actual Removal", standardLogBook.getCollectedMeterEvents().get(1).getMessage());
+        assertEquals("High temp", standardLogBook.getCollectedMeterEvents().get(2).getMessage());
+        assertEquals("Battery usage indicator above or critical", standardLogBook.getCollectedMeterEvents().get(3).getMessage());
 
-        assertEquals("Sat Aug 20 14:19:00 EEST 2022", events.getCollectedMeterEvents().get(0).getTime().toString());
+        assertEquals("Sat Aug 20 14:19:00 EEST 2022", standardLogBook.getCollectedMeterEvents().get(0).getTime().toString());
     }
 
 
@@ -627,14 +647,14 @@ public class MerlinMbusParserTest extends TestCase {
 
         // status events
         StatusEventsFactory eventFactory = new StatusEventsFactory(parser.getTelegram(), inboundContext);
-        CollectedLogBook events = eventFactory.extractEventsFromStatus();
-        assertEquals(7, events.getCollectedMeterEvents().size());
+        CollectedLogBook standardLogBook = eventFactory.extractEventsFromStatus();
+        assertEquals(7, standardLogBook.getCollectedMeterEvents().size());
 
         //FIX me: why we have this discrepancy, to check with R&D
         //assertEquals("Abnormal condition", events.getCollectedMeterEvents().get(0).getMessage());
-        assertEquals(StatusEventMapping.POWER_LOW.getMessage(), events.getCollectedMeterEvents().get(1).getMessage());
-        assertEquals(StatusEventMapping.PERMANENT_ERROR_NO.getMessage(), events.getCollectedMeterEvents().get(2).getMessage());
-        assertEquals(StatusEventMapping.TEMPORARY_ERROR.getMessage(), events.getCollectedMeterEvents().get(3).getMessage());
+        assertEquals(StatusEventMapping.POWER_LOW.getMessage(), standardLogBook.getCollectedMeterEvents().get(1).getMessage());
+        assertEquals(StatusEventMapping.PERMANENT_ERROR_NO.getMessage(), standardLogBook.getCollectedMeterEvents().get(2).getMessage());
+        assertEquals(StatusEventMapping.TEMPORARY_ERROR.getMessage(), standardLogBook.getCollectedMeterEvents().get(3).getMessage());
     }
 
 
@@ -746,11 +766,10 @@ public class MerlinMbusParserTest extends TestCase {
         TelegramVariableDataRecord eventRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(8);
         ErrorFlagsEventsFactory factoryErrorFlags = new ErrorFlagsEventsFactory(parser.getTelegram(), inboundContext);
 
-        CollectedLogBook errorFlags = factoryErrorFlags.extractEventsFromErrorFlags(eventRecord);
-        assertEquals(2, errorFlags.getCollectedMeterEvents().size());
-        assertEquals(ErrorFlagsMapping.STUCK_METER.getMessage(), errorFlags.getCollectedMeterEvents().get(0).getMessage());
-        assertEquals(ErrorFlagsMapping.BATTERY_USAGE_INDICATOR.getMessage(), errorFlags.getCollectedMeterEvents().get(1).getMessage());
-
+        CollectedLogBook standardLogBook = factoryErrorFlags.extractEventsFromErrorFlags(eventRecord);
+        assertEquals(2, standardLogBook.getCollectedMeterEvents().size());
+        assertEquals(ErrorFlagsMapping.STUCK_METER.getMessage(), standardLogBook.getCollectedMeterEvents().get(0).getMessage());
+        assertEquals(ErrorFlagsMapping.BATTERY_USAGE_INDICATOR.getMessage(), standardLogBook.getCollectedMeterEvents().get(1).getMessage());
     }
 
 
@@ -783,7 +802,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         List<CollectedData> collectedData = factory.getCollectedData();
 
-        assertEquals(4, collectedData.size());
+        assertEquals(3, collectedData.size());
 
         CollectedRegisterList collectedRegisterList = (CollectedRegisterList) factory.getCollectedData().stream()
                 .filter(c -> c instanceof CollectedRegisterList)
@@ -905,5 +924,19 @@ public class MerlinMbusParserTest extends TestCase {
                 .getText());
     }
 
+    @Test
+    public void testInvalidDecryption(){
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
+        inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
+        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+
+        parser.parseHeader(DAILY_FRAME_ENCRYPTED3_REAL_DATA);
+        inboundContext.setEncryptionKey(key1); //incorrect key
+        parser.parse();
+
+        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+
+        assertEquals("device with serial number 45230144", factory.getDeviceIdentifier().toString());
+    }
 
 }

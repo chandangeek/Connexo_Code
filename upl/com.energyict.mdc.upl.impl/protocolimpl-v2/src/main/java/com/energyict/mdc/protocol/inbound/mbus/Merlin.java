@@ -14,6 +14,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.protocol.exception.CommunicationException;
+import com.energyict.protocol.exception.DataEncryptionException;
+import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 
 import java.util.Collections;
 import java.util.List;
@@ -164,6 +167,10 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
         // 3. Decrypt and parse
         Telegram decodedTelegram = getParser().parse();
+
+        if (decodedTelegram.decryptionError()) {
+            throw DataEncryptionException.dataEncryptionException();
+        }
 
         // 4. Collect the actual data
         this.factory = new MerlinCollectedDataFactory(decodedTelegram, getInboundContext());
