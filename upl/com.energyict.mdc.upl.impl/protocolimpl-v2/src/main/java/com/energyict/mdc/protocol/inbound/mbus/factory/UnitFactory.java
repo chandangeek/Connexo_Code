@@ -8,8 +8,7 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Measure_Uni
 public class UnitFactory {
 
     public static Unit findConnexoUnitFor(String unitName, int unitScale) {
-        // TODO -> use this scale properly
-        Unit unit = Unit.get(unitName, 0);
+        Unit unit = Unit.get(unitName, unitScale);
         return unit;
     }
 
@@ -21,9 +20,8 @@ public class UnitFactory {
         String unitName = record.getVif().getmUnit().getValue();
         int unitScale = record.getVif().getMultiplier();
 
-        Unit unit;
         try {
-            UnitFactory.findConnexoUnitFor(unitName, unitScale);
+            return UnitFactory.findConnexoUnitFor(unitName, unitScale);
         } catch (Exception ex){
             inboundContext.getLogger().info("Cannot get a Connexo unit for " + unitName + " with scale " + unitScale);
         }
