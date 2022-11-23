@@ -33,7 +33,9 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.GPRSStandardStatus;
 import com.energyict.dlms.cosem.GSMDiagnosticsIC;
 import com.energyict.dlms.cosem.HistoricalValue;
+import com.energyict.dlms.cosem.ImageTransfer;
 import com.energyict.dlms.cosem.Register;
+import com.energyict.dlms.cosem.attributeobjects.ImageTransferStatus;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.RegisterValue;
@@ -65,6 +67,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
     private final static ObisCode UNITS_DEVICE_STATUS = ObisCode.fromString("7.0.96.5.0.255");
     private final static ObisCode METROLOGICAL_FIRMWARE_VERSION = ObisCode.fromString("7.0.0.2.1.255");
     private final static ObisCode NON_METROLOGICAL_FIRMWARE_VERSION = ObisCode.fromString("7.1.0.2.1.255");
+    private final static ObisCode BOOTLOADER_AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("7.2.0.2.1.255");
 
     private final A2 protocol;
     private final CollectedDataFactory collectedDataFactory;
@@ -160,7 +163,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                     } else if (isFirmwareVersion(obisCode)) {
                         String description = decodeFirmwareVersion(octetString);
                         registerValue = new RegisterValue(obisCode, description);
-                    } else if (isLanguageTableVersion(obisCode)){
+                    } else if (isLanguageTableVersion(obisCode)) {
                         registerValue = new RegisterValue(obisCode, getLanguageTableVersion(octetString));
                     } else {
                         // only the signatures remain
@@ -252,6 +255,11 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
                 int rsrqValue = structure.getDataType(1).intValue();
                 String description = "RSRP = "+ rsrpValue + "\nRSRQ = "+rsrqValue;
                 registerValue = new RegisterValue(obisCode, description);
+            } else if (uo.getClassID() == DLMSClassId.IMAGE_TRANSFER.getClassId()) {
+                // Add support for 0.0.44.0.0.255 attribute 6, image transfer status
+                ImageTransfer imageTransfer = protocol.getDlmsSession().getCosemObjectFactory().getImageTransfer();
+                int imageTransferStatus = imageTransfer.getImageTransferStatus().getValue();
+                registerValue = new RegisterValue(obisCode, ImageTransferStatus.fromValue(imageTransferStatus).getInfo());
             } else {
                 return createFailureCollectedRegister(offlineRegister, ResultType.NotSupported);
             }
@@ -282,7 +290,7 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
     }
 
     protected List<ObisCode> getFirmwareVersionObisCodes() {
-        return Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION);
+        return Arrays.asList(METROLOGICAL_FIRMWARE_VERSION, NON_METROLOGICAL_FIRMWARE_VERSION, BOOTLOADER_AUXILIARY_FIRMWARE_VERSION);
     }
 
     public String decodeFirmwareVersion(OctetString octetString) {
@@ -299,9 +307,8 @@ public class A2RegisterFactory implements DeviceRegisterSupport {
         int month = (buildDate & 0x01E0) >> 5;
         int day = (buildDate & 0x001F);
         String date = String.join("-", Integer.toString(year), Integer.toString(month), Integer.toString(day));
-
-        return String.join(" ", "version =", versionString,
-                "\ncommit number =", Integer.toString(commit), "\ndate =", date);
+        // this value is used by firmware framework and should only contain the version number
+        return versionString;
     }
 
     protected String getHexString(OctetString octetString) {
