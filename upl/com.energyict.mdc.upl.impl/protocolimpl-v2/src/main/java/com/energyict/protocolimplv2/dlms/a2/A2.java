@@ -3,6 +3,7 @@ package com.energyict.protocolimplv2.dlms.a2;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelType;
 import com.energyict.mdc.protocol.SerialPortComChannel;
@@ -21,6 +22,7 @@ import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
@@ -44,7 +46,9 @@ import com.energyict.dlms.IncrementalInvokeIdAndPriorityHandler;
 import com.energyict.dlms.InvokeIdAndPriority;
 import com.energyict.dlms.UniversalObject;
 import com.energyict.dlms.aso.ApplicationServiceObject;
+import com.energyict.dlms.axrdencoding.AbstractDataType;
 import com.energyict.dlms.common.DlmsProtocolProperties;
+import com.energyict.dlms.cosem.Data;
 import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.dlms.cosem.StoredValues;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
@@ -84,6 +88,8 @@ import java.util.logging.Level;
  * @since 12/11/2018
  */
 public class A2 extends AbstractDlmsProtocol {
+    private static final ObisCode FIRMWARE_VERSION_APPLICATION_OBIS_CODE = ObisCode.fromString("7.1.0.2.1.255");
+    private static final ObisCode BOOTLOADER_AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("7.2.0.2.1.255");
 
     public final static int PUBLIC_CLIENT = 16;
     public final static int INSTALLER_MAINTAINER_CLIENT = 3;
@@ -331,8 +337,9 @@ public class A2 extends AbstractDlmsProtocol {
         Calendar calToGet = Calendar.getInstance();
         calToSet.setTime(timeToSet);
         calToGet.setTime(getDlmsSession().getCosemObjectFactory().getClock().getDateTime());
-        if (calToSet.get(Calendar.HOUR_OF_DAY) == calToGet.get(Calendar.HOUR_OF_DAY))
+        if (calToSet.get(Calendar.HOUR_OF_DAY) == calToGet.get(Calendar.HOUR_OF_DAY)) {
             return false;
+        }
         return true;
     }
 
@@ -442,10 +449,10 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return getA2RegisterFactory().readRegisters(registers);
+        return getRegisterFactory().readRegisters(registers);
     }
 
-    private A2RegisterFactory getA2RegisterFactory() {
+    public A2RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
             registerFactory = new A2RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
         }
@@ -459,7 +466,7 @@ public class A2 extends AbstractDlmsProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-11-11$";
+        return "$Date: 2022-11-21$";
     }
 
     protected A2Messaging getProtocolMessaging() {
@@ -503,5 +510,43 @@ public class A2 extends AbstractDlmsProtocol {
             storedValues = new EIStoredValues(this);
         }
         return storedValues;
+    }
+
+    @Override
+    public boolean supportsAuxiliaryFirmwareVersion() {
+        return true;
+    }
+
+    @Override
+    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
+        if (offlineDevice.getSerialNumber().equals(serialNumber)) {
+            CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getActiveMeterFirmwareVersion());
+            firmwareVersionsCollectedData.setActiveAuxiliaryFirmwareVersion(getBootloaderAuxiliaryMeterFirmwareVersion());
+            return firmwareVersionsCollectedData;
+        }
+        return super.getFirmwareVersions(serialNumber);
+    }
+
+    public String getActiveMeterFirmwareVersion() {
+        return getFirmwareVersion(FIRMWARE_VERSION_APPLICATION_OBIS_CODE);
+    }
+
+    public String getBootloaderAuxiliaryMeterFirmwareVersion() {
+        return getFirmwareVersion(BOOTLOADER_AUXILIARY_FIRMWARE_VERSION);
+    }
+
+    public String getFirmwareVersion(ObisCode firmwareObiscode) {
+        try {
+            journal("Collecting firmware version from " + firmwareObiscode);
+            Data firmwareData = getDlmsSession().getCosemObjectFactory().getData(firmwareObiscode);
+            AbstractDataType valueAttr = firmwareData.getValueAttr();
+            if (valueAttr.isOctetString()) {
+                return (getRegisterFactory().decodeFirmwareVersion(valueAttr.getOctetString()));
+            }
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
+        }
+        return "";
     }
 }
