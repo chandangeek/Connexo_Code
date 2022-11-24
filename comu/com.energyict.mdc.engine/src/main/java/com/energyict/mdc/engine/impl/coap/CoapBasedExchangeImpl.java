@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.impl.coap;
@@ -11,7 +11,7 @@ import org.eclipse.californium.core.server.resources.CoapExchange;
 
 public class CoapBasedExchangeImpl implements CoapBasedExchange {
 
-    CoapExchange coapExchange;
+    private final CoapExchange coapExchange;
 
     public CoapBasedExchangeImpl(CoapExchange coapExchange) {
         this.coapExchange = coapExchange;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.impl.coap;
@@ -25,16 +25,16 @@ import java.util.Locale;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class BasedCoapResource extends CoapResource {
+public class BaseCoapResource extends CoapResource {
 
-    private static final Logger LOGGER = Logger.getLogger(BasedCoapResource.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(BaseCoapResource.class.getName());
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
 
     private DeviceCommandExecutor deviceCommandExecutor;
     private CoapBasedInboundComPort comPort;
     private ComServerDAO comServerDAO;
 
-    public BasedCoapResource(CoapBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
+    public BaseCoapResource(CoapBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super(normalizedContextPath(comPort.getContextPath()));
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
@@ -74,36 +74,6 @@ public class BasedCoapResource extends CoapResource {
         inboundDeviceProtocol.init(exchange);
         InboundCommunicationHandler inboundCommunicationHandler = getInboundCommunicationHandler();
         inboundCommunicationHandler.handle(inboundDeviceProtocol, context);
-        this.checkForConfigurationError(inboundCommunicationHandler.getResponseType());
-    }
-
-    private void checkForConfigurationError(com.energyict.mdc.upl.InboundDeviceProtocol.DiscoverResponseType responseType) {
-        switch (responseType) {
-            case DEVICE_NOT_FOUND: {
-                // Intentional fallthrough
-            }
-            case DEVICE_DOES_NOT_EXPECT_INBOUND: {
-                // Intentional fallthrough
-            }
-            case ENCRYPTION_REQUIRED: {
-                break;
-            }
-            case SUCCESS: {
-                // Intentional fallthrough
-            }
-            case SERVER_BUSY: {
-                // Intentional fallthrough
-            }
-            case STORING_FAILURE: {
-                // Intentional fallthrough
-            }
-            case DATA_ONLY_PARTIALLY_HANDLED: {
-                // Intentional fallthrough
-            }
-            default: {
-                // Does not count as a configuration error
-            }
-        }
     }
 
     private InboundDiscoveryContextImpl newInboundDiscoveryContext(CoapBasedExchange exchange) {
@@ -143,9 +113,5 @@ public class BasedCoapResource extends CoapResource {
         } else {
             throw new IllegalStateException(serviceProvider.thesaurus().getFormat(MessageSeeds.INVALID_INBOUND_SERVLET_PROTOCOL).format(discoveryProtocolPluggableClass.getJavaClassName()));
         }
-    }
-
-    public String getVersion() {
-        return "$Date: 2012-10-25 17:21:47 +0200 $";
     }
 }

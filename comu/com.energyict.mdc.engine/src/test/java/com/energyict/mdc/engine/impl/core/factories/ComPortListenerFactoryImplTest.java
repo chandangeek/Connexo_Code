@@ -260,7 +260,7 @@ public class ComPortListenerFactoryImplTest {
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty(EmbeddedJettyServer.MAX_IDLE_TIME, EmbeddedJettyServer.MAX_IDLE_TIME_DEFAULT_VALUE);
         when(comPort.getComPortPool()).thenReturn(portPool);
-        when(((InboundComPortPool) portPool).getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(portPool.getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
         when(pluggableClass.getProperties(Mockito.any(List.class))).thenReturn(typedProperties);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(0);
         return comPort;

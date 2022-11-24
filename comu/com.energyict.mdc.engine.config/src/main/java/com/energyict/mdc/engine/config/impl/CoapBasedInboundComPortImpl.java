@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.config.impl;
@@ -26,7 +26,7 @@ import javax.xml.bind.annotation.XmlElement;
 public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl implements CoapBasedInboundComPort, UDPInboundComPort, InboundComPort, ComPort {
 
     private boolean dtls;
-    private boolean sharedKeys;
+    private boolean usingSharedKeys;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
     private String keyStoreSpecsFilePath;
     @Size(max = Table.SHORT_DESCRIPTION_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.MDC_FIELD_TOO_LONG + "}")
@@ -67,13 +67,13 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
 
     @Override
     @XmlElement
-    public boolean isSharedKeys() {
-        return dtls ? sharedKeys : false;
+    public boolean isUsingSharedKeys() {
+        return dtls ? usingSharedKeys : false;
     }
 
     @Override
-    public void setSharedKeys(boolean sharedKeys) {
-        this.sharedKeys = sharedKeys;
+    public void setUsingSharedKeys(boolean usingSharedKeys) {
+        this.usingSharedKeys = usingSharedKeys;
     }
 
     @Override
@@ -129,13 +129,12 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
         this.contextPath = contextPath;
     }
 
-
     @Override
     protected void copyFrom(ComPort source) {
         super.copyFrom(source);
         CoapBasedInboundComPort mySource = (CoapBasedInboundComPort) source;
         this.setDtls(mySource.isDtls());
-        this.setSharedKeys(mySource.isSharedKeys());
+        this.setUsingSharedKeys(mySource.isUsingSharedKeys());
         this.setKeyStoreSpecsFilePath(mySource.getKeyStoreSpecsFilePath());
         this.setKeyStoreSpecsPassword(mySource.getKeyStoreSpecsPassword());
         this.setTrustStoreSpecsFilePath(mySource.getTrustStoreSpecsFilePath());
@@ -159,7 +158,7 @@ public class CoapBasedInboundComPortImpl extends UDPBasedInboundComPortImpl impl
         }
 
         public CoapBasedInboundComPortBuilder sharedKeys(boolean sharedKeys) {
-            comPort.setSharedKeys(sharedKeys);
+            comPort.setUsingSharedKeys(sharedKeys);
             return this;
         }
 

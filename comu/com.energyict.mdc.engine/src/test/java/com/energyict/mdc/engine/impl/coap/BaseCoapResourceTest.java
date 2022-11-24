@@ -121,7 +121,7 @@ public class BaseCoapResourceTest {
         when(comPort.getContextPath()).thenReturn(CONTEXT_PATH);
         ComServerDAO comServerDAO = getMockedComServerDAO();
         when(comServerDAO.findOfflineDevice(any(DeviceIdentifier.class))).thenReturn(null);
-        BasedCoapResource coapResource = new BasedCoapResource(comPort, comServerDAO, mock(DeviceCommandExecutor.class), this.serviceProvider);
+        BaseCoapResource coapResource = new BaseCoapResource(comPort, comServerDAO, mock(DeviceCommandExecutor.class), this.serviceProvider);
         CoapExchange coapExchange = mock(CoapExchange.class);
         // Business method
         coapResource.handlePOST(coapExchange);

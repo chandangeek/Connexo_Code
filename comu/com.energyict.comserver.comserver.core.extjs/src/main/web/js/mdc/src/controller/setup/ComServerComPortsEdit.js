@@ -146,13 +146,12 @@ Ext.define('Mdc.controller.setup.ComServerComPortsEdit', {
             trustPasswordField = editView.down('#trustStorePassword');
         keyPathField.allowBlank = state;
         keyPathField.required = !state;
+        keyPathField.enable();
         if (state) {
-            keyPathField.enable();
             keyPasswordField.disable();
             trustPathField.disable();
             trustPasswordField.disable();
         } else {
-            keyPathField.enable();
             keyPasswordField.enable();
             trustPathField.enable();
             trustPasswordField.enable();

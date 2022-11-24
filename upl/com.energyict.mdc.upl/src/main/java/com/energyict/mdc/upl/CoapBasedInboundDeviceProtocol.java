@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.upl;
 
 import com.energyict.mdc.upl.io.CoapBasedExchange;
+
+import aQute.bnd.annotation.ConsumerType;
 
 /**
  * Adds behavior to {@link InboundDeviceProtocol}.
@@ -12,6 +14,7 @@ import com.energyict.mdc.upl.io.CoapBasedExchange;
  * communication to detect what device is actually communicating
  * and what it is trying to say.
  */
+@ConsumerType
 public interface CoapBasedInboundDeviceProtocol extends InboundDeviceProtocol {
 
     /**

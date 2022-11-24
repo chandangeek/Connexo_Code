@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019  by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022  by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.common.comserver;
@@ -28,9 +28,9 @@ public interface CoapBasedInboundComPort extends UDPInboundComPort {
      *
      * @return A flag that indicates if the pre share keys should be used
      */
-    public boolean isSharedKeys();
+    public boolean isUsingSharedKeys();
 
-    public void setSharedKeys(boolean sharedKeys);
+    public void setUsingSharedKeys(boolean sharedKeys);
 
     /**
      * Gets the specifications of the KeyStore that holds

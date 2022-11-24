@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.protocolimplv2.coap.crest;
@@ -11,7 +11,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class CycleFrame6 {
+public class CycleFrame6 implements CrestSensorConst {
 
     private final int primaryAddress;
     private final String secondaryAddress;
@@ -20,7 +20,7 @@ public class CycleFrame6 {
     private final Medium medium;
     private final int accessNumber;
     private final int status;
-    private final String febricationNumber;
+    private final String fabricationNumber;
     private final int serialNumber;
     private final Date dateAndTime;
     private final int batteryLifeTime;
@@ -36,22 +36,16 @@ public class CycleFrame6 {
         medium = Medium.forId(bytes[14]);
         accessNumber = ProtocolTools.getIntFromBytes(bytes, 15, 1);
         status = ProtocolTools.getIntFromBytes(bytes, 16, 1);
-        febricationNumber = ProtocolTools.bytesToHex(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(bytes, 21, 25)));
+        fabricationNumber = ProtocolTools.bytesToHex(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(bytes, 21, 25)));
         serialNumber = ProtocolTools.getIntFromBytesLE(bytes, 37, 10);
         dateAndTime = buildDate(ProtocolTools.getIntFromBytesLE(bytes, 49, 4));
         batteryLifeTime = ProtocolTools.getIntFromBytesLE(bytes, 65, 2);
         volume = ProtocolTools.getIntFromBytesLE(bytes, 69, 4);
         backFlowVolume = ProtocolTools.getIntFromBytesLE(bytes, 76, 4);
-
-        System.out.println("secondaryAddress : " + secondaryAddress);
-        System.out.println("date : " + dateAndTime);
-        System.out.println("fabricationumber : " + febricationNumber);
-        System.out.println("volume : " + volume);
-        System.out.println("backFlowVolume : " + backFlowVolume);
     }
 
     public String getFabricationNumber() {
-        return febricationNumber;
+        return fabricationNumber;
     }
 
     public Date getDateAndTime() {
@@ -69,7 +63,7 @@ public class CycleFrame6 {
         int month = (dateTime >> 24) & 0x1F;
         int year = (((dateTime >> 16) & 0xE0) >> 5) + (((dateTime >> 24) & 0xF0) >> 1);
 
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Amsterdam"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(EUROPE_AMSTERDAM_TIMEZONE));
         cal.set(Calendar.DAY_OF_MONTH, day);
         cal.set(Calendar.MONTH, month - 1);
         cal.set(Calendar.YEAR, 2000 + year);

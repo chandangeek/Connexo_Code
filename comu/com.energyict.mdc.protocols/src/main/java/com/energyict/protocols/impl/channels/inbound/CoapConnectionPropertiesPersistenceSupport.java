@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.protocols.impl.channels.inbound;
@@ -44,7 +44,7 @@ public class CoapConnectionPropertiesPersistenceSupport implements PersistenceSu
 
     @Override
     public String domainForeignKeyName() {
-        return "FK_PR1_Coap_CT";
+        return "FK_PR1_COAP_CT";
     }
 
     @Override

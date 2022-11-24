@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.protocolimplv2.coap.crest;
@@ -52,8 +52,12 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.logging.Logger;
 
 public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtocol, CrestSensorConst {
+
+    public static final String RESPONSE_OK = "0";
+    public static final String RESPONSE_KO = "SERR";
 
     private final PropertySpecService propertySpecService;
     private final List<CollectedData> collectedData = new ArrayList<>();
@@ -108,24 +112,23 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
             String json = cborToJson(cborInput);
             crestObject = new ObjectMapper().readValue(json, CrestObjectV2_1.class);
             handleData();
-            sendOkAndMessages();
-        } catch (IOException e) {
-            sendKoAndError(e);
-            throw ConnectionCommunicationException.unexpectedIOException(e);
+            if (!sendNextMessages()) {
+                exchange.respond(RESPONSE_OK);
+            }
+        } catch (Exception e) {
+            exchange.respond(RESPONSE_KO);
+            getLogger().severe("Payload error: " + e.getMessage());
+            throw ConnectionCommunicationException.unexpectedIOException(new IOException("Incorrect payload data", e));
         }
         return DiscoverResultType.DATA;
     }
 
-    private void sendOkAndMessages() {
-        int nrOfAcceptedMessages = 0;
-        List<OfflineDeviceMessage> pendingMessages = getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
-        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
-            nrOfAcceptedMessages++;
-            exchange.respond(getMessageConverter().toMessageEntry(pendingMessage).getContent());
-            getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
-            return;
+    @Override
+    public void provideResponse(DiscoverResponseType responseType) {
+        if (!DiscoverResponseType.SUCCESS.equals(responseType)) {
+            getLogger().severe("Crest sensor inbound communication failure: " + responseType);
+            exchange.respond(RESPONSE_KO);
         }
-        exchange.respond("OK");
     }
 
     private LegacyMessageConverter getMessageConverter() {
@@ -135,8 +138,16 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         return messageConverter;
     }
 
-    @Override
-    public void provideResponse(DiscoverResponseType responseType) {
+    private boolean sendNextMessages() {
+        int nrOfAcceptedMessages = 0;
+        List<OfflineDeviceMessage> pendingMessages = getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+        for (OfflineDeviceMessage pendingMessage : pendingMessages) {
+            nrOfAcceptedMessages++;
+            exchange.respond(getMessageConverter().toMessageEntry(pendingMessage).getContent());
+            getContext().getInboundDAO().confirmSentMessagesAndGetPending(this.getDeviceIdentifier(), nrOfAcceptedMessages);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -163,10 +174,10 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
         DeviceIdentifier deviceIdentifier = new DeviceIdentifierBySerialNumber(crestObject.getId());
         collectedData.add(buildCollectedFirmwareVersion(deviceIdentifier));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_TELECOM_PROVIDER_NAME, crestObject.getTel()));
-        collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_BATTERY_VOLTAGE, new Quantity(new BigDecimal(crestObject.getBat()), Unit.getUndefined())));
+        collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_BATTERY_VOLTAGE, new Quantity(new BigDecimal(crestObject.getBat()), Unit.get(BaseUnit.VOLT))));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_SERIAL_NUMBER, crestObject.getId()));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_CONNECTION_METHOD, crestObject.getCon()));
-        collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_CELL_ID, crestObject.getcId()));
+        collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_CELL_ID, crestObject.getCID()));
         collectedData.add(buildTextCollectedRegister(deviceIdentifier, OBIS_CODE_SIGNAL_QUALITY, crestObject.getCsq()));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_NR_OF_TRIES, new Quantity(new BigDecimal(crestObject.getTries()), Unit.getUndefined())));
         collectedData.add(buildQuantityCollectedRegister(deviceIdentifier, OBIS_CODE_MEASUREMENT_SEND_INTERVAL, new Quantity(new BigDecimal(crestObject.getMsi()), Unit.getUndefined())));
@@ -211,7 +222,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     }
 
     private List<ChannelInfo> buildChannelMap() {
-        ChannelInfo channelInfo = new ChannelInfo(0, DEFAULT_LOAD_PROFILE_CHANNEL_OBIS_CODE, Unit.get("l"));
+        ChannelInfo channelInfo = new ChannelInfo(0, DEFAULT_LOAD_PROFILE_CHANNEL_OBIS_CODE, Unit.get(BaseUnit.LITER));
         channelInfo.setCumulative();
         return Arrays.asList(channelInfo);
     }
@@ -252,7 +263,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     }
 
     private Date roundToInterval(Date givenDate) {
-        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("Europe/Amsterdam"));
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(EUROPE_AMSTERDAM_TIMEZONE));
         cal.setTime(givenDate);
         cal.add(Calendar.MINUTE, 1); // add 1 minute, sometimes the value is reported on the last minute of the previous interval
         int intervalInMinutes = getIntervalInMinutes();
@@ -264,7 +275,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
             cal.set(Calendar.MINUTE, 0);
         } else {
             cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.HOUR_OF_DAY, cal.get((Calendar.HOUR_OF_DAY / (intervalInMinutes / 60)) * (intervalInMinutes / 60)));
+            cal.set(Calendar.HOUR_OF_DAY, (cal.get(Calendar.HOUR_OF_DAY) / (intervalInMinutes / 60)) * (intervalInMinutes / 60));
         }
         return cal.getTime();
     }
@@ -326,7 +337,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
     }
 
-    private void sendKoAndError(Exception e) {
-        exchange.respond("KO\n" + e.getMessage());
+    protected Logger getLogger() {
+        return getContext().getLogger();
     }
 }

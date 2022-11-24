@@ -51,15 +51,10 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
     private static final String COAP_CONFIGURATION_FILE = "com.energyict.mdc.engine.coap.configfile";
     private static final Logger LOGGER = Logger.getLogger(EmbeddedCaliforniumServer.class.getName());
 
-    /**
-     * The number of seconds that accepted requests are allowed to complete
-     * during the graceful shutdown.
-     */
-
     private final ShutdownFailureLogger shutdownFailureLogger;
     private CoapServer coapServer;
     private Configuration coapConfig;
-    private BasedCoapResource coapResource;
+    private BaseCoapResource coapResource;
     private boolean startCommandGiven = false;
     private boolean stopCommandGiven = false;
 
@@ -70,7 +65,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         try {
             coapConfig = createCoapConfiguration();
             coapServer = new CoapServer(coapConfig);
-            coapResource = new BasedCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
+            coapResource = new BaseCoapResource(comPort, comServerDAO, deviceCommandExecutor, serviceProvider);
             coapServer.add(coapResource);
             for (InetAddress address : NetworkInterfacesUtil.getNetworkInterfaces()) {
                 coapServer.addEndpoint(new CoapEndpoint.Builder().setConnector(createConnector(address, comPort)).build());
@@ -125,7 +120,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
         if (comPort.isDtls()) {
             DtlsConnectorConfig.Builder builder = DtlsConnectorConfig.builder(coapConfig);
             builder.setAddress(new InetSocketAddress(address, comPort.getPortNumber()));
-            if (comPort.isSharedKeys()) {
+            if (comPort.isUsingSharedKeys()) {
                 builder.setAdvancedPskStore(getPskStore(comPort));
                 return new DTLSConnector(builder.build());
             }
@@ -138,7 +133,7 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
 
     private AdvancedMultiPskStore getPskStore(CoapBasedInboundComPort comPort) throws IOException {
         AdvancedMultiPskStore pskStore = new AdvancedMultiPskStore();
-        if (comPort.isSharedKeys()) {
+        if (comPort.isUsingSharedKeys()) {
             String keyStore = comPort.getKeyStoreSpecsFilePath();
             if (keyStore != null && !keyStore.isEmpty()) {
                 loadPskStore(pskStore, new File(keyStore));
@@ -168,14 +163,15 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
 
     @Override
     public ServerProcessStatus getStatus() {
-        if (coapServer.isRunning()) {
-            return ServerProcessStatus.STARTED;
-        } else if (startCommandGiven && !coapServer.isRunning()) {
+        if (startCommandGiven && !coapServer.isRunning()) {
             return ServerProcessStatus.STARTING;
         } else if (stopCommandGiven && coapServer.isRunning()) {
             return ServerProcessStatus.SHUTTINGDOWN;
+        } else if (coapServer.isRunning()) {
+            return ServerProcessStatus.STARTED;
+        } else {
+            return ServerProcessStatus.SHUTDOWN;
         }
-        return ServerProcessStatus.SHUTDOWN;
     }
 
     @Override
@@ -186,7 +182,6 @@ public class EmbeddedCaliforniumServer implements EmbeddedCoapServer {
             coapServer.start();
             startCommandGiven = true;
         } catch (Exception e) {
-            e.printStackTrace(System.err);
             LOGGER.log(Level.SEVERE, e.getMessage(), e);
         } finally {
             Thread.currentThread().setContextClassLoader(tccl);

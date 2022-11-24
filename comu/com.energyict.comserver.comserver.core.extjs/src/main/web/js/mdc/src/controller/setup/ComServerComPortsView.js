@@ -179,9 +179,9 @@ Ext.define('Mdc.controller.setup.ComServerComPortsView', {
                         } else if (record.get('comPortType').id.substring(5) == 'SERVLET') {
                             var useHttps = record.get('useHttps');
                             form.down('displayfield[name=keyStoreFilePath]').setVisible(useHttps);
-                            form.down('#mdc-coap-port-preview-keyStoreAccessPasswordContainer').setVisible(useHttps);
+                            form.down('#mdc-servlet-port-preview-keyStoreAccessPasswordContainer').setVisible(useHttps);
                             form.down('displayfield[name=trustStoreFilePath]').setVisible(useHttps);
-                            form.down('#mdc-coap-port-preview-trustStoreAccessPasswordContainer').setVisible(useHttps);
+                            form.down('#mdc-servlet-port-preview-trustStoreAccessPasswordContainer').setVisible(useHttps);
                         } else if (record.get('comPortType').id.substring(5) == 'COAP') {
                             var useDtls = record.get('useDtls');
                             form.down('displayfield[name=useSharedKeys]').setVisible(useDtls);

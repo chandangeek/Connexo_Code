@@ -68,7 +68,9 @@ public class CoapSecuritySupport extends AbstractSecuritySupport implements Lega
         TypedProperties typedProperties = TypedProperties.empty();
         if (deviceProtocolSecurityPropertySet != null) {
             typedProperties.setAllProperties(deviceProtocolSecurityPropertySet.getSecurityProperties());
-            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getAuthenticationDeviceAccessLevel()));
+            typedProperties.setProperty(SECURITY_LEVEL_PROPERTY_NAME, String.valueOf(deviceProtocolSecurityPropertySet.getEncryptionDeviceAccessLevel()));
+            typedProperties.setProperty(ENCRYPTION_KEY_PROPERTY_NAME, deviceProtocolSecurityPropertySet.getSecurityProperties()
+                    .getProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), ""));
         }
         return typedProperties;
     }
@@ -88,7 +90,6 @@ public class CoapSecuritySupport extends AbstractSecuritySupport implements Lega
         }
 
         final TypedProperties securityRelatedTypedProperties = TypedProperties.empty();
-
         if (encryptionDeviceAccessLevelProperty == null) {
             securityRelatedTypedProperties.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), "");
         } else {
@@ -132,7 +133,7 @@ public class CoapSecuritySupport extends AbstractSecuritySupport implements Lega
      */
     protected enum EncryptionAccessLevelIds {
         NO_MESSAGE_ENCRYPTION(0),
-        MESSAGE_ENCRYPTION(1);
+        MESSAGE_ENCRYPTION(2);
 
         private final int accessLevel;
 

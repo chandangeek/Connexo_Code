@@ -39,22 +39,20 @@ public class ComPortInfoFactory {
     }
 
     public InboundComPortInfo asInboundInfo(ComPort comPort) {
-        if (ComPortType.TCP.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo) setLocalisedValue(new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort));
+        switch (comPort.getComPortType()) {
+            case TCP:
+                return (InboundComPortInfo) setLocalisedValue(new TcpInboundComPortInfo((TCPBasedInboundComPort) comPort));
+            case SERIAL:
+                return (InboundComPortInfo) setLocalisedValue(new ModemInboundComPortInfo((ModemBasedInboundComPort) comPort));
+            case UDP:
+                return (InboundComPortInfo) setLocalisedValue(new UdpInboundComPortInfo((UDPBasedInboundComPort) comPort));
+            case COAP:
+                return (InboundComPortInfo) setLocalisedValue(new CoapInboundComPortInfo((CoapBasedInboundComPort) comPort));
+            case SERVLET:
+                return (InboundComPortInfo) setLocalisedValue(new ServletInboundComPortInfo((ServletBasedInboundComPort) comPort));
+            default:
+                throw new IllegalArgumentException("Unsupported InboundComPort type " + comPort.getClass().getSimpleName());
         }
-        if (ComPortType.SERIAL.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo) setLocalisedValue(new ModemInboundComPortInfo((ModemBasedInboundComPort) comPort));
-        }
-        if (ComPortType.UDP.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo) setLocalisedValue(new UdpInboundComPortInfo((UDPBasedInboundComPort) comPort));
-        }
-        if (ComPortType.COAP.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo) setLocalisedValue(new CoapInboundComPortInfo((CoapBasedInboundComPort) comPort));
-        }
-        if (ComPortType.SERVLET.equals(comPort.getComPortType())) {
-            return (InboundComPortInfo) setLocalisedValue(new ServletInboundComPortInfo((ServletBasedInboundComPort) comPort));
-        }
-        throw new IllegalArgumentException("Unsupported InboundComPort type " + comPort.getClass().getSimpleName());
     }
 
     public OutboundComPortInfo asOutboundInfo(ComPort comPort, EngineConfigurationService engineConfigurationService) {

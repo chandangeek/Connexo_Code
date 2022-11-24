@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.engine.impl.core;
@@ -15,8 +15,8 @@ import java.util.Locale;
 
 public class CoapInboundComPortListener extends CoapBasedComPortListenerImpl {
 
-    private EmbeddedCoapServer embeddedCoapServer;
-    private long sleepTime;
+    private final EmbeddedCoapServer embeddedCoapServer;
+    private final long sleepTime;
 
     public CoapInboundComPortListener(RunningComServer runningComServer, InboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super(runningComServer, comPort, serviceProvider.clock(), comServerDAO, deviceCommandExecutor, serviceProvider);

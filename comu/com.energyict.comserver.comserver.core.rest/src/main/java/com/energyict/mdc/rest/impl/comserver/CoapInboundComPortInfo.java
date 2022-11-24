@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.rest.impl.comserver;
@@ -20,7 +20,7 @@ public class CoapInboundComPortInfo extends InboundComPortInfo<CoapBasedInboundC
     public CoapInboundComPortInfo(CoapBasedInboundComPort comPort) {
         super(comPort);
         this.useDtls = comPort.isDtls();
-        this.useSharedKeys = comPort.isSharedKeys();
+        this.useSharedKeys = comPort.isUsingSharedKeys();
         this.keyStoreFilePath = comPort.getKeyStoreSpecsFilePath();
         this.keyStorePassword = comPort.getKeyStoreSpecsPassword();
         this.trustStoreFilePath = comPort.getTrustStoreSpecsFilePath();
@@ -38,7 +38,7 @@ public class CoapInboundComPortInfo extends InboundComPortInfo<CoapBasedInboundC
         }
         Optional<Boolean> useSharedKeys = Optional.ofNullable(this.useSharedKeys);
         if (useSharedKeys.isPresent()) {
-            source.setSharedKeys(useSharedKeys.get());
+            source.setUsingSharedKeys(useSharedKeys.get());
         }
         Optional<String> keyStoreFilePath = Optional.ofNullable(this.keyStoreFilePath);
         if (keyStoreFilePath.isPresent()) {

@@ -225,7 +225,7 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         when(coapBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
         when(coapBasedInboundComPort.getPortNumber()).thenReturn(8);
         when(coapBasedInboundComPort.isDtls()).thenReturn(true);
-        when(coapBasedInboundComPort.isSharedKeys()).thenReturn(false);
+        when(coapBasedInboundComPort.isUsingSharedKeys()).thenReturn(false);
         when(coapBasedInboundComPort.getBufferSize()).thenReturn(1096);
         when(coapBasedInboundComPort.getContextPath()).thenReturn("/context/path");
         when(coapBasedInboundComPort.getTrustStoreSpecsFilePath()).thenReturn("/path/to/trust/store");

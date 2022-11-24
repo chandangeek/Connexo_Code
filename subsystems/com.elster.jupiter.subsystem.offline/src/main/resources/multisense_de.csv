@@ -25,6 +25,7 @@ CCR;REST;parities_none;Keine Parität
 CCR;REST;parities_odd;Ungerade Parität
 CCR;REST;parities_space;Space-Parität
 CCR;REST;Trace;Trace
+CCR;REST;TYPE_COAP;COAP
 CCR;REST;TYPE_SERIAL;SERIELL
 CCR;REST;TYPE_SERVLET;SERVLET
 CCR;REST;TYPE_TCP;TCP
@@ -6143,12 +6144,11 @@ MDC;REST;comServerComPorts.form.connDelay;Verzögerung nach der Verbindung.
 MDC;REST;comServerComPorts.form.connectionCount;Gleichzeitige Verbindungen
 MDC;REST;comServerComPorts.form.connTimeout;Verbindungs-Zeitgrenze
 MDC;REST;comServerComPorts.form.contextPath;Kontextpfad
+MDC;REST;comServerComPorts.form.dtls;DTLS verwenden
 MDC;REST;comServerComPorts.form.errorNum;Max. Anzahl an Anwahl-Fehlern
 MDC;REST;comServerComPorts.form.flowControl;Ablaufsteuerung
 MDC;REST;comServerComPorts.form.globalModemInitStrings;Allgemeine Modem-Initialisierung
 MDC;REST;comServerComPorts.form.https;HTTPS verwenden
-MDC;REST;comServerComPorts.form.dtls;DTLS verwenden
-MDC;REST;comServerComPorts.form.sharedKeys;Vorab geteilt
 MDC;REST;comServerComPorts.form.keyStorePass;Keystore-Zugangs-Passwort.
 MDC;REST;comServerComPorts.form.keyStorePath;Keystore-Dateipfad
 MDC;REST;comServerComPorts.form.modemInit;Modemstart
@@ -6157,6 +6157,7 @@ MDC;REST;comServerComPorts.form.portNum;Port-Nummer
 MDC;REST;comServerComPorts.form.ringCount;Ringzählung
 MDC;REST;comServerComPorts.form.sendDelay;Verzögerung bis zum Senden
 MDC;REST;comServerComPorts.form.serialPortConf;Serielle Port-Konfiguration
+MDC;REST;comServerComPorts.form.sharedKeys;Vorab geteilte Schlüssel
 MDC;REST;comServerComPorts.form.stopBits;Stoppbits.
 MDC;REST;comServerComPorts.form.trustStorePass;Truststore-Zugangs-Passwort.
 MDC;REST;comServerComPorts.form.trustStorePath;Truststore-Dateipfad.
@@ -9105,6 +9106,7 @@ PPC;DOMAIN;DlmsSecuritySupportPerClient.encryptionlevel.6;Nachrichten-Authentifi
 PPC;DOMAIN;DlmsSecuritySupportPerClient.encryptionlevel.7;Nachrichtenverschlüsselung und Authentifizierung - Datenerfassungs-Client
 PPC;DOMAIN;DlmsSecuritySupportPerClient.encryptionlevel.8;Keine Verschlüsselung - erweiterter Datenerfassungs-Client
 PPC;DOMAIN;DlmsSecuritySupportPerClient.encryptionlevel.9;Nachrichtenverschlüsselung - erweiterter Datenerfassungs-Client
+PPC;DOMAIN;CoapConnectionType;Coap
 PPC;DOMAIN;EIWebConnectionType;EIWeb
 PPC;DOMAIN;EIWebPlusConnectionType;EIWeb+
 PPC;DOMAIN;EmptyConnectionType;Keine

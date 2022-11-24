@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.channels.inbound;
@@ -74,7 +74,7 @@ public class CoapConnectionType implements ConnectionType {
 
     @Override
     public String getVersion() {
-        return "$Date: 2020-10-26";
+        return "$Date: 2022-10-30";
     }
 
     @Override

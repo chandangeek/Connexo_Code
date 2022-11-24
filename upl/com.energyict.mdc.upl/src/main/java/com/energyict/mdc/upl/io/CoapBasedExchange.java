@@ -1,9 +1,12 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.mdc.upl.io;
 
+import aQute.bnd.annotation.ConsumerType;
+
+@ConsumerType
 public interface CoapBasedExchange {
 
     void respond(CoapCode coapCode, String payload);

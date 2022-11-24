@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2022 by Honeywell International Inc. All Rights Reserved
  */
 
 package com.energyict.protocolimplv2.coap.crest;
@@ -27,7 +27,7 @@ public class CrestObjectV2_1 {
     @JsonProperty("TEL")
     private String tel;
     @JsonProperty("cID")
-    private String cId;
+    private String cID;
     @JsonProperty("BAT")
     private Integer bat;
     @JsonProperty("CSQ")
@@ -65,7 +65,7 @@ public class CrestObjectV2_1 {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, ts, con, fw, tel, cId, bat, csq, tries, msi, urc, a, mem, t1, h1, v1m, v1, v2m, v2, fmc);
+        return Objects.hash(id, ts, con, fw, tel, cID, bat, csq, tries, msi, urc, a, mem, t1, h1, v1m, v1, v2m, v2, fmc);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class CrestObjectV2_1 {
             return false;
         }
         CrestObjectV2_1 that = (CrestObjectV2_1) o;
-        return Objects.equals(id, that.id) && Objects.equals(ts, that.ts) && Objects.equals(con, that.con) && Objects.equals(fw, that.fw) && Objects.equals(tel, that.tel) && Objects.equals(cId, that.cId) && Objects.equals(bat, that.bat) && Objects.equals(csq, that.csq) && Objects.equals(tries, that.tries) && Objects.equals(msi, that.msi) && Objects.equals(urc, that.urc) && Objects.equals(a, that.a) && Objects.equals(mem, that.mem) && Objects.equals(t1, that.t1) && Objects.equals(h1, that.h1) && Objects.equals(v1m, that.v1m) && Objects.equals(v1, that.v1) && Objects.equals(v2m, that.v2m) && Objects.equals(v2, that.v2) && Objects.equals(fmc, that.fmc);
+        return Objects.equals(id, that.id) && Objects.equals(ts, that.ts) && Objects.equals(con, that.con) && Objects.equals(fw, that.fw) && Objects.equals(tel, that.tel) && Objects.equals(cID, that.cID) && Objects.equals(bat, that.bat) && Objects.equals(csq, that.csq) && Objects.equals(tries, that.tries) && Objects.equals(msi, that.msi) && Objects.equals(urc, that.urc) && Objects.equals(a, that.a) && Objects.equals(mem, that.mem) && Objects.equals(t1, that.t1) && Objects.equals(h1, that.h1) && Objects.equals(v1m, that.v1m) && Objects.equals(v1, that.v1) && Objects.equals(v2m, that.v2m) && Objects.equals(v2, that.v2) && Objects.equals(fmc, that.fmc);
     }
 
     public String getId() {
@@ -112,12 +112,12 @@ public class CrestObjectV2_1 {
         this.tel = tel;
     }
 
-    public String getcId() {
-        return cId;
+    public String getCID() {
+        return cID;
     }
 
-    public void setcId(String cId) {
-        this.cId = cId;
+    public void setCID(String cID) {
+        this.cID = cID;
     }
 
     public Integer getBat() {

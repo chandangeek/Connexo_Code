@@ -89,7 +89,7 @@ public class EmbeddedCaliforniumServerTest {
         InboundDeviceProtocolPluggableClass pluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
         TypedProperties typedProperties = TypedProperties.empty();
         when(comPort.getComPortPool()).thenReturn(portPool);
-        when(((InboundComPortPool) portPool).getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(portPool.getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
         when(pluggableClass.getProperties(Mockito.any(List.class))).thenReturn(typedProperties);
         return comPort;
     }
