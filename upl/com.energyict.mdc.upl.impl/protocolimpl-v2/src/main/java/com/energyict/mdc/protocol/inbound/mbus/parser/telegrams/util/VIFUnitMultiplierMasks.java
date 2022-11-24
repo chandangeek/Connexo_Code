@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util;
 
 
-public enum VIF_Unit_Multiplier_Masks {
+public enum VIFUnitMultiplierMasks {
     ENERGY_WH(0x07),	// E000 0xxx
     ENERGY_J(0x0F),		// E000 1xxx
     BACK_FLOW(0x13),
@@ -43,7 +43,7 @@ public enum VIF_Unit_Multiplier_Masks {
 
     private int value;
 
-    private VIF_Unit_Multiplier_Masks(int value) {
+    private VIFUnitMultiplierMasks(int value) {
         this.value = value;
     }
 

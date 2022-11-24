@@ -1,7 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util;
 
 
-public enum Measure_Unit {
+public enum MeasureUnit {
     WH("WH"),
     J("J"),
     M3("m3"),
@@ -28,7 +28,7 @@ public enum Measure_Unit {
 
     private String value;
 
-    private Measure_Unit(String value) {
+    private MeasureUnit(String value) {
         this.value = value;
     }
 

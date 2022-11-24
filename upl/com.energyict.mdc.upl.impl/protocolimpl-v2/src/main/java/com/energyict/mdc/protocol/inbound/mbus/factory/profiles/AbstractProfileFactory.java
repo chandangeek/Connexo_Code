@@ -8,10 +8,10 @@ import com.energyict.mdc.protocol.inbound.mbus.factory.UnitFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.SpacingControlByte;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
-import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Measure_Unit;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.MeasureUnit;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramEncoding;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramFunctionType;
-import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.VIF_Unit_Multiplier_Masks;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.VIFUnitMultiplierMasks;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.protocol.ChannelInfo;
@@ -32,8 +32,8 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     private static final int DEFAULT_PROTOCOL_STATUS = 0;
     private static final int DEFAULT_EI_STATUS = 0;
 
-    private VIF_Unit_Multiplier_Masks fieldType;
-    private Measure_Unit measureUnit;
+    private VIFUnitMultiplierMasks fieldType;
+    private MeasureUnit measureUnit;
     private int multiplier;
     private long startIndex;
     private Instant midnight;
@@ -95,19 +95,19 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
         this.multiplier = multiplier;
     }
 
-    private void setMeasureUnit(Measure_Unit measureUnit) {
+    private void setMeasureUnit(MeasureUnit measureUnit) {
         this.measureUnit = measureUnit;
     }
 
-    private void setFieldType(VIF_Unit_Multiplier_Masks type) {
+    private void setFieldType(VIFUnitMultiplierMasks type) {
         this.fieldType = type;
     }
 
-    public VIF_Unit_Multiplier_Masks getFieldType() {
+    public VIFUnitMultiplierMasks getFieldType() {
         return fieldType;
     }
 
-    public Measure_Unit getMeasureUnit() {
+    public MeasureUnit getMeasureUnit() {
         return measureUnit;
     }
 

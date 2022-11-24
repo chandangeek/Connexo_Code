@@ -3,7 +3,7 @@ package com.energyict.mdc.protocol.inbound.mbus.factory;
 import com.energyict.cbo.Unit;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
-import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Measure_Unit;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.MeasureUnit;
 
 public class UnitFactory {
 
@@ -13,7 +13,7 @@ public class UnitFactory {
     }
 
     public static Unit from(TelegramVariableDataRecord record, InboundContext inboundContext) {
-        if (Measure_Unit.NONE.equals(record.getVif().getmUnit())){
+        if (MeasureUnit.NONE.equals(record.getVif().getmUnit())){
             return Unit.getUndefined();
         }
 

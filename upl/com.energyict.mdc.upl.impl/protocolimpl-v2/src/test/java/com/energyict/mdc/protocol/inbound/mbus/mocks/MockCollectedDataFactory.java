@@ -77,7 +77,7 @@ public class MockCollectedDataFactory implements CollectedDataFactory {
 
     @Override
     public CollectedRegister createTextCollectedRegister(RegisterIdentifier registerIdentifier) {
-        return null;
+        return new MockTextCollectedRegister(registerIdentifier);
     }
 
     @Override

@@ -5,7 +5,7 @@ import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.DateCalculator;
-import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Measure_Unit;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.MeasureUnit;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramEncoding;
 
 import java.math.BigInteger;
@@ -43,7 +43,7 @@ public class TelegramDataField extends TelegramField {
         TelegramEncoding enc = this.parent.getDif().getDataFieldEncoding();
 
         int length = this.parent.getDif().getDataFieldLength();
-        Measure_Unit unit = this.parent.getVif().getmUnit();
+        MeasureUnit unit = this.parent.getVif().getmUnit();
         int multiplier = this.parent.getVif().getMultiplier();
 
         if (length != this.fieldParts.size()) {
@@ -94,7 +94,7 @@ public class TelegramDataField extends TelegramField {
      * returns true if the value of this field is a date-type. Values
      * are parsed as dates (if it is a valid date-type) in this function as well.
      */
-    public boolean parseDate(Measure_Unit dateType) {
+    public boolean parseDate(MeasureUnit dateType) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").withZone(ZoneId.of("UTC"));
 
         switch (dateType) {

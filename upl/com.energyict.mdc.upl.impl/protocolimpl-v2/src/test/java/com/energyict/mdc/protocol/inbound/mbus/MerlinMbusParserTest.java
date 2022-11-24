@@ -802,7 +802,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         List<CollectedData> collectedData = factory.getCollectedData();
 
-        assertEquals(3, collectedData.size());
+        assertEquals(5, collectedData.size());
 
         CollectedRegisterList collectedRegisterList = (CollectedRegisterList) factory.getCollectedData().stream()
                 .filter(c -> c instanceof CollectedRegisterList)

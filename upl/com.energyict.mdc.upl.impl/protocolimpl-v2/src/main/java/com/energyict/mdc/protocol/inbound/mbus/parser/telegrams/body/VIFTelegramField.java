@@ -4,9 +4,9 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
-import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Measure_Unit;
-import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Telegram_Date_Masks;
-import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.VIF_Unit_Multiplier_Masks;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.MeasureUnit;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.TelegramDateMasks;
+import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.VIFUnitMultiplierMasks;
 
 public class VIFTelegramField extends TelegramField {
 
@@ -16,8 +16,8 @@ public class VIFTelegramField extends TelegramField {
     private static int UNIT_MULTIPLIER_MASK = 0x7F; 	// 0111 1111
 
     private boolean extensionBit = false;
-    private Measure_Unit mUnit = Measure_Unit.NONE;
-    private VIF_Unit_Multiplier_Masks type;
+    private MeasureUnit mUnit = MeasureUnit.NONE;
+    private VIFUnitMultiplierMasks type;
     private int multiplier = 0;
 
     private TelegramVariableDataRecord parent;
@@ -37,10 +37,10 @@ public class VIFTelegramField extends TelegramField {
             logger.debug("\t - extension = true");
         }
 
-        if(iVifField == VIF_Unit_Multiplier_Masks.FIRST_EXT_VIF_CODES.getValue()) {
+        if(iVifField == VIFUnitMultiplierMasks.FIRST_EXT_VIF_CODES.getValue()) {
             // TODO: load from next VIFE according to table 29 from DIN_EN_13757_3
         }
-        else if(iVifField == VIF_Unit_Multiplier_Masks.SECOND_EXT_VIF_CODES.getValue()) {
+        else if(iVifField == VIFUnitMultiplierMasks.SECOND_EXT_VIF_CODES.getValue()) {
             // TODO: load from next VIFE according to table 28 from DIN_EN_13757_3
         }
         else {
@@ -52,54 +52,54 @@ public class VIFTelegramField extends TelegramField {
 
             // first check against complete (no wildcards) bit masks
             // can't check with switch case because we need a constant value there
-            if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.DATE.getValue()) {
-                this.type = VIF_Unit_Multiplier_Masks.DATE;
+            if(iVifFieldNoExt == VIFUnitMultiplierMasks.DATE.getValue()) {
+                this.type = VIFUnitMultiplierMasks.DATE;
                 logger.debug("\t - type=DATE");
                 this.parseDate(this.parent.getDif().getDataFieldLengthAndEncoding());
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.DATE_TIME_GENERAL.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.DATE_TIME_GENERAL.getValue()) {
                 logger.debug("\t - type=DATE_TIME_GENERAL");
                 this.parseDate(this.parent.getDif().getDataFieldLengthAndEncoding());
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.UNITS_FOR_HCA.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.UNITS_FOR_HCA.getValue()) {
                 // NO UNIT
                 logger.debug("\t - type=UNITS_FOR_HCA");
-                this.type = VIF_Unit_Multiplier_Masks.UNITS_FOR_HCA;
+                this.type = VIFUnitMultiplierMasks.UNITS_FOR_HCA;
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.RES_THIRD_VIFE_TABLE.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.RES_THIRD_VIFE_TABLE.getValue()) {
                 // NO UNIT
                 logger.debug("\t - type=RES_THIRD_VIFE_TABLE");
-                this.type = VIF_Unit_Multiplier_Masks.RES_THIRD_VIFE_TABLE;
+                this.type = VIFUnitMultiplierMasks.RES_THIRD_VIFE_TABLE;
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.FABRICATION_NO.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.FABRICATION_NO.getValue()) {
                 // NO UNIT
                 logger.debug("\t - type=FABRICATION_NO");
-                this.type = VIF_Unit_Multiplier_Masks.FABRICATION_NO;
+                this.type = VIFUnitMultiplierMasks.FABRICATION_NO;
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.IDENTIFICATION.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.IDENTIFICATION.getValue()) {
                 // NO UNIT
                 logger.debug("\t - type=IDENTIFICATION");
-                this.type = VIF_Unit_Multiplier_Masks.IDENTIFICATION;
+                this.type = VIFUnitMultiplierMasks.IDENTIFICATION;
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.ADDRESS.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.ADDRESS.getValue()) {
                 // TODO
                 logger.debug("\t - type=ADDRESS");
-                this.type = VIF_Unit_Multiplier_Masks.ADDRESS;
+                this.type = VIFUnitMultiplierMasks.ADDRESS;
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.VIF_FOLLOWING.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.VIF_FOLLOWING.getValue()) {
                 // TODO: plain String?
                 logger.debug("\t - type=VIF_FOLLOWING");
-                this.type = VIF_Unit_Multiplier_Masks.VIF_FOLLOWING;
+                this.type = VIFUnitMultiplierMasks.VIF_FOLLOWING;
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.ANY_VIF.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.ANY_VIF.getValue()) {
                 // TODO: check 6.4
                 logger.debug("\t - type=ANY_VIF");
-                this.type = VIF_Unit_Multiplier_Masks.ANY_VIF;
+                this.type = VIFUnitMultiplierMasks.ANY_VIF;
             }
-            else if(iVifFieldNoExt == VIF_Unit_Multiplier_Masks.MANUFACTURER_SPEC.getValue()) {
+            else if(iVifFieldNoExt == VIFUnitMultiplierMasks.MANUFACTURER_SPEC.getValue()) {
                 // TODO: VIFE and data is manufacturer specification
                 logger.debug("\t - type=MANUFACTURER_SPEC");
-                this.type = VIF_Unit_Multiplier_Masks.MANUFACTURER_SPEC;
+                this.type = VIFUnitMultiplierMasks.MANUFACTURER_SPEC;
             }
             else if(parseLastTwoBitsSet(iVifFieldNoExt) == true) {
 
@@ -118,59 +118,59 @@ public class VIFTelegramField extends TelegramField {
         int iVifFieldNoExtLastTwo = (iVifFieldNoExt | VIFTelegramField.LAST_TWO_BIT_OR_MASK);
         int onlyLastTwoBits = iVifFieldNoExt & VIFTelegramField.LAST_TWO_BIT_OR_MASK;
 
-        if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.ON_TIME.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.ON_TIME;
+        if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.ON_TIME.getValue()) {
+            this.type = VIFUnitMultiplierMasks.ON_TIME;
             switch (onlyLastTwoBits) {
                 case 0:
-                    this.mUnit = Measure_Unit.SECONDS;
+                    this.mUnit = MeasureUnit.SECONDS;
                     break;
                 case 1:
-                    this.mUnit = Measure_Unit.MINUTES;
+                    this.mUnit = MeasureUnit.MINUTES;
                     break;
                 case 2:
-                    this.mUnit = Measure_Unit.HOURS;
+                    this.mUnit = MeasureUnit.HOURS;
                     break;
                 case 3:
-                    this.mUnit = Measure_Unit.DAYS;
+                    this.mUnit = MeasureUnit.DAYS;
                     break;
                 default:
                     //TODO: Exception Handling
                     break;
             }
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.OPERATING_TIME.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.OPERATING_TIME;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.OPERATING_TIME.getValue()) {
+            this.type = VIFUnitMultiplierMasks.OPERATING_TIME;
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.FLOW_TEMPERATURE.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.FLOW_TEMPERATURE;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.FLOW_TEMPERATURE.getValue()) {
+            this.type = VIFUnitMultiplierMasks.FLOW_TEMPERATURE;
             this.multiplier = onlyLastTwoBits - 3;
-            this.mUnit = Measure_Unit.C;
+            this.mUnit = MeasureUnit.C;
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.RETURN_TEMPERATURE.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.RETURN_TEMPERATURE;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.RETURN_TEMPERATURE.getValue()) {
+            this.type = VIFUnitMultiplierMasks.RETURN_TEMPERATURE;
             this.multiplier = onlyLastTwoBits - 3;
-            this.mUnit = Measure_Unit.C;
+            this.mUnit = MeasureUnit.C;
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.TEMPERATURE_DIFFERENCE.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.TEMPERATURE_DIFFERENCE;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.TEMPERATURE_DIFFERENCE.getValue()) {
+            this.type = VIFUnitMultiplierMasks.TEMPERATURE_DIFFERENCE;
             this.multiplier = onlyLastTwoBits - 3;
-            this.mUnit = Measure_Unit.K;
+            this.mUnit = MeasureUnit.K;
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.EXTERNAL_TEMPERATURE.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.EXTERNAL_TEMPERATURE;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.EXTERNAL_TEMPERATURE.getValue()) {
+            this.type = VIFUnitMultiplierMasks.EXTERNAL_TEMPERATURE;
             this.multiplier = onlyLastTwoBits - 3;
-            this.mUnit = Measure_Unit.C;
+            this.mUnit = MeasureUnit.C;
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.PRESSURE.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.PRESSURE;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.PRESSURE.getValue()) {
+            this.type = VIFUnitMultiplierMasks.PRESSURE;
             this.multiplier = onlyLastTwoBits - 3;
-            this.mUnit = Measure_Unit.BAR;
+            this.mUnit = MeasureUnit.BAR;
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.AVG_DURATION.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.AVG_DURATION;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.AVG_DURATION.getValue()) {
+            this.type = VIFUnitMultiplierMasks.AVG_DURATION;
         }
-        else if(iVifFieldNoExtLastTwo == VIF_Unit_Multiplier_Masks.ACTUALITY_DURATION.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.ACTUALITY_DURATION;
+        else if(iVifFieldNoExtLastTwo == VIFUnitMultiplierMasks.ACTUALITY_DURATION.getValue()) {
+            this.type = VIFUnitMultiplierMasks.ACTUALITY_DURATION;
         }
         else {
             return false;
@@ -184,55 +184,55 @@ public class VIFTelegramField extends TelegramField {
 
         int onlyLastThreeBits = iVifFieldNoExt & VIFTelegramField.LAST_THREE_BIT_OR_MASK;
 
-        if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.ENERGY_WH.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.ENERGY_WH;
+        if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.ENERGY_WH.getValue()) {
+            this.type = VIFUnitMultiplierMasks.ENERGY_WH;
             this.multiplier = onlyLastThreeBits - 3;
-            this.mUnit = Measure_Unit.WH;
+            this.mUnit = MeasureUnit.WH;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.ENERGY_J.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.ENERGY_J;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.ENERGY_J.getValue()) {
+            this.type = VIFUnitMultiplierMasks.ENERGY_J;
             this.multiplier = onlyLastThreeBits;
-            this.mUnit = Measure_Unit.J;
+            this.mUnit = MeasureUnit.J;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.VOLUME.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.VOLUME;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.VOLUME.getValue()) {
+            this.type = VIFUnitMultiplierMasks.VOLUME;
             this.multiplier = onlyLastThreeBits - 6;
-            this.mUnit = Measure_Unit.M3;
+            this.mUnit = MeasureUnit.M3;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.MASS.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.MASS;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.MASS.getValue()) {
+            this.type = VIFUnitMultiplierMasks.MASS;
             this.multiplier = onlyLastThreeBits - 3;
-            this.mUnit = Measure_Unit.KG;
+            this.mUnit = MeasureUnit.KG;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.POWER_W.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.POWER_W;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.POWER_W.getValue()) {
+            this.type = VIFUnitMultiplierMasks.POWER_W;
             this.multiplier = onlyLastThreeBits - 3;
-            this.mUnit = Measure_Unit.W;
+            this.mUnit = MeasureUnit.W;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.POWER_J_H.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.POWER_J_H;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.POWER_J_H.getValue()) {
+            this.type = VIFUnitMultiplierMasks.POWER_J_H;
             this.multiplier = onlyLastThreeBits;
-            this.mUnit = Measure_Unit.J_H;
+            this.mUnit = MeasureUnit.J_H;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.VOLUME_FLOW.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.VOLUME_FLOW;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.VOLUME_FLOW.getValue()) {
+            this.type = VIFUnitMultiplierMasks.VOLUME_FLOW;
             this.multiplier = onlyLastThreeBits - 6;
-            this.mUnit = Measure_Unit.M3_H;
+            this.mUnit = MeasureUnit.M3_H;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.VOLUME_FLOW_EXT.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.VOLUME_FLOW_EXT;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.VOLUME_FLOW_EXT.getValue()) {
+            this.type = VIFUnitMultiplierMasks.VOLUME_FLOW_EXT;
             this.multiplier = onlyLastThreeBits - 7;
-            this.mUnit = Measure_Unit.M3_MIN;
+            this.mUnit = MeasureUnit.M3_MIN;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.VOLUME_FLOW_EXT_S.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.VOLUME_FLOW_EXT_S;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.VOLUME_FLOW_EXT_S.getValue()) {
+            this.type = VIFUnitMultiplierMasks.VOLUME_FLOW_EXT_S;
             this.multiplier = onlyLastThreeBits - 9;
-            this.mUnit = Measure_Unit.M3_S;
+            this.mUnit = MeasureUnit.M3_S;
         }
-        else if(iVifFieldNoExtLastThree == VIF_Unit_Multiplier_Masks.MASS_FLOW.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.MASS_FLOW;
+        else if(iVifFieldNoExtLastThree == VIFUnitMultiplierMasks.MASS_FLOW.getValue()) {
+            this.type = VIFUnitMultiplierMasks.MASS_FLOW;
             this.multiplier = onlyLastThreeBits - 3;
-            this.mUnit = Measure_Unit.KG_H;
+            this.mUnit = MeasureUnit.KG_H;
         }
         else {
             return false;
@@ -241,25 +241,25 @@ public class VIFTelegramField extends TelegramField {
     }
 
     private void parseDate(int dateType) {
-        if(dateType == Telegram_Date_Masks.DATE.getValue()) {
-            mUnit = Measure_Unit.DATE;
+        if(dateType == TelegramDateMasks.DATE.getValue()) {
+            mUnit = MeasureUnit.DATE;
             logger.debug("\t - DATE");
         }
-        else if(dateType == Telegram_Date_Masks.DATE_TIME.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.DATE_TIME;
-            mUnit = Measure_Unit.DATE_TIME; // TIME before
+        else if(dateType == TelegramDateMasks.DATE_TIME.getValue()) {
+            this.type = VIFUnitMultiplierMasks.DATE_TIME;
+            mUnit = MeasureUnit.DATE_TIME; // TIME before
             logger.debug("\t - DATE_TIME");
         }
-        else if(dateType == Telegram_Date_Masks.EXT_TIME.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.EXTENTED_TIME;
-            mUnit = Measure_Unit.DATE_TIME;
+        else if(dateType == TelegramDateMasks.EXT_TIME.getValue()) {
+            this.type = VIFUnitMultiplierMasks.EXTENTED_TIME;
+            mUnit = MeasureUnit.DATE_TIME;
             logger.debug("\t - DATE_TIME / EXTENDED_TIME");
         }
-        else if(dateType == Telegram_Date_Masks.EXT_DATE_TIME.getValue()) {
-            this.type = VIF_Unit_Multiplier_Masks.EXTENTED_DATE_TIME;
-            //mUnit = Measure_Unit.DATE_TIME_S;
+        else if(dateType == TelegramDateMasks.EXT_DATE_TIME.getValue()) {
+            this.type = VIFUnitMultiplierMasks.EXTENTED_DATE_TIME;
+            //mUnit = MeasureUnit.DATE_TIME_S;
             //logger.debug("\t- DATE_TIME_S / EXTENTED_DATE_TIME");
-            mUnit = Measure_Unit.EPOCH_TIME;
+            mUnit = MeasureUnit.EPOCH_TIME;
             logger.debug("\t - EPOCH-TIME");
         }
         else {
@@ -280,11 +280,11 @@ public class VIFTelegramField extends TelegramField {
         return extensionBit;
     }
 
-    public VIF_Unit_Multiplier_Masks getType() {
+    public VIFUnitMultiplierMasks getType() {
         return type;
     }
 
-    public void setType(VIF_Unit_Multiplier_Masks type) {
+    public void setType(VIFUnitMultiplierMasks type) {
         this.type = type;
     }
 
@@ -293,11 +293,11 @@ public class VIFTelegramField extends TelegramField {
     }
 
 
-    public Measure_Unit getmUnit() {
+    public MeasureUnit getmUnit() {
         return mUnit;
     }
 
-    public void setmUnit(Measure_Unit mUnit) {
+    public void setmUnit(MeasureUnit mUnit) {
         this.mUnit = mUnit;
     }
 

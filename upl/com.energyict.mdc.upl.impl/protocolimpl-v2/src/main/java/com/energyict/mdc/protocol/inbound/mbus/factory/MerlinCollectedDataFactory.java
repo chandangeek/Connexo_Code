@@ -1,7 +1,6 @@
 package com.energyict.mdc.protocol.inbound.mbus.factory;
 
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.StatusEventsFactory;
@@ -18,10 +17,6 @@ import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
-import com.energyict.obis.ObisCode;
-
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +29,6 @@ public class MerlinCollectedDataFactory {
     private List<CollectedData> collectedDataList;
 
     private CollectedLoadProfile dailyLoadProfile;
-    private ZoneId timeZone;
     private List<CollectedLogBook> collectedLogBooks;
     private CollectedLoadProfile nightLineProfile;
 
@@ -106,6 +100,10 @@ public class MerlinCollectedDataFactory {
 
         if (dailyLoadProfile != null) {
             collectedDataList.add(dailyLoadProfile);
+        }
+
+        if (nightLineProfile != null) {
+            collectedDataList.add(nightLineProfile);
         }
 
         if (collectedLogBooks.size() > 0) {
