@@ -56,6 +56,7 @@ public class TCPBasedInboundComPortImplTest extends PersistenceTest {
         assertTrue(comPort.isTCPBased());
         assertFalse(comPort.isUDPBased());
         assertFalse(comPort.isModemBased());
+        assertFalse(comPort.isCoapBased());
         assertFalse(comPort.isServletBased());
         assertTrue("TCP based inbound com ports are expected to be INBOUND", comPort.isInbound());
     }

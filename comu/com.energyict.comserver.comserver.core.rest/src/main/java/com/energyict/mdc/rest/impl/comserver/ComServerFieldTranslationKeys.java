@@ -12,6 +12,7 @@ import com.energyict.mdc.ports.ComPortType;
 public enum ComServerFieldTranslationKeys implements TranslationKey {
 
     COM_PORT_TYPE_SERVLET(ComPortType.SERVLET.toString(), "SERVLET"),
+    COM_PORT_TYPE_COAP(ComPortType.COAP.toString(), "COAP"),
     COM_PORT_TYPE_TCP(ComPortType.TCP.toString(), "TCP"),
     COM_PORT_TYPE_UDP(ComPortType.UDP.toString(), "UDP"),
     COM_PORT_TYPE_SERIAL(ComPortType.SERIAL.toString(), "SERIAL"),

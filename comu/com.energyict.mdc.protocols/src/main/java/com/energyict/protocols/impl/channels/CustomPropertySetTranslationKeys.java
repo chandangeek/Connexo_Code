@@ -19,6 +19,7 @@ public enum CustomPropertySetTranslationKeys implements TranslationKey {
     // Connection Types
     EIWEB_CUSTOM_PROPERTY_SET_NAME("EIWebCustomPropertySet", "EIWeb"),
     EIWEB_PLUS_CUSTOM_PROPERTY_SET_NAME("EIWebPlusCustomPropertySet", "EIWeb+"),
+    COAP_CUSTOM_PROPERTY_SET_NAME("CoapCustomPropertySet", "Coap"),
     SERIAL_IO_SERIAL_CUSTOM_PROPERTY_SET_NAME("SioSerialCustomPropertySet", "Serial IO serial"),
     SERIAL_IO_AT_CUSTOM_PROPERTY_SET_NAME("SioATModemCustomPropertySet", "Serial IO AT modem"),
     SERIAL_IO_OPTICAL_CUSTOM_PROPERTY_SET_NAME("SioOpticalCustomPropertySet", "Serial IO optical"),

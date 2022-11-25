@@ -2,6 +2,7 @@ package com.energyict.mdc.upl;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.crypto.HsmProtocolService;
+import com.energyict.mdc.upl.io.CoapBasedExchange;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
@@ -70,6 +71,10 @@ public interface InboundDiscoveryContext {
     Converter getConverter();
 
     InboundDAO getInboundDAO();
+
+    CoapBasedExchange getCoapBasedExchange();
+
+    void setCoapBasedExchange(CoapBasedExchange coapBasedExchange);
 
     HttpServletRequest getServletRequest();
 

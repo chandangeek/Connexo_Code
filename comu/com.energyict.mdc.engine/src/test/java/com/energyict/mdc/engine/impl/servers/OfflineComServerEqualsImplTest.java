@@ -24,7 +24,7 @@ public class OfflineComServerEqualsImplTest extends AbstractComServerEqualsContr
     }
 
     private OfflineComServer newOfflineComServerImpl(String name) {
-        final OfflineComServer offlineComServer = new OfflineComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        final OfflineComServer offlineComServer = new OfflineComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         offlineComServer.setName(name);
         return offlineComServer;
     }

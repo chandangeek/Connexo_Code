@@ -69,14 +69,21 @@ public class UDPBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
-    public void testIsNotModemBased () {
+    public void testIsNotModemBased() {
         UDPBasedInboundComPort comPort = createSimpleComPort();
         assertFalse(comPort.isModemBased());
     }
 
     @Test
     @Transactional
-    public void testIsNotServletBased () {
+    public void testIsNotCoapBased() {
+        UDPBasedInboundComPort comPort = createSimpleComPort();
+        assertFalse(comPort.isCoapBased());
+    }
+
+    @Test
+    @Transactional
+    public void testIsNotServletBased() {
         UDPBasedInboundComPort comPort = createSimpleComPort();
         assertFalse(comPort.isServletBased());
     }

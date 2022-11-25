@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.servers;
 import com.elster.jupiter.devtools.tests.EqualsContractTest;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
 import com.energyict.mdc.common.comserver.OutboundComPort;
@@ -21,7 +22,7 @@ import org.mockito.Mock;
 
 import static org.fest.reflect.core.Reflection.field;
 
-public abstract class AbstractComServerEqualsContractTest  extends EqualsContractTest{
+public abstract class AbstractComServerEqualsContractTest extends EqualsContractTest {
 
     @Mock
     EngineConfigurationService engineConfigurationService;
@@ -31,6 +32,8 @@ public abstract class AbstractComServerEqualsContractTest  extends EqualsContrac
     Provider<OutboundComPort> outboundComPortProvider;
     @Mock
     Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
+    @Mock
+    Provider<CoapBasedInboundComPort> coapBasedInboundComPortProvider;
     @Mock
     Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
     @Mock

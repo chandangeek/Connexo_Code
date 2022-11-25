@@ -44,13 +44,20 @@ public interface InboundComPort extends ComPort {
     public boolean isModemBased();
 
     /**
+     * Indicate that this InboundComPort is Coap-based
+     *
+     * @return true if this port is an instance of {@link CoapBasedInboundComPort}, false otherwise
+     */
+    public boolean isCoapBased();
+
+    /**
      * Indicate that this InboundComPort is Servlet-based
      *
      * @return true if this port is an instance of {@link ServletBasedInboundComPort}, false otherwise
      */
     public boolean isServletBased();
 
-    interface InboundComPortBuilder<B extends InboundComPortBuilder<B,C>,C extends InboundComPort> extends ComPort.Builder<B,C> {
+    interface InboundComPortBuilder<B extends InboundComPortBuilder<B, C>, C extends InboundComPort> extends ComPort.Builder<B, C> {
         public B comPortPool(InboundComPortPool comPortPool);
     }
 

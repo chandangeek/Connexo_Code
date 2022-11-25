@@ -16,6 +16,7 @@ import com.energyict.mdc.upl.InboundDeviceProtocol;
 
 import com.energyict.protocolimpl.edmi.mk10.MK10InboundDeviceProtocol;
 import com.energyict.protocolimplv2.ace4000.ACE4000Inbound;
+import com.energyict.protocolimplv2.coap.crest.CrestSensorInboundProtocol;
 import com.energyict.protocolimplv2.dlms.a2.A2Inbound;
 import com.energyict.protocolimplv2.dlms.acud.AcudGatewayInbound;
 import com.energyict.protocolimplv2.dlms.ei6v2021.EI6v2021Inbound;
@@ -49,7 +50,8 @@ public enum InboundDeviceProtocolRule implements PluggableClassDefinition<Inboun
     WebCatchInboundProtocol(WebCatchInboundProtocol.class),
     EI6v2021Inbound(EI6v2021Inbound.class),
     EI4UmiInbound(EI4UmiInbound.class),
-    AcudGatewayInbound(AcudGatewayInbound.class);
+    AcudGatewayInbound(AcudGatewayInbound.class),
+    CrestSensorInboundProtocol(CrestSensorInboundProtocol.class);
 
     private final Class<? extends InboundDeviceProtocol> inboundDeviceProtocolClass;
 

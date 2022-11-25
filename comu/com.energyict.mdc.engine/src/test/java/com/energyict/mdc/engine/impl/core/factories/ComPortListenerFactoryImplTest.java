@@ -5,14 +5,21 @@
 package com.energyict.mdc.engine.impl.core.factories;
 
 import com.elster.jupiter.time.TimeDuration;
-import com.energyict.mdc.common.comserver.*;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
+import com.energyict.mdc.common.comserver.ComServer;
+import com.energyict.mdc.common.comserver.InboundComPort;
+import com.energyict.mdc.common.comserver.InboundComPortPool;
+import com.energyict.mdc.common.comserver.ServletBasedInboundComPort;
+import com.energyict.mdc.common.comserver.TCPBasedInboundComPort;
 import com.energyict.mdc.common.protocol.InboundDeviceProtocolPluggableClass;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
+import com.energyict.mdc.engine.impl.coap.DefaultEmbeddedCoapServerFactory;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.CoapInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -109,6 +116,7 @@ public class ComPortListenerFactoryImplTest {
         when(this.serviceProvider.issueService()).thenReturn(mock(IssueService.class));
         when(this.serviceProvider.socketService()).thenReturn(this.socketService);
         when(this.serviceProvider.embeddedWebServerFactory()).thenReturn(new DefaultEmbeddedWebServerFactory(webSocketEventPublisherFactory));
+        when(this.serviceProvider.embeddedCoapServerFactory()).thenReturn(new DefaultEmbeddedCoapServerFactory(webSocketEventPublisherFactory));
         when(this.serviceProvider.threadFactory()).thenReturn(this.threadFactory);
         when(this.serviceProvider.eventPublisher()).thenReturn(this.eventPublisher);
         when(this.serviceProvider.clock()).thenReturn(this.clock);
@@ -162,6 +170,14 @@ public class ComPortListenerFactoryImplTest {
         final ComPortListener comPortListener = factory.newFor(runningComServer, this.servletBasedInboundComPort());
         assertNotNull(comPortListener);
         assertTrue(comPortListener instanceof ServletInboundComPortListener);
+    }
+
+    @Test
+    public void testCoapBasedInboundComPortListener() {
+        ComPortListenerFactoryImpl factory = new ComPortListenerFactoryImpl(this.comServerDAO(), this.deviceCommandExecutor(), this.serviceProvider);
+        final ComPortListener comPortListener = factory.newFor(runningComServer, this.coapBasedInboundComPort());
+        assertNotNull(comPortListener);
+        assertTrue(comPortListener instanceof CoapInboundComPortListener);
     }
 
     @Test
@@ -244,6 +260,28 @@ public class ComPortListenerFactoryImplTest {
         TypedProperties typedProperties = TypedProperties.empty();
         typedProperties.setProperty(EmbeddedJettyServer.MAX_IDLE_TIME, EmbeddedJettyServer.MAX_IDLE_TIME_DEFAULT_VALUE);
         when(comPort.getComPortPool()).thenReturn(portPool);
+        when(portPool.getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
+        when(pluggableClass.getProperties(Mockito.any(List.class))).thenReturn(typedProperties);
+        when(comPort.getNumberOfSimultaneousConnections()).thenReturn(0);
+        return comPort;
+    }
+
+    private InboundComPort coapBasedInboundComPort() {
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getSchedulingInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getChangesInterPollDelay()).thenReturn(TimeDuration.minutes(1));
+        when(comServer.getServerLogLevel()).thenReturn(ComServer.LogLevel.INFO);
+        CoapBasedInboundComPort comPort = mock(CoapBasedInboundComPort.class);
+        when(comPort.getComServer()).thenReturn(comServer);
+        when(comServer.getChangesInterPollDelay()).thenReturn(new TimeDuration(1));
+        when(comPort.isActive()).thenReturn(true);
+        when(comPort.isCoapBased()).thenReturn(true);
+        when(comPort.getContextPath()).thenReturn("test");
+        InboundComPortPool portPool = mock(InboundComPortPool.class);
+        InboundDeviceProtocolPluggableClass pluggableClass = mock(InboundDeviceProtocolPluggableClass.class);
+        TypedProperties typedProperties = TypedProperties.empty();
+        typedProperties.setProperty(EmbeddedJettyServer.MAX_IDLE_TIME, EmbeddedJettyServer.MAX_IDLE_TIME_DEFAULT_VALUE);
+        when(comPort.getComPortPool()).thenReturn(portPool);
         when(((InboundComPortPool) portPool).getDiscoveryProtocolPluggableClass()).thenReturn(pluggableClass);
         when(pluggableClass.getProperties(Mockito.any(List.class))).thenReturn(typedProperties);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(0);
@@ -258,7 +296,7 @@ public class ComPortListenerFactoryImplTest {
         InboundComPort comPort = mock(TCPBasedInboundComPort.class);
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
-        when(comPort.isServletBased()).thenReturn(false);
+        when(comPort.isCoapBased()).thenReturn(false);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(1);
         return comPort;
     }
@@ -272,6 +310,7 @@ public class ComPortListenerFactoryImplTest {
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.isServletBased()).thenReturn(false);
+        when(comPort.isCoapBased()).thenReturn(false);
         when(comPort.isUDPBased()).thenReturn(true);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(1);
         return comPort;
@@ -286,6 +325,7 @@ public class ComPortListenerFactoryImplTest {
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.isServletBased()).thenReturn(false);
+        when(comPort.isCoapBased()).thenReturn(false);
         when(comPort.isTCPBased()).thenReturn(true);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(1);
         return comPort;
@@ -300,6 +340,7 @@ public class ComPortListenerFactoryImplTest {
         when(comPort.getComServer()).thenReturn(comServer);
         when(comPort.isActive()).thenReturn(true);
         when(comPort.isServletBased()).thenReturn(false);
+        when(comPort.isCoapBased()).thenReturn(false);
         when(comPort.getNumberOfSimultaneousConnections()).thenReturn(10000);
         return comPort;
     }

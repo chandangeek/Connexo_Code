@@ -24,6 +24,7 @@ import com.energyict.mdc.common.tasks.LogBooksTask;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.common.tasks.RegistersTask;
+import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.common.tasks.TopologyTask;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -43,6 +44,7 @@ import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.Inboun
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedLogBookCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedMessageListCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedRegisterCommandImpl;
+import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedStatusInformationCommandImpl;
 import com.energyict.mdc.engine.impl.commands.store.deviceactions.inbound.InboundCollectedTopologyCommandImpl;
 import com.energyict.mdc.engine.impl.core.inbound.ComPortDiscoveryLogger;
 import com.energyict.mdc.engine.impl.core.inbound.InboundCommunicationHandler;
@@ -55,15 +57,24 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.protocol.api.services.IdentificationService;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
-import com.energyict.mdc.upl.meterdata.*;
+import com.energyict.mdc.upl.meterdata.CollectedData;
+import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
+import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
+import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
+import com.energyict.mdc.upl.meterdata.CollectedTopology;
+import com.energyict.mdc.upl.meterdata.LoadProfileType;
 import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.mdc.upl.offline.OfflineLoadProfile;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+
 import com.energyict.protocol.LoadProfileReader;
 
 import java.time.Clock;
 import java.time.Instant;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -196,6 +207,11 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                             addNewInboundComCommand(groupedDeviceCommand, comTaskExecution, inboundCollectedTopologyCommand);
                             protocolTasksToExecute.remove(protocolTask);
                             break;
+                        case STATUS_INFORMATION_COMMAND:
+                            InboundCollectedStatusInformationCommandImpl inboundCollectedStatusInformationCommandImpl = new InboundCollectedStatusInformationCommandImpl(groupedDeviceCommand, (StatusInformationTask) protocolTask, comTaskExecution, dataForThisProtocolTask);
+                            addNewInboundComCommand(groupedDeviceCommand, comTaskExecution, inboundCollectedStatusInformationCommandImpl);
+                            protocolTasksToExecute.remove(protocolTask);
+                            break;
                     }
                 }
 
@@ -285,6 +301,8 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
             return receivedMessageDataForProtocolTask(collectedData);
         } else if (protocolTask instanceof TopologyTask) {
             return receivedTopologyDataForProtocolTask(collectedData);
+        } else if (protocolTask instanceof StatusInformationTask) {
+            return receivedStatusInformationTaskForProtocolTask(collectedData);
         }
         return Collections.emptyList();
     }
@@ -360,9 +378,20 @@ public class InboundJobExecutionDataProcessor extends InboundJobExecutionGroup {
                 .collect(Collectors.toList());
     }
 
+    private List<ServerCollectedData> receivedStatusInformationTaskForProtocolTask(List<CollectedData> collectedData) {
+        return collectedData.stream()
+                .filter(CollectedFirmwareVersion.class::isInstance)
+                .filter(ServerCollectedData.class::isInstance)
+                .map(ServerCollectedData.class::cast)
+                .collect(Collectors.toList());
+    }
+
     private boolean requiredBackFillRead(LoadProfileCommand inboundCollectedLoadProfileReadCommand, List<ServerCollectedData> collectedData) {
-        Device device = inboundCollectedLoadProfileReadCommand.getCommandRoot().getServiceProvider().deviceService()
-                .findDeviceByIdentifier(offlineDevice.getDeviceIdentifier()).orElseThrow(() -> new NotFoundException("Could not resolve device identifier: '" + offlineDevice.getDeviceIdentifier().toString() + "'"));
+        Device device = inboundCollectedLoadProfileReadCommand.getCommandRoot()
+                .getServiceProvider()
+                .deviceService()
+                .findDeviceByIdentifier(offlineDevice.getDeviceIdentifier())
+                .orElseThrow(() -> new NotFoundException("Could not resolve device identifier: '" + offlineDevice.getDeviceIdentifier().toString() + "'"));
         Optional<Instant> installedDate = device.getLifecycleDates().getInstalledDate();
         if (!installedDate.isPresent()) {
             logger.log(Level.WARNING, "Installation date hasn't been set. Disabling backfill. Please activate the device first.");
