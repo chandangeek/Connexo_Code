@@ -29,7 +29,7 @@ public class OnlineComServerEqualsImplTest extends AbstractComServerEqualsContra
 
 
     private OnlineComServer newOnlineComServer(String name) {
-        final OnlineComServer onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        final OnlineComServer onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         onlineComServer.setName(name);
         return onlineComServer;
     }

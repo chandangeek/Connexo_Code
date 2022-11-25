@@ -14,6 +14,7 @@ import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
 import com.energyict.mdc.common.TranslatableApplicationException;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPort;
@@ -71,6 +72,7 @@ public abstract class ComServerImpl implements ComServer {
     private Provider<OutboundComPort> outboundComPortProvider;
 
     private Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
+    private Provider<CoapBasedInboundComPort> coapBasedInboundComPortProvider;
     private Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
     private Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
     private Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider;
@@ -138,11 +140,12 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Inject
-    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
+    protected ComServerImpl(DataModel dataModel, Provider<OutboundComPort> outboundComPortProvider, Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider, Provider<CoapBasedInboundComPort> coapBasedInboundComPortProvider, Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider, Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider, Provider<UDPBasedInboundComPort> udpBasedInboundComPortProvider, Thesaurus thesaurus) {
         super();
         this.dataModel = dataModel;
         this.outboundComPortProvider = outboundComPortProvider;
         this.servletBasedInboundComPortProvider = servletBasedInboundComPortProvider;
+        this.coapBasedInboundComPortProvider = coapBasedInboundComPortProvider;
         this.modemBasedInboundComPortProvider = modemBasedInboundComPortProvider;
         this.tcpBasedInboundComPortProvider = tcpBasedInboundComPortProvider;
         this.udpBasedInboundComPortProvider = udpBasedInboundComPortProvider;
@@ -249,16 +252,38 @@ public abstract class ComServerImpl implements ComServer {
     }
 
     @Override
+    public CoapBasedInboundComPort.CoapBasedInboundComPortBuilder newCoapBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
+        return new CoapBasedComPortBuilder(name, contextPath, numberOfSimultaneousConnections, portNumber);
+    }
+
+    @Override
     public ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
         return new ServletBasedComPortBuilder(name, contextPath, numberOfSimultaneousConnections, portNumber);
     }
 
+    public class CoapBasedComPortBuilder extends CoapBasedInboundComPortImpl.CoapBasedInboundComPortBuilderImpl
+            implements CoapBasedInboundComPort.CoapBasedInboundComPortBuilder {
+
+        protected CoapBasedComPortBuilder(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
+            super(coapBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections, portNumber);
+            ((ComPortImpl) comPort).setComServer(ComServerImpl.this);
+            comPort.setContextPath(contextPath);
+        }
+
+        @Override
+        public CoapBasedInboundComPort add() {
+            CoapBasedInboundComPort comPort = super.add();
+            ComServerImpl.this.comPorts.add(comPort);
+            return comPort;
+        }
+    }
+
     public class ServletBasedComPortBuilder extends ServletBasedInboundComPortImpl.ServletBasedInboundComPortBuilderImpl
-        implements ServletBasedInboundComPort.ServletBasedInboundComPortBuilder {
+            implements ServletBasedInboundComPort.ServletBasedInboundComPortBuilder {
 
         protected ServletBasedComPortBuilder(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber) {
             super(servletBasedInboundComPortProvider.get(), name, numberOfSimultaneousConnections, portNumber);
-            ((ComPortImpl)comPort).setComServer(ComServerImpl.this);
+            ((ComPortImpl) comPort).setComServer(ComServerImpl.this);
             comPort.setContextPath(contextPath);
         }
 

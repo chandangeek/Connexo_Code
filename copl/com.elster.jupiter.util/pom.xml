@@ -52,6 +52,10 @@
             <artifactId>jackson-datatype-guava</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-cbor</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>jupiter-oracle</artifactId>
         </dependency>

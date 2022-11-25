@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.events.registration;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
 import com.energyict.mdc.common.comserver.OfflineComServer;
@@ -51,6 +52,8 @@ public class EventRegistrationRequestInitiatorImplTest {
     @Mock
     Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
     @Mock
+    Provider<CoapBasedInboundComPort> coapBasedInboundComPortProvider;
+    @Mock
     Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
     @Mock
     Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
@@ -95,7 +98,7 @@ public class EventRegistrationRequestInitiatorImplTest {
     }
 
     private OfflineComServer createOfflineComServer() {
-        return new OfflineComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        return new OfflineComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
     }
 
     @Test
@@ -137,7 +140,7 @@ public class EventRegistrationRequestInitiatorImplTest {
     }
 
     private OnlineComServer createOnlineComServer(int eventRegistrationPort) {
-        final OnlineComServerImpl onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        final OnlineComServerImpl onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         onlineComServer.setServerName("onlineComServerServerName");
         onlineComServer.setEventRegistrationPort(eventRegistrationPort);
         onlineComServer.setStatusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
@@ -184,7 +187,7 @@ public class EventRegistrationRequestInitiatorImplTest {
     }
 
     private RemoteComServer createRemoteComServerWithRegistrationPort(int eventRegistrationPort) {
-        final RemoteComServerImpl remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        final RemoteComServerImpl remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         remoteComServer.setServerName("remoteComServerServerName");
         remoteComServer.setEventRegistrationPort(eventRegistrationPort);
         remoteComServer.setStatusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);

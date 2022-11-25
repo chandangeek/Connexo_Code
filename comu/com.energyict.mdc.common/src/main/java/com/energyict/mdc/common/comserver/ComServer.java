@@ -295,12 +295,18 @@ public interface ComServer extends HasId, HasName {
     void setActive(boolean active);
 
     OutboundComPort.OutboundComPortBuilder newOutboundComPort(String name, int numberOfSimultaneousConnections);
+
+    CoapBasedInboundComPort.CoapBasedInboundComPortBuilder newCoapBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber);
+
     ServletBasedInboundComPort.ServletBasedInboundComPortBuilder newServletBasedInboundComPort(String name, String contextPath, int numberOfSimultaneousConnections, int portNumber);
+
     ModemBasedInboundComPort.ModemBasedInboundComPortBuilder newModemBasedInboundComport(
             String name, int ringCount, int maximumDialErrors,
             TimeDuration connectTimeout, TimeDuration atCommandTimeout,
             SerialPortConfiguration serialPortConfiguration);
+
     TCPBasedInboundComPort.TCPBasedInboundComPortBuilder newTCPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber);
+
     UDPBasedInboundComPort.UDPBasedInboundComPortBuilder newUDPBasedInboundComPort(String name, int numberOfSimultaneousConnections, int portNumber);
 
     void removeComPort(long id);

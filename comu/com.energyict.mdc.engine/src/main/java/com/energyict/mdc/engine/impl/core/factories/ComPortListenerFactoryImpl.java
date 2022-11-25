@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.core.factories;
 
 import com.energyict.mdc.common.comserver.InboundComPort;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommandExecutor;
+import com.energyict.mdc.engine.impl.core.CoapInboundComPortListener;
 import com.energyict.mdc.engine.impl.core.ComChannelBasedComPortListenerImpl;
 import com.energyict.mdc.engine.impl.core.ComPortListener;
 import com.energyict.mdc.engine.impl.core.ComServerDAO;
@@ -35,13 +36,16 @@ public class ComPortListenerFactoryImpl implements ComPortListenerFactory {
 
     @Override
     public ComPortListener newFor(RunningComServer runningComServer, InboundComPort comPort) {
+        if (comPort.isActive() && comPort.isCoapBased()) {
+            return new CoapInboundComPortListener(runningComServer, comPort, this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
+        }
         if (comPort.isActive() && comPort.isServletBased()) {
             return new ServletInboundComPortListener(runningComServer, comPort, this.comServerDAO, this.deviceCommandExecutor, this.serviceProvider);
         }
-        if (comPort.isActive() && comPort.getNumberOfSimultaneousConnections()==1 && !comPort.isUDPBased()) {
+        if (comPort.isActive() && comPort.getNumberOfSimultaneousConnections() == 1 && !comPort.isUDPBased()) {
             return new SingleThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
         }
-        if (comPort.isActive() && comPort.getNumberOfSimultaneousConnections()>0) {
+        if (comPort.isActive() && comPort.getNumberOfSimultaneousConnections() > 0) {
             return new MultiThreadedComPortListener(runningComServer, comPort, this.deviceCommandExecutor, this.serviceProvider);
         }
         return null;

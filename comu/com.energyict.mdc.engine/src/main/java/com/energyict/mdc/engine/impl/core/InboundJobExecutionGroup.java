@@ -47,7 +47,11 @@ public class InboundJobExecutionGroup extends JobExecution {
 
     @Override
     public boolean isConnected() {
-        return isBinaryConnected() || isServletConnected();
+        return isBinaryConnected() || isCoapConnected() || isServletConnected();
+    }
+
+    private boolean isCoapConnected() {
+        return this.inboundDiscoveryContext.getCoapBasedExchange() != null;
     }
 
     private boolean isServletConnected() {

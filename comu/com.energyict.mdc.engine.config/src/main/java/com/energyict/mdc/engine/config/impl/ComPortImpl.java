@@ -53,16 +53,18 @@ public abstract class ComPortImpl implements ComPort {
     protected static final String MODEM_DISCRIMINATOR = "1";
     protected static final String TCP_DISCRIMINATOR = "2";
     protected static final String SERVLET_DISCRIMINATOR = "4";
+    protected static final String COAP_DISCRIMINATOR = "5";
     protected static final String UDP_DISCRIMINATOR = "3";
     protected static final String OUTBOUND_DISCRIMINATOR = "0";
 
     static final Map<String, Class<? extends ComPort>> IMPLEMENTERS =
-            ImmutableMap.<String, Class<? extends ComPort>>of(
-                    MODEM_DISCRIMINATOR, ModemBasedInboundComPortImpl.class,
-                    TCP_DISCRIMINATOR, TCPBasedInboundComPortImpl.class,
-                    SERVLET_DISCRIMINATOR, ServletBasedInboundComPortImpl.class,
-                    UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class,
-                    OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class);
+            ImmutableMap.<String, Class<? extends ComPort>>builder()
+                    .put(MODEM_DISCRIMINATOR, ModemBasedInboundComPortImpl.class)
+                    .put(TCP_DISCRIMINATOR, TCPBasedInboundComPortImpl.class)
+                    .put(COAP_DISCRIMINATOR, CoapBasedInboundComPortImpl.class)
+                    .put(SERVLET_DISCRIMINATOR, ServletBasedInboundComPortImpl.class)
+                    .put(UDP_DISCRIMINATOR, UDPBasedInboundComPortImpl.class)
+                    .put(OUTBOUND_DISCRIMINATOR, OutboundComPortImpl.class).build();
     private DataModel dataModel;
     protected Thesaurus thesaurus;
 

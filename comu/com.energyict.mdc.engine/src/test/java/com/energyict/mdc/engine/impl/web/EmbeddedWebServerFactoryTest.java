@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.web;
 
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.ModemBasedInboundComPort;
 import com.energyict.mdc.common.comserver.OfflineComServer;
@@ -19,7 +20,6 @@ import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.engine.config.impl.OfflineComServerImpl;
 import com.energyict.mdc.engine.config.impl.OnlineComServerImpl;
 import com.energyict.mdc.engine.config.impl.RemoteComServerImpl;
-import com.energyict.mdc.engine.impl.core.ComServerDAO;
 import com.energyict.mdc.engine.impl.core.RunningComServer;
 import com.energyict.mdc.engine.impl.core.RunningComServerImpl;
 import com.energyict.mdc.engine.impl.core.RunningOnlineComServer;
@@ -27,11 +27,9 @@ import com.energyict.mdc.engine.impl.monitor.ComServerMonitorImplMBean;
 import com.energyict.mdc.engine.impl.monitor.ManagementBeanFactory;
 import com.energyict.mdc.engine.impl.monitor.ServerEventAPIStatistics;
 import com.energyict.mdc.engine.impl.web.events.WebSocketEventPublisherFactory;
-import com.energyict.mdc.engine.monitor.EventAPIStatistics;
-import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
-
 import com.energyict.mdc.engine.monitor.ComServerMonitor;
 import com.energyict.mdc.engine.monitor.QueryAPIStatistics;
+
 import com.google.inject.Provider;
 
 import org.junit.Before;
@@ -77,6 +75,8 @@ public class EmbeddedWebServerFactoryTest {
     @Mock
     Provider<ServletBasedInboundComPort> servletBasedInboundComPortProvider;
     @Mock
+    Provider<CoapBasedInboundComPort> coapBasedInboundComPortProvider;
+    @Mock
     Provider<ModemBasedInboundComPort> modemBasedInboundComPortProvider;
     @Mock
     Provider<TCPBasedInboundComPort> tcpBasedInboundComPortProvider;
@@ -107,7 +107,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     private OfflineComServer createOfflineComServer() {
-        return new OfflineComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        return new OfflineComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
     }
 
     @Test
@@ -127,7 +127,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     private OnlineComServer createOnlineComServer(int eventRegistrationPort) {
-        final OnlineComServerImpl onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        final OnlineComServerImpl onlineComServer = new OnlineComServerImpl(dataModel, engineConfigurationService, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         onlineComServer.setName("onlineComServerServerName");
         onlineComServer.setServerName("onlineComServerServerName");
         onlineComServer.setEventRegistrationPort(eventRegistrationPort);
@@ -152,7 +152,7 @@ public class EmbeddedWebServerFactoryTest {
     }
 
     private RemoteComServer createRemoteComServerWithRegistrationPort(int eventRegistrationPort) {
-        final RemoteComServerImpl remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
+        final RemoteComServerImpl remoteComServer = new RemoteComServerImpl(dataModel, outboundComPortProvider, servletBasedInboundComPortProvider, coapBasedInboundComPortProvider, modemBasedInboundComPortProvider, tcpBasedInboundComPortProvider, udpBasedInboundComPortProvider, thesaurus);
         remoteComServer.setServerName("RemoteServerName");
         remoteComServer.setStatusPort(ComServer.DEFAULT_STATUS_PORT_NUMBER);
         remoteComServer.setEventRegistrationPort(eventRegistrationPort);

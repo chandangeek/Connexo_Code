@@ -31,10 +31,11 @@ import java.util.Optional;
         @JsonSubTypes.Type(value = TcpInboundComPortInfo.class, name = "inbound_TCP"),
         @JsonSubTypes.Type(value = UdpInboundComPortInfo.class, name = "inbound_UDP"),
         @JsonSubTypes.Type(value = ModemInboundComPortInfo.class, name = "inbound_SERIAL"),
+        @JsonSubTypes.Type(value = CoapInboundComPortInfo.class, name = "inbound_COAP"),
         @JsonSubTypes.Type(value = ServletInboundComPortInfo.class, name = "inbound_SERVLET"),
         @JsonSubTypes.Type(value = TcpOutboundComPortInfo.class, name = "outbound_TCP"),
         @JsonSubTypes.Type(value = UdpOutboundComPortInfo.class, name = "outbound_UDP"),
-        @JsonSubTypes.Type(value = ModemOutboundComPortInfo.class, name = "outbound_SERIAL") })
+        @JsonSubTypes.Type(value = ModemOutboundComPortInfo.class, name = "outbound_SERIAL")})
 @JsonIgnoreProperties(ignoreUnknown = true) // support for FE delete request (which uses common port model with all fields)
 public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B,T>> {
 
@@ -69,6 +70,8 @@ public abstract class ComPortInfo<T extends ComPort, B extends ComPort.Builder<B
     public ParitiesInfo parity;
     public Integer portNumber;
     public Integer bufferSize;
+    public Boolean useDtls;
+    public Boolean useSharedKeys;
     public Boolean useHttps;
     public String keyStoreFilePath;
     public String trustStoreFilePath;
