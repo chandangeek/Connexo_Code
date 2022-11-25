@@ -166,7 +166,14 @@ class TransactionWrappedFileImportOccurenceImpl implements FileImportOccurrence 
 
         private void flushRecords() {
             synchronized (this) {
-                logRecords.forEach(recordToLog -> fileImportOccurrence.log(recordToLog.getLevel(), Instant.ofEpochMilli(recordToLog.getMillis()), recordToLog.getMessage()));
+                logRecords.forEach(recordToLog -> {
+                    Throwable thrown = recordToLog.getThrown();
+                    if (thrown == null) {
+                        fileImportOccurrence.log(recordToLog.getLevel(), Instant.ofEpochMilli(recordToLog.getMillis()), recordToLog.getMessage());
+                    } else {
+                        fileImportOccurrence.log(Instant.ofEpochMilli(recordToLog.getMillis()), recordToLog.getMessage(), thrown);
+                    }
+                });
                 initLogRecords();
             }
         }

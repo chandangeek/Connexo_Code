@@ -1,9 +1,11 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.issue.impl.module;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.impl.actions.AssignIssueAction;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.MailIssueAction;
@@ -11,6 +13,7 @@ import com.elster.jupiter.issue.impl.actions.ProcessAction;
 import com.elster.jupiter.issue.impl.actions.WebServiceNotificationAction;
 import com.elster.jupiter.issue.impl.database.CreateIssueViewOperation;
 import com.elster.jupiter.issue.impl.database.PrivilegesProviderV10_7;
+import com.elster.jupiter.issue.impl.event.EventType;
 import com.elster.jupiter.issue.impl.service.IssueDefaultActionsFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
@@ -39,6 +42,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
+import static com.elster.jupiter.issue.impl.module.TranslationKeys.AQ_BULK_ISSUE_CLOSE_EVENT_SUBSC;
+
 public class Installer implements FullInstaller, PrivilegesProvider {
 
     private static final String ISSUE_OVERDUE_TASK_NAME = "IssueOverdueTask";
@@ -58,16 +63,18 @@ public class Installer implements FullInstaller, PrivilegesProvider {
     private final EndPointConfigurationService endPointConfigurationService;
     private final PrivilegesProviderV10_7 privilegesProviderV10_7;
 
+    private final EventService eventService;
 
     @Inject
     public Installer(DataModel dataModel, IssueService issueService, MessageService messageService, TaskService taskService, UserService userService, EndPointConfigurationService endPointConfigurationService,
-                     PrivilegesProviderV10_7 privilegesProviderV10_7) {
+                     PrivilegesProviderV10_7 privilegesProviderV10_7, EventService eventService) {
         this.dataModel = dataModel;
         this.issueService = issueService;
         this.userService = userService;
         this.issueActionService = issueService.getIssueActionService();
         this.messageService = messageService;
         this.taskService = taskService;
+        this.eventService = eventService;
         this.endPointConfigurationService = endPointConfigurationService;
         this.privilegesProviderV10_7 = privilegesProviderV10_7;
     }
@@ -100,6 +107,16 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         doTry(
                 "action types",
                 this::createActionTypes,
+                logger
+        );
+        doTry(
+                "creating event type",
+                this::createEventTypes,
+                logger
+        );
+        doTry(
+                "jupiter event subscibers",
+                this::addJupiterEventSubscribers,
                 logger
         );
         userService.addModulePrivileges(this);
@@ -185,4 +202,26 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         issueActionService.createActionType(IssueDefaultActionsFactory.ID, MailIssueAction.class.getName(), type);
     }
 
+    private void addJupiterEventSubscribers() {
+        this.messageService.getDestinationSpec(EventService.JUPITER_EVENTS)
+                .ifPresent(jupiterEvents -> {
+                    boolean subscriberExists = jupiterEvents.getSubscribers()
+                            .stream()
+                            .anyMatch(s -> s.getName().equals(AQ_BULK_ISSUE_CLOSE_EVENT_SUBSC.getKey()));
+
+                    if (!subscriberExists) {
+                        jupiterEvents.subscribe(AQ_BULK_ISSUE_CLOSE_EVENT_SUBSC,
+                                IssueService.COMPONENT_NAME,
+                                Layer.DOMAIN,
+                                DestinationSpec.whereCorrelationId().isEqualTo("com/elster/jupiter/issues/BULK_CLOSE")
+                        );
+                    }
+                });
+    }
+
+    private void createEventTypes() {
+        for (EventType eventType : EventType.values()) {
+            eventType.install(eventService);
+        }
+    }
 }

@@ -418,7 +418,7 @@ public class MeteringCommands {
         }
     }
 
-    public void addDeviceEvent(long meterId, String mRID, final String dateTime) {
+    public void addDeviceEvent(long meterId, String mRID, final String dateTime, long logBookId) {
         final Optional<Meter> endDevice = meteringService.findMeterById(meterId);
         if (endDevice.isPresent()) {
             final Meter meter = endDevice.get();
@@ -428,7 +428,7 @@ public class MeteringCommands {
                     @Override
                     protected void doPerform() {
                         try {
-                            meter.addEventRecord(type.get(), LocalDateTime.from(dateTimeFormat.parse(dateTime)).atZone(ZoneId.systemDefault()).toInstant()).create();
+                            meter.addEventRecord(type.get(), LocalDateTime.from(dateTimeFormat.parse(dateTime)).atZone(ZoneId.systemDefault()).toInstant(), logBookId).create();
                         } catch (RuntimeException e) {
                             e.printStackTrace();
                         }

@@ -2,13 +2,14 @@
 <!--
   ~ Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>kore</artifactId>
-        <version>15.0.0-Kratos-SNAPSHOT</version>
+        <version>17.0.0-Kratos-SNAPSHOT</version>
 
     </parent>
     <artifactId>issue.rest</artifactId>
@@ -96,6 +97,10 @@
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>
+            <artifactId>events</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
             <artifactId>metering</artifactId>
         </dependency>
         <dependency>
@@ -103,8 +108,8 @@
             <artifactId>metering.groups</artifactId>
         </dependency>
         <dependency>
-        	<groupId>com.elster.jupiter</groupId>
-    		<artifactId>search</artifactId>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search</artifactId>
         </dependency>
         <dependency>
             <groupId>org.glassfish.jersey.test-framework.providers</groupId>

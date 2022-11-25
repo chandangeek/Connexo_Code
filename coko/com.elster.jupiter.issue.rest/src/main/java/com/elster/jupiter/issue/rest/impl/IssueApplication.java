@@ -1,12 +1,28 @@
 /*
- * Copyright (c) 2019 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.issue.rest.impl;
 
+import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.rest.MessageSeeds;
 import com.elster.jupiter.issue.rest.TranslationKeys;
-import com.elster.jupiter.issue.rest.impl.resource.*;
+import com.elster.jupiter.issue.rest.impl.resource.ActionResource;
+import com.elster.jupiter.issue.rest.impl.resource.AssigneeResource;
+import com.elster.jupiter.issue.rest.impl.resource.CreationRuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.DeviceGroupResource;
+import com.elster.jupiter.issue.rest.impl.resource.HistoryResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssuePriorityResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssueResource;
+import com.elster.jupiter.issue.rest.impl.resource.IssueTypeResource;
+import com.elster.jupiter.issue.rest.impl.resource.LocationResource;
+import com.elster.jupiter.issue.rest.impl.resource.MeterResource;
+import com.elster.jupiter.issue.rest.impl.resource.ReasonResource;
+import com.elster.jupiter.issue.rest.impl.resource.RuleResource;
+import com.elster.jupiter.issue.rest.impl.resource.StatusResource;
+import com.elster.jupiter.issue.rest.impl.resource.TopIssuesResource;
+import com.elster.jupiter.issue.rest.impl.resource.WorkGroupsResource;
 import com.elster.jupiter.issue.rest.resource.IssueResourceHelper;
 import com.elster.jupiter.issue.rest.response.IssueActionInfoFactory;
 import com.elster.jupiter.issue.rest.response.IssueInfoFactory;
@@ -23,7 +39,6 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import com.elster.jupiter.metering.LocationService;
 import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
-import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
@@ -34,6 +49,7 @@ import com.elster.jupiter.properties.rest.PropertyValueInfoService;
 import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.RestQueryService;
+import com.elster.jupiter.search.location.SearchLocationService;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -52,10 +68,10 @@ import java.util.List;
 import java.util.Set;
 
 @Component(name = "com.elster.jupiter.issue.rest",
-           service = { Application.class, TranslationKeyProvider.class, MessageSeedProvider.class },
-           immediate = true, property = { "alias=/isu", "app=SYS", "name=" + IssueApplication.ISSUE_REST_COMPONENT })
+        service = {Application.class, TranslationKeyProvider.class, MessageSeedProvider.class},
+        immediate = true,
+        property = {"alias=/isu", "app=SYS", "name=" + IssueApplication.ISSUE_REST_COMPONENT})
 public class IssueApplication extends Application implements TranslationKeyProvider, MessageSeedProvider {
-
     public static final String ISSUE_REST_COMPONENT = "ISR";
 
     private volatile TransactionService transactionService;
@@ -74,24 +90,25 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     private volatile IssueInfoFactoryService issueInfoFactoryService;
     private volatile PropertyValueInfoService propertyValueInfoService;
     private volatile Clock clock;
+    private volatile EventService eventService;
     private volatile IssueResourceUtility issueResourceUtility;
 
     @Override
     public Set<Class<?>> getClasses() {
-        return ImmutableSet.<Class<?>> of(
-                    AssigneeResource.class,
-                    RuleResource.class,
-                    ReasonResource.class,
-                    StatusResource.class,
-                    CreationRuleResource.class,
-                    MeterResource.class,
-                    LocationResource.class,
-                    DeviceGroupResource.class,
-                    IssueTypeResource.class,
-                    ActionResource.class,
-                    WorkGroupsResource.class,
-                    TopIssuesResource.class,
-                    IssuePriorityResource.class,
+        return ImmutableSet.of(
+                AssigneeResource.class,
+                RuleResource.class,
+                ReasonResource.class,
+                StatusResource.class,
+                CreationRuleResource.class,
+                MeterResource.class,
+                LocationResource.class,
+                DeviceGroupResource.class,
+                IssueTypeResource.class,
+                ActionResource.class,
+                WorkGroupsResource.class,
+                TopIssuesResource.class,
+                IssuePriorityResource.class,
                 IssueResource.class,
                 HistoryResource.class);
     }
@@ -110,7 +127,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     }
 
     @Reference
-    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility){
+    public void setIssueResourceUtility(IssueResourceUtility issueResourceUtility) {
         this.issueResourceUtility = issueResourceUtility;
     }
 
@@ -167,10 +184,15 @@ public class IssueApplication extends Application implements TranslationKeyProvi
     public void setPropertyValueInfoService(PropertyValueInfoService propertyValueInfoService) {
         this.propertyValueInfoService = propertyValueInfoService;
     }
-    
+
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
+    }
+
+    @Reference
+    public void setEventService(EventService eventService) {
+        this.eventService = eventService;
     }
 
     @Override
@@ -222,6 +244,7 @@ public class IssueApplication extends Application implements TranslationKeyProvi
             bind(issueInfoFactoryService).to(IssueInfoFactoryService.class);
             bind(clock).to(Clock.class);
             bind(issueResourceUtility).to(IssueResourceUtility.class);
+            bind(eventService).to(EventService.class);
         }
     }
 

@@ -1,13 +1,6 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD.messaging;
 
 
-import com.energyict.dialer.connection.ConnectionException;
-import com.energyict.dlms.DLMSConnectionException;
-import com.energyict.dlms.axrdencoding.OctetString;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.cosem.Clock;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.io.NestedIOException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
@@ -17,6 +10,14 @@ import com.energyict.mdc.upl.messages.legacy.MessageEntry;
 import com.energyict.mdc.upl.messages.legacy.MessageSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValueSpec;
+
+import com.energyict.dialer.connection.ConnectionException;
+import com.energyict.dlms.DLMSConnectionException;
+import com.energyict.dlms.axrdencoding.OctetString;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.cosem.Clock;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
@@ -118,21 +119,21 @@ public class ZMDMessages extends ProtocolMessages {
                 setDSTTime(messageEntry, false);
                 infoLog("EndOfDST message successful");
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
+            } else if (isItThisMessage(messageEntry, RtuMessageConstant.TOU_ACTIVITY_CAL)) {
                 return writeActivityCalendar(messageEntry);
-            } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_SPECIAL_DAYS)) {
+            } else if (isItThisMessage(messageEntry, RtuMessageConstant.TOU_SPECIAL_DAYS)) {
                 return writeSpecialDays(messageEntry);
-            } else if (messageEntry.getContent().contains(SET_DISPLAY_MESSAGE)) {
+            } else if (isItThisMessage(messageEntry, SET_DISPLAY_MESSAGE)) {
                 doWriteMessageToDisplay(getContentBetweenTags(messageEntry.getContent()));
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().contains(RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
+            } else if (isItThisMessage(messageEntry, RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
                 return write12LinesInActivityCalendar(messageEntry);
-            } else if (messageEntry.getContent().contains(VoltageRatioNumeratorAttributeName)) {
+            } else if (isItThisMessage(messageEntry, VoltageRatioNumeratorAttributeName)) {
                 infoLog("Sending " + WRITE_VOLTAGE_NUMERATOR_DISPLAY + " message.");
                 writeVoltageNumerator(getContentBetweenTags(messageEntry.getContent()));
                 infoLog(WRITE_VOLTAGE_NUMERATOR_DISPLAY + " message successful");
                 return MessageResult.createSuccess(messageEntry);
-            } else if (messageEntry.getContent().contains(CurrentRatioNumeratorAttributeName)) {
+            } else if (isItThisMessage(messageEntry, CurrentRatioNumeratorAttributeName)) {
                 infoLog("Sending " + WRITE_CURRENT_NUMERATOR_DISPLAY + " message.");
                 writeCurrentNumerator(getContentBetweenTags(messageEntry.getContent()));
                 infoLog(WRITE_CURRENT_NUMERATOR_DISPLAY + " message successful");

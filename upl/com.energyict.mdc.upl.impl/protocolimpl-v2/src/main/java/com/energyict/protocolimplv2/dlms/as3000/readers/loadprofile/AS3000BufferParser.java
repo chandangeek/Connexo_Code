@@ -67,8 +67,8 @@ public class AS3000BufferParser implements BufferParser {
             }
 
         } catch (ClassCastException e) {
-            String ex = e.getMessage() + "; /n" +
-                    Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; /n"));
+            String ex = e.getMessage() + "; \n" +
+                    Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.joining("; \n"));
             protocol.journal(Level.SEVERE, ex);
             // Not doing anything while likely this is a missing reading interval (meter not powered up)
             //throw new ProtocolException("Could not parse buffer, expecting different type on channels (0/timestamp or 1/status where we expect OctetString(timestamp in hex) and Integer(status) :" + e.getMessage());

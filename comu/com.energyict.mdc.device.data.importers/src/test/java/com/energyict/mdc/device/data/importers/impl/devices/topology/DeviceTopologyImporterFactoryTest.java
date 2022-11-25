@@ -22,7 +22,6 @@ import com.energyict.mdc.device.data.importers.impl.TranslationKeys;
 import com.energyict.mdc.device.topology.TopologyService;
 
 import java.io.ByteArrayInputStream;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -67,11 +66,10 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DeviceTopologyImporterFactoryTest {
-    private Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    private final Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private DeviceDataImporterContext context;
     @Mock
     private PropertySpecService propertySpecService;
@@ -86,8 +84,6 @@ public class DeviceTopologyImporterFactoryTest {
     @Mock
     private OrmService ormService;
     @Mock
-    private Connection connection;
-    @Mock
     private DataModel dataModel;
 
     @Before
@@ -101,7 +97,6 @@ public class DeviceTopologyImporterFactoryTest {
         when(ormService.getDataModels()).thenReturn(Collections.singletonList(dataModel));
         context.setOrmService(ormService);
         when(context.getThesaurus()).thenReturn(NlsModule.FakeThesaurus.INSTANCE);
-        when(context.getConnection()).thenReturn(connection);
     }
 
     private FileImportOccurrence mockFileImportOccurrence(String csv) {
@@ -290,8 +285,8 @@ public class DeviceTopologyImporterFactoryTest {
         Device slaveDevice = mock(Device.class);
         DeviceConfiguration slaveDeviceConfiguration = mock(DeviceConfiguration.class);
         when(slaveDeviceConfiguration.isDirectlyAddressable()).thenReturn(false);
-        List<Device> masterDeviceList = Arrays.asList(masterDevice);
-        List<Device> slaveDeviceList = Arrays.asList(slaveDevice);
+        List<Device> masterDeviceList = Collections.singletonList(masterDevice);
+        List<Device> slaveDeviceList = Collections.singletonList(slaveDevice);
         when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(masterDeviceList);
         when(deviceService.findDevicesBySerialNumber("SPG01000004")).thenReturn(slaveDeviceList);
         when(masterDevice.getSerialNumber()).thenReturn("SPE01000003");
@@ -316,8 +311,8 @@ public class DeviceTopologyImporterFactoryTest {
         FileImporter importer = createDeviceTopologyImporter(DEVICE_IDENTIFIER_SERIAL, false);
         Device masterDevice = mock(Device.class);
         Device slaveDevice = mock(Device.class);
-        List<Device> masterDeviceList = Arrays.asList(masterDevice);
-        List<Device> slaveDeviceList = Arrays.asList(slaveDevice);
+        List<Device> masterDeviceList = Collections.singletonList(masterDevice);
+        List<Device> slaveDeviceList = Collections.singletonList(slaveDevice);
         when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(masterDeviceList);
         when(deviceService.findDevicesBySerialNumber("SPG01000004")).thenReturn(slaveDeviceList);
         when(masterDevice.getSerialNumber()).thenReturn("SPE01000003");
@@ -343,7 +338,7 @@ public class DeviceTopologyImporterFactoryTest {
         DeviceConfiguration slaveDeviceConfiguration = mock(DeviceConfiguration.class);
         Optional<Device> deviceOptional = Optional.of(masterDevice);
         when(slaveDeviceConfiguration.isDirectlyAddressable()).thenReturn(false);
-        List<Device> slaveDeviceList = Arrays.asList(slaveDevice);
+        List<Device> slaveDeviceList = Collections.singletonList(slaveDevice);
         when(deviceService.findDevicesBySerialNumber("SPG01000004")).thenReturn(slaveDeviceList);
         when(slaveDevice.getSerialNumber()).thenReturn("SPG01000004");
         when(slaveDevice.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration);
@@ -365,7 +360,7 @@ public class DeviceTopologyImporterFactoryTest {
         Device slaveDevice = mock(Device.class);
         DeviceConfiguration slaveDeviceConfiguration = mock(DeviceConfiguration.class);
         when(slaveDeviceConfiguration.isDirectlyAddressable()).thenReturn(false);
-        List<Device> slaveDeviceList = Arrays.asList(slaveDevice);
+        List<Device> slaveDeviceList = Collections.singletonList(slaveDevice);
         when(deviceService.findDevicesBySerialNumber("SPG01000004")).thenReturn(slaveDeviceList);
         when(slaveDevice.getSerialNumber()).thenReturn("SPG01000004");
         when(slaveDevice.getDeviceConfiguration()).thenReturn(slaveDeviceConfiguration);
@@ -389,7 +384,7 @@ public class DeviceTopologyImporterFactoryTest {
         Device slaveDevice2 = mock(Device.class);
         DeviceConfiguration slaveDeviceConfiguration = mock(DeviceConfiguration.class);
         when(slaveDeviceConfiguration.isDirectlyAddressable()).thenReturn(false);
-        List<Device> masterDeviceList = Arrays.asList(masterDevice);
+        List<Device> masterDeviceList = Collections.singletonList(masterDevice);
         when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(masterDeviceList);
         when(masterDevice.getSerialNumber()).thenReturn("SPE01000003");
         when(slaveDevice1.getSerialNumber()).thenReturn("SPG01000004");
@@ -423,8 +418,8 @@ public class DeviceTopologyImporterFactoryTest {
         Device slaveDevice = mock(Device.class);
         DeviceConfiguration slaveDeviceConfiguration = mock(DeviceConfiguration.class);
         when(slaveDeviceConfiguration.isDirectlyAddressable()).thenReturn(false);
-        List<Device> masterDeviceList1 = Arrays.asList(masterDevice1);
-        List<Device> slaveDeviceList = Arrays.asList(slaveDevice);
+        List<Device> masterDeviceList1 = Collections.singletonList(masterDevice1);
+        List<Device> slaveDeviceList = Collections.singletonList(slaveDevice);
         when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(masterDeviceList1);
         when(deviceService.findDevicesBySerialNumber("SPG01000004")).thenReturn(slaveDeviceList);
         when(masterDevice1.getSerialNumber()).thenReturn("SPE01000003");
@@ -455,9 +450,9 @@ public class DeviceTopologyImporterFactoryTest {
         Device slaveDevice2 = mock(Device.class);
         DeviceConfiguration slaveDeviceConfiguration = mock(DeviceConfiguration.class);
         when(slaveDeviceConfiguration.isDirectlyAddressable()).thenReturn(false);
-        List<Device> masterDeviceList = Arrays.asList(masterDevice1);
-        List<Device> slaveDeviceList1 = Arrays.asList(slaveDevice1);
-        List<Device> slaveDeviceList2 = Arrays.asList(slaveDevice2);
+        List<Device> masterDeviceList = Collections.singletonList(masterDevice1);
+        List<Device> slaveDeviceList1 = Collections.singletonList(slaveDevice1);
+        List<Device> slaveDeviceList2 = Collections.singletonList(slaveDevice2);
         when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(masterDeviceList);
         when(deviceService.findDevicesBySerialNumber("SPG01000004")).thenReturn(slaveDeviceList1);
         when(deviceService.findDevicesBySerialNumber("SPW01000004")).thenReturn(slaveDeviceList2);
@@ -611,7 +606,7 @@ public class DeviceTopologyImporterFactoryTest {
                 "SPE01000003;SPE01000004";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceTopologyImporter(DEVICE_IDENTIFIER_SERIAL, false);
-        when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(Collections.EMPTY_LIST);
+        when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(Collections.emptyList());
 
         importer.process(importOccurrence);
 
@@ -625,8 +620,8 @@ public class DeviceTopologyImporterFactoryTest {
                 "SPE01000003;SPE01000004";
         FileImportOccurrence importOccurrence = mockFileImportOccurrence(csv);
         FileImporter importer = createDeviceTopologyImporter(DEVICE_IDENTIFIER_SERIAL, false);
-        when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(Arrays.asList(mock(Device.class)));
-        when(deviceService.findDevicesBySerialNumber("SPE01000004")).thenReturn(Collections.EMPTY_LIST);
+        when(deviceService.findDevicesBySerialNumber("SPE01000003")).thenReturn(Collections.singletonList(mock(Device.class)));
+        when(deviceService.findDevicesBySerialNumber("SPE01000004")).thenReturn(Collections.emptyList());
 
         importer.process(importOccurrence);
 

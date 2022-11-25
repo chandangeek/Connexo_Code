@@ -11,28 +11,30 @@ import org.osgi.service.component.annotations.Reference;
 import org.osgi.service.packageadmin.PackageAdmin;
 
 @SuppressWarnings("deprecation")
-@Component (
-	name="com.elster.jupiter.osgi.goodies",service=Command.class,
-	property = { "osgi.command.scope=jupiter" , "osgi.command.function=generate" } )
+@Component(
+        name = "com.elster.jupiter.osgi.goodies",
+        service = Command.class,
+        immediate = true,
+        property = {"osgi.command.scope=jupiter", "osgi.command.function=generate"})
 public class Command {
-	private volatile BundleContext bundleContext;
-	private volatile PackageAdmin admin;
+    private volatile BundleContext bundleContext;
+    private volatile PackageAdmin admin;
 
-	@SuppressWarnings("unused")
-	public void generate(String...strings) {
-		Analyzer analyzer = new Analyzer();
-		analyzer.build(bundleContext, admin);
-		analyzer.generateBundleGraph(strings, null, false);
-	}
+    @SuppressWarnings("unused")
+    public void generate(String... strings) {
+        Analyzer analyzer = new Analyzer();
+        analyzer.build(bundleContext, admin);
+        analyzer.generateBundleGraph(strings, null, false);
+    }
 
-	@Reference
-	public void setPackageAdmin(PackageAdmin admin) {
-		this.admin = admin;
-	}
+    @Reference
+    public void setPackageAdmin(PackageAdmin admin) {
+        this.admin = admin;
+    }
 
-	@Activate
-	public void activate(BundleContext context) {
-		this.bundleContext = context;
-	}
+    @Activate
+    public void activate(BundleContext context) {
+        this.bundleContext = context;
+    }
 
 }

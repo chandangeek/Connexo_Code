@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.issue.impl.module;
@@ -7,6 +8,7 @@ package com.elster.jupiter.issue.impl.module;
 import com.elster.jupiter.issue.impl.actions.CloseIssueAction;
 import com.elster.jupiter.issue.impl.actions.CommentIssueAction;
 import com.elster.jupiter.issue.impl.database.DatabaseConst;
+import com.elster.jupiter.issue.impl.event.BulkCloseIssueHandlerFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueOverdueHandlerFactory;
 import com.elster.jupiter.issue.impl.tasks.IssueSnoozeHandlerFactory;
 import com.elster.jupiter.nls.TranslationKey;
@@ -37,6 +39,7 @@ public enum TranslationKeys implements TranslationKey {
     UNASSIGNED(DatabaseConst.UNASSIGNED, "Unassigned"),
     SUBSCRIBER_NAME(IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_SUBSCRIBER, IssueOverdueHandlerFactory.ISSUE_OVERDUE_TASK_DISPLAYNAME),
     ISSUE_SNOOZE_SUBSCRIBER_NAME(IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_SUBSCRIBER, IssueSnoozeHandlerFactory.ISSUE_SNOOZE_TASK_DISPLAYNAME),
+    AQ_BULK_ISSUE_CLOSE_EVENT_SUBSC(BulkCloseIssueHandlerFactory.AQ_BULK_ISSUE_CLOSE_EVENT_SUBSC, BulkCloseIssueHandlerFactory.AQ_BULK_ISSUE_CLOSE_EVENT_DISPLAYNAME),
     ACTION_ISSUE_ASSIGNED("action.issue.assigned", "Issue assigned"),
     ACTION_ISSUE_COMMENTED("action.issue.commented", "Issue commented"),
     ACTION_ISSUE_SNOOZED("action.issue.snoozed", "Snoozed"),

@@ -173,7 +173,7 @@ public abstract class SecureDeviceImporterAbstract {
                 Device device = deviceCreator.createDevice(deviceConfiguration, xmlDevice.getSerialNumber(), deviceName);
                 device.setManufacturer(shipment.getHeader().getManufacturer());
                 storeCertificationDate(device, shipment);
-                new ShipmentXmlUtils(logger, thesaurus).storeMacAddress(device, xmlDevice, logger);
+                new ShipmentXmlUtils(logger, thesaurus).storeMacAddress(device, xmlDevice);
                 device.save();
                 for (NamedEncryptedDataType deviceKey : xmlDevice.getKey()) {
                     importDeviceKey(device, deviceKey, transportKeys, logger);
@@ -278,7 +278,7 @@ public abstract class SecureDeviceImporterAbstract {
         }
     }
 
-    protected Optional<SecurityAccessorType> getSecurityAccessorType(Device device, String securityAccessorName, Logger logger) {
+    protected Optional<SecurityAccessorType> getSecurityAccessorType(Device device, String securityAccessorName) {
         return device.getDeviceType()
                 .getSecurityAccessorTypes()
                 .stream()

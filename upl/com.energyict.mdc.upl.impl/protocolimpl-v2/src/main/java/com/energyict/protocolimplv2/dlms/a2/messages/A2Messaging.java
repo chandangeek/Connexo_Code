@@ -81,7 +81,6 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_NBIOT_APN_CREDENTIALS.get(getPropertySpecService(), getNlsService(), getConverter()));
 
             supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter));
-
         }
         return supportedMessages;
     }

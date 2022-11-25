@@ -20,7 +20,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class SearchLocationServiceImpl implements SearchLocationService {
-
     private final Map<String, String> templateMap = templateMap();
     private final DataModel dataModel;
     private String[] templateMembers;
@@ -48,21 +47,23 @@ public class SearchLocationServiceImpl implements SearchLocationService {
                 .build();
     }
 
-    void ensureLocationTemplateInitialized() {
-        String locationTemplate = getAddressTemplate();
-        if (locationTemplate != null) {
-
-            locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
-                    .replace("\r", "").replace("\n", "")
-                    .replace("\r\n", "").replace("\n\r", "");
-            templateMembers = locationTemplate.split(",");
+    private String[] getTemplateMembers() {
+        if (templateMembers == null) {
+            String locationTemplate = getAddressTemplate();
+            if (locationTemplate != null) {
+                locationTemplate = locationTemplate.replace("\\r", "").replace("\\n", "")
+                        .replace("\r", "").replace("\n", "")
+                        .replace("\r\n", "").replace("\n\r", "");
+                templateMembers = locationTemplate.split(",");
+            }
         }
+        return templateMembers;
     }
 
     @Override
     public Map<Long, String> findLocations(String inputLocation) {
         Map<Long, String> result = new LinkedHashMap<>();
-
+        String[] templateMembers = getTemplateMembers();
         if (templateMembers != null) {
             SqlBuilder locationBuilder = new SqlBuilder();
             locationBuilder.append(this.getQueryClause(inputLocation));
@@ -113,13 +114,13 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         String selectClause = "MTR_LOCATIONMEMBER";
         String orderByClauses = "";
         String maxClauses = "";
-        Integer i = 0;
+        int i = 0;
         for (int j = 0; j < mapInputLocations.length; j++) {
             String whenClause = "";
             String mapInputLocation = mapInputLocations[j].replace("'", "''");
 
-            for (int k = 0; k < templateMembers.length; k++) {
-                String templateMember = templateMap.get(templateMembers[k]);
+            for (String member : getTemplateMembers()) {
+                String templateMember = templateMap.get(member);
 
                 if (templateMember != null) {
                     whenClause += String.format(" WHEN UPPER%s = UPPER('%s') THEN %s ", templateMember, mapInputLocation, i * 3 + 1);
@@ -132,7 +133,7 @@ public class SearchLocationServiceImpl implements SearchLocationService {
             selectClause = String.format(" SELECT MTR_LOCATIONMEMBER.*,  ( CASE %s ELSE 0 END ) as rank%s FROM (%s) MTR_LOCATIONMEMBER WHERE (%s) LIKE '%%' || UPPER('%s') || '%%' ",
                     whenClause, j,
                     selectClause,
-                    templateMap.entrySet().stream().map(entry -> "UPPER" + entry.getValue()).collect(Collectors.joining(" ||' '|| ")),
+                    templateMap.values().stream().map(s -> "UPPER" + s).collect(Collectors.joining(" ||' '|| ")),
                     mapInputLocation);
 
             orderByClauses += (orderByClauses.length() == 0) ? " ORDER BY " : ", ";
@@ -182,12 +183,10 @@ public class SearchLocationServiceImpl implements SearchLocationService {
         locationBuilder.append(" from MTR_LOCATION_TEMPLATE ");
 
         try (Connection connection = dataModel.getConnection(false);
-             PreparedStatement statement = locationBuilder.prepare(connection)) {
-            try (ResultSet resultSet = statement.executeQuery()) {
-
-                while (resultSet.next()) {
-                    template = resultSet.getString("LOCATIONTEMPLATE");
-                }
+             PreparedStatement statement = locationBuilder.prepare(connection);
+             ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+                template = resultSet.getString("LOCATIONTEMPLATE");
             }
         } catch (Exception e) {
             e.printStackTrace();

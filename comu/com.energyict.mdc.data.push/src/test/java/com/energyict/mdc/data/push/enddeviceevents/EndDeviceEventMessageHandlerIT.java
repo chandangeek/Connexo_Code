@@ -46,6 +46,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class EndDeviceEventMessageHandlerIT {
     private static final Instant INSTANT = Instant.ofEpochMilli(100500);
+    private static final long LOGBOOK_ID = 33;
     private static final String ENDPOINT1_NAME = "Znaesh li ty vdol nochnyh dorog";
     private static final String ENDPOINT2_NAME = "Shla bosikom ne zhaleya nog";
     private static InMemoryIntegrationPersistence inMemoryIntegrationPersistence = new InMemoryIntegrationPersistence();
@@ -85,10 +86,10 @@ public class EndDeviceEventMessageHandlerIT {
             AmrSystem mdc = meteringService.findAmrSystem(KnownAmrSystem.MDC.getId()).get();
             meter = mdc.newMeter("11", "MeterrRRR!!1").create();
             EndDeviceEventType endDeviceEventType = meteringService.createEndDeviceEventType("1.2.3.44");
-            event = meter.addEventRecord(endDeviceEventType, INSTANT)
+            event = meter.addEventRecord(endDeviceEventType, INSTANT, LOGBOOK_ID)
                     .create();
             endDeviceEventType = meteringService.getEndDeviceEventType("0.0.0.0").get();
-            customEvent = meter.addEventRecord(endDeviceEventType, INSTANT)
+            customEvent = meter.addEventRecord(endDeviceEventType, INSTANT, LOGBOOK_ID)
                     .setDeviceEventType("EVTMTRS01")
                     .create();
             eventCreatedEventType = inMemoryIntegrationPersistence.getInstance(EventService.class)

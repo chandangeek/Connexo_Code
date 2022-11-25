@@ -44,7 +44,7 @@ public class SecureHSMDeviceShipmentImporter extends SecureDeviceImporterAbstrac
     @Override
     protected void importDeviceKey(Device device, NamedEncryptedDataType deviceKey, TransportKeys transportKeys, Logger logger)  {
         String securityAccessorName = deviceKey.getName();
-        Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device, securityAccessorName, logger);
+        Optional<SecurityAccessorType> optionalSecurityAccessorType = getSecurityAccessorType(device, securityAccessorName);
         if (!optionalSecurityAccessorType.isPresent()) {
             logger.warning("No security accessor found for name:" + securityAccessorName);
             return;

@@ -92,6 +92,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTest {
+    protected static final String REASON_NAME = "Issue reason";
 
     public static final Clock clock = Clock.fixed(LocalDateTime.of(2018, 8, 11, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault());
     @Mock
@@ -381,6 +382,8 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
 
     protected IssueAction mockIssueAction(String name){
         IssueAction action = mock(IssueAction.class);
+        when(action.isApplicable(REASON_NAME)).thenReturn(true);
+        when(action.setReasonKey(anyString())).thenReturn(action);
         when(action.getDisplayName()).thenReturn(name);
         List<PropertySpec> propertySpec = mockPropertySpecs();
         when(action.getPropertySpecs()).thenReturn(propertySpec);
@@ -399,7 +402,6 @@ public class IssueRestApplicationJerseyTest extends FelixRestApplicationJerseyTe
         IssueAction action = mockIssueAction(name);
         when(type.getId()).thenReturn(id);
         when(type.createIssueAction()).thenReturn(Optional.of(action));
-        when(action.setReasonKey(anyString())).thenReturn(action);
         when(type.getIssueType()).thenReturn(issueType);
         return type;
     }

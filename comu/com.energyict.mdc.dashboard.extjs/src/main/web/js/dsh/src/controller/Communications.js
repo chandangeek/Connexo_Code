@@ -164,7 +164,7 @@ Ext.define('Dsh.controller.Communications', {
 
 
         if (record) {
-            if(record.get('connectionTask').comSessionId !== 0) {
+            if (record.get('connectionTask').comSessionId !== 0) {
                 connPreview.down('uni-button-action').setDisabled(false);
             } else {
                 connPreview.down('uni-button-action').setDisabled(true);
@@ -185,16 +185,16 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     viewCommunicationLog: function (record) {
-        location.href = '#/devices/' +record.get('device').name
-        + '/communicationtasks/' + record.get('comTask').id
-        + '/history/' + record.get('sessionId')
-        + '/viewlog' +
-        '?logLevels=Error&logLevels=Warning&logLevels=Information';
+        location.href = '#/devices/' + record.get('device').name
+            + '/communicationtasks/' + record.get('comTask').id
+            + '/history/' + record.get('sessionId')
+            + '/viewlog' +
+            '?logLevels=Error&logLevels=Warning&logLevels=Information';
     },
 
     viewConnectionLog: function (record) {
         location.href = '#/devices/' + record.get('device').name + '/connectionmethods/' + record.get('connectionTask').id + '/history/' + record.get('connectionTask').comSessionId + '/viewlog' +
-        '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
+            '?logLevels=Error&logLevels=Warning&logLevels=Information&communications=Connections&communications=Communications'
     },
 
     onGenerateReport: function () {
@@ -230,11 +230,39 @@ Ext.define('Dsh.controller.Communications', {
                 reportFilter['CONNECTIONDATE'][filterKey === 'startIntervalFrom' ? 'from' : 'to'] = Ext.Date.format(new Date(filterValue), 'Y-m-d H:i:s');
             }
         });
-
-        router.getRoute('workspace/generatereport').forward(null, {
-            category: 'MDC',
-            subCategory: 'Device Communication',
-            filter: Ext.JSON.encode(reportFilter)
+        this.getStore(this.stores[0]).load({
+            callback: function (records, op, success) {
+                if (records.length > 0 && this.filterParams.filter !== '[]') {
+                    router.getRoute('workspace/generatereport').forward(null, {
+                        category: 'MDC',
+                        subCategory: 'Device Communication',
+                        filter: Ext.JSON.encode(reportFilter)
+                    });
+                } else {
+                    var box = Ext.create('Ext.window.MessageBox', {
+                        buttons: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.close', 'DSH', 'Close'),
+                                action: 'close',
+                                name: 'close',
+                                ui: 'remove',
+                                handler: function () {
+                                    box.close();
+                                }
+                            }
+                        ]
+                    });
+                    box.show({
+                        title: Uni.I18n.translate('widget.dataCommunication.noFilters', 'DSH', 'No filters applied'),
+                        msg: Uni.I18n.translate('communication.report.forward.failure', 'DSH', 'Failed to \'generate report\' due to missing filter criteria. Please apply filter criteria then proceed.'),
+                        modal: false,
+                        ui: 'message-error',
+                        icon: 'icon-warning2',
+                        style: 'font-size: 34px;'
+                    });
+                }
+            }
         });
     },
 
@@ -261,7 +289,36 @@ Ext.define('Dsh.controller.Communications', {
     },
 
     forwardToBulk: function () {
-        location.href = '#/workspace/communications/details/bulk?' + Uni.util.QueryString.getQueryString();
+        this.getStore(this.stores[0]).load({
+            callback: function (records, op, success) {
+                if (records.length > 0 && this.filterParams.filter !== '[]') {
+                    location.href = '#/workspace/communications/details/bulk?' + Uni.util.QueryString.getQueryString();
+                } else {
+                    var box = Ext.create('Ext.window.MessageBox', {
+                        buttons: [
+                            {
+                                xtype: 'button',
+                                text: Uni.I18n.translate('general.close', 'DSH', 'Close'),
+                                action: 'close',
+                                name: 'close',
+                                ui: 'remove',
+                                handler: function () {
+                                    box.close();
+                                }
+                            }
+                        ]
+                    });
+                    box.show({
+                        title: Uni.I18n.translate('widget.dataCommunication.noFilters', 'DSH', 'No filters applied'),
+                        msg: Uni.I18n.translate('communication.bulk.forward.failure', 'DSH', 'Failed to perform \'bulk action\' due to missing filter criteria. Please apply filter criteria then proceed.'),
+                        modal: false,
+                        ui: 'message-error',
+                        icon: 'icon-warning2',
+                        style: 'font-size: 34px;'
+                    });
+                }
+            }
+        });
     },
 
     viewConnections: function (record) {

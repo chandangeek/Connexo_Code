@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -71,10 +70,10 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "webServicesService", webServicesService);
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer(){
+        when(transactionService.execute(any())).then(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
             }
         });
         when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
@@ -86,7 +85,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         when(topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
     }
 
-    @Ignore @Test
+    @Test
     public void testDeleteDeviceSuccessfully() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -112,7 +111,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testDeleteDeviceFailsGapsNotAllowed() throws Exception {
         when(device.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
@@ -151,7 +150,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testDeleteDeviceSuccessGapsAllowed() throws Exception {
         when(device.getUsagePoint()).thenReturn(Optional.of(usagePoint));
         when(usagePoint.getName()).thenReturn(USAGE_POINT_NAME);
@@ -182,7 +181,7 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testDeleteDeviceFailsCantRemoveGateway() throws Exception {
         when(topologyService.getSlaveDevices(any(Device.class))).thenReturn(Arrays.asList(slave));
         // Prepare request
@@ -217,7 +216,6 @@ public class DeleteDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore
     @Test
     public void testDeleteDeviceSuccessUnlinkSlave() throws Exception {
         when(topologyService.getPhysicalGateway(device)).thenReturn(Optional.of(gateway));

@@ -8,8 +8,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>15.0.0-Kratos-SNAPSHOT</version>
-
+        <version>17.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.device.alarms.rest</artifactId>
@@ -145,6 +144,10 @@
         <dependency>
             <groupId>com.elster.jupiter</groupId>
             <artifactId>time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>search.rest</artifactId>
         </dependency>
         <dependency>
             <groupId>com.elster.jupiter</groupId>

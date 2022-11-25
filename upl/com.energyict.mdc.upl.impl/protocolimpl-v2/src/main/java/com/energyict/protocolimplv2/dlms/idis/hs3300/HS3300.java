@@ -118,7 +118,7 @@ public class HS3300 extends AbstractDlmsProtocol implements SerialNumberSupport,
 
     protected HS3300Messaging deviceMessaging;
     private HS3300Cache deviceCache;
-    private HS3300RegisterFactory registerFactory;
+    protected HS3300RegisterFactory registerFactory;
     private HS3300LoadProfileDataReader loadProfileDataReader;
     private HS3300LogBookFactory logBookFactory;
     private PLCOFDMType2MACSetup plcMACSetup;

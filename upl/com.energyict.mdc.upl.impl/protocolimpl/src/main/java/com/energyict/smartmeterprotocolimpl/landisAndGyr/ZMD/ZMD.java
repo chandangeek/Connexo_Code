@@ -1,5 +1,19 @@
 package com.energyict.smartmeterprotocolimpl.landisAndGyr.ZMD;
 
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
+import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
+import com.energyict.mdc.upl.messages.legacy.Message;
+import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
+import com.energyict.mdc.upl.messages.legacy.MessageEntry;
+import com.energyict.mdc.upl.messages.legacy.MessageTag;
+import com.energyict.mdc.upl.messages.legacy.MessageValue;
+import com.energyict.mdc.upl.properties.InvalidPropertyException;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
 import com.energyict.dialer.connections.IEC1107HHUConnection;
@@ -19,19 +33,6 @@ import com.energyict.dlms.cosem.CosemObjectFactory;
 import com.energyict.dlms.cosem.GenericInvoke;
 import com.energyict.dlms.cosem.ObjectReference;
 import com.energyict.dlms.cosem.StoredValues;
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.SerialNumberSupport;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
-import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
-import com.energyict.mdc.upl.messages.legacy.Message;
-import com.energyict.mdc.upl.messages.legacy.MessageCategorySpec;
-import com.energyict.mdc.upl.messages.legacy.MessageEntry;
-import com.energyict.mdc.upl.messages.legacy.MessageTag;
-import com.energyict.mdc.upl.messages.legacy.MessageValue;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.LoadProfileConfiguration;
 import com.energyict.protocol.LoadProfileReader;
@@ -257,7 +258,7 @@ public class ZMD extends AbstractSmartDlmsProtocol implements MessageProtocol, P
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-08-17$";
+        return "$Date: 2022-09-01$";
     }
 
     public void resetDemand() throws IOException {

@@ -57,12 +57,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.streams.Predicates.not;
 import static java.util.stream.Collectors.toList;
 
 @DeviceStagesRestricted(value = {EndDeviceStage.POST_OPERATIONAL}, methods = {HttpMethod.PUT, HttpMethod.POST, HttpMethod.DELETE})
 public class DeviceComTaskResource {
+    private static final Logger LOGGER = Logger.getLogger(DeviceComTaskResource.class.getName());
 
     private static final String LOG_LEVELS_FILTER_PROPERTY = "logLevels";
 
@@ -209,6 +212,7 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         User user = (User) securityContext.getUserPrincipal();
+        LOGGER.log(Level.INFO, "CONM-3550 :: Run performed at device level by " + user.getName());
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.forEach(ComTaskExecution::scheduleNow);
@@ -238,6 +242,7 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
         User user = (User) securityContext.getUserPrincipal();
+        LOGGER.log(Level.INFO, "CONM-3550 :: RunNow performed at device level by " + user.getName());
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.forEach(runComTaskFromExecutionNow());
@@ -294,6 +299,7 @@ public class DeviceComTaskResource {
         Device device = resourceHelper.lockDeviceOrThrowException(info.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsWithPriorityForDeviceAndComTask(comTaskId, device);
         User user = (User) securityContext.getUserPrincipal();
+        LOGGER.log(Level.INFO, "CONM-3550 :: Run with Priority performed at device level by " + user.getName());
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.forEach(cte -> {
@@ -323,6 +329,7 @@ public class DeviceComTaskResource {
         }
         info.device.name = name;
         User user = (User) securityContext.getUserPrincipal();
+        LOGGER.log(Level.INFO, "CONM-3550 :: RunNow performed at device level by " + user.getName());
         if (!info.comTaskIds.isEmpty()) {
             Device device = resourceHelper.lockDeviceOrThrowException(info.device);
             for (Long comTaskId : info.comTaskIds) {

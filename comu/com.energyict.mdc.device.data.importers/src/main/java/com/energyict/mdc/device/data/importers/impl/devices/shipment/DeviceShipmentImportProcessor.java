@@ -9,15 +9,11 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.CIMLifecycleDates;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.device.data.exceptions.NoLifeCycleActiveAt;
 import com.energyict.mdc.device.data.importers.impl.AbstractDeviceDataFileImportProcessor;
 import com.energyict.mdc.device.data.importers.impl.DeviceDataImporterContext;
 import com.energyict.mdc.device.data.importers.impl.FileImportLogger;
 import com.energyict.mdc.device.data.importers.impl.MessageSeeds;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Savepoint;
 import java.time.Instant;
 
 import static com.elster.jupiter.util.Checks.is;
@@ -37,22 +33,12 @@ public class DeviceShipmentImportProcessor extends AbstractDeviceDataFileImportP
         DeviceType deviceType = getDeviceTypeOrThrowException(data);
         DeviceConfiguration deviceConfiguration = getDeviceConfigurationOrThrowException(deviceType, data);
         Device device;
-        try (Connection connection = getContext().getConnection()){
-            Savepoint savepoint = connection.setSavepoint();
-            try {
-                if (!is(data.getBatch()).emptyOrOnlyWhiteSpace()) {
-                    device = getContext().getDeviceService()
-                            .newDevice(deviceConfiguration, data.getSerialNumber(),  data.getDeviceIdentifier(), data.getBatch(), Instant.from(data.getShipmentDate()));
-                } else {
-                    device = getContext().getDeviceService()
-                            .newDevice(deviceConfiguration, data.getSerialNumber(), data.getDeviceIdentifier(), Instant.from(data.getShipmentDate()));
-                }
-            } catch (NoLifeCycleActiveAt e) {
-                connection.rollback(savepoint);
-                throw e;
-            }
-        }catch (SQLException e){
-            throw new ProcessorException(MessageSeeds.PROCESS_SQL_EXCEPTION, data.getLineNumber()).andStopImport();
+        if (!is(data.getBatch()).emptyOrOnlyWhiteSpace()) {
+            device = getContext().getDeviceService()
+                    .newDevice(deviceConfiguration, data.getSerialNumber(),  data.getDeviceIdentifier(), data.getBatch(), Instant.from(data.getShipmentDate()));
+        } else {
+            device = getContext().getDeviceService()
+                    .newDevice(deviceConfiguration, data.getSerialNumber(), data.getDeviceIdentifier(), Instant.from(data.getShipmentDate()));
         }
 
         if (data.getSerialNumber() != null)

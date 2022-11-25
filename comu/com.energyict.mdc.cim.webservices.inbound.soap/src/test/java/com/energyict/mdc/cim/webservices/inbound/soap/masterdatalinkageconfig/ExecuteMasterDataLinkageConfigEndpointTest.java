@@ -13,7 +13,6 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.ServiceCallCommands;
 
@@ -25,12 +24,10 @@ import com.google.common.collect.SetMultimap;
 
 import javax.xml.ws.WebServiceContext;
 import javax.xml.ws.handler.MessageContext;
-
 import java.lang.reflect.Field;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -91,10 +88,10 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         inject(AbstractInboundEndPoint.class, endpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, endpoint, "webServicesService", webServicesService);
         inject(AbstractInboundEndPoint.class, endpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer(){
+        when(transactionService.execute(any())).then(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
             }
         });
         when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
@@ -115,7 +112,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_MR_ID.getAttributeName(), "upmr");
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateMasterDataLinkageConfig() throws Exception {
         // Prepare
         when(linkageHandler.createLinkage()).thenReturn(response);
@@ -132,7 +129,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         verify(linkageHandler).forMessage(message);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateMasterDataLinkageConfigEndDevice() throws Exception {
         // Prepare
         when(linkageHandler.createLinkage()).thenReturn(response);
@@ -151,7 +148,8 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         assertThat(actualResponse).isNotNull().isSameAs(response);
         verify(linkageHandler).forMessage(message);
     }
-    @Ignore @Test
+
+    @Test
     public void testCreateMasterDataLinkageConfig_verboseConstraintViolationException() throws Exception {
         // Prepare
         doThrow(violationException).when(linkageHandler).createLinkage();
@@ -167,7 +165,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateMasterDataLinkageConfig_localizedException() throws Exception {
         // Prepare
         doThrow(localizedException).when(linkageHandler).createLinkage();
@@ -184,7 +182,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseMasterDataLinkageConfig() throws Exception {
         // Prepare
         when(linkageHandler.closeLinkage()).thenReturn(response);
@@ -201,7 +199,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         verify(linkageHandler).forMessage(message);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseMasterDataLinkageConfigEndDevice() throws Exception {
         // Prepare
         when(linkageHandler.closeLinkage()).thenReturn(response);
@@ -221,7 +219,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         verify(linkageHandler).forMessage(message);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseMasterDataLinkageConfig_verboseConstraintViolationException() throws Exception {
         // Prepare
         doThrow(violationException).when(linkageHandler).closeLinkage();
@@ -238,7 +236,7 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseMasterDataLinkageConfig_localizedException() throws Exception {
         // Prepare
         doThrow(localizedException).when(linkageHandler).closeLinkage();
@@ -256,17 +254,16 @@ public class ExecuteMasterDataLinkageConfigEndpointTest extends AbstractMasterDa
         }
     }
 
-    @Ignore @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testChangeMasterDataLinkageConfig() throws Exception {
         endpoint.changeMasterDataLinkageConfig(message);
     }
 
-    @Ignore @Test(expected = UnsupportedOperationException.class)
+    @Test(expected = UnsupportedOperationException.class)
     public void testCancelMasterDataLinkageConfig() throws Exception {
         endpoint.cancelMasterDataLinkageConfig(message);
     }
 
-    @Ignore
     @Test(expected = UnsupportedOperationException.class)
     public void testDeleteMasterDataLinkageConfig() throws Exception {
         endpoint.deleteMasterDataLinkageConfig(message);

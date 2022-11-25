@@ -119,7 +119,7 @@ public class AuthorizationInInterceptor extends AbstractPhaseInterceptor<Message
 
     private boolean hasInvokePrivileges(String appName, User user) {
         return mapApplicationName(appName).stream()
-                .allMatch(app -> user.hasPrivilege(app, Privileges.Constants.INVOKE_WEB_SERVICES));
+                .anyMatch(app -> user.hasPrivilege(app, Privileges.Constants.INVOKE_WEB_SERVICES));
     }
 
     private static Set<String> mapApplicationName(String appName) {

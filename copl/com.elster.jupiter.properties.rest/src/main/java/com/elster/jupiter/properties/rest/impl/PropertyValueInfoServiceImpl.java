@@ -10,15 +10,31 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.HasIdAndName;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
-import com.elster.jupiter.properties.rest.*;
+import com.elster.jupiter.properties.rest.PredefinedPropertyValuesInfo;
+import com.elster.jupiter.properties.rest.PropertyInfo;
+import com.elster.jupiter.properties.rest.PropertyType;
+import com.elster.jupiter.properties.rest.PropertyTypeInfo;
+import com.elster.jupiter.properties.rest.PropertyValueConverter;
+import com.elster.jupiter.properties.rest.PropertyValueInfo;
+import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.properties.rest.SimplePropertyType;
 import com.elster.jupiter.time.TimeService;
 import com.elster.jupiter.util.HasId;
 import com.elster.jupiter.util.HasName;
+
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Deactivate;
 import org.osgi.service.component.annotations.Reference;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -28,7 +44,7 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
 
     private static PropertyValueConverter DEFAULT_CONVERTER = new DefaultPropertyValueConverter();
     private final List<PropertyValueConverter> converters = new CopyOnWriteArrayList<>();
-    private final Map<String, PropertyValueConverter> dedicatedConverters = new HashMap<>();
+    private final Map<String, PropertyValueConverter> dedicatedConverters = new ConcurrentHashMap<>();
 
     private volatile Thesaurus thesaurus;
 
@@ -55,6 +71,11 @@ public class PropertyValueInfoServiceImpl implements PropertyValueInfoService {
         this.addPropertyValueInfoConverter(new TwoValuesDifferenceValueConverter());
         this.addPropertyValueInfoConverter(new NoneOrTimeDurationPropertyValueConverter(thesaurus));
         this.addPropertyValueInfoConverter(new IntegerPropertyValueConverter());
+    }
+
+    @Deactivate
+    public void deactivate() {
+        converters.clear();
     }
 
     @Override

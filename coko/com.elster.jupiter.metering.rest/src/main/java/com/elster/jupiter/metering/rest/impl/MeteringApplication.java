@@ -126,7 +126,8 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     @Reference
     public void setNlsService(NlsService nlsService) {
         this.nlsService = nlsService;
-        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer()).join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN));
+        this.thesaurus = nlsService.getThesaurus(getComponentName(), getLayer())
+                .join(nlsService.getThesaurus(getComponentName(), Layer.DOMAIN));
     }
 
     @Reference
@@ -147,6 +148,11 @@ public class MeteringApplication extends Application implements TranslationKeyPr
     @Reference
     public void setLocationService(LocationService locationService) {
         this.locationService = locationService;
+    }
+
+    @Reference
+    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
+        this.threadPrincipalService = threadPrincipalService;
     }
 
     @Reference
@@ -225,11 +231,6 @@ public class MeteringApplication extends Application implements TranslationKeyPr
         keys.addAll(Arrays.asList(TranslationSeeds.values()));
         keys.addAll(Arrays.asList(LocationTranslationKeys.values()));
         return keys;
-    }
-
-    @Reference
-    public void setThreadPrincipalService(ThreadPrincipalService threadPrincipalService) {
-        this.threadPrincipalService = threadPrincipalService;
     }
 
     class HK2Binder extends AbstractBinder {

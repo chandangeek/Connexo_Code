@@ -11,6 +11,7 @@ import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.CimAttributeNames;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.soap.whiteboard.cxf.AbstractInboundEndPoint;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
@@ -18,7 +19,6 @@ import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.streams.ExceptionThrowingSupplier;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.AbstractMockMeterConfig;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.elster.jupiter.metering.DefaultState;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
@@ -46,7 +46,6 @@ import java.util.List;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
@@ -55,13 +54,10 @@ import org.mockito.stubbing.Answer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -95,10 +91,10 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "threadPrincipalService", threadPrincipalService);
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "webServicesService", webServicesService);
         inject(AbstractInboundEndPoint.class, executeMeterConfigEndpoint, "transactionService", transactionService);
-        when(transactionService.execute(any())).then(new Answer(){
+        when(transactionService.execute(any())).then(new Answer() {
             @Override
             public Object answer(InvocationOnMock invocationOnMock) throws Throwable {
-                return ((ExceptionThrowingSupplier)invocationOnMock.getArguments()[0]).get();
+                return ((ExceptionThrowingSupplier) invocationOnMock.getArguments()[0]).get();
             }
         });
         when(webServicesService.getOngoingOccurrence(1l)).thenReturn(webServiceCallOccurrence);
@@ -116,7 +112,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         when(overlapCalculatorBuilder.whenCreating(any(Range.class))).thenReturn(Collections.emptyList());
     }
 
-    @Ignore @Test
+    @Test
     public void testNoMetersInMeterConfig() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -128,7 +124,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
             // Asserts
-            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus,METER_ITEM));
+            assertThat(faultMessage.getMessage()).isEqualTo(MessageSeeds.EMPTY_LIST.translate(thesaurus, METER_ITEM));
             MeterConfigFaultMessageType faultInfo = faultMessage.getFaultInfo();
             assertThat(faultInfo.getReply().getResult()).isEqualTo(ReplyType.Result.FAILED);
             assertThat(faultInfo.getReply().getError()).hasSize(1);
@@ -141,7 +137,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceSuccessfully() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -211,7 +207,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceWithCpsShouldFailWhenCpsIsNotFound() throws Exception {
         try {
             when(customPropertySetService.findActiveCustomPropertySet(NON_VERSIONED_CPS_ID))
@@ -224,7 +220,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceWithCpsShouldFailWhenAttributeIsNotFound() throws Exception {
         try {
             mockCustomPropertySetService();
@@ -236,7 +232,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceWithCpsShouldFailWhenAttributeValueCannotBeConverted() throws Exception {
         try {
             mockCustomPropertySetService();
@@ -249,7 +245,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceWithCpsShouldFailWhenValuesCannotBeAssigned() throws Exception {
         try {
             mockCustomPropertySetService();
@@ -264,7 +260,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceWithCpsSuccessfully() throws Exception {
 
         mockCustomPropertySetService();
@@ -304,7 +300,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         assertThat(response.getReply().getResult()).isEqualTo(ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceSuccessfullyWithoutOptionalParameters() throws Exception {
         // Prepare request
         MeterConfig meterCfg = new MeterConfig();
@@ -390,7 +386,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         assertThat(responseSimpleEndDeviceFunction.get(0).getConfigID()).isEqualTo(DEVICE_CONFIGURATION_NAME);
     }
 
-    @Ignore @Test
+    @Test
     public void testSyncModeNotSupported() throws Exception {
         // Prepare request
         MeterConfig meterConfig = new MeterConfig();
@@ -427,7 +423,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceFailedWithLocalizedException() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -466,7 +462,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceFailedWithVerboseConstraintViolationException() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -502,7 +498,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testDeviceTypeNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -537,7 +533,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testDeviceConfigurationNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createSimpleEndDeviceFunction(DEVICE_CONFIG_ID,
@@ -573,7 +569,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testReceivedDateIsMissing() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         SimpleEndDeviceFunction simpleEndDeviceFunction = createDefaultEndDeviceFunction();
@@ -608,7 +604,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testDeviceConfigurationByReferenceNotFound() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         Meter meter = createDefaultMeter();
@@ -641,7 +637,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testMeterSimpleEndDeviceFunctionReferenceNotFoundShouldTryToUseDefaultConfiguration() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         Meter meter = createMeter(DEVICE_NAME, RECEIVED_DATE, DEVICE_TYPE_NAME);
@@ -671,7 +667,7 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testNoReplyAddress() throws Exception {
         MeterConfig meterConfig = new MeterConfig();
         meterConfig.getMeter().add(createDefaultMeter());
@@ -691,7 +687,6 @@ public class CreateDeviceTest extends AbstractMockMeterConfig {
         }
     }
 
-    @Ignore
     @Test
     public void testOutboundNotConfigured() throws Exception {
         MeterConfig meterConfig = new MeterConfig();

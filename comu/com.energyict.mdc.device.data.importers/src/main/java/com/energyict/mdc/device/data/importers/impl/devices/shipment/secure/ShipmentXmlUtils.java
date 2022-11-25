@@ -69,7 +69,7 @@ public class ShipmentXmlUtils {
         verifySignature(inputStreamProvider.stream(), publicKey, logger);
     }
 
-    public void storeMacAddress(Device device, Body.Device xmlDevice, Logger logger) {
+    public void storeMacAddress(Device device, Body.Device xmlDevice) {
         if (!Checks.is(xmlDevice.getMACAddress()).emptyOrOnlyWhiteSpace()) {
             Optional<DeviceProtocolPluggableClass> pluggableClassOptional = device.getDeviceType().getDeviceProtocolPluggableClass();
             if (pluggableClassOptional.isPresent()) {

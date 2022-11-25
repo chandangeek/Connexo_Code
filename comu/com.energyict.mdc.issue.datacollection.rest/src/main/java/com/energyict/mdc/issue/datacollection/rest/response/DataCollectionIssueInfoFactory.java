@@ -12,6 +12,7 @@ import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.InfoFactory;
 import com.elster.jupiter.rest.util.PropertyDescriptionInfo;
+import com.elster.jupiter.search.rest.InfoFactoryService;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
@@ -49,6 +50,7 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     private Device device;
 
     public DataCollectionIssueInfoFactory() {
+        // For OSGi
     }
 
     @Inject
@@ -72,6 +74,11 @@ public class DataCollectionIssueInfoFactory implements InfoFactory<IssueDataColl
     @Reference
     public void setDeviceService(DeviceService deviceService) {
         this.deviceService = deviceService;
+    }
+
+    @Reference
+    public void setInfoFactoryService(InfoFactoryService infoFactoryService) {
+        // to make sure this factory starts after the whole service
     }
 
     public DataCollectionIssueInfo<?> asInfo(IssueDataCollection issue, Class<? extends DeviceInfo> deviceInfoClass) {

@@ -1,15 +1,5 @@
 package com.energyict.protocolimpl.dlms.actarisace6000.messaging;
 
-import com.energyict.dlms.axrdencoding.Array;
-import com.energyict.dlms.axrdencoding.BitString;
-import com.energyict.dlms.axrdencoding.BooleanObject;
-import com.energyict.dlms.axrdencoding.Structure;
-import com.energyict.dlms.axrdencoding.Unsigned16;
-import com.energyict.dlms.axrdencoding.Unsigned32;
-import com.energyict.dlms.axrdencoding.Unsigned8;
-import com.energyict.dlms.axrdencoding.VisibleString;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileFinder;
@@ -24,6 +14,17 @@ import com.energyict.mdc.upl.messages.legacy.MessageTagSpec;
 import com.energyict.mdc.upl.messages.legacy.MessageValue;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarFinder;
+
+import com.energyict.dlms.axrdencoding.Array;
+import com.energyict.dlms.axrdencoding.BitString;
+import com.energyict.dlms.axrdencoding.BooleanObject;
+import com.energyict.dlms.axrdencoding.Structure;
+import com.energyict.dlms.axrdencoding.Unsigned16;
+import com.energyict.dlms.axrdencoding.Unsigned32;
+import com.energyict.dlms.axrdencoding.Unsigned8;
+import com.energyict.dlms.axrdencoding.VisibleString;
+import com.energyict.dlms.cosem.Data;
+import com.energyict.dlms.cosem.DataAccessResultException;
 import com.energyict.messaging.TimeOfUseMessageBuilder;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.MessageResult;
@@ -104,13 +105,13 @@ public class ACE6000Messages extends ProtocolMessages  {
                     updateTimeOfUse(messageEntry);
                     infoLog("TimeOfUse message successful");
                     return MessageResult.createSuccess(messageEntry);
-                } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_ACTIVITY_CAL)) {
+                } else if (isItThisMessage(messageEntry, RtuMessageConstant.TOU_ACTIVITY_CAL)) {
                     return writeActivityCalendar(messageEntry);
-                } else if (messageEntry.getContent().contains(RtuMessageConstant.TOU_SPECIAL_DAYS)) {
+                } else if (isItThisMessage(messageEntry, RtuMessageConstant.TOU_SPECIAL_DAYS)) {
                     return writeSpecialDays(messageEntry);
-                } else if (messageEntry.getContent().contains(RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
+                } else if (isItThisMessage(messageEntry, RtuMessageConstant.SELECTION_OF_12_LINES_IN_TOU_TABLE)) {
                     return write12LinesInActivityCalendar(messageEntry);
-                } else if (messageEntry.getContent().contains(SET_DISPLAY_MESSAGE_TAG)) {
+                } else if (isItThisMessage(messageEntry, SET_DISPLAY_MESSAGE_TAG)) {
                     doWriteMessageToDisplay(getContentBetweenTags(SET_DISPLAY_MESSAGE_TAG, messageEntry.getContent()));
                     return MessageResult.createSuccess(messageEntry);
                 } else if (isItThisMessage(messageEntry, DisplayDeviceMessage.DISPLAY_GENERAL_PARAMETERS.toString())) {
@@ -128,17 +129,12 @@ public class ACE6000Messages extends ProtocolMessages  {
                     this.protocol.resetDemand();
                     infoLog("DemandReset message successful.");
                     return MessageResult.createSuccess(messageEntry);
-                } else if (messageEntry.getContent().contains(VOLTAGE_AND_CURRENT_PARAMS)) {
+                } else if (isItThisMessage(messageEntry, VOLTAGE_AND_CURRENT_PARAMS)) {
                     infoLog("Sending " + WRITE_VOLTAGE_AND_CURRENT_RATIOS + " message.");
                     setWriteVoltageAndCurrentRatios(getContentBetweenTags(VOLTAGE_AND_CURRENT_PARAMS, messageEntry.getContent()));
                     infoLog(WRITE_VOLTAGE_AND_CURRENT_RATIOS + " message successful");
                     return MessageResult.createSuccess(messageEntry);
                 }
-            } else if (isItThisMessage(messageEntry, TimeOfUseMessageBuilder.getMessageNodeTag())) {
-                infoLog("Sending TimeOfUse message.");
-                updateTimeOfUse(messageEntry);
-                infoLog("TimeOfUse message successful");
-                return MessageResult.createSuccess(messageEntry);
             } else {
                 protocol.getLogger().log(Level.SEVERE, "Error executing message - the message content is empty, probably wrong user file id specified.");
                 return MessageResult.createFailed(messageEntry);

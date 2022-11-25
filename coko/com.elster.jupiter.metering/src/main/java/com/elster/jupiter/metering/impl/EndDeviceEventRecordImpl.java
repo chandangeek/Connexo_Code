@@ -92,6 +92,21 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     private final DataModel dataModel;
     private final EventService eventService;
 
+    @Inject
+    EndDeviceEventRecordImpl(DataModel dataModel, EventService eventService) {
+        this.dataModel = dataModel;
+        this.eventService = eventService;
+    }
+
+    EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Instant createdDateTime, long logBookId) {
+        this.endDevice.set(endDevice);
+        this.createdDateTime = createdDateTime;
+        this.createdDateTimeMillis = createdDateTime.toEpochMilli();
+        this.eventType.set(eventType);
+        this.logBookId = logBookId;
+        return this;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -252,11 +267,6 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     }
 
     @Override
-    public void setLogBookId(long logBookId) {
-        this.logBookId = logBookId;
-    }
-
-    @Override
     public void setLogBookPosition(int logBookPosition) {
         this.logBookPosition = logBookPosition;
     }
@@ -304,20 +314,6 @@ public final class EndDeviceEventRecordImpl implements EndDeviceEventRecord, Per
     @Override
     public void setDeviceEventType(String deviceEventType) {
         this.deviceEventType = deviceEventType;
-    }
-
-    EndDeviceEventRecordImpl init(EndDevice endDevice, EndDeviceEventType eventType, Instant createdDateTime) {
-        this.endDevice.set(endDevice);
-        this.createdDateTime = createdDateTime;
-        this.createdDateTimeMillis = createdDateTime.toEpochMilli();
-        this.eventType.set(eventType);
-        return this;
-    }
-
-    @Inject
-    EndDeviceEventRecordImpl(DataModel dataModel, EventService eventService) {
-        this.dataModel = dataModel;
-        this.eventService = eventService;
     }
 
     @Override

@@ -20,14 +20,12 @@ import com.energyict.mdc.protocol.pluggable.adapters.upl.UPLInboundDeviceProtoco
 import com.energyict.mdc.upl.Services;
 import com.energyict.mdc.upl.ServletBasedInboundDeviceProtocol;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Locale;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -56,14 +54,14 @@ public class ComServlet extends HttpServlet {
     private static final Logger LOGGER = Logger.getLogger(ComServlet.class.getName());
     private final InboundCommunicationHandler.ServiceProvider serviceProvider;
 
-    private AtomicReference<Statistics> statistics;
-    private DeviceCommandExecutor deviceCommandExecutor;
-    private ServletBasedInboundComPort comPort;
-    private ComServerDAO comServerDAO;
+    private final Statistics statistics;
+    private final DeviceCommandExecutor deviceCommandExecutor;
+    private final ServletBasedInboundComPort comPort;
+    private final ComServerDAO comServerDAO;
 
     public ComServlet(ServletBasedInboundComPort comPort, ComServerDAO comServerDAO, DeviceCommandExecutor deviceCommandExecutor, InboundCommunicationHandler.ServiceProvider serviceProvider) {
         super();
-        this.statistics = new AtomicReference<>(new Statistics());
+        this.statistics = new Statistics();
         this.comPort = comPort;
         this.comServerDAO = comServerDAO;
         this.serviceProvider = serviceProvider;
@@ -71,7 +69,7 @@ public class ComServlet extends HttpServlet {
     }
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setContentType("text/html");
         PrintWriter responseWriter = response.getWriter();
         responseWriter.println("<HTML><BODY><H1>ComServer servlet based com port connector for ComPort " + this.comPort.getName() + "</H1><TABLE>");
@@ -79,7 +77,7 @@ public class ComServlet extends HttpServlet {
         responseWriter.println("<TR><TD>Servlet version:</TD><TD>" + getWebVersion() + "</TD></TR>");
         responseWriter.println("<TR><TD>Connexo system name:</TD><TD style='color:" + getSystemIdentifierColor() + "'>" + getSystemIdentifier() + "</TD></TR>");
         responseWriter.println("<TR><TD>ComServer name:</TD><TD>" +  getComServerName() + "</TD></TR>");
-        this.statistics.get().printWith(responseWriter);
+        this.statistics.printWith(responseWriter);
         responseWriter.println("</TABLE></BODY></HTML>");
         responseWriter.close();
     }
@@ -89,12 +87,9 @@ public class ComServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws
-            IOException,
-            ServletException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) {
         this.setThreadPrinciple();
-        this.statistics.get().doPost();
+        this.statistics.doPost();
         try {
             this.handOverToInboundDeviceProtocol(request, response);
         } catch (Exception t) {
@@ -127,7 +122,7 @@ public class ComServlet extends HttpServlet {
                 // Intentional fallthrough
             }
             case ENCRYPTION_REQUIRED: {
-                this.statistics.get().configurationErrorCount++;
+                this.statistics.configurationError();
                 break;
             }
             case SUCCESS: {
@@ -216,21 +211,25 @@ public class ComServlet extends HttpServlet {
         return "-";
     }
 
-    private class Statistics {
+    private static class Statistics {
         /**
          * Number of calls to the doPost method of this Servlet.
          */
-        private long hitCount;
+        private volatile long hitCount;
 
         /* Number of times a call was made for an Device
          * that is not configured for inbound communication
          * or the ComPortPool of the inbound connection task
          * does not match with the ComPort of this Servlet.
          */
-        private long configurationErrorCount;
+        private volatile long configurationErrorCount;
 
-        public void doPost() {
-            this.hitCount++;
+        public synchronized void doPost() {
+            hitCount++;
+        }
+
+        public synchronized void configurationError() {
+            configurationErrorCount++;
         }
 
         public void printWith(PrintWriter writer) {
