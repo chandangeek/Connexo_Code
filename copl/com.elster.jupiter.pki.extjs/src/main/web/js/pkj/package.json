@@ -1,14 +1,14 @@
 {
-  "compatVersion" : "10.9.21",
+  "compatVersion" : "10.9.22",
   "creator" : "Elster Jupiter Project",
   "detailedDescription" : "Long description of package",
   "format" : "1",
   "local" : true,
   "name" : "com.elster.jupiter.pki.extjs",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.21"
+    "com.elster.jupiter.unifyingjs@10.9.22"
   ],
   "summary" : "Short summary",
   "type" : "code",
-  "version" : "10.9.21"
+  "version" : "10.9.22"
 }
