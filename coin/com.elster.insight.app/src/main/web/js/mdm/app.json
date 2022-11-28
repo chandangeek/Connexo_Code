@@ -3,18 +3,18 @@
   "local" : false,
   "name" : "com.elster.jupiter.mdm.app",
   "requires" : [
-    "com.elster.jupiter.loaderjs@10.9.21",
-    "com.elster.jupiter.unifyingjs@10.9.21",
-    "com.elster.jupiter.systemadmin.extjs@10.9.21",
-    "com.elster.jupiter.servicecall.extjs@10.9.21",
-    "com.elster.jupiter.config.extjs@10.9.21",
-    "com.elster.jupiter.mdm.metering.extjs@10.9.21",
-    "com.elster.jupiter.bpm.extjs@10.9.21",
-    "com.energyict.mdc.bpm.extjs@10.9.21",
-    "com.elster.jupiter.fileimport.extjs@10.9.21",
-    "com.elster.jupiter.export.extjs@10.9.21",
-    "com.elster.jupiter.estimation.extjs@10.9.21",
-    "com.elster.jupiter.yellowfin.extjs@10.9.21",
-    "com.elster.jupiter.webservices.extjs@10.9.21"
+    "com.elster.jupiter.loaderjs@10.9.22",
+    "com.elster.jupiter.unifyingjs@10.9.22",
+    "com.elster.jupiter.systemadmin.extjs@10.9.22",
+    "com.elster.jupiter.servicecall.extjs@10.9.22",
+    "com.elster.jupiter.config.extjs@10.9.22",
+    "com.elster.jupiter.mdm.metering.extjs@10.9.22",
+    "com.elster.jupiter.bpm.extjs@10.9.22",
+    "com.energyict.mdc.bpm.extjs@10.9.22",
+    "com.elster.jupiter.fileimport.extjs@10.9.22",
+    "com.elster.jupiter.export.extjs@10.9.22",
+    "com.elster.jupiter.estimation.extjs@10.9.22",
+    "com.elster.jupiter.yellowfin.extjs@10.9.22",
+    "com.elster.jupiter.webservices.extjs@10.9.22"
   ]
 }
