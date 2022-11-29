@@ -1,16 +1,5 @@
 package com.energyict.protocolimpl.dlms.JanzC280;
 
-import com.energyict.mdc.upl.NoSuchRegisterException;
-import com.energyict.mdc.upl.NotInObjectListException;
-import com.energyict.mdc.upl.SerialNumberSupport;
-import com.energyict.mdc.upl.cache.CacheMechanism;
-import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.properties.InvalidPropertyException;
-import com.energyict.mdc.upl.properties.PropertySpec;
-import com.energyict.mdc.upl.properties.PropertySpecService;
-import com.energyict.mdc.upl.properties.PropertyValidationException;
-import com.energyict.mdc.upl.properties.TypedProperties;
-
 import com.energyict.cbo.Quantity;
 import com.energyict.dialer.connection.ConnectionException;
 import com.energyict.dialer.connection.HHUSignOn;
@@ -34,6 +23,15 @@ import com.energyict.dlms.cosem.ExtendedRegister;
 import com.energyict.dlms.cosem.HistoricalValue;
 import com.energyict.dlms.cosem.Register;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
+import com.energyict.mdc.upl.NoSuchRegisterException;
+import com.energyict.mdc.upl.NotInObjectListException;
+import com.energyict.mdc.upl.SerialNumberSupport;
+import com.energyict.mdc.upl.cache.CacheMechanism;
+import com.energyict.mdc.upl.nls.NlsService;
+import com.energyict.mdc.upl.properties.PropertySpec;
+import com.energyict.mdc.upl.properties.PropertySpecService;
+import com.energyict.mdc.upl.properties.PropertyValidationException;
+import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
@@ -50,6 +48,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+
+import static com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties.MAX_REC_PDU_SIZE;
 
 /**
  * Copyrights EnergyICT
@@ -153,7 +153,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: Wed Sep 14 11:00:00 2022 +0200 $";
+        return "$Date: 2022-11-24$";
     }
 
     @Override
@@ -334,17 +334,13 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         super.setUPLProperties(properties);
-        try {
-            this.forcedToReadCache = !properties.getTypedProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase(Integer.toString(DEFAULT_FORCED_TO_READ_CACHE));
-            this.maxRecPduSize = Integer.parseInt(properties.getTypedProperty(DlmsProtocolProperties.MAX_REC_PDU_SIZE, Integer.toString(DEFAULT_MAX_PDU_SIZE)));
-            this.serverLowerMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_LOWER_MAC_ADDRESS)));
-            this.serverUpperMacAddress = Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, Integer.toString(DEFAULT_SERVER_UPPER_MAC_ADDRESS)));
-            this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, DEFAULT_CLIENT_MAC_ADDRESS).intValue();
-            this.informationFieldSize = Integer.parseInt(properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, Integer.toString(DEFAULT_INFORMATION_FIELD_SIZE)));
-            this.connectionMode = Integer.parseInt(properties.getTypedProperty(PROPNAME_CONNECTION, Integer.toString(DEFAULT_CONNECTION_MODE)));
-        } catch (NumberFormatException e) {
-            throw new InvalidPropertyException(e, this.getClass().getSimpleName() + ": validation of properties failed before");
-        }
+        this.forcedToReadCache = !properties.getTypedProperty(PROPERTY_FORCEDTOREADCACHE, "0").equalsIgnoreCase(Integer.toString(DEFAULT_FORCED_TO_READ_CACHE));
+        this.maxRecPduSize = properties.getTypedProperty(MAX_REC_PDU_SIZE, DEFAULT_MAX_PDU_SIZE);
+        this.serverLowerMacAddress = properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, DEFAULT_SERVER_LOWER_MAC_ADDRESS);
+        this.serverUpperMacAddress = properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, DEFAULT_SERVER_UPPER_MAC_ADDRESS);
+        this.clientMacAddress = properties.getTypedProperty(PROPNAME_CLIENT_MAC_ADDRESS, DEFAULT_CLIENT_MAC_ADDRESS).intValue();
+        this.informationFieldSize = properties.getTypedProperty(PROPNAME_INFORMATION_FIELD_SIZE, DEFAULT_INFORMATION_FIELD_SIZE);
+        this.connectionMode = properties.getTypedProperty(PROPNAME_CONNECTION, DEFAULT_CONNECTION_MODE);
     }
 
     @Override

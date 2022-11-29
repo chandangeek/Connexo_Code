@@ -10,7 +10,7 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>mdc.parent</artifactId>
-        <version>17.0.0-Kratos-SNAPSHOT</version>
+        <version>18.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdc.offline</artifactId>
@@ -232,6 +232,10 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-cbor</artifactId>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>

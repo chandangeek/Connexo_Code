@@ -6,6 +6,7 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
     extend: 'Uni.view.container.ContentContainer',
     alias: 'widget.comportEdit',
     required: [
+        'Mdc.view.setup.comservercomports.CoapForm',
         'Mdc.view.setup.comservercomports.ServletForm',
         'Mdc.view.setup.comservercomports.TCPForm',
         'Mdc.view.setup.comservercomports.UDPForm',
@@ -118,6 +119,10 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                         nest.removeAll();
                         form = nest.add({xtype: 'udpForm'});
                         break;
+                    case 'TYPE_COAP':
+                        nest.removeAll();
+                        form = nest.add({xtype: 'coapForm'});
+                        break;
                     case 'TYPE_SERVLET':
                         nest.removeAll();
                         form = nest.add({xtype: 'servletForm'});
@@ -138,6 +143,10 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     case 'TYPE_UDP':
                         nest.removeAll();
                         form = nest.add({xtype: 'udpForm'});
+                        break;
+                    case 'TYPE_COAP':
+                        nest.removeAll();
+                        form = nest.add({xtype: 'coapForm'});
                         break;
                     case 'TYPE_SERVLET':
                         nest.removeAll();

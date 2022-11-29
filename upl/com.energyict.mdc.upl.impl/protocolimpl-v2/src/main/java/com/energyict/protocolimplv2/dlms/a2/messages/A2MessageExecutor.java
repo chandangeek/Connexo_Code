@@ -54,7 +54,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.logging.Level;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.EndOfDSTAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.StartOfDSTAttributeName;

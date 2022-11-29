@@ -1,23 +1,16 @@
 package com.energyict.protocolimplv2.dlms.ei7;
 
-import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.dlms.DLMSCache;
-import com.energyict.dlms.axrdencoding.AbstractDataType;
-import com.energyict.dlms.cosem.Data;
-import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimplv2.dlms.a2.A2;
 import com.energyict.protocolimplv2.dlms.a2.profile.A2ProfileDataReader;
@@ -27,13 +20,11 @@ import com.energyict.protocolimplv2.dlms.ei7.properties.EI7ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.ei7.registers.EI7RegisterFactory;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
-import java.io.IOException;
-import java.util.List;
-
 public class EI7 extends A2 {
-    
+
     /*Predefined OBIS Code for EI7 meter */
     private static final ObisCode FIRMWARE_VERSION_APPLICATION_OBIS_CODE = ObisCode.fromString("7.1.0.2.1.255");
+    private static final ObisCode BOOTLOADER_AUXILIARY_FIRMWARE_VERSION = ObisCode.fromString("7.3.0.2.1.255");
 
     protected EI7RegisterFactory registerFactory = null;
 
@@ -67,41 +58,13 @@ public class EI7 extends A2 {
     }
 
     @Override
-    public CollectedFirmwareVersion getFirmwareVersions(String serialNumber) {
-        if (offlineDevice.getSerialNumber().equals(serialNumber)) {
-            CollectedFirmwareVersion firmwareVersionsCollectedData = getCollectedDataFactory().createFirmwareVersionsCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
-            firmwareVersionsCollectedData.setActiveMeterFirmwareVersion(getActiveMeterFirmwareVersion());
-            return firmwareVersionsCollectedData;
-        }
-        return super.getFirmwareVersions(serialNumber);
-    }
-
-    public String getActiveMeterFirmwareVersion(){
-        return  getFirmwareVersion(FIRMWARE_VERSION_APPLICATION_OBIS_CODE);
-    }
-
-    public String getFirmwareVersion(ObisCode firmwareObiscode) {
-        try {
-            journal("Collecting firmware version from " + firmwareObiscode);
-            Data firmwareData = getDlmsSession().getCosemObjectFactory().getData(firmwareObiscode);
-            AbstractDataType valueAttr = firmwareData.getValueAttr();
-            if (valueAttr.isOctetString()) {
-                return(getEI7RegisterFactory().decodeFirmwareVersion(valueAttr.getOctetString()));
-            }
-        } catch (IOException e) {
-            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
-        }
-        return "";
-    }
-
-    @Override
     public String getProtocolDescription() {
         return "EI7 2021 ThemisLog2 DLMS Protocol";
     }
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-11-07$";
+        return "$Date: 2022-11-21$";
     }
 
     @Override
@@ -122,11 +85,12 @@ public class EI7 extends A2 {
     }
 
     @Override
-    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return getEI7RegisterFactory().readRegisters(registers);
+    public String getBootloaderAuxiliaryMeterFirmwareVersion() {
+        return getFirmwareVersion(BOOTLOADER_AUXILIARY_FIRMWARE_VERSION);
     }
 
-    private EI7RegisterFactory getEI7RegisterFactory() {
+    @Override
+    public EI7RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
             registerFactory = new EI7RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
         }

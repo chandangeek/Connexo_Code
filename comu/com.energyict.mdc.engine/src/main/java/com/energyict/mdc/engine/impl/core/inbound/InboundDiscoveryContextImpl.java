@@ -19,6 +19,7 @@ import com.energyict.mdc.upl.DeviceGroupExtractor;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.ObjectMapperService;
 import com.energyict.mdc.upl.crypto.HsmProtocolService;
+import com.energyict.mdc.upl.io.CoapBasedExchange;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.CertificateWrapperExtractor;
 import com.energyict.mdc.upl.messages.legacy.DeviceExtractor;
@@ -60,6 +61,8 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     private boolean allCollectedDataWasProcessed = true;
     private boolean encryptionRequired;
 
+    private CoapBasedExchange coapBasedExchange;
+
     private ObjectMapperService objectMapperService;
     private CollectedDataFactory collectedDataFactory;
     private IssueFactory issueFactory;
@@ -86,6 +89,13 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
         this.comPort = comPort;
         this.servletRequest = servletRequest;
         this.servletResponse = servletResponse;
+        this.connectionTaskService = connectionTaskService;
+    }
+
+    public InboundDiscoveryContextImpl(InboundComPort comPort, CoapBasedExchange coapBasedExchange, ConnectionTaskService connectionTaskService) {
+        super();
+        this.comPort = comPort;
+        this.coapBasedExchange = coapBasedExchange;
         this.connectionTaskService = connectionTaskService;
     }
 
@@ -188,6 +198,14 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     @Override
     public ComPortRelatedComChannel getComChannel() {
         return comChannel;
+    }
+
+    public CoapBasedExchange getCoapBasedExchange() {
+        return coapBasedExchange;
+    }
+
+    public void setCoapBasedExchange(CoapBasedExchange coapBasedExchange) {
+        this.coapBasedExchange = coapBasedExchange;
     }
 
     @Override
@@ -325,10 +343,10 @@ public class InboundDiscoveryContextImpl implements InboundDiscoveryContext {
     }
 
     private class JournalEntryBacklogEntry {
-        private Instant timestamp;
-        private ComServer.LogLevel logLevel;
-        private String description;
-        private Throwable thrown;
+        private final Instant timestamp;
+        private final ComServer.LogLevel logLevel;
+        private final String description;
+        private final Throwable thrown;
 
         private JournalEntryBacklogEntry(Instant timestamp, ComServer.LogLevel logLevel, String description, Throwable thrown) {
             super();

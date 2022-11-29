@@ -4,9 +4,7 @@ import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.KeyAccessorTypeExtractor;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.nls.NlsService;
-import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
 import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
@@ -17,8 +15,6 @@ import com.energyict.protocolimplv2.dlms.ei6v2021.profiles.EI6v2021LoadProfileDa
 import com.energyict.protocolimplv2.dlms.ei6v2021.properties.EI6ConfigurationSupport;
 import com.energyict.protocolimplv2.dlms.ei6v2021.registers.EI6v2021RegisterFactory;
 import com.energyict.protocolimplv2.dlms.ei7.EI7;
-
-import java.util.List;
 
 public class EI6v2021 extends EI7 {
 
@@ -37,7 +33,7 @@ public class EI6v2021 extends EI7 {
 
     @Override
     public String getVersion() {
-        return "2022-11-09";
+        return "2022-11-21";
     }
 
     protected EI6v2021Messaging createMessaging() {
@@ -62,11 +58,7 @@ public class EI6v2021 extends EI7 {
     }
 
     @Override
-    public List<CollectedRegister> readRegisters(List<OfflineRegister> registers) {
-        return getEI6RegisterFactory().readRegisters(registers);
-    }
-
-    private EI6v2021RegisterFactory getEI6RegisterFactory() {
+    public EI6v2021RegisterFactory getRegisterFactory() {
         if (registerFactory == null) {
             registerFactory = new EI6v2021RegisterFactory(this, getCollectedDataFactory(), getIssueFactory());
         }

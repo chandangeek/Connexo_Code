@@ -121,6 +121,13 @@ public class ModemBasedInboundComPortImplTest extends PersistenceTest {
 
     @Test
     @Transactional
+    public void testIsNotCoapBased() {
+        ModemBasedInboundComPort comPort = createSimpleComPort();
+        assertFalse(comPort.isCoapBased());
+    }
+
+    @Test
+    @Transactional
     public void testCreateWithoutViolations() throws SQLException {
         ModemBasedInboundComPort comPort = this.createSimpleComPort();
 

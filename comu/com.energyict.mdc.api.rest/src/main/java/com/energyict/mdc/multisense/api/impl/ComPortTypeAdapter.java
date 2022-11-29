@@ -11,6 +11,7 @@ public class ComPortTypeAdapter extends MapBasedXmlAdapter<ComPortType> {
 
     public ComPortTypeAdapter() {
         register("SERVLET", ComPortType.SERVLET);
+        register("COAP", ComPortType.COAP);
         register("SERIAL", ComPortType.SERIAL);
         register("TCP", ComPortType.TCP);
         register("UDP", ComPortType.UDP);

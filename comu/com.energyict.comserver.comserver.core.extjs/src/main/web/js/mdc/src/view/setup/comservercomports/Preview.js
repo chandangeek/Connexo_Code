@@ -10,6 +10,7 @@ Ext.define('Mdc.view.setup.comservercomports.Preview', {
         'Mdc.view.setup.comservercomports.forms.TCP',
         'Mdc.view.setup.comservercomports.forms.UDP',
         'Mdc.view.setup.comservercomports.forms.SERIAL',
+        'Mdc.view.setup.comservercomports.forms.COAP',
         'Mdc.view.setup.comservercomports.forms.SERVLET',
         'Mdc.view.setup.comservercomports.ActionMenu'
     ],
@@ -36,6 +37,9 @@ Ext.define('Mdc.view.setup.comservercomports.Preview', {
         },
         {
             xtype: 'comPortFormSERIAL'
+        },
+        {
+            xtype: 'comPortFormCOAP'
         },
         {
             xtype: 'comPortFormSERVLET'

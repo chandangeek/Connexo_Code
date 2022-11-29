@@ -4,19 +4,15 @@
 
 package com.energyict.mdc.engine.config.impl;
 
-import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.energyict.mdc.common.comserver.OutboundComPort;
+import com.energyict.mdc.common.comserver.IPBasedInboundComPort;
 import com.energyict.mdc.common.comserver.InboundComPort;
-import com.energyict.mdc.common.comserver.ComPort;
+import com.energyict.mdc.common.comserver.OutboundComPort;
 import com.energyict.mdc.common.comserver.UDPBasedInboundComPort;
-import com.energyict.mdc.ports.ComPortType;
+import com.energyict.mdc.common.comserver.UDPInboundComPort;
 
 import javax.inject.Inject;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.XmlElement;
 
 /**
  * Provides an implementation for the {@link UDPBasedInboundComPort} interface.
@@ -24,53 +20,19 @@ import javax.xml.bind.annotation.XmlElement;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2012-04-02 (13:30)
  */
-public class UDPBasedInboundComPortImpl extends IPBasedInboundComPortImpl implements UDPBasedInboundComPort, OutboundComPort  {
-
-    @NotNull(groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_CAN_NOT_BE_EMPTY+"}")
-    @Min(value=1, groups = { Save.Create.class, Save.Update.class }, message = "{"+ MessageSeeds.Keys.MDC_VALUE_TOO_SMALL+"}")
-    private Integer bufferSize;
+public class UDPBasedInboundComPortImpl extends UDPInboundComPortImpl implements UDPBasedInboundComPort, UDPInboundComPort, IPBasedInboundComPort, OutboundComPort, InboundComPort {
 
     @Inject
     protected UDPBasedInboundComPortImpl(DataModel dataModel, Thesaurus thesaurus) {
         super(dataModel, thesaurus);
     }
 
-    @Override
-    public boolean isUDPBased() {
-        return true;
-    }
-
-    @Override
-    protected void copyFrom(ComPort source) {
-        super.copyFrom(source);
-        this.setBufferSize(((UDPBasedInboundComPort)source).getBufferSize());
-    }
-
-    @Override
-    @XmlElement
-    public Integer getBufferSize () {
-        return bufferSize;
-    }
-
-    @Override
-    public void setBufferSize(Integer bufferSize) {
-        this.bufferSize = bufferSize;
-    }
-
     static class UDPBasedInboundComPortBuilderImpl
-            extends IpBasedInboundComPortBuilderImpl<UDPBasedInboundComPort.UDPBasedInboundComPortBuilder, UDPBasedInboundComPort>
-            implements UDPBasedInboundComPort.UDPBasedInboundComPortBuilder {
+            extends UDPInboundComPortBuilderImpl<UDPBasedInboundComPortBuilder, UDPBasedInboundComPort>
+            implements UDPBasedInboundComPortBuilder {
 
-        protected UDPBasedInboundComPortBuilderImpl(UDPBasedInboundComPort ipBasedInboundComPort, String name, int numberOfSimultaneousConnections, int portNumber) {
-            super(UDPBasedInboundComPort.UDPBasedInboundComPortBuilder.class, ipBasedInboundComPort, name, numberOfSimultaneousConnections, portNumber);
-            comPort.setComPortType(ComPortType.UDP);
-        }
-
-        @Override
-        public UDPBasedInboundComPortBuilder bufferSize(Integer bufferSize) {
-            comPort.setBufferSize(bufferSize);
-            return this;
+        protected UDPBasedInboundComPortBuilderImpl(UDPBasedInboundComPort udpBasedInboundComPort, String name, int numberOfSimultaneousConnections, int portNumber) {
+            super(UDPBasedInboundComPortBuilder.class, udpBasedInboundComPort, name, numberOfSimultaneousConnections, portNumber);
         }
     }
-
 }
