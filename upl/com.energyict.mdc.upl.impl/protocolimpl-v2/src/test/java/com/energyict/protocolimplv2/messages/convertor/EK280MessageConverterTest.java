@@ -187,9 +187,9 @@ public class EK280MessageConverterTest extends AbstractV2MessageConverterTest {
                 return "start";
             case DeviceMessageConstants.autoConnectEndTime:
                 return "end";
-            case DeviceMessageConstants.autoConnectDestionation1:
+            case DeviceMessageConstants.autoConnectDestination1:
                 return "localhost";
-            case DeviceMessageConstants.autoConnectDestionation2:
+            case DeviceMessageConstants.autoConnectDestination2:
                 return "N/A";
             case DeviceMessageConstants.autoAnswerStartTime:
                 return "start";

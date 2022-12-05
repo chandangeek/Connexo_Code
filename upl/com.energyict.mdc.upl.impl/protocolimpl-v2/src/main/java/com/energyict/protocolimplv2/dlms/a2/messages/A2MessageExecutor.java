@@ -61,7 +61,7 @@ import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.TimeZ
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.apnAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectCosemSessionRegistrationTimeout;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDayMap;
-import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDestionation;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectDestination;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectGSMRegistrationTimeout;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectMode;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.autoConnectRepetitions;
@@ -331,7 +331,7 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
         String startDate4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStartTime4);
         String stopDate4 = getDeviceMessageOptionalAttributeValue(pendingMessage, communicationWindowStopTime4);
         String dayMap = getDeviceMessageAttributeValue(pendingMessage, autoConnectDayMap);
-        String destination = getDeviceMessageAttributeValue(pendingMessage, autoConnectDestionation);
+        String destination = getDeviceMessageAttributeValue(pendingMessage, autoConnectDestination);
         String port = getDeviceMessageAttributeValue(pendingMessage, portNumberAttributeName);
         String gsmRegistrationTimeout = getDeviceMessageAttributeValue(pendingMessage, autoConnectGSMRegistrationTimeout);
         String cosemSessionTimeout = getDeviceMessageAttributeValue(pendingMessage, autoConnectCosemSessionRegistrationTimeout);
@@ -346,7 +346,7 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
             if (startDate1 != null && stopDate1 != null) {
                 windowList.addDataType(getWindowFrame(startDate1, stopDate1, autoConnectMode));
             } else {
-                getProtocol().journal(Level.SEVERE, "Calling window is absent. Please set the boundary dates. Filling in the Date part is mandatory. For everyday mode, put in any date.");
+                getProtocol().journal(java.util.logging.Level.SEVERE, "Calling window is absent. Please set the boundary dates. Filling in the Date part is mandatory. For everyday mode, put in any date.");
                 throw new IOException("Calling window is absent. Please set the boundary dates. Filling in the Date part is mandatory. For everyday mode, put in any date.");
             }
             if (startDate2 != null && stopDate2 != null) {
@@ -359,7 +359,7 @@ public class A2MessageExecutor extends AbstractMessageExecutor {
                 windowList.addDataType(getWindowFrame(startDate4, stopDate4, autoConnectMode));
             }
         }
-        autoConnect.writeCallingWindow(new Array(windowList));
+        autoConnect.writeCallingWindow(windowList);
         writeIpAddressAndPort(destination, port, autoConnect);
         autoConnect.writeDayMap(Long.parseLong(dayMap, 16));
         autoConnect.writeGSMRegistrationTimeout(Integer.parseInt(gsmRegistrationTimeout));
