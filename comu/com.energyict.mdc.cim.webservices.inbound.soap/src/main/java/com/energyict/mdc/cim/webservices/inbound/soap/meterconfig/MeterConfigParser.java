@@ -24,6 +24,7 @@ import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
 import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedule;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zone;
 
@@ -116,6 +117,7 @@ public class MeterConfigParser {
         meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
         meterInfo.setSecurityInfo(extractSecurityInfo(meter));
         meterInfo.setConnectionAttributes(meter.getConnectionAttributes());
+        meterInfo.setSharedCommunicationSchedules(extractSharedCommunicationSchedules(meter));
         return meterInfo;
     }
 
@@ -241,6 +243,21 @@ public class MeterConfigParser {
     public Optional<BigDecimal> extractMultiplier(Meter meter) {
         return meter.getMeterMultipliers().stream().map(MeterMultiplier::getValue).filter(Objects::nonNull).findFirst()
                 .map(BigDecimal::valueOf);
+    }
+
+    private List<SharedCommunicationSchedule> extractSharedCommunicationSchedules(Meter meter) throws FaultMessage {
+        List<SharedCommunicationSchedule> result = new ArrayList<>();
+        for (SharedCommunicationSchedule schedule : meter.getSharedCommunicationSchedules()) {
+            SharedCommunicationSchedule info = extractSharedCommunicationSchedule(schedule);
+            result.add(info);
+        }
+        return result;
+    }
+
+    private SharedCommunicationSchedule extractSharedCommunicationSchedule(SharedCommunicationSchedule schedule) throws FaultMessage {
+        SharedCommunicationSchedule newschedule = new SharedCommunicationSchedule();
+        newschedule.setName(schedule.getName());
+        return schedule;
     }
 
     public Optional<Status> extractMeterStatus(Meter meter) {

@@ -5,6 +5,7 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.fsm.State;
+import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.metering.MeteringTranslationService;
 import com.elster.jupiter.orm.TransactionRequired;
 import com.elster.jupiter.properties.PropertySpec;
@@ -17,17 +18,19 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.lifecycle.config.AuthorizedTransitionAction;
-import com.elster.jupiter.metering.DefaultState;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.Attribute;
 import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedule;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
@@ -35,6 +38,7 @@ import javax.inject.Inject;
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -54,12 +58,15 @@ public class DeviceBuilder {
     private final DeviceService deviceService;
     private final MeterConfigFaultMessageFactory faultMessageFactory;
     private final MeteringTranslationService meteringTranslationService;
+    private final SchedulingService schedulingService;
+    private List<ComSchedule> comSchedules;
 
     @Inject
     public DeviceBuilder(BatchService batchService, Clock clock, DeviceLifeCycleService deviceLifeCycleService,
                          DeviceConfigurationService deviceConfigurationService, DeviceService deviceService,
                          MeterConfigFaultMessageFactory faultMessageFactory,
-                         MeteringTranslationService meteringTranslationService) {
+                         MeteringTranslationService meteringTranslationService,
+                         SchedulingService schedulingService) {
         this.batchService = batchService;
         this.clock = clock;
         this.deviceLifeCycleService = deviceLifeCycleService;
@@ -67,8 +74,8 @@ public class DeviceBuilder {
         this.deviceService = deviceService;
         this.faultMessageFactory = faultMessageFactory;
         this.meteringTranslationService = meteringTranslationService;
+        this.schedulingService = schedulingService;
     }
-
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
         DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(),
                 meter.getDeviceType());
@@ -89,8 +96,30 @@ public class DeviceBuilder {
             deviceBuilder.withZones(mapZones);
             Device device = deviceBuilder.create();
             setConnectionAttributes(device, meter.getConnectionAttributes());
+            List<String> scheduleNames = extractSharedCommunicationSchedules(meter);
+            comSchedules = new ArrayList<>();
+            if (scheduleNames.size() > 0) {
+                for (String scheduleName : scheduleNames) {
+                    Optional<ComSchedule> optionalComSchedule = schedulingService.findScheduleByName(scheduleName);
+                    if (optionalComSchedule.isPresent()) {
+                        comSchedules.add(optionalComSchedule.get());
+                    }
+                }
+            }
+            if (comSchedules != null && comSchedules.size()>0) {
+                for (ComSchedule comSchedule : comSchedules) {
+                    device.newScheduledComTaskExecution(comSchedule).add();
+                }
+            }
             return device;
         };
+    }
+    private List<String> extractSharedCommunicationSchedules(MeterInfo meter)  {
+        List<String> result = new ArrayList<>();
+        for (SharedCommunicationSchedule schedule : meter.getSharedCommunicationSchedules()) {
+             result.add(schedule.getName());
+           }
+        return result;
     }
 
     public PreparedDeviceBuilder prepareChangeFrom(MeterInfo meter) throws FaultMessage {
