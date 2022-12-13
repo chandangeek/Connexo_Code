@@ -13,7 +13,6 @@ import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EventType;
 
@@ -36,25 +35,22 @@ public class RemoveEndPointConfigurationFSMTopicHandler implements TopicHandler 
     @Inject
     public RemoveEndPointConfigurationFSMTopicHandler(OrmService ormService, NlsService nlsService) {
         this.setThesaurus(nlsService);
-        this.setOrmService(ormService) ;
+        this.setOrmService(ormService);
     }
 
     @Override
     public void handle(LocalEvent localEvent) {
         EndPointConfiguration endPointConfiguration = (EndPointConfiguration) localEvent.getSource();
-        try(QueryStream<EndPointConfigurationReference> endPointStream = ormService.getDataModel(FiniteStateMachineService.COMPONENT_NAME)
+        boolean isUsedByLifeCycle = ormService.getDataModel(FiniteStateMachineService.COMPONENT_NAME)
                 .orElseThrow(() -> new IllegalStateException(DataModel.class.getSimpleName() + " of " + FiniteStateMachineService.COMPONENT_NAME + " isn't found"))
-                .stream(EndPointConfigurationReference.class)){
-            boolean isUsedByLifeCycle = endPointStream
+                .stream(EndPointConfigurationReference.class)
                 .join(EndPointConfiguration.class)
-                    .filter(where("endPointConfiguration.id").isEqualTo(endPointConfiguration.getId()))
-                    .findAny()
-                    .isPresent();
-            if (isUsedByLifeCycle) {
-                throw new VetoEndPointConfigurationDeleteException(this.thesaurus, endPointConfiguration);
-            }
+                .filter(where("endPointConfiguration.id").isEqualTo(endPointConfiguration.getId()))
+                .findAny()
+                .isPresent();
+        if (isUsedByLifeCycle) {
+            throw new VetoEndPointConfigurationDeleteException(this.thesaurus, endPointConfiguration);
         }
-
     }
 
     @Reference

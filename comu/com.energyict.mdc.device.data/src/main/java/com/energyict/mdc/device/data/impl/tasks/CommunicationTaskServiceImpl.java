@@ -815,7 +815,7 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
     }
 
     private List<ComTaskExecution> getPendingComTaskExecutions(OutboundComPort comPort, Instant nowInSeconds, int factor) {
-        long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000;
+        long msSinceMidnight = nowInSeconds.atZone(ZoneId.systemDefault()).toLocalTime().toSecondOfDay() * 1000L;
         List<OutboundComPortPool> comPortPools =
                 this.deviceDataModelService
                         .engineConfigurationService()
@@ -824,17 +824,16 @@ public class CommunicationTaskServiceImpl implements ServerCommunicationTaskServ
                         .filter(ComPortPool::isActive)
                         .collect(Collectors.toList());
         String connectionTask = ComTaskExecutionFields.CONNECTIONTASK.fieldName() + ".";
-        try(QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask)) {
-            if (factor > 0) {
-                comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
-                // one comport is starting at row 1, the other at limit + 1
-                if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
-                    comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
-                }
+        QueryStream<ComTaskExecution> comTasks = getFilteredPendingComTaskExecutions(nowInSeconds, msSinceMidnight, comPortPools, connectionTask);
+        if (factor > 0) {
+            comTasks = comTasks.limit(comPort.getNumberOfSimultaneousConnections() * factor);
+            // one comport is starting at row 1, the other at limit + 1
+            if (!comTaskExecutionBalancing.isAscending(comPortPools, comPort)) {
+                comTasks = comTasks.skip(comPort.getNumberOfSimultaneousConnections() * factor);
             }
-            initCommunicationParameters();
-            return sortComTaskExecutions(connectionTask, comTasks);
         }
+        initCommunicationParameters();
+        return sortComTaskExecutions(connectionTask, comTasks);
     }
 
     private void initCommunicationParameters() {

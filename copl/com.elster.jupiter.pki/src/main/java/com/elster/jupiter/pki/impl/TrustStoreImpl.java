@@ -12,9 +12,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
@@ -154,7 +152,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
 
     @Override
     public List<TrustedCertificate> getCertificates() {
-        return this.trustedCertificates.stream().sorted(Comparator.comparing(ts-> ts.getAlias().toLowerCase())).collect(toList());
+        return this.trustedCertificates.stream().sorted(Comparator.comparing(ts -> ts.getAlias().toLowerCase())).collect(toList());
     }
 
     @Override
@@ -251,19 +249,15 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     public void delete() {
         Condition referencesThisTrustStore = Where.where(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
                 .isEqualTo(this);
-        try(QueryStream<DirectoryCertificateUsage>directoryCertificateUsageQueryStream = securityManagementService.streamDirectoryCertificateUsages();
-            QueryStream<SecurityAccessorTypeImpl> securityAccessorTypeQueryStream = dataModel.stream(SecurityAccessorTypeImpl.class)){
-        if (securityAccessorTypeQueryStream.anyMatch(referencesThisTrustStore)) {
+        if (dataModel.stream(SecurityAccessorTypeImpl.class).anyMatch(referencesThisTrustStore)) {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_ON_SECURITY_ACCESSOR);
-            }
-        if (directoryCertificateUsageQueryStream
-                    .filter(Where.where("trustStore").isEqualTo(this))
-                    .findAny()
-                    .isPresent()) {
-                throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY);
-            }
         }
-
+        if (securityManagementService.streamDirectoryCertificateUsages()
+                .filter(Where.where("trustStore").isEqualTo(this))
+                .findAny()
+                .isPresent()) {
+            throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY);
+        }
         if (fileImportService.doImportersUse(this)) {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_IMPORT);
         }

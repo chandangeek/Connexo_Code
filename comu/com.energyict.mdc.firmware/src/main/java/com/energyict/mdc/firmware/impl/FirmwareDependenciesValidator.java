@@ -7,7 +7,6 @@ package com.energyict.mdc.firmware.impl;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
@@ -86,32 +85,30 @@ public class FirmwareDependenciesValidator implements ConstraintValidator<Correc
     }
 
     void validateDependencyRanks(List<? extends FirmwareVersion> firmwareVersionsWithUpdatedRanks) {
-        try (QueryStream<FirmwareVersion> dependentFirmwareVersions = dataModel.stream(FirmwareVersion.class)) {
-            dependentFirmwareVersions
-                    .join(FirmwareVersion.class)
-                    .filter(Where.where(FirmwareVersionImpl.Fields.METER_FW_DEP.fieldName()).in(firmwareVersionsWithUpdatedRanks)
-                            .or(Where.where(FirmwareVersionImpl.Fields.COM_FW_DEP.fieldName()).in(firmwareVersionsWithUpdatedRanks))
-                            .or(Where.where(FirmwareVersionImpl.Fields.AUX_FW_DEP.fieldName()).in(firmwareVersionsWithUpdatedRanks)));
-            Stream.concat(dependentFirmwareVersions, firmwareVersionsWithUpdatedRanks.stream())
-                    .distinct()
-                    .forEach(firmwareVersion -> {
-                        firmwareVersion.getMeterFirmwareDependency()
-                                .filter(dep -> dep.getRank() >= firmwareVersion.getRank())
-                                .ifPresent(dependency -> throwError(MessageSeeds.WRONG_RANK_FOR_METER_FW_DEPENDENCY,
-                                        firmwareVersion.getFirmwareVersion(),
-                                        dependency.getFirmwareVersion()));
-                        firmwareVersion.getCommunicationFirmwareDependency()
-                                .filter(dep -> dep.getRank() >= firmwareVersion.getRank())
-                                .ifPresent(dependency -> throwError(MessageSeeds.WRONG_RANK_FOR_COM_FW_DEPENDENCY,
-                                        firmwareVersion.getFirmwareVersion(),
-                                        dependency.getFirmwareVersion()));
-                        firmwareVersion.getAuxiliaryFirmwareDependency()
-                                .filter(dep -> dep.getRank() >= firmwareVersion.getRank())
-                                .ifPresent(dependency -> throwError(MessageSeeds.WRONG_RANK_FOR_AUX_FW_DEPENDENCY,
-                                        firmwareVersion.getFirmwareVersion(),
-                                        dependency.getFirmwareVersion()));
-                    });
-        }
+        Stream<FirmwareVersion> dependentFirmwareVersions = dataModel.stream(FirmwareVersion.class)
+                .join(FirmwareVersion.class)
+                .filter(Where.where(FirmwareVersionImpl.Fields.METER_FW_DEP.fieldName()).in(firmwareVersionsWithUpdatedRanks)
+                        .or(Where.where(FirmwareVersionImpl.Fields.COM_FW_DEP.fieldName()).in(firmwareVersionsWithUpdatedRanks))
+                        .or(Where.where(FirmwareVersionImpl.Fields.AUX_FW_DEP.fieldName()).in(firmwareVersionsWithUpdatedRanks)));
+        Stream.concat(dependentFirmwareVersions, firmwareVersionsWithUpdatedRanks.stream())
+                .distinct()
+                .forEach(firmwareVersion -> {
+                    firmwareVersion.getMeterFirmwareDependency()
+                            .filter(dep -> dep.getRank() >= firmwareVersion.getRank())
+                            .ifPresent(dependency -> throwError(MessageSeeds.WRONG_RANK_FOR_METER_FW_DEPENDENCY,
+                                    firmwareVersion.getFirmwareVersion(),
+                                    dependency.getFirmwareVersion()));
+                    firmwareVersion.getCommunicationFirmwareDependency()
+                            .filter(dep -> dep.getRank() >= firmwareVersion.getRank())
+                            .ifPresent(dependency -> throwError(MessageSeeds.WRONG_RANK_FOR_COM_FW_DEPENDENCY,
+                                    firmwareVersion.getFirmwareVersion(),
+                                    dependency.getFirmwareVersion()));
+                    firmwareVersion.getAuxiliaryFirmwareDependency()
+                            .filter(dep -> dep.getRank() >= firmwareVersion.getRank())
+                            .ifPresent(dependency -> throwError(MessageSeeds.WRONG_RANK_FOR_AUX_FW_DEPENDENCY,
+                                    firmwareVersion.getFirmwareVersion(),
+                                    dependency.getFirmwareVersion()));
+                });
     }
 
     private void logError(ConstraintValidatorContext context, String property, MessageSeeds messageSeed, Object... args) {

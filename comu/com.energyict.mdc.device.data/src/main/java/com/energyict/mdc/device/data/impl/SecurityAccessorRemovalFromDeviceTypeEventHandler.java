@@ -10,7 +10,6 @@ import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.DeviceType;
@@ -30,7 +29,7 @@ import javax.inject.Inject;
  * Listens for validate-delete events for {@link SecurityAccessorType} on {@link DeviceType}
  * and will veto the deletion if the {@link SecurityAccessorType} is still referenced by any {@link SecurityAccessor}.
  */
-@Component(name="com.energyict.mdc.device.data.impl.SecurityAccessorRemovalFromDeviceTypeEventHandler", service = TopicHandler.class, immediate = true)
+@Component(name = "com.energyict.mdc.device.data.impl.SecurityAccessorRemovalFromDeviceTypeEventHandler", service = TopicHandler.class, immediate = true)
 public class SecurityAccessorRemovalFromDeviceTypeEventHandler implements TopicHandler {
     private volatile DeviceDataModelService deviceDataModelService;
     private volatile Thesaurus thesaurus;
@@ -51,14 +50,14 @@ public class SecurityAccessorRemovalFromDeviceTypeEventHandler implements TopicH
     @Override
     public void handle(LocalEvent localEvent) {
         SecurityAccessorTypeOnDeviceType source = (SecurityAccessorTypeOnDeviceType) localEvent.getSource();
-        try(QueryStream<SecurityAccessor> stream = deviceDataModelService.dataModel().stream(SecurityAccessor.class)) {
-            if(stream.join(Device.class)
-                    .filter(Where.where(AbstractDeviceSecurityAccessorImpl.Fields.DEVICE.fieldName() + ".deviceType").isEqualTo(source.getDeviceType()))
-                    .filter(Where.where(AbstractDeviceSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).isEqualTo(source.getSecurityAccessorType()))
-                    .findAny()
-                    .isPresent()) {
-                throw new LocalizedException(thesaurus, MessageSeeds.VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE) {};
-            }
+        if (deviceDataModelService.dataModel().stream(SecurityAccessor.class)
+                .join(Device.class)
+                .filter(Where.where(AbstractDeviceSecurityAccessorImpl.Fields.DEVICE.fieldName() + ".deviceType").isEqualTo(source.getDeviceType()))
+                .filter(Where.where(AbstractDeviceSecurityAccessorImpl.Fields.KEY_ACCESSOR_TYPE.fieldName()).isEqualTo(source.getSecurityAccessorType()))
+                .findAny()
+                .isPresent()) {
+            throw new LocalizedException(thesaurus, MessageSeeds.VETO_SECURITY_ACCESSOR_REMOVAL_FROM_DEVICE_TYPE) {
+            };
         }
     }
 

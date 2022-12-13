@@ -330,8 +330,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             return deviceProtocol.getSupportedMessages()
                     .stream()
                     .map(DeviceMessageSpec::getId)
-                    .filter(id -> DeviceMessageId.find(id).isPresent())
-                    .map(DeviceMessageId::from)
+                    .map(DeviceMessageId::find)
+                    .flatMap(Functions.asStream())
                     .anyMatch(dmid -> this.deviceMessageSpecificationService.needsImageIdentifierAtFirmwareUpload(dmid));
         }
         return false;
@@ -344,8 +344,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
             return deviceProtocol.getSupportedMessages()
                     .stream()
                     .map(DeviceMessageSpec::getId)
-                    .filter(id -> DeviceMessageId.find(id).isPresent())
-                    .map(DeviceMessageId::from)
+                    .map(DeviceMessageId::find)
+                    .flatMap(Functions.asStream())
                     .anyMatch(dmid -> this.deviceMessageSpecificationService.canResumeFirmwareUpload(dmid));
         }
         return false;
@@ -387,8 +387,8 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
         return deviceType.getDeviceProtocolPluggableClass()
                 .map(deviceProtocolPluggableClass -> deviceProtocolPluggableClass.getDeviceProtocol().getSupportedMessages().stream()
                         .map(DeviceMessageSpec::getId)
-                        .filter(id -> DeviceMessageId.find(id).isPresent())
-                        .map(DeviceMessageId::from)
+                        .map(DeviceMessageId::find)
+                        .flatMap(Functions.asStream())
                         .collect(Collectors.toList())).orElse(Collections.emptyList())
                 .stream()
                 .filter(firmwareMessageCandidate -> {

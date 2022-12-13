@@ -6,7 +6,6 @@ package com.energyict.mdc.firmware.impl;
 
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.orm.associations.ValueReference;
@@ -79,15 +78,13 @@ public class FirmwareCampaignVersionSnapshotImpl implements FirmwareCampaignVers
 
     @Override
     public void save() {
-        try (QueryStream<FirmwareCampaignVersionStateShapshot> firmwareCampaignVersionStateShapshotQueryStream = dataModel.stream(FirmwareCampaignVersionStateShapshot.class)) {
-            if (firmwareCampaignVersionStateShapshotQueryStream
-                    .filter(Where.where(Fields.FWRCAMPAIGN.fieldName()).isEqualTo(firmwareCampaign.get()))
-                    .filter(Where.where(Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType))
-                    .anyMatch(Where.where(Fields.FIRMWAREVERSION.fieldName()).isEqualTo(firmwareVersion))) {
-                Save.UPDATE.save(dataModel, this);
-            } else {
-                Save.CREATE.save(dataModel, this);
-            }
+        if (dataModel.stream(FirmwareCampaignVersionStateShapshot.class)
+                .filter(Where.where(Fields.FWRCAMPAIGN.fieldName()).isEqualTo(firmwareCampaign.get()))
+                .filter(Where.where(Fields.FIRMWARETYPE.fieldName()).isEqualTo(firmwareType))
+                .anyMatch(Where.where(Fields.FIRMWAREVERSION.fieldName()).isEqualTo(firmwareVersion))) {
+            Save.UPDATE.save(dataModel, this);
+        } else {
+            Save.CREATE.save(dataModel, this);
         }
     }
 

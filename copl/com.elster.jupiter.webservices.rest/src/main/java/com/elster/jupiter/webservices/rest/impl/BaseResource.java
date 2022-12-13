@@ -4,13 +4,11 @@
 
 package com.elster.jupiter.webservices.rest.impl;
 
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
-import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointLog;
 import com.elster.jupiter.soap.whiteboard.cxf.OccurrenceLogFinderBuilder;
@@ -132,10 +130,8 @@ public abstract class BaseResource {
         }
         /* Find endpoints by ID */
         if (filter.hasProperty("webServiceEndPoint")) {
-            try (QueryStream<EndPointConfiguration> epcSet = endPointConfigurationService.streamEndPointConfigurations()
-                    .filter(where("id").in(filter.getLongList("webServiceEndPoint")))) {
-                finderBuilder.withEndPointConfigurations(epcSet.collect(Collectors.toSet()));
-            }
+            finderBuilder.withEndPointConfigurations(endPointConfigurationService.streamEndPointConfigurations()
+                    .filter(where("id").in(filter.getLongList("webServiceEndPoint"))).collect(Collectors.toSet()));
         }
 
         if (filter.hasProperty("status")) {
