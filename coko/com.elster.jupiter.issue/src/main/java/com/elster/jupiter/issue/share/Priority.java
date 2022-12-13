@@ -48,25 +48,26 @@ public final class Priority implements Comparable<Priority>, Cloneable {
     }
 
     private void setRank() {
-        int priorityValue = this.urgency + this.impact;
-        switch (priorityValue / 10) {
+        int priorityValue = this.urgency + this.impact - 1;
+        int res = priorityValue / 10;
+        switch (res) {
             case 0:
             case 1:
-            case 2:
                 this.rank = Rank.VERY_LOW;
                 break;
+            case 2:
             case 3:
-            case 4:
                 this.rank = Rank.LOW;
                 break;
+            case 4:
             case 5:
-            case 6:
                 this.rank = Rank.MEDIUM;
                 break;
+            case 6:
             case 7:
-            case 8:
                 this.rank = Rank.HIGH;
                 break;
+            case 8:
             case 9:
             case 10:
                 this.rank = Rank.VERY_HIGH;
