@@ -796,6 +796,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     public void setSchedulingService(SchedulingService schedulingService) {
         this.schedulingService = schedulingService;
     }
+
     @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
     public void setMasterDataLinkageConfigMasterCustomPropertySet(
             CustomPropertySet masterDataLinkageConfigMasterCustomPropertySet) {

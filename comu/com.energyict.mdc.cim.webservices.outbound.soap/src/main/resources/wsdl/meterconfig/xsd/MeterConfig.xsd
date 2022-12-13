@@ -477,12 +477,23 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="SharedCommunicationSchedules" type="m:SharedCommunicationSchedule" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="SharedCommunicationSchedules" type="m:SharedCommunicationSchedules" minOccurs="0"  />
             <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>This can contain custom information</xs:documentation>
                 </xs:annotation>
             </xs:any>
+        </xs:sequence>
+        </xs:complexType>
+    <xs:complexType name="SharedCommunicationSchedules">
+        <xs:sequence>
+            <xs:element name="SharedCommunicationSchedule" type="m:SharedCommunicationSchedule"
+                        minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="SharedCommunicationSchedule">
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string" minOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="MeterMultiplier"
@@ -706,12 +717,6 @@
             <xs:enumeration value="steel"/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:complexType name="SharedCommunicationSchedule" >
-        <xs:sequence>
-            <xs:element name="Name" type="xs:string" minOccurs="1"/>
-        </xs:sequence>
-    </xs:complexType>
-
     <xs:complexType name="SimpleEndDeviceFunction"
                     sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#SimpleEndDeviceFunction">
         <xs:sequence>

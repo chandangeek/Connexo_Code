@@ -247,9 +247,11 @@ public class MeterConfigParser {
 
     private List<SharedCommunicationSchedule> extractSharedCommunicationSchedules(Meter meter) throws FaultMessage {
         List<SharedCommunicationSchedule> result = new ArrayList<>();
-        for (SharedCommunicationSchedule schedule : meter.getSharedCommunicationSchedules()) {
-            SharedCommunicationSchedule info = extractSharedCommunicationSchedule(schedule);
-            result.add(info);
+        if (meter.getSharedCommunicationSchedules() != null) {
+            for (SharedCommunicationSchedule schedule : meter.getSharedCommunicationSchedules().getSharedCommunicationSchedule()) {
+                SharedCommunicationSchedule info = extractSharedCommunicationSchedule(schedule);
+                result.add(info);
+            }
         }
         return result;
     }

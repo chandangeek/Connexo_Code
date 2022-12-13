@@ -42,17 +42,17 @@ public class MeterInfo {
     private List<CasInfo> customAttributeSets;
     private SecurityInfo securityInfo;
     private List<ConnectionAttributes> connectionAttributes;
-    private List<SharedCommunicationSchedule> SharedCommunicationSchedules;
+    private List<SharedCommunicationSchedule> sharedCommunicationSchedules;
 
     public MeterInfo() {
     }
 
     public List<SharedCommunicationSchedule> getSharedCommunicationSchedules() {
-        return SharedCommunicationSchedules;
+        return sharedCommunicationSchedules;
     }
 
     public void setSharedCommunicationSchedules(List<SharedCommunicationSchedule> sharedCommunicationSchedules) {
-        SharedCommunicationSchedules = sharedCommunicationSchedules;
+        this.sharedCommunicationSchedules = sharedCommunicationSchedules;
     }
 
     public String getDeviceName() {

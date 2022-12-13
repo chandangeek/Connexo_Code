@@ -113,7 +113,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                                          DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
                                          MeteringTranslationService meteringTranslationService, TransactionService transactionService,
-                                         TopologyService topologyService, EndPointConfigurationService endPointConfigurationService,SchedulingService schedulingService) {
+                                         TopologyService topologyService, EndPointConfigurationService endPointConfigurationService, SchedulingService schedulingService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -383,6 +383,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     @Reference
     public void setJsonService(JsonService jsonService) {
         this.jsonService = jsonService;
+    }
+
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
     }
 
     @Reference

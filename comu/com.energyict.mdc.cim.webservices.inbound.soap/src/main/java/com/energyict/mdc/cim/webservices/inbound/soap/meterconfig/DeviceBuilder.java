@@ -59,7 +59,6 @@ public class DeviceBuilder {
     private final MeterConfigFaultMessageFactory faultMessageFactory;
     private final MeteringTranslationService meteringTranslationService;
     private final SchedulingService schedulingService;
-    private List<ComSchedule> comSchedules;
 
     @Inject
     public DeviceBuilder(BatchService batchService, Clock clock, DeviceLifeCycleService deviceLifeCycleService,
@@ -76,6 +75,7 @@ public class DeviceBuilder {
         this.meteringTranslationService = meteringTranslationService;
         this.schedulingService = schedulingService;
     }
+
     public PreparedDeviceBuilder prepareCreateFrom(MeterInfo meter) throws FaultMessage {
         DeviceConfiguration deviceConfig = findDeviceConfiguration(meter, meter.getDeviceConfigurationName(),
                 meter.getDeviceType());
@@ -97,7 +97,7 @@ public class DeviceBuilder {
             Device device = deviceBuilder.create();
             setConnectionAttributes(device, meter.getConnectionAttributes());
             List<String> scheduleNames = extractSharedCommunicationSchedules(meter);
-            comSchedules = new ArrayList<>();
+            List<ComSchedule> comSchedules = new ArrayList<>();
             if (scheduleNames.size() > 0) {
                 for (String scheduleName : scheduleNames) {
                     Optional<ComSchedule> optionalComSchedule = schedulingService.findScheduleByName(scheduleName);
@@ -106,7 +106,7 @@ public class DeviceBuilder {
                     }
                 }
             }
-            if (comSchedules != null && comSchedules.size()>0) {
+            if (comSchedules != null && comSchedules.size() > 0) {
                 for (ComSchedule comSchedule : comSchedules) {
                     device.newScheduledComTaskExecution(comSchedule).add();
                 }
@@ -114,11 +114,12 @@ public class DeviceBuilder {
             return device;
         };
     }
-    private List<String> extractSharedCommunicationSchedules(MeterInfo meter)  {
+
+    private List<String> extractSharedCommunicationSchedules(MeterInfo meter) {
         List<String> result = new ArrayList<>();
         for (SharedCommunicationSchedule schedule : meter.getSharedCommunicationSchedules()) {
-             result.add(schedule.getName());
-           }
+            result.add(schedule.getName());
+        }
         return result;
     }
 

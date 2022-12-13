@@ -54,6 +54,7 @@ import ch.iec.tc57._2011.meterconfig.MeterStatus;
 import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedule;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedules;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zones;
@@ -202,6 +203,11 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         meter.setType(device.getDeviceConfiguration().getDeviceType().getName());
         meter.getMeterMultipliers().add(createMultiplier(device.getMultiplier()));
         meter.setStatus(createStatus(device));
+        meter.setSharedCommunicationSchedules(createSharedCommunicationSchedules(device));
+        return meter;
+    }
+
+    private SharedCommunicationSchedules createSharedCommunicationSchedules(Device device) {
         DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
         List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions().stream()
                 .filter(comTaskExecution -> !comTaskExecution.getComTask().isSystemComTask())
@@ -210,21 +216,19 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                 .filter(comTaskEnablement -> !comTaskEnablement.getComTask().isSystemComTask())
                 .collect(Collectors.toList());
         List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements, device);
-       List<SharedCommunicationSchedule> sharedCommunicationSchedules = meter.getSharedCommunicationSchedules();
-        if (deviceSchedulesInfos.size() != 0) {
-            for (DeviceSchedulesInfo deviceScheduleInfo : deviceSchedulesInfos) {
+        Set<String> set = new HashSet<>();
+        List<DeviceSchedulesInfo> distinctSchedules = deviceSchedulesInfos.stream()
+                .filter(data -> (data.name != null && set.add(data.name)))
+                .collect(Collectors.toList());
+        SharedCommunicationSchedules sharedCommunicationSchedules = new SharedCommunicationSchedules();
+        if (distinctSchedules.size() > 0) {
+            for (DeviceSchedulesInfo deviceScheduleInfo : distinctSchedules) {
                 SharedCommunicationSchedule schedule = new SharedCommunicationSchedule();
-                if ((!(deviceScheduleInfo.name == null) && !deviceScheduleInfo.name.isEmpty())) {
-                    if (!(sharedCommunicationSchedules.stream()
-                            .anyMatch(sharedCommunicationSchedule -> deviceScheduleInfo.name.equals(sharedCommunicationSchedule
-                                    .getName())))) {
-                        schedule.setName(deviceScheduleInfo.name);
-                        sharedCommunicationSchedules.add(schedule);
-                    }
-                }
+                schedule.setName(deviceScheduleInfo.name);
+                sharedCommunicationSchedules.getSharedCommunicationSchedule().add(schedule);
             }
         }
-         return meter;
+        return sharedCommunicationSchedules;
     }
 
     private EndDeviceInfo createEndDeviceInfo(Device device) {
