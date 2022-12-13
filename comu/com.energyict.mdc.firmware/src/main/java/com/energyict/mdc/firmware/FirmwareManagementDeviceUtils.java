@@ -45,6 +45,8 @@ public interface FirmwareManagementDeviceUtils {
 
     Optional<ComTaskExecution> getFirmwareComTaskExecution();
 
+    Optional<ComTaskExecution> lockFirmwareComTaskExecution();
+
     Optional<ComTask> getFirmwareTask();
 
     Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion();

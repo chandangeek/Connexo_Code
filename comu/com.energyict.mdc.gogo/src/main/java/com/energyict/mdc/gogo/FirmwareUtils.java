@@ -241,6 +241,7 @@ public class FirmwareUtils {
                         System.out.println("Reusing existing FirmwareComTaskExecution");
                         connectionTaskService.findAndLockConnectionTaskById(existingFirmwareComTaskExecution.get().getConnectionTaskId());
                         communicationTaskService.findAndLockComTaskExecutionById(existingFirmwareComTaskExecution.get().getId()).ifPresent(ComTaskExecution::runNow);
+                        System.out.println("Properly triggered the firmwareComTask, its next timestamp is " + existingFirmwareComTaskExecution.get().getNextExecutionTimestamp());
                     } else {
                         System.out.println("Creating a new FirmwareComTaskExecution based on the enablement of the config");
                         Optional<ComTaskEnablement> firmwareComTaskEnablement = device.get().getDeviceConfiguration().getComTaskEnablementFor(firmwareComTask.get());
@@ -248,8 +249,9 @@ public class FirmwareUtils {
                             ComTaskExecutionBuilder firmwareComTaskExecutionBuilder = device.get().newFirmwareComTaskExecution(firmwareComTaskEnablement.get());
                             ComTaskExecution firmwareComTaskExecution = firmwareComTaskExecutionBuilder.add();
                             device.get().save();
+                            connectionTaskService.findAndLockConnectionTaskById(firmwareComTaskExecution.getConnectionTaskId());
                             communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
-                            System.out.println("Properly triggered the firmwareComTask, his next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
+                            System.out.println("Properly triggered the firmwareComTask, its next timestamp is " + firmwareComTaskExecution.getNextExecutionTimestamp());
                         } else {
                             System.out.println("There is no 'Firmware management' ComTaskEnablement defined for device " + deviceName);
                         }

@@ -315,20 +315,8 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     }
 
     private void prepareCommunicationTask(Device device) {
-        if (!firmwareService.getFirmwareManagementDeviceUtilsFor(device).getFirmwareComTaskExecution().isPresent()) {
-            createFirmwareComTaskExecution(device);
-        }
-    }
-
-    private ComTaskExecution createFirmwareComTaskExecution(Device device) {
-        // Check firmware upgrade task
-        ComTask comTask = taskService.findFirmwareComTask()
-                .orElseThrow(() -> new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_CAN_NOT_BE_FOUND));
-        ComTaskEnablement comTaskEnablement = device.getDeviceConfiguration().getComTaskEnablementFor(comTask)
-                .orElseThrow(() -> new FirmwareCheck.FirmwareCheckException(thesaurus, MessageSeeds.DEFAULT_FIRMWARE_MANAGEMENT_TASK_IS_NOT_ACTIVE));
-        ComTaskExecution firmwareComTaskExecution = device.newFirmwareComTaskExecution(comTaskEnablement).add();
-        device.save();
-        return firmwareComTaskExecution;
+        // the task already exists as ensured by the previous code
+        firmwareService.getFirmwareManagementDeviceUtilsFor(device, true).lockFirmwareComTaskExecution();
     }
 
     @Override

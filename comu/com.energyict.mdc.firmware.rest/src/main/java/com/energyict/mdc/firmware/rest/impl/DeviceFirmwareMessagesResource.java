@@ -257,7 +257,7 @@ public class DeviceFirmwareMessagesResource {
 
     private void prepareCommunicationTask(Device device, Map<String, Object> convertedProperties, DeviceMessageSpec firmwareMessageSpec) {
         FirmwareManagementDeviceUtils helper = this.firmwareService.getFirmwareManagementDeviceUtilsFor(device);
-        Optional<ComTaskExecution> fuComTaskExecutionRef = helper.getFirmwareComTaskExecution();
+        Optional<ComTaskExecution> fuComTaskExecutionRef = helper.lockFirmwareComTaskExecution();
         if (!fuComTaskExecutionRef.isPresent()) {
             createFirmwareComTaskExecution(device);
         } else {
@@ -432,7 +432,7 @@ public class DeviceFirmwareMessagesResource {
     }
 
     private void rescheduleFirmwareUpgradeTask(FirmwareManagementDeviceUtils helper, Instant earliestReleaseDate) {
-        Optional<ComTaskExecution> firmwareComTaskExecution = helper.getFirmwareComTaskExecution();
+        Optional<ComTaskExecution> firmwareComTaskExecution = helper.lockFirmwareComTaskExecution();
         firmwareComTaskExecution.ifPresent(comTaskExecution -> {
             if (comTaskExecution.getNextExecutionTimestamp() == null || earliestReleaseDate == null || comTaskExecution.getNextExecutionTimestamp().isAfter(earliestReleaseDate)) {
                 comTaskExecution.schedule(earliestReleaseDate);

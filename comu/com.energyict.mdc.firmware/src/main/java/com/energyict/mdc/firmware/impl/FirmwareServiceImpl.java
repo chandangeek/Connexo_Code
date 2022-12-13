@@ -51,7 +51,6 @@ import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
-import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
@@ -138,7 +137,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
     /*
      * {@link com.energyict.protocolimplv2.messages.DeviceMessageCategories#FIRMWARE}
      */
-    private static final int FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID = 9;
+    static final int FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID = 9;
     private volatile DeviceMessageSpecificationService deviceMessageSpecificationService;
     private volatile DeviceMessageService deviceMessageService;
     private volatile DataModel dataModel;
@@ -619,7 +618,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
 
     private void cancelFirmwareUpload(ComTaskExecution fwComTaskExecution) {
         long comTaskId = fwComTaskExecution.getId();
-        Optional<ConnectionTask> ct = connectionTaskService.findAndLockConnectionTaskById(fwComTaskExecution.getConnectionTaskId());
+        connectionTaskService.findAndLockConnectionTaskById(fwComTaskExecution.getConnectionTaskId());
         fwComTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskId)
                 .orElseThrow(() -> new IllegalStateException("ComTaskExecution with id: " + comTaskId + " not found."));
         if (fwComTaskExecution.getNextExecutionTimestamp() != null) {

@@ -289,11 +289,16 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public Optional<ComTaskExecution> getFirmwareComTaskExecution() {
+        return Optional.ofNullable(firmwareComTaskExecution);
+    }
+
+    @Override
+    public Optional<ComTaskExecution> lockFirmwareComTaskExecution() {
         if (firmwareComTaskExecution != null) {
             connectionTaskService.findAndLockConnectionTaskById(this.firmwareComTaskExecution.getConnectionTaskId());
             firmwareComTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.getId()).orElse(null);
         }
-        return Optional.ofNullable(firmwareComTaskExecution);
+        return getFirmwareComTaskExecution();
     }
 
     @Override
@@ -303,17 +308,23 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion() {
-        return getComTaskExecutionToCheckTheFirmwareVersion(this.device);
+        return device.getComTaskExecutions().stream()
+                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
+                .findFirst();
     }
 
     @Override
     public Optional<ComTaskEnablement> getComTaskEnablementToCheckTheFirmwareVersion() {
-        return getComTaskEnablementToCheckTheFirmwareVersion(this.device);
+        return device.getDeviceConfiguration().getComTaskEnablements()
+                .stream()
+                .filter(candidate -> candidate.getComTask().getProtocolTasks().stream()
+                        .anyMatch(action -> action instanceof StatusInformationTask))
+                .findFirst();
     }
 
     @Override
     public Optional<ComTask> getFirmwareCheckTask() {
-        return getFirmwareCheckTask(this.device);
+        return getComTaskEnablementToCheckTheFirmwareVersion().map(ComTaskEnablement::getComTask);
     }
 
     @Override
@@ -375,26 +386,5 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         return lastReadOut
                 .filter(readOut -> !lastUpgrade.isPresent() || readOut.isAfter(lastUpgrade.get()))
                 .isPresent();
-    }
-
-    private Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion(Device device) {
-        return device.getComTaskExecutions().stream()
-                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
-                .findFirst()
-                .flatMap(comTaskExecution1 -> {
-                    connectionTaskService.findAndLockConnectionTaskById(comTaskExecution1.getConnectionTaskId());
-                    return communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution1.getId());
-                });
-    }
-
-    private Optional<ComTaskEnablement> getComTaskEnablementToCheckTheFirmwareVersion(Device device) {
-        return device.getDeviceConfiguration().getComTaskEnablements()
-                .stream()
-                .filter(candidate -> candidate.getComTask().getProtocolTasks().stream().anyMatch(action -> action instanceof StatusInformationTask))
-                .findFirst();
-    }
-
-    private Optional<ComTask> getFirmwareCheckTask(Device device) {
-        return getComTaskEnablementToCheckTheFirmwareVersion(device).map(ComTaskEnablement::getComTask);
     }
 }

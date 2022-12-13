@@ -9,10 +9,10 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.metering.groups.MeteringGroupsService;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
-import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.JsonQueryParameters;
 import com.elster.jupiter.rest.util.RestQueryService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.rest.DeviceStateAccessFeature;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -49,6 +49,8 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
     @Mock
     PropertySpecService propertySpecService;
     @Mock
+    DeviceMessageService deviceMessageService;
+    @Mock
     DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     TaskService taskService;
@@ -82,6 +84,7 @@ public abstract class BaseFirmwareTest extends FelixRestApplicationJerseyTest {
         application.setDeviceService(deviceService);
         application.setRestQueryService(restQueryService);
         application.setFirmwareService(firmwareService);
+        application.setDeviceMessageService(deviceMessageService);
         application.setDeviceMessageSpecificationService(deviceMessageSpecificationService);
         application.setTaskService(taskService);
         application.setClock(clock);

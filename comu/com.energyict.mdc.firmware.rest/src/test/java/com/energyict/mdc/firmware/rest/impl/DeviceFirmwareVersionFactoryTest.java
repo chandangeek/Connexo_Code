@@ -105,6 +105,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(session.getId()).thenReturn(102L);
         when(firmwareCheckComTask.getId()).thenReturn(201L);
         when(firmwareCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
+        when(firmwareCheckExecution.getId()).thenReturn(202L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(202L)).thenReturn(Optional.of(firmwareCheckExecution));
         when(firmwareCheckExecution.getComTask()).thenReturn(firmwareCheckComTask);
         when(firmwareCheckExecution.executesComTask(firmwareCheckComTask)).thenReturn(true);
         when(firmwareCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
@@ -113,6 +115,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         ComTask firmwareComTask = mock(ComTask.class);
         when(firmwareComTask.getId()).thenReturn(101L);
         when(taskService.findFirmwareComTask()).thenReturn(Optional.of(firmwareComTask));
+        when(firmwareExecution.getId()).thenReturn(102L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(102L)).thenReturn(Optional.of(firmwareExecution));
         when(firmwareExecution.getComTask()).thenReturn(firmwareComTask);
         when(firmwareExecution.executesComTask(firmwareComTask)).thenReturn(true);
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
