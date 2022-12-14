@@ -30,8 +30,7 @@ public class TimeSwitchingTable {
                         AbstractDataType beginDateDataType = structure.getDataType(0);
                         AbstractDataType endDateDataType = structure.getDataType(1);
                         // Only show the entries for the month (1 based) indicated in the B-field of the obis code
-                        if (beginDateDataType.getOctetString().toByteArray()[2] == obisCode.getB() || endDateDataType.getOctetString().toByteArray()[2] == obisCode.getB() ||
-                                beginDateDataType.getOctetString().toByteArray()[2] < obisCode.getB() && endDateDataType.getOctetString().toByteArray()[2] > obisCode.getB()) {
+                        if (isForTheConfiguredMonth(beginDateDataType, endDateDataType, obisCode.getB())) {
                             String date1 = AXDRDate.toDescription(beginDateDataType.getOctetString());
                             String date2 = AXDRDate.toDescription(endDateDataType.getOctetString());
                             String sunriseTime = new AXDRTime(structure.getDataType(2).getBEREncodedByteArray()).getShortTimeDescription();
@@ -57,5 +56,10 @@ public class TimeSwitchingTable {
             return sb.toString();
         }
         throw new IOException("Unexpected data type in the time switching table: expected array of structures but received " + valueAttr.getClass().getSimpleName());
+    }
+
+    private static boolean isForTheConfiguredMonth(AbstractDataType beginDateType,  AbstractDataType endDateType, int month) {
+        return beginDateType.getOctetString().toByteArray()[2] == month || endDateType.getOctetString().toByteArray()[2] == month ||
+                beginDateType.getOctetString().toByteArray()[2] < month && endDateType.getOctetString().toByteArray()[2] > month;
     }
 }
