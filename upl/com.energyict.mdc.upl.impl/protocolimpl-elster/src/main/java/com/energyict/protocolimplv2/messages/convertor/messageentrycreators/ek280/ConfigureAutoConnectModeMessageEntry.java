@@ -33,8 +33,8 @@ public class ConfigureAutoConnectModeMessageEntry implements MessageEntryCreator
         String autoConnectMode = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectMode).getValue();
         String autoConnectStartTime = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectStartTime).getValue();
         String autoConnectEndTime = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectEndTime).getValue();
-        String autoConnectDestination1 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestionation1).getValue();
-        String autoConnectDestionation2 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestionation2).getValue();
+        String autoConnectDestination1 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestination1).getValue();
+        String autoConnectDestionation2 = MessageConverterTools.getDeviceMessageAttribute(offlineDeviceMessage, DeviceMessageConstants.autoConnectDestination2).getValue();
 
         MessageTag msgTag = new MessageTag(messageTag);
         msgTag.add(new MessageAttribute(windowAttributeTag, autoConnectWindow));

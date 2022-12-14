@@ -48,7 +48,7 @@ public class AutoConnect extends AbstractCosemObject {
 	private static final int ATTRB_CALLING_WINDOW = 5;
 	private static final int ATTRB_DESTINATION_LIST = 6;
 	private static final int ATTRB_DAY_MAP = 8;
-	private static final int ATTRB_GSM_REGISTRATION_TIMEOUT = 8;
+	private static final int ATTRB_GSM_REGISTRATION_TIMEOUT = 9;
 	private static final int ATTRB_COSEM_SESION_TIMEOUT = 10;
 
     private static final int ATTRB_CALLING_WINDOW_LENGTH = -1;

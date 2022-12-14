@@ -96,9 +96,9 @@ Ext.define('Uni.property.view.property.Time', {
         var hourValue = this.getHoursField().getValue(),
             minValue = this.getMinutesField().getValue();
         if (hourValue !== null && hourValue !== '' && hourValue !== 0 &&
-            minValue !== null && minValue !== '' && minValue !==0) {
-            var newDate = new Date(1970, 0, 1, hourValue, minValue, 0, 0);
-            return newDate.getTime() / 1000; // time in seconds
+                minValue !== null && minValue !== '' && minValue !== 0) {
+             var newDate = new Date(1970, 0, 1, hourValue, minValue, 0, 0);
+             return newDate.getTime() / 1000; // time in seconds
         }
         this.getHoursField().setValue(null);
         this.getMinutesField().setValue(null);
