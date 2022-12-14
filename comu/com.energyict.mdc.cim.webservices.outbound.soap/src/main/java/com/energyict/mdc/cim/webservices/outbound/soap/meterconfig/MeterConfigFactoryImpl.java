@@ -221,12 +221,10 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                 .filter(data -> (data.name != null && set.add(data.name)))
                 .collect(Collectors.toList());
         SharedCommunicationSchedules sharedCommunicationSchedules = new SharedCommunicationSchedules();
-        if (distinctSchedules.size() > 0) {
-            for (DeviceSchedulesInfo deviceScheduleInfo : distinctSchedules) {
-                SharedCommunicationSchedule schedule = new SharedCommunicationSchedule();
-                schedule.setName(deviceScheduleInfo.name);
-                sharedCommunicationSchedules.getSharedCommunicationSchedule().add(schedule);
-            }
+        for (DeviceSchedulesInfo deviceScheduleInfo : distinctSchedules) {
+            SharedCommunicationSchedule schedule = new SharedCommunicationSchedule();
+            schedule.setName(deviceScheduleInfo.name);
+            sharedCommunicationSchedules.getSharedCommunicationSchedule().add(schedule);
         }
         return sharedCommunicationSchedules;
     }

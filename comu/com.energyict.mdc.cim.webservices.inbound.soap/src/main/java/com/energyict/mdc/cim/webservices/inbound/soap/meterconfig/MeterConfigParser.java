@@ -248,18 +248,9 @@ public class MeterConfigParser {
     private List<SharedCommunicationSchedule> extractSharedCommunicationSchedules(Meter meter) throws FaultMessage {
         List<SharedCommunicationSchedule> result = new ArrayList<>();
         if (meter.getSharedCommunicationSchedules() != null) {
-            for (SharedCommunicationSchedule schedule : meter.getSharedCommunicationSchedules().getSharedCommunicationSchedule()) {
-                SharedCommunicationSchedule info = extractSharedCommunicationSchedule(schedule);
-                result.add(info);
-            }
+            result=meter.getSharedCommunicationSchedules().getSharedCommunicationSchedule();
         }
         return result;
-    }
-
-    private SharedCommunicationSchedule extractSharedCommunicationSchedule(SharedCommunicationSchedule schedule) throws FaultMessage {
-        SharedCommunicationSchedule newschedule = new SharedCommunicationSchedule();
-        newschedule.setName(schedule.getName());
-        return schedule;
     }
 
     public Optional<Status> extractMeterStatus(Meter meter) {

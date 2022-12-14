@@ -477,7 +477,7 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
-            <xs:element name="SharedCommunicationSchedules" type="m:SharedCommunicationSchedules" minOccurs="0"  />
+            <xs:element name="SharedCommunicationSchedules" type="m:SharedCommunicationSchedules" minOccurs="0"/>
             <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>This can contain custom information</xs:documentation>
