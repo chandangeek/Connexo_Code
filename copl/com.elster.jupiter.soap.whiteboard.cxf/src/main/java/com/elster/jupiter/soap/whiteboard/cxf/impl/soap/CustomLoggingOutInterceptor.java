@@ -8,6 +8,8 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.LoggingOutInterceptor;
 import org.apache.cxf.message.Message;
 
+import java.util.List;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
 public class CustomLoggingOutInterceptor extends LoggingOutInterceptor {
@@ -27,6 +29,20 @@ public class CustomLoggingOutInterceptor extends LoggingOutInterceptor {
         if (ep != null && ep.getEndpointInfo() != null) {
             ep.getEndpointInfo().setProperty("MessageLogger", logger);
         }
+
+        TreeMap<String, List> headers = (TreeMap<String, List>) message
+                .get("org.apache.cxf.message.Message.PROTOCOL_HEADERS");
+
+        if (headers != null) {
+            List value = headers.get("Authorization");
+            String authorizationHeader = value != null ? (String) value.get(0) : "";
+            if (authorizationHeader.contains("Basic")) {
+                value.set(0, "Basic REDACTED");
+                // CONM-1574 ask for the Basic Authorization password to be removed
+                // CONM-1574 Authorization=[Basic cm9vdDpyb290] -> Authorization=[Basic REDACTED]
+            }
+        }
+
         super.handleMessage(message);
     }
 
@@ -34,5 +50,4 @@ public class CustomLoggingOutInterceptor extends LoggingOutInterceptor {
     protected Logger getLogger() {
         return logger;
     }
-
 }
