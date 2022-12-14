@@ -110,7 +110,7 @@ public class RegisterReader implements DeviceRegisterSupport {
                         } else if (isGeneralInfo(obisCode)) {
                             collectedRegisters.add(createCollectedRegister(register, null, RelayGeneralInfo.parse(valueAttr, protocol.getTimeZone()), null));
                         } else if (isTimeSwitchingTable(obisCode)) {
-                            collectedRegisters.add(createCollectedRegister(register, null, TimeSwitchingTable.parse(valueAttr, obisCode), null));
+                            collectedRegisters.add(createCollectedRegister(register, null, TimeSwitchingTable.parse(valueAttr, obisCode, protocol), null));
                         } else if (isAstronomicalClockInfo(obisCode)) {
                             collectedRegisters.add(createCollectedRegister(register, null, AstronomicalClockInfo.parse(valueAttr), null));
                         } else if (isCircuitFaultStatus(obisCode)) {
