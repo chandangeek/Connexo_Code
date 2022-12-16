@@ -12,7 +12,7 @@ import static com.energyict.mdc.protocol.inbound.mbus.Merlin.BUFFER_SIZE;
  */
 public class MerlinLogger {
 
-    public static final String LOG_PREFIX = "[Merlin] ";
+    public String logPrefix = "[Merlin] ";
     private final Logger logger;
 
     public MerlinLogger(Logger logger) {
@@ -25,7 +25,7 @@ public class MerlinLogger {
     }
 
     public void info(String message) {
-        getLogger().info(LOG_PREFIX + message);
+        getLogger().info(logPrefix + message);
     }
 
     public void info(String message, byte[] payload) {
@@ -42,27 +42,30 @@ public class MerlinLogger {
                 info(message + " " + readBytes + ": " + ProtocolTools.bytesToHex(buffer));
             }
         } catch (Exception ex) {
-            getLogger().log(Level.SEVERE, LOG_PREFIX + "Error logging buffer " + ex.getMessage(), ex);
+            getLogger().log(Level.SEVERE, logPrefix + "Error logging buffer " + ex.getMessage(), ex);
         }
     }
 
     public void warn(String message) {
-        getLogger().warning(LOG_PREFIX + message);
+        getLogger().warning(logPrefix + message);
     }
 
     public void error(String s) {
-        getLogger().severe(LOG_PREFIX + s);
+        getLogger().severe(logPrefix + s);
     }
 
     public void error(String message, Throwable e) {
-        getLogger().log(Level.SEVERE, LOG_PREFIX + message + ": " + e.getMessage(), e);
+        getLogger().log(Level.SEVERE, logPrefix + message + ": " + e.getMessage(), e);
     }
 
     public void debug(String message) {
         if (getLogger().isLoggable(Level.FINEST)) {
-            getLogger().finest(LOG_PREFIX + message);
+            getLogger().finest(logPrefix + message);
             //System.out.println(message);
         }
     }
 
+    public void setSerialNumber(String serialNumber) {
+        this.logPrefix = "[MERLIN-" +serialNumber + "] ";
+    }
 }

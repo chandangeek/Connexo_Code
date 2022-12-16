@@ -4,18 +4,25 @@ import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.TypedProperties;
+import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
+import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
+import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 
 import java.time.ZoneId;
+import java.util.Optional;
 import java.util.TimeZone;
 
 public class MerlinMetaDataExtractor {
     public static final String PROPERTY_DEVICE_TIME_ZONE = "deviceTimeZone";
     public static final String PROPERTY_ENCRYPTION_KEY_MOCKED_PROPERTY = "callHomeId"; // used for tests only, to migrate to a proper HSM / security accessor
+    public static final String ENCRYPTION_KEY = "EncryptionKey";
 
     private final InboundContext inboundContext;
     private final Telegram encryptedTelegram;
     private DeviceIdentifierBySerialNumber deviceIdentifier;
+    private String serialNumber;
 
     public MerlinMetaDataExtractor(Telegram encryptedTelegram, InboundContext inboundContext) {
         this.encryptedTelegram = encryptedTelegram;
@@ -25,7 +32,8 @@ public class MerlinMetaDataExtractor {
 
     public DeviceIdentifier getDeviceIdentifier() {
         if (this.deviceIdentifier == null) {
-            this.deviceIdentifier = new DeviceIdentifierBySerialNumber(encryptedTelegram.getSerialNr());
+            this.serialNumber = encryptedTelegram.getSerialNr();
+            this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
         }
         return this.deviceIdentifier;
     }
@@ -35,16 +43,28 @@ public class MerlinMetaDataExtractor {
         getDeviceIdentifier();
 
         inboundContext.getLogger().info("Identified device: " + getDeviceIdentifier());
+        inboundContext.getLogger().setSerialNumber(serialNumber);
 
         getDeviceTimeZoneFromCore();
 
         getEncryptionKeyFromCore();
     }
 
-    /**
-     * TODO -> migrate to a security set and accessor / add HSM support
-     */
     private void getEncryptionKeyFromCore() {
+        String encryptionKey = "";
+
+        Optional<DeviceProtocolSecurityPropertySet> securityProtocols = inboundContext.getInboundDiscoveryContext().getDeviceProtocolSecurityPropertySet(getDeviceIdentifier());
+
+        if (securityProtocols.isPresent()) {
+            encryptionKey = (String) securityProtocols.get().getSecurityProperties().getProperty(ENCRYPTION_KEY);
+        }
+
+        inboundContext.setEncryptionKey(encryptionKey);
+        // NO-NO, do not log the actual key, used only for testing and PoC!! FIXME!
+        inboundContext.getLogger().info("Using EK: " + encryptionKey);
+    }
+
+    private void getDeviceTimeZoneFromCore() {
         TypedProperties protocolProperties = inboundContext.getInboundDiscoveryContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
 
         ZoneId timeZone;
@@ -58,20 +78,6 @@ public class MerlinMetaDataExtractor {
         }
 
         inboundContext.setTimeZone(timeZone);
-    }
-
-    private void getDeviceTimeZoneFromCore() {
-        TypedProperties protocolProperties = inboundContext.getInboundDiscoveryContext().getInboundDAO().getDeviceProtocolProperties(getDeviceIdentifier());
-
-        String defaultEK = "01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01";
-        String encryptionKey = defaultEK;
-        if (protocolProperties.hasLocalValueFor(PROPERTY_ENCRYPTION_KEY_MOCKED_PROPERTY)){
-            encryptionKey = protocolProperties.getTypedProperty(PROPERTY_ENCRYPTION_KEY_MOCKED_PROPERTY, defaultEK);
-        }
-        inboundContext.setEncryptionKey(encryptionKey);
-        // NO-NO, do not log the actual key, used only for testing and PoC!! FIXME!
-        inboundContext.getLogger().info("Using EK: " + encryptionKey);
-
     }
 
 
