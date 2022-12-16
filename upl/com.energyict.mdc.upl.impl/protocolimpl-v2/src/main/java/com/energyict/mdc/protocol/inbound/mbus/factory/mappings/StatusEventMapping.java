@@ -33,32 +33,30 @@ import com.energyict.protocol.MeterEvent;
  *      0b1 :a removal (or cable cut) detected
  * ---------------------------------------------------
  */
-
-//TODO -> get proper codes!! Those are just dummy to prevent other dependencies
 public enum StatusEventMapping {
 
-    APPLICATION_OK          (false,0x03, 0,0 , "Application OK", MeterEvent.HEART_BEAT),
-    APPLICATION_BUSY        (true, 0x03, 0,1 , "Application Busy", MeterEvent.APPLICATION_ALERT_START),
-    APPLICATION_ERROR       (true, 0x03, 0,2 , "Application Error", MeterEvent.CRITICAL_SOFTWARE_ERROR),
-    ABNORMAL_SITUATION      (true, 0x03, 0,3 , "Abnormal Situation", MeterEvent.FATAL_ERROR),
+    APPLICATION_OK          (false,0x03, 0,0 , "Application OK", MeterEvent.WATER_APPLICATION_OK),
+    APPLICATION_BUSY        (true, 0x03, 0,1 , "Application Busy", MeterEvent.WATER_APPLICATION_BUSY),
+    APPLICATION_ERROR       (true, 0x03, 0,2 , "Application Error", MeterEvent.WATER_APPLICATION_ERROR),
+    ABNORMAL_SITUATION      (true, 0x03, 0,3 , "Abnormal Situation", MeterEvent.WATER_ABNORMAL_SITUATION),
 
-    POWER_OK                (false, 0x04, 2, 0, "Power OK", MeterEvent.POWERUP),
-    POWER_LOW               (true,  0x04, 2, 1, "Power low", MeterEvent.POWERDOWN),
+    POWER_OK                (false, 0x04, 2, 0, "Power OK", MeterEvent.WATER_POWER_OK),
+    POWER_LOW               (true,  0x04, 2, 1, "Power low", MeterEvent.WATER_POWER_LOW),
 
-    PERMANENT_ERROR_NO      (false, 0x08, 3, 0, "No permanent error", MeterEvent.PARAMETER_RESTORED),
-    PERMANENT_ERROR         (true,  0x08, 3, 1, "Permanent error", MeterEvent.CONFIGURATION_ERROR),
+    PERMANENT_ERROR_NO      (false, 0x08, 3, 0, "No permanent error", MeterEvent.WATER_PERMANENT_ERROR_NO),
+    PERMANENT_ERROR         (true,  0x08, 3, 1, "Permanent error", MeterEvent.WATER_PERMANENT_ERROR),
 
-    TEMPORARY_ERROR_NO      (false, 0x10, 4, 0, "No temporary error", MeterEvent.PARAMETER_RESTORED),
-    TEMPORARY_ERROR         (true,  0x10, 4, 1, "Temporary error", MeterEvent.CONSUMPTION_ERROR),
+    TEMPORARY_ERROR_NO      (false, 0x10, 4, 0, "No temporary error", MeterEvent.WATER_TEMPORARY_ERROR_NO),
+    TEMPORARY_ERROR         (true,  0x10, 4, 1, "Temporary error", MeterEvent.WATER_TEMPORARY_ERROR),
 
-    LEAKAGE_ALARM_CLEARED   (false, 0x20, 5, 0, "Leakage alarm cleared", MeterEvent.PARAMETER_RESTORED),
-    LEAKAGE_ALARM           (true,  0x20, 5, 1, "Leakage alarm MLF", MeterEvent.VALVE_IS_CLOSED_BUT_LEAKAGE_IS_PRESENT),
+    LEAKAGE_ALARM_CLEARED   (false, 0x20, 5, 0, "Leakage alarm cleared", MeterEvent.WATER_LEAKAGE_ALARM_CLEARED),
+    LEAKAGE_ALARM           (true,  0x20, 5, 1, "Leakage alarm MLF", MeterEvent.WATER_LEAKAGE_ALARM),
 
-    OVERCONSUMPTION_CLEARED (false, 0x40, 6, 0, "Overconsumption alarm cleared", MeterEvent.PARAMETER_RESTORED),
-    OVERCONSUMPTION         (true,  0x40, 6, 1, "Actual alarm burst (MBA)", MeterEvent.REGISTER_OVERFLOW),
+    OVERCONSUMPTION_CLEARED (false, 0x40, 6, 0, "Overconsumption alarm cleared", MeterEvent.WATER_OVERCONSUMPTION_CLEARED),
+    OVERCONSUMPTION         (true,  0x40, 6, 1, "Actual alarm burst (MBA)", MeterEvent.WATER_OVERCONSUMPTION),
 
-    DEVICE_PAIRED           (true,  0x80, 7, 0, "Device paired", MeterEvent.REGISTER_OVERFLOW),
-    DEVICE_REMOVAL          (true,  0x80, 7, 1, "Removal or cable cut detected", MeterEvent.COMMS_HUB_REMOVED),
+    DEVICE_PAIRED           (true,  0x80, 7, 0, "Device paired", MeterEvent.WATER_DEVICE_PAIRED),
+    DEVICE_REMOVAL          (true,  0x80, 7, 1, "Removal or cable cut detected", MeterEvent.WATER_DEVICE_REMOVAL),
 
     ;
 
