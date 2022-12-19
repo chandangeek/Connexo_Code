@@ -396,6 +396,7 @@ Ext.define('Wss.view.Add', {
                     itemId: 'passwordField',
                     fieldLabel: Uni.I18n.translate('endPointAdd.password', 'WSS', 'Password'),
                     required: true,
+                    hidden: true,
                     inputType: 'password'
                 }
             );
