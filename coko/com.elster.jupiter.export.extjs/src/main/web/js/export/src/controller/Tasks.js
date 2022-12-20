@@ -2290,12 +2290,6 @@ Ext.define('Dxp.controller.Tasks', {
 
             if (selectedDataSelector.get('selectorType') !== 'DEFAULT_USAGE_POINT_READINGS') {
                 var deviceGroupCombo = page.down('#device-group-combo'),
-                    noDeviceGroupChosen = !deviceGroupCombo.getValue() || deviceGroupCombo.getValue().length === 0;
-                if (noDeviceGroupChosen) {
-                    form.down('#device-group-container').setActiveError(me.requiredFieldText);
-                } else {
-                    form.down('#device-group-container').unsetActiveError();
-                }
                 form.down('#device-group-container').doComponentLayout();
             } else {
                 var usagePointGroupCombo = form.down('#usage-point-group-combo'),
