@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
@@ -86,6 +87,7 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_OR_EMPTY_TIME_PERIOD(2003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
     DEVICE_OR_GROUP_IDENTIFIER_MISSING(2004, "deviceOrGroupIdentifierMissing", "At least one of the values should be specified: ''mRID''/''Name'' of a device or ''Name'' of a device group."),
+    UNABLE_TO_GET_METER_CONFIG(2005, "UnableToGetMeterConfigEvents", "Unable to get meter config"),
 
     // created/closed end device events
     INVALID_CREATED_END_DEVICE_EVENTS(3001, "InvalidCreatedEndDeviceEvents", "Invalid CreatedEndDeviceEvents is received"),

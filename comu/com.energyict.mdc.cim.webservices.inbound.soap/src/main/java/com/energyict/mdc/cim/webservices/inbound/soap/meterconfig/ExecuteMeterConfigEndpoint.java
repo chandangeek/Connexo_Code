@@ -1,9 +1,11 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.domain.util.FieldMaxLengthException;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
@@ -174,7 +176,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     Device createdDevice = deviceBuilder.prepareCreateFrom(parsedMeterInfo).build();
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
                 }
-            } catch (VerboseConstraintViolationException e) {
+            } catch (VerboseConstraintViolationException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
                         e.getLocalizedMessage());
             } catch (LocalizedException e) {
@@ -246,7 +248,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException
-                    | DeviceLifeCycleActionViolationException e) {
+                    | DeviceLifeCycleActionViolationException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
                         e.getLocalizedMessage());
             } catch (LocalizedException e) {
@@ -278,7 +280,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     }
 
     private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig,
-                                                                  EndPointConfiguration endPointConfiguration, OperationEnum operation, String correlationId) throws FaultMessage {
+                                                                  EndPointConfiguration endPointConfiguration, OperationEnum operation, String correlationId) throws
+            FaultMessage,
+            FieldMaxLengthException {
         ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig,
                 endPointConfiguration, operation, correlationId);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
@@ -417,7 +421,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     deviceDeleter.delete(device);
                     return createResponseMessage(null, Verb.DELETED, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
-            } catch (LocalizedException e) {
+            } catch (LocalizedException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE, e.getLocalizedMessage());
             }
         });
@@ -489,7 +493,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     return createGetResponseMessage(device, pingResult, meterStatusRequired, errorMessageOptional.orElse(null),
                             meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
-            } catch (VerboseConstraintViolationException e) {
+            } catch (VerboseConstraintViolationException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
             }
         });
