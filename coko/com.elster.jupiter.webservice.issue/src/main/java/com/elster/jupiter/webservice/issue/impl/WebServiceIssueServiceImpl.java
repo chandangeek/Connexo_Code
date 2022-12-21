@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -273,6 +274,11 @@ public class WebServiceIssueServiceImpl implements WebServiceIssueService, Trans
             condition = condition.and(where(WebServiceIssueImpl.Fields.WSC_OCCURRENCE.fieldName() + ".endPointConfiguration.id").in(filter.getEndPointConfigurationIds()));
         }
         return condition;
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(WebServiceIssueService.ISSUE_TYPE_NAME);
     }
 
     public Thesaurus thesaurus() {

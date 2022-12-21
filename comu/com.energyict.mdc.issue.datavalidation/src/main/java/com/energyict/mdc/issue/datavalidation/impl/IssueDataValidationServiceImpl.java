@@ -396,12 +396,12 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
                 new Hashtable<>(ImmutableMap.of("name", IssueDataValidationAssociationProvider.NAME))));
     }
 
-    public Thesaurus thesaurus() {
-        return thesaurus;
-    }
-
     @Override
     public Set<String> getIssueTypeIdentifiers() {
         return Collections.singleton(IssueDataValidationService.ISSUE_TYPE_NAME);
+    }
+
+    public Thesaurus thesaurus() {
+        return thesaurus;
     }
 }
