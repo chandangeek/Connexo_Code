@@ -6,7 +6,8 @@ package com.energyict.protocolimplv2.coap.crest;
 
 public enum ManufacturerID {
 
-    ACTARIS((byte) 0x4D);
+    Actaris((byte) 0x04),
+    Falcon((byte) 0x15);
 
     final byte id;
 
