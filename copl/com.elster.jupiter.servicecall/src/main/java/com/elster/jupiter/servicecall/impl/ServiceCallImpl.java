@@ -23,13 +23,11 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
-import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
 import com.elster.jupiter.util.concurrent.LockUtils;
 import com.elster.jupiter.util.conditions.Where;
-import com.elster.jupiter.util.streams.Predicates;
 
 import javax.inject.Inject;
 import java.io.ByteArrayOutputStream;
@@ -41,7 +39,6 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 import static java.util.Arrays.fill;
 

@@ -16,7 +16,6 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.util.concurrent.LockUtils;
 import com.energyict.mdc.common.ComWindow;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.data.Device;
@@ -28,9 +27,9 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.TaskStatus;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
@@ -45,8 +44,6 @@ import com.energyict.mdc.firmware.impl.TranslationKeys;
 import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
-
-import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;
 import java.time.Clock;

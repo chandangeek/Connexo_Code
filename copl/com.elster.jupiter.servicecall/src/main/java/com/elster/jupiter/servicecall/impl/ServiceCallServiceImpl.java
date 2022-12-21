@@ -27,7 +27,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -71,7 +70,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +104,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
     private volatile Clock clock;
-    private volatile Map<Long, ServiceCallCancellationHandler> serviceCallCancellationHandlers = new ConcurrentHashMap<>();
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -187,22 +184,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
             throw new MissingHandlerNameException(thesaurus, MessageSeeds.NO_NAME_FOR_HANDLER, serviceCallHandler);
         }
         handlerMap.put(name, serviceCallHandler);
-    }
-
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    @Override
-    public void addServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler) {
-        serviceCallCancellationHandler.getTypes().forEach(type -> serviceCallCancellationHandlers.put(type.getId(), serviceCallCancellationHandler));
-    }
-
-    @Override
-    public void removeServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler) {
-        serviceCallCancellationHandler.getTypes().forEach(type -> serviceCallCancellationHandlers.remove(type.getId()));
-    }
-
-    @Override
-    public Optional<ServiceCallCancellationHandler> getServiceCallCancellationHandler(ServiceCallType serviceCallType) {
-        return Optional.ofNullable(serviceCallCancellationHandlers.get(serviceCallType.getId()));
     }
 
     @Reference

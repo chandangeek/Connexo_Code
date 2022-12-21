@@ -193,8 +193,4 @@ public interface ServiceCallService {
     Set<DefaultState> nonFinalStates();
 
     List<DestinationSpec> getCompatibleQueues4();
-
-    void addServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler);
-
-    void removeServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler);
 }

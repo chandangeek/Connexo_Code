@@ -31,12 +31,10 @@ import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
-import com.energyict.mdc.device.data.Device;
-import com.energyict.mdc.device.data.DeviceMessageService;
-import com.energyict.mdc.device.data.tasks.ComTaskExecution;
-import com.energyict.mdc.protocol.api.device.messages.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
@@ -64,11 +62,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.TreeMap;
-import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -394,7 +389,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
                         return LockUtils.lockWithPostCheck(pair.getLast(),
                                         deviceMessageService::findAndLockDeviceMessageById,
                                         dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING
-                                                && !firmwareService.hasRunningFirmwareTask((Device) dm.getDevice()))
+                                                && !firmwareService.hasRunningFirmwareTask(dm.getDevice()))
                                 .map(pair::withLast)
                                 .orElse(null);
                     }
