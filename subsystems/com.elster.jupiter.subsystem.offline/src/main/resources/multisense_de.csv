@@ -10554,6 +10554,7 @@ PR1;DOMAIN;upl.property.v2.ace4000.retries;Erneute Versuche
 PR1;DOMAIN;upl.property.v2.ace4000.retries.description;Erneute Versuche
 PR1;DOMAIN;upl.property.v2.ace4000.timeOut;Zeitbegrenzung
 PR1;DOMAIN;upl.property.v2.ace4000.timeOut.description;Zeitbegrenzung
+PR1;DOMAIN;upl.property.v2.coap.crest.logPayloadDetails;Nutzlastdetails protokollieren
 PR1;DOMAIN;upl.property.v2.dlms.aarqRetries;AARQ Erneute Versuche
 PR1;DOMAIN;upl.property.v2.dlms.aarqRetries.description;AARQ Erneute Versuche
 PR1;DOMAIN;upl.property.v2.dlms.aarqTimeout;AARQ-Zeitbegrenzung

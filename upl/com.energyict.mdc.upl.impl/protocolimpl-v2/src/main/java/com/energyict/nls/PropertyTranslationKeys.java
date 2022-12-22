@@ -61,6 +61,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     V2_ACE4000_RETRIES("upl.property.v2.ace4000.retries", "Retries"),
     V2_ACE4000_RETRIES_DESCRIPTION("upl.property.v2.ace4000.retries.description", "Retries"),
 
+    V2_CREST_LOG_PAYLOAD_DETAILS("upl.property.v2.coap.crest.logPayloadDetails", "Log Payload Details"),
+
     V2_DLMS_CALL_HOME_ID("upl.property.v2.dlms.callHomeId", "Call home id"),
     V2_DLMS_CALL_HOME_ID_DESCRIPTION("upl.property.v2.dlms.callHomeId.description", "Call home id"),
     V2_DLMS_MIRROR_LOGICAL_DEVICE_ID("upl.property.v2.dlms.mirrorLogicalDeviceId", "Mirror logical device id"),
@@ -373,9 +375,9 @@ public enum PropertyTranslationKeys implements TranslationKey {
     TIME_INTERVAL_OVER_CLOCK_SYNC("upl.property.v2.eict.TIME_INTERVAL_OVER_CLOCK_SYNC", "Skip clock synchronization around time intervals"),
     IPV6_ADDRESS_AND_PREFIX_LENGTH("upl.property.v2.eict.IPV6_ADDRESS_AND_PREFIX_LENGTH", "IPv6 address and prefix length"),
     EEK_STORAGE_LABEL("upl.property.v2.eict.EEK_STORAGE_LABEL", "Ephemeral encryption key storage label"),
-    V2_TOPOLOGY_UPDATE_IPV6("upl.property.v2.eict.topology.updateIPv6","Update IPv6 on topology update"),
-    V2_TOPOLOGY_DO_PATH_REQUEST("upl.property.v2.eict.topology.request.path","Do path requests on topology update"),
-    V2_TOPOLOGY_DO_ROUTE_REQUEST("upl.property.v2.eict.topology.request.route","Do route requests on topology update");
+    V2_TOPOLOGY_UPDATE_IPV6("upl.property.v2.eict.topology.updateIPv6", "Update IPv6 on topology update"),
+    V2_TOPOLOGY_DO_PATH_REQUEST("upl.property.v2.eict.topology.request.path", "Do path requests on topology update"),
+    V2_TOPOLOGY_DO_ROUTE_REQUEST("upl.property.v2.eict.topology.request.route", "Do route requests on topology update");
 
     private final String key;
     private final String defaultFormat;
