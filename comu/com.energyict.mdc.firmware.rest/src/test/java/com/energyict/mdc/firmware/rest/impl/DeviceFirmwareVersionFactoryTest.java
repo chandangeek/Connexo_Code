@@ -88,8 +88,6 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     @Mock
     private DeviceMessageCategory firmwareCategory;
     @Mock
-    private DeviceMessageService deviceMessageService;
-    @Mock
     private CommunicationTaskService communicationTaskService;
     @Mock
     private ConnectionTaskService connectionTaskService;
@@ -169,11 +167,11 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(firmwareMessage);
 
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService)
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, connectionTaskService, communicationTaskService)
                         .initFor((Device) invocationOnMock.getArguments()[0], false)
         );
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class), eq(true))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
                         .getArguments()[0], true)
         );
         when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).thenReturn(true);

@@ -14,7 +14,6 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -54,7 +53,6 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private final Thesaurus thesaurus;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareService firmwareService;
-    private final DeviceMessageService deviceMessageService;
     private final TaskService taskService;
     private final ConnectionTaskService connectionTaskService;
     private final CommunicationTaskService communicationTaskService;
@@ -69,14 +67,12 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
                                              DeviceMessageSpecificationService deviceMessageSpecificationService,
                                              FirmwareService firmwareService,
                                              TaskService taskService,
-                                             DeviceMessageService deviceMessageService,
                                              ConnectionTaskService connectionTaskService,
                                              CommunicationTaskService communicationTaskService) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareService = firmwareService;
         this.taskService = taskService;
-        this.deviceMessageService = deviceMessageService;
         this.uploadOptionsCache = new HashMap<>();
         this.firmwareMessages = new ArrayList<>();
         this.connectionTaskService = connectionTaskService;
@@ -106,7 +102,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
                 activationMessages.put(candidate.getTrackingId(), candidate);
             }
         });
-        for (List<DeviceMessage> messages : uploadMessages.values())
+        for (List<DeviceMessage> messages : uploadMessages.values()) {
             this.firmwareMessages.addAll(messages);
         }
         this.firmwareMessages.addAll(this.firmwareMessages.stream()

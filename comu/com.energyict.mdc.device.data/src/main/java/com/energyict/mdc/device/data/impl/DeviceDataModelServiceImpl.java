@@ -46,9 +46,8 @@ import com.elster.jupiter.upgrade.Upgrader;
 import com.elster.jupiter.upgrade.V10_4_21SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_8_11SimpleUpgrader;
+import com.elster.jupiter.upgrade.V10_9_23SimpleUpgrader;
 import com.elster.jupiter.upgrade.V10_9_3SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
-import com.elster.jupiter.upgrade.V10_4_24SimpleUpgrader;
 import com.elster.jupiter.users.UserPreferencesService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.exception.MessageSeed;
@@ -793,6 +792,7 @@ public class DeviceDataModelServiceImpl implements DeviceDataModelService, Trans
                         .put(version(10, 9, 10), UpgraderV10_9_10.class)
                         .put(version(10, 9, 13), UpgraderV10_9_13.class)
                         .put(version(10, 9, 17), UpgraderV10_9_17.class)
+                        .put(version(10, 9, 23), V10_9_23SimpleUpgrader.class)
                         .build());
         this.registerRealServices(bundleContext);
     }

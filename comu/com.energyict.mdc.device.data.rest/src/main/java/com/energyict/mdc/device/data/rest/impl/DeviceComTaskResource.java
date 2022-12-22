@@ -156,9 +156,9 @@ public class DeviceComTaskResource {
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public Response updateComTaskExecutionTracing(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskTracingInfo comTaskTracingInfo) {
         Device device = resourceHelper.lockDeviceOrThrowException(comTaskTracingInfo.device);
-        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTask(comTaskId, device);
+        List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTaskIds(device, comTaskId);
         if (comTaskExecutions.isEmpty()) {
-            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComtask(comTaskId, device);
+            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComTaskIds(device, comTaskId);
             for (ComTaskEnablement comTaskEnablement : comTaskEnablements) {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }

@@ -4,14 +4,10 @@
 
 package com.energyict.mdc.firmware.rest.impl;
 
-import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
 import com.energyict.mdc.common.protocol.DeviceProtocol;
 import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
-import com.energyict.mdc.common.tasks.ComTask;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
@@ -19,7 +15,6 @@ import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
 import com.energyict.mdc.firmware.impl.FirmwareManagementDeviceUtilsImpl;
-
 
 import com.jayway.jsonpath.JsonModel;
 
@@ -40,8 +35,6 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     private static final String METER_VERSION = "FWC.12-SNAPSHOT";
 
     @Mock
-    private DeviceType deviceType;
-    @Mock
     private Device device;
     @Mock
     private DeviceProtocolPluggableClass deviceProtocolPluggableClass;
@@ -57,8 +50,6 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
     private FirmwareVersion communicationFirmwareVersion;
     @Mock
     private DeviceMessageCategory deviceMessageCategory;
-    @Mock
-    DeviceMessageService deviceMessageService;
     @Mock
     private CommunicationTaskService communicationTaskService;
     @Mock
@@ -80,16 +71,16 @@ public class DeviceFirmwareVersionResourceTest extends BaseFirmwareTest {
         when(meterFirmwareVersion.getFirmwareStatus()).thenReturn(FirmwareStatus.FINAL);
         when(meterFirmwareVersion.getFirmwareType()).thenReturn(FirmwareType.METER);
 
-        when(device.getMessages()).thenReturn(Collections.<DeviceMessage>emptyList());
+        when(device.getMessages()).thenReturn(Collections.emptyList());
         when(deviceMessageSpecificationService.getFirmwareCategory()).thenReturn(deviceMessageCategory);
         when(deviceMessageCategory.getId()).thenReturn(8);
-        when(this.taskService.findFirmwareComTask()).thenReturn(Optional.<ComTask>empty());
+        when(this.taskService.findFirmwareComTask()).thenReturn(Optional.empty());
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
                         .getArguments()[0], false)
         );
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class), eq(true))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
                         .getArguments()[0], true)
         );
 
