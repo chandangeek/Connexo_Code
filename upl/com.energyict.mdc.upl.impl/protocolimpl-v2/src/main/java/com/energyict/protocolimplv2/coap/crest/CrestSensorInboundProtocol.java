@@ -130,7 +130,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
             }
         } catch (Exception e) {
             exchange.respond(RESPONSE_KO);
-            getLogger().log(Level.SEVERE, "Payload error:" + e.getMessage(), e);
+            getLogger().log(Level.SEVERE, "Payload error: " + e.getMessage(), e);
             throw ConnectionCommunicationException.unexpectedIOException(new IOException("Incorrect payload data", e));
         }
         return DiscoverResultType.DATA;
@@ -221,11 +221,11 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
     private String getSlaveSerialNumber(String mbusMessage) {
         byte[] mbusFrame = ProtocolTools.hexToBytes(mbusMessage);
         switch (ManufacturerID.forId(mbusFrame[12])) {
-            case Actaris: {
+            case ACTARIS: {
                 ActarisFrame6 frame6 = new ActarisFrame6(mbusFrame);
                 return frame6.getFabricationNumber();
             }
-            case Falcon: {
+            case FALCON: {
                 FalconFrameSndUp frameSndUp = new FalconFrameSndUp(mbusFrame);
                 return frameSndUp.getSerialNumber();
             }
