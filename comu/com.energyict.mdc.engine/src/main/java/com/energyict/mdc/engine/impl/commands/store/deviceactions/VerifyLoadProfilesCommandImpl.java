@@ -172,6 +172,7 @@ public class VerifyLoadProfilesCommandImpl extends SimpleComCommand implements V
                         issues.addAll(verifyChannelConfiguration(loadProfileReader, loadProfileConfiguration));
                         if (!issues.isEmpty()) {
                             createAndAddFailedCollectedLoadProfile(loadProfileReader, ResultType.ConfigurationError, issues);
+                            issues.forEach(issue -> addIssue(issue, CompletionCode.forResultType(ResultType.ConfigurationError)));
                         }
                     }
                 }
