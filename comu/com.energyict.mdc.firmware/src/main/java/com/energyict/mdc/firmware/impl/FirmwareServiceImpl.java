@@ -88,6 +88,7 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.inject.AbstractModule;
@@ -114,10 +115,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -757,6 +756,7 @@ public class FirmwareServiceImpl implements FirmwareService, MessageSeedProvider
                             .put(version(10, 4, 34), UpgraderV10_4_34.class)
                             .put(version(10, 6), UpgraderV10_6.class)
                             .put(version(10, 7), UpgraderV10_7.class)
+                            .put(version(10, 9, 23), UpgraderV10_9_23.class)
                             .build());
             addFirmwareCheck(dataModel.getInstance(StatusOfTargetFirmwareCheck.class));
             addFirmwareCheck(dataModel.getInstance(NoGhostFirmwareCheck.class));
