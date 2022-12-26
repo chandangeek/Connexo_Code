@@ -325,6 +325,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         }
     }
 
+    @Deprecated
     @Override
     public ConnectionTask attemptLockConnectionTask(long id) {
         return deviceDataModelService.dataModel().mapper(ConnectionTask.class).lock(id);

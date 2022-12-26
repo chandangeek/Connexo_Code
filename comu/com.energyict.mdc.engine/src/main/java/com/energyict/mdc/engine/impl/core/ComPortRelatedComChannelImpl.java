@@ -47,11 +47,11 @@ public class ComPortRelatedComChannelImpl implements ComPortRelatedComChannel {
     private final Counters sessionCounters = new Counters();
     private final Counters taskSessionCounters = new Counters();
     private final DeviceMessageService deviceMessageService;
-    private ComChannel comChannel;
+    private final ComChannel comChannel;
     private ComPort comPort;
     private ByteArrayOutputStream bytesReadForLogging;
     private ByteArrayOutputStream bytesWrittenForLogging;
-    private Logger logger = Logger.getLogger("deviceMessageTracing");
+    private final Logger logger = Logger.getLogger("deviceMessageTracing");
     private boolean traced;
     private String deviceName;
     private String comTaskName;

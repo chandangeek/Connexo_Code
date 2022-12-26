@@ -319,8 +319,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Optional<ConnectionTask> lockConnectionTask(ConnectionTask connectionTask) {
-        ConnectionTask reloaded = getConnectionTaskService().attemptLockConnectionTask(connectionTask.getId());
-        return Optional.ofNullable(reloaded);
+        return getConnectionTaskService().findAndLockConnectionTaskById(connectionTask.getId())
+                .filter(Predicates.not(ConnectionTask::isObsolete));
     }
 
     private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {

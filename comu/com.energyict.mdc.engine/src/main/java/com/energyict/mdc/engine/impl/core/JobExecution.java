@@ -433,12 +433,11 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     public void doReschedule() {
-        RescheduleBehavior retryBehavior = this.getRescheduleBehavior();
-        retryBehavior.reschedule(commandRoot);
+        getRescheduleBehavior().reschedule(commandRoot);
     }
 
     public void doRescheduleToNextComWindow(Instant startingPoint) {
-        this.getRescheduleBehavior().rescheduleOutsideComWindow(getComTaskExecutions(), startingPoint);
+        getRescheduleBehavior().rescheduleOutsideComWindow(getComTaskExecutions(), startingPoint);
     }
 
     RescheduleBehavior getRescheduleBehavior() {

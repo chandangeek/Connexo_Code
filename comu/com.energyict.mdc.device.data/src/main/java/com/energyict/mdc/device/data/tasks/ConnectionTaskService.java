@@ -206,6 +206,10 @@ public interface ConnectionTaskService {
      */
     <T extends ConnectionTask> T attemptLockConnectionTask(T connectionTask, ComPort comPort);
 
+    /**
+     * @deprecated Pls use {@link #findAndLockConnectionTaskById(long)} instead.
+     */
+    @Deprecated
     <T extends ConnectionTask> T attemptLockConnectionTask(long id);
 
     /**

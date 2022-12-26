@@ -1543,13 +1543,13 @@ public class DeviceImpl implements Device, ServerDeviceForConfigChange, ServerDe
                 .min((cte1, cte2) -> compareProtocolTasks(cte1.getComTask().getProtocolTasks(), cte2.getComTask().getProtocolTasks()));
         if (bestComTaskExecution.isPresent()) {
             comTaskExecution = bestComTaskExecution.get();
-            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
         } else if (bestComTaskEnablement.isPresent()) {
             comTaskExecution = createAdHocComTaskExecutionToRunNow(bestComTaskEnablement.get());
         }
         if (comTaskExecution == null) {
             throw new NoStatusInformationTaskException();
         }
+        connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
         comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId())
                 .orElseThrow(NoStatusInformationTaskException::new);
         requestedAction.accept(comTaskExecution);

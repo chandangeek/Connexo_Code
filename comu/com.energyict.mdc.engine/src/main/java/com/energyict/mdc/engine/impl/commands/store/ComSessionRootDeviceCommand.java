@@ -40,7 +40,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
-    public void add (CreateComSessionDeviceCommand command) {
+    public void add(CreateComSessionDeviceCommand command) {
         this.createComSessionDeviceCommand = command;
         if (this.publishConnectionTaskEventDeviceCommand != null) {
             this.publishConnectionTaskEventDeviceCommand.setCreateComSessionDeviceCommand(command);
@@ -52,7 +52,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
-    public void add (PublishConnectionTaskEventDeviceCommand command) {
+    public void add(PublishConnectionTaskEventDeviceCommand command) {
         this.publishConnectionTaskEventDeviceCommand = command;
         if (this.createComSessionDeviceCommand != null) {
             this.publishConnectionTaskEventDeviceCommand.setCreateComSessionDeviceCommand(this.createComSessionDeviceCommand);
@@ -65,7 +65,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
-    public List<DeviceCommand> getChildren () {
+    public List<DeviceCommand> getChildren() {
         List<DeviceCommand> deviceCommands = super.getChildren();
         deviceCommands.addAll(this.finalCommands);
         if (this.createComSessionDeviceCommand != null) {
@@ -78,7 +78,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
-    public void execute (final ComServerDAO comServerDAO) {
+    public void execute(final ComServerDAO comServerDAO) {
         this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
         LOGGER.info("CXO-11731: Execute all commands"+super.getChildren());
@@ -91,7 +91,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
         }
     }
 
-    private void broadCastFailureLoggerIfAny () {
+    private void broadCastFailureLoggerIfAny() {
         if (this.createComSessionDeviceCommand != null) {
             for (DeviceCommand deviceCommand : super.getChildren()) {
                 deviceCommand.logExecutionWith(this.createComSessionDeviceCommand);
@@ -100,7 +100,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
-    public void executeDuringShutdown (final ComServerDAO comServerDAO) {
+    public void executeDuringShutdown(final ComServerDAO comServerDAO) {
         this.startStopWatch();
         this.broadCastFailureLoggerIfAny();
         comServerDAO.executeTransaction(() -> {
@@ -110,7 +110,7 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     }
 
     @Override
-    public void logExecutionWith (ExecutionLogger logger) {
+    public void logExecutionWith(ExecutionLogger logger) {
         // Logging is responsibility of nested commands
     }
 
@@ -118,9 +118,9 @@ public class ComSessionRootDeviceCommand extends CompositeDeviceCommandImpl {
     public String toJournalMessageDescription(ComServer.LogLevel serverLogLevel) {
         DescriptionBuilder builder = new DescriptionBuilderImpl(this);
         if (this.createComSessionDeviceCommand != null) {
-            builder.addProperty("connectionTaskID").append(this.createComSessionDeviceCommand.getConnectionTask().getId());
-        }
-        else {
+            builder.addProperty("connectionTaskID")
+                    .append(this.createComSessionDeviceCommand.getConnectionTask().getId());
+        } else {
             builder.addProperty("connectionTaskID").append("");
         }
 
