@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>parent</artifactId>
-        <version>16.0.0-Kratos-SNAPSHOT</version>
+        <version>18.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>platform</artifactId>
@@ -212,11 +212,16 @@
 				<artifactId>jackson-datatype-guava</artifactId>
 				<version>${jackson.version}</version>
 			</dependency>
-            <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>2.4.0-b180830.0359</version>
-            </dependency>
+			<dependency>
+				<groupId>com.fasterxml.jackson.dataformat</groupId>
+				<artifactId>jackson-dataformat-cbor</artifactId>
+				<version>${jackson.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>javax.xml.bind</groupId>
+				<artifactId>jaxb-api</artifactId>
+				<version>2.4.0-b180830.0359</version>
+			</dependency>
 			<dependency>
 				<groupId>org.glassfish.jersey.core</groupId>
 				<artifactId>jersey-common</artifactId>

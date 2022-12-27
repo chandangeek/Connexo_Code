@@ -12,6 +12,7 @@ import com.energyict.mdc.channel.serial.NrOfDataBits;
 import com.energyict.mdc.channel.serial.NrOfStopBits;
 import com.energyict.mdc.channel.serial.Parities;
 import com.energyict.mdc.channel.serial.SerialPortConfiguration;
+import com.energyict.mdc.common.comserver.CoapBasedInboundComPort;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.InboundComPortPool;
@@ -198,7 +199,74 @@ public class ComPortResourceTest extends ComserverCoreApplicationJerseyTest {
         try {
             String responseString = objectMapper.writeValueAsString(response.get("comPortType"));
             assertThat(responseString).contains("{\"id\":\"TYPE_SERVLET\",\"localizedValue\":\"SERVLET\"}");
-        } catch (Exception ex) {}
+        } catch (Exception ex) {
+        }
+    }
+
+    @Test
+    public void testGetCoapInboundComPort() throws Exception {
+        long comPort_id = Long.MAX_VALUE - 12;
+        long comServer_id = Long.MAX_VALUE - 131L;
+        long comPortPool_id = Long.MAX_VALUE - 141L;
+
+        ComServer comServer = mock(ComServer.class);
+        when(comServer.getId()).thenReturn(comServer_id);
+
+        InboundComPortPool comPortPool = mock(InboundComPortPool.class);
+        when(comPortPool.getId()).thenReturn(comPortPool_id);
+
+        CoapBasedInboundComPort coapBasedInboundComPort = mock(CoapBasedInboundComPort.class);
+        when(coapBasedInboundComPort.getId()).thenReturn(comPort_id);
+        when(coapBasedInboundComPort.getName()).thenReturn("coap inbound");
+        when(coapBasedInboundComPort.getComPortType()).thenReturn(ComPortType.COAP);
+        when(coapBasedInboundComPort.getDescription()).thenReturn("this is a test port");
+        when(coapBasedInboundComPort.getComServer()).thenReturn(comServer);
+        when(coapBasedInboundComPort.getComPortPool()).thenReturn(comPortPool);
+        when(coapBasedInboundComPort.getNumberOfSimultaneousConnections()).thenReturn(7);
+        when(coapBasedInboundComPort.getPortNumber()).thenReturn(8);
+        when(coapBasedInboundComPort.isDtls()).thenReturn(true);
+        when(coapBasedInboundComPort.isUsingSharedKeys()).thenReturn(false);
+        when(coapBasedInboundComPort.getBufferSize()).thenReturn(1096);
+        when(coapBasedInboundComPort.getContextPath()).thenReturn("/context/path");
+        when(coapBasedInboundComPort.getTrustStoreSpecsFilePath()).thenReturn("/path/to/trust/store");
+        when(coapBasedInboundComPort.getTrustStoreSpecsPassword()).thenReturn("trustpwd");
+        when(coapBasedInboundComPort.getKeyStoreSpecsFilePath()).thenReturn("/path/to/key/store");
+        when(coapBasedInboundComPort.getKeyStoreSpecsPassword()).thenReturn("keypwd");
+
+        doReturn(Optional.of(coapBasedInboundComPort)).when(engineConfigurationService).findComPort(comPort_id);
+        final Map<String, Object> response = target(COMPORTS_RESOURCE_URL + "/" + comPort_id).request().get(Map.class); // Using MAP instead of *Info to resemble JS
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        AnnotationIntrospector primary = new JacksonAnnotationIntrospector();
+        AnnotationIntrospector secondary = new JaxbAnnotationIntrospector(objectMapper.getTypeFactory());
+        AnnotationIntrospector pair = new AnnotationIntrospectorPair(primary, secondary);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        objectMapper.setAnnotationIntrospector(pair);
+
+        assertThat(response).contains(
+                MapEntry.entry("id", comPort_id),
+                MapEntry.entry("name", "coap inbound"),
+                MapEntry.entry("description", "this is a test port"),
+                MapEntry.entry("comServer_id", comServer_id),
+                MapEntry.entry("numberOfSimultaneousConnections", 7),
+                MapEntry.entry("useDtls", true),
+                MapEntry.entry("useSharedKeys", false),
+                MapEntry.entry("bufferSize", 1096),
+                MapEntry.entry("keyStoreFilePath", "/path/to/key/store"),
+                MapEntry.entry("trustStoreFilePath", "/path/to/trust/store"),
+                MapEntry.entry("trustStorePassword", "trustpwd"),
+                MapEntry.entry("keyStorePassword", "keypwd"),
+                MapEntry.entry("portNumber", 8),
+                MapEntry.entry("contextPath", "/context/path"),
+                MapEntry.entry("direction", TranslationKeys.COMPORT_INBOUND.getDefaultFormat())
+        );
+        assertThat(response).containsKey("comPortPool_id");
+        try {
+            String responseString = objectMapper.writeValueAsString(response.get("comPortType"));
+            assertThat(responseString).contains("{\"id\":\"TYPE_COAP\",\"localizedValue\":\"COAP\"}");
+        } catch (Exception ex) {
+        }
     }
 
     @Test

@@ -11,7 +11,6 @@ import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.metering.UsagePointMeterActivator;
 import com.elster.jupiter.metering.config.DefaultMeterRole;
 import com.elster.jupiter.metering.config.MeterRole;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.GatewayType;
@@ -35,14 +34,12 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -95,7 +92,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         linkageHandler = getInstance(MasterDataLinkageHandler.class);
     }
 
-    @Ignore @Test
+    @Test
     public void testForMessage() throws Exception {
         //Act
         linkageHandler.forMessage(getValidMessage().build());
@@ -111,7 +108,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     }
 
     //<editor-fold desc="Create linkage">
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_byMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -135,7 +132,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_byName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -161,7 +158,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateEndDeviceLinkage_byMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -188,7 +185,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateEndDeviceLinkage_byName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -215,7 +212,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateEndDeviceAndUsagePointLinkage_byMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -247,7 +244,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateEndDeviceAndUsagePointLinkage_byName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -281,7 +278,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_roleNotSpecified() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -306,7 +303,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CREATED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_invalidRoleSpecified() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -328,7 +325,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_bulkReceived() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -357,7 +354,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
                 MessageSeeds.UNSUPPORTED_BULK_OPERATION);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_meterNotFoundByMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -375,7 +372,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_meterNotFoundByName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -395,7 +392,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_usagePointNotFoundByMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -415,7 +412,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_usagePointNotFoundByName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -437,7 +434,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_EndDeviceNotFoundByMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -459,7 +456,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_EndDeviceNotFoundByName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -482,7 +479,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_meterAndUsagePointAlreadyLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -506,7 +503,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_MeterAndEndDeviceAlreadyLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -536,7 +533,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_MeterAndEndDeviceAreTheSame() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -560,7 +557,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_MeterAndEndDeviceNotSupportedMaster() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -585,7 +582,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateLinkage_MeterAndEndDeviceNotSupportedSlave() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -617,7 +614,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
     //</editor-fold>
 
     //<editor-fold desc="Close linkage">
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_byMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -642,7 +639,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_byName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -669,7 +666,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseEndDeviceLinkage_byMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -697,7 +694,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseEndDeviceLinkage_byName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -726,7 +723,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseEndDeviceAndUsagePointLinkage_byMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -760,7 +757,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseEndDeviceAndUsagePointLinkage_byName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -797,7 +794,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         verifyResponse(response, HeaderType.Verb.CLOSED, ReplyType.Result.OK);
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_meterNotFoundByMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -815,7 +812,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_meterNotFoundByName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -835,7 +832,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_usagePointNotFoundByMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -854,7 +851,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_usagePointNotFoundByName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -875,7 +872,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_EndDeviceNotFoundByMRID() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -897,7 +894,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_EndDeviceNotFoundByName() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -920,7 +917,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_meterAndUsagePointNotLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage().build();
@@ -942,7 +939,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_meterAndEndDeviceNotLinked() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -971,7 +968,7 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testCloseLinkage_meterAndEndDeviceAreTheSame() throws Exception {
         //Prepare
         MasterDataLinkageConfigRequestMessageType message = getValidMessage()
@@ -994,7 +991,6 @@ public class MasterDataLinkageHandlerTest extends AbstractMasterDataLinkageTest 
         }
     }
 
-    @Ignore
     @Test
     public void testCloseLinkage_meterAndEndDeviceAlreadyLinked() throws Exception {
         //Prepare

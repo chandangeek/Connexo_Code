@@ -12,8 +12,12 @@
     <parent>
         <groupId>com.energyict</groupId>
         <artifactId>protocols</artifactId>
-        <version>16.0.0-Kratos-SNAPSHOT</version>
+        <version>18.0.0-Kratos-SNAPSHOT</version>
     </parent>
+
+    <properties>
+        <jackson.version>2.10.5</jackson.version>
+    </properties>
 
     <dependencies>
         <dependency>
@@ -137,6 +141,12 @@
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
             <version>2.10.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-cbor</artifactId>
+            <version>${jackson.version}</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

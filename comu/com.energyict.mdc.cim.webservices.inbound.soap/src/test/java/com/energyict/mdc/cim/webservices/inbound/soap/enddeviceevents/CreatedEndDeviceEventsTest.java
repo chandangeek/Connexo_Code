@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.Optional;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
@@ -42,6 +41,7 @@ import org.mockito.stubbing.Answer;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -52,8 +52,6 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
     private ExecuteEndDeviceEventsEndpoint executeEndDeviceEventsEndpoint;
 
     private SetMultimap<String, String> values = HashMultimap.create();
-
-
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +85,7 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         when(builder.create()).thenReturn(endDeviceEvent);
 
         when(endDevice.getAmrId()).thenReturn("1");
-        when(endDevice.addEventRecord(any(EndDeviceEventType.class), any(Instant.class))).thenReturn(builder);
+        when(endDevice.addEventRecord(any(EndDeviceEventType.class), any(Instant.class), anyLong())).thenReturn(builder);
 
         when(logBookService.findByDeviceAndObisCode(any(Device.class), any(ObisCode.class))).thenReturn(Optional.of(logBook));
 
@@ -97,7 +95,7 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), END_DEVICE_MRID);
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateEndDeviceEventSuccessfully() throws Exception {
         // Prepare request
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
@@ -129,7 +127,7 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         assertThat(event.getSeverity()).isEqualTo(END_DEVICE_EVENT_SEVERITY);
     }
 
-    @Ignore @Test
+    @Test
     public void testWarningIfMoreThanOneEndDeviceEventSpecified() throws Exception {
         // Prepare request
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
@@ -152,7 +150,7 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         assertThat(reply.getError().get(0).getDetails()).isEqualTo(MessageSeeds.UNSUPPORTED_BULK_OPERATION.translate(thesaurus, "EndDeviceEvents.EndDeviceEvent"));
     }
 
-    @Ignore @Test
+    @Test
     public void testCreateDeviceFailedWithLocalizedException() throws Exception {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();
         EndDeviceEvent endDeviceEvent = createEndDeviceEvent();
@@ -184,7 +182,6 @@ public class CreatedEndDeviceEventsTest extends AbstractMockEndDeviceEvents {
         }
     }
 
-    @Ignore
     @Test
     public void testInvalidSeverity() throws Exception {
         EndDeviceEvents endDeviceEvents = new EndDeviceEvents();

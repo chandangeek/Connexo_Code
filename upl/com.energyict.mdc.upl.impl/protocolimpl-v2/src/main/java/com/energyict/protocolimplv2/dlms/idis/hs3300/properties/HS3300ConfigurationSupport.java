@@ -131,15 +131,15 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
     protected final PropertySpec increaseFrameCounterOnHLSReply() {
         return UPLPropertySpecFactory.specBuilder(DlmsProtocolProperties.INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, false, PropertyTranslationKeys.V2_INCREMENT_FRAMECOUNTER_FOR_REPLY_TO_HLS, getPropertySpecService()::booleanSpec).finish();
     }
-    private PropertySpec shortAddressPan() {
+    protected PropertySpec shortAddressPan() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.SHORT_ADDRESS_PAN, false, PropertyTranslationKeys.V2_SHORT_ADDRESS_PAN, getPropertySpecService()::bigDecimalSpec).finish();
     }
 
-    private PropertySpec ipV6Address() {
+    protected PropertySpec ipV6Address() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.IP_V6_ADDRESS, false, PropertyTranslationKeys.V2_IP_V6_ADDRESS, this.getPropertySpecService()::stringSpec).finish();
     }
 
-    private PropertySpec ipV4Address() {
+    protected PropertySpec ipV4Address() {
         return UPLPropertySpecFactory.specBuilder(HS3300ConfigurationSupport.IP_V4_ADDRESS, false, PropertyTranslationKeys.V2_IP_V4_ADDRESS, this.getPropertySpecService()::stringSpec).finish();
     }
 
@@ -213,11 +213,11 @@ public class HS3300ConfigurationSupport extends AM130ConfigurationSupport {
         return this.durationSpec(POLLING_DELAY, false, Duration.ofSeconds(0), PropertyTranslationKeys.V2_DLMS_POLLING_DELAY);
     }
 
-    private PropertySpec dlmsWANKEKPropertySpec() {
+    protected PropertySpec dlmsWANKEKPropertySpec() {
         return this.keyAccessorTypeReferenceSpec(DLMS_WAN_KEK, PropertyTranslationKeys.V2_EICT_DLMS_WAN_KEK);
     }
 
-    private PropertySpec pskPropertySpec() {
+    protected PropertySpec pskPropertySpec() {
         return keyAccessorTypeReferencePropertySpec(G3Properties.PSK, PropertyTranslationKeys.V2_DLMS_PSK);
     }
 

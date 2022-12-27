@@ -218,7 +218,64 @@ Ext.define('Mdc.view.setup.comport.InboundComPortEdit', {
                     },
                     {
                         xtype: 'fieldset',
-                        title: Uni.I18n.translate('comport.servlet','MDC','Servlet'),
+                        title: Uni.I18n.translate('comport.coap', 'MDC', 'Coap'),
+                        itemId: 'coapFieldSet',
+                        defaults: {
+                            labelWidth: 200
+                        },
+                        collapsible: true,
+                        layout: 'anchor',
+                        hidden: true,
+                        items: [
+                            {
+                                xtype: 'numberfield',
+                                name: 'bufferSize',
+                                fieldLabel: 'bufferSize'
+                            },
+                            {
+                                xtype: 'textfield',
+                                name: 'contextPath',
+                                fieldLabel: 'contextPath'
+                            },
+                            {
+                                xtype: 'checkbox',
+                                inputValue: true,
+                                uncheckedValue: 'false',
+                                name: 'useDtls',
+                                fieldLabel: 'useDtls'
+                            },
+                            {
+                                xtype: 'checkbox',
+                                inputValue: true,
+                                uncheckedValue: 'false',
+                                name: 'useSharedKeys',
+                                fieldLabel: 'useSharedKeys'
+                            },
+                            {
+                                xtype: 'textfield',
+                                name: 'keyStoreFilePath',
+                                fieldLabel: 'keyStoreFilePath'
+                            },
+                            {
+                                xtype: 'textfield',
+                                name: 'trustStoreFilePath',
+                                fieldLabel: 'trustStoreFilePath'
+                            },
+                            {
+                                xtype: 'textfield',
+                                name: 'keyStorePassword',
+                                fieldLabel: 'keyStorePassword'
+                            },
+                            {
+                                xtype: 'textfield',
+                                name: 'trustStorePassword',
+                                fieldLabel: 'trustStorePassword'
+                            }
+                        ]
+                    },
+                    {
+                        xtype: 'fieldset',
+                        title: Uni.I18n.translate('comport.servlet', 'MDC', 'Servlet'),
                         itemId: 'servletFieldSet',
                         defaults: {
                             labelWidth: 200

@@ -339,22 +339,4 @@ public abstract class Acud extends AbstractDlmsProtocol {
     protected Converter getConverter() {
         return converter;
     }
-
-    @Override
-    public void setTime(Date newMeterTime) {
-        try {
-            AXDRDateTime dateTime = new AXDRDateTime(newMeterTime, getTimeZone());
-            byte[] berEncodedData = dateTime.getBEREncodedByteArray();
-            AXDRDateTime dateTimeWithDeviationTypePositive = new AXDRDateTime(berEncodedData, AXDRDateTimeDeviationType.Positive);
-            getDlmsSession().getCosemObjectFactory().getClock().setAXDRDateTimeAttr(dateTimeWithDeviationTypePositive);
-        } catch (IOException exception) {
-            ProtocolException protocolException = new ProtocolException(getLogPrefix() + exception.getMessage());
-            journal(getLogPrefix() + exception.getMessage());
-            throw ConnectionCommunicationException.unExpectedProtocolError(protocolException);
-        }
-    }
-
-    protected String getLogPrefix() {
-        return "[" + this.getSerialNumber() + "] ";
-    }
 }

@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.energyict.mdc.device.data.rest.impl;
@@ -438,8 +439,8 @@ public class DeviceComTaskResource {
                 comTaskExecutions.add(createManuallyScheduledComTaskExecutionWithoutFrequency(device, comTaskEnablement).add());
             }
         }
-        List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
         List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findSessionsByDeviceAndComTask(device, comTask).from(queryParameters).find();
+        List<ComTaskExecutionSessionInfo> infos = new ArrayList<>();
         for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
             ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionInfoFactory.from(comTaskExecutionSession);
             comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession(), journalEntryInfoFactory, true);
@@ -454,22 +455,16 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_DEVICE, Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
     public ComTaskExecutionSessionInfo getComTaskExecutionSession(@PathParam("name") String name,
-                                                                  @PathParam("comTaskId") long comTaskId, @PathParam("comTaskExecutionSessionId") Long comTaskExecutionSessionId) {
+                                                                  @PathParam("comTaskId") long comTaskId, @PathParam("comTaskExecutionSessionId") Long sessionId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
         ComTask comTask = taskService.findComTask(comTaskId).orElse(null);
         if (comTask == null || !device.getDeviceConfiguration().getComTaskEnablementFor(comTask).isPresent()) {
             throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK);
         }
-        ComTaskExecution comTaskExecution = getComTaskExecutionForDeviceAndComTaskOrThrowException(comTaskId, device);
-        List<ComTaskExecutionSession> comTaskExecutionSessions = communicationTaskService.findSessionsByComTaskExecution(comTaskExecution).find();
-        for (ComTaskExecutionSession comTaskExecutionSession : comTaskExecutionSessions) {
-            if (comTaskExecutionSession.getId() == comTaskExecutionSessionId) {
-                ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionInfoFactory.from(comTaskExecutionSession);
-                comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession(), journalEntryInfoFactory);
-                return comTaskExecutionSessionInfo;
-            }
-        }
-        throw exceptionFactory.newException(MessageSeeds.NO_SUCH_COM_TASK_EXEC_SESSION);
+        ComTaskExecutionSession comTaskExecutionSession = findComTaskExecutionSessionOrThrowException(sessionId, comTask);
+        ComTaskExecutionSessionInfo comTaskExecutionSessionInfo = comTaskExecutionSessionInfoFactory.from(comTaskExecutionSession);
+        comTaskExecutionSessionInfo.comSession = comSessionInfoFactory.from(comTaskExecutionSession.getComSession(), journalEntryInfoFactory);
+        return comTaskExecutionSessionInfo;
     }
 
 

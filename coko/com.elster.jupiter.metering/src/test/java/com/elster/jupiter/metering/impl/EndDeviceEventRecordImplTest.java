@@ -53,6 +53,7 @@ import static org.mockito.Mockito.when;
 public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
     private static final long END_DEVICE_ID = 185L;
+    private static final long LOGBOOK_ID = 1;
     private static MeteringInMemoryBootstrapModule inMemoryBootstrapModule = MeteringInMemoryBootstrapModule.withAllDefaults();
 
     private EndDeviceEventRecordImpl instanceA;
@@ -96,9 +97,9 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
         EndDevice endDevice = amrSystem.createEndDevice("amrID", "DeviceName");
-        EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date).create();
+        EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date, LOGBOOK_ID).create();
 
-        assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date).get()).isEqualTo(endDeviceEventRecord);
+        assertThat(dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date, LOGBOOK_ID).get()).isEqualTo(endDeviceEventRecord);
         ArgumentCaptor<LocalEvent> localEventCapture = ArgumentCaptor.forClass(LocalEvent.class);
         verify(subscriber, times(2)).handle(localEventCapture.capture());
 
@@ -125,12 +126,12 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
 
         AmrSystem amrSystem = getMeteringService().findAmrSystem(1).get();
         EndDevice endDevice = amrSystem.createEndDevice("amrID", "DeviceName");
-        EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date)
+        EndDeviceEventRecord endDeviceEventRecord = endDevice.addEventRecord(eventType, date, LOGBOOK_ID)
                 .addProperty("A", "C")
                 .addProperty("D", "C")
                 .create();
 
-        Optional<EndDeviceEventRecord> found = dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date);
+        Optional<EndDeviceEventRecord> found = dataModel.mapper(EndDeviceEventRecord.class).getOptional(endDevice.getId(), eventType.getMRID(), date, LOGBOOK_ID);
         assertThat(found.get()).isEqualTo(endDeviceEventRecord);
         assertThat(found.get().getProperties()).contains(entry("A", "C"), entry("D", "C"));
     }
@@ -152,7 +153,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
             when(endDevice2.getId()).thenReturn(END_DEVICE_ID + 1);
             when(endDeviceEventType.getMRID()).thenReturn("A");
             when(endDeviceEventType2.getMRID()).thenReturn("B");
-            instanceA = new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant());
+            instanceA = new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant(), LOGBOOK_ID);
         }
         return instanceA;
     }
@@ -161,7 +162,7 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     protected Object getInstanceEqualToA() {
         DataModel dataModel = mock(DataModel.class);
         when(dataModel.getInstance(EndDeviceEventRecordImpl.class)).thenReturn(new EndDeviceEventRecordImpl(dataModel, null));
-        return new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant());
+        return new EndDeviceEventRecordImpl(dataModel, null).init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant(), LOGBOOK_ID);
     }
 
     EndDeviceEventRecordImpl createEndDeviceEvent() {
@@ -171,9 +172,9 @@ public class EndDeviceEventRecordImplTest extends EqualsContractTest {
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
         return ImmutableList.of(
-                createEndDeviceEvent().init(endDevice2, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant()),
-                createEndDeviceEvent().init(endDevice, endDeviceEventType2, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant()),
-                createEndDeviceEvent().init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 42, 0, 0, ZoneId.systemDefault()).toInstant())
+                createEndDeviceEvent().init(endDevice2, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant(), LOGBOOK_ID),
+                createEndDeviceEvent().init(endDevice, endDeviceEventType2, ZonedDateTime.of(2013, 12, 17, 14, 41, 0, 0, ZoneId.systemDefault()).toInstant(), LOGBOOK_ID),
+                createEndDeviceEvent().init(endDevice, endDeviceEventType, ZonedDateTime.of(2013, 12, 17, 14, 42, 0, 0, ZoneId.systemDefault()).toInstant(), LOGBOOK_ID)
         );
     }
 

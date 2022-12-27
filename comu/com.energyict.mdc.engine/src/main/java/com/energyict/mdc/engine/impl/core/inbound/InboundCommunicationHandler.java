@@ -26,6 +26,7 @@ import com.energyict.mdc.engine.events.ComServerEvent;
 import com.energyict.mdc.engine.exceptions.CodingException;
 import com.energyict.mdc.engine.impl.EventType;
 import com.energyict.mdc.engine.impl.cache.DeviceCache;
+import com.energyict.mdc.engine.impl.coap.EmbeddedCoapServerFactory;
 import com.energyict.mdc.engine.impl.commands.MessageSeeds;
 import com.energyict.mdc.engine.impl.commands.offline.OfflineDeviceImpl;
 import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
@@ -71,6 +72,7 @@ import com.energyict.mdc.upl.meterdata.Device;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.FindMultipleDevices;
 import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+
 import com.energyict.protocol.exceptions.CommunicationException;
 
 import javax.servlet.http.HttpServletRequest;
@@ -643,6 +645,8 @@ public class InboundCommunicationHandler {
     }
 
     public interface ServiceProvider extends JobExecution.ServiceProvider {
+
+        EmbeddedCoapServerFactory embeddedCoapServerFactory();
 
         EmbeddedWebServerFactory embeddedWebServerFactory();
 

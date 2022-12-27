@@ -25,9 +25,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import org.junit.Ignore;
 import org.junit.Test;
-
 import org.mockito.Mock;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +53,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(multiSenseHeadEndInterface));
     }
 
-    @Ignore @Test
+    @Test
     public void testChangeEndDeviceControlsFaultMessages() throws Exception {
         // No payload
         EndDeviceControlsRequestMessageType requestMessage = endDeviceControlsMessageObjectFactory.createEndDeviceControlsRequestMessageType();
@@ -137,7 +135,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         assertFaultMessages(() -> executeEndDeviceControlsEndpoint.changeEndDeviceControls(requestMessage), codeToMessageMap);
     }
 
-    @Ignore @Test
+    @Test
     public void testChangeEndDeviceControlsSuccessfully() throws Exception {
         EndDeviceControlsRequestMessageType requestMessage = createRequest();
 
@@ -157,7 +155,7 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testChangeEndDeviceControlsFailed() throws Exception {
         when(endDeviceControlsDomainExtension.getTriggerDate()).thenReturn(PAST_DATE);
         EndDeviceControlsRequestMessageType requestMessage = createRequest();
@@ -183,7 +181,6 @@ public class ChangeEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore
     @Test
     public void testChangeEndDeviceControlsPartialSuccessfully() throws Exception {
         when(subServiceCall.newChildCall(deviceServiceCallType)).thenReturn(childServiceCallBuilder);

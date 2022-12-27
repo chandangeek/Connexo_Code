@@ -20,6 +20,7 @@ public enum ConnectionTypePluggableClassTranslationKeys implements TranslationKe
     EmptyConnectionType("EmptyConnectionType", "None"),
     EIWebPlusConnectionType("EIWebPlusConnectionType", "EIWeb+"),
     EIWebConnectionType("EIWebConnectionType", "EIWeb"),
+    CoapConnectionType("CoapConnectionType", "Coap"),
     OutboundProximusSmsConnectionType("OutboundProximusSmsConnectionType", "Outbound SMS [Proximus]"),
     OutboundUdpConnectionType("OutboundUdpConnectionType", "Outbound UDP"),
     WavenisGatewayConnectionType("WavenisGatewayConnectionType", "Wavenis gateway"),

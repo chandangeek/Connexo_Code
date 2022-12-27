@@ -235,13 +235,11 @@ public interface CommunicationTaskService {
 
     Optional<ComTaskExecutionSession> findLastSessionFor(ComTaskExecution comTaskExecution);
 
-    Finder<ComTaskExecutionSession> findSessionsByComTaskExecution(ComTaskExecution comTaskExecution);
 
-    default Finder<ComTaskExecutionSession> findSessionsByDeviceAndComTask(Device device, ComTask comTask) { return  null;}
 
     Optional<ComTaskExecutionSession> findSession(long sessionId);
 
-    Finder<ComTaskExecutionSession> findSessionsByComTaskExecutionAndComTask(ComTaskExecution comTaskExecution, ComTask comTask);
+    Finder<ComTaskExecutionSession> findSessionsByDeviceAndComTask(Device device, ComTask comTask);
 
     /**
      * Counts the {@link Device}s from the specified List that have had

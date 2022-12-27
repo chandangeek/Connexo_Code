@@ -81,7 +81,6 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
             supportedMessages.add(NetworkConnectivityMessage.CHANGE_NBIOT_APN_CREDENTIALS.get(getPropertySpecService(), getNlsService(), getConverter()));
 
             supportedMessages.add(SecurityMessage.CHANGE_HLS_SECRET_PASSWORD_FOR_CLIENT.get(this.propertySpecService, this.nlsService, this.converter));
-
         }
         return supportedMessages;
     }
@@ -105,8 +104,16 @@ public class A2Messaging extends AbstractDlmsMessaging implements DeviceMessageS
         } else if (propertySpec.getName().equals(DeviceMessageConstants.firmwareUpdateFileAttributeName)) {
             return messageAttribute.toString();
         } else if (propertySpec.getName().equals(DeviceMessageConstants.contactorActivationDateAttributeName) ||
-            propertySpec.getName().equals(DeviceMessageConstants.StartOfDSTAttributeName) ||
-            propertySpec.getName().equals(DeviceMessageConstants.EndOfDSTAttributeName)) {
+                propertySpec.getName().equals(DeviceMessageConstants.StartOfDSTAttributeName) ||
+                propertySpec.getName().equals(DeviceMessageConstants.EndOfDSTAttributeName) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime1) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime1) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime2) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime2) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime3) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime3) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStartTime4) ||
+                propertySpec.getName().equals(DeviceMessageConstants.communicationWindowStopTime4)) {
             return String.valueOf(((Date) messageAttribute).getTime());
         } else if (propertySpec.getName().equals(DeviceMessageConstants.newPasswordAttributeName)) {
             return keyAccessorTypeExtractor.passiveValueContent((KeyAccessorType) messageAttribute);

@@ -4,7 +4,8 @@
 
 package com.energyict.protocols.impl.channels;
 
-import com.energyict.mdc.channels.ip.socket.dsmr.*;
+import com.energyict.mdc.channels.inbound.CoapConnectionType;
+import com.energyict.mdc.channels.ip.socket.dsmr.OutboundTcpIpWithWakeUpConnectionType;
 import com.energyict.mdc.pluggable.PluggableClassDefinition;
 import com.energyict.mdc.upl.io.ConnectionType;
 
@@ -16,6 +17,7 @@ public enum ConnectionTypeRule implements PluggableClassDefinition<ConnectionTyp
     EmptyConnectionType(com.energyict.mdc.channels.EmptyConnectionType.class),
     EIWebPlusConnectionType(com.energyict.mdc.channels.inbound.EIWebPlusConnectionType.class),
     EIWebConnectionType(com.energyict.mdc.channels.inbound.EIWebConnectionType.class),
+    CoapConnectionType(CoapConnectionType.class),
     OutboundProximusSmsConnectionType(com.energyict.mdc.channels.sms.OutboundProximusSmsConnectionType.class),
     OutboundUdpConnectionType(com.energyict.mdc.channels.ip.datagrams.OutboundUdpConnectionType.class),
     WavenisGatewayConnectionType(com.energyict.mdc.channels.ip.socket.WavenisGatewayConnectionType.class),

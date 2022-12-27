@@ -13,12 +13,14 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static javax.ws.rs.core.Response.accepted;
 import static javax.ws.rs.core.Response.ok;
 
 public final class ResponseHelper {
 
     // Hide utility class constructor
-    private ResponseHelper() {}
+    private ResponseHelper() {
+    }
 
     public static Response.ResponseBuilder entity(Object entity) {
         Response.ResponseBuilder b = ok();
@@ -38,8 +40,14 @@ public final class ResponseHelper {
         return b;
     }
 
-    private static final class SingleResponse<T>{
-        private T data;
+    public static Response.ResponseBuilder entityAccepted(Object entity) {
+        Response.ResponseBuilder b = accepted();
+        b.entity(new SingleResponse<>(entity));
+        return b;
+    }
+
+    private static final class SingleResponse<T> {
+        private final T data;
 
         public T getData() {
             return data;
@@ -53,7 +61,7 @@ public final class ResponseHelper {
     private static final class ListResponse<T> {
         private static final Logger LOG = Logger.getLogger(ListResponse.class.getName());
 
-        private List<T> data = new ArrayList<>();
+        private final List<T> data = new ArrayList<>();
         private long total;
 
         private ListResponse(List<?> data, Class<T> entityWrapper) {
@@ -80,7 +88,7 @@ public final class ResponseHelper {
 
         private List<?> clipToLimit(List<?> result, long limit) {
             if (limit >= 0 && limit < result.size()) {
-                return result.subList(0, (int)limit);
+                return result.subList(0, (int) limit);
             }
             return result;
         }

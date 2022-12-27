@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.orm.impl;
@@ -23,6 +24,7 @@ import com.elster.jupiter.orm.associations.impl.ManagedPersistentList;
 import com.elster.jupiter.orm.associations.references.RefAnyImpl;
 import com.elster.jupiter.orm.query.impl.QueryExecutorImpl;
 import com.elster.jupiter.orm.query.impl.QueryStreamImpl;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.ResultWrapper;
 import com.elster.jupiter.util.streams.Functions;
 
@@ -77,6 +79,7 @@ public class DataModelImpl implements DataModel {
 
     // transient fields
     private Injector injector;
+    private final TransactionService transactionService;
     private final OrmServiceImpl ormService;
     private boolean registered;
     private Optional<Boolean> isInstalled = Optional.empty();
@@ -86,6 +89,7 @@ public class DataModelImpl implements DataModel {
     @Inject
     DataModelImpl(OrmService ormService) {
         this.ormService = (OrmServiceImpl) ormService;
+        this.transactionService = this.ormService.getTransactionService();
         this.enablePartition = Optional.ofNullable(this.ormService.getEnablePartition()).orElse("true");
     }
 
@@ -636,7 +640,7 @@ public class DataModelImpl implements DataModel {
     @Override
     public DataDropper dataDropper(String tableName, Logger logger) {
         return getSqlDialect().hasPartitioning() ? new PartitionDataDropperImpl(this, tableName, logger) :
-                new DataDropperImpl(this, tableName, logger);
+                new DataDropperImpl(transactionService, this, tableName, logger);
     }
 
     @Override

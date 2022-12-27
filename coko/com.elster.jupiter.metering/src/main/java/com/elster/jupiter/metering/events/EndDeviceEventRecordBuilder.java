@@ -16,8 +16,6 @@ public interface EndDeviceEventRecordBuilder {
 
     EndDeviceEventRecordBuilder setIssuerTrackingID(String issuerTrackingID);
 
-    EndDeviceEventRecordBuilder setLogBookId(long logBookId);
-
     EndDeviceEventRecordBuilder setLogBookPosition(int logBookPosition);
 
     EndDeviceEventRecordBuilder setmRID(String mRID);

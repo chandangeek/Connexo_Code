@@ -9,6 +9,7 @@ import org.apache.cxf.interceptor.LoggingInInterceptor;
 import org.apache.cxf.message.Message;
 
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
@@ -30,12 +31,12 @@ public class CustomLoggingInInterceptor extends LoggingInInterceptor {
             ep.getEndpointInfo().setProperty("MessageLogger", logger);
         }
 
-        TreeMap<String, List> headers = (TreeMap<String, List>) message
-                .get("org.apache.cxf.message.Message.PROTOCOL_HEADERS");
+        Map<String, List<String>> headers = (Map<String, List<String>>) message
+                .get(Message.PROTOCOL_HEADERS);
 
         if (headers != null) {
-            List value = headers.get("Authorization");
-            String authorizationHeader = value != null ? (String) value.get(0) : "";
+            List<String> value = headers.get("Authorization");
+            String authorizationHeader = value != null ? value.get(0) : "";
             if (authorizationHeader.contains("Basic")) {
                 value.set(0, "Basic REDACTED");
                 // CONM-1574 ask for the Basic Authorization password to be removed

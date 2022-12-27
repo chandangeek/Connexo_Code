@@ -922,7 +922,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         }
     }
 
-    @Ignore @Test
+    @Test
     public void testNoRequest() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -935,7 +935,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
                 "Element 'GetMeterReadings' is required.");
     }
 
-    @Ignore @Test
+    @Test
     public void testNoReplayAddress() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -956,7 +956,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoPublishedOutboundConfigurationFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -982,7 +982,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoDevicesFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1007,7 +1007,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSomeDevicesWithMridNotFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1040,7 +1040,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSomeDevicesWithNameNotFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1073,7 +1073,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSomeDevicesWithMridAndNameNotFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1107,7 +1107,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoReadingTypesFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1131,7 +1131,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSomeReadingTypesWithMridNotFoundInSystemAndOnDevice() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1168,7 +1168,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSomeReadingTypesWithMridAndNamesNotFoundInSystem() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1203,7 +1203,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSomeReadingTypesWithNamesNotFoundInSystem() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1237,7 +1237,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testIncorrectSource() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1259,7 +1259,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEmptySource() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1281,7 +1281,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testIncorrectSourceInSyncMode() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1302,7 +1302,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEndDevicesBulkOperationNotSupported() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1334,7 +1334,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEndDeviceWithoutMridAndName() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1352,7 +1352,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testAsyncModeWrongScheduleStrategy() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1425,7 +1425,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
     }
 
 
-    @Ignore @Test
+    @Test
     public void testAsyncModeWrongDataSourceNameType() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1456,7 +1456,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testAsyncModeWrongLoadProfile() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1495,7 +1495,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testAsyncModeNoDataSource() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1534,7 +1534,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testAsyncModeWrongRegisterGroup() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1571,7 +1571,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeCorrelationId() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1607,7 +1607,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeScheduleStrategy() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1646,7 +1646,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeConnectionMethod() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1727,7 +1727,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeLoadProfile() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1766,7 +1766,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeSomeLoadProfileNotFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1810,7 +1810,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeRegisterGroup() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1849,7 +1849,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeSomeRegisterGroupNotFound() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1928,7 +1928,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseSyncModeCorrelationId() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -1957,7 +1957,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseSyncModeEndDevice() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2022,7 +2022,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseSyncModeTimeNotMatchingWithContainer() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2055,7 +2055,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseAsyncModeEndDevice() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2196,7 +2196,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEndDeviceGroup() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2211,7 +2211,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testUsagePointGroup() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2226,7 +2226,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoUsagePoints() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2242,7 +2242,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEmptyUsagePointMRID() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2259,7 +2259,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testUsagePointIsNotFoundByMRID() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2276,7 +2276,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEmptyUsagePointIdentifyingName() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2293,7 +2293,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSeveralUsagePointIdentifyingNames() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2313,7 +2313,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoMRIDAndNameInUsagePoint() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2330,7 +2330,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testUsagePointIsNotFoundByName() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2347,7 +2347,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEmptyReadingTypeMRID() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2365,7 +2365,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testEmptyReadingTypeFullAliasName() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2384,7 +2384,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSeveralReadingTypeFullAliasNames() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2404,7 +2404,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoMRIDAndNameInReadingType() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2424,7 +2424,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoReadings() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2439,7 +2439,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoTimePeriodInReading() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2460,7 +2460,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testNoTimePeriodStartInReading() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2480,7 +2480,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testUnsupportedHybridReadingSource() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2499,7 +2499,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testUnsupportedMeterReadingSource() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2518,7 +2518,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testInvalidTimePeriod() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2539,7 +2539,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testInvalidEmptyTimePeriod() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2559,7 +2559,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testUnknownPurposeNames() throws Exception {
         // Prepare request
         GetMeterReadingsRequestMessageType getMeterReadingsRequestMessage = getMeterReadingsMessageObjectFactory.createGetMeterReadingsRequestMessageType();
@@ -2579,7 +2579,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testLocalizedException() throws Exception {
         final String ERROR_CODE = "Eric Cartman";
         final String ERROR = "Screw you guys, I'm going home";
@@ -2607,7 +2607,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testConstraintViolationException() throws Exception {
         final String ERROR = "Oh my God, they killed Kenny!";
         mockEffectiveMetrologyConfigurationsWithData();
@@ -2634,7 +2634,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseWithUsagePointMRIDAndFullFiltering() throws Exception {
         mockEffectiveMetrologyConfigurationsWithData();
 
@@ -2695,7 +2695,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseWithUsagePointNameAndNoFiltering() throws Exception {
         mockEffectiveMetrologyConfigurationsWithData();
 
@@ -2774,7 +2774,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseWithNoMatchingReadingsInUsagePoint() throws Exception {
         mockEffectiveMetrologyConfigurationsWithData();
         when(effectiveMC1.getChannelsContainer(information)).thenReturn(Optional.empty()); // only channel container for effectiveMC1 is billing
@@ -2806,7 +2806,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseWithTimePeriodNotMatchingWithContainer() throws Exception {
         mockEffectiveMetrologyConfigurationsWithData();
         when(checkContainer.getChannels()).thenReturn(Collections.emptyList());
@@ -2836,7 +2836,7 @@ public class GetUsagePointReadingsTest extends AbstractMockActivator {
         verify(webServiceCallOccurrence).saveRelatedAttributes(any(SetMultimap.class));
     }
 
-    @Ignore @Test
+    @Test
     public void testSuccessCaseWithFilterThatFetchesNothing() throws Exception {
         mockEffectiveMetrologyConfigurationsWithData();
 

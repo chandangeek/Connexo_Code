@@ -9,12 +9,12 @@ import com.elster.jupiter.metering.MeteringService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.util.exception.PersistenceException;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
+import com.elster.jupiter.util.exception.PersistenceException;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -35,6 +35,8 @@ import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.EngineService;
+import com.energyict.mdc.engine.impl.coap.DefaultEmbeddedCoapServerFactory;
+import com.energyict.mdc.engine.impl.coap.EmbeddedCoapServerFactory;
 import com.energyict.mdc.engine.impl.core.devices.DeviceCommandExecutorImpl;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactory;
 import com.energyict.mdc.engine.impl.core.factories.ComPortListenerFactoryImpl;
@@ -1358,6 +1360,18 @@ public class RunningComServerImpl implements RunningComServer, Runnable {
                     serviceProvider.clock(),
                     serviceProvider.deviceMessageService()
             );
+        }
+
+        @Override
+        public EmbeddedCoapServerFactory embeddedCoapServerFactory() {
+            return new DefaultEmbeddedCoapServerFactory(new WebSocketEventPublisherFactoryImpl(
+                    RunningComServerImpl.this,
+                    serviceProvider.connectionTaskService(),
+                    serviceProvider.communicationTaskService(),
+                    serviceProvider.deviceService(),
+                    serviceProvider.engineConfigurationService(),
+                    serviceProvider.identificationService(),
+                    eventMechanism.eventPublisher));
         }
 
         @Override
