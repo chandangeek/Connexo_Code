@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
@@ -92,6 +93,7 @@ public interface DeviceCommand {
 
         DeviceMessageService deviceMessageService();
 
+        TransactionService transactionService();
     }
 
     /**
@@ -142,6 +144,5 @@ public interface DeviceCommand {
      * @return The human readable description of this DeviceCommand
      */
     String toJournalMessageDescription(ComServer.LogLevel serverLogLevel);
-
 
 }

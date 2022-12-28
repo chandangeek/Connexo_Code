@@ -168,6 +168,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -1392,8 +1393,17 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+        updateDeviceMessage(deviceMessage, newDeviceMessageStatus, sentDate, protocolInformation);
+    }
+
+    @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
         DeviceMessage deviceMessage = findDeviceMessageOrThrowException(messageIdentifier);
+        updateDeviceMessage(deviceMessage, newDeviceMessageStatus, sentDate, protocolInformation);
+    }
+
+    private void updateDeviceMessage(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         try {
             updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, deviceMessage);
         } catch (OptimisticLockException e) { // if someone tried to update the message while the ComServer was executing it ...
@@ -2151,15 +2161,26 @@ public class ComServerDAOImpl implements ComServerDAO {
         return (masterDevice.getDeviceConfiguration().isDataloggerEnabled() || masterDevice.getDeviceConfiguration().isMultiElementEnabled());
     }
 
-    private Instant now() {
-        return serviceProvider.clock().instant();
+    @Override
+    public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
+        Map<OfflineDeviceMessage, DeviceMessage> lockedDeviceMessages = new HashMap<>();
+        offlineDeviceMessages.stream().sorted(Comparator.comparing(OfflineDeviceMessage::getDeviceMessageId)).forEachOrdered(offlineDeviceMessage -> {
+            Optional<DeviceMessage> lockedDeviceMessage = serviceProvider.deviceMessageService().findAndLockDeviceMessageById(offlineDeviceMessage.getDeviceMessageId());
+            if (lockedDeviceMessage.isPresent()) {
+                lockedDeviceMessages.put(offlineDeviceMessage, lockedDeviceMessage.get());
+            } else {
+                throw new IllegalArgumentException("DeviceMessage with id " + offlineDeviceMessage.getDeviceMessageId() + " can't be locked.");
+            }
+        });
+        return lockedDeviceMessages;
     }
 
     /**
      * Fetch the lookup table "comServerMobile_completionCodes"
      */
+    @Override
     public List<LookupEntry> getCompletionCodeLookupEntries() {
-        return new ArrayList<LookupEntry>();
+        return new ArrayList<>();
     }
 
     private enum FutureMessageState {
@@ -2289,6 +2310,10 @@ public class ComServerDAOImpl implements ComServerDAO {
             return serviceProvider.deviceMessageService();
         }
 
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
     }
 
     @Override

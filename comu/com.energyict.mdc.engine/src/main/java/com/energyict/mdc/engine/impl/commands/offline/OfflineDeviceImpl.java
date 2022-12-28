@@ -8,6 +8,8 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.metering.UsagePoint;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.MacException;
+import com.elster.jupiter.transaction.TransactionContext;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.HasId;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
@@ -225,7 +227,15 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         setAllKeyAccessors(convertToOfflineKeyAccessors(allSecurityAccessors));
         setSecurityPropertySetAttributeToKeyAccessorType(device);
         if (context.needsPendingMessages()) {
-            setAllPendingMessages(deviceTopologies);
+            if (!serviceProvider.transactionService().isInTransaction()) {
+                try (TransactionContext ctx = serviceProvider.transactionService().getContext()) {
+                    setAllPendingMessages(deviceTopologies);
+                    ctx.commit();
+                }
+            } else {
+                // already in transaction
+                setAllPendingMessages(deviceTopologies);
+            }
         }
         if (context.needsSentMessages()) {
             setAllSentMessages(createOfflineMessageList(getAllSentMessagesIncludingSlaves(device, deviceTopologies)));
@@ -255,15 +265,12 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private void fillReallyPendingAndInvalidMessagesLists(Map<Device, List<Device>> deviceTopologies, List<DeviceMessage> reallyPending, List<DeviceMessage> invalidSinceCreation) {
         serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
         PendingMessagesValidator validator = new PendingMessagesValidator(device);
-        List<DeviceMessage> pendingMessages = getAllPendingMessagesIncludingSlaves(device, deviceTopologies);
-        List<DeviceMessage> lockedPendingMessages = pendingMessages.stream()
+        getAllPendingMessagesIncludingSlaves(device, deviceTopologies).stream()
                 .sorted(Comparator.comparing(DeviceMessage::getId))
                 .map(pendingMessage -> serviceProvider.deviceMessageService().findAndLockDeviceMessageById(pendingMessage.getId()))
                 .filter(Optional::isPresent).map(Optional::get)
                 .filter(pendingMessage -> pendingMessage.getStatus().equals(DeviceMessageStatus.PENDING))
-                .collect(Collectors.toList());
-        lockedPendingMessages
-                .forEach(deviceMessage -> {
+                .forEachOrdered(deviceMessage -> {
                     if (validator.isStillValid(deviceMessage)) {
                         reallyPending.add(deviceMessage);
                     } else {
@@ -785,5 +792,7 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
         EventService eventService();
 
         DeviceMessageService deviceMessageService();
+
+        TransactionService transactionService();
     }
 }

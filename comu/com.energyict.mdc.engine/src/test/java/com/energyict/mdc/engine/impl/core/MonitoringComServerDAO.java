@@ -19,6 +19,7 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
@@ -41,14 +42,12 @@ import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
 import com.energyict.mdc.upl.meterdata.CollectedCalendar;
 import com.energyict.mdc.upl.meterdata.CollectedCertificateWrapper;
 import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
-import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
-import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
 import com.energyict.mdc.upl.meterdata.CollectedFirmwareVersion;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
+import com.energyict.mdc.upl.meterdata.G3TopologyDeviceAddressInformation;
+import com.energyict.mdc.upl.meterdata.TopologyNeighbour;
+import com.energyict.mdc.upl.meterdata.TopologyPathSegment;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LoadProfileIdentifier;
 import com.energyict.mdc.upl.meterdata.identifiers.LogBookIdentifier;
@@ -606,6 +605,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+        // nothing to update
+    }
+
+    @Override
     public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         // nothing to update
     }
@@ -635,6 +639,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
     @Override
     public User getComServerUser() {
         return this.actual.getComServerUser();
+    }
+
+    @Override
+    public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
+        return null;
     }
 
     @Override
@@ -1101,6 +1110,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
         }
 
         @Override
+        public void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+            // nothing to update
+        }
+
+        @Override
         public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
             // nothing to update
         }
@@ -1149,6 +1163,11 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public User getComServerUser() {
+            return null;
+        }
+
+        @Override
+        public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
             return null;
         }
 

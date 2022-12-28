@@ -7,6 +7,7 @@ package com.energyict.mdc.engine.impl.core.inbound;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.time.StopWatch;
 import com.energyict.mdc.common.comserver.ComPort;
@@ -716,6 +717,10 @@ public class InboundCommunicationHandler {
             return serviceProvider.deviceMessageService();
         }
 
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
     }
 
     private class ComServerEventServiceProvider implements AbstractComServerEventImpl.ServiceProvider {

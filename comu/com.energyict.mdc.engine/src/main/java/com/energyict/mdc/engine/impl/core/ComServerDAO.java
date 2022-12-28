@@ -691,6 +691,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      */
     void signalEvent(String topic, Object source);
 
+    void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation);
+
     /**
      * Updates the new DeviceStatus and protocolInformation
      * of the DeviceMessage DeviceMessage
@@ -796,6 +798,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
     List<Pair<OfflineLoadProfile, Range<Instant>>> getStorageLoadProfileIdentifiers(OfflineLoadProfile loadProfile, String readingTypeMRID, Range<Instant> dataPeriod);
 
     User getComServerUser();
+
+    Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages);
 
     List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort);
 
