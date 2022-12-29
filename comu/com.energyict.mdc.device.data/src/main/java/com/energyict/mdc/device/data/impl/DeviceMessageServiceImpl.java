@@ -13,6 +13,7 @@ import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.ListOperator;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
@@ -388,4 +389,18 @@ class DeviceMessageServiceImpl implements ServerDeviceMessageService {
     private static class UnsupportedDeviceMessageIdentifierTypeName extends RuntimeException {
     }
 
+    @Override
+    public List<DeviceMessage> findAndLockPendingMessagesForDevices(Collection<Device> devices) {
+        Condition devicesCondition = where(DeviceMessageImpl.Fields.DEVICE.fieldName()).in(devices);
+        Condition statusPendingCondition = where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.PENDING);
+        Condition statusWaitingCondition = where(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).isEqualTo(DeviceMessageStatus.WAITING);
+        Condition releaseDateCondition = where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isNotNull().and(where(DeviceMessageImpl.Fields.RELEASEDATE.fieldName()).isLessThanOrEqual(this.clock.instant()));
+        return this.deviceDataModelService
+                .dataModel()
+                .query(DeviceMessage.class)
+                .lock(devicesCondition.and(statusPendingCondition.or(statusWaitingCondition.and(releaseDateCondition))), Order.ascending("id"))
+                .stream()
+                .filter(pendingMessage -> pendingMessage.getStatus().equals(DeviceMessageStatus.PENDING))
+                .collect(Collectors.toList());
+    }
 }

@@ -63,11 +63,12 @@ import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.stream.Collectors;
 
@@ -265,12 +266,8 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
     private void fillReallyPendingAndInvalidMessagesLists(Map<Device, List<Device>> deviceTopologies, List<DeviceMessage> reallyPending, List<DeviceMessage> invalidSinceCreation) {
         serviceProvider.eventService().postEvent(EventType.COMMANDS_WILL_BE_SENT.topic(), null);
         PendingMessagesValidator validator = new PendingMessagesValidator(device);
-        getAllPendingMessagesIncludingSlaves(device, deviceTopologies).stream()
-                .sorted(Comparator.comparing(DeviceMessage::getId))
-                .map(pendingMessage -> serviceProvider.deviceMessageService().findAndLockDeviceMessageById(pendingMessage.getId()))
-                .filter(Optional::isPresent).map(Optional::get)
-                .filter(pendingMessage -> pendingMessage.getStatus().equals(DeviceMessageStatus.PENDING))
-                .forEachOrdered(deviceMessage -> {
+        serviceProvider.deviceMessageService().findAndLockPendingMessagesForDevices(getAllPhysicalConnectedDevices(device, deviceTopologies))
+                .forEach(deviceMessage -> {
                     if (validator.isStillValid(deviceMessage)) {
                         reallyPending.add(deviceMessage);
                     } else {
@@ -597,12 +594,20 @@ public class OfflineDeviceImpl implements ServerOfflineDevice {
      * @return a List of pending DeviceMessages
      */
     private List<DeviceMessage> getAllPendingMessagesIncludingSlaves(Device device, Map<Device, List<Device>> deviceTopologies) {
-        List<DeviceMessage> allDeviceMessages = new ArrayList<>();
-        allDeviceMessages.addAll(device.getMessagesByState(DeviceMessageStatus.PENDING));
+        List<DeviceMessage> allDeviceMessages = new ArrayList<>(device.getMessagesByState(DeviceMessageStatus.PENDING));
         getPhysicalConnectedDevices(device, deviceTopologies).stream().
                 filter(this::checkTheNeedToGoOffline).
                 forEach(slave -> allDeviceMessages.addAll(getAllPendingMessagesIncludingSlaves(slave, deviceTopologies)));
         return allDeviceMessages;
+    }
+
+    private Set<Device> getAllPhysicalConnectedDevices(Device device, Map<Device, List<Device>> deviceTopologies) {
+        Set<Device> allDevices = new HashSet<>();
+        allDevices.add(device);
+        getPhysicalConnectedDevices(device, deviceTopologies).stream()
+                .filter(this::checkTheNeedToGoOffline)
+                .forEach(slave -> allDevices.addAll(getAllPhysicalConnectedDevices(slave, deviceTopologies)));
+        return allDevices;
     }
 
     /**

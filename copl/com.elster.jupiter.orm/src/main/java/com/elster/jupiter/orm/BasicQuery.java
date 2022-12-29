@@ -4,10 +4,11 @@
 
 package com.elster.jupiter.orm;
 
-import aQute.bnd.annotation.ProviderType;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.conditions.Order;
+
+import aQute.bnd.annotation.ProviderType;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +26,8 @@ public interface BasicQuery<T> {
     List<T> select(Condition condition, Order... orders);
 
     List<T> select(Condition condition, Hint[] hints, Order... orders);
+
+    List<T> lock(Condition condition, Order... orders);
 
     long count(Condition condition);
 }
