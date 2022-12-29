@@ -229,31 +229,35 @@ Ext.define('Dlc.devicelifecycles.controller.DeviceLifeCycles', {
             data = {},
             route;
 
-        if (!formErrorsPanel.isHidden()) {
-            formErrorsPanel.hide();
-            form.getForm().clearInvalid();
-        }
-
-        data.name = form.down('#device-life-cycle-name').getValue();
-        page.setLoading();
-        Ext.Ajax.request({
-            url: '/api/dld/devicelifecycles/' + router.arguments.deviceLifeCycleId + '/clone',
-            method: 'POST',
-            jsonData: data,
-            success: function (response) {
-                var id = Ext.decode(response.responseText).id;
-                router.getRoute('administration/devicelifecycles/devicelifecycle').forward({deviceLifeCycleId: id});
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.clone.successMsg', 'DLC', 'Device life cycle cloned'));
-            },
-            failure: function (response) {
-                page.setLoading(false);
-                var json = Ext.decode(response.responseText, true);
-                if (json && json.errors) {
-                    form.getForm().markInvalid(json.errors);
-                    formErrorsPanel.show();
-                }
+        if (form.isValid()) {
+            if (!formErrorsPanel.isHidden()) {
+                formErrorsPanel.hide();
+                form.getForm().clearInvalid();
             }
-        });
+
+            data.name = form.down('#device-life-cycle-name').getValue();
+            page.setLoading();
+            Ext.Ajax.request({
+                url: '/api/dld/devicelifecycles/' + router.arguments.deviceLifeCycleId + '/clone',
+                method: 'POST',
+                jsonData: data,
+                success: function (response) {
+                    var id = Ext.decode(response.responseText).id;
+                    router.getRoute('administration/devicelifecycles/devicelifecycle').forward({deviceLifeCycleId: id});
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceLifeCycles.clone.successMsg', 'DLC', 'Device life cycle cloned'));
+                },
+                failure: function (response) {
+                    page.setLoading(false);
+                    var json = Ext.decode(response.responseText, true);
+                    if (json && json.errors) {
+                        form.getForm().markInvalid(json.errors);
+                        formErrorsPanel.show();
+                    }
+                }
+            });
+        } else {
+            formErrorsPanel.show();
+        }
 
     },
 

@@ -46,7 +46,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 fieldLabel: Uni.I18n.translate('general.name', 'FWC', 'Name'),
                 required: true,
                 allowBlank: false,
-                width: 600
+                width: 600,
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 xtype: 'fieldcontainer',
