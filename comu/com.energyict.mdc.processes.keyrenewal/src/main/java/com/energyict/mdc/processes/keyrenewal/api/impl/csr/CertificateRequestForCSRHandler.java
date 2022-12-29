@@ -83,7 +83,6 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
                 throw new IllegalArgumentException();
             }
         } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "CONM-2435: CertificateRequestForCSRHandler:: process" + e.getMessage(), e);
             serviceCall.requestTransition(DefaultState.FAILED);
         }
     }

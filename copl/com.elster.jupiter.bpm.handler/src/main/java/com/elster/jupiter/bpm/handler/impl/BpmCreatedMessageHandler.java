@@ -54,7 +54,6 @@ public class BpmCreatedMessageHandler implements MessageHandler {
                 BpmProcess latestProcess = getProcessFromLatestDeployment(bpmProcess);
                 targetURL = "/services/rest/server/containers/" + latestProcess.getDeploymentId().get() + "/processes/" + latestProcess.getId().get() + "/instances";
             } catch (JSONException e) {
-                LOGGER.log(Level.SEVERE, "CONM-2435:BpmCreatedMessageHandler :: process" + e.getMessage(), e );
                 throw new RuntimeException(e);
             }
         } else {
