@@ -5,6 +5,7 @@ import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 
+import com.energyict.cbo.BaseUnit;
 import com.energyict.cbo.Unit;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.ChannelInfo;
@@ -142,11 +143,11 @@ public class EI6v2021LoadProfileDataReader extends A2ProfileDataReader {
         channelInfo4.setMultiplier(new BigDecimal(1));
         channelInfos.add(channelInfo4);
 
-        ChannelInfo channelInfo5 = new ChannelInfo(5, "7.0.43.45.0.255", getDataVolumeUnitScalar(), offlineDevice.getSerialNumber(), false);
+        ChannelInfo channelInfo5 = new ChannelInfo(5, "7.0.43.45.0.255", Unit.get(BaseUnit.CUBICMETERPERHOUR, -3), offlineDevice.getSerialNumber(), false);
         channelInfo5.setMultiplier(new BigDecimal(1));
         channelInfos.add(channelInfo5);
 
-        ChannelInfo channelInfo6 = new ChannelInfo(6, "7.0.43.45.5.255", getDataVolumeUnitScalar(), offlineDevice.getSerialNumber(), false);
+        ChannelInfo channelInfo6 = new ChannelInfo(6, "7.0.43.45.5.255", Unit.get(BaseUnit.SECOND, -3), offlineDevice.getSerialNumber(), false);
         channelInfo6.setMultiplier(new BigDecimal(1));
         channelInfos.add(channelInfo6);
         return channelInfos;
