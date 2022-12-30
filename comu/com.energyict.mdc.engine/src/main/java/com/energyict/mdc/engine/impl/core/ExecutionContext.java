@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.StopWatch;
@@ -637,6 +638,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         DeviceMessageService deviceMessageService();
 
+        TransactionService transactionService();
     }
 
     private class ConnectionTaskPropertyCache implements ConnectionTaskPropertyProvider {
@@ -713,6 +715,7 @@ public final class ExecutionContext implements JournalEntryFactory {
             return serviceProvider.eventService();
         }
 
+        @Override
         public EventPublisher eventPublisher() {
             return serviceProvider.eventPublisher();
         }
@@ -722,5 +725,9 @@ public final class ExecutionContext implements JournalEntryFactory {
             return serviceProvider.deviceMessageService();
         }
 
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
     }
 }

@@ -8,6 +8,7 @@ import com.elster.jupiter.devtools.tests.assertions.JupiterAssertions;
 import com.elster.jupiter.devtools.tests.fakes.LogRecorder;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.ComPortPool;
 import com.energyict.mdc.common.comserver.ComServer;
@@ -507,6 +508,11 @@ public class ComChannelBasedComPortListenerStatisticsTest {
         @Override
         public DeviceMessageService deviceMessageService() {
             return serviceProvider.deviceMessageService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
         }
     }
 

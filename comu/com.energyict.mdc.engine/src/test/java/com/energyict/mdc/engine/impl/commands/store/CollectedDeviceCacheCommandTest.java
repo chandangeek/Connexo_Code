@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -179,6 +180,11 @@ public class CollectedDeviceCacheCommandTest {
 
         @Override
         public DeviceMessageService deviceMessageService() {
+            return null;
+        }
+
+        @Override
+        public TransactionService transactionService() {
             return null;
         }
     }

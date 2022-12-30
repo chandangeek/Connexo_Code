@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.commands.store;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
@@ -97,12 +98,16 @@ public class DeviceCommandImplTest {
     IssueService issueService;
     @Mock
     EventPublisher publisher;
+    @Mock
+    TransactionService transactionService;
 
     @Before
     public void initMocks() {
         when(serviceProvider.eventPublisher()).thenReturn(publisher);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(serviceProvider.issueService()).thenReturn(issueService);
+        when(serviceProvider.transactionService()).thenReturn(transactionService);
+        when(transactionService.isInTransaction()).thenReturn(true);
     }
 
     @Test

@@ -503,7 +503,7 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         loadProfileConfiguration.setChannelInfos(secondListOfChannelInfos);
 
         DeviceProtocol deviceProtocol = mock(DeviceProtocol.class);
-        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.<List<LoadProfileReader>>any())).thenReturn(Collections.<CollectedLoadProfileConfiguration>singletonList(loadProfileConfiguration));
+        when(deviceProtocol.fetchLoadProfileConfiguration(Matchers.any())).thenReturn(Collections.singletonList(loadProfileConfiguration));
 
         LoadProfilesTask loadProfilesTask = createSimpleLoadProfilesTask();
         LoadProfileReader loadProfileReader = createSimpleLoadProfileReader();
@@ -523,9 +523,9 @@ public class VerifyLoadProfilesCommandTest extends CommonCommandImplTests {
         assertEquals("There should be three problems logged", 3, verifyLoadProfilesCommand.getProblems().size());
         assertEquals("There should be no warnings logged", 0, verifyLoadProfilesCommand.getWarnings().size());
         assertEquals("The list of readers-to-be-removed should contain 1 element", 1, verifyLoadProfilesCommand.getReadersToRemove().size());
-        verify(verifyLoadProfilesCommand).verifyNumberOfChannels(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
-        verify(verifyLoadProfilesCommand).verifyProfileInterval(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
-        verify(verifyLoadProfilesCommand).verifyChannelConfiguration(Matchers.<LoadProfileReader>any(), Matchers.<DeviceLoadProfileConfiguration>any());
+        verify(verifyLoadProfilesCommand).verifyNumberOfChannels(Matchers.any(LoadProfileReader.class), Matchers.any(DeviceLoadProfileConfiguration.class));
+        verify(verifyLoadProfilesCommand).verifyProfileInterval(Matchers.any(LoadProfileReader.class), Matchers.any(DeviceLoadProfileConfiguration.class));
+        verify(verifyLoadProfilesCommand).verifyChannelConfiguration(Matchers.any(LoadProfileReader.class), Matchers.any(DeviceLoadProfileConfiguration.class));
     }
 
     private List<ChannelInfo> createSimpleChannelInfoList() {

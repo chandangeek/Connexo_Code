@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -15,11 +16,9 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 
 import java.time.Clock;
 import java.time.Instant;
@@ -28,8 +27,17 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Optional;
 
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CollectedMessageListDeviceCommandTest extends AbstractCollectedDataIntegrationTest {
@@ -51,6 +59,8 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
     private DeviceCommand.ServiceProvider serviceProvider;
     @Mock
     private DeviceMessageService deviceMessageService;
+    @Mock
+    private TransactionService transactionService;
 
     @Before
     public void initialize(){
@@ -58,6 +68,8 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         when(deviceMessage2.getId()).thenReturn(MESSAGE_ID2);
         when(serviceProvider.issueService()).thenReturn(issueService);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
+        when(serviceProvider.transactionService()).thenReturn(transactionService);
+        when(transactionService.isInTransaction()).thenReturn(true);
     }
 
     @Test
@@ -169,11 +181,13 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
+        when(comServerDAO.lockDeviceMessages(ImmutableList.of(offlineDeviceMessage1, offlineDeviceMessage2)))
+                .thenReturn(ImmutableMap.of(offlineDeviceMessage1, deviceMessage1, offlineDeviceMessage2, deviceMessage2));
 
         // Business method
         command.execute(comServerDAO);
         verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier()), DeviceMessageStatus.CONFIRMED, Instant.now(getClock()), null);
-        verify(comServerDAO).updateDeviceMessageInformation(new DeviceMessageIdentifierById(deviceMessage2.getId(), deviceMessage2.getDeviceIdentifier()), DeviceMessageStatus.SENT, null, CollectedMessageList.REASON_FOR_PENDING_STATE);
+        verify(comServerDAO).updateDeviceMessageInformation(deviceMessage2, DeviceMessageStatus.SENT, null, CollectedMessageList.REASON_FOR_PENDING_STATE);
     }
 
 }
