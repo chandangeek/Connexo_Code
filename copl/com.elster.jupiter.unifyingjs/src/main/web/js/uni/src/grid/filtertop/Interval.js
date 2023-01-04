@@ -643,7 +643,7 @@ Ext.define('Uni.grid.filtertop.Interval', {
     numberFieldValidation: function (field) {
         var value = field.getValue();
 
-        if (Ext.isEmpty(value) || value < field.minValue || value === 0) {
+        if (Ext.isEmpty(value) || value < field.minValue || value === 0 || !Number.isInteger(value)) {
             field.setValue(field.minValue);
         } else if (value > field.maxValue) {
             field.setValue(field.maxValue);
