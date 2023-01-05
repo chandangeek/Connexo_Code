@@ -642,11 +642,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
-        return null;
-    }
-
-    @Override
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return Collections.emptyList();
     }
@@ -1163,11 +1158,6 @@ public class MonitoringComServerDAO implements ComServerDAO {
 
         @Override
         public User getComServerUser() {
-            return null;
-        }
-
-        @Override
-        public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
             return null;
         }
 

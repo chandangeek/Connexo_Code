@@ -799,8 +799,6 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
 
     User getComServerUser();
 
-    Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages);
-
     List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort);
 
     void updateUmiwanStructure(ComTaskExecution comTaskExecution, Map<String, Object> properties, String cas);

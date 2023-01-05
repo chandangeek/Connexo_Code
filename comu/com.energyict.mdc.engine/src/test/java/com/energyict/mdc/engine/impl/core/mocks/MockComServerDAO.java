@@ -781,11 +781,6 @@ public class MockComServerDAO implements ComServerDAO {
     }
 
     @Override
-    public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
-        return null;
-    }
-
-    @Override
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return Collections.emptyList();
     }

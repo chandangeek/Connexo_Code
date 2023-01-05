@@ -17,9 +17,6 @@ import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Arrays;
@@ -69,21 +66,25 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         when(serviceProvider.issueService()).thenReturn(issueService);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(serviceProvider.transactionService()).thenReturn(transactionService);
+        when(serviceProvider.deviceMessageService()).thenReturn(deviceMessageService);
         when(transactionService.isInTransaction()).thenReturn(true);
     }
 
     @Test
     public void testExecute() {
         freezeClock(new Date());
-        final DeviceMessageIdentifierById deviceMessageIdentifier = new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier());
-        when(this.deviceMessageService.findDeviceMessageByIdentifier(deviceMessageIdentifier)).thenReturn(Optional.of(this.deviceMessage1));
+        long messageId = deviceMessage1.getId();
+        final DeviceMessageIdentifierById deviceMessageIdentifier = new DeviceMessageIdentifierById(messageId, deviceMessage1.getDeviceIdentifier());
+        when(deviceMessageService.findDeviceMessageByIdentifier(deviceMessageIdentifier)).thenReturn(Optional.of(deviceMessage1));
+        when(deviceMessageService.findAndLockDeviceMessageById(messageId)).thenReturn(Optional.of(deviceMessage1));
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
         when(offlineDeviceMessage.getMessageIdentifier()).thenReturn(deviceMessageIdentifier);
+        when(offlineDeviceMessage.getDeviceMessageId()).thenReturn(messageId);
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier);
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Collections.singletonList(offlineDeviceMessage), this.deviceMessageService);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Collections.singletonList(offlineDeviceMessage));
         deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
         command.logExecutionWith(this.executionLogger);
@@ -113,7 +114,7 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
         deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
         deviceProtocolMessageList.addCollectedMessage(collectedMessage2);
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
@@ -140,7 +141,7 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
         OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
         deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
         deviceProtocolMessageList.addCollectedMessage(collectedMessage2);
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
@@ -156,33 +157,38 @@ public class CollectedMessageListDeviceCommandTest extends AbstractCollectedData
     @Test
     public void testUnProcessedDeviceMessage(){
         freezeClock(new Date());
-        final DeviceMessageIdentifierById deviceMessageIdentifier1 = new DeviceMessageIdentifierById(deviceMessage1.getId(), deviceMessage1.getDeviceIdentifier());
+        long messageId = deviceMessage1.getId();
+        final DeviceMessageIdentifierById deviceMessageIdentifier1 = new DeviceMessageIdentifierById(messageId, deviceMessage1.getDeviceIdentifier());
         doReturn(Optional.of(this.deviceMessage1)).when(this.deviceMessageService).findDeviceMessageByIdentifier(deviceMessageIdentifier1);
+        when(deviceMessageService.findAndLockDeviceMessageById(messageId)).thenReturn(Optional.of(deviceMessage1));
         DeviceProtocolMessage collectedMessage1 = new DeviceProtocolMessage(deviceMessageIdentifier1);
         collectedMessage1.setSentDate(getClock().instant());
         collectedMessage1.setNewDeviceMessageStatus(DeviceMessageStatus.CONFIRMED);
 
-        final DeviceMessageIdentifierById deviceMessageIdentifier2 = new DeviceMessageIdentifierById(deviceMessage2.getId(), deviceMessage2.getDeviceIdentifier());
+        OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
+        when(offlineDeviceMessage1.getMessageIdentifier()).thenReturn(deviceMessageIdentifier1);
+        when(offlineDeviceMessage1.getDeviceMessageId()).thenReturn(messageId);
+
+        messageId = deviceMessage2.getId();
+        final DeviceMessageIdentifierById deviceMessageIdentifier2 = new DeviceMessageIdentifierById(messageId, deviceMessage2.getDeviceIdentifier());
         doReturn(Optional.of(this.deviceMessage2)).when(this.deviceMessageService).findDeviceMessageByIdentifier(deviceMessageIdentifier2);
+        when(deviceMessageService.findAndLockDeviceMessageById(messageId)).thenReturn(Optional.of(deviceMessage2));
         DeviceProtocolMessage collectedMessage2 = new DeviceProtocolMessage(deviceMessageIdentifier2);
         collectedMessage2.setSentDate(getClock().instant());
         collectedMessage2.setNewDeviceMessageStatus(DeviceMessageStatus.INDOUBT);
 
-        OfflineDeviceMessage offlineDeviceMessage1 = mock(OfflineDeviceMessage.class);
-        when(offlineDeviceMessage1.getMessageIdentifier()).thenReturn(deviceMessageIdentifier1);
         OfflineDeviceMessage offlineDeviceMessage2 = mock(OfflineDeviceMessage.class);
         when(offlineDeviceMessage2.getMessageIdentifier()).thenReturn(deviceMessageIdentifier2);
+        when(offlineDeviceMessage2.getDeviceMessageId()).thenReturn(messageId);
         when(offlineDeviceMessage2.getDeviceMessageStatus()).thenReturn(DeviceMessageStatus.SENT);
 
-        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2), this.deviceMessageService);
+        DeviceProtocolMessageList deviceProtocolMessageList = new DeviceProtocolMessageList(Arrays.asList(offlineDeviceMessage1, offlineDeviceMessage2));
         deviceProtocolMessageList.addCollectedMessage(collectedMessage1);
         // only adding the CollectedResult for DeviceMessage 1
 
         DeviceCommand command = deviceProtocolMessageList.toDeviceCommand(meterDataStoreCommand, serviceProvider);
         command.logExecutionWith(this.executionLogger);
         ComServerDAO comServerDAO = mock(ComServerDAO.class);
-        when(comServerDAO.lockDeviceMessages(ImmutableList.of(offlineDeviceMessage1, offlineDeviceMessage2)))
-                .thenReturn(ImmutableMap.of(offlineDeviceMessage1, deviceMessage1, offlineDeviceMessage2, deviceMessage2));
 
         // Business method
         command.execute(comServerDAO);

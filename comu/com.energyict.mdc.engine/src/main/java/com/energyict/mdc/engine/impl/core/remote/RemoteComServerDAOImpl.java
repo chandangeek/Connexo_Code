@@ -1254,12 +1254,6 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         return null;
     }
 
-    @Override
-    public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
-        // TODO: doesn't seem to require implementation
-        return null;
-    }
-
     private String getSystemName() {
         String systemName = System.getProperty(ComServer.SYSTEM_NAME_PROPERTY);
         if (systemName == null) {

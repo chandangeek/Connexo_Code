@@ -35,6 +35,9 @@ import com.energyict.mdc.upl.tasks.CompletionCode;
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -82,7 +85,7 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     }
 
     private void processOfflineDeviceMessages(ComServerDAO comServerDAO) {
-        Map<OfflineDeviceMessage, DeviceMessage> lockedDeviceMessages = comServerDAO.lockDeviceMessages(allDeviceMessages);
+        Map<OfflineDeviceMessage, DeviceMessage> lockedDeviceMessages = lockDeviceMessages(allDeviceMessages);
         for (OfflineDeviceMessage offlineDeviceMessage : allDeviceMessages) {
             List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getMessageIdentifier());
             if (messagesToExecute.isEmpty()) {
@@ -105,6 +108,19 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
                                 .getValue(), e.getDeviceProtocolInformation()));
             }
         }
+    }
+
+    private Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
+        Map<OfflineDeviceMessage, DeviceMessage> lockedDeviceMessages = new HashMap<>();
+        offlineDeviceMessages.stream().sorted(Comparator.comparing(OfflineDeviceMessage::getDeviceMessageId)).forEachOrdered(offlineDeviceMessage -> {
+            Optional<DeviceMessage> lockedDeviceMessage = serviceProvider.deviceMessageService().findAndLockDeviceMessageById(offlineDeviceMessage.getDeviceMessageId());
+            if (lockedDeviceMessage.isPresent()) {
+                lockedDeviceMessages.put(offlineDeviceMessage, lockedDeviceMessage.get());
+            } else {
+                throw new IllegalArgumentException("DeviceMessage with id " + offlineDeviceMessage.getDeviceMessageId() + " can't be locked.");
+            }
+        });
+        return lockedDeviceMessages;
     }
 
     @Override

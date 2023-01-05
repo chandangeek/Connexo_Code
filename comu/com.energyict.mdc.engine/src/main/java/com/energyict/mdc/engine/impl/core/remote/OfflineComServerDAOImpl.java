@@ -703,12 +703,6 @@ public class OfflineComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
-        // TODO: doesn't seem to require implementation
-        return null;
-    }
-
-    @Override
     public List<Long> findContainingActiveComPortPoolsForComPort(OutboundComPort comPort) {
         return null;    // Not used in mobile DAO, as only used for scheduling of high priority tasks
     }

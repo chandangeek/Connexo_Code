@@ -2161,20 +2161,6 @@ public class ComServerDAOImpl implements ComServerDAO {
         return (masterDevice.getDeviceConfiguration().isDataloggerEnabled() || masterDevice.getDeviceConfiguration().isMultiElementEnabled());
     }
 
-    @Override
-    public Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
-        Map<OfflineDeviceMessage, DeviceMessage> lockedDeviceMessages = new HashMap<>();
-        offlineDeviceMessages.stream().sorted(Comparator.comparing(OfflineDeviceMessage::getDeviceMessageId)).forEachOrdered(offlineDeviceMessage -> {
-            Optional<DeviceMessage> lockedDeviceMessage = serviceProvider.deviceMessageService().findAndLockDeviceMessageById(offlineDeviceMessage.getDeviceMessageId());
-            if (lockedDeviceMessage.isPresent()) {
-                lockedDeviceMessages.put(offlineDeviceMessage, lockedDeviceMessage.get());
-            } else {
-                throw new IllegalArgumentException("DeviceMessage with id " + offlineDeviceMessage.getDeviceMessageId() + " can't be locked.");
-            }
-        });
-        return lockedDeviceMessages;
-    }
-
     /**
      * Fetch the lookup table "comServerMobile_completionCodes"
      */
