@@ -83,8 +83,7 @@ public class OfflineDeviceMessageImpl implements OfflineDeviceMessage {
     }
 
     private void goOffline() {
-        Device device = ((Device) this.deviceMessage.getDevice());      //Downcast to Connexo Device
-
+        Device device = this.deviceMessage.getDevice();
         this.deviceMessageId = this.deviceMessage.getId();
         this.specification = this.protocolPluggableService.adapt(this.deviceMessage.getSpecification());
         this.firmwareMessage = this.deviceMessageSpecificationService.getFirmwareCategory().getId() == specification.getCategory().getId();

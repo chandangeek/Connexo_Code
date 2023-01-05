@@ -46,10 +46,8 @@ import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
 import com.energyict.mdc.firmware.impl.HasUniqueName;
 import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.UniqueName;
-
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
-
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -67,7 +65,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
@@ -112,7 +109,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     }
 
     public static final int SECONDS_IN_DAY = 86400;
-    private static final Logger LOGGER = Logger.getLogger(FirmwareCampaignDomainExtension.class.getName());
     private final DataModel dataModel;
     private final DataModel cpsDataModel;
     private final Thesaurus thesaurus;
@@ -122,6 +118,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final DeviceMessageService deviceMessageService;
     private final FirmwareCampaignServiceImpl firmwareCampaignService;
+
     private final Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")

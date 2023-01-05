@@ -469,21 +469,24 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
                         || lockedCT.getConnectionStrategy() == campaign.getFirmwareUploadConnectionStrategy().get())) {
                     lockedCTE.schedule(appliedStartDate);
                 } else {
-                    serviceCallService.lockServiceCall(getServiceCall().getId());
+                    serviceCallService.lockServiceCall(getServiceCall().getId())
+                            .ifPresent(serviceCall::set);
                     getDeviceMessage().ifPresent(DeviceMessage::revoke);
                     getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                             .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), lockedCTE.getComTask().getName()));
                     getServiceCall().requestTransition(DefaultState.REJECTED);
                 }
             } else {
-                serviceCallService.lockServiceCall(getServiceCall().getId());
+                serviceCallService.lockServiceCall(getServiceCall().getId())
+                        .ifPresent(serviceCall::set);
                 getDeviceMessage().ifPresent(DeviceMessage::revoke);
                 getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT)
                         .format(thesaurus.getFormat(TranslationKeys.valueOf(campaign.getFirmwareUploadConnectionStrategy().get().name())).format(), firmwareComTaskExec.getComTask().getName()));
                 getServiceCall().requestTransition(DefaultState.REJECTED);
             }
         } else {
-            serviceCallService.lockServiceCall(getServiceCall().getId());
+            serviceCallService.lockServiceCall(getServiceCall().getId())
+                    .ifPresent(serviceCall::set);
             getDeviceMessage().ifPresent(DeviceMessage::revoke);
             getServiceCall().log(LogLevel.WARNING, thesaurus.getFormat(MessageSeeds.TASK_FOR_SENDING_FIRMWARE_IS_MISSING).format());
             getServiceCall().requestTransition(DefaultState.REJECTED);

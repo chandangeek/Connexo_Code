@@ -677,7 +677,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         return this.traced;
     }
 
-    void setTraced(boolean traced){
+    void setTraced(boolean traced) {
         this.traced = traced;
     }
 

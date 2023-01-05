@@ -75,12 +75,12 @@ public class ComTaskExecutionRecalculateMessageHandler implements MessageHandler
             long maxId = this.getLong("maxId", messageProperties);
             Optional<ComSchedule> comSchedule = this.schedulingService.findSchedule(comScheduleId);
             List<ComTaskExecution> comTaskExecutions = this.communicationTaskService.findComTaskExecutionsByComScheduleWithinRange(comSchedule.get(), minId, maxId);
-            comTaskExecutions.sort(Comparator.comparing(ComTaskExecution::getId));
+            comTaskExecutions.sort(Comparator.comparingLong(ComTaskExecution::getId));
             for (ComTaskExecution comTaskExecution : comTaskExecutions) {
                 connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
                 long comTaskExecutionId = comTaskExecution.getId();
                 comTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(comTaskExecutionId)
-                        .orElseThrow(() -> new IllegalStateException("Com Task Execution " + comTaskExecutionId + " no more exist."));
+                        .orElseThrow(() -> new IllegalStateException("Com task execution " + comTaskExecutionId + " doesn't exist anymore."));
                 comTaskExecution.updateNextExecutionTimestamp();
                 comTaskExecution.getDevice().save();
             }

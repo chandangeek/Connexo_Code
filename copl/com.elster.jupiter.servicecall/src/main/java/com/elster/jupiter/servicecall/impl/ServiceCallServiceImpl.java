@@ -420,7 +420,7 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public void cancelServiceCallsFor(Object target) {
         findServiceCalls(target, DefaultState.openStates()).stream()
-                .sorted(Comparator.comparing(ServiceCall::getId))
+                .sorted(Comparator.comparingLong(ServiceCall::getId))
                 .map(serviceCall -> LockUtils.lockWithDoubleCheck(serviceCall,
                         this::lockServiceCall,
                         sc -> sc.canTransitionTo(DefaultState.CANCELLED)))

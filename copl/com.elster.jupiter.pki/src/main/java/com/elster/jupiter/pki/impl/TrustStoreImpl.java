@@ -99,7 +99,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     private Instant modTime;
 
 
-    private List<TrustedCertificate> trustedCertificates = new ArrayList<>();
+    private final List<TrustedCertificate> trustedCertificates = new ArrayList<>();
 
     @Inject
     public TrustStoreImpl(DataModel dataModel,
@@ -127,13 +127,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     @Override
     public boolean hasUniqueName() {
         Optional<TrustStore> namesake = dataModel.mapper(TrustStore.class).getUnique("name", getName());
-        if (namesake.isPresent()) {
-            if (namesake.get().getId() != getId()) {
-                return false;
-            }
-
-        }
-        return true;
+        return namesake.map(trustStore -> trustStore.getId() == getId()).orElse(true);
     }
 
     public void setName(String name) {
@@ -171,7 +165,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
                 .filter(trustedCertificate -> trustedCertificate.getAlias().equals(alias))
                 .collect(toList());
         this.trustedCertificates.removeAll(toBeRemoved);
-        toBeRemoved.stream().forEach(dataModel::remove);
+        toBeRemoved.forEach(dataModel::remove);
     }
 
     @Override
@@ -239,7 +233,6 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
 
         CertPathValidator validator = CertPathValidator.getInstance("PKIX");    //PKIX algorithm validates CertPath objects of type X.509
         CertPathValidatorResult validate = validator.validate(path, pkixParameters);
-
     }
 
     public void save() {
@@ -253,9 +246,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_ON_SECURITY_ACCESSOR);
         }
         if (securityManagementService.streamDirectoryCertificateUsages()
-                .filter(Where.where("trustStore").isEqualTo(this))
-                .findAny()
-                .isPresent()) {
+                .anyMatch(Where.where("trustStore").isEqualTo(this))) {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY);
         }
         if (fileImportService.doImportersUse(this)) {
@@ -265,8 +256,5 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
         getCertificates().forEach(TrustedCertificate::delete);
         dataModel.remove(this);
         eventService.postEvent(EventType.TRUSTSTORE_DELETED.topic(), this);
-    }
-
-    private class UntrustedCertificateException extends RuntimeException {
     }
 }

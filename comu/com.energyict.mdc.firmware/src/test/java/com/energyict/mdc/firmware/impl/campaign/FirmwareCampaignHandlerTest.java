@@ -31,8 +31,6 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
-import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
-import com.energyict.mdc.common.tasks.history.CompletionCode;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.dynamic.DateFactory;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -285,10 +283,6 @@ public class FirmwareCampaignHandlerTest {
         when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(messagesTask));
         when(messagesTask.getDeviceMessageCategories()).thenReturn(Collections.singletonList(deviceMessageCategory));
         when(deviceMessageCategory.getId()).thenReturn(0);
-        ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
-        when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
-        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         return comTaskExecution;
     }
 
@@ -300,10 +294,6 @@ public class FirmwareCampaignHandlerTest {
         when(comTaskExecution.getComTask()).thenReturn(comTask);
         when(comTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusInformationTask));
         when(deviceMessageCategory.getId()).thenReturn(0);
-        ComTaskExecutionSession comTaskExecutionSession = mock(ComTaskExecutionSession.class);
-        when(comTaskExecutionSession.getSuccessIndicator()).thenReturn(ComTaskExecutionSession.SuccessIndicator.Success);
-        when(comTaskExecutionSession.getHighestPriorityCompletionCode()).thenReturn(CompletionCode.Ok);
-        when(comTaskExecution.getLastSession()).thenReturn(Optional.of(comTaskExecutionSession));
         return comTaskExecution;
     }
 

@@ -132,7 +132,7 @@ public class DeviceComTaskResource {
     @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION})
-    public Response updateComTaskExecution(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskUrgencyInfo comTaskUrgencyInfo) {
+    public Response updateComTaskExecutionUrgency(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, ComTaskUrgencyInfo comTaskUrgencyInfo) {
         Device device = resourceHelper.lockDeviceOrThrowException(comTaskUrgencyInfo.device);
         List<ComTaskExecution> comTaskExecutions = getComTaskExecutionsForDeviceAndComTaskIds(device, comTaskId);
         if (comTaskExecutions.isEmpty()) {
@@ -142,7 +142,10 @@ public class DeviceComTaskResource {
             }
         }
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(updateUrgency(comTaskUrgencyInfo, device));
+            comTaskExecutions.stream()
+                    .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                    .map(this::getLockedComTaskExecution)
+                    .forEach(updateUrgency(comTaskUrgencyInfo, device));
         } else {
             throw exceptionFactory.newException(MessageSeeds.UPDATE_URGENCY_NOT_ALLOWED);
         }
@@ -165,7 +168,10 @@ public class DeviceComTaskResource {
             }
         }
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(updateTracing(comTaskTracingInfo, device));
+            comTaskExecutions.stream()
+                    .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                    .map(this::getLockedComTaskExecution)
+                    .forEach(updateTracing(comTaskTracingInfo, device));
         }
         return Response.ok().build();
     }
@@ -187,10 +193,10 @@ public class DeviceComTaskResource {
             }
         }
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(updateComTaskExecutionFrequency(comTaskFrequencyInfo, device));
-        } else {
-            List<ComTaskEnablement> comTaskEnablements = getComTaskEnablementsForDeviceAndComTaskIds(device, comTaskId);
-            comTaskEnablements.forEach(createManuallyScheduledComTaskExecutionForEnablement(comTaskFrequencyInfo, device));
+            comTaskExecutions.stream()
+                    .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                    .map(this::getLockedComTaskExecution)
+                    .forEach(updateComTaskExecutionFrequency(comTaskFrequencyInfo, device));
         }
         return Response.ok().build();
     }
@@ -215,7 +221,10 @@ public class DeviceComTaskResource {
             }
         }
         if (!comTaskExecutions.isEmpty()) {
-            comTaskExecutions.forEach(updateComTaskConnectionMethod(comTaskConnectionMethodInfo, device));
+            comTaskExecutions.stream()
+                    .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                    .map(this::getLockedComTaskExecution)
+                    .forEach(updateComTaskConnectionMethod(comTaskConnectionMethodInfo, device));
         } else {
             throw exceptionFactory.newException(MessageSeeds.UPDATE_CONNECTION_METHOD_NOT_ALLOWED);
         }
@@ -249,7 +258,7 @@ public class DeviceComTaskResource {
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.stream()
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .forEach(ComTaskExecution::scheduleNow);
             }
@@ -258,7 +267,7 @@ public class DeviceComTaskResource {
             if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
                 comTaskEnablements.stream()
                         .map(enablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(device, enablement).add())
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .forEach(ComTaskExecution::scheduleNow);
             }
@@ -286,7 +295,7 @@ public class DeviceComTaskResource {
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.stream()
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .forEach(ComTaskExecution::runNow);
             }
@@ -295,7 +304,7 @@ public class DeviceComTaskResource {
             if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
                 comTaskEnablements.stream()
                         .map(enablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(device, enablement).add())
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .forEach(ComTaskExecution::runNow);
             }
@@ -321,7 +330,7 @@ public class DeviceComTaskResource {
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.stream()
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .peek(comTaskExecution -> comTaskExecution.addNewComTaskExecutionTrigger(date == null ? clock.instant() : Instant.ofEpochMilli(date)))
                         .forEach(ComTaskExecution::updateNextExecutionTimestamp);
@@ -331,7 +340,7 @@ public class DeviceComTaskResource {
             if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
                 comTaskEnablements.stream()
                         .map(enablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(device, enablement).add())
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .peek(comTaskExecution -> comTaskExecution.addNewComTaskExecutionTrigger(date == null ? clock.instant() : Instant.ofEpochMilli(date)))
                         .forEach(ComTaskExecution::updateNextExecutionTimestamp);
@@ -361,7 +370,7 @@ public class DeviceComTaskResource {
         if (!comTaskExecutions.isEmpty()) {
             if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                 comTaskExecutions.stream()
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .peek(resourceHelper::getPriorityComTaskExecution)
                         .forEach(ComTaskExecution::runNow);
@@ -372,7 +381,7 @@ public class DeviceComTaskResource {
                 comTaskEnablements.stream()
                         .map(enablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(device, enablement).add())
                         .filter(this::couldRunWithPriority)
-                        .sorted(Comparator.comparing(ComTaskExecution::getId))
+                        .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                         .map(this::getLockedComTaskExecution)
                         .peek(resourceHelper::getPriorityComTaskExecution)
                         .forEach(ComTaskExecution::runNow);
@@ -402,7 +411,7 @@ public class DeviceComTaskResource {
             if (!comTaskExecutions.isEmpty()) {
                 if (comTaskExecutionPrivilegeCheck.canExecute(comTaskExecutions.get(0).getComTask(), user)) {
                     comTaskExecutions.stream()
-                            .sorted(Comparator.comparing(ComTaskExecution::getId))
+                            .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                             .map(this::getLockedComTaskExecution)
                             .forEach(ComTaskExecution::runNow);
                 }
@@ -411,7 +420,7 @@ public class DeviceComTaskResource {
                 if (!comTaskEnablements.isEmpty() && comTaskExecutionPrivilegeCheck.canExecute(comTaskEnablements.get(0).getComTask(), user)) {
                     comTaskEnablements.stream()
                             .map(enablement -> createManuallyScheduledComTaskExecutionWithoutFrequency(device, enablement).add())
-                            .sorted(Comparator.comparing(ComTaskExecution::getId))
+                            .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                             .map(this::getLockedComTaskExecution)
                             .forEach(ComTaskExecution::runNow);
                 }
@@ -528,7 +537,7 @@ public class DeviceComTaskResource {
         }
         comTaskExecutions.stream()
                 .filter(ComTaskExecution::isOnHold)
-                .sorted(Comparator.comparing(ComTaskExecution::getId))
+                .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                 .map(this::getLockedComTaskExecution)
                 .filter(ComTaskExecution::isOnHold)
                 .forEach(ComTaskExecution::resume);
@@ -561,7 +570,7 @@ public class DeviceComTaskResource {
         }
         comTaskExecutions.stream()
                 .filter(not(ComTaskExecution::isOnHold))
-                .sorted(Comparator.comparing(ComTaskExecution::getId))
+                .sorted(Comparator.comparingLong(ComTaskExecution::getId))
                 .map(this::getLockedComTaskExecution)
                 .filter(not(ComTaskExecution::isOnHold))
                 .forEach(ComTaskExecution::putOnHold);

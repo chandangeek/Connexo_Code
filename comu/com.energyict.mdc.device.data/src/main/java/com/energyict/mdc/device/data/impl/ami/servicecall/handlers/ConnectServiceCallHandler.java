@@ -13,10 +13,6 @@ import com.energyict.mdc.device.data.DeviceDataServices;
 import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.ami.CompletionOptionsCallBack;
-import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
-import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
-import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
-import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.upl.meterdata.BreakerStatus;
 
 import org.osgi.service.component.annotations.Component;
@@ -44,14 +40,12 @@ public class ConnectServiceCallHandler extends AbstractContactorOperationService
 
     // Constructor only to be used in JUnit tests
     public ConnectServiceCallHandler(MessageService messageService, DeviceService deviceService, Thesaurus thesaurus, CompletionOptionsCallBack completionOptionsCallBack,
-                                     ConnectionTaskService connectionTaskService, CommunicationTaskService communicationTaskService,
-                                     EngineConfigurationService engineConfigurationService, PriorityComTaskService priorityComTaskService,
                                      DeviceMessageService deviceMessageService) {
-        super.setMessageService(messageService);
-        super.setDeviceService(deviceService);
-        super.setThesaurus(thesaurus);
-        super.setCompletionOptionsCallBack(completionOptionsCallBack);
-        super.setDeviceMessageService(deviceMessageService);
+        setMessageService(messageService);
+        setDeviceService(deviceService);
+        setThesaurus(thesaurus);
+        setCompletionOptionsCallBack(completionOptionsCallBack);
+        setDeviceMessageService(deviceMessageService);
     }
 
     @Reference

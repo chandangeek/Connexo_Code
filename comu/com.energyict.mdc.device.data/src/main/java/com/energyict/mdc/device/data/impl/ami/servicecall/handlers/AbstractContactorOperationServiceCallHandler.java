@@ -47,7 +47,7 @@ public abstract class AbstractContactorOperationServiceCallHandler extends Abstr
         serviceCall.requestTransition(DefaultState.ONGOING);
     }
 
-    private void  switchToReadStatusInformation(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
+    private void switchToReadStatusInformation(ServiceCall serviceCall, CommandServiceCallDomainExtension domainExtension) {
         serviceCall.log(LogLevel.INFO, "Verifying the breaker status via register");
         domainExtension.setCommandOperationStatus(CommandOperationStatus.READ_STATUS_INFORMATION);
         serviceCall.update(domainExtension);

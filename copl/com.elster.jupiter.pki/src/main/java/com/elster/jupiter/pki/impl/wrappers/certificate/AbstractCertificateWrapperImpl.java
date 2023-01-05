@@ -330,9 +330,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_ON_SECURITY_ACCESSOR);
         }
         if (securityManagementService.streamDirectoryCertificateUsages()
-                .filter(Where.where("certificate").isEqualTo(this))
-                .findAny()
-                .isPresent()) {
+                .anyMatch(Where.where("certificate").isEqualTo(this))) {
             throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY);
         }
 
