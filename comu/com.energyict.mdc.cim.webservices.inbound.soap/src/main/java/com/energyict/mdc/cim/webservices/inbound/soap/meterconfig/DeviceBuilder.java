@@ -103,6 +103,8 @@ public class DeviceBuilder {
                     Optional<ComSchedule> optionalComSchedule = schedulingService.findScheduleByName(scheduleName);
                     if (optionalComSchedule.isPresent()) {
                         comSchedules.add(optionalComSchedule.get());
+                    } else {
+                        throw getFaultMessage(meter.getDeviceName(), MessageSeeds.SCHEDULE_FOR_METER_NOT_FOUND, scheduleName).get();
                     }
                 }
             }

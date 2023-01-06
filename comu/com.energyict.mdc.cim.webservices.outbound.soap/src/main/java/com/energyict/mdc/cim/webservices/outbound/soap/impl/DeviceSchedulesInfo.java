@@ -4,7 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.impl;
 
-import com.elster.jupiter.rest.util.VersionInfo;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.PartialScheduledConnectionTask;
