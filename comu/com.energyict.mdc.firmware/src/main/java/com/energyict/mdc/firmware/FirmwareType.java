@@ -17,8 +17,8 @@ public enum FirmwareType implements TranslationKey {
     AUXILIARY("auxiliary", "Auxiliary firmware"),
     CA_CONFIG_IMAGE("caConfigImage", "Image");
 
-    private String type;
-    private String description;
+    private final String type;
+    private final String description;
 
     FirmwareType(String type, String description) {
         this.type = type;

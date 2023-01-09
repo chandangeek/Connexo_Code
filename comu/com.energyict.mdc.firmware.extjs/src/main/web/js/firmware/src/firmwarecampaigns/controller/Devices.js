@@ -32,7 +32,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
         });
     },
 
-    firmwareCampaignId : null,
+    firmwareCampaignId: null,
 
     showDevices: function (firmwareCampaignId) {
         var me = this,
@@ -99,7 +99,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
             }
         });
     },
-    doUpdateRecord: function(record, responseText) {
+    doUpdateRecord: function (record, responseText) {
         var result = Ext.JSON.decode(responseText);
         if (result) {
             var status = result['status'],
@@ -113,7 +113,5 @@ Ext.define('Fwc.firmwarecampaigns.controller.Devices', {
         }
 
     }
-
-
 
 });

@@ -21,11 +21,11 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         'Fwc.store.Firmwares',
         'Fwc.store.DeviceGroups',
         'Fwc.firmwarecampaigns.store.FirmwareVersionsList',
-        'Fwc.firmwarecampaigns.store.FirmvareVersionsOptions',
+        'Fwc.firmwarecampaigns.store.FirmwareVersionsOptions',
         'Fwc.store.SupportedFirmwareTypes',
         'Fwc.firmwarecampaigns.store.ConnectionStrategy',
         'Fwc.firmwarecampaigns.store.ComTasksForValidate',
-        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
+        'Fwc.firmwarecampaigns.store.FWComTask'
     ],
 
     refs: [
@@ -33,9 +33,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
             ref: 'preview',
             selector: 'firmware-campaigns-detail-form'
         },
-        { ref: 'campaignEdit', selector: '#firmware-campaigns-edit' }
+        {
+            ref: 'campaignEdit',
+            selector: '#firmware-campaigns-edit'
+        }
     ],
-    returnToOverview : false,
+    returnToOverview: false,
 
     init: function () {
         this.control({
@@ -75,7 +78,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
 
     onActionMenuClicked: function (menu, item) {
         switch (item.action) {
-            case 'cancelCampaign': this.onCancelCampaign(menu.record);
+            case 'cancelCampaign':
+                this.onCancelCampaign(menu.record);
                 break;
             case 'editCampaign':
             case 'editCampaignAndReturnToOverview':
@@ -85,7 +89,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         }
     },
 
-    onCancelCampaign : function(record) {
+    onCancelCampaign: function (record) {
         var me = this,
             confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                 confirmText: Uni.I18n.translate('firmware.campaigns.cancelCampaign', 'FWC', 'Cancel campaign'),
@@ -101,7 +105,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         });
     },
 
-    doCancelCampaign : function(record) {
+    doCancelCampaign: function (record) {
         var me = this,
             form = this.getPreview().down('form'),
             store = this.getStore('Fwc.firmwarecampaigns.store.FirmwareCampaigns');
@@ -127,14 +131,14 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         });
     },
 
-    editCampaign: function(campaignIdAsString) {
+    editCampaign: function (campaignIdAsString) {
         var me = this,
             router = me.getController('Uni.controller.history.Router'),
             widget = Ext.widget('firmware-campaigns-add', {
                 itemId: 'firmware-campaigns-edit',
                 action: 'saveFirmwareCampaign',
                 returnLink: me.returnToOverview
-                    ? router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId : campaignIdAsString})
+                    ? router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId: campaignIdAsString})
                     : router.getRoute('workspace/firmwarecampaigns').buildUrl()
             }),
             dependencies = ['Fwc.store.DeviceTypes'],
@@ -154,7 +158,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Overview', {
         });
     },
 
-    loadModelToEditForm: function(campaignIdAsString, widget) {
+    loadModelToEditForm: function (campaignIdAsString, widget) {
         var me = this,
             editView = me.getCampaignEdit(),
             model = me.getModel('Fwc.firmwarecampaigns.model.FirmwareCampaign'),

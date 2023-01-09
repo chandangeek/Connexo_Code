@@ -72,9 +72,8 @@ public final class RefAnyImpl implements RefAny {
 				targetHolder = Optional.empty();
 			} else {
 				targetHolder = getOrmService().getDataModelImpl(component)
-						.get()
-						.getTable(table)
-						.getOptional(getPrimaryKey());
+						.map(dm -> dm.getTable(table))
+						.flatMap(table -> table.getOptional(getPrimaryKey()));
 			}
 		}
 		return targetHolder;

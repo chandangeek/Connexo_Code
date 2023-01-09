@@ -17,7 +17,6 @@ import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -78,7 +77,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                                 .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
                                 .map(ctp -> (SecurityAccessorType) ctp.getValue())
                                 .map(device::getSecurityAccessor)
-                                .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualPassphraseWrapperReference().isPresent())){
+                                .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualValue().isPresent())){
                             return true;
                         }
                         break;
@@ -108,7 +107,7 @@ public class ConnectionPropertiesAreValid extends ConsolidatedServerMicroCheck {
                             .filter(ctp -> ctp.getValue() instanceof SecurityAccessorType)
                             .map(ctp -> (SecurityAccessorType) ctp.getValue())
                             .map(device::getSecurityAccessor)
-                            .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualPassphraseWrapperReference().isPresent())){
+                            .anyMatch(ka -> !ka.isPresent() || !ka.get().getActualValue().isPresent())){
                         return true;
                     }
                 }

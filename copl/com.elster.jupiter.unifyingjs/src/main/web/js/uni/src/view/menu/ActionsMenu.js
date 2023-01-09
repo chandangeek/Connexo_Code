@@ -29,36 +29,43 @@ Ext.define('Uni.view.menu.ActionsMenu', {
         me.mon(me, 'refreshMenuSeparators', me.onBeforeShow, me);
     },
 
+   // Order the menu items by
+    // 1. their section (first WITH section, THEN without)
+    // 2. their text (when their section equals)
+    sort: function(menuItem1, menuItem2) {
+        var sectionResult = 0;
+        if ( (menuItem1.xtype === 'menuseparator') || (menuItem2.xtype === 'menuseparator') ) {
+            return 0; // no reordering whenever separators are involved
+        }
+        if (Ext.isEmpty(menuItem1.section)) {
+            if (!Ext.isEmpty(menuItem2.section)) {
+                sectionResult = 1;
+            }
+        } else if (Ext.isEmpty(menuItem2.section)) {
+            if (!Ext.isEmpty(menuItem1.section)) {
+                sectionResult = -1;
+            }
+        } else {
+            sectionResult = menuItem1.section - menuItem2.section;
+        }
+        if (sectionResult !== 0) {
+            return sectionResult;
+        }
+        var order1 = Ext.isEmpty(menuItem1.order) ? 0 : menuItem1.order;
+        var order2 = Ext.isEmpty(menuItem2.order) ? 0 : menuItem2.order;
+        var orderPriority = order1 - order2;
+        return orderPriority===0 ? menuItem1.text.localeCompare(menuItem2.text) : orderPriority;
+    },
+
     sortMenuItems: function() {
         var me = this,
-            menuItems,
-            // Order the menu items by
-            // 1. their section (first WITH section, THEN without)
-            // 2. their text (when their section equals)
-            sort = function(menuItem1, menuItem2) {
-                var sectionResult = 0;
-                if ( (menuItem1.xtype === 'menuseparator') || (menuItem2.xtype === 'menuseparator') ) {
-                    return 0; // no reordering whenever separators are involved
-                }
-                if (Ext.isEmpty(menuItem1.section)) {
-                    if (!Ext.isEmpty(menuItem2.section)) {
-                        sectionResult = 1;
-                    }
-                } else if (Ext.isEmpty(menuItem2.section)) {
-                    if (!Ext.isEmpty(menuItem1.section)) {
-                        sectionResult = -1;
-                    }
-                } else {
-                    sectionResult = menuItem1.section - menuItem2.section;
-                }
-                return sectionResult===0 ? menuItem1.text.localeCompare(menuItem2.text) : sectionResult;
-            };
+            menuItems;
 
         if (Ext.isArray(me.items)) {
-            me.items = Ext.Array.sort(me.items, sort);
+            me.items = Ext.Array.sort(me.items, me.sort);
             menuItems = Ext.Array.clone(me.items);
         } else if (Ext.isArray(me.items.items)) {
-            me.items.items = Ext.Array.sort(me.items.items, sort);
+            me.items.items = Ext.Array.sort(me.items.items, me.sort);
             menuItems = Ext.Array.clone(me.items.items);
         }
 
@@ -166,37 +173,17 @@ Ext.define('Uni.view.menu.ActionsMenu', {
 
     reorderItems: function () {
         var me = this, menuItems,
-            sort = function (menuItem1, menuItem2) {
-                var sectionResult = 0;
-                if ((menuItem1.xtype === 'menuseparator') || (menuItem2.xtype === 'menuseparator')) {
-                    return 0; // no reordering whenever separators are involved
-                }
-                if (Ext.isEmpty(menuItem1.section)) {
-                    if (!Ext.isEmpty(menuItem2.section)) {
-                        sectionResult = 1;
-                    }
-                } else if (Ext.isEmpty(menuItem2.section)) {
-                    if (!Ext.isEmpty(menuItem1.section)) {
-                        sectionResult = -1;
-                    }
-                } else {
-                    sectionResult = menuItem1.section - menuItem2.section;
-                }
-                return sectionResult === 0 ? menuItem1.text.localeCompare(menuItem2.text) : sectionResult;
-            },
             removeSeparators = function(item) {
                 return item.xtype !== 'menuseparator';
             };
 
-
-
         if (Ext.isArray(me.items)) {
             menuItems = Ext.Array.filter(me.items, removeSeparators);
-            menuItems = Ext.Array.sort(menuItems, sort);
+            menuItems = Ext.Array.sort(menuItems, me.sort);
             menuItems = Ext.Array.clone(menuItems);
         } else if (Ext.isArray(me.items.items)) {
             menuItems = Ext.Array.filter(me.items.items, removeSeparators);
-            menuItems = Ext.Array.sort(menuItems, sort);
+            menuItems = Ext.Array.sort(menuItems, me.sort);
             menuItems = Ext.Array.clone(menuItems);
         }
 

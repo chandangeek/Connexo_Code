@@ -51,12 +51,12 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     }
 
     @Override
-    public SecurityAccessorType getKeyAccessorTypeReference() {
+    public SecurityAccessorType getSecurityAccessorType() {
         return kat;
     }
 
     @Override
-    public Optional getActualPassphraseWrapperReference() {
+    public Optional getActualValue() {
         return Optional.of(new SecurityValueWrapper() {
             @Override
             public Optional<Instant> getExpirationTime() {
@@ -76,8 +76,8 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
             @Override
             public Map<String, Object> getProperties() {
                 Map<String, Object> properties = new HashMap<>();
-                if (getKeyAccessorTypeReference().getKeyType().getCryptographicType().equals(CryptographicType.TrustedCertificate)) {
-                    getKeyAccessorTypeReference().getTrustStore().ifPresent(ts -> properties.put("trustStore", ts));
+                if (getSecurityAccessorType().getKeyType().getCryptographicType().equals(CryptographicType.TrustedCertificate)) {
+                    getSecurityAccessorType().getTrustStore().ifPresent(ts -> properties.put("trustStore", ts));
                 }
                 return properties;
             }
@@ -90,7 +90,7 @@ public class SecurityAccessorPlaceHolder implements SecurityAccessor {
     }
 
     @Override
-    public void setActualPassphraseWrapperReference(SecurityValueWrapper newWrapperValue) {
+    public void setActualValue(SecurityValueWrapper newValueWrapper) {
 
     }
 

@@ -4,9 +4,11 @@
 
 package com.energyict.mdc.engine.impl.commands.store;
 
+import com.elster.jupiter.transaction.TransactionContext;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.comserver.logging.DescriptionBuilder;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
 import com.energyict.mdc.device.data.CreditAmount;
@@ -29,10 +31,15 @@ import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.tasks.CompletionCode;
+
 import com.energyict.obis.ObisCode;
 
 import java.math.BigDecimal;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -43,12 +50,14 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
     private final DeviceProtocolMessageList deviceProtocolMessageList;
     private final List<OfflineDeviceMessage> allDeviceMessages;
     private final MeterDataStoreCommand meterDataStoreCommand;
+    private final ServiceProvider serviceProvider;
 
     public CollectedMessageListDeviceCommand(DeviceProtocolMessageList deviceProtocolMessageList, List<OfflineDeviceMessage> allDeviceMessages, ComTaskExecution comTaskExecution, MeterDataStoreCommand meterDataStoreCommand, ServiceProvider serviceProvider) {
         super(comTaskExecution, serviceProvider);
         this.deviceProtocolMessageList = deviceProtocolMessageList;
         this.allDeviceMessages = allDeviceMessages;
         this.meterDataStoreCommand = meterDataStoreCommand;
+        this.serviceProvider = serviceProvider;
     }
 
     @Override
@@ -65,10 +74,22 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
 
     @Override
     public void doExecute(ComServerDAO comServerDAO) {
+        if (!serviceProvider.transactionService().isInTransaction()) {
+            try (TransactionContext ctx = serviceProvider.transactionService().getContext()) {
+                processOfflineDeviceMessages(comServerDAO);
+                ctx.commit();
+            }
+        } else {
+            processOfflineDeviceMessages(comServerDAO);
+        }
+    }
+
+    private void processOfflineDeviceMessages(ComServerDAO comServerDAO) {
+        Map<OfflineDeviceMessage, DeviceMessage> lockedDeviceMessages = lockDeviceMessages(allDeviceMessages);
         for (OfflineDeviceMessage offlineDeviceMessage : allDeviceMessages) {
             List<CollectedMessage> messagesToExecute = this.deviceProtocolMessageList.getCollectedMessages(offlineDeviceMessage.getMessageIdentifier());
             if (messagesToExecute.isEmpty()) {
-                comServerDAO.updateDeviceMessageInformation(offlineDeviceMessage.getMessageIdentifier(), offlineDeviceMessage.getDeviceMessageStatus(), null, CollectedMessageList.REASON_FOR_PENDING_STATE);
+                comServerDAO.updateDeviceMessageInformation(lockedDeviceMessages.get(offlineDeviceMessage), offlineDeviceMessage.getDeviceMessageStatus(), null, CollectedMessageList.REASON_FOR_PENDING_STATE);
                 continue;
             }
 
@@ -87,6 +108,19 @@ public class CollectedMessageListDeviceCommand extends DeviceCommandImpl<Collect
                                 .getValue(), e.getDeviceProtocolInformation()));
             }
         }
+    }
+
+    private Map<OfflineDeviceMessage, DeviceMessage> lockDeviceMessages(Collection<OfflineDeviceMessage> offlineDeviceMessages) {
+        Map<OfflineDeviceMessage, DeviceMessage> lockedDeviceMessages = new HashMap<>();
+        offlineDeviceMessages.stream().sorted(Comparator.comparing(OfflineDeviceMessage::getDeviceMessageId)).forEachOrdered(offlineDeviceMessage -> {
+            Optional<DeviceMessage> lockedDeviceMessage = serviceProvider.deviceMessageService().findAndLockDeviceMessageById(offlineDeviceMessage.getDeviceMessageId());
+            if (lockedDeviceMessage.isPresent()) {
+                lockedDeviceMessages.put(offlineDeviceMessage, lockedDeviceMessage.get());
+            } else {
+                throw new IllegalArgumentException("DeviceMessage with id " + offlineDeviceMessage.getDeviceMessageId() + " can't be locked.");
+            }
+        });
+        return lockedDeviceMessages;
     }
 
     @Override

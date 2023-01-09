@@ -10,8 +10,8 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class IsFileRequiredValidator implements ConstraintValidator<IsFileRequired, FirmwareVersionImpl> {
-
-    public IsFileRequiredValidator() {}
+    public IsFileRequiredValidator() {
+    }
 
     @Override
     public void initialize(IsFileRequired annotation) {

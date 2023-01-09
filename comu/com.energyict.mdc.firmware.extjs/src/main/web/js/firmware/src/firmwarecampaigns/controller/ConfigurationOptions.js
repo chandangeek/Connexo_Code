@@ -25,7 +25,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
     ],
 
 
-    firmwareCampaignId : null,
+    firmwareCampaignId: null,
 
     showConfigurationOptions: function (firmwareCampaignId) {
         var me = this,
@@ -51,7 +51,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
                         var widget = view.down('firmware-specifications'),
                             form = widget ? widget.down('#form') : null;
                         if (form) {
-                            form.loadRecord(record.getFirmvareVersionsOptions());
+                            form.loadRecord(record.getFirmwareVersionsOptions());
                         }
                         var firmwareStore = Ext.getStore('Fwc.firmwarecampaigns.store.FirmwareVersionsList');
                         firmwareStore.getProxy().setUrl(firmwareCampaignId);
@@ -67,13 +67,19 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
                             callback: function () {
                                 var supportedFirmwareTypesData = supportedFirmwareTypesStore.getRange();
                                 var firmwareGrid = view.down('firmware-grid');
-                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "meter"}).length){
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function (item) {
+                                    return item.data.id === "meter"
+                                }).length) {
                                     firmwareGrid.down('#minMeterLevel').show();
                                 }
-                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "communication"}).length){
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function (item) {
+                                    return item.data.id === "communication"
+                                }).length) {
                                     firmwareGrid.down('#minCommLevel').show();
                                 }
-                                if (Ext.Array.filter(supportedFirmwareTypesData, function(item){ return item.data.id === "auxiliary"}).length){
+                                if (Ext.Array.filter(supportedFirmwareTypesData, function (item) {
+                                    return item.data.id === "auxiliary"
+                                }).length) {
                                     firmwareGrid.down('#minAuxiliaryLevel').show();
                                 }
                             }
@@ -86,7 +92,5 @@ Ext.define('Fwc.firmwarecampaigns.controller.ConfigurationOptions', {
             }
         });
     }
-
-
 
 });

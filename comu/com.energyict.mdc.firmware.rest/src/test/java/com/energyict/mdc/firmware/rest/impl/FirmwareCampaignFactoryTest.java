@@ -23,6 +23,7 @@ import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfo;
 import com.energyict.mdc.firmware.rest.impl.campaign.FirmwareCampaignInfoFactory;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import java.time.Clock;
@@ -54,8 +55,8 @@ public class FirmwareCampaignFactoryTest {
     private static FirmwareVersionInfoFactory firmwareVersionInfoFactory = mock(FirmwareVersionInfoFactory.class);
     private static FirmwareMessageInfoFactory firmwareMessageInfoFactory = mock(FirmwareMessageInfoFactory.class);
     private static FirmwareCampaignService firmwareCampaignService = mock(FirmwareCampaignService.class);
-
     private static ExceptionFactory exceptionFactory = mock(ExceptionFactory.class);
+    private static TaskService taskService = mock(TaskService.class);
 
     @BeforeClass
     public static void setUp() {
@@ -63,7 +64,7 @@ public class FirmwareCampaignFactoryTest {
 
         firmwareCampaignInfoFactory = new FirmwareCampaignInfoFactory(thesaurus, deviceConfigurationService,
                 deviceMessageSpecificationService, resourceHelper, firmwareVersionInfoFactory, firmwareMessageInfoFactory,
-                exceptionFactory, clock, firmwareService);
+                exceptionFactory, clock, firmwareService, taskService);
     }
 
     @Test
@@ -79,18 +80,20 @@ public class FirmwareCampaignFactoryTest {
         assertEquals(Instant.ofEpochSecond(100), firmwareCampaignInfo.timeBoundaryStart);
         assertEquals(Instant.ofEpochSecond(200), firmwareCampaignInfo.timeBoundaryEnd);
         assertEquals("TestDeviceType", firmwareCampaignInfo.deviceType.localizedValue);
-        assertEquals("As soon as possible", firmwareCampaignInfo.calendarUploadConnectionStrategy.name);
+        assertEquals("As soon as possible", firmwareCampaignInfo.firmwareUploadConnectionStrategy.name);
         assertEquals("Minimize connections", firmwareCampaignInfo.validationConnectionStrategy.name);
-        assertEquals(1L, firmwareCampaignInfo.calendarUploadComTask.id);
+        assertEquals(1L, firmwareCampaignInfo.firmwareUploadComTask.id);
+        assertEquals("comTaskName", firmwareCampaignInfo.firmwareUploadComTask.name);
         assertEquals(2L, firmwareCampaignInfo.validationComTask.id);
+        assertEquals("validationTaskName", firmwareCampaignInfo.validationComTask.name);
     }
 
     @Test
     public void getOverviewTest() {
         FirmwareCampaign firmwareCampaign = createMockCampaign();
         FirmwareCampaignInfo firmwareCampaignInfo = firmwareCampaignInfoFactory.getOverviewCampaignInfo(firmwareCampaign);
-        assertEquals(3L,firmwareCampaignInfo.id);
-        assertEquals(4L,firmwareCampaignInfo.version);
+        assertEquals(3L, firmwareCampaignInfo.id);
+        assertEquals(4L, firmwareCampaignInfo.version);
         assertEquals(2, firmwareCampaignInfo.validationTimeout.count);
         assertEquals("TestCampaign", firmwareCampaignInfo.name);
         assertEquals("activate", firmwareCampaignInfo.managementOption.localizedValue);
@@ -103,9 +106,9 @@ public class FirmwareCampaignFactoryTest {
         assertEquals("Ongoing", firmwareCampaignInfo.status.name);
     }
 
-
     private FirmwareCampaign createMockCampaign() {
-        ComTask comtask = mock(ComTask.class);
+        ComTask firmwareTask = mock(ComTask.class);
+        ComTask validationComTask = mock(ComTask.class);
         FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
@@ -136,8 +139,10 @@ public class FirmwareCampaignFactoryTest {
         when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.AS_SOON_AS_POSSIBLE));
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.MINIMIZE_CONNECTIONS));
-        when(comtask.getName()).thenReturn("comTaskName");
-        when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
+        when(firmwareTask.getName()).thenReturn("comTaskName");
+        when(taskService.findComTask(1L)).thenReturn(Optional.of(firmwareTask));
+        when(validationComTask.getName()).thenReturn("validationTaskName");
+        when(taskService.findComTask(2L)).thenReturn(Optional.of(validationComTask));
         return firmwareCampaign;
     }
 }

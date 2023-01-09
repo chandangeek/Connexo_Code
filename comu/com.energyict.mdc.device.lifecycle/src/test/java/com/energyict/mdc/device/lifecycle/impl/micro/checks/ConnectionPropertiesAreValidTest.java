@@ -7,13 +7,11 @@ import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.impl.NlsModule;
 import com.elster.jupiter.pki.SecurityAccessorType;
-import com.elster.jupiter.properties.PropertySpec;
 import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
 import com.energyict.mdc.common.device.data.SecurityAccessor;
-import com.energyict.mdc.common.pluggable.PluggableClass;
 import com.energyict.mdc.common.protocol.ConnectionTypePluggableClass;
 import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
@@ -24,12 +22,8 @@ import com.energyict.mdc.device.lifecycle.ExecutableMicroCheckViolation;
 import com.energyict.mdc.upl.TypedProperties;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import org.junit.Test;
@@ -179,7 +173,7 @@ public class ConnectionPropertiesAreValidTest {
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
-        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of("someValue"));
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of("someValue"));
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);
@@ -272,7 +266,7 @@ public class ConnectionPropertiesAreValidTest {
         when(cte1.getConnectionTask()).thenReturn(Optional.of(ct1));
         when(this.device.getComTaskExecutions()).thenReturn(Collections.singletonList(cte1));
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
-        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+        when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
         when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
 
         PartialConnectionTask partialConnectionTask = mock(PartialConnectionTask.class);

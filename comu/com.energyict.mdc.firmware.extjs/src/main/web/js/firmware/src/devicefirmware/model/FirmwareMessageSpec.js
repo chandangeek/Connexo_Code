@@ -18,7 +18,8 @@ Ext.define('Fwc.devicefirmware.model.FirmwareMessageSpec', {
         reader: 'json'
     },
     associations: [
-        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+        {
+            name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function (node) {
                 return 'Uni.property.model.Property';
             }

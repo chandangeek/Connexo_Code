@@ -23,7 +23,12 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509KeyManager;
 import javax.net.ssl.X509TrustManager;
 import java.io.IOException;
-import java.security.*;
+import java.security.InvalidKeyException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.CRL;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -94,6 +99,9 @@ public class CertificateWrapperExtractorImpl implements CertificateWrapperExtrac
 
     @Override
     public Optional<X509TrustManager> getTrustManager(CertificateWrapper serverCertificateWrapper) throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException {
+        if (serverCertificateWrapper == null) {
+            return Optional.empty();
+        }
         Optional<KeyStore> trustStore = getTrustStore(serverCertificateWrapper);
         if (trustStore.isPresent()) {
             TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());

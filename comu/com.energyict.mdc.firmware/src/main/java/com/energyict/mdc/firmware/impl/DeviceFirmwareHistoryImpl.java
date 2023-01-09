@@ -21,7 +21,7 @@ public class DeviceFirmwareHistoryImpl implements DeviceFirmwareHistory {
     FirmwareService firmwareService;
     Device device;
 
-    public DeviceFirmwareHistoryImpl(FirmwareService firmwareService, Device device){
+    public DeviceFirmwareHistoryImpl(FirmwareService firmwareService, Device device) {
         this.firmwareService = firmwareService;
         this.device = device;
     }
@@ -29,12 +29,17 @@ public class DeviceFirmwareHistoryImpl implements DeviceFirmwareHistory {
     @Override
     public List<DeviceFirmwareVersionHistoryRecord> history() {
         Condition forDevice = Where.where(ActivatedFirmwareVersionImpl.Fields.DEVICE.fieldName()).isEqualTo(this.device);
-        return ((FirmwareServiceImpl) firmwareService).findActivatedFirmwareVersion(forDevice).sorted("interval.start", false).find().stream().map(DeviceFirmwareVersionHistoryRecordImpl::new).collect(Collectors.toList());
+        return ((FirmwareServiceImpl) firmwareService).findActivatedFirmwareVersion(forDevice)
+                .sorted("interval.start", false)
+                .find()
+                .stream()
+                .map(DeviceFirmwareVersionHistoryRecordImpl::new)
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<DeviceFirmwareVersionHistoryRecord> history(FirmwareType firmwareType) {
-        return history().stream().filter((x)-> x.getFirmwareVersion().getFirmwareType() == firmwareType).collect(Collectors.toList());
+        return history().stream().filter((x) -> x.getFirmwareVersion().getFirmwareType() == firmwareType).collect(Collectors.toList());
     }
 
 }

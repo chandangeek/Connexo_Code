@@ -59,8 +59,8 @@ public class DeviceSecurityPropertySetResourceTest extends MultisensePublicApiJe
         when(device.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessor1, securityAccessor2));
         SecurityAccessorType securityAccessorType1 = sps1.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
         SecurityAccessorType securityAccessorType2 = sps2.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
-        when(securityAccessor1.getKeyAccessorTypeReference()).thenReturn(securityAccessorType1);
-        when(securityAccessor2.getKeyAccessorTypeReference()).thenReturn(securityAccessorType2);
+        when(securityAccessor1.getSecurityAccessorType()).thenReturn(securityAccessorType1);
+        when(securityAccessor2.getSecurityAccessorType()).thenReturn(securityAccessorType2);
     }
 
     @Test

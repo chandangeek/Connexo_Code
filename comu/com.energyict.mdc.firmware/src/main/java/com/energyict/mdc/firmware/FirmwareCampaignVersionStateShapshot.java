@@ -14,11 +14,18 @@ public interface FirmwareCampaignVersionStateShapshot {
     void delete();
 
     String getFirmwareVersion();
+
     FirmwareType getFirmwareType();
+
     FirmwareStatus getFirmwareStatus();
+
     String getImageIdentifier();
+
     int getRank();
+
     String getMeterFirmwareDependency();
+
     String getCommunicationFirmwareDependency();
+
     String getAuxiliaryFirmwareDependency();
 }

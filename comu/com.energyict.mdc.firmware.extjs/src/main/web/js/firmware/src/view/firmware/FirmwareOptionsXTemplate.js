@@ -8,29 +8,29 @@
  */
 Ext.define('Fwc.view.firmware.FirmwareOptionsXTemplate', {
     extend: 'Ext.XTemplate',
-    constructor: function(){
-        this.callParent([   '<table>',
-                                '<tbody>',
-                                    '<tpl for=".">',
-                                        '<tr><td>{localizedValue}</td></tr>',
-                                    '</tpl>',
-                                '</tbody>',
-                            '</table>'
-                        ]);
-    } ,
+    constructor: function () {
+        this.callParent(['<table>',
+            '<tbody>',
+            '<tpl for=".">',
+            '<tr><td>{localizedValue}</td></tr>',
+            '</tpl>',
+            '</tbody>',
+            '</table>'
+        ]);
+    },
     alternateClassName: 'FirmwareOptionsXTemplate',
     alias: 'firmware-options-template',
     emptyTemplate: new Ext.XTemplate('<table>',
-                                     '  <tbody>',
-                                            '<tr>',
-                                                '<td>',
-                                                    Uni.I18n.translate('deviceType.firmwaremanagementoptions.off', 'FWC', 'Firmware management is not allowed'),
-                                                '</td>',
-                                            '</tr>',
-                                        '</tbody>',
-                                     '</table>'),
-    apply : function(values){
-        if (!values || values.length == 0){
+        '  <tbody>',
+        '<tr>',
+        '<td>',
+        Uni.I18n.translate('deviceType.firmwaremanagementoptions.off', 'FWC', "Firmware management isn't allowed"),
+        '</td>',
+        '</tr>',
+        '</tbody>',
+        '</table>'),
+    apply: function (values) {
+        if (!values || values.length == 0) {
             return this.emptyTemplate.apply(values);
         }
         return this.callParent(arguments);

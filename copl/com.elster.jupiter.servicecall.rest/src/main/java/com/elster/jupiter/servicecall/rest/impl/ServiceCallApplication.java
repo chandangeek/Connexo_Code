@@ -13,6 +13,7 @@ import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestValidationExceptionMapper;
@@ -146,6 +147,7 @@ public class ServiceCallApplication extends Application implements TranslationKe
             bind(referenceResolver).to(ReferenceResolver.class);
             bind(customPropertySetService).to(CustomPropertySetService.class);
             bind(messageService).to(MessageService.class);
+            bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
         }
     }
 }

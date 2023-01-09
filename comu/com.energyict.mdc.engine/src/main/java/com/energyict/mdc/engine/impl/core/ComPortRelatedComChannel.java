@@ -25,8 +25,6 @@ public interface ComPortRelatedComChannel extends ComChannel, SerialPortComChann
 
     ComChannel getActualComChannel();
 
-    void setJournalEntryFactory(JournalEntryFactory journalEntryFactory);
-
     void logRemainingBytes();
 
     Duration talkTime();
@@ -34,5 +32,11 @@ public interface ComPortRelatedComChannel extends ComChannel, SerialPortComChann
     Counters getSessionCounters();
 
     Counters getTaskSessionCounters();
+
+    void setTraced(boolean traced);
+
+    void setDeviceName(String deviceName);
+
+    void setComTaskName(String comTaskName);
 
 }

@@ -10,7 +10,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
     },
     frame: true,
     minButtonWidth: 50,
-    itemId : null,
+    itemId: null,
     image: false,
     requires: [
         'Uni.util.FormErrorMessage',
@@ -140,11 +140,11 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 if (Ext.isEmpty(value)) {
                     return '-';
                 }
-                if(!Ext.isEmpty(field.up().record.getActiveVersion())) {
+                if (!Ext.isEmpty(field.up().record.getActiveVersion())) {
                     returnValue += ' (';
                     returnValue += field.up().record.getActiveVersion().getFirmwareVersionStatus().get('localizedValue');
-                    if(field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
-                        returnValue +=  ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
+                    if (field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
+                        returnValue += ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
                             Uni.I18n.translate('device.firmware.field.status.deprecatedVersion.tooltip', 'FWC', 'Firmware version/image is deprecated. Consider uploading new firmware version.') +
                             '"></span>';
                     }
@@ -163,11 +163,11 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 if (Ext.isEmpty(value)) {
                     return '-';
                 }
-                if(!Ext.isEmpty(field.up().record.getActiveVersion())) {
+                if (!Ext.isEmpty(field.up().record.getActiveVersion())) {
                     returnValue += ' (';
                     returnValue += field.up().record.getActiveVersion().getFirmwareVersionStatus().get('localizedValue');
-                    if(field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
-                        returnValue +=  ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
+                    if (field.up().record.getActiveVersion().getFirmwareVersionStatus().get('id') === 'deprecated') {
+                        returnValue += ' ' + '<span class="icon-warning" style="color: #EB5642; font-size:12px" data-qtip="' +
                             Uni.I18n.translate('device.firmware.field.status.deprecatedVersion.tooltip', 'FWC', 'Firmware version/image is deprecated. Consider uploading new firmware version.') +
                             '"></span>';
                     }
@@ -267,29 +267,33 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                     record.get('firmwareVersion'),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedDate')),
                     Uni.DateTime.formatDateTimeShort(record.get('plannedActivationDate'))
-                ],false));
+                ], false));
         }
 
         if (status === 'failedVersion' || status === 'failedVerificationVersion' || status === 'wrongVerificationVersion' || status === 'failedActivatingVersion') {
             formFailed.record = record;
             formFailed.show();
-            if (status === 'failedActivatingVersion') {
+            if (status === 'failedVerificationVersion') {
+                formFailed.setText(Uni.I18n.translate('device.firmware.activate.failedCheckVersionImage',
+                    'FWC', 'Verification of version/image {0} failed', [
+                        record.get('firmwareVersion')
+                    ]));
+            } else if (status === 'failedActivatingVersion') {
                 formFailed.setText(Uni.I18n.translate('device.firmware.install.failedActivatingVersionImage',
-                    'FWC', 'Activation to version/image {0} failed', [
+                    'FWC', 'Activation of version/image {0} failed', [
                         record.get('firmwareVersion')
                     ]));
             } else {
                 formFailed.setText(Uni.I18n.translate('device.firmware.activate.failedVersionImage',
                     'FWC', 'Upload and activation of version/image {0} failed', [
-                        record.get('firmwareVersion'),
-                        Uni.DateTime.formatDateTimeShort(record.get('plannedDate'))
+                        record.get('firmwareVersion')
                     ]));
             }
 
             formFailed.down('#retryBtn').setVisible(status === 'failedVersion' || status === 'failedActivatingVersion');
             formFailed.down('#checkBtn').setVisible(status === 'failedVerificationVersion');
             formFailed.down('#logBtn').setVisible(record.get('firmwareComTaskId') && record.get('firmwareComTaskSessionId'));
-            if(status === 'wrongVerificationVersion'){
+            if (status === 'wrongVerificationVersion') {
                 formFailed.down('#deviceEventsBtn').setVisible(true);
                 formFailed.down('#deviceEventsBtn').setDisabled(!me.device.get('hasLogBooks'));
             }
@@ -366,7 +370,7 @@ Ext.define('Fwc.devicefirmware.view.FirmwareForm', {
                 ]));
         }
         var imageIdentifierField = me.down('#firmware-image-identifier-field');
-        if (imageIdentifierField && !me.device.get('protocolNeedsImageIdentifierForFirmwareUpgrade')){
+        if (imageIdentifierField && !me.device.get('protocolNeedsImageIdentifierForFirmwareUpgrade')) {
             imageIdentifierField.setVisible(false);
         }
         me.down('#firmware-version-field').setVisible(!me.image);

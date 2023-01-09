@@ -22,6 +22,8 @@ import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
@@ -86,7 +88,9 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
     @Mock
     private DeviceMessageCategory firmwareCategory;
     @Mock
-    private DeviceMessageService deviceMessageService;
+    private CommunicationTaskService communicationTaskService;
+    @Mock
+    private ConnectionTaskService connectionTaskService;
 
     private List<DeviceMessage> messages;
 
@@ -99,6 +103,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(session.getId()).thenReturn(102L);
         when(firmwareCheckComTask.getId()).thenReturn(201L);
         when(firmwareCheckComTask.getProtocolTasks()).thenReturn(Collections.singletonList(statusCheckTask));
+        when(firmwareCheckExecution.getId()).thenReturn(2001L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(2001L)).thenReturn(Optional.of(firmwareCheckExecution));
         when(firmwareCheckExecution.getComTask()).thenReturn(firmwareCheckComTask);
         when(firmwareCheckExecution.executesComTask(firmwareCheckComTask)).thenReturn(true);
         when(firmwareCheckExecution.getNextExecutionTimestamp()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
@@ -107,6 +113,8 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         ComTask firmwareComTask = mock(ComTask.class);
         when(firmwareComTask.getId()).thenReturn(101L);
         when(taskService.findFirmwareComTask()).thenReturn(Optional.of(firmwareComTask));
+        when(firmwareExecution.getId()).thenReturn(1001L);
+        when(communicationTaskService.findAndLockComTaskExecutionById(1001L)).thenReturn(Optional.of(firmwareExecution));
         when(firmwareExecution.getComTask()).thenReturn(firmwareComTask);
         when(firmwareExecution.executesComTask(firmwareComTask)).thenReturn(true);
         when(firmwareExecution.getLastSession()).thenReturn(Optional.of(session));
@@ -117,7 +125,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(deviceConfiguration.getComTaskEnablements()).thenReturn(Collections.singletonList(firmwareCheckEnablement));
         when(device.getId()).thenReturn(1L);
         when(device.getmRID()).thenReturn("upgrade");
-        when(device.getMessages()).thenReturn(messages);
+        when(device.getFirmwareMessages()).thenReturn(messages);
         when(device.getComTaskExecutions()).thenReturn(Arrays.asList(firmwareExecution, firmwareCheckExecution));
         when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         when(device.getDeviceType()).thenReturn(deviceType);
@@ -159,11 +167,12 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         messages.add(firmwareMessage);
 
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock
-                        .getArguments()[0], false)
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, connectionTaskService, communicationTaskService)
+                        .initFor((Device) invocationOnMock.getArguments()[0], false)
         );
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(any(Device.class), eq(true))).thenAnswer(
-                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, deviceMessageService).initFor((Device) invocationOnMock.getArguments()[0], true)
+                invocationOnMock -> new FirmwareManagementDeviceUtilsImpl(thesaurus, deviceMessageSpecificationService, firmwareService, taskService, connectionTaskService, communicationTaskService).initFor((Device) invocationOnMock
+                        .getArguments()[0], true)
         );
         when(firmwareService.imageIdentifierExpectedAtFirmwareUpload(deviceType)).thenReturn(true);
     }
@@ -639,7 +648,6 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         assertThat(model.<Number>get("$.firmwares[0].needVerificationVersion.lastCheckedDate")).isEqualTo(TIME.plus(1, ChronoUnit.DAYS).toEpochMilli());
     }
 
-
     @Test
     public void testSuccessUploadWithActivationDateFirmwareStateEvenIfStatusCheckWasPassedBefore() {
         DeviceMessage firmwareMessage = mockUploadWithActivationDateFirmwareMessage();
@@ -819,6 +827,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
 
         when(firmwareMessage.getStatus()).thenReturn(DeviceMessageStatus.CONFIRMED);
         when(firmwareMessage.getModTime()).thenReturn(TIME);
+        when(firmwareMessage.getReleaseDate()).thenReturn(TIME.minusSeconds(60));
         messages.add(firmwareMessage);
 
         DeviceMessage activationMessage = mockFirmwareMessage(false);
@@ -827,6 +836,7 @@ public class DeviceFirmwareVersionFactoryTest extends BaseFirmwareTest {
         when(activationMessage.getModTime()).thenReturn(TIME.plus(1, ChronoUnit.DAYS));
         when(activationMessage.getStatus()).thenReturn(DeviceMessageStatus.PENDING);
         when(activationMessage.getId()).thenReturn(1002L);
+        when(activationMessage.getReleaseDate()).thenReturn(TIME.minusSeconds(60));
         messages.add(activationMessage);
         when(firmwareExecution.isLastExecutionFailed()).thenReturn(true);
 

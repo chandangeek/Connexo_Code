@@ -40,13 +40,13 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
     }
 
     @Override
-    public Optional<CertificateWrapper> getActualPassphraseWrapperReference() {
+    public Optional<CertificateWrapper> getActualValue() {
         return actualCertificate.getOptional();
     }
 
     @Override
-    public void setActualPassphraseWrapperReference(CertificateWrapper newWrapperValue) {
-        this.actualCertificate.set(newWrapperValue);
+    public void setActualValue(CertificateWrapper newValueWrapper) {
+        this.actualCertificate.set(newValueWrapper);
     }
 
     @Override
@@ -108,14 +108,14 @@ public class CertificateAccessorImpl extends AbstractSecurityAccessorImpl<Certif
 
     private void doRenewCertificate() throws CertificateEncodingException { // TODO can NOT renew non-ClientCertificate types
         ClientCertificateWrapper clientCertificateWrapper = getSecurityManagementService()
-                .newClientCertificateWrapper(getKeyAccessorTypeReference().getKeyType(), getKeyAccessorTypeReference().getKeyEncryptionMethod())
+                .newClientCertificateWrapper(getSecurityAccessorType().getKeyType(), getSecurityAccessorType().getKeyEncryptionMethod())
                 .alias(actualCertificate.get().getAlias() + "-new)")
                 .add();
         clientCertificateWrapper.getPrivateKeyWrapper().generateValue();
-        X500Name x500Name = getDNFromCertificate(getActualPassphraseWrapperReference().get());
+        X500Name x500Name = getDNFromCertificate(getActualValue().get());
         PKCS10CertificationRequest pkcs10CertificationRequest = clientCertificateWrapper.getPrivateKeyWrapper()
-                .generateCSR(x500Name, getKeyAccessorTypeReference().getKeyType().getSignatureAlgorithm());
-        clientCertificateWrapper.setCSR(pkcs10CertificationRequest, getKeyAccessorTypeReference().getKeyType().getKeyUsages(), getKeyAccessorTypeReference().getKeyType().getExtendedKeyUsages());
+                .generateCSR(x500Name, getSecurityAccessorType().getKeyType().getSignatureAlgorithm());
+        clientCertificateWrapper.setCSR(pkcs10CertificationRequest, getSecurityAccessorType().getKeyType().getKeyUsages(), getSecurityAccessorType().getKeyType().getExtendedKeyUsages());
         clientCertificateWrapper.save();
         tempCertificate.set(clientCertificateWrapper);
         this.save();

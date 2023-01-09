@@ -323,7 +323,7 @@ public abstract class JobExecution implements ScheduledJob {
         addCompletionEvent();
         getExecutionContext().completeSuccessful(reason);
 
-        getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this));
+        getExecutionContext().getStoreCommand().add(new RescheduleSuccessfulExecution(this, getExecutionContext().getDeviceCommandServiceProvider()));
         doExecuteStoreCommand();
     }
 
@@ -332,14 +332,17 @@ public abstract class JobExecution implements ScheduledJob {
         if (executionContext != null) {
             addCompletionEvent();
             getExecutionContext().completeFailure(reason);
-            getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this));
-            doExecuteStoreCommand();
         } else {
             executionContext = new ExecutionContext(this, getConnectionTask(), getComPort(), serviceProvider);
             setExecutionContext(executionContext);
-            executionContext.getStoreCommand().add(new RescheduleFailedExecution(this));
-            doExecuteStoreCommand();
         }
+        getExecutionContext().getStoreCommand().add(new RescheduleFailedExecution(this, executionContext.getDeviceCommandServiceProvider()));
+        doExecuteStoreCommand();
+    }
+
+    protected void completeOutsideComWindow() {
+        getExecutionContext().completeOutsideComWindow();
+        doExecuteStoreCommand();
     }
 
     private void addCompletionEvent() {
@@ -367,11 +370,6 @@ public abstract class JobExecution implements ScheduledJob {
 
     private boolean onlyNotExecutedComTasks() {
         return getSuccessfulComTaskExecutions().isEmpty() && getFailedComTaskExecutions().isEmpty() && !getNotExecutedComTaskExecutions().isEmpty();
-    }
-
-    protected void completeOutsideComWindow() {
-        getExecutionContext().completeOutsideComWindow();
-        doExecuteStoreCommand();
     }
 
     /**
@@ -433,12 +431,11 @@ public abstract class JobExecution implements ScheduledJob {
     }
 
     public void doReschedule() {
-        RescheduleBehavior retryBehavior = this.getRescheduleBehavior();
-        retryBehavior.reschedule(commandRoot);
+        getRescheduleBehavior().reschedule(commandRoot);
     }
 
     public void doRescheduleToNextComWindow(Instant startingPoint) {
-        this.getRescheduleBehavior().rescheduleOutsideComWindow(getComTaskExecutions(), startingPoint);
+        getRescheduleBehavior().rescheduleOutsideComWindow(getComTaskExecutions(), startingPoint);
     }
 
     RescheduleBehavior getRescheduleBehavior() {

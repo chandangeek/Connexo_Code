@@ -21,7 +21,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Add', {
                 title: Uni.I18n.translate('firmware.campaigns.addFirmwareCampaign', 'FWC', 'Add firmware campaign'),
                 ui: 'large',
                 returnLink: me.returnLink,
-                action : me.action
+                action: me.action
             }
         ];
 

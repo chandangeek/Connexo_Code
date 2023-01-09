@@ -103,7 +103,7 @@ public class SecurityHelper {
 			wrapperValue = createPlaintextPassphraseWrapper(securityAccessorKey,
 					securityAccessorType);
 		}
-		securityAccessor.setActualPassphraseWrapperReference(wrapperValue);
+		securityAccessor.setActualValue(wrapperValue);
 		securityAccessor.save();
 	}
 
@@ -116,7 +116,7 @@ public class SecurityHelper {
 					device.getName(), securityInfo.getSecurityAccessorName());
 			return;
 		}
-		securityAccessor.setActualPassphraseWrapperReference(prepareHsmKey(securityAccessorType, hsmEncryptedKey));
+		securityAccessor.setActualValue(prepareHsmKey(securityAccessorType, hsmEncryptedKey));
 		securityAccessor.save();
 	}
 

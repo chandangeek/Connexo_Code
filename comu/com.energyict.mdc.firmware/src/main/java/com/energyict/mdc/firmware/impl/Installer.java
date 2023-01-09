@@ -26,7 +26,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class Installer implements FullInstaller, PrivilegesProvider {
-
     private final Logger logger = Logger.getLogger(Installer.class.getName());
 
     private final DataModel dataModel;

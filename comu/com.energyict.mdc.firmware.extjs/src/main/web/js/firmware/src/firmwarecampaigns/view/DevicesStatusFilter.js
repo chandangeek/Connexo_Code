@@ -36,7 +36,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesStatusFilter', {
                 }
             ];
 
-        Ext.Array.sort(statusOptions, function(option1, option2) { // Sort them alphabetically by display value
+        Ext.Array.sort(statusOptions, function (option1, option2) { // Sort them alphabetically by display value
             return option1.display.localeCompare(option2.display);
         });
         me.filters = [

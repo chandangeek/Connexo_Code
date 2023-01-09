@@ -5,7 +5,6 @@
 package com.energyict.mdc.firmware.extjs;
 
 import com.elster.jupiter.http.whiteboard.BundleResolver;
-import com.elster.jupiter.http.whiteboard.FileResolver;
 import com.elster.jupiter.http.whiteboard.HttpResource;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.SimpleTranslationKey;
@@ -24,7 +23,7 @@ import java.util.logging.Logger;
 
 @Component(name = "com.energyict.mdc.firmware.extjs", service = {TranslationKeyProvider.class},
         property = {"name=" + FirmwareUiInstaller.COMPONENT_NAME + "-UI"}, immediate = true)
-public class FirmwareUiInstaller implements TranslationKeyProvider{
+public class FirmwareUiInstaller implements TranslationKeyProvider {
 
     public static final String COMPONENT_NAME = "FWC";
     public static final String HTTP_RESOURCE_ALIAS = "/fwc";

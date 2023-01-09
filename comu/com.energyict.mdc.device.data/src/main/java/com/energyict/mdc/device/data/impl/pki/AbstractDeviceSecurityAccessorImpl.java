@@ -93,7 +93,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
 
     @Override
     @XmlElement(type = SecurityAccessorTypeImpl.class)
-    public SecurityAccessorType getKeyAccessorTypeReference() {
+    public SecurityAccessorType getSecurityAccessorType() {
         return keyAccessorTypeReference.get();
     }
 
@@ -116,7 +116,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     @Override
     public List<PropertySpec> getPropertySpecs() {
         if (securityManagementService != null)
-            propertySpecs = securityManagementService.getPropertySpecs(getKeyAccessorTypeReference());
+            propertySpecs = securityManagementService.getPropertySpecs(getSecurityAccessorType());
         return propertySpecs;
     }
 
@@ -155,7 +155,7 @@ public abstract class AbstractDeviceSecurityAccessorImpl<T extends SecurityValue
     @JsonIgnore
     @XmlTransient
     public KeyAccessorStatus getStatus() {
-        if (!getActualPassphraseWrapperReference().isPresent() || getActualPassphraseWrapperReference().get().getProperties().containsValue(null) || getActualPassphraseWrapperReference().get().getProperties().size()!=getPropertySpecs().size()) {
+        if (!getActualValue().isPresent() || getActualValue().get().getProperties().containsValue(null) || getActualValue().get().getProperties().size()!=getPropertySpecs().size()) {
             return KeyAccessorStatus.INCOMPLETE;
         }
         return KeyAccessorStatus.COMPLETE;

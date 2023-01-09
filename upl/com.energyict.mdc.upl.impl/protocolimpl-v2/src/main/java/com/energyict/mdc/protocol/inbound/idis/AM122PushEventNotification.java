@@ -15,7 +15,7 @@ public class AM122PushEventNotification extends PushEventNotification {
 
     @Override
     public String getVersion() {
-        return "$Date: 2019-06-11 12:00:00 +0200 (Tue, 11 Jun 2019)$";
+        return "$Date: 2022-10-12$";
     }
 
 }

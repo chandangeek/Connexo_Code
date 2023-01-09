@@ -322,7 +322,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(securityManagementService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
-        verify(symmetrickeyAccessor, never()).setActualPassphraseWrapperReference(any(SymmetricKeyWrapper.class));
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
         verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
         assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
@@ -342,7 +342,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, times(1)).setTempValue(tempClientCertificateWrapper);
@@ -360,15 +360,15 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias", "myAlias");
         clientCertificateAccessor = mock(SecurityAccessor.class);
         when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempCertificateWrapper));
-        when(clientCertificateAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
-        when(clientCertificateAccessor.getKeyAccessorTypeReference()).thenReturn(certificateKeyAccessorType);
+        when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(clientCertificateAccessor.getSecurityAccessorType()).thenReturn(certificateKeyAccessorType);
         when(clientCertificateAccessor.getPropertySpecs()).thenReturn(certificatePropertySpecs);
         when(device.getSecurityAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, times(1)).setActualPassphraseWrapperReference(actualClientCertificateWrapper);
+        verify(clientCertificateAccessor, times(1)).setActualValue(actualClientCertificateWrapper);
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, times(1)).setTempValue(tempClientCertificateWrapper);
@@ -386,15 +386,15 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         CertificateWrapper tempCertificateWrapper = mockClientCertificateWrapper(certificatePropertySpecs, "alias", "tempAlias", "myAlias");
         clientCertificateAccessor = mock(SecurityAccessor.class);
         when(clientCertificateAccessor.getTempValue()).thenReturn(Optional.of(tempCertificateWrapper));
-        when(clientCertificateAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
-        when(clientCertificateAccessor.getKeyAccessorTypeReference()).thenReturn(certificateKeyAccessorType);
+        when(clientCertificateAccessor.getActualValue()).thenReturn(Optional.empty());
+        when(clientCertificateAccessor.getSecurityAccessorType()).thenReturn(certificateKeyAccessorType);
         when(clientCertificateAccessor.getPropertySpecs()).thenReturn(certificatePropertySpecs);
         when(device.getSecurityAccessor(certificateKeyAccessorType)).thenReturn(Optional.of(clientCertificateAccessor));
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, certificateKeyAccessorType, 22L)).thenReturn(Optional.of(clientCertificateAccessor));
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, times(1)).setActualPassphraseWrapperReference(actualClientCertificateWrapper);
+        verify(clientCertificateAccessor, times(1)).setActualValue(actualClientCertificateWrapper);
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, never()).setTempValue(tempClientCertificateWrapper);
@@ -411,7 +411,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, never()).setActualPassphraseWrapperReference(actualClientCertificateWrapper);
+        verify(clientCertificateAccessor, never()).setActualValue(actualClientCertificateWrapper);
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, never()).setTempValue(tempClientCertificateWrapper);
@@ -430,7 +430,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(securityManagementService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
-        verify(symmetrickeyAccessor, never()).setActualPassphraseWrapperReference(any(SymmetricKeyWrapper.class));
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
         verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
         assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
@@ -448,7 +448,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, never()).setTempValue(tempClientCertificateWrapper);
@@ -467,7 +467,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(securityManagementService.newSymmetricKeyWrapper(symmetricKeyAccessorType)).thenReturn(symmetricKeyWrapper);
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
-        verify(symmetrickeyAccessor, never()).setActualPassphraseWrapperReference(any(SymmetricKeyWrapper.class));
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
         verify(symmetrickeyAccessor, times(1)).delete();
     }
@@ -497,7 +497,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(deviceService.findAndLockKeyAccessorByIdAndVersion(device, symmetricKeyAccessorType, 11L)).thenReturn(Optional.of(symmetrickeyAccessor));
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
-        verify(symmetrickeyAccessor, never()).setActualPassphraseWrapperReference(any(SymmetricKeyWrapper.class));
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
         verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
         assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
@@ -519,7 +519,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, never()).setTempValue(any(SecurityValueWrapper.class));
@@ -539,7 +539,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(clientCertificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, times(1)).setTempValue(newNewComserver);
@@ -560,7 +560,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
-        verify(symmetrickeyAccessor, never()).setActualPassphraseWrapperReference(any(SymmetricKeyWrapper.class));
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
 
         verify(symmetrickeyAccessor, never()).setTempValue(any(SymmetricKeyWrapper.class));
@@ -586,7 +586,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
-        verify(toBeCreatedSecurityAccessor, times(1)).setActualPassphraseWrapperReference(any(SymmetricKeyWrapper.class));
+        verify(toBeCreatedSecurityAccessor, times(1)).setActualValue(any(SymmetricKeyWrapper.class));
         ArgumentCaptor<Map> actualMapArgumentCaptor = ArgumentCaptor.forClass(Map.class);
         verify(actualSymmetricKeyWrapper, times(1)).setProperties(actualMapArgumentCaptor.capture());
         assertThat(actualMapArgumentCaptor.getValue()).contains(MapEntry.entry("key", "actualKey"));
@@ -609,7 +609,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         when(device.newSecurityAccessor(certificateKeyAccessorType)).thenReturn(clientCertificateAccessor);
         Response response = target("/devices/BVN001/securityaccessors/certificates/222").request().put(Entity.json(securityAccessorInfo));
 
-        verify(clientCertificateAccessor, times(1)).setActualPassphraseWrapperReference(actualClientCertificateWrapper);
+        verify(clientCertificateAccessor, times(1)).setActualValue(actualClientCertificateWrapper);
         verify(actualClientCertificateWrapper, never()).setProperties(any(Map.class));
 
         verify(clientCertificateAccessor, times(1)).setTempValue(tempClientCertificateWrapper);
@@ -630,7 +630,7 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
 
         Response response = target("/devices/BVN001/securityaccessors/keys/111").request().put(Entity.json(securityAccessorInfo));
 
-        verify(symmetrickeyAccessor, never()).setActualPassphraseWrapperReference(any(SymmetricKeyWrapper.class));
+        verify(symmetrickeyAccessor, never()).setActualValue(any(SymmetricKeyWrapper.class));
         verify(actualSymmetricKeyWrapper, never()).setProperties(any(Map.class));
 
         verify(symmetrickeyAccessor, times(1)).clearTempValue();
@@ -668,8 +668,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
     private SecurityAccessor mockClientCertificateAccessor(List<PropertySpec> propertySpecs, SecurityValueWrapper clientCertificateWrapper) {
         SecurityAccessor securityAccessor1 = mock(SecurityAccessor.class);
         when(securityAccessor1.getTempValue()).thenReturn(Optional.empty());
-        when(securityAccessor1.getActualPassphraseWrapperReference()).thenReturn(Optional.of(clientCertificateWrapper));
-        when(securityAccessor1.getKeyAccessorTypeReference()).thenReturn(certificateKeyAccessorType);
+        when(securityAccessor1.getActualValue()).thenReturn(Optional.of(clientCertificateWrapper));
+        when(securityAccessor1.getSecurityAccessorType()).thenReturn(certificateKeyAccessorType);
         when(securityAccessor1.getPropertySpecs()).thenReturn(propertySpecs);
         return securityAccessor1;
     }
@@ -712,8 +712,8 @@ public class SecurityAccessorResourceTest extends DeviceDataRestApplicationJerse
         SecurityAccessor<SecurityValueWrapper> securityAccessor1 = mock(SecurityAccessor.class);
         when(securityAccessor1.getPropertySpecs()).thenReturn(symmetricKeyPropertySpecs);
         when(securityAccessor1.getTempValue()).thenReturn(Optional.ofNullable(temp));
-        when(securityAccessor1.getActualPassphraseWrapperReference()).thenReturn(Optional.ofNullable(actual));
-        when(securityAccessor1.getKeyAccessorTypeReference()).thenReturn(symmetricKeyAccessorType);
+        when(securityAccessor1.getActualValue()).thenReturn(Optional.ofNullable(actual));
+        when(securityAccessor1.getSecurityAccessorType()).thenReturn(symmetricKeyAccessorType);
         when(securityAccessor1.getVersion()).thenReturn(11L);
         return securityAccessor1;
     }

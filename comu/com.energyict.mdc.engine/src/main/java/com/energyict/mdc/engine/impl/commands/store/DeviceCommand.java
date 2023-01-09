@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.commands.store;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.comserver.ComServer;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.history.CompletionCode;
@@ -46,7 +47,7 @@ public interface DeviceCommand {
         /**
          * Logs that an unexpected problem occurred.
          *
-         * @param t The unexpected problem
+         * @param t                The unexpected problem
          * @param comTaskExecution The context of the execution
          */
         void logUnexpected(Throwable t, ComTaskExecution comTaskExecution);
@@ -54,8 +55,8 @@ public interface DeviceCommand {
         /**
          * Adds an additional issue to the log of a ComTaskExecution.
          *
-         * @param completionCode the additional completionCode
-         * @param issue the issue that should be logged
+         * @param completionCode   the additional completionCode
+         * @param issue            the issue that should be logged
          * @param comTaskExecution The ComTaskExecution
          */
         void addIssue(CompletionCode completionCode, Issue issue, ComTaskExecution comTaskExecution);
@@ -92,6 +93,7 @@ public interface DeviceCommand {
 
         DeviceMessageService deviceMessageService();
 
+        TransactionService transactionService();
     }
 
     /**
@@ -142,6 +144,5 @@ public interface DeviceCommand {
      * @return The human readable description of this DeviceCommand
      */
     String toJournalMessageDescription(ComServer.LogLevel serverLogLevel);
-
 
 }

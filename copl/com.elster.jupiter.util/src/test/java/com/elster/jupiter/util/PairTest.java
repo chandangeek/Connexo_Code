@@ -4,68 +4,69 @@
 
 package com.elster.jupiter.util;
 
-import org.junit.Test;
-
 import java.util.Map;
+
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PairTest {
-	@Test
-	public void testHashCodeNullSafe() {
-		Pair.<String, String>of(null, null).hashCode();
-	}
+    @Test
+    public void testToStringNullSafe() {
+        assertThat(Pair.<String, String>of(null, null).toString()).isEqualTo("(null,null)");
+    }
 
-	@Test
-	public void testToStringNullSafe() {
-		Pair.<String, String>of(null, null).toString();
-	}
+    @Test
+    public void testToString() {
+        assertThat(Pair.of("A", "B").toString()).isEqualTo("(A,B)");
+    }
 
-	@Test
-	public void testToString() {
-		assertThat(Pair.<String, String>of("A", "B").toString()).isEqualTo("(A,B)");
-	}
-
-	@Test
-	public void testEqualsNullSafe() {
+    @Test
+    public void testEqualsAndHashCodeNullSafe() {
         assertThat(Pair.<String, String>of(null, null).equals(Pair.<Integer, Integer>of(null, null))).isTrue();
-	}
+        assertThat(Pair.<String, String>of(null, null).hashCode()).isEqualTo(Pair.<Integer, Integer>of(null, null).hashCode());
+    }
 
-	@Test
-	public void testEqualsNull() {
-        assertThat(Pair.<String, String>of("A", "B").equals(null)).isFalse();
-	}
+    @Test
+    public void testEqualsNull() {
+        assertThat(Pair.of("A", "B").equals(null)).isFalse();
+        assertThat(Pair.of(null, null).equals(null)).isFalse();
+    }
 
-	@Test
-	public void testEqualsDifferentClass() {
-        assertThat(Pair.<String, String>of("A", "B").equals("(A,B)")).isFalse();
-	}
+    @Test
+    public void testEqualsDifferentClass() {
+        assertThat(Pair.of("A", "B").equals("(A,B)")).isFalse();
+    }
 
-	@Test
-	public void testEqualsSame() {
-		Pair<String, String> pair = Pair.<String, String>of("A", "B");
+    @Test
+    public void testEqualsSame() {
+        Pair<String, String> pair = Pair.of("A", "B");
         assertThat(pair.equals(pair)).isTrue();
-	}
+        assertThat(pair.hashCode()).isEqualTo(pair.hashCode());
+    }
 
-	@Test
-	public void testEqualityOneNull() {
+    @Test
+    public void testEqualityOneNull() {
         assertThat(Pair.<String, String>of(null, "B").equals(Pair.<String, String>of(null, "B"))).isTrue();
-	}
+        assertThat(Pair.<String, String>of(null, "B").hashCode()).isEqualTo(Pair.<String, String>of(null, "B").hashCode());
+    }
 
-	@Test
-	public void testEqualitySecondNull() {
+    @Test
+    public void testEqualitySecondNull() {
         assertThat(Pair.<String, String>of("B", null).equals(Pair.<String, String>of("B", null))).isTrue();
-	}
+        assertThat(Pair.<String, String>of("B", null).hashCode()).isEqualTo(Pair.<String, String>of("B", null).hashCode());
+    }
 
-	@Test
-	public void testEquality() {
-        assertThat(Pair.<String, String>of("A", "B").equals(Pair.<String, String>of("A", "B"))).isTrue();
-	}
+    @Test
+    public void testEquality() {
+        assertThat(Pair.of("A", "B").equals(Pair.of("A", "B"))).isTrue();
+        assertThat(Pair.of("A", "B").hashCode()).isEqualTo(Pair.of("A", "B").hashCode());
+    }
 
-	@Test
-	public void testEqualityFalse() {
-        assertThat(Pair.<String, String>of("A", "B").equals(Pair.<String, String>of("B", "B"))).isFalse();
-	}
+    @Test
+    public void testEqualityFalse() {
+        assertThat(Pair.of("A", "B").equals(Pair.of("B", "B"))).isFalse();
+    }
 
     @Test
     public void testGetFirst() {
@@ -111,5 +112,4 @@ public class PairTest {
     public void testFlipped() {
         assertThat(Pair.of("A", 5).flipped()).isEqualTo(Pair.of(5, "A"));
     }
-
 }

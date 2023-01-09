@@ -37,6 +37,7 @@ import com.energyict.mdc.firmware.rest.impl.MessageSeeds;
 import com.energyict.mdc.firmware.rest.impl.ResourceHelper;
 import com.energyict.mdc.firmware.rest.impl.TranslationKeys;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
+import com.energyict.mdc.tasks.TaskService;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
 import com.google.common.collect.Range;
@@ -70,6 +71,7 @@ public class FirmwareCampaignInfoFactory {
     private final FirmwareMessageInfoFactory firmwareMessageInfoFactory;
     private final ExceptionFactory exceptionFactory;
     private final Clock clock;
+    private final TaskService taskService;
 
     @Inject
     public FirmwareCampaignInfoFactory(
@@ -81,7 +83,8 @@ public class FirmwareCampaignInfoFactory {
             FirmwareMessageInfoFactory firmwareMessageInfoFactory,
             ExceptionFactory exceptionFactory,
             Clock clock,
-            FirmwareService firmwareService) {
+            FirmwareService firmwareService,
+            TaskService taskService) {
         this.thesaurus = thesaurus;
         this.resourceHelper = resourceHelper;
         this.deviceConfigurationService = deviceConfigurationService;
@@ -92,6 +95,7 @@ public class FirmwareCampaignInfoFactory {
         this.clock = clock;
         this.firmwareService = firmwareService;
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
+        this.taskService = taskService;
     }
 
     public FirmwareCampaignInfo from(FirmwareCampaign campaign) {
@@ -107,12 +111,17 @@ public class FirmwareCampaignInfoFactory {
         String managementOptionId = campaign.getFirmwareManagementOption().getId();
         info.managementOption = new ManagementOptionInfo(managementOptionId, thesaurus.getString(managementOptionId, managementOptionId));
         info.version = campaign.getVersion();
-        info.calendarUploadComTask = campaign.getFirmwareUploadComTaskId() == 0 ? null : new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(), firmwareCampaignService.getComTaskById(campaign.getFirmwareUploadComTaskId())
-                .getName());
-        info.calendarUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy().isPresent() ? new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy()
-                .get(), thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().get().name(), campaign.getFirmwareUploadConnectionStrategy().get().name())) : null;
-        info.validationComTask = campaign.getValidationComTaskId() == 0 ? null : new IdWithNameInfo(campaign.getValidationComTaskId(), firmwareCampaignService.getComTaskById(campaign.getValidationComTaskId())
-                .getName());
+        info.firmwareUploadComTask = campaign.getFirmwareUploadComTaskId() == 0 ?
+                null :
+                new IdWithNameInfo(campaign.getFirmwareUploadComTaskId(), taskService.findComTask(campaign.getFirmwareUploadComTaskId()).get().getName());
+        info.firmwareUploadConnectionStrategy = campaign.getFirmwareUploadConnectionStrategy().isPresent() ?
+                new IdWithNameInfo(campaign.getFirmwareUploadConnectionStrategy().get(),
+                        thesaurus.getString(campaign.getFirmwareUploadConnectionStrategy().get().name(), campaign.getFirmwareUploadConnectionStrategy().get().name())) :
+                null;
+        info.validationComTask = campaign.getValidationComTaskId() == 0 ?
+                null :
+                new IdWithNameInfo(campaign.getValidationComTaskId(), taskService.findComTask(campaign.getValidationComTaskId()).get().getName());
+
         info.validationConnectionStrategy = campaign.getValidationConnectionStrategy().isPresent() ? new IdWithNameInfo(campaign.getValidationConnectionStrategy()
                 .get(), thesaurus.getString(campaign.getValidationConnectionStrategy().get().name(), campaign.getValidationConnectionStrategy().get().name())) : null;
         info.withUniqueFirmwareVersion = campaign.isWithUniqueFirmwareVersion();
@@ -178,13 +187,13 @@ public class FirmwareCampaignInfoFactory {
                 .newFirmwareCampaign(info.name)
                 .withDeviceType(deviceType)
                 .withDeviceGroup(info.deviceGroup)
-                .withFirmwareType(firmwareService.getFirmwareVersionById(firmwareVersionId).get().getFirmwareType())
+                .withFirmwareType(firmwareVersion.getFirmwareType())
                 .withManagementOption(managementOptions)
                 .withValidationTimeout(info.validationTimeout.asTimeDuration())
-                .withFirmwareUploadComTaskId(info.calendarUploadComTask == null ? null : ((Number) info.calendarUploadComTask.id).longValue())
+                .withFirmwareUploadComTaskId(info.firmwareUploadComTask == null ? null : ((Number) info.firmwareUploadComTask.id).longValue())
                 .withValidationComTaskId(info.validationComTask == null ? null : ((Number) info.validationComTask.id).longValue())
-                .withFirmwareUploadConnectionStrategy(info.calendarUploadConnectionStrategy == null ? null : info.calendarUploadConnectionStrategy.name)
-                .withValidationConnectionStrategy(info.validationConnectionStrategy == null ? null : info.validationConnectionStrategy.name)
+                .withFirmwareUploadConnectionStrategy(Optional.ofNullable(info.firmwareUploadConnectionStrategy).map(IdWithNameInfo::getId).map(Object::toString).orElse(null))
+                .withValidationConnectionStrategy(Optional.ofNullable(info.validationConnectionStrategy).map(IdWithNameInfo::getId).map(Object::toString).orElse(null))
                 .withUploadTimeBoundaries(timeFrame.lowerEndpoint(), timeFrame.upperEndpoint())
                 .withUniqueFirmwareVersion(info.withUniqueFirmwareVersion);
         DeviceMessageId firmwareMessageId = resourceHelper.findFirmwareMessageIdOrThrowException(deviceType, info.managementOption.id, firmwareVersion);
@@ -267,7 +276,8 @@ public class FirmwareCampaignInfoFactory {
         FirmwareVersionInfo firmwareVersionInfo = new FirmwareVersionInfo();
         firmwareVersionInfo.firmwareVersion = firmwareCampaignVersionStateShapshot.getFirmwareVersion();
         firmwareVersionInfo.firmwareType = new FirmwareTypeInfo(firmwareCampaignVersionStateShapshot.getFirmwareType(), thesaurus);
-        firmwareVersionInfo.firmwareStatus = new FirmwareStatusInfo(firmwareCampaignVersionStateShapshot.getFirmwareStatus(), firmwareService.getLocalizedFirmwareStatus(firmwareCampaignVersionStateShapshot.getFirmwareStatus()));
+        firmwareVersionInfo.firmwareStatus = new FirmwareStatusInfo(firmwareCampaignVersionStateShapshot.getFirmwareStatus(), firmwareService.getLocalizedFirmwareStatus(firmwareCampaignVersionStateShapshot
+                .getFirmwareStatus()));
         firmwareVersionInfo.imageIdentifier = firmwareCampaignVersionStateShapshot.getImageIdentifier();
         firmwareVersionInfo.rank = firmwareCampaignVersionStateShapshot.getRank();
         firmwareVersionInfo.meterFirmwareDependency = new IdWithNameInfo(null, firmwareCampaignVersionStateShapshot.getMeterFirmwareDependency());

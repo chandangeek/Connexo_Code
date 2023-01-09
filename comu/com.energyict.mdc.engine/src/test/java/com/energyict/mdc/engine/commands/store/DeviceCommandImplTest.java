@@ -4,7 +4,10 @@
 
 package com.energyict.mdc.engine.commands.store;
 
+import com.elster.jupiter.transaction.TransactionService;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceCacheCommand;
 import com.energyict.mdc.engine.impl.commands.store.CollectedDeviceTopologyDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.CollectedFirmwareVersionDeviceCommand;
@@ -97,12 +100,19 @@ public class DeviceCommandImplTest {
     IssueService issueService;
     @Mock
     EventPublisher publisher;
+    @Mock
+    TransactionService transactionService;
+    @Mock
+    DeviceMessageService deviceMessageService;
 
     @Before
     public void initMocks() {
         when(serviceProvider.eventPublisher()).thenReturn(publisher);
         when(serviceProvider.clock()).thenReturn(Clock.systemDefaultZone());
         when(serviceProvider.issueService()).thenReturn(issueService);
+        when(serviceProvider.transactionService()).thenReturn(transactionService);
+        when(serviceProvider.deviceMessageService()).thenReturn(deviceMessageService);
+        when(transactionService.isInTransaction()).thenReturn(true);
     }
 
     @Test
@@ -206,6 +216,9 @@ public class DeviceCommandImplTest {
         OfflineDeviceMessage offlineDeviceMessage = mock(OfflineDeviceMessage.class);
 
         MeterDataStoreCommand meterDataStoreCommand = mock(MeterDataStoreCommand.class);
+
+        when(offlineDeviceMessage.getDeviceMessageId()).thenReturn(133L);
+        when(deviceMessageService.findAndLockDeviceMessageById(133L)).thenReturn(Optional.of(mock(DeviceMessage.class)));
 
         CollectedMessageListDeviceCommand messageListCommand = new CollectedMessageListDeviceCommand(
                 messageList,

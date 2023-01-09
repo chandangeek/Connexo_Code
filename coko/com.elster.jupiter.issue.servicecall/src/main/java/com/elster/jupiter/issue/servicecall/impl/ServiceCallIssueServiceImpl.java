@@ -56,6 +56,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -277,6 +278,11 @@ public class ServiceCallIssueServiceImpl implements ServiceCallIssueService, Tra
             condition = condition.and(where("serviceCall").in(filter.getServiceCalls()));
         }
         return condition;
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(ServiceCallIssueService.ISSUE_TYPE_NAME);
     }
 
     public Thesaurus thesaurus() {

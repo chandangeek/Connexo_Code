@@ -141,7 +141,7 @@ public class IssueResource extends BaseResource {
         List<? extends Issue> issues = finder.find();
         List<IssueInfo> issueInfos = new ArrayList<>();
         for (Issue baseIssue : issues) {
-            for (IssueProvider issueProvider : getIssueService().getIssueProviders()) {
+            for (IssueProvider issueProvider : getIssueService().getIssueProviders(baseIssue.getReason().getIssueType().getKey())) {
                 Optional<? extends Issue> issueRef = issueProvider.findIssue(baseIssue.getId());
                 issueRef.ifPresent(issue -> {
                     IssueInfo issueInfo = (IssueInfo) issueInfoFactoryService.getInfoFactoryFor(issue).from(issue);

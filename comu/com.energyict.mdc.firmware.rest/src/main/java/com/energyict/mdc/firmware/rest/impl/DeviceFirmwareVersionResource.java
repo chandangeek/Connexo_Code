@@ -38,8 +38,9 @@ public class DeviceFirmwareVersionResource {
         this.deviceFirmwareLifecycleHistoryInfoFactory = deviceFirmwareLifecycleHistoryInfoFactory;
     }
 
-    @GET @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @GET
+    @Transactional
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getFirmwareVersionsOnDevice(@PathParam("name") String name) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -49,7 +50,7 @@ public class DeviceFirmwareVersionResource {
     @GET
     @Transactional
     @Path("/firmwarehistory")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({com.energyict.mdc.device.data.security.Privileges.Constants.VIEW_DEVICE, com.energyict.mdc.device.data.security.Privileges.Constants.OPERATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_COMMUNICATION, com.energyict.mdc.device.data.security.Privileges.Constants.ADMINISTRATE_DEVICE_DATA})
     public Response getDeviceFirmwareHistory(@PathParam("name") String name, @BeanParam JsonQueryParameters queryParameters) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -61,7 +62,7 @@ public class DeviceFirmwareVersionResource {
     @PUT
     @Transactional
     @Path("/{campaign}/cancel")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response cancelDeviceInFirmwareCampaign(@PathParam("name") String name, @PathParam("campaign") long campaignId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);
@@ -72,7 +73,7 @@ public class DeviceFirmwareVersionResource {
     @PUT
     @Transactional
     @Path("/{campaign}/retry")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response retryDeviceInFirmwareCampaign(@PathParam("name") String name, @PathParam("campaign") long campaignId) {
         Device device = resourceHelper.findDeviceByNameOrThrowException(name);

@@ -19,20 +19,20 @@ public class SecurityAccessorInfoFactory {
 
     public SecurityAccessorInfo from(SecurityAccessor<?> securityAccessor) {
         SecurityAccessorInfo info = new SecurityAccessorInfo();
-        info.id = securityAccessor.getKeyAccessorTypeReference().getId();
-        info.name = securityAccessor.getKeyAccessorTypeReference().getName();
-        info.type = securityAccessor.getKeyAccessorTypeReference().getKeyType().getName();
-        info.description = securityAccessor.getKeyAccessorTypeReference().getDescription();
-        info.truststore = securityAccessor.getKeyAccessorTypeReference().getTrustStore().isPresent() ?
-                securityAccessor.getKeyAccessorTypeReference().getTrustStore().get().getName() :
+        info.id = securityAccessor.getSecurityAccessorType().getId();
+        info.name = securityAccessor.getSecurityAccessorType().getName();
+        info.type = securityAccessor.getSecurityAccessorType().getKeyType().getName();
+        info.description = securityAccessor.getSecurityAccessorType().getDescription();
+        info.truststore = securityAccessor.getSecurityAccessorType().getTrustStore().isPresent() ?
+                securityAccessor.getSecurityAccessorType().getTrustStore().get().getName() :
                 NOT_DEFINED;
-        info.certificate = securityAccessor.getActualPassphraseWrapperReference()
+        info.certificate = securityAccessor.getActualValue()
                 .filter(e -> e instanceof CertificateWrapper)
                 .map(CertificateWrapper.class::cast)
                 .map(CertificateWrapper::getAlias)
                 .orElse(null);
-        if (securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getActualPassphraseWrapperReference().get() instanceof CertificateWrapper) {
-            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualPassphraseWrapperReference().get();
+        if (securityAccessor.getActualValue().isPresent() && securityAccessor.getActualValue().get() instanceof CertificateWrapper) {
+            CertificateWrapper certificateWrapper = (CertificateWrapper) securityAccessor.getActualValue().get();
             info.expirationTime = certificateWrapper.getExpirationTime().isPresent() ?
                     Date.from(certificateWrapper.getExpirationTime().get()).toString() :
                     NOT_DEFINED;

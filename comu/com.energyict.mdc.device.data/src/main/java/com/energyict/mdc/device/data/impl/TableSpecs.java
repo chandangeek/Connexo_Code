@@ -459,6 +459,15 @@ public enum TableSpecs {
                     .add();
             table.column("LASTEXECUTIONFAILED").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.LASTEXECUTIONFAILED.fieldName()).notAudited().add();
             table.column("ONHOLD").number().conversion(NUMBER2BOOLEAN).map(ComTaskExecutionFields.ONHOLD.fieldName()).since(version(10, 2)).notAudited().add();
+            table.column("TRACED")
+                    .number()
+                    .conversion(NUMBER2BOOLEAN)
+                    .map(ComTaskExecutionFields.TRACED.fieldName())
+                    .during(Range.closedOpen(version(10, 4, 24), version(10, 5)),
+                            Range.atLeast(version(10, 9, 23)))
+                    .notAudited()
+                    .installValue("1")
+                    .add();
             Column connectionTask = table.column("CONNECTIONTASK").number().conversion(NUMBER2LONGNULLZERO).map("connectionTaskId").add();
             Column protocolDialectConfigurationProperties = table.column("PROTOCOLDIALECTCONFIGPROPS").number().add().upTo(Version.version(10, 2));
             table.column("IGNORENEXTEXECSPECS").number().conversion(NUMBER2BOOLEAN).notNull().map(ComTaskExecutionFields.IGNORENEXTEXECUTIONSPECSFORINBOUND.fieldName()).add();
@@ -815,7 +824,12 @@ public enum TableSpecs {
             Column id = table.addAutoIdColumn();
             table.addAuditColumns();
             Column device = table.column("DEVICEID").number().conversion(NUMBER2LONG).notNull().add();
-            table.column("DEVICEMESSAGEID").number().conversion(NUMBER2LONG).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
+            Column messageId = table.column("DEVICEMESSAGEID").number().conversion(NUMBER2LONG).map(DeviceMessageImpl.Fields.DEVICEMESSAGEID.fieldName()).notNull().add();
+            table.index("IX_DDC_DEVICEMESSAGE_ID")
+                    .on(messageId)
+                    .during(Range.closedOpen(version(10, 4, 24), version(10, 5)),
+                            Range.atLeast(version(10, 9, 23)))
+                    .add();
             table.column("STATUS").number().conversion(NUMBER2ENUM).map(DeviceMessageImpl.Fields.DEVICEMESSAGESTATUS.fieldName()).notNull().add();
             table.column("TRACKINGID").varChar(Table.DESCRIPTION_LENGTH).map(DeviceMessageImpl.Fields.TRACKINGID.fieldName()).add();
             table.column("TRACKINGCATEGORY")

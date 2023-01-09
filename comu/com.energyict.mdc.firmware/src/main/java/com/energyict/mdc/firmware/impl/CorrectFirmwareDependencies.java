@@ -18,11 +18,10 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = FirmwareDependenciesValidator.class)
 public @interface CorrectFirmwareDependencies {
 
-        String message() default "";
+    String message() default "";
 
-        Class<?>[] groups() default {};
+    Class<?>[] groups() default {};
 
-        Class<? extends Payload>[] payload() default {};
+    Class<? extends Payload>[] payload() default {};
 
-    }
-
+}

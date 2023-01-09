@@ -33,7 +33,7 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
     private TimeDuration validationTimeout;
     private ProtocolSupportedFirmwareOptions protocolSupportedFirmwareOptions;
     private FirmwareType firmwareType;
-    private Map<PropertySpec, Object> properties;
+    private final Map<PropertySpec, Object> properties;
     private Long firmwareUploadComTaskId;
     private ConnectionStrategy firmwareUploadConnectionStrategy;
     private Long validationComTaskId;
@@ -105,21 +105,17 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
 
     @Override
     public FirmwareCampaignBuilderImpl withFirmwareUploadConnectionStrategy(String firmwareUploadConnectionStrategy) {
-        if (firmwareUploadConnectionStrategy == null) {
-            this.firmwareUploadConnectionStrategy = null;
-            return this;
-        }
-        this.firmwareUploadConnectionStrategy = ConnectionStrategy.valueOf(firmwareUploadConnectionStrategy.toUpperCase().replace(' ', '_'));
+        this.firmwareUploadConnectionStrategy = Optional.ofNullable(firmwareUploadConnectionStrategy)
+                .map(ConnectionStrategy::valueOf)
+                .orElse(null);
         return this;
     }
 
     @Override
     public FirmwareCampaignBuilderImpl withValidationConnectionStrategy(String validationConnectionStrategy) {
-        if (validationConnectionStrategy == null) {
-            this.validationConnectionStrategy = null;
-            return this;
-        }
-        this.validationConnectionStrategy = ConnectionStrategy.valueOf(validationConnectionStrategy.toUpperCase().replace(' ', '_'));
+        this.validationConnectionStrategy = Optional.ofNullable(validationConnectionStrategy)
+                .map(ConnectionStrategy::valueOf)
+                .orElse(null);
         return this;
     }
 
@@ -156,7 +152,8 @@ public class FirmwareCampaignBuilderImpl implements FirmwareCampaignBuilder {
         Optional.ofNullable(activationDate).ifPresent(firmwareCampaign::setActivationDate);
         Optional.ofNullable(validationTimeout).ifPresent(firmwareCampaign::setValidationTimeout);
         ServiceCall serviceCall = firmwareCampaignService.createServiceCallAndTransition(firmwareCampaign);
-        FirmwareCampaign firmwareCampaign2 = firmwareCampaignService.getFirmwareCampaignById(serviceCall.getId()).orElseThrow(() -> new IllegalStateException("Just created campaign not found."));
+        FirmwareCampaign firmwareCampaign2 = serviceCall.getExtension(FirmwareCampaignDomainExtension.class)
+                .orElseThrow(() -> new IllegalStateException("Just created campaign not found."));
         firmwareCampaign2.addProperties(properties);
         return firmwareCampaign2;
     }

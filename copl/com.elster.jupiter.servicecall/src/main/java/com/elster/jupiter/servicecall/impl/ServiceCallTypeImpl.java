@@ -10,7 +10,6 @@ import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.servicecall.CannotDeleteServiceCallType;
 import com.elster.jupiter.servicecall.DefaultState;
@@ -243,15 +242,14 @@ public class ServiceCallTypeImpl implements IServiceCallType {
 
     @Override
     public void delete() {
-        try(QueryStream<ServiceCall> serviceCallQueryStream = dataModel.stream(ServiceCall.class)) {
-                    serviceCallQueryStream.filter(Where.where(ServiceCallImpl.Fields.type.fieldName()).isEqualTo(this))
-                    .limit(1)
-                    .findAny()
-                    .ifPresent(oneOfThisType -> {
-                        throw new CannotDeleteServiceCallType(thesaurus, MessageSeeds.CANNOT_DELETE_SERVICECALLTYPE, this, oneOfThisType);
-                    });
-            dataModel.mapper(IServiceCallType.class).remove(this);
-        }
+        dataModel.stream(ServiceCall.class)
+                .filter(Where.where(ServiceCallImpl.Fields.type.fieldName()).isEqualTo(this))
+                .limit(1)
+                .findAny()
+                .ifPresent(oneOfThisType -> {
+                    throw new CannotDeleteServiceCallType(thesaurus, MessageSeeds.CANNOT_DELETE_SERVICECALLTYPE, this, oneOfThisType);
+                });
+        dataModel.mapper(IServiceCallType.class).remove(this);
     }
 
     @Override

@@ -433,4 +433,9 @@ public class PriorityComTaskExecutionImpl implements PriorityComTaskExecution {
     public void removeSchedule() {
         comTaskExecution.removeSchedule();
     }
+
+    @Override
+    public boolean isTraced() {
+        return comTaskExecution.isTraced();
+    }
 }

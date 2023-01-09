@@ -101,7 +101,7 @@ public class SecurityPropertySetInfoFactory {
         return device.getSecurityAccessors().stream()
                 .filter(keyAccessor ->
                         securityPropertySet.getConfigurationSecurityProperties().stream().anyMatch(configurationSecurityProperty ->
-                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getKeyAccessorTypeReference().getId()))
+                                configurationSecurityProperty.getSecurityAccessorType().getId() == keyAccessor.getSecurityAccessorType().getId()))
                 .anyMatch(s -> s.isServiceKey());
     }
 }

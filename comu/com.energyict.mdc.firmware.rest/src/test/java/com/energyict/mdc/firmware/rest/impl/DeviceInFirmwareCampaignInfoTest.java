@@ -42,7 +42,7 @@ public class DeviceInFirmwareCampaignInfoTest {
     private Instant finishedOn = Instant.ofEpochMilli(1462451511);
 
     @Before
-    public void initMock(){
+    public void initMock() {
         when(thesaurus.getString(anyString(), anyString())).thenReturn("someTranslatedFirmwareManagementDeviceStatus");
 
         when(device.getName()).thenReturn("NameOfDevice");
@@ -54,8 +54,9 @@ public class DeviceInFirmwareCampaignInfoTest {
         when(deviceInFirmwareCampaign.getServiceCall()).thenReturn(item);
 
     }
+
     @Test
-    public void testDeviceInFirmwareCampaignInfoConstructor(){
+    public void testDeviceInFirmwareCampaignInfoConstructor() {
         DeviceInFirmwareCampaignInfo info = new DeviceInFirmwareCampaignInfo(1L, new IdWithNameInfo(device.getId(), device.getName()), new IdWithNameInfo(DefaultState.PENDING, "Pending"), startedOn, finishedOn);
 
         assertThat(info.id).isEqualTo(1L);
@@ -64,6 +65,6 @@ public class DeviceInFirmwareCampaignInfoTest {
         assertThat(info.status.name).isEqualTo("Pending");
         assertThat(info.startedOn).isEqualTo(startedOn);
         assertThat(info.finishedOn).isEqualTo(finishedOn);
-    };
+    }
 
 }

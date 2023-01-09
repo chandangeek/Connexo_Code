@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.core;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.Holder;
 import com.elster.jupiter.util.HolderBuilder;
 import com.elster.jupiter.util.time.StopWatch;
@@ -29,7 +30,14 @@ import com.energyict.mdc.device.data.tasks.history.ComSessionBuilder;
 import com.energyict.mdc.device.data.tasks.history.ComTaskExecutionSessionBuilder;
 import com.energyict.mdc.engine.EngineService;
 import com.energyict.mdc.engine.events.ComServerEvent;
-import com.energyict.mdc.engine.impl.commands.store.*;
+import com.energyict.mdc.engine.impl.commands.MessageSeeds;
+import com.energyict.mdc.engine.impl.commands.store.ComSessionRootDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CompositeDeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.CreateInboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.CreateOutboundComSession;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
+import com.energyict.mdc.engine.impl.commands.store.DeviceCommandFactoryImpl;
+import com.energyict.mdc.engine.impl.commands.store.PublishConnectionSetupFailureEvent;
 import com.energyict.mdc.engine.impl.commands.store.core.ComTaskExecutionComCommand;
 import com.energyict.mdc.engine.impl.core.events.ComPortCommunicationLogHandler;
 import com.energyict.mdc.engine.impl.core.logging.ComPortConnectionLogger;
@@ -52,7 +60,6 @@ import com.energyict.mdc.issues.IssueService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.meterdata.CollectedData;
-
 import com.energyict.protocol.exceptions.ConnectionException;
 
 import java.text.MessageFormat;
@@ -194,6 +201,9 @@ public final class ExecutionContext implements JournalEntryFactory {
         } catch (ConnectionException e) {
             comPortRelatedComChannel = null;
             connectionFailed(e, connectionTask);
+        } catch (Throwable e) {
+            this.comPortRelatedComChannel = null;
+            this.connectionFailed(new ConnectionException(EngineService.COMPONENTNAME, MessageSeeds.SOMETHING_UNEXPECTED_HAPPENED, e), this.connectionTask);
         } finally {
             if (isConnected()) {
                 connecting.stop();
@@ -294,7 +304,7 @@ public final class ExecutionContext implements JournalEntryFactory {
      * Note that the Start date is set while initializing and
      * the stop date is set in the close method.
      *
-     * @param e The ConnectionException that explains the failure
+     * @param e              The ConnectionException that explains the failure
      * @param connectionTask The ConnectionTask that failed to connect
      * @see #close()
      */
@@ -375,7 +385,6 @@ public final class ExecutionContext implements JournalEntryFactory {
 
     private void setComPortRelatedComChannel(ComPortRelatedComChannel comPortRelatedComChannel) {
         if (comPortRelatedComChannel != null) { // Is null for inbound communication via servlet technology
-            comPortRelatedComChannel.setJournalEntryFactory(this);
             this.comPortRelatedComChannel = comPortRelatedComChannel;
             this.jobExecution.connected(comPortRelatedComChannel);
         }
@@ -405,6 +414,11 @@ public final class ExecutionContext implements JournalEntryFactory {
      */
     public void start(ComTaskExecutionComCommand comTaskExecutionComCommand) {
         this.comTaskExecution = comTaskExecutionComCommand.getComTaskExecution();
+        if (comPortRelatedComChannel != null && comTaskExecution != null) {
+            this.comPortRelatedComChannel.setTraced(this.comTaskExecution.isTraced());
+            this.comPortRelatedComChannel.setDeviceName(this.comTaskExecution.getDevice().getName());
+            this.comPortRelatedComChannel.setComTaskName(this.comTaskExecution.getComTask().getName());
+        }
         getComServerDAO().executionStarted(comTaskExecutionComCommand.getComTaskExecution(), getComPort(), true);
         this.publish(
                 new ComTaskExecutionStartedEvent(
@@ -624,6 +638,7 @@ public final class ExecutionContext implements JournalEntryFactory {
 
         DeviceMessageService deviceMessageService();
 
+        TransactionService transactionService();
     }
 
     private class ConnectionTaskPropertyCache implements ConnectionTaskPropertyProvider {
@@ -700,6 +715,7 @@ public final class ExecutionContext implements JournalEntryFactory {
             return serviceProvider.eventService();
         }
 
+        @Override
         public EventPublisher eventPublisher() {
             return serviceProvider.eventPublisher();
         }
@@ -709,5 +725,9 @@ public final class ExecutionContext implements JournalEntryFactory {
             return serviceProvider.deviceMessageService();
         }
 
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
+        }
     }
 }

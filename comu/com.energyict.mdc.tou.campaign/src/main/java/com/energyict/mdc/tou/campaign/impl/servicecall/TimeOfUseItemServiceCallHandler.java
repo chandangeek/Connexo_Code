@@ -24,8 +24,9 @@ public class TimeOfUseItemServiceCallHandler implements ServiceCallHandler {
     }
 
     @Override
-    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        return true;
+    public void beforeCancelling(ServiceCall serviceCall, DefaultState oldState) {
+        // TODO: may need fix like for firmware campaign
+        serviceCall.getExtension(TimeOfUseItemDomainExtension.class).get().cancel(false);
     }
 
     @Override

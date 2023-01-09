@@ -12,7 +12,7 @@ Ext.define('Fwc.privileges.FirmwareCampaign', {
         'Uni.Auth'
     ],
     singleton: true,
-    view: ['privilege.view.firmware.campaign','privilege.administrate.firmware.campaign'],
+    view: ['privilege.view.firmware.campaign', 'privilege.administrate.firmware.campaign'],
     administrate: ['privilege.administrate.firmware.campaign'],
     all: function () {
         return Ext.Array.merge(

@@ -139,7 +139,7 @@ public class SecureDeviceKeyImporter  extends SecureDeviceImporterAbstract imple
 
             Optional<SecurityAccessor> securityAccessorOptional = device.getSecurityAccessor(securityAccessorType);
             boolean hasActiveValue = securityAccessorOptional
-                    .flatMap(SecurityAccessor::getActualPassphraseWrapperReference)
+                    .flatMap(SecurityAccessor::getActualValue)
                     .isPresent();
             boolean hasPassiveValue = securityAccessorOptional
                     .flatMap(SecurityAccessor::getTempValue)
@@ -152,7 +152,7 @@ public class SecureDeviceKeyImporter  extends SecureDeviceImporterAbstract imple
                 if (hasActiveValue) {
                     securityAccessor.setTempValue(newWrapperValue);
                 } else {
-                    securityAccessor.setActualPassphraseWrapperReference(newWrapperValue);
+                    securityAccessor.setActualValue(newWrapperValue);
                 }
                 securityAccessor.save();
             }

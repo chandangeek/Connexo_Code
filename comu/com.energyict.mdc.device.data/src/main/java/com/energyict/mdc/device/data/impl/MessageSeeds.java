@@ -179,7 +179,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_ACTUAL_CERTIFICATE(2153, "NoActualCertificate", "Certificate renewal requires an actual value in order to create a distinguished name"),
     CERTIFICATE_ENCODING_EXCEPTION(2154, "CertificateEncodingError", "The certificate is an unrecognized format"),
     ACTUAL_VALUE_NOT_SET(2155, "NoActualValue", "The security accessor does not contain an actual value"),
-    MASTER_KEY_ACTUAL_VALUE_NOT_SET(2156, "MasterWrapperNoActualValue", "Master/Wrapper security accessor does not contain an actual value"),
+    MASTER_KEY_ACTUAL_VALUE_NOT_SET(2156, "NoActualValueForMaster", "Master/Wrapper security accessor does not contain an actual value"),
     VALIDATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2157, "ValidationPropertyCannotBeOverridden", "Validation rule property with key ''{0}'' can''t be overridden"),
     ESTIMATION_RULE_PROPERTY_CANNOT_BE_OVERRIDDEN(2158, "EstimationPropertyCannotBeOverridden", "Estimation rule property with key ''{0}'' can''t be overridden"),
     NO_BASIC_CHECK_COMTASK(2159, Keys.NO_BASIC_CHECK_COMTASK, "A basic check comtask could not be located"),

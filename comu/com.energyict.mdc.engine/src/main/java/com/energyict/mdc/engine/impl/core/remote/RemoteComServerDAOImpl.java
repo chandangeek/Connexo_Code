@@ -23,6 +23,7 @@ import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.SecurityPropertySet;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.ConnectionTaskProperty;
@@ -48,6 +49,7 @@ import com.energyict.mdc.engine.impl.core.ServerProcessStatus;
 import com.energyict.mdc.engine.impl.tools.ProtocolUtils;
 import com.energyict.mdc.engine.impl.web.queryapi.DataCompressor;
 import com.energyict.mdc.engine.users.OfflineUserInfo;
+import com.energyict.mdc.identifiers.DeviceMessageIdentifierById;
 import com.energyict.mdc.protocol.api.device.offline.OfflineDevice;
 import com.energyict.mdc.upl.DeviceMasterDataExtractor;
 import com.energyict.mdc.upl.TypedProperties;
@@ -180,8 +182,8 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     public List<OfflineUserInfo> getUsersCredentialInformation() {
-        JSONObject response = post(QueryMethod.GetUsersCredentialInformation, new HashMap<String, Object>());
-        OfflineUserInfo[] userInfoArray = toArrayObject(response, new ObjectParser<OfflineUserInfo[]>(), OfflineUserInfo[].class);
+        JSONObject response = post(QueryMethod.GetUsersCredentialInformation, new HashMap<>());
+        OfflineUserInfo[] userInfoArray = toArrayObject(response, new ObjectParser<>(), OfflineUserInfo[].class);
         return CollectionConverter.convertGenericArrayToList(userInfoArray);
     }
 
@@ -231,7 +233,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMSERVER, comServer.getId());
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_HIGH_PRIORITY_LOAD, currentHighPriorityLoadPerComPortPool);
             JSONObject response = post(QueryMethod.FindExecutableHighPriorityOutboundComTasks, queryParameters);
-            HighPriorityComJob[] comJobs = toArrayObject(response, new ObjectParser<HighPriorityComJob[]>(), HighPriorityComJob[].class);
+            HighPriorityComJob[] comJobs = toArrayObject(response, new ObjectParser<>(), HighPriorityComJob[].class);
             return CollectionConverter.convertGenericArrayToList(comJobs);
         } else {
             return Collections.emptyList();
@@ -246,7 +248,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_HIGH_PRIORITY_LOAD, currentHighPriorityLoadPerComPortPool);
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.CURRENT_DATE, Date.from(date));
             JSONObject response = post(QueryMethod.FindExecutableHighPriorityOutboundComTasks, queryParameters);
-            HighPriorityComJob[] comJobs = toArrayObject(response, new ObjectParser<HighPriorityComJob[]>(), HighPriorityComJob[].class);
+            HighPriorityComJob[] comJobs = toArrayObject(response, new ObjectParser<>(), HighPriorityComJob[].class);
             return CollectionConverter.convertGenericArrayToList(comJobs);
         } else {
             return Collections.emptyList();
@@ -258,7 +260,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
         JSONObject response = post(QueryMethod.FindContainingComPortPoolsForComPort, queryParameters);
-        Long[] comPortPoolIds = toArrayObject(response, new ObjectParser<Long[]>(), Long[].class);
+        Long[] comPortPoolIds = toArrayObject(response, new ObjectParser<>(), Long[].class);
         return CollectionConverter.convertGenericArrayToList(comPortPoolIds);
     }
 
@@ -273,7 +275,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE, device.getId());
             queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, comPort.getId());
             JSONObject response = post(QueryMethod.FindExecutableInboundComTasks, queryParameters);
-            ComTaskExecution[] comTaskExecutions = toArrayObject(response, new ObjectParser<ComTaskExecution[]>(), ComTaskExecution[].class);
+            ComTaskExecution[] comTaskExecutions = toArrayObject(response, new ObjectParser<>(), ComTaskExecution[].class);
             return CollectionConverter.convertGenericArrayToList(comTaskExecutions);
         } else {
             return Collections.emptyList();
@@ -285,15 +287,15 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASKEXECUTION, comTaskExecutionId);
         JSONObject response = post(QueryMethod.FindProtocolDialectPropertiesForComTaskExecution, queryParameters);
-        return toObject(response, new ObjectParser<TypedProperties>());
+        return toObject(response, new ObjectParser<>());
     }
 
     @Override
-    public com.energyict.mdc.upl.properties.TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
+    public TypedProperties getDeviceLocalProtocolProperties(DeviceIdentifier deviceIdentifier) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         JSONObject response = post(QueryMethod.GetDeviceProtocolProperties, queryParameters);
-        return toObject(response, new ObjectParser<TypedProperties>());
+        return toObject(response, new ObjectParser<>());
     }
 
     @Override
@@ -307,7 +309,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMTASK, comTaskId);
         JSONObject response = post(QueryMethod.FindComTaskEnablementByDeviceAndComTask, queryParameters);
-        return toObject(response, new ObjectParser<ComTaskEnablement>());
+        return toObject(response, new ObjectParser<>());
     }
 
     public List<SecurityPropertySet> findAllSecurityPropertySetsForDevice(DeviceIdentifier deviceIdentifier) {
@@ -563,28 +565,28 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
-    public com.energyict.mdc.upl.properties.TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+    public TypedProperties getDeviceDialectProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, inboundComPort.getId());
         JSONObject response = post(QueryMethod.GetDeviceDialectProperties, queryParameters);
-        return toObject(response, new ObjectParser<TypedProperties>());
+        return toObject(response, new ObjectParser<>());
     }
 
     @Override
-    public com.energyict.mdc.upl.properties.TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
+    public TypedProperties getOutboundConnectionTypeProperties(DeviceIdentifier deviceIdentifier) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         JSONObject response = post(QueryMethod.GetOutboundConnectionTypeProperties, queryParameters);
-        return toObject(response, new ObjectParser<TypedProperties>());
+        return toObject(response, new ObjectParser<>());
     }
 
     @Override
-    public com.energyict.mdc.upl.properties.TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
+    public TypedProperties getDeviceProtocolProperties(DeviceIdentifier deviceIdentifier) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         JSONObject response = post(QueryMethod.GetDeviceProtocolProperties, queryParameters);
-        return toObject(response, new ObjectParser<TypedProperties>());
+        return toObject(response, new ObjectParser<>());
     }
 
     @Override
@@ -681,8 +683,8 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     public List<LookupEntry> getCompletionCodeLookupEntries() {
-        JSONObject response = post(QueryMethod.GetCompletionCodeLookupEntries, new HashMap<String, Object>());
-        LookupEntry[] lookupEntries = toArrayObject(response, new ObjectParser<LookupEntry[]>(), LookupEntry[].class);
+        JSONObject response = post(QueryMethod.GetCompletionCodeLookupEntries, new HashMap<>());
+        LookupEntry[] lookupEntries = toArrayObject(response, new ObjectParser<>(), LookupEntry[].class);
         return CollectionConverter.convertGenericArrayToList(lookupEntries);
     }
 
@@ -759,7 +761,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, identifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.OFFLINE_DEVICE_CONTEXT, offlineDeviceContext);
         JSONObject response = post(QueryMethod.GoOfflineWithContext, queryParameters);
-        return Optional.of(toObject(response, new ObjectParser<OfflineDevice>()));
+        return Optional.of(toObject(response, new ObjectParser<>()));
     }
 
     @Override
@@ -768,7 +770,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.REGISTER_IDENTIFIER, identifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.WHEN, Date.from(when));
         JSONObject response = post(QueryMethod.FindOfflineRegister, queryParameters);
-        return Optional.of(toObject(response, new ObjectParser<OfflineRegister>()));
+        return Optional.of(toObject(response, new ObjectParser<>()));
     }
 
     @Override
@@ -776,7 +778,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.LOADPROFILE_IDENTIFIER, loadProfileIdentifier);
         JSONObject response = post(QueryMethod.FindOfflineLoadProfile, queryParameters);
-        return Optional.of(toObject(response, new ObjectParser<OfflineLoadProfile>()));
+        return Optional.of(toObject(response, new ObjectParser<>()));
     }
 
     @Override
@@ -784,7 +786,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.LOGBOOK_IDENTIFIER, logBookIdentifier);
         JSONObject response = post(QueryMethod.FindOfflineLogBook, queryParameters);
-        return Optional.of(toObject(response, new ObjectParser<OfflineLogBook>()));
+        return Optional.of(toObject(response, new ObjectParser<>()));
     }
 
     @Override
@@ -792,7 +794,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_IDENTIFIER, identifier);
         JSONObject response = post(QueryMethod.FindOfflineDeviceMessage, queryParameters);
-        return Optional.of(toObject(response, new ObjectParser<OfflineDeviceMessage>()));
+        return Optional.of(toObject(response, new ObjectParser<>()));
     }
 
     @Override
@@ -838,6 +840,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+        updateDeviceMessageInformation(new DeviceMessageIdentifierById(deviceMessage.getId(), deviceMessage.getDeviceIdentifier()),
+                newDeviceMessageStatus, sentDate, protocolInformation);
+    }
+
+    @Override
     public void updateDeviceMessageInformation(MessageIdentifier messageIdentifier, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         Map<String, Object> queryParameters = new HashMap<>();
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_IDENTIFIER, messageIdentifier);
@@ -857,7 +865,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.MESSAGE_CONFIRMATION_COUNT, confirmationCount);
         JSONObject response = post(QueryMethod.ConfirmSentMessagesAndGetPending, queryParameters);
-        OfflineDeviceMessage[] offlineDeviceMessages = toArrayObject(response, new ObjectParser<OfflineDeviceMessage[]>(), OfflineDeviceMessage[].class);
+        OfflineDeviceMessage[] offlineDeviceMessages = toArrayObject(response, new ObjectParser<>(), OfflineDeviceMessage[].class);
         return CollectionConverter.convertGenericArrayToList(offlineDeviceMessages);
     }
 
@@ -867,7 +875,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.SECURITY_PROPERTY_SET_IDENTIFIER, securityPropertySetId);
         JSONObject response = post(QueryMethod.GetPropertiesFromSecurityPropertySet, queryParameters);
-        DeviceMasterDataExtractor.SecurityProperty[] securityProperties = toArrayObject(response, new ObjectParser<DeviceMasterDataExtractor.SecurityProperty[]>(), DeviceMasterDataExtractor.SecurityProperty[].class);
+        DeviceMasterDataExtractor.SecurityProperty[] securityProperties = toArrayObject(response, new ObjectParser<>(), DeviceMasterDataExtractor.SecurityProperty[].class);
         return CollectionConverter.convertGenericArrayToList(securityProperties);
     }
 
@@ -882,11 +890,11 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.DEVICE_IDENTIFIER, deviceIdentifier);
         queryParameters.put(RemoteComServerQueryJSonPropertyNames.COMPORT, inboundComPort.getId());
         JSONObject response = post(QueryMethod.GetDeviceConnectionTypeProperties, queryParameters);
-        return toObject(response, new ObjectParser<TypedProperties>());
+        return toObject(response, new ObjectParser<>());
     }
 
     @Override
-    public com.energyict.mdc.upl.properties.TypedProperties getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
+    public TypedProperties getDeviceProtocolSecurityProperties(DeviceIdentifier deviceIdentifier, InboundComPort inboundComPort) {
         return null;
     }
 
@@ -963,7 +971,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     }
 
     private JSONObject post(QueryMethod queryMethod) {
-        return this.post(queryMethod, new HashMap<String, Object>(0));
+        return this.post(queryMethod, new HashMap<>(0));
     }
 
     private JSONObject post(QueryMethod queryMethod, Map<String, Object> queryParameters) {
@@ -1041,35 +1049,36 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
     private Collection<Long> collectIds(List<? extends HasId> businessObjects) {
         Collection<Long> ids = new ArrayList<>(businessObjects.size());
         for (HasId businessObject : businessObjects) {
-            ids.add((long) businessObject.getId());
+            ids.add(businessObject.getId());
         }
         return ids;
     }
 
     private class QueryWebSocket implements WebSocketListener {
 
-        private Optional<Session> oSession = Optional.empty();
+        private Session oSession;
 
         public QueryWebSocket() {
         }
 
         public boolean isOpen() {
-            return oSession.isPresent() && oSession.get().isOpen();
+            return oSession != null && oSession.isOpen();
         }
 
         public void disconnect() {
-            oSession.ifPresent(Session::close);
+            if (oSession != null) {
+                oSession.close();
+            }
         }
 
         public synchronized void post(Query query) throws JSONException, IOException {
-            if (oSession.isPresent()) {
+            if (oSession != null) {
                 String serializedText = query.getSpecs().marshall();
-                Session session = oSession.get();
                 if (compressData) {
                     byte[] compressedData = DataCompressor.encodeAndCompress(serializedText, true);
-                    session.getRemote().sendBytes(ByteBuffer.wrap(compressedData));
+                    oSession.getRemote().sendBytes(ByteBuffer.wrap(compressedData));
                 } else {
-                    session.getRemote().sendString(serializedText);
+                    oSession.getRemote().sendString(serializedText);
                 }
             } else {
                 throw new DataAccessException(MessageSeeds.WEBSOCKET_CLOSED);
@@ -1100,12 +1109,12 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
         @Override
         public void onWebSocketConnect(Session session) {
-            this.oSession = Optional.of(session);
+            this.oSession = session;
         }
 
         @Override
         public void onWebSocketClose(int i, String s) {
-            this.oSession = Optional.empty();
+            this.oSession = null;
             webSocketClosed();
         }
 
@@ -1114,7 +1123,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private class QueryResponse implements Future<JSONObject> {
+    private static class QueryResponse implements Future<JSONObject> {
         private JSONObject value;
         private boolean done = false;
 
@@ -1161,7 +1170,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     }
 
-    private final class Query {
+    private static final class Query {
         private final QuerySpecs specs;
         private final QueryResponse response = new QueryResponse();
 
@@ -1179,9 +1188,9 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
         }
     }
 
-    private final class QuerySpecs {
+    private static final class QuerySpecs {
 
-        private Map<String, Object> specs;
+        private final Map<String, Object> specs;
 
         private QuerySpecs() {
             specs = new HashMap<>();
@@ -1211,7 +1220,7 @@ public class RemoteComServerDAOImpl implements ComServerDAO {
 
     private final class QueryList {
         private long nextId = 1;
-        private Map<String, Query> queriesInProgress = new HashMap<>();
+        private final Map<String, Query> queriesInProgress = new HashMap<>();
 
         public synchronized Query newQueryFor(QuerySpecs querySpecs) throws JSONException {
             long queryId = this.nextId++;

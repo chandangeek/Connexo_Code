@@ -11,7 +11,7 @@ public enum FirmwareStatus {
     GHOST("ghost"),
     DEPRECATED("deprecated");
 
-    private String status;
+    private final String status;
 
     FirmwareStatus(String status) {
         this.status = status;

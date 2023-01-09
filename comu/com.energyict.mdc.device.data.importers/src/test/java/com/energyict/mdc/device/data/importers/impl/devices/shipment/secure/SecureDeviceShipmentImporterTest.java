@@ -106,7 +106,7 @@ public class SecureDeviceShipmentImporterTest {
         when(deviceService.newDevice(eq(deviceConfig) ,anyString(), anyString(), any(Instant.class))).thenReturn(newDevice);
         when(deviceService.newDevice(eq(deviceConfig), anyString(), anyString(), any(Instant.class))).thenReturn(newDevice);
         SecurityAccessor keyAccessor = mock(SecurityAccessor.class);
-        when(keyAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+        when(keyAccessor.getActualValue()).thenReturn(Optional.empty());
         when(keyAccessor.getTempValue()).thenReturn(Optional.empty());
         DeviceSecretImporter deviceSecretImporter = mock(DeviceSecretImporter.class);
         List<SecurityAccessorType> keyAccessorTypes = Stream.of("NTP_HASH", "MK_DC", "EAP_PSK_DC", "WEB_PORTAL_LOGIN_RO", "WEB_PORTAL_LOGIN_RW",

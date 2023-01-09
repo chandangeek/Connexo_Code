@@ -9,7 +9,7 @@ Ext.define('Fwc.model.FirmwareManagementOption', {
     extend: 'Ext.data.Model',
     alternateClassName: 'FirmwareManagementOption',
     alias: 'firmware-management-option',
-    constructor: function(id, localizedValue){
+    constructor: function (id, localizedValue) {
         this.id = id;
         this.localizedValue = localizedValue;
     },

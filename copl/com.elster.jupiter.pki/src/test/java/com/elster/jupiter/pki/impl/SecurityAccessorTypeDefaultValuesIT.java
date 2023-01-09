@@ -138,14 +138,14 @@ public class SecurityAccessorTypeDefaultValuesIT {
     @Transactional
     public void testSetAndGetDefaultValues() {
         SecurityAccessor<CertificateWrapper> values = securityManagementService.setDefaultValues(catWithDefaultValues, rootCertificate, mdmCertificate);
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
 
         Optional<SecurityAccessor<CertificateWrapper>> foundValuesOptional = securityManagementService.getDefaultValues(catWithDefaultValues)
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         values = foundValuesOptional.get();
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
 
         assertThat(securityManagementService.getDefaultValues(cat)).isEmpty();
@@ -155,8 +155,8 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .collect(Collectors.toList());
         assertThat(foundValuesList).hasSize(1);
         values = foundValuesList.get(0);
-        assertThat(values.getKeyAccessorTypeReference().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getSecurityAccessorType().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
 
         assertThat(securityManagementService.getSecurityAccessors(SecurityAccessorType.Purpose.DEVICE_OPERATIONS)).isEmpty();
@@ -165,8 +165,8 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .collect(Collectors.toList());
         assertThat(foundValuesList).hasSize(1);
         values = foundValuesList.get(0);
-        assertThat(values.getKeyAccessorTypeReference().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getSecurityAccessorType().getName()).isEqualTo(CAT_WITH_DEFAULT_VALUES_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
     }
 
@@ -246,7 +246,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
         Optional<SecurityAccessor<CertificateWrapper>> foundValuesOptional = securityManagementService.lockDefaultValues(catWithDefaultValues, 1)
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
-        assertThat(foundValuesOptional.get().getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(foundValuesOptional.get().getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(foundValuesOptional.get().getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
         assertThat(securityManagementService.lockDefaultValues(catWithDefaultValues, 2)).isEmpty();
     }
@@ -259,10 +259,10 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         SecurityAccessor<CertificateWrapper> values = foundValuesOptional.get();
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
         assertThat(values.getTempValue()).isEmpty();
 
-        values.setActualPassphraseWrapperReference(rootCertificate);
+        values.setActualValue(rootCertificate);
         values.setTempValue(mdmCertificate);
         values.save();
 
@@ -270,7 +270,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         values = foundValuesOptional.get();
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
     }
 
@@ -282,7 +282,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         SecurityAccessor<CertificateWrapper> values = foundValuesOptional.get();
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
         assertThat(values.isSwapped()).isFalse();
 
@@ -292,7 +292,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         values = foundValuesOptional.get();
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.isSwapped()).isTrue();
     }
@@ -305,7 +305,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         SecurityAccessor<CertificateWrapper> values = foundValuesOptional.get();
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
 
         values.clearTempValue();
@@ -314,7 +314,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         values = foundValuesOptional.get();
-        assertThat(values.getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
+        assertThat(values.getActualValue().map(CertificateWrapper::getAlias)).contains(ROOT_CERTIFICATE_NAME);
         assertThat(values.getTempValue()).isEmpty();
     }
 
@@ -339,7 +339,7 @@ public class SecurityAccessorTypeDefaultValuesIT {
                 .map(sa -> (SecurityAccessor<CertificateWrapper>) sa);
         assertThat(foundValuesOptional).isPresent();
         assertThat(securityManagementService.lockDefaultValues(catWithDefaultValues, 1)).isPresent();
-        assertThat(foundValuesOptional.get().getActualPassphraseWrapperReference().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
+        assertThat(foundValuesOptional.get().getActualValue().map(CertificateWrapper::getAlias)).contains(MDM_CERTIFICATE_NAME);
         assertThat(foundValuesOptional.get().getTempValue()).isEmpty();
     }
 

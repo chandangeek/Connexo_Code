@@ -12,6 +12,8 @@ import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.security.Privileges;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.FirmwareService;
 
 import javax.annotation.security.RolesAllowed;
@@ -36,15 +38,26 @@ public class FirmwareComTaskResource {
     private final Thesaurus thesaurus;
     private final DeviceService deviceService;
     private final FirmwareService firmwareService;
+    private final CommunicationTaskService communicationTaskService;
+    private final ConnectionTaskService connectionTaskService;
 
     @Inject
-    public FirmwareComTaskResource(ResourceHelper resourceHelper, ExceptionFactory exceptionFactory, ConcurrentModificationExceptionFactory conflictFactory, Thesaurus thesaurus, DeviceService deviceService, FirmwareService firmwareService) {
+    public FirmwareComTaskResource(ResourceHelper resourceHelper,
+                                   ExceptionFactory exceptionFactory,
+                                   ConcurrentModificationExceptionFactory conflictFactory,
+                                   Thesaurus thesaurus,
+                                   DeviceService deviceService,
+                                   FirmwareService firmwareService,
+                                   CommunicationTaskService communicationTaskService,
+                                   ConnectionTaskService connectionTaskService) {
         this.resourceHelper = resourceHelper;
         this.exceptionFactory = exceptionFactory;
         this.conflictFactory = conflictFactory;
         this.thesaurus = thesaurus;
         this.deviceService = deviceService;
         this.firmwareService = firmwareService;
+        this.communicationTaskService = communicationTaskService;
+        this.connectionTaskService = connectionTaskService;
     }
 
 
@@ -55,7 +68,7 @@ public class FirmwareComTaskResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.OPERATE_DEVICE_COMMUNICATION})
     public Response retryFirmwareOrVerificationComTask(@PathParam("name") String name, @PathParam("comTaskId") Long comTaskId, DeviceFirmwareActionInfo info) {
-        String actionName = thesaurus.getFormat(MessageSeeds.FIRMWARE_COMMUNICATION_TASK_NAME).format();
+        String actionName = thesaurus.getFormat(TranslationKeys.FIRMWARE_COMMUNICATION_TASK_NAME).format();
         Device device = resourceHelper.getLockedDevice(name, info.version)
                 .orElseThrow(conflictFactory.conflict()
                         .withActualVersion(() -> deviceService.findDeviceByName(name).map(Device::getVersion).orElse(null))
@@ -69,8 +82,8 @@ public class FirmwareComTaskResource {
                 .filter(cte -> cte.getComTask().getId() == comTaskId)
                 .findFirst()
                 .orElseThrow(exceptionFactory.newExceptionSupplier(MessageSeeds.COM_TASK_IS_NOT_ENABLED_FOR_THIS_DEVICE, comTaskId));
-
-        comTaskExecution.runNow();
+        connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+        communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
         String taskRetried = comTaskExecution.isFirmware()
                 ? thesaurus.getSimpleFormat(MessageSeeds.FIRMWARE_UPLOAD_RETRIED).format()
                 : thesaurus.getSimpleFormat(MessageSeeds.VERIFICATION_RETRIED).format();

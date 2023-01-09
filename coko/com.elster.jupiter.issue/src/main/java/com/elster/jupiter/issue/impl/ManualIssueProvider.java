@@ -13,7 +13,9 @@ import com.elster.jupiter.issue.share.service.IssueService;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;
 
+import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 
 @Component(name = "com.elster.jupiter.issue.impl.ManualIssueProvider",
         service = {IssueProvider.class},
@@ -55,5 +57,10 @@ public class ManualIssueProvider implements IssueProvider {
     public Optional<? extends Issue> findIssue(long id) {
         Optional<? extends Issue> issue = issueService.findIssue(id);
         return (issue.isPresent() && issue.get().getType() != null && IssueService.MANUAL_ISSUE_TYPE.equals(issue.get().getType().getKey())) ? issue : Optional.empty();
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(IssueService.MANUAL_ISSUE_TYPE);
     }
 }

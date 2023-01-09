@@ -18,7 +18,6 @@ import com.energyict.protocol.exceptions.ConnectionSetupException;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.logging.Logger;
 
@@ -35,9 +34,8 @@ import java.util.logging.Logger;
  * @since 2012-12-10 (16:03)
  */
 abstract class ScheduledJobExecutor {
-
     public static final Logger LOGGER = Logger.getLogger(ScheduledJobExecutor.class.getName());
-    // The minimum log level that needs to be set before the stacktrace of a error is logged to System.err
+    // The minimum log level that needs to be set before the stacktrace of an error is logged to System.err
     private static final ComServer.LogLevel REQUIRED_DEBUG_LEVEL = ComServer.LogLevel.DEBUG;
 
     private static long totalJobs = 0;
@@ -85,17 +83,6 @@ abstract class ScheduledJobExecutor {
         }
     }
 
-    private Consumer<ScheduledJob> rescheduleJob = job -> job.reschedule();
-    private Consumer<ScheduledJob> rescheduleJobToNextComWindow = job -> job.rescheduleToNextComWindow();
-    private BiConsumer<ScheduledJob, Consumer> clearAcquiredJobResources = (job, fun) -> {
-        try {
-            fun.accept(job);
-        } catch (Throwable t) {
-            logIfDebuggingIsEnabled(t);
-            job.releaseTokenSilently();
-        }
-    };
-
     public void execute(final ScheduledJob job) {
         /* Essential to design:
          * First run validation transaction that attempts to lock.
@@ -120,25 +107,31 @@ abstract class ScheduledJobExecutor {
             return;
         }
         switch (validationReturnStatus) {
-            case ATTEMPT_LOCK_SUCCESS: {
+            case ATTEMPT_LOCK_SUCCESS:
                 try {
                     job.execute();
                 } catch (Throwable t) {
                     logIfDebuggingIsEnabled(t);
                 } finally {
-                    clearAcquiredJobResources.accept(job, rescheduleJob);
+                    clearAcquiredJobResources(job, ScheduledJob::reschedule);
                 }
-            }
-            break;
-            case JOB_OUTSIDE_COM_WINDOW: {
-                clearAcquiredJobResources.accept(job, rescheduleJobToNextComWindow);
-            }
-            break;
+                break;
+            case JOB_OUTSIDE_COM_WINDOW:
+                clearAcquiredJobResources(job, ScheduledJob::rescheduleToNextComWindow);
+                break;
             case ATTEMPT_LOCK_FAILED:   // intentional fall through
             case NOT_PENDING_ANYMORE:   // intentional fall through
-            default: {
+            default:
                 job.releaseToken();
-            }
+        }
+    }
+
+    private void clearAcquiredJobResources(ScheduledJob job, Consumer<ScheduledJob> consumer) {
+        try {
+            consumer.accept(job);
+        } catch (Throwable t) {
+            logIfDebuggingIsEnabled(t);
+            job.releaseTokenSilently();
         }
     }
 
@@ -181,9 +174,8 @@ abstract class ScheduledJobExecutor {
         NOT_PENDING_ANYMORE
     }
 
-    private class ValidationTransaction implements Transaction<ValidationReturnStatus> {
-
-        private ScheduledJob job;
+    private static class ValidationTransaction implements Transaction<ValidationReturnStatus> {
+        private final ScheduledJob job;
 
         private ValidationTransaction(ScheduledJob job) {
             super();
@@ -219,7 +211,7 @@ abstract class ScheduledJobExecutor {
             }
             ++clashingJobs;
             if (isTimeToLog()) {
-                LOGGER.warning("perf - clashing jobs: " + clashingJobs + " out of " + totalJobs + " (" + clashingJobs*100/totalJobs + "%)");
+                LOGGER.warning("perf - clashing jobs: " + clashingJobs + " out of " + totalJobs + " (" + clashingJobs * 100 / totalJobs + "%)");
                 timerStart = Instant.now();
             }
         }
@@ -234,5 +226,4 @@ abstract class ScheduledJobExecutor {
             timerStart = Instant.now();
         }
     }
-
 }

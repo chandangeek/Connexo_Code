@@ -158,7 +158,7 @@ final class JoinExecutor<T> {
         }
     }
 
-    List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions, Hint... hints) throws SQLException {
+    List<T> select(Condition condition, Order[] orderBy, boolean eager, String[] exceptions, boolean forUpdate, Hint... hints) throws SQLException {
         builder = new SqlBuilder();
         boolean initialMarkDone = false;
         if (eager) {
@@ -188,6 +188,9 @@ final class JoinExecutor<T> {
         // remark all nodes with a where or order clause contribution.
         JoinTreeMarker.on(root).visit(condition).visit(orderBy);
         appendSql(condition, orderBy, hints);
+        if (forUpdate) {
+            builder.append(" for update ");
+        }
         List<T> result = new ArrayList<>();
         try (Connection connection = root.getTable().getDataModel().getConnection(false)) {
             try (PreparedStatement statement = builder.prepare(connection)) {

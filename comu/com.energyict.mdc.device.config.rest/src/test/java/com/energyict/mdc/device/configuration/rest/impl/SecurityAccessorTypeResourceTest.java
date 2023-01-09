@@ -642,7 +642,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(updater).description(info.description);
         verify(updater).name(info.name);
         verify(updater).complete();
-        verify(certificateAccessor).setActualPassphraseWrapperReference(tempClientCertificateWrapper);
+        verify(certificateAccessor).setActualValue(tempClientCertificateWrapper);
         verify(certificateAccessor).setTempValue(actualClientCertificateWrapper);
         verify(certificateAccessor).save();
 
@@ -727,7 +727,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(updater).description(info.description);
         verify(updater).name(info.name);
         verify(updater).complete();
-        verify(certificateAccessor).setActualPassphraseWrapperReference(tempClientCertificateWrapper);
+        verify(certificateAccessor).setActualValue(tempClientCertificateWrapper);
         verify(certificateAccessor).save();
 
         JsonModel model = JsonModel.model((ByteArrayInputStream) response.getEntity());
@@ -768,7 +768,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         verify(updater).description(info.description);
         verify(updater).name(info.name);
         verify(updater).complete();
-        verify(certificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).clearActualValue();
         verify(certificateAccessor, never()).clearTempValue();
@@ -809,7 +809,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         Response response = target("/securityaccessors/2").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        verify(certificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).clearActualValue();
         verify(certificateAccessor, never()).clearTempValue();
@@ -838,7 +838,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         Response response = target("/securityaccessors/2").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
 
-        verify(certificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).clearActualValue();
         verify(certificateAccessor, never()).clearTempValue();
@@ -871,7 +871,7 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         Response response = target("/securityaccessors/2").request().put(Entity.json(info));
         assertThat(response.getStatus()).isEqualTo(Response.Status.CONFLICT.getStatusCode());
 
-        verify(certificateAccessor, never()).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        verify(certificateAccessor, never()).setActualValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).setTempValue(any(CertificateWrapper.class));
         verify(certificateAccessor, never()).clearActualValue();
         verify(certificateAccessor, never()).clearTempValue();
@@ -1188,27 +1188,27 @@ public class SecurityAccessorTypeResourceTest extends DeviceConfigurationApplica
         SecurityAccessor<CertificateWrapper> securityAccessor1 = mock(SecurityAccessor.class);
         when(securityAccessor1.getVersion()).thenReturn(version);
         when(securityAccessor1.getTempValue()).thenReturn(Optional.empty());
-        when(securityAccessor1.getActualPassphraseWrapperReference()).thenReturn(Optional.of(clientCertificateWrapper));
+        when(securityAccessor1.getActualValue()).thenReturn(Optional.of(clientCertificateWrapper));
         doAnswer(invocation -> {
             when(securityAccessor1.getTempValue()).thenReturn(Optional.ofNullable(invocation.getArgumentAt(0, CertificateWrapper.class)));
             return null;
         }).when(securityAccessor1).setTempValue(any(CertificateWrapper.class));
         doAnswer(invocation -> {
-            when(securityAccessor1.getActualPassphraseWrapperReference()).thenReturn(Optional.ofNullable(invocation.getArgumentAt(0, CertificateWrapper.class)));
+            when(securityAccessor1.getActualValue()).thenReturn(Optional.ofNullable(invocation.getArgumentAt(0, CertificateWrapper.class)));
             return null;
-        }).when(securityAccessor1).setActualPassphraseWrapperReference(any(CertificateWrapper.class));
+        }).when(securityAccessor1).setActualValue(any(CertificateWrapper.class));
         doAnswer(invocation -> {
             when(securityAccessor1.getTempValue()).thenReturn(Optional.empty());
             return null;
         }).when(securityAccessor1).clearTempValue();
         doAnswer(invocation -> {
             Optional<CertificateWrapper> temp = securityAccessor1.getTempValue();
-            Optional<CertificateWrapper> actual = securityAccessor1.getActualPassphraseWrapperReference();
+            Optional<CertificateWrapper> actual = securityAccessor1.getActualValue();
             when(securityAccessor1.getTempValue()).thenReturn(actual);
-            when(securityAccessor1.getActualPassphraseWrapperReference()).thenReturn(temp);
+            when(securityAccessor1.getActualValue()).thenReturn(temp);
             return null;
         }).when(securityAccessor1).swapValues();
-        when(securityAccessor1.getKeyAccessorTypeReference()).thenReturn(certificateKeyAccessorType);
+        when(securityAccessor1.getSecurityAccessorType()).thenReturn(certificateKeyAccessorType);
         when(securityAccessor1.getPropertySpecs()).thenReturn(propertySpecs);
         return securityAccessor1;
     }

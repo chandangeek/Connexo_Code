@@ -11,13 +11,12 @@ import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.energyict.mdc.firmware.impl.FirmwareServiceImpl;
+import com.energyict.mdc.firmware.impl.MessageSeeds;
 
 import javax.inject.Inject;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
-
-import static com.energyict.mdc.firmware.impl.MessageSeeds.DEVICE_PART_OF_CAMPAIGN;
 
 public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandler {
 
@@ -39,43 +38,31 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
     }
 
     @Override
-    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        return true;
-    }
-
-    @Override
     public void onStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
-        if (serviceCall.getTargetObject().isPresent()) {
-            serviceCallFilter.targetObjects.add(serviceCall.getTargetObject().get());
-            serviceCallFilter.states = Arrays.stream(DefaultState.values())
-                    .filter(DefaultState::isOpen)
-                    .map(DefaultState::name)
-                    .collect(Collectors.toList());
-            serviceCallFilter.types.add(serviceCall.getType().getName());
-            if (serviceCallService.getServiceCallFinder(serviceCallFilter).stream().anyMatch(sc -> !sc.equals(serviceCall))) {
-                throw new FirmwareCampaignException(thesaurus, DEVICE_PART_OF_CAMPAIGN);
-            }
-        }
-
         serviceCall.log(LogLevel.FINE, "Now entering state " + newState.getDefaultFormat());
         switch (newState) {
             case PENDING:
+                if (serviceCall.getTargetObject().isPresent()) {
+                    ServiceCallFilter serviceCallFilter = new ServiceCallFilter();
+                    serviceCallFilter.targetObjects.add(serviceCall.getTargetObject().get());
+                    serviceCallFilter.states = Arrays.stream(DefaultState.values())
+                            .filter(DefaultState::isOpen)
+                            .map(DefaultState::name)
+                            .collect(Collectors.toList());
+                    serviceCallFilter.types.add(serviceCall.getType().getName());
+                    if (serviceCallService.getServiceCallFinder(serviceCallFilter).stream().anyMatch(sc -> !sc.equals(serviceCall))) {
+                        throw new FirmwareCampaignException(thesaurus, MessageSeeds.DEVICE_PART_OF_ANOTHER_CAMPAIGN);
+                    }
+                }
                 if (oldState.equals(DefaultState.CREATED)) {
                     serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().startFirmwareProcess();
                 } else {
                     if (!oldState.isOpen()) {
-                        serviceCall.getParent().filter(parent -> parent.canTransitionTo(DefaultState.ONGOING ))
+                        serviceCall.getParent().filter(parent -> parent.canTransitionTo(DefaultState.ONGOING))
                                 .ifPresent(parent -> parent.requestTransition(DefaultState.ONGOING));
                     }
                     serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().retryFirmwareProcess();
                 }
-                break;
-            case ONGOING:
-                break;
-            case FAILED:
-                break;
-            case CANCELLED:
                 break;
             case SUCCESSFUL:
                 serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
@@ -83,5 +70,10 @@ public class FirmwareCampaignItemServiceCallHandler implements ServiceCallHandle
             default:
                 break;
         }
+    }
+
+    @Override
+    public void beforeCancelling(ServiceCall serviceCall, DefaultState oldState) {
+        serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get().beforeCancelling();
     }
 }

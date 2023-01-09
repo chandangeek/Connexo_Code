@@ -6,13 +6,13 @@ package com.energyict.mdc.firmware.impl.campaign;
 import com.elster.jupiter.cps.AbstractPersistentDomainExtension;
 import com.elster.jupiter.cps.CustomPropertySetValues;
 import com.elster.jupiter.cps.PersistentDomainExtension;
+import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.State;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -21,15 +21,21 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
+import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.Pair;
+import com.elster.jupiter.util.concurrent.LockUtils;
 import com.elster.jupiter.util.conditions.Condition;
+import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Where;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceType;
+import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.firmware.DeviceInFirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaign;
 import com.energyict.mdc.firmware.FirmwareCampaignProperty;
@@ -42,7 +48,10 @@ import com.energyict.mdc.firmware.impl.MessageSeeds;
 import com.energyict.mdc.firmware.impl.UniqueName;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 import com.energyict.mdc.protocol.api.firmware.BaseFirmwareVersion;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
+
+import com.google.common.collect.ImmutableSet;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
@@ -50,16 +59,17 @@ import javax.validation.constraints.Size;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
 @UniqueName(groups = {Save.Create.class, Save.Update.class})
-
 public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExtension implements PersistentDomainExtension<ServiceCall>, FirmwareCampaign, HasUniqueName, PersistenceAware {
 
     public enum FieldNames {
@@ -79,8 +89,7 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         VALIDATION_CONNECTIONSTRATEGY("validationConnectionStrategy", "VALIDATION_CONSTRATEGY"),
         FIRMWARE_UPLOAD_CONNECTIONSTRATEGY("firmwareUploadConnectionStrategy", "FIRMWARE_UPLOAD_CONSTRATEGY"),
         MANUALLY_CANCELLED("manuallyCancelled", "MANUALLY_CANCELLED"),
-        WITH_UNIQUE_FIRMWARE_VERSION("withUniqueFirmwareVersion", "WITH_UNIQUE_FIRMWARE_VERSION"),
-        ;
+        WITH_UNIQUE_FIRMWARE_VERSION("withUniqueFirmwareVersion", "WITH_UNIQUE_FIRMWARE_VERSION");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -107,14 +116,16 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     private final EventService eventService;
     private final FirmwareServiceImpl firmwareService;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
+    private final DeviceMessageService deviceMessageService;
+    private final FirmwareCampaignServiceImpl firmwareCampaignService;
 
-    private Reference<ServiceCall> serviceCall = Reference.empty();
+    private final Reference<ServiceCall> serviceCall = Reference.empty();
 
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String name;
     @IsPresent
-    private Reference<DeviceType> deviceType = Reference.empty();
+    private final Reference<DeviceType> deviceType = Reference.empty();
     @NotNull(message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String deviceGroup;
@@ -146,6 +157,8 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         this.firmwareService = firmwareService;
         this.deviceMessageSpecificationService = dataModel.getInstance(DeviceMessageSpecificationService.class);
         this.cpsDataModel = dataModel.getInstance(OrmService.class).getDataModel(FirmwareCampaignPersistenceSupport.COMPONENT_NAME).get();
+        this.deviceMessageService = dataModel.getInstance(DeviceMessageService.class);
+        this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
     }
 
     @Override
@@ -315,7 +328,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
         return serviceCall.get().getId();
     }
 
-
     @Override
     public ServiceCall getServiceCall() {
         return serviceCall.get();
@@ -325,7 +337,6 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
     public boolean isWithUniqueFirmwareVersion() {
         return withUniqueFirmwareVersion;
     }
-
 
     public void withUniqueFirmwareVersion(boolean withUniqueFirmwareVersion) {
         this.withUniqueFirmwareVersion = withUniqueFirmwareVersion;
@@ -344,25 +355,81 @@ public class FirmwareCampaignDomainExtension extends AbstractPersistentDomainExt
 
     @Override
     public void cancel() {
+        ServiceCall serviceCall = getServiceCall();
+        ServiceCall lockedServiceCall = LockUtils.forceLockWithDoubleCheck(serviceCall,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(DefaultState.CANCELLED),
+                sc -> cantCancelServiceCallException(serviceCall.getNumber(), sc));
+        lockedServiceCall.cancel();
+        this.serviceCall.set(lockedServiceCall);
+    }
+
+    void beforeCancelling() {
         if (isManuallyCancelled()) {
             throw new FirmwareCampaignException(thesaurus, MessageSeeds.CAMPAIGN_ALREADY_CANCELLED);
         }
         ServiceCall serviceCall = getServiceCall();
-        setManuallyCancelled(true);
-        serviceCall.update(this);
-        serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
-        FirmwareCampaignServiceImpl firmwareCampaignService = firmwareService.getFirmwareCampaignService();
-        try(QueryStream<? extends DeviceInFirmwareCampaign> streamItems = firmwareCampaignService.streamDevicesInCampaigns()) {
-            List<? extends DeviceInFirmwareCampaign> items = streamItems.filter(Where.where("parent").isEqualTo(serviceCall))
-                    .select();
-            if (items.isEmpty()) {
-                if (serviceCall.canTransitionTo(DefaultState.CANCELLED)) {
-                    serviceCall.requestTransition(DefaultState.CANCELLED);
-                }
-            } else {
-                items.forEach(item -> item.cancel(true));
+        long count = firmwareCampaignService.streamDevicesInCampaigns()
+                .join(ServiceCall.class)
+                .join(State.class)
+                .join(DeviceMessage.class)
+                .filter(Where.where("serviceCall.parent").isEqualTo(serviceCall))
+                .filter(Where.where("serviceCall.state.name").in(DefaultState.openStateKeys()))
+                .filter(Where.where("deviceMessage").isNull()
+                        .or(Where.where("deviceMessage.deviceMessageStatus")
+                                // for these message states we agree to be able to cancel corresponding service call; for the rest of states we reject the cancel request
+                                .in(ImmutableSet.of(DeviceMessageStatus.WAITING, DeviceMessageStatus.PENDING, DeviceMessageStatus.CANCELED, DeviceMessageStatus.FAILED))))
+                .sorted(Order.ascending("serviceCall.id"))
+                // queried the items, now lock the service calls
+                .map(item -> LockUtils.lockWithPostCheck(item.getServiceCall(), serviceCallService::lockServiceCall, sc -> sc.canTransitionTo(DefaultState.CANCELLED))
+                        .map(lockedSC -> Pair.of(lockedSC, item))
+                        .orElse(null))
+                .filter(Objects::nonNull)
+                .map(pair -> pair.withLast(item -> item.getDeviceMessage()
+                        // if already cancelled or failed, just leave them without changes and proceed with cancelling service calls
+                        .filter(message -> message.getStatus() != DeviceMessageStatus.CANCELED && message.getStatus() != DeviceMessageStatus.FAILED)
+                        .orElse(null)))
+                // locked the service calls, now lock the messages
+                .sorted(Comparator.comparing(Pair::getLast, Comparator.nullsFirst(Comparator.comparing(DeviceMessage::getId))))
+                .map(pair -> {
+                    if (pair.hasLast()) {
+                        return LockUtils.lockWithPostCheck(pair.getLast(),
+                                        deviceMessageService::findAndLockDeviceMessageById,
+                                        dm -> dm.getStatus() == DeviceMessageStatus.WAITING || dm.getStatus() == DeviceMessageStatus.PENDING
+                                                && !firmwareService.hasRunningFirmwareTask(dm.getDevice()))
+                                .map(pair::withLast)
+                                .orElse(null);
+                    }
+                    return pair;
+                })
+                .filter(Objects::nonNull)
+                // locked everything, now cancel all we have
+                .peek(pair -> {
+                    if (pair.hasLast()) {
+                        // device message
+                        pair.getLast().revoke();
+                    }
+                    // service call
+                    pair.getFirst().cancel();
+                })
+                .count();
+        if (count > 0) { // at least one item was indeed cancelled
+            setManuallyCancelled(true);
+            serviceCall.update(this);
+            serviceCall.log(LogLevel.INFO, thesaurus.getSimpleFormat(MessageSeeds.CANCELED_BY_USER).format());
+        } else {
+            ServiceCallFilter filter = new ServiceCallFilter();
+            filter.states = DefaultState.openStates().stream().map(DefaultState::name).collect(Collectors.toList());
+            Finder<ServiceCall> children = serviceCall.findChildren(filter);
+            if (!children.paged(0, 0).find().isEmpty()) { // has open children, but couldn't cancel anything
+                throw new FirmwareCampaignException(thesaurus, MessageSeeds.FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED);
             }
         }
+    }
+
+    private FirmwareCampaignException cantCancelServiceCallException(String serviceCallNumber, ServiceCall serviceCall) {
+        return new FirmwareCampaignException(thesaurus, MessageSeeds.CANT_CANCEL_SERVICE_CALL,
+                serviceCallNumber, serviceCall == null ? "no state" : serviceCall.getState().getDisplayName(thesaurus));
     }
 
     @Override

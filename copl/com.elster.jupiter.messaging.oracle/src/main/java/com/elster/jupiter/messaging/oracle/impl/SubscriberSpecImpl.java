@@ -266,7 +266,6 @@ public class SubscriberSpecImpl implements SubscriberSpec {
         options.setWait((int) DEFAULT_WAIT.getSeconds());
         if (getDestination().isTopic()) {
             options.setConsumerName(name);
-            options.setNavigation(AQDequeueOptions.NavigationOption.FIRST_MESSAGE);
         }
         if (getDestination().isBuffered()) {
             options.setVisibility(AQDequeueOptions.VisibilityOption.IMMEDIATE);

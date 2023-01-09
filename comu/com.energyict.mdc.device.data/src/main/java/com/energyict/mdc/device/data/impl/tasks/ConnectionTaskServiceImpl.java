@@ -325,6 +325,7 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
         }
     }
 
+    @Deprecated
     @Override
     public ConnectionTask attemptLockConnectionTask(long id) {
         return deviceDataModelService.dataModel().mapper(ConnectionTask.class).lock(id);
@@ -398,6 +399,11 @@ public class ConnectionTaskServiceImpl implements ServerConnectionTaskService {
     public List<ConnectionTask> findLockedByComPort(ComPort comPort) {
         Condition condition = where(ConnectionTaskFields.COM_PORT.fieldName()).isEqualTo(comPort);
         return deviceDataModelService.dataModel().mapper(ConnectionTask.class).select(condition);
+    }
+
+    @Override
+    public Optional<ConnectionTask> findAndLockConnectionTaskById(long id) {
+        return Optional.ofNullable(this.deviceDataModelService.dataModel().mapper(ConnectionTask.class).lock(id));
     }
 
     public List<ConnectionTask> findTimedOutConnectionTasksByComPort(ComPort comPort) {

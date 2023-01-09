@@ -15,7 +15,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.DataModelUpgrader;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.transaction.TransactionContext;
@@ -388,19 +387,17 @@ public class NlsServiceImpl implements NlsService {
                 .and(where("nlsKey.layer").isEqualTo(key.getLayer()))
                 .and(where("nlsKey.key").isEqualTo(key.getKey()));
 
-        try(QueryStream<NlsEntry> nlsEntryQueryStream = this.dataModel
-                .stream(NlsEntry.class).join(NlsKey.class)) {
-            List<NlsEntry> nlsEntries = nlsEntryQueryStream
-                    .filter(condition)
-                    .select();
-            if (nlsEntries.isEmpty()) {
-                this.uninstalledKeysMap.put(key, newKey);
-            } else {
-                nlsEntries.forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
-            }
-            this.dataModel.mapper(NlsKey.class).persist(newKey);
-            this.invalidate(targetComponent, targetLayer);
+        List<NlsEntry> nlsEntries = this.dataModel.stream(NlsEntry.class)
+                .join(NlsKey.class)
+                .filter(condition)
+                .select();
+        if (nlsEntries.isEmpty()) {
+            this.uninstalledKeysMap.put(key, newKey);
+        } else {
+            nlsEntries.forEach(entry -> newKey.add(entry.getLocale(), entry.getTranslation()));
         }
+        this.dataModel.mapper(NlsKey.class).persist(newKey);
+        this.invalidate(targetComponent, targetLayer);
     }
 
     private String interpolate(String messageTemplate) {

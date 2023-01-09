@@ -71,9 +71,11 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -392,6 +394,11 @@ public class IssueDataValidationServiceImpl implements IssueDataValidationServic
         IssueDataValidationAssociationProvider provider = new IssueDataValidationAssociationProvider(thesaurus, issueService, propertySpecService);
         serviceRegistrations.add(bundleContext.registerService(ProcessAssociationProvider.class, provider,
                 new Hashtable<>(ImmutableMap.of("name", IssueDataValidationAssociationProvider.NAME))));
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(IssueDataValidationService.ISSUE_TYPE_NAME);
     }
 
     public Thesaurus thesaurus() {

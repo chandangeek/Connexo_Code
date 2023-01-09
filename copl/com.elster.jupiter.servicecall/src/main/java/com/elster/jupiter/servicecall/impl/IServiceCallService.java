@@ -6,10 +6,8 @@ package com.elster.jupiter.servicecall.impl;
 
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallService;
-import com.elster.jupiter.servicecall.ServiceCallType;
 
 import java.util.Map;
 import java.util.Optional;
@@ -20,8 +18,6 @@ import java.util.Optional;
  */
 public interface IServiceCallService extends ServiceCallService {
     void addServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
-
-    Optional<ServiceCallCancellationHandler> getServiceCallCancellationHandler(ServiceCallType serviceCallType);
 
     void removeServiceCallHandler(ServiceCallHandler serviceCallHandler, Map<String, Object> properties);
 
