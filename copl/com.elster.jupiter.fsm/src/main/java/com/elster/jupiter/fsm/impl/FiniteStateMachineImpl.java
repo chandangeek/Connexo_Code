@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -52,7 +53,7 @@ import java.util.stream.Stream;
 @AtLeastOneState(groups = { Save.Create.class, Save.Update.class })
 @ExactlyOneInitialState(groups = { Save.Create.class, Save.Update.class })
 public final class FiniteStateMachineImpl implements FiniteStateMachine {
-
+    private static final Logger LOGGER = Logger.getLogger(FiniteStateMachineImpl.class.getName());
     public enum Fields {
         NAME("name"),
         OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
@@ -255,7 +256,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     void removeTransition(StateImpl state, StateTransitionEventType eventType) {
         Optional<StateTransitionImpl> stateTransition = this.transitions
                 .stream()
-                .filter(t -> this.relatesTo(t, state))
+                .filter(t -> t.getFrom().getId() == state.getId())
                 .filter(t -> t.getEventType().getId() == eventType.getId())
                 .findFirst();
         if (stateTransition.isPresent()) {
