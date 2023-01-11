@@ -47,4 +47,6 @@ public interface SchedulingService {
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate);
 
     public Optional<ComSchedule> findAndLockComScheduleByIdAndVersion(long id, long version);
+
+    public Optional<ComSchedule> findScheduleByName(String comScheduleName);
 }

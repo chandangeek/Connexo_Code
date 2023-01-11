@@ -137,7 +137,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>export</artifactId>
         </dependency>
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>

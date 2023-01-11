@@ -463,7 +463,7 @@
                         maxOccurs="unbounded"/>
             <xs:element name="ConnectionAttributes" type="m:ConnectionAttributes" minOccurs="0"
                         maxOccurs="unbounded"/>
-	    <xs:element name="SecurityKeys" type="sec:SecurityKeys" minOccurs="0" maxOccurs="1" />
+            <xs:element name="SecurityKeys" type="sec:SecurityKeys" minOccurs="0" maxOccurs="1" />
             <xs:element name="TimeSeriesCustomAttributeSet" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
                     <xs:sequence>
@@ -477,11 +477,23 @@
                     </xs:sequence>
                 </xs:complexType>
             </xs:element>
+            <xs:element name="SharedCommunicationSchedules" type="m:SharedCommunicationSchedules" minOccurs="0"/>
             <xs:any namespace="##other" processContents="lax" minOccurs="0" maxOccurs="unbounded">
                 <xs:annotation>
                     <xs:documentation>This can contain custom information</xs:documentation>
                 </xs:annotation>
             </xs:any>
+        </xs:sequence>
+        </xs:complexType>
+    <xs:complexType name="SharedCommunicationSchedules">
+        <xs:sequence>
+            <xs:element name="SharedCommunicationSchedule" type="m:SharedCommunicationSchedule"
+                        minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="SharedCommunicationSchedule">
+        <xs:sequence>
+            <xs:element name="Name" type="xs:string" minOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
     <xs:complexType name="MeterMultiplier"

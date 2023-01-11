@@ -11,6 +11,7 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationInstaller;
@@ -19,10 +20,11 @@ import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
+import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.common.tasks.history.ComTaskExecutionSession;
 import com.energyict.mdc.device.data.ActivatedBreakerStatus;
@@ -38,8 +40,8 @@ import com.energyict.mdc.upl.TypedProperties;
 import com.energyict.mdc.upl.messages.DeviceMessageAttribute;
 import com.energyict.mdc.upl.messages.DeviceMessageStatus;
 
-import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
 import ch.iec.tc57._2011.meterconfig.CalendarStatus;
+import ch.iec.tc57._2011.meterconfig.ConnectionAttributes;
 import ch.iec.tc57._2011.meterconfig.ContactorStatus;
 import ch.iec.tc57._2011.meterconfig.EndDeviceInfo;
 import ch.iec.tc57._2011.meterconfig.FirmwareStatus;
@@ -51,6 +53,8 @@ import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
 import ch.iec.tc57._2011.meterconfig.MeterStatus;
 import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedule;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedules;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zones;
@@ -67,7 +71,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -75,11 +78,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.contactorActivationDateAttributeName;
+import static java.util.Comparator.comparing;
 
 @Component(name = "com.energyict.mdc.cim.webservices.outbound.soap.meterconfig.MeterConfigFactory", service = MeterConfigFactory.class)
 public class MeterConfigFactoryImpl implements MeterConfigFactory {
@@ -199,7 +204,24 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
         meter.setType(device.getDeviceConfiguration().getDeviceType().getName());
         meter.getMeterMultipliers().add(createMultiplier(device.getMultiplier()));
         meter.setStatus(createStatus(device));
+        meter.setSharedCommunicationSchedules(createSharedCommunicationSchedules(device));
         return meter;
+    }
+
+    private SharedCommunicationSchedules createSharedCommunicationSchedules(Device device) {
+        TreeSet<String> scheduleNames = new TreeSet<>();
+        device.getComTaskExecutions().stream()
+                .map(comTaskExecution -> comTaskExecution.getComSchedule())
+                .flatMap(Functions.asStream())
+                .map(ComSchedule::getName)
+                .forEach(scheduleNames::add);
+        SharedCommunicationSchedules sharedCommunicationSchedules = new SharedCommunicationSchedules();
+        for (String scheduleName : scheduleNames) {
+            SharedCommunicationSchedule schedule = new SharedCommunicationSchedule();
+            schedule.setName(scheduleName);
+            sharedCommunicationSchedules.getSharedCommunicationSchedule().add(schedule);
+        }
+        return sharedCommunicationSchedules;
     }
 
     private EndDeviceInfo createEndDeviceInfo(Device device) {
@@ -358,7 +380,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                 .filter(dm -> dm.getAttributes().stream()
                         .anyMatch(attr -> attr.getName().equals(activityCalendarNameAttributeName) && attr.getValue().equals(calendarName)))
                 .filter(dm -> dm.getSentDate().isPresent())
-                .max(Comparator.comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
+                .max(comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
     }
 
     private Optional<DeviceMessage> getContactorCommand(Device device, ActivatedBreakerStatus breakerStatus) {
@@ -374,7 +396,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                 .stream()
                 .filter(dm -> dm.getSentDate().isPresent())
                 .filter(dm -> !dm.getSentDate().get().isAfter(breakerStatus.getLastChecked()))
-                .max(Comparator.comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
+                .max(comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
 
     }
 
@@ -455,7 +477,7 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
                         .filter(m -> activatedFirmwareVersion.get()
                                 .getFirmwareVersion().equals(versionUtils.getFirmwareVersionFromMessage(m).orElse(null)))
                         .filter(dm -> dm.getSentDate().isPresent())
-                        .max(Comparator.comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
+                        .max(comparing(dm -> dm.getSentDate().orElse(Instant.MIN)));
                 addFirmwareInfo(firmwareStatus, activatedFirmwareVersion.get(), deviceMessage.orElse(null), versionUtils);
             }
         }
