@@ -11,18 +11,18 @@ import com.elster.jupiter.cps.RegisteredCustomPropertySet;
 import com.elster.jupiter.metering.DefaultState;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.properties.PropertySpec;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
-import com.energyict.mdc.cim.webservices.outbound.soap.impl.DeviceSchedulesInfo;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationInstaller;
 import com.energyict.mdc.cim.webservices.outbound.soap.impl.TranslationKeys;
-import com.energyict.mdc.common.device.config.ComTaskEnablement;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.ActiveEffectiveCalendar;
 import com.energyict.mdc.common.device.data.Batch;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.scheduling.ComSchedule;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
@@ -78,6 +78,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
@@ -208,22 +209,16 @@ public class MeterConfigFactoryImpl implements MeterConfigFactory {
     }
 
     private SharedCommunicationSchedules createSharedCommunicationSchedules(Device device) {
-        DeviceConfiguration deviceConfiguration = device.getDeviceConfiguration();
-        List<ComTaskExecution> comTaskExecutions = device.getComTaskExecutions().stream()
-                .filter(comTaskExecution -> !comTaskExecution.getComTask().isSystemComTask())
-                .collect(Collectors.toList());
-        List<ComTaskEnablement> comTaskEnablements = deviceConfiguration.getComTaskEnablements().stream()
-                .filter(comTaskEnablement -> !comTaskEnablement.getComTask().isSystemComTask())
-                .collect(Collectors.toList());
-        List<DeviceSchedulesInfo> deviceSchedulesInfos = DeviceSchedulesInfo.from(comTaskExecutions, comTaskEnablements, device);
-        Set<String> set = new HashSet<>();
-        List<DeviceSchedulesInfo> distinctSchedules = deviceSchedulesInfos.stream()
-                .filter(data -> (data.name != null && set.add(data.name)))
-                .collect(Collectors.toList());
+        TreeSet<String> scheduleNames = new TreeSet<>();
+        device.getComTaskExecutions().stream()
+                .map(comTaskExecution -> comTaskExecution.getComSchedule())
+                .flatMap(Functions.asStream())
+                .map(ComSchedule::getName)
+                .forEach(scheduleNames::add);
         SharedCommunicationSchedules sharedCommunicationSchedules = new SharedCommunicationSchedules();
-        for (DeviceSchedulesInfo deviceScheduleInfo : distinctSchedules) {
+        for (String scheduleName : scheduleNames) {
             SharedCommunicationSchedule schedule = new SharedCommunicationSchedule();
-            schedule.setName(deviceScheduleInfo.name);
+            schedule.setName(scheduleName);
             sharedCommunicationSchedules.getSharedCommunicationSchedule().add(schedule);
         }
         return sharedCommunicationSchedules;

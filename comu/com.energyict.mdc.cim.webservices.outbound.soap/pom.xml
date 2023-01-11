@@ -137,11 +137,6 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>export</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.scheduling.rest</artifactId>
-        </dependency>
-
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>

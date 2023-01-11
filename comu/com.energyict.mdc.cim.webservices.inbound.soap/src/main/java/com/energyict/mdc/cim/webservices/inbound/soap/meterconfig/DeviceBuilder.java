@@ -41,9 +41,11 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -96,29 +98,25 @@ public class DeviceBuilder {
             deviceBuilder.withZones(mapZones);
             Device device = deviceBuilder.create();
             setConnectionAttributes(device, meter.getConnectionAttributes());
-            List<String> scheduleNames = extractSharedCommunicationSchedules(meter);
+            Set<String> scheduleNames = extractSharedCommunicationSchedules(meter);
             List<ComSchedule> comSchedules = new ArrayList<>();
-            if (scheduleNames.size() > 0) {
-                for (String scheduleName : scheduleNames) {
-                    Optional<ComSchedule> optionalComSchedule = schedulingService.findScheduleByName(scheduleName);
-                    if (optionalComSchedule.isPresent()) {
-                        comSchedules.add(optionalComSchedule.get());
-                    } else {
-                        throw getFaultMessage(meter.getDeviceName(), MessageSeeds.SCHEDULE_FOR_METER_NOT_FOUND, scheduleName).get();
-                    }
+            for (String scheduleName : scheduleNames) {
+                Optional<ComSchedule> optionalComSchedule = schedulingService.findScheduleByName(scheduleName);
+                if (optionalComSchedule.isPresent()) {
+                    comSchedules.add(optionalComSchedule.get());
+                } else {
+                    throw getFaultMessage(meter.getDeviceName(), MessageSeeds.SCHEDULE_FOR_METER_NOT_FOUND, scheduleName).get();
                 }
             }
-            if (comSchedules != null && comSchedules.size() > 0) {
-                for (ComSchedule comSchedule : comSchedules) {
-                    device.newScheduledComTaskExecution(comSchedule).add();
-                }
+            for (ComSchedule comSchedule : comSchedules) {
+                device.newScheduledComTaskExecution(comSchedule).add();
             }
             return device;
         };
     }
 
-    private List<String> extractSharedCommunicationSchedules(MeterInfo meter) {
-        List<String> result = new ArrayList<>();
+    private Set<String> extractSharedCommunicationSchedules(MeterInfo meter) {
+        Set<String> result = new HashSet<>();
         for (SharedCommunicationSchedule schedule : meter.getSharedCommunicationSchedules()) {
             result.add(schedule.getName());
         }
@@ -139,7 +137,6 @@ public class DeviceBuilder {
         Optional<Instant> multiplierEffectiveDate = Optional.ofNullable(meter.getMultiplierEffectiveDate());
         Optional<Instant> shipmentDate = Optional.ofNullable(meter.getShipmentDate());
         String newDeviceConfigurationName = meter.getDeviceConfigurationName();
-
         return () -> {
             Device changedDevice;
             if (mrid.isPresent()) {
