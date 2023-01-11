@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.fsm.impl;
@@ -49,9 +50,9 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (15:29)
  */
-@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
-@AtLeastOneState(groups = { Save.Create.class, Save.Update.class })
-@ExactlyOneInitialState(groups = { Save.Create.class, Save.Update.class })
+@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}", groups = {Save.Create.class, Save.Update.class})
+@AtLeastOneState(groups = {Save.Create.class, Save.Update.class})
+@ExactlyOneInitialState(groups = {Save.Create.class, Save.Update.class})
 public final class FiniteStateMachineImpl implements FiniteStateMachine {
     private static final Logger LOGGER = Logger.getLogger(FiniteStateMachineImpl.class.getName());
     public enum Fields {
@@ -63,6 +64,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
 
 
         private final String javaFieldName;
+
         Fields(String javaFieldName) {
             this.javaFieldName = javaFieldName;
         }
@@ -200,8 +202,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         Optional<StateImpl> state = this.findInternalState(name);
         if (state.isPresent()) {
             return Optional.of(state.get());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -261,8 +262,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
                 .findFirst();
         if (stateTransition.isPresent()) {
             this.transitions.remove(stateTransition.get());
-        }
-        else {
+        } else {
             throw new UnsupportedStateTransitionException(this.thesaurus, this, state, eventType);
         }
     }
