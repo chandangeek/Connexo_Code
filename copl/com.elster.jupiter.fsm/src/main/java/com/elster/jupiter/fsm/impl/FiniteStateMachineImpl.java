@@ -11,7 +11,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StageSet;
@@ -40,7 +39,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -54,7 +52,6 @@ import java.util.stream.Stream;
 @AtLeastOneState(groups = {Save.Create.class, Save.Update.class})
 @ExactlyOneInitialState(groups = {Save.Create.class, Save.Update.class})
 public final class FiniteStateMachineImpl implements FiniteStateMachine {
-    private static final Logger LOGGER = Logger.getLogger(FiniteStateMachineImpl.class.getName());
     public enum Fields {
         NAME("name"),
         OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
