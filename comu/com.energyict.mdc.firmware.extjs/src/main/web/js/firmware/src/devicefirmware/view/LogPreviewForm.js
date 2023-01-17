@@ -31,7 +31,7 @@ Ext.define('Fwc.devicefirmware.view.LogPreviewForm', {
                 name: 'details'
             },
             {
-                fieldLabel:  Uni.I18n.translate('deviceFirmware.log.level', 'FWC', 'Log level'),
+                fieldLabel: Uni.I18n.translate('deviceFirmware.log.level', 'FWC', 'Log level'),
                 name: 'logLevel'
             }
         ];

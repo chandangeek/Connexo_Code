@@ -50,10 +50,10 @@ public class FirmwareManagementOptionsResource {
 
     @GET
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.VIEW_DEVICE_TYPE, DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareManagementOptionsInfo getFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId) {
-        DeviceType deviceType =  findDeviceTypeOrElseThrowException(deviceTypeId);
+        DeviceType deviceType = findDeviceTypeOrElseThrowException(deviceTypeId);
         return getFirmwareManagementOptions(deviceType);
     }
 
@@ -74,15 +74,16 @@ public class FirmwareManagementOptionsResource {
         firmwareManagementOptionsInfo.isAllowed = !allowedMgtOptions.isEmpty();
         firmwareManagementOptionsInfo.version = firmwareMgtOptions.map(FirmwareManagementOptions::getVersion).orElse(0L);
         deviceType.getDeviceProtocolPluggableClass()
-                .ifPresent(deviceProtocolPluggableClass -> firmwareManagementOptionsInfo.validateFirmwareFileSignature = deviceProtocolPluggableClass.getDeviceProtocol().firmwareSignatureCheckSupported());
+                .ifPresent(deviceProtocolPluggableClass -> firmwareManagementOptionsInfo.validateFirmwareFileSignature = deviceProtocolPluggableClass.getDeviceProtocol()
+                        .firmwareSignatureCheckSupported());
 
         return firmwareManagementOptionsInfo;
     }
 
     @PUT
     @Transactional
-    @Consumes(MediaType.APPLICATION_JSON+"; charset=UTF-8")
-    @Produces(MediaType.APPLICATION_JSON+"; charset=UTF-8")
+    @Consumes(MediaType.APPLICATION_JSON + "; charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + "; charset=UTF-8")
     @RolesAllowed({DeviceConfigConstants.ADMINISTRATE_DEVICE_TYPE})
     public FirmwareManagementOptionsInfo editFirmwareManagementOptions(@PathParam("deviceTypeId") long deviceTypeId, FirmwareManagementOptionsInfo info) {
         DeviceType deviceType = findDeviceTypeOrElseThrowException(deviceTypeId);

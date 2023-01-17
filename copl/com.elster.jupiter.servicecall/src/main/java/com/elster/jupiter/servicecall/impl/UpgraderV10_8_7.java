@@ -24,8 +24,8 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICECALLS_RAW_QUEUE_TABLE;
-import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME;
-import static com.elster.jupiter.servicecall.impl.ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME;
+import static com.elster.jupiter.servicecall.ServiceCallService.SERVICE_CALLS_DESTINATION_NAME;
+import static com.elster.jupiter.servicecall.ServiceCallService.SERVICE_CALLS_SUBSCRIBER_NAME;
 
 public class UpgraderV10_8_7 implements Upgrader {
 

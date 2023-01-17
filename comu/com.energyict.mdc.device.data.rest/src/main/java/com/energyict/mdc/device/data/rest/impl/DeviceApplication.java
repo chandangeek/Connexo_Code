@@ -47,6 +47,7 @@ import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.rest.AliasSearchFilterFactory;
 import com.elster.jupiter.pki.rest.SecurityAccessorResourceHelper;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ConstraintViolationInfo;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.RestQueryService;
@@ -800,7 +801,7 @@ public class DeviceApplication extends Application implements TranslationKeyProv
             bind(CustomPropertySetInfoFactory.class).to(CustomPropertySetInfoFactory.class);
             bind(DataLoggerInfoFactory.class).to(DataLoggerInfoFactory.class);
             bind(MultiElementInfoFactory.class).to(MultiElementInfoFactory.class);
-
+            bind(ConcurrentModificationExceptionFactory.class).to(ConcurrentModificationExceptionFactory.class);
         }
     }
 }

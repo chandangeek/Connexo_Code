@@ -46,8 +46,8 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     protected void goOffline() {
         setDeviceId((int) this.securityAccessor.getDevice().getId());
         setDeviceMRID(this.securityAccessor.getDevice().getmRID());
-        setSecurityAccessorType(this.securityAccessor.getKeyAccessorTypeReference());
-        setActualValue(this.securityAccessor.getActualPassphraseWrapperReference());
+        setSecurityAccessorType(this.securityAccessor.getSecurityAccessorType());
+        setActualValue(this.securityAccessor.getActualValue());
         setTempValue(this.securityAccessor.getTempValue());
         //set wrapping key info
         Optional<SecurityAccessorType> wrappingKeyAssignedToAccessor = getWrappingKeyAssignedToAccessor();
@@ -145,7 +145,7 @@ public class OfflineKeyAccessorImpl<T extends SecurityValueWrapper> implements O
     private Optional<T> getWrappingKeyActualValue(Optional<SecurityAccessorType> wrappingKey) {
         if (wrappingKey.isPresent()) {
             Optional<SecurityAccessor> securityAccessorByName = device.getSecurityAccessorByName(wrappingKey.get().getName());
-            return securityAccessorByName.isPresent() ? securityAccessorByName.get().getActualPassphraseWrapperReference() : Optional.empty();
+            return securityAccessorByName.isPresent() ? securityAccessorByName.get().getActualValue() : Optional.empty();
         }
         return Optional.empty();
     }

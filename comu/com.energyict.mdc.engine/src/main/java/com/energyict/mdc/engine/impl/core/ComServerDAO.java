@@ -691,6 +691,8 @@ public interface ComServerDAO extends com.energyict.mdc.upl.InboundDAO, ServerPr
      */
     void signalEvent(String topic, Object source);
 
+    void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation);
+
     /**
      * Updates the new DeviceStatus and protocolInformation
      * of the DeviceMessage DeviceMessage

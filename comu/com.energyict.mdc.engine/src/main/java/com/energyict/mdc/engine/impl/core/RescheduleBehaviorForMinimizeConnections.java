@@ -53,14 +53,13 @@ class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavio
                         getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         break;
                     case NOT_EXECUTED: // intentional fallthrough
-                    case FAILED: {
+                    case FAILED:
                         if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
                             notExecutedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
                         } else {
                             failedComTasks.add(comTaskExecutionComCommand.getComTaskExecution());
                         }
-                    }
-                    break;
+                        break;
                 }
             }
         }
@@ -93,14 +92,13 @@ class RescheduleBehaviorForMinimizeConnections extends AbstractRescheduleBehavio
                         getComServerDAO().executionCompleted(comTaskExecutionComCommand.getComTaskExecution());
                         break;
                     case NOT_EXECUTED: // intentional fallthrough
-                    case FAILED: {
+                    case FAILED:
                         if (comTaskExecutionComCommand.getCompletionCode().equals(CompletionCode.NotExecuted)) {
                             getComServerDAO().executionRescheduled(comTaskExecutionComCommand.getComTaskExecution(), nextConnectionRetryDate);
                         } else {
                             getComServerDAO().executionFailed(comTaskExecutionComCommand.getComTaskExecution());
                         }
-                    }
-                    break;
+                        break;
                 }
             }
         }

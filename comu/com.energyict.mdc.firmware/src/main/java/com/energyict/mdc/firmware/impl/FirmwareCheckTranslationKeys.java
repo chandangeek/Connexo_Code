@@ -13,8 +13,8 @@ public enum FirmwareCheckTranslationKeys implements TranslationKey {
     NO_GHOST_FIRMWARE("NoGhostFirmware", "No ghost firmware"),
     MATCHING_TARGET_FIRMWARE_STATUS("MatchingTargetFirmwareStatues", "Target firmware status");
 
-    private String key;
-    private String name;
+    private final String key;
+    private final String name;
 
     FirmwareCheckTranslationKeys(String key, String name) {
         this.key = key;

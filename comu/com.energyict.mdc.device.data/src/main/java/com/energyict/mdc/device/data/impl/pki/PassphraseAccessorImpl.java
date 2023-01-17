@@ -45,7 +45,7 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
 
     @Override
     @XmlElement(type = PlaintextPassphraseImpl.class)
-    public Optional<PassphraseWrapper> getActualPassphraseWrapperReference() {
+    public Optional<PassphraseWrapper> getActualValue() {
         if (actualPassphraseWrapperReference==null) {
             return Optional.empty();
         }
@@ -53,12 +53,12 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
     }
 
     @Override
-    public void setActualPassphraseWrapperReference(PassphraseWrapper newWrapperValue) {
+    public void setActualValue(PassphraseWrapper newValueWrapper) {
         if (dataModel != null) {
-            actualPassphraseWrapperReference = dataModel.asRefAny(newWrapperValue);
+            actualPassphraseWrapperReference = dataModel.asRefAny(newValueWrapper);
         } else {
             actualPassphraseWrapperReference = new RefAnyImpl(null, null);
-            ((RefAnyImpl) actualPassphraseWrapperReference).setOptional(Optional.ofNullable(newWrapperValue));
+            ((RefAnyImpl) actualPassphraseWrapperReference).setOptional(Optional.ofNullable(newValueWrapper));
         }
     }
 
@@ -84,7 +84,7 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
     }
 
     private void doRenewValue() {
-        PassphraseWrapper passphraseWrapper = securityManagementService.newPassphraseWrapper(getKeyAccessorTypeReference());
+        PassphraseWrapper passphraseWrapper = securityManagementService.newPassphraseWrapper(getSecurityAccessorType());
         passphraseWrapper.generateValue();
         tempPassphraseWrapperReference = dataModel.asRefAny(passphraseWrapper);
         this.save();
@@ -103,7 +103,7 @@ public class PassphraseAccessorImpl extends AbstractDeviceSecurityAccessorImpl<P
 
     @Override
     public void clearActualValue() {
-        if (getActualPassphraseWrapperReference().isPresent()) {
+        if (getActualValue().isPresent()) {
             PassphraseWrapper passphraseWrapper = (PassphraseWrapper) this.actualPassphraseWrapperReference.get();
             this.actualPassphraseWrapperReference = null;
             passphraseWrapper.delete();

@@ -4,7 +4,6 @@
 
 package com.elster.jupiter.devtools.rest;
 
-import aQute.lib.strings.Strings;
 import com.elster.jupiter.nls.MessageSeedProvider;
 import com.elster.jupiter.nls.NlsService;
 import com.elster.jupiter.nls.Thesaurus;
@@ -36,10 +35,6 @@ import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTest;
 import org.glassfish.jersey.test.TestProperties;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.MessageInterpolator;
@@ -48,10 +43,16 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Produces;
+import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+
+import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import static java.util.stream.Collectors.toList;
 import static junit.framework.Assert.fail;
@@ -106,7 +107,7 @@ import static org.mockito.Mockito.when;
  </pre>
  */
 public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
-
+    public static final String USER_NAME = "FelixRestApplicationJerseyTest";
     @Mock
     public TransactionService transactionService;
     @Mock
@@ -117,6 +118,8 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
     public TransactionContext transactionContext;
     @Mock
     public HttpServletRequest httpServletRequest;
+    @Mock
+    public SecurityContext securityContext;
 
     public void setupMocks() {
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
@@ -133,7 +136,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie("X-SESSIONID", "SessionIdForCSRFToken");
         javax.servlet.http.Cookie cookies[] =new javax.servlet.http.Cookie[]{cookie};
         when(httpServletRequest.getCookies()).thenReturn(cookies);
-
+        when(securityContext.getUserPrincipal()).thenReturn(() -> USER_NAME);
     }
 
     protected String getTranslationByKey(String translationKey, String defaultMessage) {
@@ -178,6 +181,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         resourceConfig.register(RestValidationExceptionMapper.class);
         resourceConfig.register(ConcurrentModificationExceptionMapper.class);
         resourceConfig.register(TransactionWrapper.class);
+        resourceConfig.register((ContainerRequestFilter) containerRequestContext -> containerRequestContext.setSecurityContext(securityContext));
         resourceConfig.register(new AbstractBinder() {
 
             public Factory<ConstraintViolationInfo> getConstraintViolationInfo() {
@@ -224,7 +228,7 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         super.configureClient(config);
     }
 
-/*    @Test
+    @Test
     public void checkRestMethodsHaveProducesAnnotation() {
         List<String> errors = getApplication()
                 .getClasses().stream() // also contains non-resources, but that doesn't matter
@@ -238,5 +242,5 @@ public abstract class FelixRestApplicationJerseyTest extends JerseyTest {
         if (!errors.isEmpty()) {
             fail("@Produces is missing on " + Strings.join(", ", errors));
         }
-    }*/
+    }
 }

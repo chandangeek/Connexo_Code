@@ -51,7 +51,8 @@ public class CollectedLoadProfileDeviceCommand extends DeviceCommandImpl<Collect
                     CompletionCode.ConfigurationWarning,
                     this.getIssueService().newWarning(
                             this,
-                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE));
+                            MessageSeeds.UNKNOWN_DEVICE_LOAD_PROFILE,
+                            collectedLoadProfile.getLoadProfileIdentifier().getLoadProfileObisCode()));
         }
     }
 

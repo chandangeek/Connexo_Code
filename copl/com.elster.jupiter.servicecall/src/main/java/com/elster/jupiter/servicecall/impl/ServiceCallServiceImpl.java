@@ -27,7 +27,6 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.MissingHandlerNameException;
 import com.elster.jupiter.servicecall.ServiceCall;
-import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.servicecall.ServiceCallLifeCycle;
@@ -41,11 +40,13 @@ import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.upgrade.V10_8_1SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Checks;
+import com.elster.jupiter.util.concurrent.LockUtils;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Hint;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.elster.jupiter.util.json.JsonService;
 import com.elster.jupiter.util.sql.SqlBuilder;
+import com.elster.jupiter.util.streams.Functions;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Range;
@@ -68,7 +69,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,9 +90,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
         immediate = true)
 public final class ServiceCallServiceImpl implements IServiceCallService, MessageSeedProvider, TranslationKeyProvider {
 
-    final static String SERVICECALLS_RAW_QUEUE_TABLE = "SERVICECALLS_RAWQUEUETAB";
-    final static String SERVICE_CALLS_SUBSCRIBER_NAME = "ServiceCalls";
-    public final static String SERVICE_CALLS_DESTINATION_NAME = "ServiceCalls";
+    static final String SERVICECALLS_RAW_QUEUE_TABLE = "SERVICECALLS_RAWQUEUETAB";
 
     private volatile FiniteStateMachineService finiteStateMachineService;
     private volatile DataModel dataModel;
@@ -105,7 +104,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     private volatile UpgradeService upgradeService;
     private volatile SqlDialect sqlDialect = SqlDialect.ORACLE_SE;
     private volatile Clock clock;
-    private volatile Map<Long, ServiceCallCancellationHandler> serviceCallCancellationHandlers = new ConcurrentHashMap<>();
 
     // OSGi
     public ServiceCallServiceImpl() {
@@ -188,22 +186,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         handlerMap.put(name, serviceCallHandler);
     }
 
-    @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
-    @Override
-    public void addServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler) {
-        serviceCallCancellationHandler.getTypes().forEach(type -> serviceCallCancellationHandlers.put(type.getId(), serviceCallCancellationHandler));
-    }
-
-    @Override
-    public void removeServiceCallCancellationHandler(ServiceCallCancellationHandler serviceCallCancellationHandler) {
-        serviceCallCancellationHandler.getTypes().forEach(type -> serviceCallCancellationHandlers.remove(type.getId()));
-    }
-
-    @Override
-    public Optional<ServiceCallCancellationHandler> getServiceCallCancellationHandler(ServiceCallType serviceCallType) {
-        return Optional.ofNullable(serviceCallCancellationHandlers.get(serviceCallType.getId()));
-    }
-
     @Reference
     public void setClock(Clock clock) {
         this.clock = clock;
@@ -228,10 +210,10 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Stream.of(TranslationKeys.values()),
-                Stream.of(DefaultState.values()),
-                Stream.of(LogLevel.values()),
-                Stream.of(Privileges.values()))
+                        Stream.of(TranslationKeys.values()),
+                        Stream.of(DefaultState.values()),
+                        Stream.of(LogLevel.values()),
+                        Stream.of(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -364,6 +346,11 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
     }
 
     @Override
+    public Optional<ServiceCall> lockServiceCall(long id, long version) {
+        return dataModel.mapper(ServiceCall.class).lockObjectIfVersion(version, id);
+    }
+
+    @Override
     public Finder<ServiceCall> getServiceCallFinder(ServiceCallFilter filter) {
         return DefaultFinder.of(ServiceCall.class, createConditionFromFilter(filter), dataModel, ServiceCallType.class, State.class)
                 .withHint(new Hint(Hint.HintType.LEADING, TableSpecs.SCS_SERVICE_CALL_TYPE.name()))
@@ -425,7 +412,6 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
         ServiceCallFilter filter = new ServiceCallFilter();
         filter.targetObjects.add(targetObject);
         filter.states = inState.stream().map(Enum::name).collect(Collectors.toList());
-
         return getServiceCallFinder(filter)
                 .stream()
                 .collect(Collectors.toSet());
@@ -433,28 +419,18 @@ public final class ServiceCallServiceImpl implements IServiceCallService, Messag
 
     @Override
     public void cancelServiceCallsFor(Object target) {
-        EnumSet<DefaultState> states = EnumSet.allOf(DefaultState.class);
-        states.remove(DefaultState.CREATED);
-        states.remove(DefaultState.CANCELLED);
-        states.remove(DefaultState.FAILED);
-        states.remove(DefaultState.SUCCESSFUL);
-        states.remove(DefaultState.PARTIAL_SUCCESS);
-        states.remove(DefaultState.REJECTED);
-        findServiceCalls(target, states)
-                .stream()
+        findServiceCalls(target, DefaultState.openStates()).stream()
+                .sorted(Comparator.comparingLong(ServiceCall::getId))
+                .map(serviceCall -> LockUtils.lockWithDoubleCheck(serviceCall,
+                        this::lockServiceCall,
+                        sc -> sc.canTransitionTo(DefaultState.CANCELLED)))
+                .flatMap(Functions.asStream())
                 .forEach(ServiceCall::cancel);
     }
 
     @Override
     public Set<DefaultState> nonFinalStates() {
-        return EnumSet.of(
-                DefaultState.CREATED,
-                DefaultState.ONGOING,
-                DefaultState.PAUSED,
-                DefaultState.PENDING,
-                DefaultState.SCHEDULED,
-                DefaultState.WAITING
-        );
+        return DefaultState.openStates();
     }
 
     private Condition createConditionFromFilter(ServiceCallFilter filter) {

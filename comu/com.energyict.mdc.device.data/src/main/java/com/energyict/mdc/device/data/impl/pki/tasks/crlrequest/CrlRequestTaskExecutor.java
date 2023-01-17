@@ -7,11 +7,9 @@ package com.energyict.mdc.device.data.impl.pki.tasks.crlrequest;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.pki.CaService;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
-import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.tasks.TaskExecutor;
@@ -151,11 +149,11 @@ class CrlRequestTaskExecutor implements TaskExecutor {
     private void processCertificates(Set<BigInteger> revokedSerialNumbers) {
         // TODO: implement search by SN for performance purpose?
         Stream.concat(
-                securityManagementService.findAllCertificates().find().stream(),
-                securityManagementService.getAllTrustStores().stream()
-                        .map(TrustStore::getCertificates)
-                        .flatMap(List::stream)
-        )
+                        securityManagementService.findAllCertificates().find().stream(),
+                        securityManagementService.getAllTrustStores().stream()
+                                .map(TrustStore::getCertificates)
+                                .flatMap(List::stream)
+                )
                 .filter(certificateWrapper -> certificateWrapper.getCertificate()
                         .map(X509Certificate::getSerialNumber)
                         .filter(revokedSerialNumbers::contains)
@@ -165,23 +163,22 @@ class CrlRequestTaskExecutor implements TaskExecutor {
     }
 
     private void revoke(CertificateWrapper certificateWrapper) {
-            if (securityManagementService.isUsedByCertificateAccessors(certificateWrapper)) {
-                log(MessageSeeds.CERTIFICATE_USED_BY_SECURITY_ACCESSOR, certificateWrapper.getAlias());
-            } else if (isCertificateUsedByUserDirectory(certificateWrapper)) {
-                log(MessageSeeds.CERTIFICATE_USED_BY_USER_DIRECTORY, certificateWrapper.getAlias());
-            } else if (deviceService.usedByKeyAccessor(certificateWrapper)) {
-                log(MessageSeeds.CERTIFICATE_USED_BY_DEVICE, certificateWrapper.getAlias());
-            } else {
-                certificateWrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
-                certificateWrapper.save();
-                log(MessageSeeds.CERTIFICATE_REVOKED_SUCCESSFULLY, certificateWrapper.getAlias());
-            }
+        if (securityManagementService.isUsedByCertificateAccessors(certificateWrapper)) {
+            log(MessageSeeds.CERTIFICATE_USED_BY_SECURITY_ACCESSOR, certificateWrapper.getAlias());
+        } else if (isCertificateUsedByUserDirectory(certificateWrapper)) {
+            log(MessageSeeds.CERTIFICATE_USED_BY_USER_DIRECTORY, certificateWrapper.getAlias());
+        } else if (deviceService.usedByKeyAccessor(certificateWrapper)) {
+            log(MessageSeeds.CERTIFICATE_USED_BY_DEVICE, certificateWrapper.getAlias());
+        } else {
+            certificateWrapper.setWrapperStatus(CertificateWrapperStatus.REVOKED);
+            certificateWrapper.save();
+            log(MessageSeeds.CERTIFICATE_REVOKED_SUCCESSFULLY, certificateWrapper.getAlias());
+        }
     }
 
-    private boolean isCertificateUsedByUserDirectory(CertificateWrapper certificateWrapper){
-        try(QueryStream<DirectoryCertificateUsage> queryStream = securityManagementService.streamDirectoryCertificateUsages()){
-            return queryStream.anyMatch(Where.where("certificate").isEqualTo(certificateWrapper));
-        }
+    private boolean isCertificateUsedByUserDirectory(CertificateWrapper certificateWrapper) {
+        return securityManagementService.streamDirectoryCertificateUsages()
+                .anyMatch(Where.where("certificate").isEqualTo(certificateWrapper));
     }
 
     private void log(MessageSeeds messageSeed, Object... args) {

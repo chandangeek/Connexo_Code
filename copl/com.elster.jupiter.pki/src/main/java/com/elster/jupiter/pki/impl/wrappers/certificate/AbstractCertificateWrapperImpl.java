@@ -10,14 +10,12 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.pki.CertificateFormatter;
 import com.elster.jupiter.pki.CertificateRequestData;
 import com.elster.jupiter.pki.CertificateStatus;
 import com.elster.jupiter.pki.CertificateWrapper;
 import com.elster.jupiter.pki.CertificateWrapperStatus;
-import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.ExtendedKeyUsage;
 import com.elster.jupiter.pki.KeyUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
@@ -331,12 +329,9 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         if (securityManagementService.isUsedByCertificateAccessors(this)) {
             throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_ON_SECURITY_ACCESSOR);
         }
-        try(QueryStream<DirectoryCertificateUsage> queryStream = securityManagementService.streamDirectoryCertificateUsages()) {
-            if ( queryStream.filter(Where.where("certificate").isEqualTo(this))
-                    .findAny()
-                    .isPresent()) {
-                throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY);
-            }
+        if (securityManagementService.streamDirectoryCertificateUsages()
+                .anyMatch(Where.where("certificate").isEqualTo(this))) {
+            throw new VetoDeleteCertificateException(thesaurus, MessageSeeds.CERTIFICATE_USED_BY_DIRECTORY);
         }
 
         this.eventService.postEvent(EventType.CERTIFICATE_VALIDATE_DELETE.topic(), this);
@@ -381,7 +376,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             void copyToMap(Map<String, Object> properties, AbstractCertificateWrapperImpl certificateWrapper) {
                 properties.put(getPropertyName(), certificateWrapper.getAlias());
             }
-        },;
+        };
 
         private final String propertyName;
 
@@ -430,10 +425,10 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
             LdapName ldapName = new LdapName(getSubject());
             for (Rdn rdn : ldapName.getRdns()) {
                 if (rdn.getType().equalsIgnoreCase("CN")) {
-                    return Optional.of( rdn.getValue().toString() );
+                    return Optional.of(rdn.getValue().toString());
                 }
             }
-        } catch (Exception ex){
+        } catch (Exception ex) {
             //swallow
         }
         return Optional.empty();
@@ -481,15 +476,15 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
 
-    public Optional<CertificateRequestData> getCertificateRequestData(){
+    public Optional<CertificateRequestData> getCertificateRequestData() {
         // testing only caName present while others should be in same status
-        if (!Objects.isNull(this.caName) &&  !this.caName.isEmpty()) {
+        if (!Objects.isNull(this.caName) && !this.caName.isEmpty()) {
             return Optional.of(new CertificateRequestData(this.caName, this.caEndEntityName, this.caProfileName, this.subjectDnFields));
         }
         return Optional.empty();
     }
 
-    public void setCertificateRequestData(Optional<CertificateRequestData> certificateRequestData){
+    public void setCertificateRequestData(Optional<CertificateRequestData> certificateRequestData) {
         if (certificateRequestData.isPresent()) {
             this.caName = certificateRequestData.get().getCaName();
             this.caEndEntityName = certificateRequestData.get().getEndEntityName();
@@ -504,7 +499,7 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
     }
 
     @Override
-    public CertificateWrapper getParent(){
+    public CertificateWrapper getParent() {
 
         if (!this.subject.isEmpty() && this.subject.equals(this.issuer)) {
             // this is root certificate
@@ -514,12 +509,12 @@ public abstract class AbstractCertificateWrapperImpl implements CertificateWrapp
         Condition matchingParentCondition = Operator.EQUAL.compare(Fields.SUBJECT.fieldName, this.issuer);
         List<CertificateWrapper> parentCertificates = dataModel.query(CertificateWrapper.class).select(matchingParentCondition);
         List<CertificateWrapper> validCertificates = new ArrayList<>();
-        for (CertificateWrapper cert: parentCertificates) {
+        for (CertificateWrapper cert : parentCertificates) {
             if (cert.getCertificate().isPresent()) {
                 try {
                     cert.getCertificate().get().checkValidity();
                     validCertificates.add(cert);
-                } catch (CertificateExpiredException|CertificateNotYetValidException e) {
+                } catch (CertificateExpiredException | CertificateNotYetValidException e) {
                     // nothing to do, will just ignore invalid certificates
                 }
             }

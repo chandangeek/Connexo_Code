@@ -48,7 +48,7 @@ public class GeneralProtocolPropertiesAreValid extends ConsolidatedServerMicroCh
                 .filter(prop -> prop.getValue() instanceof SecurityAccessorType)
                 .map(prop -> (SecurityAccessorType) prop.getValue())
                 .map(device::getSecurityAccessor)
-                .anyMatch(ka->!ka.isPresent() || !ka.get().getActualPassphraseWrapperReference().isPresent());
+                .anyMatch(ka->!ka.isPresent() || !ka.get().getActualValue().isPresent());
     }
 
     private Set<String> requiredGeneralProtocolPropertyNames(Device device) {

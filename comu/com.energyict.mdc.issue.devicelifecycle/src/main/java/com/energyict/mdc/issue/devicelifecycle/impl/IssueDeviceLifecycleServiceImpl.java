@@ -65,6 +65,7 @@ import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -351,6 +352,11 @@ public class IssueDeviceLifecycleServiceImpl implements IssueDeviceLifecycleServ
             condition = condition.and(where(IssueDeviceLifecycleImpl.Fields.BASEISSUE.fieldName() + ".status").in(filter.getStatuses()));
         }
         return condition;
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(IssueDeviceLifecycleService.ISSUE_TYPE_NAME);
     }
 
     public Thesaurus thesaurus() {

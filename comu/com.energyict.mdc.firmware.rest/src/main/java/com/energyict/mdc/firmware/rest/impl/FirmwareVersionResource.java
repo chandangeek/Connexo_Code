@@ -272,7 +272,7 @@ public class FirmwareVersionResource {
             FirmwareVersion firmwareVersion = resourceHelper.lockFirmwareVersionOrThrowException(info);
             firmwareVersion.delete();
             return Response.noContent().build();
-        };
+        }
         return Response.status(Response.Status.BAD_REQUEST).build();
     }
 

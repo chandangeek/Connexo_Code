@@ -5,7 +5,6 @@ import com.energyict.mdc.common.device.data.Device;
 import javax.ws.rs.core.Response;
 import java.util.Optional;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.mockito.Mockito.mock;
@@ -14,10 +13,8 @@ import static org.mockito.Mockito.when;
 /**
  * Created by sla on 21/03/2017.
  */
-@Ignore
 public class KeyRenewalResourceTest extends KeyRenewalApplicationTest {
 
-    @Ignore
     @Test
     public void testGetDeviceRenew() throws Exception {
         Device device = mock(Device.class);

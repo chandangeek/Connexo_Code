@@ -29,7 +29,7 @@ public class CheckSecuritySetsTest {
 
     @Test(expected = CommandErrorException.class)
     public void notAttachedToDevice() throws CommandErrorException, CommandAbortException {
-        Mockito.when(secAcc.getKeyAccessorTypeReference()).thenReturn(keyAccType);
+        Mockito.when(secAcc.getSecurityAccessorType()).thenReturn(keyAccType);
         long keyAccTypeId = 1L;
         Mockito.when(keyAccType.getId()).thenReturn(keyAccTypeId);
         new CheckSecuritySets(logger).run(secAcc);
@@ -41,12 +41,12 @@ public class CheckSecuritySetsTest {
     @Test(expected = CommandErrorException.class)
     public void noDeviceConfiguration() throws CommandErrorException, CommandAbortException {
         Mockito.when(secAcc.getDevice()).thenReturn(device);
-        Mockito.when(secAcc.getKeyAccessorTypeReference()).thenReturn(keyAccType);
+        Mockito.when(secAcc.getSecurityAccessorType()).thenReturn(keyAccType);
         long keyAccTypeId = 1L;
         Mockito.when(keyAccType.getId()).thenReturn(keyAccTypeId);
         new CheckSecuritySets(logger).run(secAcc);
         Mockito.verify(secAcc, Mockito.times(1)).getDevice();
-        Mockito.verify(secAcc, Mockito.times(1)).getKeyAccessorTypeReference();
+        Mockito.verify(secAcc, Mockito.times(1)).getSecurityAccessorType();
         Mockito.verify(keyAccType, Mockito.times(1)).getId();
         Mockito.verify(keyAccType, Mockito.times(1)).getName();
         Mockito.verify(device, Mockito.times(1)).getName();
@@ -57,14 +57,14 @@ public class CheckSecuritySetsTest {
     @Test(expected = CommandAbortException.class)
     public void noMatchingPropSet() throws CommandErrorException, CommandAbortException {
         Mockito.when(secAcc.getDevice()).thenReturn(device);
-        Mockito.when(secAcc.getKeyAccessorTypeReference()).thenReturn(keyAccType);
+        Mockito.when(secAcc.getSecurityAccessorType()).thenReturn(keyAccType);
         Mockito.when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Mockito.when(deviceConfiguration.isConfigured(keyAccType)).thenReturn(false);
         long keyAccTypeId = 1L;
         Mockito.when(keyAccType.getId()).thenReturn(keyAccTypeId);
         new CheckSecuritySets(logger).run(secAcc);
         Mockito.verify(secAcc, Mockito.times(1)).getDevice();
-        Mockito.verify(secAcc, Mockito.times(1)).getKeyAccessorTypeReference();
+        Mockito.verify(secAcc, Mockito.times(1)).getSecurityAccessorType();
         Mockito.verify(keyAccType, Mockito.times(1)).getId();
         Mockito.verify(keyAccType, Mockito.times(1)).getName();
         Mockito.verify(device, Mockito.times(1)).getName();
@@ -75,12 +75,12 @@ public class CheckSecuritySetsTest {
     @Test
     public void allOk() throws CommandErrorException, CommandAbortException {
         Mockito.when(secAcc.getDevice()).thenReturn(device);
-        Mockito.when(secAcc.getKeyAccessorTypeReference()).thenReturn(keyAccType);
+        Mockito.when(secAcc.getSecurityAccessorType()).thenReturn(keyAccType);
         Mockito.when(device.getDeviceConfiguration()).thenReturn(deviceConfiguration);
         Mockito.when(deviceConfiguration.isConfigured(keyAccType)).thenReturn(true);
         new CheckSecuritySets(logger).run(secAcc);
         Mockito.verify(secAcc, Mockito.times(1)).getDevice();
-        Mockito.verify(secAcc, Mockito.times(1)).getKeyAccessorTypeReference();
+        Mockito.verify(secAcc, Mockito.times(1)).getSecurityAccessorType();
         Mockito.verify(keyAccType, Mockito.times(1)).getName();
         Mockito.verify(device, Mockito.times(1)).getName();
         Mockito.verify(device, Mockito.times(1)).getDeviceConfiguration();

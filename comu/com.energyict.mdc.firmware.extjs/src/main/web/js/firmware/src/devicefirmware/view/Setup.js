@@ -49,15 +49,15 @@ Ext.define('Fwc.devicefirmware.view.Setup', {
                 {
                     itemId: 'device-firmware-history',
                     title: Uni.I18n.translate('general.history', 'FWC', 'History'),
-                    xtype: 'preview-container',
+                    xtype: 'preview-container',
                     grid: {
-                        xtype: 'device-history-grid',
-                        itemId: 'device-history-grid',
+                        xtype: 'device-history-grid',
+                        itemId: 'device-history-grid',
                         router: me.router
                     },
                     emptyComponent: {
-                        xtype: 'uni-form-empty-message',
-                        itemId: 'no-usage-found',
+                        xtype: 'uni-form-empty-message',
+                        itemId: 'no-usage-found',
                         text: Uni.I18n.translate('relativeperiod.usage.empty', 'FWC', 'No device firmware history')
                     }
                 }

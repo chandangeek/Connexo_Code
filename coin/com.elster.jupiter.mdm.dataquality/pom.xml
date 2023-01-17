@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>mdm.parent</artifactId>
-        <version>18.0.0-Kratos-SNAPSHOT</version>
+        <version>19.0.0-Kratos-SNAPSHOT</version>
     </parent>
 
     <artifactId>mdm.dataquality</artifactId>

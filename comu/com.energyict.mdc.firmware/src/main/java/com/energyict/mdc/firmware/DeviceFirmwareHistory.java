@@ -10,6 +10,7 @@ public interface DeviceFirmwareHistory {
 
     /**
      * The list of {@link DeviceFirmwareVersionHistoryRecord}s for given device
+     *
      * @return the list of {@link ActivatedFirmwareVersion} owned by given device
      */
     List<DeviceFirmwareVersionHistoryRecord> history();
@@ -17,11 +18,10 @@ public interface DeviceFirmwareHistory {
     /**
      * The list of {@link DeviceFirmwareVersionHistoryRecord}s for given
      * firmwareType owned by given device
+     *
      * @param firmwareType the firmware type to match
      * @return the list of {@link ActivatedFirmwareVersion} owned by given device
      */
     List<DeviceFirmwareVersionHistoryRecord> history(FirmwareType firmwareType);
-
-
 
 }

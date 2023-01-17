@@ -76,8 +76,8 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         when(device.getSecurityAccessors()).thenReturn(Arrays.asList(securityAccessor1, securityAccessor2));
         SecurityAccessorType securityAccessorType1 = sps1.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
         SecurityAccessorType securityAccessorType2 = sps2.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
-        when(securityAccessor1.getKeyAccessorTypeReference()).thenReturn(securityAccessorType1);
-        when(securityAccessor2.getKeyAccessorTypeReference()).thenReturn(securityAccessorType2);
+        when(securityAccessor1.getSecurityAccessorType()).thenReturn(securityAccessorType1);
+        when(securityAccessor2.getSecurityAccessorType()).thenReturn(securityAccessorType2);
         List<SecurityAccessorType> securityAccessorTypes = new ArrayList<>();
 
         sps1.getConfigurationSecurityProperties().stream().forEach(property -> securityAccessorTypes.add(property.getSecurityAccessorType()));
@@ -86,7 +86,7 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
         when(device.getDeviceType().getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
         when(device.getSecurityAccessor(Mockito.any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor2));
-        when(securityAccessor2.getActualPassphraseWrapperReference()).thenReturn(Optional.of("ABCD"));
+        when(securityAccessor2.getActualValue()).thenReturn(Optional.of("ABCD"));
         securityAccessor = securityAccessor2;
     }
 
@@ -134,7 +134,7 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
 
     @Test
     public void testValidateKeyAccessorTypeFailure() throws Exception {
-        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.ofNullable(null));
+        when(securityAccessor.getActualValue()).thenReturn(Optional.ofNullable(null));
         Response response = target("/devices/XAS/keyAccessors/AK/validate").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.NO_CONTENT.getStatusCode());
     }
@@ -158,8 +158,8 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         HsmKeyType hsmKeyType = mock(HsmKeyType.class);
         when(securityAccessorType.getHsmKeyType()).thenReturn(hsmKeyType);
         when(hsmKeyType.getLabel()).thenReturn("label");
-        when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
-        when(securityAccessor.getKeyAccessorTypeReference().keyTypeIsHSM()).thenReturn(true);
+        when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getSecurityAccessorType().keyTypeIsHSM()).thenReturn(true);
         HsmKeyImpl mockSecurityValueWrapper = mock(HsmKeyImpl.class);
         when(securityAccessor.getTempValue()).thenReturn(Optional.of(mockSecurityValueWrapper));
         when(device.getSecurityAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
@@ -177,8 +177,8 @@ public class SecurityAccessorTypeResourceTest extends MultisensePublicApiJerseyT
         PropertySpec propertySpec2 = mockStringPropertySpec("label", "asd");
         SecurityAccessor securityAccessor = mockSecurityAccessor("HSM", propertySpec1, propertySpec2);
         SecurityAccessorType securityAccessorType = mockSecuritySecurityAccessorType("HSM");
-        when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
-        when(securityAccessor.getKeyAccessorTypeReference().keyTypeIsHSM()).thenReturn(false);
+        when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
+        when(securityAccessor.getSecurityAccessorType().keyTypeIsHSM()).thenReturn(false);
         when(device.getSecurityAccessor(any(SecurityAccessorType.class))).thenReturn(Optional.of(securityAccessor));
         String val = "ABCDABCDABCDABCDABCDABCDABCDABCF";
         HashMap<String, Object> info = new HashMap<>();

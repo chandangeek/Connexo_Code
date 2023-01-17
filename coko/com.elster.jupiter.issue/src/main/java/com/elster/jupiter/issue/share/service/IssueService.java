@@ -102,6 +102,8 @@ public interface IssueService {
 
     List<IssueProvider> getIssueProviders();
 
+    List<IssueProvider> getIssueProviders(String issueTypeIdentifier);
+
     List<IssueCreationValidator> getIssueCreationValidators();
 
     IssueActionService getIssueActionService();

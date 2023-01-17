@@ -40,10 +40,10 @@ Ext.define('Fwc.view.firmware.FirmwareEdit', {
                 layout: 'fit',
                 itemId: 'firmware-form-edit',
                 items: {
-                    xtype:  (  this.record.getAssociatedData().firmwareStatus
-                            && this.record.getAssociatedData().firmwareStatus.id === 'ghost')
-                    ? 'firmware-form-edit-ghost'
-                    : 'firmware-form-edit',
+                    xtype: (this.record.getAssociatedData().firmwareStatus
+                        && this.record.getAssociatedData().firmwareStatus.id === 'ghost')
+                        ? 'firmware-form-edit-ghost'
+                        : 'firmware-form-edit',
                     autoEl: {
                         tag: 'form',
                         enctype: 'multipart/form-data'

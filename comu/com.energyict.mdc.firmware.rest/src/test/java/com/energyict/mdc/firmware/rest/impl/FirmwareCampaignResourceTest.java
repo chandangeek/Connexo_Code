@@ -106,9 +106,9 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         FirmwareCampaign firmwareCampaign = createCampaignMock();
         when(firmwareCampaignService.getFirmwareCampaignById(firmwareCampaign.getId())).thenReturn(Optional.of(firmwareCampaign));
         DeviceInFirmwareCampaignInfo deviceInCampaignInfo1 = new DeviceInFirmwareCampaignInfo(1, new IdWithNameInfo(1L, "TestDevice1"),
-                new IdWithNameInfo(DefaultState.PENDING,"Pending"), Instant.ofEpochSecond(3600), null);
+                new IdWithNameInfo(DefaultState.PENDING, "Pending"), Instant.ofEpochSecond(3600), null);
         DeviceInFirmwareCampaignInfo deviceInCampaignInfo2 = new DeviceInFirmwareCampaignInfo(1, new IdWithNameInfo(2L, "TestDevice2"),
-                new IdWithNameInfo(DefaultState.PENDING,"Pending"), Instant.ofEpochSecond(3500), null);
+                new IdWithNameInfo(DefaultState.PENDING, "Pending"), Instant.ofEpochSecond(3500), null);
         QueryStream queryStream = FakeBuilder.initBuilderStub(Stream.of(deviceInCampaignInfo1, deviceInCampaignInfo2), QueryStream.class);
         when(firmwareCampaignService.streamDevicesInCampaigns()).thenReturn(queryStream);
         String json = target("campaigns/3/devices").request().get(String.class);
@@ -127,7 +127,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
     }
 
     @Test
-    public void testGetFirmwareVersionsForFirmwareCampaign(){
+    public void testGetFirmwareVersionsForFirmwareCampaign() {
         FirmwareCampaign firmwareCampaign = createCampaignMock();
         List<FirmwareCampaignVersionStateShapshot> firmwareCampaignVersionStateShapshots = new ArrayList<>();
         FirmwareCampaignVersionStateShapshot fcvs = mock(FirmwareCampaignVersionStateShapshot.class);
@@ -143,7 +143,7 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaignService.getFirmwareCampaignById(anyLong())).thenReturn(Optional.ofNullable(firmwareCampaign));
         when(firmwareService.findFirmwareCampaignVersionStateSnapshots(firmwareCampaign)).thenReturn(firmwareCampaignVersionStateShapshots);
 
-        String json = target("campaigns/"+firmwareCampaign.getId()+"/firmwareversions").request().get(String.class);
+        String json = target("campaigns/" + firmwareCampaign.getId() + "/firmwareversions").request().get(String.class);
         JsonModel jsonModel = JsonModel.create(json);
         assertThat(jsonModel.<List<DeviceInFirmwareCampaignInfo>>get("$.firmwareCampaignVersionStateInfos").size() == 1);
         assertThat(jsonModel.<String>get("$.firmwareCampaignVersionStateInfos[0].firmwareVersion")).isEqualTo("fvVersion");
@@ -184,8 +184,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         assertThat(jsonModel.<Number>get("$.timeBoundaryEnd")).isEqualTo(((Number) firmwareCampaign.getUploadPeriodEnd().toEpochMilli()).intValue());
         assertThat(jsonModel.<Number>get("$.deviceType.id")).isEqualTo(((Number) firmwareCampaign.getDeviceType().getId()).intValue());
         assertThat(jsonModel.<String>get("$.deviceType.localizedValue")).isEqualTo(firmwareCampaign.getDeviceType().getName());
-        assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number)firmwareCampaign.getValidationComTaskId()).intValue());
-        assertThat(jsonModel.<Number>get("$.calendarUploadComTask.id")).isEqualTo(((Number)firmwareCampaign.getFirmwareUploadComTaskId()).intValue());
+        assertThat(jsonModel.<Number>get("$.validationComTask.id")).isEqualTo(((Number) firmwareCampaign.getValidationComTaskId()).intValue());
+        assertThat(jsonModel.<Number>get("$.firmwareUploadComTask.id")).isEqualTo(((Number) firmwareCampaign.getFirmwareUploadComTaskId()).intValue());
     }
 
     @Test
@@ -225,11 +225,11 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         firmwareCampaignInfo.deviceType = new IdWithLocalizedValue<>(1L, "TestDeviceType");
         firmwareCampaignInfo.startedOn = Instant.ofEpochSecond(111);
         firmwareCampaignInfo.finishedOn = null;
-        firmwareCampaignInfo.status = new IdWithNameInfo(DefaultState.ONGOING.name(),"Ongoing");
-        firmwareCampaignInfo.validationComTask = new IdWithNameInfo(2L,"comTaskName");
-        firmwareCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0L,"Minimize connections");
-        firmwareCampaignInfo.calendarUploadConnectionStrategy = new IdWithNameInfo(0L,"As soon as possible");
-        firmwareCampaignInfo.calendarUploadComTask = new IdWithNameInfo(1L,"comTaskName");
+        firmwareCampaignInfo.status = new IdWithNameInfo(DefaultState.ONGOING.name(), "Ongoing");
+        firmwareCampaignInfo.validationComTask = new IdWithNameInfo(2L, "comTaskName");
+        firmwareCampaignInfo.validationConnectionStrategy = new IdWithNameInfo(0L, "Minimize connections");
+        firmwareCampaignInfo.firmwareUploadConnectionStrategy = new IdWithNameInfo(0L, "As soon as possible");
+        firmwareCampaignInfo.firmwareUploadComTask = new IdWithNameInfo(1L, "comTaskName");
         ArrayList<PropertyInfo> propertyInfos = new ArrayList<>();
         propertyInfos.add(new PropertyInfo("Firmware file", "FirmwareDeviceMessage.upgrade.userfile", new PropertyValueInfo<>(8, ""), null, true));
         firmwareCampaignInfo.properties = propertyInfos;
@@ -240,7 +240,8 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
 
     private FirmwareCampaign createCampaignMock() {
         FirmwareCampaign firmwareCampaign = mock(FirmwareCampaign.class);
-        ComTask comtask = mock(ComTask.class);
+        ComTask firmwareComTask = mock(ComTask.class);
+        ComTask validationComTask = mock(ComTask.class);
         ServiceCall serviceCall = mock(ServiceCall.class);
         when(firmwareCampaign.getServiceCall()).thenReturn(serviceCall);
         when(serviceCall.getCreationTime()).thenReturn(Instant.ofEpochSecond(111));
@@ -278,8 +279,10 @@ public class FirmwareCampaignResourceTest extends BaseFirmwareTest {
         when(firmwareCampaign.getFirmwareUploadConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.AS_SOON_AS_POSSIBLE));
         when(firmwareCampaign.getValidationComTaskId()).thenReturn(2L);
         when(firmwareCampaign.getValidationConnectionStrategy()).thenReturn(Optional.of(ConnectionStrategy.MINIMIZE_CONNECTIONS));
-        when(comtask.getName()).thenReturn("comTaskName");
-        when(firmwareCampaignService.getComTaskById(anyLong())).thenReturn(comtask);
+        when(firmwareComTask.getName()).thenReturn("comTaskName");
+        when(taskService.findComTask(1L)).thenReturn(Optional.of(firmwareComTask));
+        when(validationComTask.getName()).thenReturn("validationComTaskName");
+        when(taskService.findComTask(2L)).thenReturn(Optional.of(validationComTask));
         return firmwareCampaign;
     }
 }

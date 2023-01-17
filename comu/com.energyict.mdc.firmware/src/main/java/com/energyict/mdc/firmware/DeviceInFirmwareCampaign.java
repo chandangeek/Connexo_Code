@@ -16,6 +16,7 @@ import java.util.Optional;
 
 @ProviderType
 public interface DeviceInFirmwareCampaign {
+    FirmwareCampaign getFirmwareCampaign();
 
     Device getDevice();
 
@@ -23,9 +24,9 @@ public interface DeviceInFirmwareCampaign {
 
     ServiceCall getServiceCall();
 
-    ServiceCall cancel(boolean initFromCampaign);
+    void cancel();
 
-    ServiceCall retry();
+    void retry();
 
     ServiceCall getParent();
 

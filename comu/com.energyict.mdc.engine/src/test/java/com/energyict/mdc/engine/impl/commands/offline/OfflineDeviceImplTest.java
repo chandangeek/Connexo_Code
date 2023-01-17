@@ -19,6 +19,7 @@ import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.time.TimeService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.config.AllowedCalendar;
 import com.energyict.mdc.common.device.config.ConfigurationSecurityProperty;
@@ -34,9 +35,15 @@ import com.energyict.mdc.common.device.data.Register;
 import com.energyict.mdc.common.masterdata.LoadProfileType;
 import com.energyict.mdc.common.masterdata.RegisterGroup;
 import com.energyict.mdc.common.masterdata.RegisterType;
-import com.energyict.mdc.common.protocol.*;
+import com.energyict.mdc.common.protocol.DeviceMessage;
+import com.energyict.mdc.common.protocol.DeviceMessageCategory;
+import com.energyict.mdc.common.protocol.DeviceMessageId;
+import com.energyict.mdc.common.protocol.DeviceMessageSpec;
+import com.energyict.mdc.common.protocol.DeviceProtocol;
+import com.energyict.mdc.common.protocol.DeviceProtocolPluggableClass;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceMessageFactory;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.impl.PropertySpecServiceImpl;
@@ -64,6 +71,7 @@ import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.PropertySpecService;
 
 import com.energyict.obis.ObisCode;
+import com.google.common.collect.ImmutableSet;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -161,6 +169,10 @@ public class OfflineDeviceImplTest {
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     @Mock
     private ProtocolPluggableService protocolPluggableService;
+    @Mock
+    private DeviceMessageService deviceMessageService;
+    @Mock
+    private TransactionService transactionService;
 
     private static LoadProfile getNewMockedLoadProfile(final ObisCode obisCode, Device device) {
         LoadProfileType loadProfileType = mock(LoadProfileType.class);
@@ -243,23 +255,26 @@ public class OfflineDeviceImplTest {
 
     @Before
     public void initBefore() {
-        when(this.offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
-        when(this.offlineDeviceServiceProvider.thesaurus()).thenReturn(this.thesaurus);
-        when(this.offlineDeviceServiceProvider.topologyService()).thenReturn(this.topologyService);
-        when(this.offlineDeviceServiceProvider.identificationService()).thenReturn(this.identificationService);
-        when(this.offlineDeviceServiceProvider.firmwareService()).thenReturn(this.firmwareService);
-        when(this.offlineDeviceServiceProvider.deviceConfigurationService()).thenReturn(this.deviceConfigurationService);
-        when(this.offlineDeviceServiceProvider.eventService()).thenReturn(eventService);
-        when(this.offlineDeviceServiceProvider.protocolPluggableService()).thenReturn(this.protocolPluggableService);
-        when(this.offlineDeviceServiceProvider.deviceMessageSpecificationService()).thenReturn(this.deviceMessageSpecificationService);
+        when(offlineDeviceServiceProvider.findProtocolCacheByDevice(any(Device.class))).thenReturn(Optional.empty());
+        when(offlineDeviceServiceProvider.thesaurus()).thenReturn(thesaurus);
+        when(offlineDeviceServiceProvider.topologyService()).thenReturn(topologyService);
+        when(offlineDeviceServiceProvider.identificationService()).thenReturn(identificationService);
+        when(offlineDeviceServiceProvider.firmwareService()).thenReturn(firmwareService);
+        when(offlineDeviceServiceProvider.deviceConfigurationService()).thenReturn(deviceConfigurationService);
+        when(offlineDeviceServiceProvider.eventService()).thenReturn(eventService);
+        when(offlineDeviceServiceProvider.protocolPluggableService()).thenReturn(protocolPluggableService);
+        when(offlineDeviceServiceProvider.deviceMessageSpecificationService()).thenReturn(deviceMessageSpecificationService);
+        when(offlineDeviceServiceProvider.deviceMessageService()).thenReturn(deviceMessageService);
+        when(offlineDeviceServiceProvider.transactionService()).thenReturn(transactionService);
         when(this.topologyService.getPhysicalGateway(any(Device.class))).thenReturn(Optional.empty());
         when(this.topologyService.getPhysicalGateway(any(Device.class), any(Instant.class))).thenReturn(Optional.empty());
-        when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.<Device>emptyList());
+        when(this.topologyService.findPhysicalConnectedDevices(any(Device.class))).thenReturn(Collections.emptyList());
         when(this.ormService.newDataModel(anyString(), anyString())).thenReturn(this.dataModel);
         when(this.firmwareService.findFirmwareManagementOptions(any(DeviceType.class))).thenReturn(Optional.empty());
         when(this.deviceConfigurationService.findTimeOfUseOptions(any(DeviceType.class))).thenReturn(Optional.empty());
         when(this.deviceMessageSpecificationService.getFirmwareCategory()).thenReturn(deviceMessageCategory);
         when(deviceMessageCategory.getId()).thenReturn(DeviceMessageTestCategories.FIRST_TEST_CATEGORY.getId());
+        when(transactionService.isInTransaction()).thenReturn(true);
         Services.tariffCalendarExtractor(mock(TariffCalendarExtractor.class, RETURNS_DEEP_STUBS));
         Services.keyAccessorTypeExtractor(mock(KeyAccessorTypeExtractor.class, RETURNS_DEEP_STUBS));
     }
@@ -507,6 +522,7 @@ public class OfflineDeviceImplTest {
         assertEquals("Size of the pending list should be zero", 0, offlineDevice.getAllPendingDeviceMessages().size());
 
         when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(deviceMessage2));
+        when(deviceMessageService.findAndLockPendingMessagesForDevices(Collections.singleton(device))).thenReturn(Collections.singletonList(deviceMessage2));
         when(protocolPluggableService.adapt(mockedDeviceMessageSpec2)).thenReturn(ConnexoDeviceMessageSpecAdapter.adaptTo(mockedDeviceMessageSpec2));
 
         offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
@@ -544,6 +560,7 @@ public class OfflineDeviceImplTest {
         doReturn(Arrays.asList(calendarNameAttribute, calendarAttribute)).when(sendCalendar).getAttributes();
         when(sendCalendar.getDevice()).thenReturn(device);
         when(device.getMessagesByState(DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(sendCalendar));
+        when(deviceMessageService.findAndLockPendingMessagesForDevices(Collections.singleton(device))).thenReturn(Collections.singletonList(sendCalendar));
         when(protocolPluggableService.adapt(sendCalendarSpec)).thenReturn(ConnexoDeviceMessageSpecAdapter.adaptTo(sendCalendarSpec));
 
         // Business method
@@ -597,7 +614,9 @@ public class OfflineDeviceImplTest {
         when(deviceMessageFactory.findByDeviceAndState(device, DeviceMessageStatus.PENDING)).thenReturn(Arrays.asList(deviceMessage1, deviceMessage2));
         when(deviceMessageFactory.findByDeviceAndState(slaveWithNeedProxy, DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(slaveDeviceMessage1));
         when(deviceMessageFactory.findByDeviceAndState(slaveWithoutNeedProxy, DeviceMessageStatus.PENDING)).thenReturn(Collections.singletonList(slaveDeviceMessage2));
-        when(this.topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
+        when(topologyService.findPhysicalConnectedDevices(device)).thenReturn(Arrays.asList(slaveWithNeedProxy, slaveWithoutNeedProxy));
+        when(deviceMessageService.findAndLockPendingMessagesForDevices(ImmutableSet.of(device, slaveWithNeedProxy)))
+                .thenReturn(Arrays.asList(deviceMessage1, deviceMessage2, slaveDeviceMessage1));
 
         OfflineDevice offlineDevice = new OfflineDeviceImpl(device, DeviceOffline.needsEverything, this.offlineDeviceServiceProvider);
 

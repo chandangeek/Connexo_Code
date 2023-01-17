@@ -40,7 +40,7 @@ public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAcc
     }
 
     @Override
-    public Optional<SymmetricKeyWrapper> getActualPassphraseWrapperReference() {
+    public Optional<SymmetricKeyWrapper> getActualValue() {
         if (actualSymmetricKeyWrapperReference==null) {
             return Optional.empty();
         }
@@ -48,8 +48,8 @@ public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAcc
     }
 
     @Override
-    public void setActualPassphraseWrapperReference(SymmetricKeyWrapper newWrapperValue) {
-        actualSymmetricKeyWrapperReference = dataModel.asRefAny(newWrapperValue);
+    public void setActualValue(SymmetricKeyWrapper newValueWrapper) {
+        actualSymmetricKeyWrapperReference = dataModel.asRefAny(newValueWrapper);
     }
 
     @Override
@@ -79,7 +79,7 @@ public abstract class SymmetricKeyAccessorImpl extends AbstractDeviceSecurityAcc
 
     @Override
     public void clearActualValue() {
-        if (getActualPassphraseWrapperReference().isPresent()) {
+        if (getActualValue().isPresent()) {
             SymmetricKeyWrapper symmetricKeyWrapper = (SymmetricKeyWrapper) this.actualSymmetricKeyWrapperReference.get();
             this.actualSymmetricKeyWrapperReference = null;
             symmetricKeyWrapper.delete();

@@ -56,7 +56,6 @@ public class ServiceCallStateChangeTopicHandler implements TopicHandler {
     private void handle(ServiceCallImpl serviceCall, DefaultState oldState, DefaultState newState) {
         try {
             ServiceCallHandler serviceCallHandler = serviceCall.getType().getServiceCallHandler();
-
             if (serviceCallHandler.allowStateChange(serviceCall, oldState, newState)) {
                 doStateChange(serviceCall, oldState, newState);
             } else {

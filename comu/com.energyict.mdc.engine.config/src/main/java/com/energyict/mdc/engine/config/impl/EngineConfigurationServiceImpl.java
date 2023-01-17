@@ -148,9 +148,6 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
     @Reference
     public void setOrmService(OrmService ormService) {
         this.dataModel = ormService.newDataModel(EngineConfigurationService.COMPONENT_NAME, "ComServer Engine Model");
-        for (TableSpecs tableSpecs : TableSpecs.values()) {
-            tableSpecs.addTo(dataModel);
-        }
     }
 
     @Reference
@@ -204,6 +201,9 @@ public class EngineConfigurationServiceImpl implements EngineConfigurationServic
 
     @Activate
     public void activate(BundleContext bundleContext) {
+        for (TableSpecs tableSpecs : TableSpecs.values()) {
+            tableSpecs.addTo(dataModel);
+        }
         this.bundleContext = bundleContext;
         dataModel.register(getModule());
         upgradeService.register(identifier("MultiSense", EngineConfigurationService.COMPONENT_NAME), dataModel, Installer.class,

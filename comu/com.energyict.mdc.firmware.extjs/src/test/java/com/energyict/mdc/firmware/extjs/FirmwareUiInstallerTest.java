@@ -29,7 +29,7 @@ public class FirmwareUiInstallerTest {
                 .stream()
                 .filter(p -> properties.getProperty(p).length() > Table.SHORT_DESCRIPTION_LENGTH)
                 .collect(toList());
-        assertThat(list).describedAs("Some property values are too long: "+list).isEmpty();
+        assertThat(list).describedAs("Some property values are too long: " + list).isEmpty();
     }
 
     @Test
@@ -40,6 +40,6 @@ public class FirmwareUiInstallerTest {
                 .stream()
                 .filter(p -> p.length() > Table.SHORT_DESCRIPTION_LENGTH)
                 .collect(toList());
-        assertThat(list).describedAs("Some property keys are too long: "+list).isEmpty();
+        assertThat(list).describedAs("Some property keys are too long: " + list).isEmpty();
     }
 }

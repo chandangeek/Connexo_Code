@@ -15,7 +15,7 @@ import javax.validation.ConstraintValidatorContext;
 public class UniqueNameValidator implements ConstraintValidator<UniqueName, HasUniqueName> {
 
     private boolean caseSensitive;
-    private FirmwareService firmwareService;
+    private final FirmwareService firmwareService;
 
     @Inject
     public UniqueNameValidator(FirmwareService firmwareService) {

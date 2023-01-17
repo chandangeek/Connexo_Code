@@ -25,7 +25,6 @@ import com.energyict.mdc.upl.meterdata.CollectedMessage;
 import com.energyict.mdc.upl.meterdata.CollectedMessageAcknowledgement;
 import com.energyict.mdc.upl.meterdata.CollectedMessageList;
 import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.CollectedRegisterList;
 import com.energyict.mdc.upl.meterdata.CollectedTopology;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
@@ -219,7 +218,7 @@ public class CollectedDataFactoryImpl implements CollectedDataFactory {
     }
 
     public CollectedMessageList createCollectedMessageList(List<OfflineDeviceMessage> offlineDeviceMessages) {
-        return new DeviceProtocolMessageList(offlineDeviceMessages, deviceMessageService);
+        return new DeviceProtocolMessageList(offlineDeviceMessages);
     }
 
     public CollectedMessageList createEmptyCollectedMessageList() {

@@ -72,8 +72,8 @@ public class SecurityAccessorResourceTest extends MultisensePublicApiJerseyTest 
         SecurityAccessorType securityAccessorType2 = sps2.getConfigurationSecurityProperties().get(0).getSecurityAccessorType();
         when(securityAccessor1.getDevice()).thenReturn(device);
         when(securityAccessor2.getDevice()).thenReturn(device);
-        when(securityAccessor1.getKeyAccessorTypeReference()).thenReturn(securityAccessorType1);
-        when(securityAccessor2.getKeyAccessorTypeReference()).thenReturn(securityAccessorType2);
+        when(securityAccessor1.getSecurityAccessorType()).thenReturn(securityAccessorType1);
+        when(securityAccessor2.getSecurityAccessorType()).thenReturn(securityAccessorType2);
 
         Message message = new Message("test");
         TypedProperties typedProperties = TypedProperties.empty();

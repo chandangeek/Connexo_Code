@@ -62,7 +62,7 @@ public class DeviceSecurityAccessorTest {
     @Test
     public void testCompleteState() throws Exception {
         SymmetricKeyWrapper symmetricKeyWrapper = mock(SymmetricKeyWrapper.class);
-        symmetricKeyAccessor.setActualPassphraseWrapperReference(symmetricKeyWrapper);
+        symmetricKeyAccessor.setActualValue(symmetricKeyWrapper);
         Map<String, Object> properties = new HashMap<>();
         properties.put("prop1", "value");
         properties.put("prop2", "value");
@@ -74,7 +74,7 @@ public class DeviceSecurityAccessorTest {
     @Test
     public void testStateWithMissingProperty() throws Exception {
         SymmetricKeyWrapper symmetricKeyWrapper = mock(SymmetricKeyWrapper.class);
-        symmetricKeyAccessor.setActualPassphraseWrapperReference(symmetricKeyWrapper);
+        symmetricKeyAccessor.setActualValue(symmetricKeyWrapper);
         Map<String, Object> properties = new HashMap<>();
         properties.put("prop1", "value");
         when(symmetricKeyWrapper.getProperties()).thenReturn(properties);
@@ -85,7 +85,7 @@ public class DeviceSecurityAccessorTest {
     @Test
     public void testStateWithNullProperty() throws Exception {
         SymmetricKeyWrapper symmetricKeyWrapper = mock(SymmetricKeyWrapper.class);
-        symmetricKeyAccessor.setActualPassphraseWrapperReference(symmetricKeyWrapper);
+        symmetricKeyAccessor.setActualValue(symmetricKeyWrapper);
         Map<String, Object> properties = new HashMap<>();
         properties.put("prop1", "value");
         properties.put("prop2", null);

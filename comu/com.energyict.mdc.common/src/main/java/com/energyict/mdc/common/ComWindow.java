@@ -7,6 +7,7 @@ package com.energyict.mdc.common;
 import com.elster.jupiter.time.TimeDuration;
 import com.energyict.mdc.common.interval.PartialTime;
 
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.TimeZone;
 
@@ -81,21 +82,38 @@ public class ComWindow {
                 && !end.before(timeDurationFromMidnight);
     }
 
+    public boolean includes (Instant momentInTime) {
+        Calendar calendarInUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendarInUTC.setTimeInMillis(momentInTime.toEpochMilli());
+        return this.includes(calendarInUTC);
+    }
+
     /**
-     * Tests if the time stamp representend by the Calendar is within the ComWindow.
+     * Tests if the time stamp represented by the Calendar is within the ComWindow.
      *
-     * @param calendar The Calendar
+     * @param timeZonedCalendar The Calendar
      * @return A flag that indicates if the Calendar is included in this ComWindow
      */
-    public boolean includes (Calendar calendar) {
-        PartialTime secondsFromMidnight = this.secondsFromMidnight(calendar);
+    public boolean includes (Calendar timeZonedCalendar) {          //TODO: migrate to ZonedTimeDate
+        Instant momentInUTC = timeZonedCalendar.toInstant();
+        Calendar calendarInUTC = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        calendarInUTC.setTimeInMillis(momentInUTC.toEpochMilli());
+
+        PartialTime secondsFromMidnight = this.secondsFromMidnight(calendarInUTC);
+
+        if (this.getEnd().before(this.getStart())) { // the start->end are across midnight, eg 22:00 -> 03:00
+            return this.getStart().before(secondsFromMidnight) ||  // 23:00 ... 23:30 ........... 03:00
+                    this.getEnd().after(secondsFromMidnight);      // 23:00 ........... 01:00 ... 03:00
+        }
+
         return !this.getEnd().before(secondsFromMidnight)    // Equals secondsFromMidnight <= end
             && !secondsFromMidnight.before(this.getStart()); // Equals secondsFromMidnight >= start
     }
 
+    @Deprecated
     private PartialTime secondsFromMidnight (Calendar calendar) {
         long millisBeforeTruncate = calendar.getTimeInMillis();
-        Calendar forTruncationPurposesOnly = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar forTruncationPurposesOnly = Calendar.getInstance(calendar.getTimeZone());
         forTruncationPurposesOnly.setTimeInMillis(millisBeforeTruncate);
         new TimeDuration(1, TimeDuration.TimeUnit.DAYS).truncate(forTruncationPurposesOnly);
         long millisAfterTruncate = forTruncationPurposesOnly.getTimeInMillis();
@@ -149,7 +167,7 @@ public class ComWindow {
     }
 
     public String toString () {
-        return "between " + this.getStart().toString() + " and " + this.getEnd().toString();
+        return "between " + this.getStart().toString() + " and " + this.getEnd().toString() + " (UTC)";
     }
 
 }

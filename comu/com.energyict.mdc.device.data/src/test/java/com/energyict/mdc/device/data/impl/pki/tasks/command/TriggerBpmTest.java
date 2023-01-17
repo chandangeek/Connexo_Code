@@ -67,7 +67,7 @@ public class TriggerBpmTest {
         Mockito.when(bpmProcessResolver.canBeStarted(securityAccessor, bpmProcessId)).thenReturn(true);
         Mockito.when(securityAccessor.getDevice()).thenReturn(device);
         Mockito.when(device.getmRID()).thenReturn("mrId");
-        Mockito.when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(keyAccType);
+        Mockito.when(securityAccessor.getSecurityAccessorType()).thenReturn(keyAccType);
         Mockito.when(keyAccType.getName()).thenReturn("keyAccType");
         TriggerBpm triggerBpm = new TriggerBpm(bpmService, bpmProcessResolver, bpmProcessId, logger);
         triggerBpm.run(securityAccessor);
@@ -75,7 +75,7 @@ public class TriggerBpmTest {
         Mockito.verify(bpmProcessResolver, Mockito.times(1)).canBeStarted(securityAccessor, bpmProcessId);
         Map<String, Object> expectedParams = new HashMap<>();
         expectedParams.put("deviceId", securityAccessor.getDevice().getmRID());
-        expectedParams.put("accessorType", securityAccessor.getKeyAccessorTypeReference().getName());
+        expectedParams.put("accessorType", securityAccessor.getSecurityAccessorType().getName());
         Mockito.verify(bpmService, Mockito.times(1)).startProcess(bpmProces, expectedParams);
         Mockito.verifyNoMoreInteractions(bpmService, bpmProcessResolver);
     }

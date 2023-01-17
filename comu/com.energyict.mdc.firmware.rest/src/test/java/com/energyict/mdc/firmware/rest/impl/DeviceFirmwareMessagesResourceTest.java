@@ -13,7 +13,6 @@ import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyTypeInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfo;
 import com.elster.jupiter.util.sql.SqlBuilder;
-import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.protocol.DeviceMessage;
@@ -55,7 +54,6 @@ import static org.mockito.Matchers.anyCollectionOf;
 import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
@@ -166,6 +164,7 @@ public class DeviceFirmwareMessagesResourceTest extends BaseFirmwareTest {
         when(check2.getTitle(thesaurus)).thenReturn(CHECK_PREFIX + CHECK2);
         when(firmwareService.getFirmwareManagementDeviceUtilsFor(device)).thenReturn(firmwareManagementDeviceUtils);
         when(firmwareManagementDeviceUtils.getFirmwareComTaskExecution()).thenReturn(Optional.of(uploadComTaskExecution));
+        when(firmwareManagementDeviceUtils.lockFirmwareComTaskExecution()).thenReturn(Optional.of(uploadComTaskExecution));
         when(device.newDeviceMessage(UPLOAD_MESSAGE_ID)).thenAnswer(invocation -> deviceMessageBuilder);
         deviceMessageBuilder = FakeBuilder.initBuilderStub(deviceMessage, Device.DeviceMessageBuilder.class);
     }

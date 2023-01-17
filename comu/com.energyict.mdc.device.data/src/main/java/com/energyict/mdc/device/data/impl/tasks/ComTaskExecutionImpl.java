@@ -142,6 +142,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     private int executionPriority;
     @Range(min = TaskPriorityConstants.HIGHEST_PRIORITY, max = TaskPriorityConstants.LOWEST_PRIORITY, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.PRIORITY_NOT_IN_RANGE + "}")
     private int plannedPriority;
+    private boolean traced;
     private int currentRetryCount;
     private boolean lastExecutionFailed;
     private Reference<ComTaskExecutionSession> lastSession = ValueReference.absent();
@@ -436,8 +437,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
                 "MODTIME= " + modTime +
                 "USERNAME=" + userName +
                 "VERSION=" + version;
-
-
     }
 
     @Override
@@ -674,6 +673,15 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     @Override
+    public boolean isTraced() {
+        return this.traced;
+    }
+
+    void setTraced(boolean traced) {
+        this.traced = traced;
+    }
+
+    @Override
     public void updateNextExecutionTimestamp() {
         recalculateNextAndPlannedExecutionTimestamp();
         updateForScheduling(true);
@@ -710,7 +718,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     /**
      * Provide my two dates and I'll update this object according to it's settings.
      *
-     * @param nextExecutionTimestamp the time you think this object should schedule
+     * @param nextExecutionTimestamp        the time you think this object should schedule
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
      */
     private void schedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
@@ -741,7 +749,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
      * the nextExecutionTimeStamp according to the specs of this object
      * or the specs of my ConnectionTask.
      *
-     * @param nextExecutionTimestamp the time you think this object should schedule
+     * @param nextExecutionTimestamp        the time you think this object should schedule
      * @param plannedNextExecutionTimestamp the time this object is planned to schedule
      */
     private void doReschedule(Instant nextExecutionTimestamp, Instant plannedNextExecutionTimestamp) {
@@ -936,8 +944,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     // 'functional' fields do not need a 'versioncount upgrade'. When rescheduling a comtaskexecution
     // you do not want a new version (no history log) -> only tell the system the comtaskexecution is rescheduled
     private void updateForScheduling(boolean informConnectionTask) {
-        this.getConnectionTask().ifPresent(ct -> connectionTaskService.findAndLockConnectionTaskByIdAndVersion(ct.getId(), ct.getVersion()));
-        communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(this.getId(), version);
         LOGGER.info("CXO-11731: UPDATE FOR RESCHEDULING EXECUTION TASK = " + this.toString());
         this.update(ComTaskExecutionFields.COMPORT.fieldName(),
                 ComTaskExecutionFields.LASTSUCCESSFULCOMPLETIONTIMESTAMP.fieldName(),
@@ -950,7 +956,7 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         if (informConnectionTask) {
             this.getConnectionTask().ifPresent(ct -> {
                 if (!calledByConnectionTask) {
-                    ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this);
+                    ((ServerConnectionTask<?, ?>) ct).scheduledComTaskRescheduled(this);
                 }
                 calledByConnectionTask = false;
             });
@@ -1730,7 +1736,6 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
     }
 
     public abstract static class AbstractComTaskExecutionBuilder implements ComTaskExecutionBuilder {
-
         private final ComTaskExecutionImpl comTaskExecution;
 
         protected AbstractComTaskExecutionBuilder(ComTaskExecutionImpl instance) {
@@ -1742,19 +1747,19 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask) {
+        public AbstractComTaskExecutionBuilder useDefaultConnectionTask(boolean useDefaultConnectionTask) {
             this.comTaskExecution.setUseDefaultConnectionTask(useDefaultConnectionTask);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
+        public AbstractComTaskExecutionBuilder setConnectionFunction(ConnectionFunction connectionFunction) {
             this.comTaskExecution.setConnectionFunction(connectionFunction);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask) {
+        public AbstractComTaskExecutionBuilder connectionTask(ConnectionTask<?, ?> connectionTask) {
             this.comTaskExecution.setConnectionTask(connectionTask);
             this.comTaskExecution.setUseDefaultConnectionTask(false);
             this.comTaskExecution.recalculateNextAndPlannedExecutionTimestamp();
@@ -1762,25 +1767,25 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        public ComTaskExecutionBuilder priority(int priority) {
+        public AbstractComTaskExecutionBuilder priority(int priority) {
             this.comTaskExecution.setPlannedPriority(priority);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
+        public AbstractComTaskExecutionBuilder ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound) {
             this.comTaskExecution.setIgnoreNextExecutionSpecsForInbound(ignoreNextExecutionSpecsForInbound);
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder scheduleNow() {
+        public AbstractComTaskExecutionBuilder scheduleNow() {
             this.comTaskExecution.scheduleNow();
             return this;
         }
 
         @Override
-        public ComTaskExecutionBuilder runNow() {
+        public AbstractComTaskExecutionBuilder runNow() {
             this.comTaskExecution.runNow();
             return this;
         }
@@ -1796,10 +1801,9 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public ComTaskExecution add() {
             this.comTaskExecution.prepareForSaving();
-            this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask) ct).scheduledComTaskRescheduled(this.comTaskExecution));
+            this.comTaskExecution.getConnectionTask().ifPresent(ct -> ((ServerConnectionTask<?, ?>) ct).scheduledComTaskRescheduled(this.comTaskExecution));
             return this.comTaskExecution;
         }
 
@@ -1836,6 +1840,12 @@ public class ComTaskExecutionImpl extends PersistentIdObject<ComTaskExecution> i
         @Override
         public ComTaskExecutionUpdater priority(int executionPriority) {
             this.comTaskExecution.setPlannedPriority(executionPriority);
+            return this;
+        }
+
+        @Override
+        public ComTaskExecutionUpdater setTraced(boolean traced) {
+            this.comTaskExecution.setTraced(traced);
             return this;
         }
 

@@ -22,7 +22,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
             if (config.isRecord) {
                 option = option.getData();
             }
-            switch(option.id){
+            switch (option.id) {
                 case 'install':
                     msg = Uni.I18n.translate('firmware.campaigns.managementOption.install.description', 'FWC', 'Firmware will be uploaded to the device. The user will need to send a command afterwards in order to activate firmware.');
                     break;
@@ -35,9 +35,9 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
             }
             me.add({
                 boxLabel: '<span style="display:inline-block; float:left; margin-right:7px;">' + option.localizedValue + '</span>'
-                            + (config.showDescription
-                                ? '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + msg + '"></span>'
-                                : ''),
+                    + (config.showDescription
+                        ? '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + msg + '"></span>'
+                        : ''),
                 name: me.name,
                 disabled: config.disabled,
                 itemId: me.name + '-option-' + option.id,
@@ -64,10 +64,10 @@ Ext.define('Fwc.firmwarecampaigns.view.DynamicRadioGroup', {
                 xtype: 'displayfield',
                 padding: '0 0 0 0',
                 value: '<span style="display:inline-block; float:left; margin-right:7px;">'
-                       + (config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue) + '</span>' +
-                       (config.showDescription
-                          ? '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + msg + '"></span>'
-                          : ''),
+                    + (config.isRecord ? options[0].get('localizedValue') : options[0].localizedValue) + '</span>' +
+                    (config.showDescription
+                        ? '<span class="icon-info" style="cursor:default; display:inline-block; color:#A9A9A9; font-size:16px;" data-qtip="' + msg + '"></span>'
+                        : ''),
                 htmlEncode: false
             });
         }

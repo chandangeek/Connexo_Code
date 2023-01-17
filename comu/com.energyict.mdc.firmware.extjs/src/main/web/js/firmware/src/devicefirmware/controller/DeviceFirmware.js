@@ -91,23 +91,23 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
         });
     },
 
-    forceUpload: function(record, container, router){
+    forceUpload: function (record, container, router) {
         var me = this;
         var errorMsg = me.getUploadPage().down('#form-errors');
         record.getProxy().setExtraParam('force', true);
         record.save({
-                    success: function () {
-                        me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upload scheduled'));
-                        container.setLoading(false);
-                        router.getRoute('devices/device/firmware').forward();
-                    },
-                    failure: function (record, resp) {
-                        errorMsg.show();
-                        container.setLoading(false);
-                    },
-                    callback: function () {
-                        if (record.getProxy().extraParams && record.getProxy().extraParams['force']) delete record.getProxy().extraParams['force'];
-                    }
+            success: function () {
+                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('deviceFirmware.upgrade.success', 'FWC', 'Firmware upload scheduled'));
+                container.setLoading(false);
+                router.getRoute('devices/device/firmware').forward();
+            },
+            failure: function (record, resp) {
+                errorMsg.show();
+                container.setLoading(false);
+            },
+            callback: function () {
+                if (record.getProxy().extraParams && record.getProxy().extraParams['force']) delete record.getProxy().extraParams['force'];
+            }
         });
     },
 
@@ -157,18 +157,18 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                         var errorsArr = [];
                         var canFurtherUpload = responseText.confirmation;
 
-                        var confirmationWindow = Ext.create('Uni.view.window.Confirmation',{
+                        var confirmationWindow = Ext.create('Uni.view.window.Confirmation', {
                             confirmText: 'Upload',
                             confirmation: function () {
-                                 uploadPage.setLoading(true);
-                                 this.hide();
-                                 me.forceUpload(record, container, router);
+                                uploadPage.setLoading(true);
+                                this.hide();
+                                me.forceUpload(record, container, router);
                             }
                         });
 
                         Ext.each(responseText.errors, function (error) {
                             var errorId = error.id;
-                            if ( !canFurtherUpload ){
+                            if (!canFurtherUpload) {
                                 var errorKeyArr = errorId.split('.');
                                 errorKeyArr.shift(); // remove first item, as it is not presented in property
                                 errorId = errorKeyArr.join('.')
@@ -177,32 +177,32 @@ Ext.define('Fwc.devicefirmware.controller.DeviceFirmware', {
                             }
                             errorsArr.push({id: errorId, msg: error.msg});
                         });
-                        if (canFurtherUpload && errorsArr && errorsArr.length){
-                           var fieldContainer = Ext.create('Ext.form.FieldContainer');
-                           var htmlText = Uni.I18n.translate('deviceFirmware.upgrade.somefirmwarechecks', 'FWC', 'Some firmware version checks have been unsuccessful:') + '<br><br>';
-                           Ext.each(errorsArr, function (error) {
+                        if (canFurtherUpload && errorsArr && errorsArr.length) {
+                            var fieldContainer = Ext.create('Ext.form.FieldContainer');
+                            var htmlText = Uni.I18n.translate('deviceFirmware.upgrade.somefirmwarechecks', 'FWC', 'Some firmware version checks have been unsuccessful:') + '<br><br>';
+                            Ext.each(errorsArr, function (error) {
                                 htmlText += ('<b>' + error['id'] + '</b><br><br>');
                                 htmlText += (' -' + error['msg'] + '<br><br>');
-                           });
-                           fieldContainer.add({
+                            });
+                            fieldContainer.add({
                                 xtype: 'displayfield',
                                 htmlEncode: false,
                                 itemId: 'errorsText',
                                 value: htmlText,
                                 padding: '0 50',
-                                listeners:{
-                                		afterrender:function(){
-                                		   var me = this;
-                                		   this.el.hover(function(e){
-                                		       if (this.querySelector("div").getAttribute("data-qtip")) this.querySelector("div").removeAttribute("data-qtip");
-                                		       me.el.removeAllListeners();
-                                           });
-                                		}
+                                listeners: {
+                                    afterrender: function () {
+                                        var me = this;
+                                        this.el.hover(function (e) {
+                                            if (this.querySelector("div").getAttribute("data-qtip")) this.querySelector("div").removeAttribute("data-qtip");
+                                            me.el.removeAllListeners();
+                                        });
+                                    }
                                 }
                             });
                             confirmationWindow.insert(1, fieldContainer);
                             confirmationWindow.show({
-                                  title: 'Upload firmware?',
+                                title: 'Upload firmware?',
                             });
                         } else {
                             var errorsWithoutId = '',

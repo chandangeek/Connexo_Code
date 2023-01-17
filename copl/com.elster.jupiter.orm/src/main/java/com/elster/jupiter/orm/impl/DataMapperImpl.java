@@ -501,6 +501,11 @@ public class DataMapperImpl<T> extends AbstractFinder<T> implements DataMapper<T
     }
 
     @Override
+    public List<T> lock(Condition condition, Order... orders) {
+        return with().lock(condition, orders);
+    }
+
+    @Override
     public long count(Condition condition) {
         return with().count(condition);
     }

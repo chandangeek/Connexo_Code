@@ -148,7 +148,7 @@ public class SecurityHelperTest {
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
 		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
-		when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+		when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
 		ArgumentCaptor<ImportKeyRequest> captor = ArgumentCaptor.forClass(ImportKeyRequest.class);
 		when(hsmEnergyService.importKey(Mockito.notNull(ImportKeyRequest.class))).thenReturn(hsmEncryptedKey);
 		when(securityManagementService.newSymmetricKeyWrapper(securityAccessorType)).thenReturn(hsmKey);
@@ -166,7 +166,7 @@ public class SecurityHelperTest {
 				(byte[]) Whitebox.getInternalState(value, "deviceKeyInitialVector"));
 		assertEquals(hsmKeyType, Whitebox.getInternalState(value, "hsmKeyType"));
 		verify(hsmKey).setKey(HSM_ENCRYPTED_KEY, HSM_KEY_LABEL);
-		verify(securityAccessor).setActualPassphraseWrapperReference(hsmKey);
+		verify(securityAccessor).setActualValue(hsmKey);
 		verify(securityAccessor).save();
 	}
 
@@ -176,7 +176,7 @@ public class SecurityHelperTest {
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
 		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
-		when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+		when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
 		ArgumentCaptor<ImportKeyRequest> captor = ArgumentCaptor.forClass(ImportKeyRequest.class);
 		when(hsmEnergyService.importKey(Mockito.notNull(ImportKeyRequest.class))).thenReturn(hsmEncryptedKey);
 		when(securityManagementService.newSymmetricKeyWrapper(securityAccessorType)).thenReturn(hsmKey);
@@ -194,7 +194,7 @@ public class SecurityHelperTest {
 				(byte[]) Whitebox.getInternalState(value, "deviceKeyInitialVector"));
 		assertEquals(hsmKeyType, Whitebox.getInternalState(value, "hsmKeyType"));
 		verify(hsmKey).setKey(HSM_ENCRYPTED_KEY, HSM_KEY_LABEL);
-		verify(securityAccessor).setActualPassphraseWrapperReference(hsmKey);
+		verify(securityAccessor).setActualValue(hsmKey);
 		verify(securityAccessor).save();
 	}
 
@@ -206,13 +206,13 @@ public class SecurityHelperTest {
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
 		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
-		when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+		when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
 		when(securityManagementService.newSymmetricKeyWrapper(securityAccessorType)).thenReturn(plaintextSymmetricKey);
 		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList, serviceCall);
 		assertTrue(faults.isEmpty());
 		SecretKeySpec secretKeySpec = new SecretKeySpec(SECURITY_ACCESSOR_KEY, KEY_ALGORITHM);
 		verify(plaintextSymmetricKey).setKey(secretKeySpec);
-		verify(securityAccessor).setActualPassphraseWrapperReference(plaintextSymmetricKey);
+		verify(securityAccessor).setActualValue(plaintextSymmetricKey);
 		verify(securityAccessor).save();
 	}
 
@@ -224,14 +224,14 @@ public class SecurityHelperTest {
 		List<SecurityAccessorType> securityAccessorTypes = Arrays.asList(securityAccessorType);
 		when(deviceType.getSecurityAccessorTypes()).thenReturn(securityAccessorTypes);
 		when(device.getSecurityAccessor(securityAccessorType)).thenReturn(Optional.of(securityAccessor));
-		when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.empty());
+		when(securityAccessor.getActualValue()).thenReturn(Optional.empty());
 		when(securityManagementService.newPassphraseWrapper(securityAccessorType)).thenReturn(plaintextPassphrase);
 		when(keyType.getKeyAlgorithm()).thenReturn(null);
 		List<FaultMessage> faults = testable.addSecurityKeys(device, securityInfoList, serviceCall);
 		assertTrue(faults.isEmpty());
 		SecretKeySpec secretKeySpec = new SecretKeySpec(SECURITY_ACCESSOR_KEY, KEY_ALGORITHM);
 		verify(plaintextPassphrase).setEncryptedPassphrase(new String(SECURITY_ACCESSOR_KEY));
-		verify(securityAccessor).setActualPassphraseWrapperReference(plaintextPassphrase);
+		verify(securityAccessor).setActualValue(plaintextPassphrase);
 		verify(securityAccessor).save();
 	}
 

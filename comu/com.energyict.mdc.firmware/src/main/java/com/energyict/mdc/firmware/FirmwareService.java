@@ -35,52 +35,81 @@ public interface FirmwareService {
     // Firmware versions on a device type
 
     FirmwareVersionFilter filterForFirmwareVersion(DeviceType deviceType);
+
     Finder<FirmwareVersion> findAllFirmwareVersions(FirmwareVersionFilter filter);
+
     Optional<FirmwareVersion> getFirmwareVersionById(long id);
+
     Optional<FirmwareVersion> findAndLockFirmwareVersionByIdAndVersion(long id, long version);
+
     Optional<FirmwareVersion> getFirmwareVersionByVersionAndType(String version, FirmwareType firmwareType, DeviceType deviceType);
+
     FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type);
+
     FirmwareVersionBuilder newFirmwareVersion(DeviceType deviceType, String firmwareVersion, FirmwareStatus status, FirmwareType type, String imageIdentifier);
+
     boolean isFirmwareVersionInUse(long firmwareVersionId);
+
     Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
+
     Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(SecurityAccessor securityAccessor);
+
     Finder<SecurityAccessorOnDeviceType> findSecurityAccessorForSignatureValidation(DeviceType deviceType);
+
     void addSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
+
     void deleteSecurityAccessorForSignatureValidation(DeviceType deviceType, SecurityAccessor securityAccessor);
+
     void validateFirmwareFileSignature(DeviceType deviceType, SecurityAccessor securityAccessor, File firmwareFile);
+
     Thesaurus getThesaurus();
 
 
     // Firmware upgrade options on a device type
+
     /**
      * Provides a set of ProtocolSupportedFirmwareOptions for the given DeviceType
      */
     Set<ProtocolSupportedFirmwareOptions> getSupportedFirmwareOptionsFor(DeviceType deviceType);
+
     EnumSet<FirmwareType> getSupportedFirmwareTypes(DeviceType deviceType);
+
     boolean imageIdentifierExpectedAtFirmwareUpload(DeviceType deviceType);
+
     boolean isResumeFirmwareUploadEnabled(DeviceType deviceType);
+
     Optional<DeviceMessageSpec> defaultFirmwareVersionSpec();
+
     Optional<DeviceMessageId> bestSuitableFirmwareUpgradeMessageId(DeviceType deviceType, ProtocolSupportedFirmwareOptions firmwareManagementOption, FirmwareVersion firmwareVersion);
+
     Set<ProtocolSupportedFirmwareOptions> getAllowedFirmwareManagementOptionsFor(DeviceType deviceType);
+
     FirmwareManagementOptions newFirmwareManagementOptions(DeviceType deviceType);
+
     Optional<FirmwareManagementOptions> findFirmwareManagementOptions(DeviceType deviceType);
+
     Optional<FirmwareManagementOptions> findAndLockFirmwareManagementOptionsByIdAndVersion(DeviceType deviceType, long version);
+
     List<DeviceType> getDeviceTypesWhichSupportFirmwareManagement();
 
 
     // Firmware versions on a device
+
     /**
      * Provides a list of all <i>upgradable</i> FirmwareVersions for the given Device.
      * Depending on the FirmwareStatus of the FirmwareVersion and the DeviceLifeCycleStatus of the Device a filtered list will be provided.
      * If no FirmwareVersions are available, an empty list will be returned.
      *
-     * @param device the device which requests the FirmwareVersions
+     * @param device       the device which requests the FirmwareVersions
      * @param firmwareType which was requested for upgrade
      * @return a list of FirmwareVersions
      */
     List<FirmwareVersion> getAllUpgradableFirmwareVersionsFor(Device device, FirmwareType firmwareType);
+
     Optional<ActivatedFirmwareVersion> getActiveFirmwareVersion(Device device, FirmwareType firmwareType);
+
     ActivatedFirmwareVersion newActivatedFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
+
     PassiveFirmwareVersion newPassiveFirmwareVersionFrom(Device device, FirmwareVersion firmwareVersion, Interval interval);
 
     /**
@@ -92,11 +121,10 @@ public interface FirmwareService {
     void cancelFirmwareUploadForDevice(Device device);
 
     /**
-        * Tries to resume the current FirmwareComTaskExecution on the device if it was still pending.
-        *
-        * @param device the device to cancel the firmware upload
-        *
-        */
+     * Tries to resume the current FirmwareComTaskExecution on the device if it was still pending.
+     *
+     * @param device the device to cancel the firmware upload
+     */
     void resumeFirmwareUploadForDevice(Device device);
 
     /**
@@ -106,6 +134,7 @@ public interface FirmwareService {
      * @return the utility class
      */
     FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device);
+
     FirmwareManagementDeviceUtils getFirmwareManagementDeviceUtilsFor(Device device, boolean onlyLastMessagePerFirmwareType);
 
     DeviceFirmwareHistory getFirmwareHistory(Device device);
@@ -125,8 +154,11 @@ public interface FirmwareService {
                                                        FirmwareVersion firmwareVersion);
 
     FirmwareCampaignManagementOptions newFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign);
+
     Optional<FirmwareCampaignManagementOptions> findFirmwareCampaignCheckManagementOptions(FirmwareCampaign firmwareCampaign);
+
     void createFirmwareCampaignVersionStateSnapshot(FirmwareCampaign firmwareCampaign, FirmwareVersion foundFirmware);
+
     List<FirmwareCampaignVersionStateShapshot> findFirmwareCampaignVersionStateSnapshots(FirmwareCampaign firmwareCampaign);
 
     String getLocalizedFirmwareStatus(FirmwareStatus firmwareStatus);

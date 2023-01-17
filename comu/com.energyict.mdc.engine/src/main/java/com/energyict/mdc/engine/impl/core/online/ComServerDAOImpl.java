@@ -67,6 +67,7 @@ import com.energyict.mdc.common.tasks.PriorityComTaskExecutionLink;
 import com.energyict.mdc.common.tasks.history.ComSession;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceDataServices;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.data.LoadProfileService;
 import com.energyict.mdc.device.data.LogBookService;
@@ -167,6 +168,7 @@ import java.time.temporal.TemporalAmount;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -318,8 +320,8 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private Optional<ConnectionTask> lockConnectionTask(ConnectionTask connectionTask) {
-        ConnectionTask reloaded = getConnectionTaskService().attemptLockConnectionTask(connectionTask.getId());
-        return Optional.ofNullable(reloaded);
+        return getConnectionTaskService().findAndLockConnectionTaskById(connectionTask.getId())
+                .filter(Predicates.not(ConnectionTask::isObsolete));
     }
 
     private ComJobFactory getComJobFactoryFor(OutboundComPort comPort) {
@@ -747,11 +749,11 @@ public class ComServerDAOImpl implements ComServerDAO {
                 .map(securityAccessorTypeOnDeviceType -> securityAccessorTypeOnDeviceType.getSecurityAccessorType())
                 .map(securityAccessorType -> device.getSecurityAccessor(securityAccessorType).orElseGet(() -> device.newSecurityAccessor(securityAccessorType)))
                 .ifPresent(securityAccessor -> {
-                    HsmKey hsmKey = (HsmKey) getServiceProvider().securityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                    HsmKey hsmKey = (HsmKey) getServiceProvider().securityManagementService().newSymmetricKeyWrapper(securityAccessor.getSecurityAccessorType());
                     byte[] key = DatatypeConverter.parseHexBinary(newKey.split(":")[1]);
                     String label = new String(DatatypeConverter.parseHexBinary(newKey.split(":")[0]));
                     hsmKey.setKey(key, label);
-                    securityAccessor.setActualPassphraseWrapperReference(hsmKey);
+                    securityAccessor.setActualValue(hsmKey);
                     securityAccessor.save();
                 });
     }
@@ -789,11 +791,11 @@ public class ComServerDAOImpl implements ComServerDAO {
     private void updateDeviceSecurityAccessor(SecurityAccessor securityAccessor, Object propertyValue) {
 
         this.executeTransaction(() -> {
-            if (securityAccessor.getActualPassphraseWrapperReference().isPresent()) {
-                Object actualValue = securityAccessor.getActualPassphraseWrapperReference().get();
+            if (securityAccessor.getActualValue().isPresent()) {
+                Object actualValue = securityAccessor.getActualValue().get();
                 if (actualValue instanceof PlaintextSymmetricKey) {
                     if (((PlaintextSymmetricKey) actualValue).getKey().isPresent()) { //we need an actual key to be present in order to know what algorithm to choose for the the new key
-                        SymmetricKeyWrapper symmetricKeyWrapper = getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                        SymmetricKeyWrapper symmetricKeyWrapper = getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getSecurityAccessorType());
                         ((PlaintextSymmetricKey) symmetricKeyWrapper).setKey(new SecretKeySpec(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((PlaintextSymmetricKey) actualValue).getKey()
                                 .get()
                                 .getAlgorithm()));
@@ -809,7 +811,7 @@ public class ComServerDAOImpl implements ComServerDAO {
                     //TODO: see what should we do in case of certificates...
                     throw new UnsupportedOperationException("Not supported to automatically update the security accessor that models a certificate ");
                 } else if (actualValue instanceof HsmKey) {
-                    HsmKey hsmKey = (HsmKey) getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getKeyAccessorTypeReference());
+                    HsmKey hsmKey = (HsmKey) getSecurityManagementService().newSymmetricKeyWrapper(securityAccessor.getSecurityAccessorType());
                     hsmKey.setKey(DatatypeConverter.parseHexBinary(String.valueOf(propertyValue)), ((HsmKey) actualValue).getLabel());
                     updateSecurityAccessorActualKeyValue(securityAccessor, hsmKey);
                 }
@@ -821,13 +823,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     private void updateSecurityAccessorActualKeyValue(SecurityAccessor securityAccessor, SymmetricKeyWrapper symmetricKeyWrapper) {
-        securityAccessor.setActualPassphraseWrapperReference(symmetricKeyWrapper);
+        securityAccessor.setActualValue(symmetricKeyWrapper);
         securityAccessor.clearTempValue();
         securityAccessor.save();
     }
 
     private void swapTempAndActualKeys(SecurityAccessor securityAccessor) {
-        if (securityAccessor.getActualPassphraseWrapperReference().isPresent() && securityAccessor.getTempValue().isPresent()) {
+        if (securityAccessor.getActualValue().isPresent() && securityAccessor.getTempValue().isPresent()) {
             securityAccessor.swapValues();
             securityAccessor.clearTempValue();
             securityAccessor.save();
@@ -925,18 +927,13 @@ public class ComServerDAOImpl implements ComServerDAO {
     public ConnectionTask<?, ?> executionCompleted(final ConnectionTask connectionTask) {
         ConnectionTask updatedConnectionTask = null;
         try {
-            if (connectionTask instanceof InboundConnectionTask) {
-                Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
-                if (lockedConnectionTask.isPresent()) {
-                    ConnectionTask task = lockedConnectionTask.get();
-                    task.executionCompleted();
-                    updatedConnectionTask = task;
-                } else {
-                    throw new IllegalStateException("Can't find inbound connection task");
-                }
+            Optional<ConnectionTask> lockedConnectionTask = lockConnectionTask(connectionTask);
+            if (lockedConnectionTask.isPresent()) {
+                ConnectionTask task = lockedConnectionTask.get();
+                task.executionCompleted();
+                updatedConnectionTask = task;
             } else {
-                connectionTask.executionCompleted();
-                updatedConnectionTask = connectionTask;
+                throw new IllegalStateException("Can't find connection task");
             }
         } catch (OptimisticLockException e) {
             final Optional<ConnectionTask> reloaded = refreshConnectionTask(connectionTask);
@@ -1396,8 +1393,17 @@ public class ComServerDAOImpl implements ComServerDAO {
     }
 
     @Override
+    public void updateDeviceMessageInformation(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
+        updateDeviceMessage(deviceMessage, newDeviceMessageStatus, sentDate, protocolInformation);
+    }
+
+    @Override
     public void updateDeviceMessageInformation(final MessageIdentifier messageIdentifier, final DeviceMessageStatus newDeviceMessageStatus, final Instant sentDate, final String protocolInformation) {
         DeviceMessage deviceMessage = findDeviceMessageOrThrowException(messageIdentifier);
+        updateDeviceMessage(deviceMessage, newDeviceMessageStatus, sentDate, protocolInformation);
+    }
+
+    private void updateDeviceMessage(DeviceMessage deviceMessage, DeviceMessageStatus newDeviceMessageStatus, Instant sentDate, String protocolInformation) {
         try {
             updateDeviceMessage(newDeviceMessageStatus, sentDate, protocolInformation, deviceMessage);
         } catch (OptimisticLockException e) { // if someone tried to update the message while the ComServer was executing it ...
@@ -2155,15 +2161,12 @@ public class ComServerDAOImpl implements ComServerDAO {
         return (masterDevice.getDeviceConfiguration().isDataloggerEnabled() || masterDevice.getDeviceConfiguration().isMultiElementEnabled());
     }
 
-    private Instant now() {
-        return serviceProvider.clock().instant();
-    }
-
     /**
      * Fetch the lookup table "comServerMobile_completionCodes"
      */
+    @Override
     public List<LookupEntry> getCompletionCodeLookupEntries() {
-        return new ArrayList<LookupEntry>();
+        return new ArrayList<>();
     }
 
     private enum FutureMessageState {
@@ -2286,6 +2289,16 @@ public class ComServerDAOImpl implements ComServerDAO {
         @Override
         public EventService eventService() {
             return serviceProvider.eventService();
+        }
+
+        @Override
+        public DeviceMessageService deviceMessageService() {
+            return serviceProvider.deviceMessageService();
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return serviceProvider.transactionService();
         }
     }
 

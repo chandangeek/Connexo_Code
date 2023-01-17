@@ -25,9 +25,9 @@ public class FirmwareCampaignItemCustomPropertySet implements CustomPropertySet<
 
     public static final String CUSTOM_PROPERTY_SET_ID = FirmwareCampaignItemDomainExtension.class.getName();
 
-    private volatile Thesaurus thesaurus;
-    private volatile PropertySpecService propertySpecService;
-    private volatile FirmwareServiceImpl firmwareService;
+    private final Thesaurus thesaurus;
+    private final PropertySpecService propertySpecService;
+    private final FirmwareServiceImpl firmwareService;
 
     @Inject
     public FirmwareCampaignItemCustomPropertySet(Thesaurus thesaurus, PropertySpecService propertySpecService,

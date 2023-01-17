@@ -88,7 +88,7 @@ public class ABBA1140ProfileEntry {
             }
             isValue = true;
             for (int i = 0; i < nrOfChannels; i++) {
-                long val = (int) Long.parseLong(Long.toHexString(ProtocolUtils.getLong(bai, 3)));
+                long val = (int) ProtocolUtils.getLong(bai, 3);
                 values[i] = (val / 10) * Calculate.exp(val % 10);
             }
         }

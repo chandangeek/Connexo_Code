@@ -20,7 +20,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
     },
     router: null,
     isPreview: false,
-    loadRecord: function(record) {
+    loadRecord: function (record) {
         var me = this;
         var managementOption = record.get('managementOption');
         var showValidation = managementOption.id === 'activate' || managementOption.id === 'activateOnDate';
@@ -77,8 +77,8 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         xtype: 'displayfield',
                         name: 'timeBoundaryAsText',
                         fieldLabel: Uni.I18n.translate('general.timeBoundary', 'FWC', 'Time boundary'),
-                        renderer: function (value){
-                             return value ? Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}', value ) : '-';
+                        renderer: function (value) {
+                            return value ? Uni.I18n.translate('general.betweenXandY', 'FWC', 'Between {0} and {1}', value) : '-';
                         }
                     },
                     {
@@ -110,7 +110,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         fieldLabel: Uni.I18n.translate('general.firmwareServiceCall', 'FWC', 'Service call'),
                         name: 'serviceCall',
                         renderer: function (value) {
-                            return value ?  '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id})+ '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
+                            return value ? '<a href="' + me.router.getRoute('workspace/servicecalls/overview').buildUrl({serviceCallId: value.id}) + '">' + Ext.String.htmlEncode(value.name) + '</a>' : '-'
                         }
                     },
                     {
@@ -132,11 +132,11 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                         itemId: 'fwc-campaign-allowed-comtask',
                         xtype: 'displayfield',
                         fieldLabel: Uni.I18n.translate(
-                            'general.calendarUploadComTask',
+                            'general.firmwareUploadComTask',
                             'FWC',
                             'Firmware upload communication task'
                         ),
-                        name: 'calendarUploadComTask',
+                        name: 'firmwareUploadComTask',
                         renderer: function (item) {
                             if (!item) {
                                 return '-';
@@ -152,7 +152,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DetailForm', {
                             'FWC',
                             'Connection method strategy'
                         ),
-                        name: 'calendarUploadConnectionStrategy',
+                        name: 'firmwareUploadConnectionStrategy',
                         renderer: function (item) {
                             if (!item) {
                                 return '-';

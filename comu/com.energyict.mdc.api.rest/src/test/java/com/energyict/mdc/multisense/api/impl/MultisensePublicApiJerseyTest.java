@@ -1170,7 +1170,7 @@ public class MultisensePublicApiJerseyTest extends FelixRestApplicationJerseyTes
     protected SecurityAccessor mockSecurityAccessor(String type, PropertySpec... propertySpecs) {
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         SecurityAccessorType securityAccessorType = mockSecuritySecurityAccessorType(type);
-        when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
+        when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(securityAccessor.getPropertySpecs()).thenReturn(Arrays.asList(propertySpecs));
         return securityAccessor;
     }

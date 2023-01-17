@@ -6,6 +6,7 @@ package com.energyict.mdc.engine.impl.core.events;
 
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.NlsService;
+import com.elster.jupiter.transaction.TransactionService;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.comserver.OnlineComServer;
 import com.energyict.mdc.device.data.DeviceMessageService;
@@ -75,6 +76,8 @@ public class ComPortOperationsLogHandlerTest {
     private EventService eventService;
     @Mock
     private EventAPIStatistics eventApiStatistics;
+    @Mock
+    private TransactionService transactionService;
 
     private ComPortOperationsLogger comPortOperationsLogger;
     private static final String eventRegistrationURL = "ws://localhost:8282/events/registration";
@@ -165,6 +168,11 @@ public class ComPortOperationsLogHandlerTest {
         @Override
         public EngineService engineService() {
             return engineService;
+        }
+
+        @Override
+        public TransactionService transactionService() {
+            return transactionService;
         }
     }
 

@@ -23,7 +23,7 @@ public class FirmwareVersionInfo {
     public IdWithNameInfo communicationFirmwareDependency;
     public IdWithNameInfo auxiliaryFirmwareDependency;
 
-    public int getRank(){
+    public int getRank() {
         return rank;
     }
 }

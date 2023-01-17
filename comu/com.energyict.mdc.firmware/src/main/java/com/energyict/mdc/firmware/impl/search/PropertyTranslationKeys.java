@@ -24,8 +24,8 @@ public enum PropertyTranslationKeys implements TranslationKey {
     FIRMWARE_TYPE_CA_CONFIG_IMAGE("firmware.type." + FirmwareType.CA_CONFIG_IMAGE.name(), "Image"),
     FIRMWARE_TYPE_AUXILIARY("firmware.type." + FirmwareType.AUXILIARY.name(), "Auxiliary");
 
-    private String key;
-    private String defaultFormat;
+    private final String key;
+    private final String defaultFormat;
 
     PropertyTranslationKeys(String key, String defaultFormat) {
         this.key = key;

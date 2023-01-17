@@ -49,12 +49,14 @@ import com.energyict.mdc.common.protocol.DeviceMessage;
 import com.energyict.mdc.common.protocol.DeviceMessageId;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.config.LockService;
+import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.device.data.impl.properties.ChannelEstimationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.properties.ChannelValidationRuleOverriddenPropertiesImpl;
 import com.energyict.mdc.device.data.impl.tasks.ComTaskExecutionImpl;
 import com.energyict.mdc.device.data.impl.tasks.ConnectionInitiationTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.InboundConnectionTaskImpl;
 import com.energyict.mdc.device.data.impl.tasks.ScheduledConnectionTaskImpl;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.metering.MdcReadingTypeUtilService;
 
@@ -161,6 +163,8 @@ public class DeviceDeleteTest {
     @Mock
     private DeviceConfigurationService deviceConfigurationService;
     @Mock
+    private DeviceMessageService deviceMessageService;
+    @Mock
     private DeviceLifeCycle deviceLifeCycle;
     @Mock
     private FiniteStateMachine finiteStateMachine;
@@ -194,6 +198,8 @@ public class DeviceDeleteTest {
     private MessageService messageService;
     @Mock
     private JsonService jsonService;
+    @Mock
+    private CommunicationTaskService communicationTaskService;
 
     @Before
     public void setup() {
@@ -339,7 +345,7 @@ public class DeviceDeleteTest {
         DeviceImpl device = new DeviceImpl(dataModel, eventService, issueService, thesaurus, clock, meteringService, validationService,
                 scheduledConnectionTaskProvider, inboundConnectionTaskProvider, connectionInitiationProvider, scheduledComTaskExecutionProvider,
                 meteringGroupsService, customPropertySetService, readingTypeUtilService, threadPrincipalService, userPreferencesService,
-                deviceConfigurationService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService);
+                deviceConfigurationService, deviceMessageService, deviceService, lockService, securityManagementService, connectionTaskService, meteringZoneService, messageService, jsonService, communicationTaskService);
         device.initialize(this.deviceConfiguration, "For testing purposes", Instant.now());
         device.save();
         return device;

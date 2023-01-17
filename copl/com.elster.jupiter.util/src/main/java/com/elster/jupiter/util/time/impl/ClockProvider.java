@@ -85,7 +85,7 @@ public class ClockProvider  {
                 LocalTime localTime = LocalTime.from(TIME_FORMATTER.parse(time));
                 offsetClock.set(LocalDateTime.of(localDate, localTime));
             } else {
-                System.out.println("System's clock cannot be manipulated in current mode.");
+                System.out.println("System clock can't be manipulated in current mode.");
             }
         } catch (Exception e) {
             e.printStackTrace();

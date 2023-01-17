@@ -20,6 +20,8 @@ import com.elster.jupiter.time.TemporalExpression;
 import com.elster.jupiter.time.TimeDuration;
 import com.elster.jupiter.util.conditions.Condition;
 import com.elster.jupiter.util.conditions.Order;
+import com.elster.jupiter.util.streams.Functions;
+import com.elster.jupiter.util.streams.Predicates;
 import com.energyict.mdc.common.ComWindow;
 import com.energyict.mdc.common.comserver.ComPort;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
@@ -46,7 +48,6 @@ import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.journal.ProtocolJournal;
 import com.energyict.mdc.protocol.pluggable.ProtocolPluggableService;
 import com.energyict.mdc.scheduling.SchedulingService;
-import java.util.logging.Logger;
 
 import com.energyict.protocol.exceptions.ConnectionException;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -54,10 +55,21 @@ import com.google.common.collect.Lists;
 
 import javax.inject.Inject;
 import javax.validation.constraints.NotNull;
-import javax.xml.bind.annotation.*;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Logger;
 
 import static com.elster.jupiter.util.conditions.Where.where;
 
@@ -103,7 +115,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     @Inject
-    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService,  CustomPropertySetService customPropertySetService) {
+    protected ScheduledConnectionTaskImpl(DataModel dataModel, EventService eventService, Thesaurus thesaurus, Clock clock, ServerConnectionTaskService connectionTaskService, ServerCommunicationTaskService communicationTaskService, ProtocolPluggableService protocolPluggableService, SchedulingService schedulingService, CustomPropertySetService customPropertySetService) {
         super(dataModel, eventService, thesaurus, clock, connectionTaskService, communicationTaskService, protocolPluggableService);
         this.schedulingService = schedulingService;
         this.communicationTaskService = communicationTaskService;
@@ -205,21 +217,6 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
                 this.doAsSoonAsPossibleSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.LATER);
             } else {
                 this.doMinimizeConnectionsSchedule(earliestNextExecutionTimeStampAndPriority.earliestNextExecutionTimestamp, PostingMode.LATER);
-            }
-        }
-    }
-
-    /**
-     * Updates the next execution timestamps of the dependent ComTaskExecutions.
-     */
-    private void rescheduleComTaskExecutions() {
-        for (ComTaskExecution comTaskExecution : this.getScheduledComTasks()) {
-            if (!comTaskExecution.isOnHold()) {
-                if (comTaskExecution.usesSharedSchedule()) {
-                    comTaskExecution.updateNextExecutionTimestamp();
-                } else {
-                    comTaskExecution.schedule(comTaskExecution.getNextExecutionTimestamp());
-                }
             }
         }
     }
@@ -456,10 +453,15 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
 
     @Override
     public Instant scheduleNow() {
-        this.getScheduledComTasks().stream().
-                filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus())).
-                filter(comTaskExecution -> !comTaskExecution.isObsolete()).
-                forEach(ComTaskExecution::runNow);
+        this.getScheduledComTasks().stream()
+                .filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus()))
+                .filter(comTaskExecution -> !comTaskExecution.isObsolete())
+                .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                .map(comTaskExecution -> communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()))
+                .flatMap(Functions.asStream())
+                .filter(comTaskExecution -> EnumSet.of(TaskStatus.Failed, TaskStatus.Retrying, TaskStatus.NeverCompleted, TaskStatus.Pending).contains(comTaskExecution.getStatus()))
+                .filter(comTaskExecution -> !comTaskExecution.isObsolete())
+                .forEach(ComTaskExecution::runNow);
         return scheduleConnectionNow();
     }
 
@@ -504,16 +506,19 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     }
 
     private void triggerComTasks(Instant when) {
-        for (ComTaskExecution scheduledComTask : this.getScheduledComTasks()) {
-            if (this.needsTriggering(scheduledComTask)) {
-                scheduledComTask.schedule(when);
-            }
-        }
+        getScheduledComTasks().stream()
+                .filter(this::needsTriggering)
+                .filter(Predicates.not(ComTaskExecution::isObsolete))
+                .sorted(Comparator.comparingLong(ComTaskExecution::getId))
+                .map(scheduledComTask -> communicationTaskService.findAndLockComTaskExecutionById(scheduledComTask.getId()))
+                .flatMap(Functions.asStream())
+                .filter(this::needsTriggering)
+                .filter(Predicates.not(ComTaskExecution::isObsolete))
+                .forEach(comTaskExecution -> comTaskExecution.schedule(when));
     }
 
     private boolean needsTriggering(ComTaskExecution scheduledComTask) {
-        Set<TaskStatus> taskStatusesThatRequireTriggering = EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold, TaskStatus.Busy));
-        return taskStatusesThatRequireTriggering.contains(scheduledComTask.getStatus());
+        return EnumSet.complementOf(EnumSet.of(TaskStatus.Waiting, TaskStatus.OnHold, TaskStatus.Busy)).contains(scheduledComTask.getStatus());
     }
 
     @Override
@@ -640,20 +645,20 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
         return connectionType.connect(connectionProperties);
     }
 
-    private List<ConnectionTaskProperty>  getConnectionProviderProperty() {
-        List<ConnectionTaskProperty> connectionTaskPropertyList= new ArrayList();
+    private List<ConnectionTaskProperty> getConnectionProviderProperty() {
+        List<ConnectionTaskProperty> connectionTaskPropertyList = new ArrayList<>();
 
-        connectionTaskPropertyList.add ( newProperty("connectionTask.id",   this.getId(),   Instant.now()) );
-        connectionTaskPropertyList.add ( newProperty("connectionTask.name", this.getName(), Instant.now()));
+        connectionTaskPropertyList.add(newProperty("connectionTask.id", this.getId(), Instant.now()));
+        connectionTaskPropertyList.add(newProperty("connectionTask.name", this.getName(), Instant.now()));
 
         return connectionTaskPropertyList;
     }
 
     private List<ConnectionTaskProperty> getDeviceIdentificationProperties() {
-        List<ConnectionTaskProperty> deviceIDs = new ArrayList();
+        List<ConnectionTaskProperty> deviceIDs = new ArrayList<>();
 
-        deviceIDs.add( newProperty("serialNumber",  getDevice().getSerialNumber(),  Instant.now()));
-        deviceIDs.add( newProperty("mrID",          getDevice().getmRID(),          Instant.now()));
+        deviceIDs.add(newProperty("serialNumber", getDevice().getSerialNumber(), Instant.now()));
+        deviceIDs.add(newProperty("mrID", getDevice().getmRID(), Instant.now()));
 
         return deviceIDs;
     }
@@ -666,7 +671,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
                 CustomPropertySetValues simProps = getCustomPropertySetService().getUniqueValuesFor(simCustomProperty, getDevice(), Instant.now());
                 return toConnectionProperties(simProps);
             }
-        }catch (Exception ex){
+        } catch (Exception ex) {
             System.err.println(ex);
         }
         return Collections.emptyList();
@@ -682,7 +687,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
     public int getMaxNumberOfTries() {
         if (getConnectionStrategy().equals(ConnectionStrategy.AS_SOON_AS_POSSIBLE)) {
             int getMaxConnectionRetries = 0;
-            if(this.getPartialConnectionTask() != null) {
+            if (this.getPartialConnectionTask() != null) {
                 getMaxConnectionRetries = this.getPartialConnectionTask().getNumberOfRetriesConnectionMethod();
             }
             return getMaxConnectionRetries != 0 ? getMaxConnectionRetries : DEFAULT_MAX_NUMBER_OF_TRIES;
@@ -738,7 +743,7 @@ public class ScheduledConnectionTaskImpl extends OutboundConnectionTaskImpl<Part
                 List<String> fields = Lists.newArrayList(ConnectionTaskFields.NEXT_EXECUTION_SPECS.fieldName(),
                         ConnectionTaskFields.PLANNED_NEXT_EXECUTION_TIMESTAMP.fieldName(),
                         ConnectionTaskFields.NEXT_EXECUTION_TIMESTAMP.fieldName());
-                if(priorityChanged){
+                if (priorityChanged) {
                     fields.add(ConnectionTaskFields.PRIORITY.fieldName());
                 }
                 connectionTask.update(fields.toArray(new String[fields.size()]));

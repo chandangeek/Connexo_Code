@@ -80,7 +80,9 @@ Ext.define('Fwc.view.firmware.field.Radio', {
             values = {};
 
         values[me.name] = Ext.isArray(data)
-            ? data.map(function (item) { return item[me.valueField]; })
+            ? data.map(function (item) {
+                return item[me.valueField];
+            })
             : data[me.valueField];
 
         me.value = data;

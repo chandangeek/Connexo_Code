@@ -41,7 +41,7 @@ public class FirmwareCampaignManagementOptionsImpl implements FirmwareCampaignMa
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
+    private final Reference<FirmwareCampaign> firmwareCampaign = ValueReference.absent();
 
     private boolean checkFinalTargetFirmwareStatus;
     private boolean checkTestTargetFirmwareStatus;

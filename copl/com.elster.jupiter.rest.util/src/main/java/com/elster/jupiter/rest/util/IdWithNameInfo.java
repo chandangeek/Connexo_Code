@@ -31,20 +31,10 @@ public class IdWithNameInfo {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false;
-        }
-        IdWithNameInfo that = (IdWithNameInfo) obj;
-        if (this.id == null && that.id == null) {
-            return true;
-        }
-        if(this.id == null && that.id != null) {
-            return false;
-        }
-        return this.id.equals(that.id);
+        return this == obj
+                || obj != null
+                && getClass() == obj.getClass()
+                && Objects.equals(id, ((IdWithNameInfo) obj).id);
     }
 
     @Override
@@ -54,5 +44,9 @@ public class IdWithNameInfo {
 
     public String getName() {
         return name;
+    }
+
+    public Object getId() {
+        return id;
     }
 }

@@ -6,12 +6,12 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>com.elster.jupiter</groupId>
-		<artifactId>kore</artifactId>
-        <version>18.0.0-Kratos-SNAPSHOT</version>
+    <parent>
+        <groupId>com.elster.jupiter</groupId>
+        <artifactId>kore</artifactId>
+        <version>19.0.0-Kratos-SNAPSHOT</version>
 
-	</parent>
+    </parent>
 
 	<artifactId>cim.webservices.outbound.soap</artifactId>
 	<packaging>bundle</packaging>
