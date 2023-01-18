@@ -61,7 +61,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CUSTOM_ATTRIBUTE_VERSION(1028, "NoCustomAttributeVersion", "Custom attribute set version with start date {0} is not found"),
     START_DATE_LOWER_CREATED_DATE(1029, "StartDateLowerCreatedDate", "Start date must be greater or equal to created date of device {0}"),
     GET_DEVICE_IDENTIFIER_MISSING(1030, "GetDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
-    UNABLE_TO_GET_METER_CONFIG_EVENTS(1031, "UnableToGetMeterConfigEvents", "Unable to get meter config events"),
+    UNABLE_TO_GET_METER_CONFIG(1031, "UnableToGetMeterConfigEvents", "Unable to get meter config"),
     NO_DEVICE(1032, "NoDevice", "Device(s) not found"),
     SHIPMENT_DATE_NOT_IN_STOCK(1033, "shipmentdateNotInStock", "Unable to edit shipment date when device isn''t in state ''In stock''."),
     WRONG_ENUM_WALUE_FOR_ATTRIBUTE(1034, "WrongEnumerationValueForAttribute", "Wrong enumeration value for attribute ''{0}''. Possible values: {1}."),
@@ -87,7 +87,6 @@ public enum MessageSeeds implements MessageSeed {
     INVALID_OR_EMPTY_TIME_PERIOD(2003, "InvalidOrEmptyTimePeriod",
             "Can''t construct a valid time period: provided start ''{0}'' is after or coincides with the end ''{1}''."),
     DEVICE_OR_GROUP_IDENTIFIER_MISSING(2004, "deviceOrGroupIdentifierMissing", "At least one of the values should be specified: ''mRID''/''Name'' of a device or ''Name'' of a device group."),
-    UNABLE_TO_GET_METER_CONFIG(2005, "UnableToGetMeterConfigEvents", "Unable to get meter config"),
 
     // created/closed end device events
     INVALID_CREATED_END_DEVICE_EVENTS(3001, "InvalidCreatedEndDeviceEvents", "Invalid CreatedEndDeviceEvents is received"),
