@@ -79,8 +79,7 @@ public enum MessageSeeds implements MessageSeed {
     SOCKET_TIMEOUT_EXCEPTION(1046, "SocketTimeoutException", "The ping has timed out."),
     PING_ERROR(1047, "PingError", "An error occurred during ping: ''{0}''."),
     UNSUPPORTED_PING_VALUE(1048, "UnsupportedPingValue", "Element ''Ping'' contains unsupported value ''{0}''. Must be one of: ''Yes'' or ''No''."),
-    SCHEDULE_FOR_METER_NOT_FOUND(1049, "ScheduleForMeterNotFound", "Schedule ''{0}'' not found."),
-
+    
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
     END_DEVICE_IDENTIFIER_MISSING(2002, "EndDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),

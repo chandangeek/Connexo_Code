@@ -192,11 +192,6 @@ public class SchedulingServiceImpl implements ServerSchedulingService, MessageSe
         return this.dataModel.mapper(ComSchedule.class).lockObjectIfVersion(version, id);
     }
 
-    @Override
-    public Optional<ComSchedule> findScheduleByName(String name) {
-        return this.findUniqueSchedule("name", name);
-    }
-
 
     private Optional<ComSchedule> findUniqueSchedule(String fieldName, Object value) {
         Condition condition = where(fieldName).isEqualTo(value).and(where(ComScheduleImpl.Fields.OBSOLETE_DATE.fieldName()).isNull());
