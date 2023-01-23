@@ -206,8 +206,8 @@ public class SchedulingServiceImpl implements ServerSchedulingService, MessageSe
                         .find(ComTaskInComScheduleImpl.Fields.COM_TASK_REFERENCE.fieldName(), comTask)
                         .stream()
                         .map(ComTaskInComSchedule::getComSchedule))
-                .distinct(HasId::getId)
-                .collect(Collectors.toList());
+                        .distinct(HasId::getId)
+                        .collect(Collectors.toList());
     }
 
     @Override
