@@ -1,11 +1,16 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
-
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.domain.util.FieldMaxLengthException;
+import com.elster.jupiter.domain.util.FieldMaxLengthValidator;
 import com.elster.jupiter.util.Checks;
+import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+
 import com.elster.jupiter.util.streams.Functions;
 
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
@@ -71,7 +76,7 @@ public class MeterConfigParser {
     }
 
     public MeterInfo asMeterInfo(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions,
-                                 OperationEnum operationEnum) throws FaultMessage {
+                                 OperationEnum operationEnum) throws FaultMessage, FieldMaxLengthException {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
 
@@ -118,6 +123,7 @@ public class MeterConfigParser {
         meterInfo.setSecurityInfo(extractSecurityInfo(meter));
         meterInfo.setConnectionAttributes(meter.getConnectionAttributes());
         meterInfo.setSharedCommunicationSchedules(extractSharedCommunicationSchedules(meter));
+        FieldMaxLengthValidator.validate(meterInfo);
         return meterInfo;
     }
 
