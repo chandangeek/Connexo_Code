@@ -216,6 +216,11 @@ public class SchedulingServiceImpl implements ServerSchedulingService, MessageSe
     }
 
     @Override
+    public Optional<ComSchedule> findScheduleByName(String name) {
+        return this.findUniqueSchedule("name", name);
+    }
+
+    @Override
     public ComScheduleBuilder newComSchedule(String name, TemporalExpression temporalExpression, Instant startDate) {
         return new ComScheduleBuilderImpl(name, temporalExpression, startDate);
     }

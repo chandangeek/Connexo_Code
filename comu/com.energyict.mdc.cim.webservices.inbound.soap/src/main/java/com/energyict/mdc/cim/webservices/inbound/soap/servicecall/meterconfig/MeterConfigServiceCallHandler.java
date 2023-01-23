@@ -27,6 +27,7 @@ import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.ReplyTypeFactory;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityHelper;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasHandler;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.meterconfig.DeviceBuilder;
@@ -47,7 +48,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.topology.TopologyService;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.TranslationKeys;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.schema.message.ErrorType;
@@ -90,6 +91,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private volatile TopologyService topologyService;
     private volatile ServiceCallService serviceCallService;
     private volatile EndPointConfigurationService endPointConfigurationService;
+    private volatile SchedulingService schedulingService;
 
     private ReplyTypeFactory replyTypeFactory;
     private MeterConfigFaultMessageFactory messageFactory;
@@ -111,7 +113,8 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                                          DeviceService deviceService, JsonService jsonService, CustomPropertySetService customPropertySetService,
                                          SecurityManagementService securityManagementService, HsmEnergyService hsmEnergyService,
                                          MeteringTranslationService meteringTranslationService, TransactionService transactionService,
-                                         TopologyService topologyService, EndPointConfigurationService endPointConfigurationService) {
+                                         TopologyService topologyService, EndPointConfigurationService endPointConfigurationService,
+                                         SchedulingService schedulingService) {
         this.batchService = batchService;
         this.deviceLifeCycleService = deviceLifeCycleService;
         this.clock = clock;
@@ -126,6 +129,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.transactionService = transactionService;
         this.topologyService = topologyService;
         this.endPointConfigurationService = endPointConfigurationService;
+        this.schedulingService = schedulingService;
     }
 
     @Override
@@ -427,6 +431,11 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
         this.serviceCallService = serviceCallService;
     }
 
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
+    }
+
     private void postProcessDevice(Device device, MeterInfo meterInfo) {
         webServiceExtension.ifPresent(
                 inboundCIMWebServiceExtension -> inboundCIMWebServiceExtension.extendMeterInfo(device, meterInfo));
@@ -449,7 +458,7 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
     private DeviceBuilder getDeviceBuilder() {
         if (deviceBuilder == null) {
             deviceBuilder = new DeviceBuilder(batchService, clock, deviceLifeCycleService, deviceConfigurationService,
-                    deviceService, getMessageFactory(), meteringTranslationService);
+                    deviceService, getMessageFactory(), meteringTranslationService,schedulingService);
         }
         return deviceBuilder;
     }

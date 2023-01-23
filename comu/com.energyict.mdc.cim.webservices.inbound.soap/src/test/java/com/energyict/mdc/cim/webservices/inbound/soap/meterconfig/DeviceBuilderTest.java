@@ -27,6 +27,7 @@ import com.energyict.mdc.device.data.BatchService;
 import com.energyict.mdc.device.data.DeviceService;
 import com.energyict.mdc.device.lifecycle.DeviceLifeCycleService;
 import com.energyict.mdc.device.lifecycle.ExecutableAction;
+import com.energyict.mdc.scheduling.SchedulingService;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.Attribute;
@@ -153,6 +154,9 @@ public class DeviceBuilderTest {
     private MeteringTranslationService meteringTranslationService;
 
     @Mock
+    private SchedulingService schedulingService;
+
+    @Mock
     private StateTransition stateTransition;
 
     @Mock
@@ -168,7 +172,7 @@ public class DeviceBuilderTest {
     public void setUp() {
         testable = new DeviceBuilder(batchService, Clock.fixed(NOW, Clock.systemDefaultZone().getZone()),
                 deviceLifeCycleService, deviceConfigurationService, deviceService, faultMessageFactory,
-                meteringTranslationService);
+                meteringTranslationService,schedulingService);
         meterInfo = new MeterInfo();
         meterInfo.setDeviceType(DEVICE_TYPE);
         meterInfo.setDeviceConfigurationName(DEVICE_CONFIG_NAME);

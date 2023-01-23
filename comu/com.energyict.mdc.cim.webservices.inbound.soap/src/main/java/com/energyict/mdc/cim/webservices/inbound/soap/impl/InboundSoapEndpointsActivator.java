@@ -106,7 +106,7 @@ import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
 import com.energyict.mdc.masterdata.MasterDataService;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
-
+import com.energyict.mdc.scheduling.SchedulingService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.primitives.Ints;
 import com.google.inject.AbstractModule;
@@ -216,6 +216,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     private volatile ReplyMasterDataLinkageConfigWebService replyMasterDataLinkageConfigWebService;
     private volatile EngineConfigurationService engineConfigurationService;
     private volatile PriorityComTaskService priorityComTaskService;
+    private volatile SchedulingService schedulingService;
 
 
     private List<ServiceRegistration> serviceRegistrations = new ArrayList<>();
@@ -252,7 +253,8 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                                          MasterDataLinkageConfigMasterCustomPropertySet masterDataLinkageConfigMasterCustomPropertySet,
                                          MasterDataLinkageConfigCustomPropertySet masterDataLinkageConfigCustomPropertySet,
                                          EngineConfigurationService engineConfigurationService,
-                                         PriorityComTaskService priorityComTaskService) {
+                                         PriorityComTaskService priorityComTaskService,
+                                         SchedulingService schedulingService) {
         this();
         setClock(clock);
         setThreadPrincipalService(threadPrincipalService);
@@ -297,6 +299,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
         setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         setEngineConfigurationService(engineConfigurationService);
         setPriorityComTaskService(priorityComTaskService);
+        setSchedulingService(schedulingService);
     }
 
 
@@ -352,6 +355,7 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
                 bind(ReplyMasterDataLinkageConfigWebService.class).toInstance(replyMasterDataLinkageConfigWebService);
                 bind(EngineConfigurationService.class).toInstance(engineConfigurationService);
                 bind(PriorityComTaskService.class).toInstance(priorityComTaskService);
+                bind(SchedulingService.class).toInstance(schedulingService);
             }
         };
     }
@@ -786,6 +790,11 @@ public class InboundSoapEndpointsActivator implements MessageSeedProvider, Trans
     @Reference
     public void setPriorityComTaskService(PriorityComTaskService priorityComTaskService) {
         this.priorityComTaskService = priorityComTaskService;
+    }
+
+    @Reference
+    public void setSchedulingService(SchedulingService schedulingService) {
+        this.schedulingService = schedulingService;
     }
 
     @Reference(target = "(name=" + MasterDataLinkageConfigMasterCustomPropertySet.CUSTOM_PROPERTY_SET_NAME + ")")
