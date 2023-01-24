@@ -43,7 +43,7 @@
         <include.source>false</include.source>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <baseline>17.0.0-Kratos</baseline>
-        <commercial.version>10.9.22</commercial.version>
+        <commercial.version>10.9.23</commercial.version>
         <!-- See: https://github.com/powermock/powermock/wiki/mockito -->
         <powermock.version>1.6.6</powermock.version>
         <mockito.version>1.10.19</mockito.version>
