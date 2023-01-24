@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2018 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;

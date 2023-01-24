@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.impl;
@@ -60,7 +61,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_CUSTOM_ATTRIBUTE_VERSION(1028, "NoCustomAttributeVersion", "Custom attribute set version with start date {0} is not found"),
     START_DATE_LOWER_CREATED_DATE(1029, "StartDateLowerCreatedDate", "Start date must be greater or equal to created date of device {0}"),
     GET_DEVICE_IDENTIFIER_MISSING(1030, "GetDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),
-    UNABLE_TO_GET_METER_CONFIG_EVENTS(1031, "UnableToGetMeterConfigEvents", "Unable to get meter config events"),
+    UNABLE_TO_GET_METER_CONFIG(1031, "UnableToGetMeterConfig", "Unable to get meter config"),
     NO_DEVICE(1032, "NoDevice", "Device(s) not found"),
     SHIPMENT_DATE_NOT_IN_STOCK(1033, "shipmentdateNotInStock", "Unable to edit shipment date when device isn''t in state ''In stock''."),
     WRONG_ENUM_WALUE_FOR_ATTRIBUTE(1034, "WrongEnumerationValueForAttribute", "Wrong enumeration value for attribute ''{0}''. Possible values: {1}."),
@@ -78,8 +79,7 @@ public enum MessageSeeds implements MessageSeed {
     SOCKET_TIMEOUT_EXCEPTION(1046, "SocketTimeoutException", "The ping has timed out."),
     PING_ERROR(1047, "PingError", "An error occurred during ping: ''{0}''."),
     UNSUPPORTED_PING_VALUE(1048, "UnsupportedPingValue", "Element ''Ping'' contains unsupported value ''{0}''. Must be one of: ''Yes'' or ''No''."),
-    SCHEDULE_FOR_METER_NOT_FOUND(1049, "ScheduleForMeterNotFound", "Schedule ''{0}'' not found."),
-
+    
     // get end device events
     UNABLE_TO_GET_END_DEVICE_EVENTS(2001, "UnableToGetEndDeviceEvents", "Unable to get end device events"),
     END_DEVICE_IDENTIFIER_MISSING(2002, "EndDeviceIdentifierMissing", "At least one of ''mRID'' or ''Name'' must be specified in the request."),

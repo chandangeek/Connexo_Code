@@ -382,7 +382,7 @@ Ext.define('Dxp.controller.Tasks', {
                             } else {
                                 dataValidation.setVisible(true);
                                 missingData.setVisible(true);
-                            } 
+                            }
                             updatedData.setVisible(true);
                             continuousDataPreview.setVisible(true);
                             if (record.getData().exportUpdate === 'false') {
@@ -1890,7 +1890,7 @@ Ext.define('Dxp.controller.Tasks', {
             page.down('#data-selector-export-complete').setVisible(true);
             page.down('#startOfExportWindow').setValue(true);
             page.down('#data-selector-validated-data').setVisible(true);
-        } 
+        }
 
         me.updatedDataEnableDisable();
         me.exportUpdatedEnableDisabled();
@@ -2288,24 +2288,26 @@ Ext.define('Dxp.controller.Tasks', {
             }
             form.down('#formatter-container').doComponentLayout();
 
-            if (selectedDataSelector.get('selectorType') !== 'DEFAULT_USAGE_POINT_READINGS') {
-                var deviceGroupCombo = page.down('#device-group-combo'),
-                    noDeviceGroupChosen = !deviceGroupCombo.getValue() || deviceGroupCombo.getValue().length === 0;
-                if (noDeviceGroupChosen) {
-                    form.down('#device-group-container').setActiveError(me.requiredFieldText);
+            if(selectedDataSelector.get('selectorType') !== 'CUSTOM') {
+                if (selectedDataSelector.get('selectorType') !== 'DEFAULT_USAGE_POINT_READINGS') {
+                    var deviceGroupCombo = page.down('#device-group-combo'),
+                        noDeviceGroupChosen = !deviceGroupCombo.getValue() || deviceGroupCombo.getValue().length === 0;
+                    if (noDeviceGroupChosen) {
+                        form.down('#device-group-container').setActiveError(me.requiredFieldText);
+                    } else {
+                        form.down('#device-group-container').unsetActiveError();
+                    }
+                    form.down('#device-group-container').doComponentLayout();
                 } else {
-                    form.down('#device-group-container').unsetActiveError();
+                    var usagePointGroupCombo = form.down('#usage-point-group-combo'),
+                        noUsagePointGroupChosen = !usagePointGroupCombo.getValue() || usagePointGroupCombo.getValue().length === 0;
+                    if (noUsagePointGroupChosen) {
+                        form.down('#usage-point-group-container').setActiveError(me.requiredFieldText);
+                    } else {
+                        form.down('#usage-point-group-container').unsetActiveError();
+                    }
+                    form.down('#device-group-container').doComponentLayout();
                 }
-                form.down('#device-group-container').doComponentLayout();
-            } else {
-                var usagePointGroupCombo = form.down('#usage-point-group-combo'),
-                    noUsagePointGroupChosen = !usagePointGroupCombo.getValue() || usagePointGroupCombo.getValue().length === 0;
-                if (noUsagePointGroupChosen) {
-                    form.down('#usage-point-group-container').setActiveError(me.requiredFieldText);
-                } else {
-                    form.down('#usage-point-group-container').unsetActiveError();
-                }
-                form.down('#device-group-container').doComponentLayout();
             }
 
             var selectedExportWindow = !exportWindowCombo.getValue() || exportWindowCombo.getValue().length === 0;

@@ -1,9 +1,11 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
+import com.elster.jupiter.domain.util.FieldMaxLengthException;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
@@ -47,9 +49,9 @@ import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
 import ch.iec.tc57._2011.schema.message.ErrorType;
 import ch.iec.tc57._2011.schema.message.HeaderType;
 import ch.iec.tc57._2011.schema.message.HeaderType.Verb;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
-import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.SetMultimap;
 
@@ -94,7 +96,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                                       EndPointConfigurationService endPointConfigurationService, MeterConfigParser meterConfigParser,
                                       WebServicesService webServicesService, InboundCIMWebServiceExtensionFactory webServiceExtensionFactory,
                                       CasHandler casHandler, SecurityHelper securityHelper, DeviceFinder deviceFinder, DeviceDeleter deviceDeleter,
-                                      MeterConfigPingUtils meterConfigPingUtils,PropertySpecService propertySpecService,
+                                      MeterConfigPingUtils meterConfigPingUtils, PropertySpecService propertySpecService,
                                       Thesaurus thesaurus) {
         this.meterConfigFactory = meterConfigFactory;
         this.meterConfigParser = meterConfigParser;
@@ -155,26 +157,25 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                             OperationEnum.CREATE);
 
                     boolean respondSuccessForExisting = returnDeviceIfExists(true);
-                    MeterInfo parsedMeterInfo = meterConfigParser.asMeterInfo(meter, meterConfig.getSimpleEndDeviceFunction(), OperationEnum.CREATE);
-                    List<Device> existingDevices = deviceBuilder.getExistingDevices(parsedMeterInfo.getDeviceName(), parsedMeterInfo.getSerialNumber());
+                    List<Device> existingDevices = deviceBuilder.getExistingDevices(meterInfo.getDeviceName(), meterInfo.getSerialNumber());
                     if (existingDevices.size() == 1) {
                         // only one device exists
                         if (respondSuccessForExisting) {
                             Device existingDevice = existingDevices.get(0);
-                            if (existingDevice.getName().equals(parsedMeterInfo.getDeviceName())
-                                    && existingDevice.getSerialNumber().equals(parsedMeterInfo.getSerialNumber())
-                                    && existingDevice.getDeviceType().getName().equals(parsedMeterInfo.getDeviceType())) {
+                            if (existingDevice.getName().equals(meterInfo.getDeviceName())
+                                    && existingDevice.getSerialNumber().equals(meterInfo.getSerialNumber())
+                                    && existingDevice.getDeviceType().getName().equals(meterInfo.getDeviceType())) {
                                 // respond as it was created
-                                return createResponseMessage(existingDevice, HeaderType.Verb.CREATED,requestMessage.getHeader().getCorrelationID());
+                                return createResponseMessage(existingDevice, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
                             }
                         }
                     }
 
                     // standard functionality
-                    Device createdDevice = deviceBuilder.prepareCreateFrom(parsedMeterInfo).build();
+                    Device createdDevice = deviceBuilder.prepareCreateFrom(meterInfo).build();
                     return processDevice(createdDevice, meterInfo, HeaderType.Verb.CREATED, requestMessage.getHeader().getCorrelationID());
                 }
-            } catch (VerboseConstraintViolationException e) {
+            } catch (VerboseConstraintViolationException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CREATE_DEVICE,
                         e.getLocalizedMessage());
             } catch (LocalizedException e) {
@@ -246,7 +247,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     return processDevice(changedDevice, meterInfo, HeaderType.Verb.CHANGED, requestMessage.getHeader().getCorrelationID());
                 }
             } catch (VerboseConstraintViolationException | SecurityException | InvalidLastCheckedException
-                    | DeviceLifeCycleActionViolationException e) {
+                    | DeviceLifeCycleActionViolationException | FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(meterName, MessageSeeds.UNABLE_TO_CHANGE_DEVICE,
                         e.getLocalizedMessage());
             } catch (LocalizedException e) {
@@ -278,7 +279,9 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
     }
 
     private ServiceCall createMeterConfigServiceCallAndTransition(MeterConfig meterConfig,
-                                                                  EndPointConfiguration endPointConfiguration, OperationEnum operation, String correlationId) throws FaultMessage {
+                                                                  EndPointConfiguration endPointConfiguration, OperationEnum operation, String correlationId) throws
+            FaultMessage,
+            FieldMaxLengthException {
         ServiceCall serviceCall = serviceCallCommands.createMeterConfigMasterServiceCall(meterConfig,
                 endPointConfiguration, operation, correlationId);
         serviceCallCommands.requestTransition(serviceCall, DefaultState.PENDING);
@@ -417,8 +420,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     deviceDeleter.delete(device);
                     return createResponseMessage(null, Verb.DELETED, deleteMeterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
-            } catch (LocalizedException e) {
+            } catch (FieldMaxLengthException e) {
                 throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_DELETE_DEVICE, e.getLocalizedMessage(), e.getErrorCode());
             }
         });
     }
@@ -489,8 +494,10 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                     return createGetResponseMessage(device, pingResult, meterStatusRequired, errorMessageOptional.orElse(null),
                             meterConfigRequestMessageType.getHeader().getCorrelationID());
                 }
-            } catch (VerboseConstraintViolationException e) {
-                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG_EVENTS, e.getLocalizedMessage());
+            } catch (VerboseConstraintViolationException | FieldMaxLengthException e) {
+                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG, e.getLocalizedMessage());
+            } catch (LocalizedException e) {
+                throw faultMessageFactory.meterConfigFaultMessage(null, MessageSeeds.UNABLE_TO_GET_METER_CONFIG, e.getLocalizedMessage(), e.getErrorCode());
             }
         });
     }
@@ -530,7 +537,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         }
     }
 
-    private boolean returnDeviceIfExists(boolean defaultValue){
+    private boolean returnDeviceIfExists(boolean defaultValue) {
         Optional<EndPointConfiguration> outboundEndPointConfiguration = getEndPointConfigurations();
         if (outboundEndPointConfiguration.isPresent()) {
             Map<String, Object> properties = outboundEndPointConfiguration.get().getPropertiesWithValue();
