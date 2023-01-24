@@ -7,13 +7,12 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.util.Checks;
 import com.elster.jupiter.util.streams.Functions;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
@@ -23,22 +22,20 @@ import ch.iec.tc57._2011.meterconfig.Meter;
 import ch.iec.tc57._2011.meterconfig.MeterMultiplier;
 import ch.iec.tc57._2011.meterconfig.Name;
 import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
+import ch.iec.tc57._2011.meterconfig.SharedCommunicationSchedule;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zone;
-
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKeys;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -116,7 +113,16 @@ public class MeterConfigParser {
         meterInfo.setDeviceConfigurationName(extractDeviceConfig(meter, endDeviceFunctions));
         meterInfo.setSecurityInfo(extractSecurityInfo(meter));
         meterInfo.setConnectionAttributes(meter.getConnectionAttributes());
+        meterInfo.setSharedCommunicationSchedules(extractSharedCommunicationSchedules(meter));
         return meterInfo;
+    }
+
+    private List<SharedCommunicationSchedule> extractSharedCommunicationSchedules(Meter meter) throws FaultMessage {
+        List<SharedCommunicationSchedule> result = new ArrayList<>();
+        if (meter.getSharedCommunicationSchedules() != null) {
+            result=meter.getSharedCommunicationSchedules().getSharedCommunicationSchedule();
+        }
+        return result;
     }
 
     private List<CasInfo> extractCustomPropertySets(Meter meter) throws FaultMessage {

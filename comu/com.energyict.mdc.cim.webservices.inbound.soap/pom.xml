@@ -204,6 +204,10 @@
             <groupId>com.energyict</groupId>
             <artifactId>mdc.device.topology</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.energyict</groupId>
+            <artifactId>mdc.scheduling</artifactId>
+        </dependency>
         <!-- Test dependencies -->
         <dependency>
             <groupId>com.elster.jupiter</groupId>
@@ -233,11 +237,6 @@
         <dependency>
             <groupId>com.energyict</groupId>
             <artifactId>mdc.protocol.pluggable</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.energyict</groupId>
-            <artifactId>mdc.scheduling</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
