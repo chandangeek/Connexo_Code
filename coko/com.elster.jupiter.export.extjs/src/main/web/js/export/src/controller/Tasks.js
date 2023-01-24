@@ -2288,7 +2288,7 @@ Ext.define('Dxp.controller.Tasks', {
             }
             form.down('#formatter-container').doComponentLayout();
 
-            if(selectedDataSelector.get('selectorType') !== 'CUSTOM') {
+            if (selectedDataSelector.get('selectorType') !== 'CUSTOM') {
                 if (selectedDataSelector.get('selectorType') !== 'DEFAULT_USAGE_POINT_READINGS') {
                     var deviceGroupCombo = page.down('#device-group-combo'),
                         noDeviceGroupChosen = !deviceGroupCombo.getValue() || deviceGroupCombo.getValue().length === 0;
