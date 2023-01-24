@@ -173,6 +173,7 @@ public class MeterConfigMasterServiceCallHandler implements ServiceCallHandler {
                         failedMeterOperation.setErrorCode(extensionFor.getErrorCode());
                         failedMeterOperation.setErrorMessage(extensionFor.getErrorMessage());
                         failedMeterOperation.setmRID(extensionFor.getMeterMrid());
+                        failedMeterOperation.setSerialNumber(extensionFor.getMeterSerialNumber());
                         failedMeterOperation.setMeterName(extensionFor.getMeterName());
                         failedMeterOperations.add(failedMeterOperation);
                     }

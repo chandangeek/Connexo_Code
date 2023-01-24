@@ -195,6 +195,8 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
                             meter.getName());
                     values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
                             meter.getMRID());
+                    values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(),
+                            meter.getSerialNumber());
                 });
 
                 reading.getUsagePoint().ifPresent(usp -> {
@@ -233,6 +235,8 @@ public class SendMeterReadingsProviderImpl extends AbstractOutboundEndPointProvi
                         meter.getNames().get(0).getName());
                 values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(),
                         meter.getMRID());
+                values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(),
+                        meter.getSerialNumber());
             });
 
             Optional.ofNullable(reading.getUsagePoint()).ifPresent(usp -> {

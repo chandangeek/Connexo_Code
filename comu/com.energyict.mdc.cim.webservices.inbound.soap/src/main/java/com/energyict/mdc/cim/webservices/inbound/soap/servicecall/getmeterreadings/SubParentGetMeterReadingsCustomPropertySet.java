@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Version.version;
+
 @Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.SubParentGetMeterReadingsCustomPropertySet",
         service = CustomPropertySet.class,
         property = "name=" + SubParentGetMeterReadingsCustomPropertySet.CUSTOM_PROPERTY_SET_NAME,
@@ -41,6 +43,7 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
 
     private volatile PropertySpecService propertySpecService;
     private volatile Thesaurus thesaurus;
+
     // For OSGi framework
     public SubParentGetMeterReadingsCustomPropertySet() {
     }
@@ -129,6 +132,12 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
                         .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_MRID.javaName(), TranslationKeys.END_DEVICE_MRID)
                         .fromThesaurus(thesaurus)
                         .markRequired()
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
+                        .named(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_SERIAL_NUMBER.javaName(), TranslationKeys.END_DEVICE_SERIAL_NUMBER)
+                        .fromThesaurus(thesaurus)
+                        .markRequired()
                         .finish()
         );
     }
@@ -183,6 +192,13 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
                     .varChar()
                     .map(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_MRID.javaName())
                     .notNull()
+                    .add();
+            table.column(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_SERIAL_NUMBER.databaseName())
+                    .varChar()
+                    .map(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_SERIAL_NUMBER.javaName())
+                    .notNull()
+                    .installValue("'-'")
+                    .since(version(10, 9, 24))
                     .add();
         }
 
