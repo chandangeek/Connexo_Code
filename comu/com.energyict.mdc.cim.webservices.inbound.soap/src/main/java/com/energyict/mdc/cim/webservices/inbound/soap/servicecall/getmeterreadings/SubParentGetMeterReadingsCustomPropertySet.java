@@ -198,7 +198,7 @@ public class SubParentGetMeterReadingsCustomPropertySet implements CustomPropert
                     .map(SubParentGetMeterReadingsDomainExtension.FieldNames.END_DEVICE_SERIAL_NUMBER.javaName())
                     .notNull()
                     .installValue("'-'")
-                    .since(version(10, 9, 23))
+                    .since(version(10, 9, 24))
                     .add();
         }
 

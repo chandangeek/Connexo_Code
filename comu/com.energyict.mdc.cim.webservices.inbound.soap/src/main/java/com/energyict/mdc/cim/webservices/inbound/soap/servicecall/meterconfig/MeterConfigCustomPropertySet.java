@@ -246,7 +246,7 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
             table.column(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.databaseName())
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.javaName())
-                    .since(version(10, 9, 23))
+                    .since(version(10, 9, 24))
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.METER_NAME.databaseName())
                     .varChar()
