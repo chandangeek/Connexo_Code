@@ -22,8 +22,8 @@ public class SubParentGetMeterReadingsDomainExtension extends AbstractPersistent
     public enum FieldNames {
         DOMAIN("serviceCall", "SERVICE_CALL"),
         END_DEVICE_NAME("endDeviceName", "END_DEVICE_NAME"),
-        END_DEVICE_MRID("endDeviceMrid", "END_DEVICE_MRID")
-        ;
+        END_DEVICE_MRID("endDeviceMrid", "END_DEVICE_MRID"),
+        END_DEVICE_SERIAL_NUMBER("endDeviceSerialNumber", "END_DEVICE_SERIAL_NUMBER");
 
         FieldNames(String javaName, String databaseName) {
             this.javaName = javaName;
@@ -50,6 +50,8 @@ public class SubParentGetMeterReadingsDomainExtension extends AbstractPersistent
     private String endDeviceName;
     @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String endDeviceMrid;
+    @Size(max = Table.MAX_STRING_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String endDeviceSerialNumber;
 
     public SubParentGetMeterReadingsDomainExtension() {
         super();
@@ -79,17 +81,27 @@ public class SubParentGetMeterReadingsDomainExtension extends AbstractPersistent
         this.endDeviceMrid = endDevice;
     }
 
+    public String getEndDeviceSerialNumber() {
+        return endDeviceSerialNumber;
+    }
+
+    public void setEndDeviceSerialNumber(String endDevice) {
+        this.endDeviceSerialNumber = endDevice;
+    }
+
     @Override
     public void copyFrom(ServiceCall serviceCall, CustomPropertySetValues propertyValues, Object... additionalPrimaryKeyValues) {
         this.serviceCall.set(serviceCall);
         this.setEndDeviceName((String) propertyValues.getProperty(FieldNames.END_DEVICE_NAME.javaName()));
         this.setEndDeviceMrid((String) propertyValues.getProperty(FieldNames.END_DEVICE_MRID.javaName()));
+        this.setEndDeviceSerialNumber((String) propertyValues.getProperty(FieldNames.END_DEVICE_SERIAL_NUMBER.javaName()));
     }
 
     @Override
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.END_DEVICE_NAME.javaName(), this.getEndDeviceName());
         propertySetValues.setProperty(FieldNames.END_DEVICE_MRID.javaName(), this.getEndDeviceMrid());
+        propertySetValues.setProperty(FieldNames.END_DEVICE_SERIAL_NUMBER.javaName(), this.getEndDeviceSerialNumber());
     }
 
     @Override

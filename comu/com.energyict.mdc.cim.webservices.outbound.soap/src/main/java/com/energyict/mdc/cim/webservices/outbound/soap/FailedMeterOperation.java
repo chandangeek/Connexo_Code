@@ -6,6 +6,7 @@ package com.energyict.mdc.cim.webservices.outbound.soap;
 
 public class FailedMeterOperation {
     private String mRID;
+    private String serialNumber;
     private String meterName;
     private String errorCode;
     private String errorMessage;
@@ -19,6 +20,14 @@ public class FailedMeterOperation {
 
     public void setmRID(String mRID) {
         this.mRID = mRID;
+    }
+
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
 
     public String getMeterName() {

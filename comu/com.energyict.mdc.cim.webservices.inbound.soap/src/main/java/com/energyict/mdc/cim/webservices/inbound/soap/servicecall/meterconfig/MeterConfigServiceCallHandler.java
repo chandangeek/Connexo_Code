@@ -188,12 +188,12 @@ public class MeterConfigServiceCallHandler implements ServiceCallHandler {
                         lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);
                         break;
                     case GET:
-                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterSerialNumber(), extensionFor.getMeterName());
                         lockedServiceCall.setTargetObject(device);
                         processMeterStatus(device, lockedServiceCall);
                         break;
                     case DELETE:
-                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterName());
+                        device = getDeviceFinder().findDevice(extensionFor.getMeterMrid(), extensionFor.getMeterSerialNumber(), extensionFor.getMeterName());
                         lockedServiceCall.setTargetObject(device);
                         getDeviceDeleter().delete(device);
                         lockedServiceCall.requestTransition(DefaultState.SUCCESSFUL);

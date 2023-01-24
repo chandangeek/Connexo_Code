@@ -290,6 +290,7 @@ public class ServiceCallCommands {
             meterConfigDomainExtension.setMeter(jsonService.serialize(meterInfo));
         }
         meterConfigDomainExtension.setMeterMrid(meter.getMRID());
+        meterConfigDomainExtension.setMeterSerialNumber(meter.getSerialNumber());
         String deviceName = meterConfigParser.extractName(meter.getNames()).orElse(null);
         meterConfigDomainExtension.setMeterName(deviceName);
         meterConfigDomainExtension.setOperation(operation.getOperation());
@@ -730,6 +731,7 @@ public class ServiceCallCommands {
         SubParentGetMeterReadingsDomainExtension subParentDomainExtension = new SubParentGetMeterReadingsDomainExtension();
         subParentDomainExtension.setEndDeviceName(meter.getName());
         subParentDomainExtension.setEndDeviceMrid(meter.getMRID());
+        subParentDomainExtension.setEndDeviceSerialNumber(meter.getSerialNumber());
 
         ServiceCall subParentServiceCall = parent.newChildCall(serviceCallType).extendedWith(subParentDomainExtension)
                 .create();

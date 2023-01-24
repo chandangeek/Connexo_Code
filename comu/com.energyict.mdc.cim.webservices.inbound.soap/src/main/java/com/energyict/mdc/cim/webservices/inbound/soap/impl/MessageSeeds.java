@@ -116,7 +116,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_PURPOSES_WITH_NAMES(6002, "NoPurposesWithNames", "No metrology purposes are found for names: {0}."),
     END_DEVICES_WITH_MRID_NOT_FOUND(6004, "DevicesWithMridNotFound", "Couldn''t find device(s) with MRID(s) ''{0}''.", Level.WARNING),
     END_DEVICES_WITH_NAME_NOT_FOUND(6005, "DevicesWithNamesNotFound", "Couldn''t find device(s) with name(s) ''{0}''.", Level.WARNING),
-    END_DEVICES_NOT_FOUND(6006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    END_DEVICES_NOT_FOUND(6006, "DevicesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'', serial number(s) ''{1}'' and name(s) ''{2}''.", Level.WARNING),
     NO_END_DEVICES(6007, "NoDevices", "No devices have been found."),
     NO_READING_TYPES(6008, "NoReadingTypes", "No reading types have been found."),
     READING_TYPES_WITH_MRID_NOT_FOUND(6009, "ReadingTypesWithMridNotFound", "Reading type(s) with MRID(s) ''{0}'' is(are) not found in the system.", Level.WARNING),
@@ -157,6 +157,11 @@ public enum MessageSeeds implements MessageSeed {
             "Running the communication task with priority on device ''{0}'' for register groups ''{1}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
     NO_PRIORITY_COM_TASK_EXECUTION_FOR_LOAD_PROFILES(6045, "NoPriorityComTaskExecutionForLoadProfiles",
             "Running the communication task with priority for load profile device messages on device ''{0}'' isn''t possible, since there are no priority connections allowed on its communication port pool.", Level.WARNING),
+    END_DEVICES_WITH_SERIAL_NUMBER_NOT_FOUND(6046, "DevicesWithSerialNumberNotFound", "Couldn''t find device(s) by serial number(s) ''{0}''.", Level.WARNING),
+    END_DEVICES_WITH_SERIAL_NUMBER_AND_MRID_NOT_FOUND(6047, "DevicesWithSerialNumberAndMridNotFound", "Couldn''t find device(s) with serial number(s) ''{0}'' and MRID(s) ''{1}''.", Level.WARNING),
+    END_DEVICES_WITH_SERIAL_NUMBER_AND_NAME_NOT_FOUND(6048, "DevicesWithSerialNumberAndNamesNotFound", "Couldn''t find device(s) with serial number(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    END_DEVICES_WITH_MRID_AND_NAME_NOT_FOUND(6049, "DevicesWithMridAndNamesNotFound", "Couldn''t find device(s) with MRID(s) ''{0}'' and name(s) ''{1}''.", Level.WARNING),
+    MORE_DEVICES_WITH_SAME_SERIAL_NUMBER(1015, "MoreDevicesForSerialNumber", "More then one device found for serialNumber ''{0}''"),
 
     // master data linkage
     NO_METER_WITH_MRID(7001, "NoMeterWithMRID", "No meter or gateway is found by MRID ''{0}''."),

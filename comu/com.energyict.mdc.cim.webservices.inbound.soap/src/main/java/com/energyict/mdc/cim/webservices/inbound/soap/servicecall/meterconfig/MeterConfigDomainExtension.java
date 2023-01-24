@@ -24,6 +24,7 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
         DOMAIN("serviceCall", "serviceCall"),
         METER("meter", "meter"),
         METER_MRID("meterMrid", "METER_MRID"),
+        METER_SERIAL_NUMBER("meterSerialNumber", "METER_SERIAL_NUMBER"),
         METER_NAME("meterName", "METER_NAME"),
         COMMUNICATION_TASK("communicationTask", "COMMUNICATION_TASK"),
         PARENT_SERVICE_CALL("parentServiceCallId", "parentServiceCallId"),
@@ -54,6 +55,8 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
     private String meter;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meterMrid;
+    @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
+    private String meterSerialNumber;
     @Size(max = Table.NAME_LENGTH, groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_TOO_LONG + "}")
     private String meterName;
     private Reference<ComTask> communicationTask = Reference.empty();
@@ -87,6 +90,14 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
 
     public void setMeterMrid(String meterMrid) {
         this.meterMrid = meterMrid;
+    }
+
+    public String getMeterSerialNumber() {
+        return meterSerialNumber;
+    }
+
+    public void setMeterSerialNumber(String meterSerialNumber) {
+        this.meterSerialNumber = meterSerialNumber;
     }
 
     public String getMeterName() {
@@ -150,6 +161,7 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
         this.serviceCall.set(serviceCall);
         this.setMeter((String) propertyValues.getProperty(FieldNames.METER.javaName()));
         this.setMeterMrid((String) propertyValues.getProperty(FieldNames.METER_MRID.javaName()));
+        this.setMeterSerialNumber((String) propertyValues.getProperty(FieldNames.METER_SERIAL_NUMBER.javaName()));
         this.setMeterName((String) propertyValues.getProperty(FieldNames.METER_NAME.javaName()));
         this.setCommunicationTask((ComTask) propertyValues.getProperty(FieldNames.COMMUNICATION_TASK.javaName()));
         this.setParentServiceCallId(new BigDecimal(Optional.ofNullable(propertyValues.getProperty(FieldNames.PARENT_SERVICE_CALL.javaName()))
@@ -164,6 +176,7 @@ public class MeterConfigDomainExtension extends AbstractPersistentDomainExtensio
     public void copyTo(CustomPropertySetValues propertySetValues, Object... additionalPrimaryKeyValues) {
         propertySetValues.setProperty(FieldNames.METER.javaName(), this.getMeter());
         propertySetValues.setProperty(FieldNames.METER_MRID.javaName(), this.getMeterMrid());
+        propertySetValues.setProperty(FieldNames.METER_SERIAL_NUMBER.javaName(), this.getMeterSerialNumber());
         propertySetValues.setProperty(FieldNames.METER_NAME.javaName(), this.getMeterName());
         propertySetValues.setProperty(FieldNames.COMMUNICATION_TASK.javaName(), this.getCommunicationTask().orElse(null));
         propertySetValues.setProperty(FieldNames.PARENT_SERVICE_CALL.javaName(), this.getParentServiceCallId());

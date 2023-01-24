@@ -37,6 +37,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.elster.jupiter.orm.ColumnConversion.CLOB2STRING;
+import static com.elster.jupiter.orm.Version.version;
 
 @Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.MeterConfigCustomPropertySet",
         service = CustomPropertySet.class,
@@ -146,6 +147,11 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
                         .finish(),
                 this.propertySpecService
                         .stringSpec()
+                        .named(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.javaName(), TranslationKeys.METER_MRID)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
+                        .stringSpec()
                         .named(MeterConfigDomainExtension.FieldNames.METER_NAME.javaName(), TranslationKeys.METER_NAME)
                         .describedAs(TranslationKeys.METER_NAME)
                         .fromThesaurus(thesaurus)
@@ -236,6 +242,11 @@ public class MeterConfigCustomPropertySet implements CustomPropertySet<ServiceCa
             table.column(MeterConfigDomainExtension.FieldNames.METER_MRID.databaseName())
                     .varChar()
                     .map(MeterConfigDomainExtension.FieldNames.METER_MRID.javaName())
+                    .add();
+            table.column(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.databaseName())
+                    .varChar()
+                    .map(MeterConfigDomainExtension.FieldNames.METER_SERIAL_NUMBER.javaName())
+                    .since(version(10, 9, 23))
                     .add();
             table.column(MeterConfigDomainExtension.FieldNames.METER_NAME.databaseName())
                     .varChar()

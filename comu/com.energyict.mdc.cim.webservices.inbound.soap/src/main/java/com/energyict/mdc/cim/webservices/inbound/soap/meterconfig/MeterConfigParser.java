@@ -63,6 +63,7 @@ public class MeterConfigParser {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setDeviceName(extractName(meter.getNames()).orElse(null));
         meterInfo.setmRID(extractMrid(meter).orElse(null));
+        meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
         return meterInfo;
     }
 

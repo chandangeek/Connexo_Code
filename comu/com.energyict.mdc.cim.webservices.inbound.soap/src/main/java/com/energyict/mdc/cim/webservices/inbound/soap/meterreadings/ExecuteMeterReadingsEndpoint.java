@@ -170,6 +170,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                     if (device.getMRID() != null) {
                         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), device.getMRID());
                     }
+                    if (device.getSerialNumber() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), device.getSerialNumber());
+                    }
 
                 });
                 getMeterReadingsRequestMessage.getRequest().getGetMeterReadings().getUsagePoint().forEach(usp -> {
@@ -985,10 +988,16 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         syncReplyIssue.setNotFoundReadingTypesOnDevices(notFoundReadingTypesOnDevices);
     }
 
-    private Set<com.elster.jupiter.metering.Meter> fromEndDevicesWithMRIDsAndNames(Set<String> mRIDs, Set<String> names) throws
+    private Set<com.elster.jupiter.metering.Meter> fromEndDevicesWithMRIDsSerialNumbersAndNames(Set<String> mRIDs, Set<String> serialNumbers, Set<String> names) throws
             FaultMessage {
         List<com.elster.jupiter.metering.Meter> existedMeters = meteringService.getMeterQuery()
-                .select(where("obsoleteTime").isNull().and(where("mRID").in(new ArrayList<>(mRIDs)).or(where("name").in(new ArrayList<>(names)))));
+                .select(where("obsoleteTime").isNull().and(where("mRID").in(new ArrayList<>(mRIDs))
+                        .or(where("serialNumber").in(new ArrayList<>(serialNumbers))).or(where("name").in(new ArrayList<>(names)))));
+        if (!serialNumbers.isEmpty()) {
+            if (existedMeters.size() > 1){
+                throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER).get();
+            }
+        }
         if (CollectionUtils.isEmpty(existedMeters)) {
             throw faultMessageFactory.createMeterReadingFaultMessageSupplier(MessageSeeds.NO_END_DEVICES).get();
         }
@@ -1012,28 +1021,35 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
 
     private Set<com.elster.jupiter.metering.Meter> fillMetersInfo(List<EndDevice> endDevices, SyncReplyIssue syncReplyIssue) throws FaultMessage {
         Set<String> mRIDs = new HashSet<>();
+        Set<String> serialNumbers = new HashSet<>();
         Set<String> fullAliasNames = new HashSet<>();
         for (int i = 0; i < endDevices.size(); ++i) {
-            collectDeviceMridsAndNames(endDevices.get(i), i, mRIDs, fullAliasNames);
+            collectDeviceMridsSerialNumbersAndNames(endDevices.get(i), i, mRIDs, serialNumbers, fullAliasNames);
         }
 
-        Set<com.elster.jupiter.metering.Meter> meters = fromEndDevicesWithMRIDsAndNames(mRIDs, fullAliasNames);
+        Set<com.elster.jupiter.metering.Meter> meters = fromEndDevicesWithMRIDsSerialNumbersAndNames(mRIDs, serialNumbers, fullAliasNames);
         syncReplyIssue.setExistedMeters(meters);
-        fillNotFoundEndDevicesMRIDsAndNames(meters, mRIDs, fullAliasNames, syncReplyIssue);
+        fillNotFoundEndDevicesMridsSerialNumbersAndNames(meters, mRIDs, serialNumbers, fullAliasNames, syncReplyIssue);
         return meters;
     }
 
-    private void fillNotFoundEndDevicesMRIDsAndNames(Set<com.elster.jupiter.metering.Meter> meters,
-                                                     Set<String> requiredMRIDs, Set<String> requiredNames,
-                                                     SyncReplyIssue syncReplyIssue) {
+    private void fillNotFoundEndDevicesMridsSerialNumbersAndNames(Set<com.elster.jupiter.metering.Meter> meters,
+                                                     Set<String> requiredMRIDs, Set<String> requiredSerialNumbers,
+                                                     Set<String> requiredNames, SyncReplyIssue syncReplyIssue) {
         Set<String> existedNames = meters.stream()
                 .map(endDevice -> endDevice.getName())
                 .collect(Collectors.toSet());
         Set<String> existedmRIDs = meters.stream()
                 .map(endDevice -> endDevice.getMRID())
                 .collect(Collectors.toSet());
+        Set<String> existedSerialNumbers = meters.stream()
+                .map(endDevice -> endDevice.getSerialNumber())
+                .collect(Collectors.toSet());
         syncReplyIssue.setNotFoundMRIDs(requiredMRIDs.stream()
                 .filter(mrid -> !existedmRIDs.contains(mrid))
+                .collect(Collectors.toSet()));
+        syncReplyIssue.setNotFoundSerialNumbers(requiredSerialNumbers.stream()
+                .filter(serialNumber -> !existedSerialNumbers.contains(serialNumber))
                 .collect(Collectors.toSet()));
         syncReplyIssue.setNotFoundNames(requiredNames.stream()
                 .filter(name -> !existedNames.contains(name))
@@ -1170,11 +1186,12 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
         return true;
     }
 
-    private void collectDeviceMridsAndNames(EndDevice endDevice, int index, Set<String> mRIDs, Set<String> deviceNames) throws
+    private void collectDeviceMridsSerialNumbersAndNames(EndDevice endDevice, int index, Set<String> mRIDs, Set<String> serialNumbers, Set<String> deviceNames) throws
             FaultMessage {
         final String END_DEVICES_ITEM = END_DEVICE_LIST_ITEM + '[' + index + ']';
         String mRID = endDevice.getMRID();
-        if (mRID == null) {
+        String serialNumber = endDevice.getSerialNumber();
+        if (mRID == null && serialNumber == null) {
             List<Name> names = endDevice.getNames();
             if (names.size() > 1) {
                 throw faultMessageFactory.createMeterReadingFaultMessageSupplier(
@@ -1187,6 +1204,9 @@ public class ExecuteMeterReadingsEndpoint extends AbstractInboundEndPoint implem
                             MessageSeeds.MISSING_MRID_OR_NAME_FOR_ELEMENT, END_DEVICES_ITEM));
             checkIsEmpty(name, END_DEVICES_ITEM + ".Names[0].name");
             deviceNames.add(name);
+        } else if (mRID == null) {
+            checkIsEmpty(serialNumber, END_DEVICES_ITEM + ".serialNumber");
+            serialNumbers.add(serialNumber);
         } else {
             checkIsEmpty(mRID, END_DEVICES_ITEM + ".mRID");
             mRIDs.add(mRID);
