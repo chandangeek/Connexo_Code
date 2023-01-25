@@ -98,7 +98,7 @@ public class CrestSensorInboundProtocol implements CoapBasedInboundDeviceProtoco
 
     @Override
     public String getVersion() {
-        return "2022-10-30";
+        return "2022-01-20";
     }
 
     @Override
