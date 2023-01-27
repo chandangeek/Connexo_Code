@@ -91,13 +91,11 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
             exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
         } else {
             if (standardDataSelector.isPresent()) {
-                standardDataSelector.map(selector -> selector.getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault())))
-                        .ifPresent(instantRange -> {
-                            exportedDataInterval = Interval.of(instantRange);
-                            exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
-                        });
+                Range instantRange = standardDataSelector.get().getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault()));
+                exportedDataInterval = Interval.of(instantRange);
+                exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
             } else {
-                exportedDataInterval = Interval.of(occurrence.getRecurrentTask().getLastRun().orElse(occurrence.getStartDate().get()), Instant.now(clock));
+                exportedDataInterval = Interval.of(occurrence.getRecurrentTask().getLastRun().orElse(Instant.EPOCH), occurrence.getTriggerTime());
                 exportedDataBoundaryType = Interval.EndpointBehavior.OPEN_CLOSED;
             }
         }
