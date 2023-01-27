@@ -13,7 +13,7 @@ public class FalconFrameSndUp implements CrestSensorConst {
 
     public FalconFrameSndUp(byte[] bytes) {
         manufacturerID = ManufacturerID.forId(bytes[12]);
-        serialNumber = ProtocolTools.bytesToHex(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(bytes, 8, 12)));
+        serialNumber = ProtocolTools.bytesToHex(ProtocolTools.reverseByteArray(ProtocolTools.getSubArray(bytes, 7, 11)));
     }
 
     public String getSerialNumber() {
