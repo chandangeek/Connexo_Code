@@ -90,11 +90,14 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
             exportedDataInterval = Interval.of(instantRange);
             exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
         } else {
-            standardDataSelector.map(selector -> selector.getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault())))
-                    .ifPresent(instantRange -> {
-                        exportedDataInterval = Interval.of(instantRange);
-                        exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
-                    });
+            if (standardDataSelector.isPresent()) {
+                Range<Instant> instantRange = standardDataSelector.get().getExportPeriod().getOpenClosedInterval(at.atZone(ZoneId.systemDefault()));
+                exportedDataInterval = Interval.of(instantRange);
+                exportedDataBoundaryType = Interval.EndpointBehavior.fromRange(instantRange);
+            } else {
+                exportedDataInterval = Interval.of(occurrence.getRecurrentTask().getLastRun().orElse(Instant.EPOCH), occurrence.getTriggerTime());
+                exportedDataBoundaryType = Interval.EndpointBehavior.OPEN_CLOSED;
+            }
         }
         return this;
     }
@@ -261,7 +264,7 @@ class DataExportOccurrenceImpl implements IDataExportOccurrence, DefaultSelector
 
     @Override
     public void setToFailed() {
-        if(getStatus().equals(DataExportStatus.BUSY)) {
+        if (getStatus().equals(DataExportStatus.BUSY)) {
             this.getTaskOccurrence().setToFailed();
             status = DataExportStatus.FAILED;
             failureReason = thesaurus.getSimpleFormat(MessageSeeds.OCCURRENCE_HAS_BEEN_SET_TO_FAILED).format();
