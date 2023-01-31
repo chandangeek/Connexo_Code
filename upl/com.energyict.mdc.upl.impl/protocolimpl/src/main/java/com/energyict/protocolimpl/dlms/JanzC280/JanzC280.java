@@ -153,7 +153,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2022-11-24$";
+        return "$Date: 2023-01-30$";
     }
 
     @Override
@@ -348,7 +348,7 @@ public class JanzC280 extends AbstractDLMSProtocol implements CacheMechanism, Se
         Data data;
         try {
             data = getCosemObjectFactory().getData(OBISCODE_SERIAL_NUMBER);
-            return AXDRDecoder.decode(data.getRawValueAttr()).getVisibleString().getStr().trim();
+            return AXDRDecoder.decode(data.getRawValueAttr()).getOctetString().stringValue().trim();
         } catch (IOException e) {
             throw DLMSIOExceptionHandler.handle(e, retries + 1);
         }
