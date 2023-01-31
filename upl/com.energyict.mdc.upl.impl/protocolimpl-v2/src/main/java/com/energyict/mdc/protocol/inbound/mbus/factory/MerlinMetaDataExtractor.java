@@ -15,8 +15,7 @@ import java.util.Optional;
 import java.util.TimeZone;
 
 public class MerlinMetaDataExtractor {
-    public static final String PROPERTY_DEVICE_TIME_ZONE = "deviceTimeZone";
-    public static final String PROPERTY_ENCRYPTION_KEY_MOCKED_PROPERTY = "callHomeId"; // used for tests only, to migrate to a proper HSM / security accessor
+    public static final String PROPERTY_DEVICE_TIME_ZONE = "upl.property.v2.elster.timezone";
     public static final String ENCRYPTION_KEY = "EncryptionKey";
 
     private final InboundContext inboundContext;
@@ -51,12 +50,14 @@ public class MerlinMetaDataExtractor {
     }
 
     private void getEncryptionKeyFromCore() {
-        String encryptionKey = "";
+        String encryptionKey = "01010101010101010101010101010101";
 
         Optional<DeviceProtocolSecurityPropertySet> securityProtocols = inboundContext.getInboundDiscoveryContext().getDeviceProtocolSecurityPropertySet(getDeviceIdentifier());
 
         if (securityProtocols.isPresent()) {
             encryptionKey = (String) securityProtocols.get().getSecurityProperties().getProperty(ENCRYPTION_KEY);
+        } else {
+            inboundContext.getLogger().warn("Security protocol properties are not available!");
         }
 
         inboundContext.setEncryptionKey(encryptionKey);
