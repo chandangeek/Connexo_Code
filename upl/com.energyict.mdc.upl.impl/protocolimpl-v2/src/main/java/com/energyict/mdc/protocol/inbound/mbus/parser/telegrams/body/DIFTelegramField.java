@@ -61,7 +61,7 @@ public class DIFTelegramField extends TelegramField {
         super(logger);
     }
 
-    public void parse() {
+    public void parse(int remainingLength) {
         String difField = this.fieldParts.get(0);
         int iDifField = Converter.hexToInt(difField);
 
@@ -72,7 +72,7 @@ public class DIFTelegramField extends TelegramField {
         switch (iDifField) {
             case 0x0F:
                 // User defined data identified (Cell ID)
-                this.dataFieldLength = 23;
+                this.dataFieldLength = remainingLength-1; //23?
                 this.functionType = TelegramFunctionType.USER_DEFINED_CELL_ID;
                 this.dataFieldEncoding = TelegramEncoding.ENCODING_USER_DEFINED_CELL_ID;
                 return;

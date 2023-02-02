@@ -23,7 +23,7 @@ public class TelegramVariableDataRecord {
 
     public void parse() {
         this.dif = new DIFTelegramField(logger);
-        this.dif.parse();
+        this.dif.parse(dataField.getFieldParts().size());
         this.vif = new VIFTelegramField(logger);
         this.vif.setParent(this);
         this.vif.parse();

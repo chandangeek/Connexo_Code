@@ -828,7 +828,8 @@ public class MerlinMbusParserTest extends TestCase {
                         (byte)0x9B, (byte)0x69, (byte)0x17, (byte)0xB4, (byte)0x5E, (byte)0x99,
                         (byte)0x63, (byte)0x91, (byte)0x33, (byte)0x63, (byte)0xD9 };
 
-        final String PAIRED_METER_ID = "D963339163995EB417699B84B6AC";
+        final String PAIRED_METER_ID = "000000000000D963339163995EB417699B84B6AC";
+        final String PAIRED_METER_ID_NO_ZEROS = "D963339163995EB417699B84B6AC";
 
         int cellId = (Integer) CellInfoMapping.CELL_ID.extractValue(data);
         assertEquals(43264 /*0xA900*/, cellId);
@@ -855,7 +856,7 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals(0, releaseAssistEnable);
 
         byte[] meterId = CellInfoFactory.extractPairedMeterId(data);
-        byte[] expectedMeterId = ProtocolTools.getBytesFromHexString(PAIRED_METER_ID, 2);
+        byte[] expectedMeterId = ProtocolTools.getBytesFromHexString(PAIRED_METER_ID_NO_ZEROS, 2);
         assertArrayEquals( expectedMeterId, meterId);
 
         byte[] meterIdMapped = (byte[]) CellInfoMapping.PAIRED_METER_ID.extractValue(data);

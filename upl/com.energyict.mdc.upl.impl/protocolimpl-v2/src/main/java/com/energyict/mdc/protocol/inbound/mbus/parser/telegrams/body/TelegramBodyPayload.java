@@ -76,7 +76,7 @@ public class TelegramBodyPayload {
         TelegramVariableDataRecord rec = new TelegramVariableDataRecord(logger);
         DIFTelegramField dif = new DIFTelegramField(logger);
         dif.addFieldPart(this.bodyFieldDecrypted.getFieldParts().get(startPosition));
-        dif.parse();
+        dif.parse(this.bodyFieldDecrypted.getFieldParts().size() - startPosition);
 
         rec.setDif(dif);
 

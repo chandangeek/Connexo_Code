@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.protocol.ComChannel;
+import com.energyict.mdc.protocol.ComChannelRemoteAddress;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMetaDataExtractor;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
@@ -79,6 +80,10 @@ public class Merlin implements BinaryInboundDeviceProtocol {
             return factory.getDeviceIdentifier();
         }
 
+        if (this.metaDataFactory != null) {
+            return metaDataFactory.getDeviceIdentifier();
+        }
+
         return null;
     }
 
@@ -145,7 +150,8 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         byte[] buffer = new byte[BUFFER_SIZE];
         getComChannel().startReading();
         final int readBytes = getComChannel().read(buffer);
-        getLogger().info("Received", buffer, readBytes);
+        String sourceAddress = getSourceAddress();
+        getLogger().info("Received ["+sourceAddress+"] ", buffer, readBytes);
 
         if (readBytes < BUFFER_SIZE){
             byte[] payload = new byte[readBytes];
@@ -158,6 +164,14 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         }
     }
 
+    private String getSourceAddress() {
+        //((SocketComChannel) ((ComPortRelatedComChannelImpl) comChannel).getActualComChannel()).getRemoteSocketAddress()
+        if (comChannel instanceof ComChannelRemoteAddress) {
+            return ((ComChannelRemoteAddress)comChannel).getRemoteSocketAddress();
+        }
+        return "";
+    }
+
     private void doParse(byte[] payload) {
         // 1. parse only the telegram header to get meta-data
         Telegram encryptedTelegram = getParser().parseHeader(payload);
@@ -166,14 +180,25 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         this.metaDataFactory = new MerlinMetaDataExtractor(encryptedTelegram, getInboundContext());
 
         // 3. Decrypt and parse
-        Telegram decodedTelegram = getParser().parse();
+        Telegram decodedTelegram;
+        try {
+            decodedTelegram = getParser().parse();
+        } catch (Exception ex) {
+            getLogger().error("Could not decrypt and parse telegram!", ex);
+            return;
+        }
 
         if (decodedTelegram.decryptionError()) {
+            getLogger().error("Cannot decrypt telegram! Check the EK!");
             throw DataEncryptionException.dataEncryptionException();
         }
 
-        // 4. Collect the actual data
-        this.factory = new MerlinCollectedDataFactory(decodedTelegram, getInboundContext());
+        try {
+            // 4. Collect the actual data
+            this.factory = new MerlinCollectedDataFactory(decodedTelegram, getInboundContext());
+        } catch (Exception ex) {
+            getLogger().error("Cannot parse and extract data from decrypted telegram", ex);
+        }
 
     }
 

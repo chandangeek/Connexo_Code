@@ -10,7 +10,7 @@ public class InboundContext {
     private MerlinLogger logger;
     private InboundDiscoveryContext inboundDiscoveryContext;
     private ZoneId timeZone;
-    private String encryptionKey;// = "4F A7 0B 24 46 5F 81 4A 66 76 31 77 3A 39 76 44"; // some default used for PoC
+    private String encryptionKey;
 
     public InboundContext(MerlinLogger logger, InboundDiscoveryContext context) {
         setLogger(logger);
