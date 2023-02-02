@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
+import com.energyict.mdc.channel.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelRemoteAddress;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
@@ -117,11 +118,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
     @Override
     public DiscoverResultType doDiscovery() {
-
         readAndParseInboundFrame();
-
-
-
         return DiscoverResultType.DATA;
     }
 
@@ -165,11 +162,9 @@ public class Merlin implements BinaryInboundDeviceProtocol {
     }
 
     private String getSourceAddress() {
-        //((SocketComChannel) ((ComPortRelatedComChannelImpl) comChannel).getActualComChannel()).getRemoteSocketAddress()
-        if (comChannel instanceof ComChannelRemoteAddress) {
-            return ((ComChannelRemoteAddress)comChannel).getRemoteSocketAddress();
-        }
-        return "";
+        return "n/a";
+       // ((com.energyict.mdc.channel.ip.datagrams.DatagramComChannel)comChannel).getRemoteAddress()
+        //return getComChannel().getRemoteAddress().orElse("n/a");
     }
 
     private void doParse(byte[] payload) {
@@ -178,6 +173,10 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
         // 2. Get Connexo core properties for the meta extracted
         this.metaDataFactory = new MerlinMetaDataExtractor(encryptedTelegram, getInboundContext());
+
+        if (!metaDataFactory.isValid()) {
+            return;
+        }
 
         // 3. Decrypt and parse
         Telegram decodedTelegram;

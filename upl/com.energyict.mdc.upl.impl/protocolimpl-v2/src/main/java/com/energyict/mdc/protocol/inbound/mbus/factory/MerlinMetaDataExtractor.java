@@ -4,11 +4,8 @@ import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
-import com.energyict.mdc.upl.properties.MissingPropertyException;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
-import com.energyict.mdc.upl.security.SecurityPropertySpecTranslationKeys;
-import com.energyict.protocolimplv2.security.DeviceSecurityProperty;
 
 import java.time.ZoneId;
 import java.util.Optional;
@@ -20,13 +17,18 @@ public class MerlinMetaDataExtractor {
 
     private final InboundContext inboundContext;
     private final Telegram encryptedTelegram;
+    private final boolean valid;
     private DeviceIdentifierBySerialNumber deviceIdentifier;
     private String serialNumber;
 
     public MerlinMetaDataExtractor(Telegram encryptedTelegram, InboundContext inboundContext) {
         this.encryptedTelegram = encryptedTelegram;
         this.inboundContext = inboundContext;
-        lookupDeviceProperties();
+        this.valid = lookupDeviceProperties();
+    }
+
+    public boolean isValid() {
+        return valid;
     }
 
     public DeviceIdentifier getDeviceIdentifier() {
@@ -38,15 +40,27 @@ public class MerlinMetaDataExtractor {
     }
 
 
-    private void lookupDeviceProperties() {
+    private boolean lookupDeviceProperties() {
         getDeviceIdentifier();
 
         inboundContext.getLogger().info("Identified device: " + getDeviceIdentifier());
         inboundContext.getLogger().setSerialNumber(serialNumber);
 
-        getDeviceTimeZoneFromCore();
+        try {
+            getDeviceTimeZoneFromCore();
+        } catch (Exception ex) {
+            inboundContext.getLogger().error("Device not found");
+            return false;
+        }
 
-        getEncryptionKeyFromCore();
+        try {
+            getEncryptionKeyFromCore();
+        } catch (Exception ex) {
+            inboundContext.getLogger().error("Cannot extract encryption key", ex);
+            return false;
+        }
+
+        return true;
     }
 
     private void getEncryptionKeyFromCore() {
@@ -80,6 +94,5 @@ public class MerlinMetaDataExtractor {
 
         inboundContext.setTimeZone(timeZone);
     }
-
 
 }
