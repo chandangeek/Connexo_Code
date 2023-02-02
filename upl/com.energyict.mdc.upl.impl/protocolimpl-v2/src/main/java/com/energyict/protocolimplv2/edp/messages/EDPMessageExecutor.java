@@ -44,6 +44,7 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Scanner;
 
+import static com.energyict.protocolimpl.utils.ProtocolTools.trimToAscii;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarActivationDateAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.activityCalendarNameAttributeName;
@@ -398,10 +399,10 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
             structure = new Structure();
             String[] split = entry.split(SEPARATOR);
             if (split.length == 4) {
-                structure.addDataType(parseDateFromString(split[0]));
-                structure.addDataType(parseDateFromString(split[1]));
-                structure.addDataType(parseTimeFromString(split[2]));
-                structure.addDataType(parseTimeFromString(split[3]));
+                structure.addDataType(parseDateFromString(trimToAscii(split[0].trim())));
+                structure.addDataType(parseDateFromString(trimToAscii(split[1].trim())));
+                structure.addDataType(parseTimeFromString(trimToAscii(split[2].trim())));
+                structure.addDataType(parseTimeFromString(trimToAscii(split[3].trim())));
             }
             array.addDataType(structure);
         }

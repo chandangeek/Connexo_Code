@@ -933,6 +933,27 @@ public final class ProtocolTools {
     }
 
     /**
+     * This method trims a String removing non-ASCII characters
+     *
+     * @param input string
+     * @return String
+     */
+    public static String trimToAscii(String input) {
+        char[] value = input.toCharArray();
+        int len = value.length;
+        int st = 0;
+        char[] val = value;
+
+        while ((st < len) && (val[st] > '~')) {
+            st++;
+        }
+        while ((st < len) && (val[len - 1] > '~')) {
+            len--;
+        }
+        return ((st > 0) || (len < value.length)) ? input.substring(st, len) : input;
+    }
+
+    /**
      * @param obis    The obiscode to change the given field value
      * @param fieldNr The 0-based field number of the obisCode (0 = A, 1 = B, 2 = C, 3 = D, 4 = E, 5 = F)
      * @param value   The new value of the given field
