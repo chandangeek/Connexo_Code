@@ -933,7 +933,8 @@ public final class ProtocolTools {
     }
 
     /**
-     * This method trims a String removing non-ASCII characters
+     * This method trims a String removing characters with a code greater than '\u007E' (non-ASCII characters)
+     * and characters with a code less than '\u0021' (spaces)
      *
      * @param input string
      * @return String
@@ -942,12 +943,11 @@ public final class ProtocolTools {
         char[] value = input.toCharArray();
         int len = value.length;
         int st = 0;
-        char[] val = value;
 
-        while ((st < len) && (val[st] > '~')) {
+        while ((st < len) && ((value[st] <= ' ') || (value[st] > '~'))) {
             st++;
         }
-        while ((st < len) && (val[len - 1] > '~')) {
+        while ((st < len) && ((value[len - 1] <= ' ') || (value[len - 1] > '~'))) {
             len--;
         }
         return ((st > 0) || (len < value.length)) ? input.substring(st, len) : input;

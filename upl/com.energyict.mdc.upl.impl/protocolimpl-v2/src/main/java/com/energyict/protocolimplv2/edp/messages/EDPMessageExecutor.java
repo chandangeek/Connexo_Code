@@ -399,10 +399,10 @@ public class EDPMessageExecutor extends AbstractMessageExecutor {
             structure = new Structure();
             String[] split = entry.split(SEPARATOR);
             if (split.length == 4) {
-                structure.addDataType(parseDateFromString(trimToAscii(split[0].trim())));
-                structure.addDataType(parseDateFromString(trimToAscii(split[1].trim())));
-                structure.addDataType(parseTimeFromString(trimToAscii(split[2].trim())));
-                structure.addDataType(parseTimeFromString(trimToAscii(split[3].trim())));
+                structure.addDataType(parseDateFromString(trimToAscii(split[0])));
+                structure.addDataType(parseDateFromString(trimToAscii(split[1])));
+                structure.addDataType(parseTimeFromString(trimToAscii(split[2])));
+                structure.addDataType(parseTimeFromString(trimToAscii(split[3])));
             }
             array.addDataType(structure);
         }
