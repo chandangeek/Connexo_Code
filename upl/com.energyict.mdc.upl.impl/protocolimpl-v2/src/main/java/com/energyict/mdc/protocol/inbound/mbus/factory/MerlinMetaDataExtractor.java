@@ -14,6 +14,7 @@ import java.util.TimeZone;
 public class MerlinMetaDataExtractor {
     public static final String PROPERTY_DEVICE_TIME_ZONE = "upl.property.v2.elster.timezone";
     public static final String ENCRYPTION_KEY = "EncryptionKey";
+    public static final String UNIDENTIFIED_MERLIN = "UNIDENTIFIED-MERLIN";
 
     private final InboundContext inboundContext;
     private final Telegram encryptedTelegram;
@@ -33,7 +34,12 @@ public class MerlinMetaDataExtractor {
 
     public DeviceIdentifier getDeviceIdentifier() {
         if (this.deviceIdentifier == null) {
-            this.serialNumber = encryptedTelegram.getSerialNr();
+            String extractedSerialNumber = encryptedTelegram.getSerialNr();
+            if (extractedSerialNumber != null) {
+                this.serialNumber = extractedSerialNumber;
+            } else {
+                this.serialNumber = UNIDENTIFIED_MERLIN;
+            }
             this.deviceIdentifier = new DeviceIdentifierBySerialNumber(serialNumber);
         }
         return this.deviceIdentifier;
@@ -43,7 +49,7 @@ public class MerlinMetaDataExtractor {
     private boolean lookupDeviceProperties() {
         getDeviceIdentifier();
 
-        inboundContext.getLogger().info("Identified device: " + getDeviceIdentifier());
+        inboundContext.getLogger().info("Potential device from telegram: " + getDeviceIdentifier());
         inboundContext.getLogger().setSerialNumber(serialNumber);
 
         try {
@@ -75,8 +81,6 @@ public class MerlinMetaDataExtractor {
         }
 
         inboundContext.setEncryptionKey(encryptionKey);
-        // NO-NO, do not log the actual key, used only for testing and PoC!! FIXME!
-        inboundContext.getLogger().info("Using EK: " + encryptionKey);
     }
 
     private void getDeviceTimeZoneFromCore() {

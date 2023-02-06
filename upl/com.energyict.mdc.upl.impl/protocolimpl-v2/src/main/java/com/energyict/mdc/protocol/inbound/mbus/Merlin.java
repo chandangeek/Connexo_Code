@@ -148,17 +148,20 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         getComChannel().startReading();
         final int readBytes = getComChannel().read(buffer);
         String sourceAddress = getSourceAddress();
-        getLogger().info("Received ["+sourceAddress+"] ", buffer, readBytes);
+        getLogger().info("Received ["+sourceAddress+"]", buffer, readBytes);
 
+        byte[] payload;
         if (readBytes < BUFFER_SIZE){
-            byte[] payload = new byte[readBytes];
+            payload = new byte[readBytes];
             System.arraycopy(buffer, 0, payload, 0, readBytes);
-
-            doParse(payload);
         } else {
-            getLogger().info("WARN: buffer overflow!");
-            //TODO: keep reading
+            getLogger().info("WARN: buffer overflow detected, will consider only the first " + BUFFER_SIZE + " bytes");
+            payload = new byte[BUFFER_SIZE];
+            System.arraycopy(buffer, 0, payload, 0, BUFFER_SIZE);
+            //TODO: keep reading ?
         }
+
+        doParse(payload);
     }
 
     private String getSourceAddress() {
@@ -169,7 +172,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
     private void doParse(byte[] payload) {
         // 1. parse only the telegram header to get meta-data
-        Telegram encryptedTelegram = getParser().parseHeader(payload);
+       Telegram encryptedTelegram = getParser().parseHeader(payload);
 
         // 2. Get Connexo core properties for the meta extracted
         this.metaDataFactory = new MerlinMetaDataExtractor(encryptedTelegram, getInboundContext());
@@ -189,7 +192,8 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
         if (decodedTelegram.decryptionError()) {
             getLogger().error("Cannot decrypt telegram! Check the EK!");
-            throw DataEncryptionException.dataEncryptionException();
+            //throw DataEncryptionException.dataEncryptionException();
+            return;
         }
 
         try {
