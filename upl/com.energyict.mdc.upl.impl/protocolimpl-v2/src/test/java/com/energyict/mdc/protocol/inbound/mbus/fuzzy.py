@@ -35,7 +35,7 @@ def sendTCP(msg):
 
 
 for i in range(10):
-    numberOfBytes = random.randrange(0,2000)
+    numberOfBytes = random.randrange(0,65535)
     randomBytes = bytearray()
     zeroBytes = bytearray()
     for b in range(numberOfBytes):
