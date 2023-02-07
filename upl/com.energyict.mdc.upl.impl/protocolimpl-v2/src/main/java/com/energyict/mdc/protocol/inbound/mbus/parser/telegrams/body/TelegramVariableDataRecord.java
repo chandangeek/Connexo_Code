@@ -4,8 +4,10 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 public class TelegramVariableDataRecord {
 
@@ -116,7 +118,19 @@ public class TelegramVariableDataRecord {
         StringJoiner joiner = new StringJoiner(",");
 
         joiner.add("DIF=" + getDif().getFieldPartsAsString());
-        joiner.add("VIF=" + getVif().getFieldPartsAsString());
+        if (getVif() != null) {
+            joiner.add("VIF=" + getVif().getFieldPartsAsString());
+        }
+        if (getDifes() != null && getDifes().size() > 0) {
+            StringJoiner joiner1 = new StringJoiner(",");
+            getDifes().forEach(d-> joiner1.add(d.getFieldPartsAsString()));
+            joiner.add("DIFEs=[" + joiner1 + "]");
+        }
+        if (getVifes() != null && getVifes().size() > 0) {
+            StringJoiner joiner1 = new StringJoiner(",");
+            getVifes().forEach(d-> joiner1.add(d.getFieldPartsAsString()));
+            joiner.add("VIFEs=[" + joiner1 + "]");
+        }
         return joiner.toString();
     }
 }

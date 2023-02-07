@@ -133,16 +133,18 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
 
     public CollectedLoadProfile extractLoadProfile(TelegramVariableDataRecord profileRecord, final TelegramVariableDataRecord indexRecord) {
         if (!appliesFor(profileRecord)) {
-            getInboundContext().getLogger().debug("This profile record cannot be decoded by this factory (DIF=" + profileRecord.getDif().getFieldPartsAsString() + ")");
+            getInboundContext().getLogger().debug(this.getClass().getSimpleName() + ": Record not applicable to " + profileRecord);
             return null;
         }
 
         extractProfileMetaData(profileRecord);
 
         if (!appliesAsIndexRecord(indexRecord)) {
-            getInboundContext().getLogger().debug("Invalid index record, it doesn't match the profile record (DIF=" + profileRecord.getDif().getFieldPartsAsString() + ")");
+            getInboundContext().getLogger().debug(this.getClass().getSimpleName() + ": Invalid index record, it doesn't match the profile record " + profileRecord);
             return null;
         }
+
+        getInboundContext().getLogger().info(this.getClass().getSimpleName() + ": Decoding " + profileRecord + " as profile in " + getObisCode());
 
         setupCollectedProfile(profileRecord);
         setStartIndex(indexRecord);
@@ -180,7 +182,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     private void setStartIndex(TelegramVariableDataRecord indexRecord) {
         this.startIndex = Long.parseLong(indexRecord.getDataField().getParsedValue());
         this.midnight = toMidnightWithTimeZone(getTelegramDateTime(), getTimeZone());
-        getInboundContext().getLogger().info("Starting load profile calculation backwards from midnight: " + midnight + ", in time-zone " + getTimeZone()) ;
+        getInboundContext().getLogger().info(this.getClass().getSimpleName() + " Starting load profile calculation backwards from midnight: " + midnight + ", in time-zone " + getTimeZone()) ;
     }
 
     private ZoneId getTimeZone() {
@@ -230,7 +232,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     }
 
     private void saveCurrentInterval() {
-        getInboundContext().getLogger().info(calculationTimeStamp.toString() + " = " + calculationIndex);
+        getInboundContext().getLogger().info(this.getClass().getSimpleName() + " " + calculationTimeStamp.toString() + " = " + calculationIndex);
         IntervalValue intervalValue = new IntervalValue(calculationIndex, DEFAULT_PROTOCOL_STATUS, DEFAULT_EI_STATUS);
 
         IntervalData interval = new IntervalData(Date.from(calculationTimeStamp));

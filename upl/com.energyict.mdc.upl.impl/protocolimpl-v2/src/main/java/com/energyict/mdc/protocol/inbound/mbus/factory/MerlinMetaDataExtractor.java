@@ -70,7 +70,7 @@ public class MerlinMetaDataExtractor {
     }
 
     private void getEncryptionKeyFromCore() {
-        String encryptionKey = "01010101010101010101010101010101";
+        String encryptionKey = "";
 
         Optional<DeviceProtocolSecurityPropertySet> securityProtocols = inboundContext.getInboundDiscoveryContext().getDeviceProtocolSecurityPropertySet(getDeviceIdentifier());
 

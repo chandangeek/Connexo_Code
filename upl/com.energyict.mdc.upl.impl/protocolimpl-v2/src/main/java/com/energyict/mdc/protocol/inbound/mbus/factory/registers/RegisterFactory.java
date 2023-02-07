@@ -64,7 +64,7 @@ public class RegisterFactory extends AbstractMerlinFactory {
                     getInboundContext().getLogger().warn("[Rec: " + record + "] DUPLICATE identifiers matching " + obisCode.toString() + " = " + valueNumeric + " (" + unit.toString() + ")");
                 }
             } else {
-                getInboundContext().getLogger().info("[Rec: " + record + "] - Not Applicable to any mapping");
+                getInboundContext().getLogger().info("[Rec: " + record + "] - Not Applicable to any register mapping");
             }
         }
     }
