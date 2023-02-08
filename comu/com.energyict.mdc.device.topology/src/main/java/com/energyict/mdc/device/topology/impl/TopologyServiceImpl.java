@@ -21,7 +21,6 @@ import com.elster.jupiter.nls.TranslationKeyProvider;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Version;
 import com.elster.jupiter.tasks.TaskService;
 import com.elster.jupiter.upgrade.InstallIdentifier;
@@ -32,7 +31,6 @@ import com.elster.jupiter.upgrade.V10_4_3SimpleUpgrader;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.Pair;
 import com.elster.jupiter.util.conditions.Condition;
-import com.elster.jupiter.util.conditions.Expression;
 import com.elster.jupiter.util.conditions.ListOperator;
 import com.elster.jupiter.util.conditions.Order;
 import com.elster.jupiter.util.conditions.Subquery;
@@ -179,9 +177,9 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(TranslationKeys.values()),
-                Arrays.stream(G3NodeState.values()),
-                Arrays.stream(Privileges.values()))
+                        Arrays.stream(TranslationKeys.values()),
+                        Arrays.stream(G3NodeState.values()),
+                        Arrays.stream(Privileges.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
@@ -476,7 +474,10 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     @Override
     public Stream<PhysicalGatewayReference> getLastPhysicalGateways(Device slave, int numberOfDevices) {
-        return DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave), dataModel).paged(0, numberOfDevices).sorted("interval.start", false).stream();
+        return DefaultFinder.of(PhysicalGatewayReference.class, where(PhysicalGatewayReferenceImpl.Field.ORIGIN.fieldName()).isEqualTo(slave), dataModel)
+                .paged(0, numberOfDevices)
+                .sorted("interval.start", false)
+                .stream();
     }
 
     @Override
@@ -1172,12 +1173,12 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
 
     private List<ServerTopologyTimeslice> findRecentPhysicallyReferencingDevicesFor(Device device, int maxRecentCount) {
         Condition condition = this.getDevicesInTopologyCondition(device);
-        try (QueryStream<PhysicalGatewayReferenceImpl> steams = this.dataModel.stream(PhysicalGatewayReferenceImpl.class)) {
-            List<PhysicalGatewayReferenceImpl> gatewayReferences = steams.filter(condition).sorted(Order.descending("interval.start"))
-                    .limit(maxRecentCount)
-                    .select();
-            return this.toTopologyTimeslices(gatewayReferences);
-        }
+        List<PhysicalGatewayReferenceImpl> gatewayReferences = this.dataModel.stream(PhysicalGatewayReferenceImpl.class)
+                .filter(condition)
+                .sorted(Order.descending("interval.start"))
+                .limit(maxRecentCount)
+                .select();
+        return this.toTopologyTimeslices(gatewayReferences);
     }
 
     @Override
@@ -1427,8 +1428,6 @@ public class TopologyServiceImpl implements ServerTopologyService, MessageSeedPr
     public void setEventService(EventService eventService) {
         this.eventService = eventService;
     }
-
-
 
     private interface FirstLevelTopologyTimeslicer {
         List<ServerTopologyTimeslice> firstLevelTopologyTimeslices(Device device, Range<Instant> period);

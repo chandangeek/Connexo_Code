@@ -38,12 +38,22 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 }
             },
             {
-                header: Uni.I18n.translate('device.firmware.history.UploadedOn', 'FWC', 'Uploaded on'),
-                dataIndex: 'uploadedOn',
+                header: Uni.I18n.translate('device.firmware.history.PlannedDate', 'FWC', 'Planned upload date'),
+                dataIndex: 'plannedDate',
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)): ''
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
+                }
+
+            },
+            {
+                header: Uni.I18n.translate('device.firmware.history.uploadDate', 'FWC', 'Upload date'),
+                dataIndex: 'uploadDate',
+                fixed: true,
+                flex: 3,
+                renderer: function (value) {
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
                 }
 
             },
@@ -53,7 +63,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
                 fixed: true,
                 flex: 3,
                 renderer: function (value) {
-                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)): '-'
+                    return value ? Uni.DateTime.formatDateTimeLong(new Date(value)) : '-'
                 }
 
             },
@@ -65,7 +75,7 @@ Ext.define('Fwc.devicefirmware.view.DeviceFirmwareHistoryGrid', {
 
             },
             {
-                dataIndex: 'triggerdBy',
+                dataIndex: 'triggeredBy',
                 header: Uni.I18n.translate('device.firmware.history.TriggeredBy', 'FWC', 'Triggered by'),
                 fixed: true,
                 flex: 3

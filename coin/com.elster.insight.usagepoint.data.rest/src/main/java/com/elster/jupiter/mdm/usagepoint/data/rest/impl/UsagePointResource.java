@@ -64,6 +64,7 @@ import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.PropertySpecPossibleValues;
 import com.elster.jupiter.properties.rest.PropertyInfo;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
+import com.elster.jupiter.rest.util.ConcurrentModificationExceptionFactory;
 import com.elster.jupiter.rest.util.ExceptionFactory;
 import com.elster.jupiter.rest.util.IdWithNameInfo;
 import com.elster.jupiter.rest.util.JsonQueryFilter;
@@ -210,6 +211,7 @@ public class UsagePointResource {
     private final NlsService nlsService;
     private final AuditService auditService;
     private final AuditInfoFactory auditInfoFactory;
+    private final ConcurrentModificationExceptionFactory conflictFactory;
 
     @Inject
     public UsagePointResource(
@@ -247,7 +249,8 @@ public class UsagePointResource {
             UsagePointTransitionInfoFactory usagePointTransitionInfoFactory,
             NlsService nlsService,
             AuditService auditService,
-            AuditInfoFactory auditInfoFactory) {
+            AuditInfoFactory auditInfoFactory,
+            ConcurrentModificationExceptionFactory conflictFactory) {
         this.queryService = queryService;
         this.timeService = timeService;
         this.meteringService = meteringService;
@@ -283,6 +286,7 @@ public class UsagePointResource {
         this.auditService = auditService;
         this.auditInfoFactory = auditInfoFactory;
         this.nlsService = nlsService;
+        this.conflictFactory = conflictFactory;
     }
 
     @GET
@@ -1035,7 +1039,11 @@ public class UsagePointResource {
     @Path("{name}/runningservicecalls/{id}")
     public Response cancelServiceCall(@PathParam("id") long serviceCallId, ServiceCallInfo info) {
         if ("sclc.default.cancelled".equals(info.state.id)) {
-            serviceCallService.getServiceCall(serviceCallId).ifPresent(ServiceCall::cancel);
+            ServiceCall serviceCall = serviceCallService.lockServiceCall(serviceCallId, info.version)
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(info.name)
+                            .withActualVersion(() -> serviceCallService.getServiceCall(serviceCallId).map(ServiceCall::getVersion).orElse(null))
+                            .supplier());
+            serviceCall.cancel();
             return Response.status(Response.Status.ACCEPTED).build();
         }
         throw exceptionFactory.newException(MessageSeeds.BAD_REQUEST);
@@ -1522,6 +1530,7 @@ public class UsagePointResource {
                 .map(PropertySpec::getName)
                 .forEach(propertyName -> to.setProperty(propertyName, fromValues.getProperty(propertyName)));
     }
+
     private AuditTrailFilter getDeviceAuditTrailFilter(JsonQueryFilter filter, String name) {
         AuditTrailFilter auditFilter = auditService.newAuditTrailFilter(ApplicationType.MDM_APPLICATION_KEY);
         if (filter.hasProperty("changedOnFrom")) {

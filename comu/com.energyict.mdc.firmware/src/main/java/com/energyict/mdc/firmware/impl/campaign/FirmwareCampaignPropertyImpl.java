@@ -25,7 +25,7 @@ public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
         VALUE("value"),
         ;
 
-        private String name;
+        private final String name;
 
         Fields(String name) {
             this.name = name;
@@ -37,7 +37,7 @@ public class FirmwareCampaignPropertyImpl implements FirmwareCampaignProperty {
     }
 
     @IsPresent(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
-    private Reference<FirmwareCampaign> campaign = ValueReference.absent();
+    private final Reference<FirmwareCampaign> campaign = ValueReference.absent();
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")
     private String key;
     @NotNull(groups = {Save.Create.class, Save.Update.class}, message = "{" + MessageSeeds.Keys.FIELD_IS_REQUIRED + "}")

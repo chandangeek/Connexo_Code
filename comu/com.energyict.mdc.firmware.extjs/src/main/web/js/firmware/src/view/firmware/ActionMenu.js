@@ -6,7 +6,7 @@ Ext.define('Fwc.view.firmware.ActionMenu', {
     extend: 'Uni.view.menu.ActionsMenu',
     alias: 'widget.firmware-action-menu',
     itemId: 'firmware-action-menu',
-    initComponent: function() {
+    initComponent: function () {
         this.items = [
             {
                 text: Uni.I18n.translate('general.edit', 'FWC', 'Edit'),

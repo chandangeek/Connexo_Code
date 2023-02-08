@@ -203,7 +203,7 @@ public class ServiceCallsCommands {
         threadPrincipalService.set(() -> "Console");
 
         try (TransactionContext context = transactionService.getContext()) {
-            ServiceCall sc = serviceCallService.getServiceCall(id)
+            ServiceCall sc = serviceCallService.lockServiceCall(id)
                     .orElseThrow(() -> new IllegalArgumentException("No such service call"));
             sc.requestTransition(DefaultState.valueOf(targetState));
             context.commit();
@@ -369,7 +369,7 @@ public class ServiceCallsCommands {
     public void cancel(long serviceCallId) {
         threadPrincipalService.set(() -> "Console");
         try (TransactionContext context = transactionService.getContext()) {
-            serviceCallService.getServiceCall(serviceCallId)
+            serviceCallService.lockServiceCall(serviceCallId)
                     .orElseThrow(() -> new IllegalArgumentException("No such service call"))
                     .cancel();
             context.commit();

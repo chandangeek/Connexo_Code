@@ -134,6 +134,15 @@ public class DeviceFirmwareVersionInfoFactory {
                 possibleStates.stream()
                         .filter(state -> state.validateMessage(message, versionUtils))
                         .findFirst()
+                        .filter(upgradeState -> {
+                            if (upgradeState instanceof FailedFirmwareUploadState) {
+                                Optional<DeviceFirmwareVersionInfo> currentFirmware = info.firmwares.stream().findFirst();
+                                long lastCheckedData = currentFirmware.map(cf -> cf.activeVersion).map(activeInfo -> activeInfo.lastCheckedDate).orElse(0L);
+                                long lastReleaseDate = message.getReleaseDate().toEpochMilli();
+                                return lastCheckedData <= lastReleaseDate;
+                            }
+                            return true;
+                        })
                         .ifPresent(upgradeState ->
                                 info.addUpgradeVersion(
                                         upgradeState.getFirmwareVersionName(),
@@ -179,7 +188,7 @@ public class DeviceFirmwareVersionInfoFactory {
                 properties.put(FIRMWARE_VERSION_ID, firmwareVersion.get().getId());
             }
             Optional<ComTaskExecution> firmwareComTaskExecution = helper.getFirmwareComTaskExecution();
-            if(firmwareComTaskExecution.isPresent()){
+            if (firmwareComTaskExecution.isPresent()) {
                 Instant nextExecutionTimestamp = firmwareComTaskExecution.get().getNextExecutionTimestamp();
                 if (nextExecutionTimestamp != null) {
                     properties.put(FIRMWARE_PLANNED_DATE, nextExecutionTimestamp);
@@ -198,7 +207,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                    && !helper.firmwareUploadTaskIsBusy()
+                    && !helper.isFirmwareUploadTaskBusy()
                     && helper.isPendingMessage(message);
         }
 
@@ -232,8 +241,8 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                && helper.firmwareUploadTaskIsBusy()
-                && DeviceMessageStatus.PENDING.equals(message.getStatus());
+                    && helper.isFirmwareUploadTaskBusy()
+                    && DeviceMessageStatus.PENDING.equals(message.getStatus());
         }
 
         @Override
@@ -244,8 +253,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public Map<String, Object> getFirmwareUpgradeProperties(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             Map<String, Object> properties = super.getFirmwareUpgradeProperties(message, helper);
-            helper
-                .getFirmwareComTaskExecution()
+            helper.getFirmwareComTaskExecution()
                     .map(ComTaskExecution::getExecutionStartedTimestamp)
                     .ifPresent(startedTimestamp -> properties.put(UPLOAD_START_DATE, startedTimestamp.toEpochMilli()));
             return properties;
@@ -256,7 +264,7 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                && ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.equals(helper.getUploadOptionFromMessage(message).get());
+                    && ProtocolSupportedFirmwareOptions.UPLOAD_FIRMWARE_AND_ACTIVATE_WITH_DATE.equals(helper.getUploadOptionFromMessage(message).get());
         }
 
         @Override
@@ -271,15 +279,17 @@ public class DeviceFirmwareVersionInfoFactory {
     }
 
     public static class FailedFirmwareUploadState extends AbstractFirmwareUpgradeState {
+        protected static final String FIRMWARE_VERSION_NAME = "failedVersion";
+
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
                     && releaseDateInPast(message, helper)
-                    && (helper.firmwareUploadTaskIsFailed() && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
-                    || !helper.firmwareUploadTaskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
+                    && (helper.isFirmwareUploadTaskFailed() && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
+                    || !helper.isFirmwareUploadTaskFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
         }
 
-        private boolean releaseDateInPast(DeviceMessage message, FirmwareManagementDeviceUtils helper){
+        private boolean releaseDateInPast(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return !helper.getCurrentInstant().isBefore(message.getReleaseDate())
                     && helper.getFirmwareComTaskExecution().isPresent()
                     && helper.getFirmwareComTaskExecution().get().getLastExecutionStartTimestamp() != null
@@ -288,7 +298,7 @@ public class DeviceFirmwareVersionInfoFactory {
 
         @Override
         public String getFirmwareVersionName() {
-            return "failedVersion";
+            return FIRMWARE_VERSION_NAME;
         }
 
         @Override
@@ -310,8 +320,8 @@ public class DeviceFirmwareVersionInfoFactory {
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return super.validateMessage(message, helper)
-                && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
-                && (   needVerificationAfterImmediatelyActivation(message, helper)
+                    && DeviceMessageStatus.CONFIRMED.equals(message.getStatus())
+                    && (needVerificationAfterImmediatelyActivation(message, helper)
                     || needVerificationAfterScheduledActivation(message, helper)
                     || needVerificationAfterManualActivation(message, helper));
         }
@@ -392,18 +402,20 @@ public class DeviceFirmwareVersionInfoFactory {
     }
 
     public static class FailedFirmwareActivationState extends FailedFirmwareUploadState {
+        protected static final String FIRMWARE_VERSION_NAME = "failedActivatingVersion";
+
         @Override
         public boolean validateMessage(DeviceMessage message, FirmwareManagementDeviceUtils helper) {
             return DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(message.getDeviceMessageId())
                     && helper.getUploadMessageForActivationMessage(message).isPresent()
-                    && (helper.firmwareUploadTaskIsFailed()
+                    && (helper.isFirmwareUploadTaskFailed()
                     && (DeviceMessageStatus.PENDING.equals(message.getStatus()) || DeviceMessageStatus.FAILED.equals(message.getStatus()))
-                    || !helper.firmwareUploadTaskIsFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
+                    || !helper.isFirmwareUploadTaskFailed() && DeviceMessageStatus.FAILED.equals(message.getStatus()));
         }
 
         @Override
         public String getFirmwareVersionName() {
-            return "failedActivatingVersion";
+            return FIRMWARE_VERSION_NAME;
         }
 
         @Override

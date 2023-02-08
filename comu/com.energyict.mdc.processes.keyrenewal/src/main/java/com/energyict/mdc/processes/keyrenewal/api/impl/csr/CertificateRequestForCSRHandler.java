@@ -60,14 +60,14 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
             ClientCertificateWrapper certificateWrapper;//securityManagementService.findCertificateWrapper(certificateRequestForCSRMessage.alias).get();
             Device device = deviceService.findDeviceById(certificateRequestForCSRMessage.device).get();
             SecurityAccessor securityAccessor = device.getSecurityAccessors().stream()
-                    .filter(sa -> sa.getKeyAccessorTypeReference()
+                    .filter(sa -> sa.getSecurityAccessorType()
                             .equals(securityManagementService.findSecurityAccessorTypeByName(certificateRequestForCSRMessage.securityAccessor).get()))
                     .findFirst().get();
             logger.info("Processing certificate request message for device: "
                     + device.getSerialNumber()+" and security accessor: "
                     + securityAccessor.getName()
                     + " - swapped flag:"+securityAccessor.isSwapped());
-            String alias = getCertificateType(securityAccessor.getKeyAccessorTypeReference()).getPrefix() + device.getSerialNumber();
+            String alias = getCertificateType(securityAccessor.getSecurityAccessorType()).getPrefix() + device.getSerialNumber();
             certificateWrapper = securityManagementService
                     .findCertificateWrappers(Where.where("alias").like("*-" + alias))
                     .stream()
@@ -107,7 +107,7 @@ public class CertificateRequestForCSRHandler implements MessageHandler {
             if (!validateCertificateRequestData(certificateRequestData, certificateWrapper.getAlias())){
                 // during renewal process the active slot still contains the "old" certificate
                 logger.info("Loading certificate request data from active slot");
-                Optional actualValue = securityAccessor.getActualPassphraseWrapperReference();
+                Optional actualValue = securityAccessor.getActualValue();
                 certificateRequestData = extractAndValidateCertificateRequestData(actualValue);
             }
 

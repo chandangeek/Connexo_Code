@@ -43,8 +43,8 @@ public class TypedPropertiesValueAdapterTest {
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getEncryptedPassphrase()).thenReturn(Optional.of("My key"));
-        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(plaintextPassphrase));
-        when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(device.getSecurityAccessors()).thenReturn(Collections.singletonList(securityAccessor));
 
         TypedProperties properties = TypedProperties.empty();
@@ -66,8 +66,8 @@ public class TypedPropertiesValueAdapterTest {
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         PlaintextPassphrase plaintextPassphrase = mock(PlaintextPassphrase.class);
         when(plaintextPassphrase.getEncryptedPassphrase()).thenReturn(Optional.of("My key"));
-        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(plaintextPassphrase));
-        when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
+        when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(device.getSecurityAccessors()).thenReturn(Collections.singletonList(securityAccessor));
 
         Object adaptedValue = TypedPropertiesValueAdapter.adaptToUPLValue(device, securityAccessorType);

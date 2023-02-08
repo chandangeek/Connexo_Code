@@ -14,7 +14,6 @@ import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareCampaignManagementOptions;
 import com.energyict.mdc.firmware.FirmwareCheck;
 import com.energyict.mdc.firmware.FirmwareCheckManagementOption;
-import com.energyict.mdc.firmware.FirmwareCheckManagementOptions;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareManagementOptions;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -38,7 +37,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -119,12 +117,12 @@ public abstract class AbstractFirmwareCheckTest {
     protected void expectError(String message) {
         expectedException.expect(FirmwareCheck.FirmwareCheckException.class);
         expectedException.expectMessage(message);
-        firmwareCheck.execute(firmwareCampaignManagementOptions,firmwareManagementDeviceUtils, uploadedFirmware);
+        firmwareCheck.execute(firmwareCampaignManagementOptions, firmwareManagementDeviceUtils, uploadedFirmware);
     }
 
     protected void expectSuccess() {
         try {
-            firmwareCheck.execute(firmwareCampaignManagementOptions,firmwareManagementDeviceUtils, uploadedFirmware);
+            firmwareCheck.execute(firmwareCampaignManagementOptions, firmwareManagementDeviceUtils, uploadedFirmware);
         } catch (Throwable throwable) {
             throw new AssertionError("Unexpected exception during call of firmwareCheck.execute(firmwareManagementDeviceUtils, uploadedFirmware) : "
                     + System.lineSeparator()

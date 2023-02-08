@@ -86,4 +86,11 @@ public class LogRecorderAssert extends AbstractAssert<LogRecorderAssert, LogReco
         }
         return myself;
     }
+
+    public LogRecorderAssert hasNoMessages() {
+        if (!actual.getRecords().isEmpty()) {
+            throw failures.failure(actual.getRecords().size() + " record(s) found in the log.");
+        }
+        return myself;
+    }
 }

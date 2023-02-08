@@ -54,12 +54,12 @@ Ext.define('Fwc.devicefirmware.controller.FirmwareLog', {
                 model.getProxy().setUrl(device.get('deviceTypeId'));
                 me.getApplication().fireEvent('loadDevice', device);
                 model.load(router.arguments.firmwareId, {
-                    success: function(firmware) {
+                    success: function (firmware) {
                         me.getApplication().fireEvent('loadFirmware', firmware);
                         me.getApplication().fireEvent('changecontentevent', 'device-firmware-log', {router: router, device: device, title: router.getRoute().getTitle()});
                         logGrid = me.getLogsGrid();
                         logGrid.getStore().getProxy().setParams(deviceId, queryParams.firmwareComTaskId, queryParams.firmwareComTaskSessionId);
-                        logGrid.getStore().load(function() {
+                        logGrid.getStore().load(function () {
                             logGrid.getSelectionModel().select(0);
                         });
                     }

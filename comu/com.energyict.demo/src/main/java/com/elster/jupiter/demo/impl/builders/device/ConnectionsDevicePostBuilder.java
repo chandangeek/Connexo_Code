@@ -6,12 +6,15 @@ package com.elster.jupiter.demo.impl.builders.device;
 
 import com.elster.jupiter.demo.impl.UnableToCreate;
 import com.elster.jupiter.time.TimeDuration;
+import com.elster.jupiter.util.streams.Functions;
 import com.energyict.mdc.common.comserver.OutboundComPortPool;
 import com.energyict.mdc.common.device.config.ConnectionStrategy;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.common.device.data.ScheduledConnectionTask;
+import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.ConnectionTask;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import javax.inject.Inject;
@@ -20,21 +23,24 @@ import java.util.function.Consumer;
 
 public class ConnectionsDevicePostBuilder implements Consumer<Device> {
     private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
 
     private OutboundComPortPool comPortPool;
     private String host;
 
     @Inject
-    public ConnectionsDevicePostBuilder(ConnectionTaskService connectionTaskService) {
+    public ConnectionsDevicePostBuilder(ConnectionTaskService connectionTaskService,
+                                        CommunicationTaskService communicationTaskService) {
         this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
     }
 
-    public ConnectionsDevicePostBuilder withComPortPool(OutboundComPortPool comPortPool){
+    public ConnectionsDevicePostBuilder withComPortPool(OutboundComPortPool comPortPool) {
         this.comPortPool = comPortPool;
         return this;
     }
 
-    public ConnectionsDevicePostBuilder withHost(String host){
+    public ConnectionsDevicePostBuilder withHost(String host) {
         this.host = host;
         return this;
     }
@@ -63,14 +69,18 @@ public class ConnectionsDevicePostBuilder implements Consumer<Device> {
                     });
         }
         device.getComTaskExecutions().stream()
+                .map(ComTaskExecution::getId)
+                .sorted()
+                .map(communicationTaskService::findAndLockComTaskExecutionById)
+                .flatMap(Functions.asStream())
                 .forEach(comTaskExecution -> device.getComTaskExecutionUpdater(comTaskExecution).useDefaultConnectionTask(true).update());
     }
 
     private void checkProperties() {
-        if (this.comPortPool == null){
+        if (this.comPortPool == null) {
             throw new UnableToCreate("You must specify the communication port pool for device connection properties");
         }
-        if (this.host == null){
+        if (this.host == null) {
             throw new UnableToCreate("You must specify the host property for device connections");
         }
     }

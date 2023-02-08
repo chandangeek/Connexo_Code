@@ -45,6 +45,7 @@ import com.energyict.mdc.device.data.ami.MultiSenseHeadEndInterface;
 import com.energyict.mdc.device.data.impl.ami.MultiSenseHeadEndInterfaceImpl;
 import com.energyict.mdc.device.data.impl.ami.servicecall.CompletionOptionsServiceCallDomainExtension;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.PriorityComTaskService;
 import com.energyict.mdc.dynamic.DateAndTimeFactory;
 import com.energyict.mdc.engine.config.EngineConfigurationService;
@@ -137,8 +138,6 @@ public class HeadEndControllerTest {
     private ComTaskExecution comTaskExecution;
     @Mock
     HsmEnergyService hsmEnergyService;
-    @Mock
-    CommunicationTaskService communicationTaskService;
     @Mock
     private volatile PriorityComTaskService priorityComTaskService;
     @Mock
@@ -287,6 +286,8 @@ public class HeadEndControllerTest {
         CustomPropertySetService customPropertySetService = mock(CustomPropertySetService.class);
         EndDeviceCommandFactory endDeviceCommandFactory = mock(EndDeviceCommandFactory.class);
         ThreadPrincipalService threadPrincipalService = mock(ThreadPrincipalService.class);
+        CommunicationTaskService communicationTaskService = mock(CommunicationTaskService.class);
+        ConnectionTaskService connectionTaskService = mock(ConnectionTaskService.class);
         Clock clock = mock(Clock.class);
         ServiceCallType serviceCallType = mock(ServiceCallType.class);
         ServiceCall serviceCall2 = mock(ServiceCall.class);
@@ -304,7 +305,7 @@ public class HeadEndControllerTest {
 
         MultiSenseHeadEndInterface multiSenseHeadEndInterface2 = new MultiSenseHeadEndInterfaceImpl(deviceService, deviceConfigurationService,
                 meteringService, thesaurus, serviceCallService, customPropertySetService, endDeviceCommandFactory,
-                threadPrincipalService, clock, communicationTaskService, priorityComTaskService, engineConfigurationService);
+                threadPrincipalService, clock, communicationTaskService, connectionTaskService, priorityComTaskService, engineConfigurationService);
         when(endDevice.getHeadEndInterface()).thenReturn(Optional.of(multiSenseHeadEndInterface2));
 
         Mockito.doReturn(securityAccessorType).when(headEndController).getKeyAccessorType(KEY_ACCESSOR_TYPE, device);

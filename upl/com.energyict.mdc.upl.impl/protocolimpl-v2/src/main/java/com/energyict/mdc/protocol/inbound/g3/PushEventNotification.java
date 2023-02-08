@@ -1,12 +1,20 @@
+/*
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.g3;
 
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
+import com.energyict.mdc.upl.OfflineDeviceRequirements;
 import com.energyict.mdc.upl.meterdata.CollectedData;
 import com.energyict.mdc.upl.meterdata.CollectedDeviceInfo;
 import com.energyict.mdc.upl.meterdata.CollectedLogBook;
 import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
+import com.energyict.mdc.upl.offline.DeviceOfflineFlags;
+import com.energyict.mdc.upl.offline.OfflineDeviceContext;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.TypedProperties;
 import com.energyict.mdc.upl.security.DeviceProtocolSecurityPropertySet;
@@ -19,13 +27,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Copyrights EnergyICT
- *
- * @author khe
- * @since 12/03/2015 - 10:27
- */
-public class PushEventNotification implements BinaryInboundDeviceProtocol {
+public class PushEventNotification implements BinaryInboundDeviceProtocol, OfflineDeviceRequirements {
 
     private static final int METER_JOIN_ATTEMPT = 0xC50000;
 
@@ -202,7 +204,7 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
 
     @Override
     public String getVersion() {
-        return "$Date: 2021-09-21$";
+        return "$Date: 2022-10-12$";
     }
 
     @Override
@@ -218,5 +220,15 @@ public class PushEventNotification implements BinaryInboundDeviceProtocol {
     @Override
     public boolean hasSupportForRequestsOnInbound() {
         return false;
+    }
+
+    /**
+     * Signal core that we don't need anything from the offline device, other than the meta-data
+     *
+     * @return empty-flags offline device context
+     */
+    @Override
+    public OfflineDeviceContext getOfflineDeviceContext() {
+        return new DeviceOfflineFlags();
     }
 }

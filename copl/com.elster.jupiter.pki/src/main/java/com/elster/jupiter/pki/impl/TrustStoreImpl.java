@@ -12,9 +12,7 @@ import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fileimport.FileImportService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
-import com.elster.jupiter.pki.DirectoryCertificateUsage;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.TrustedCertificate;
@@ -101,7 +99,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     private Instant modTime;
 
 
-    private List<TrustedCertificate> trustedCertificates = new ArrayList<>();
+    private final List<TrustedCertificate> trustedCertificates = new ArrayList<>();
 
     @Inject
     public TrustStoreImpl(DataModel dataModel,
@@ -129,13 +127,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     @Override
     public boolean hasUniqueName() {
         Optional<TrustStore> namesake = dataModel.mapper(TrustStore.class).getUnique("name", getName());
-        if (namesake.isPresent()) {
-            if (namesake.get().getId() != getId()) {
-                return false;
-            }
-
-        }
-        return true;
+        return namesake.map(trustStore -> trustStore.getId() == getId()).orElse(true);
     }
 
     public void setName(String name) {
@@ -154,7 +146,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
 
     @Override
     public List<TrustedCertificate> getCertificates() {
-        return this.trustedCertificates.stream().sorted(Comparator.comparing(ts-> ts.getAlias().toLowerCase())).collect(toList());
+        return this.trustedCertificates.stream().sorted(Comparator.comparing(ts -> ts.getAlias().toLowerCase())).collect(toList());
     }
 
     @Override
@@ -173,7 +165,7 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
                 .filter(trustedCertificate -> trustedCertificate.getAlias().equals(alias))
                 .collect(toList());
         this.trustedCertificates.removeAll(toBeRemoved);
-        toBeRemoved.stream().forEach(dataModel::remove);
+        toBeRemoved.forEach(dataModel::remove);
     }
 
     @Override
@@ -241,7 +233,6 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
 
         CertPathValidator validator = CertPathValidator.getInstance("PKIX");    //PKIX algorithm validates CertPath objects of type X.509
         CertPathValidatorResult validate = validator.validate(path, pkixParameters);
-
     }
 
     public void save() {
@@ -251,19 +242,13 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
     public void delete() {
         Condition referencesThisTrustStore = Where.where(SecurityAccessorTypeImpl.Fields.TRUSTSTORE.fieldName())
                 .isEqualTo(this);
-        try(QueryStream<DirectoryCertificateUsage>directoryCertificateUsageQueryStream = securityManagementService.streamDirectoryCertificateUsages();
-            QueryStream<SecurityAccessorTypeImpl> securityAccessorTypeQueryStream = dataModel.stream(SecurityAccessorTypeImpl.class)){
-        if (securityAccessorTypeQueryStream.anyMatch(referencesThisTrustStore)) {
+        if (dataModel.stream(SecurityAccessorTypeImpl.class).anyMatch(referencesThisTrustStore)) {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_ON_SECURITY_ACCESSOR);
-            }
-        if (directoryCertificateUsageQueryStream
-                    .filter(Where.where("trustStore").isEqualTo(this))
-                    .findAny()
-                    .isPresent()) {
-                throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY);
-            }
         }
-
+        if (securityManagementService.streamDirectoryCertificateUsages()
+                .anyMatch(Where.where("trustStore").isEqualTo(this))) {
+            throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_DIRECTORY);
+        }
         if (fileImportService.doImportersUse(this)) {
             throw new VetoDeleteTrustStoreException(thesaurus, MessageSeeds.TRUSTSTORE_USED_BY_IMPORT);
         }
@@ -271,8 +256,5 @@ public class TrustStoreImpl implements TrustStore, ShouldHaveUniqueName {
         getCertificates().forEach(TrustedCertificate::delete);
         dataModel.remove(this);
         eventService.postEvent(EventType.TRUSTSTORE_DELETED.topic(), this);
-    }
-
-    private class UntrustedCertificateException extends RuntimeException {
     }
 }

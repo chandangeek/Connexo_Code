@@ -76,7 +76,7 @@ public class FirmwareCampaignResource {
 
     @GET
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response getFirmwareCampaigns(@BeanParam JsonQueryParameters queryParameters) {
         JSONQueryValidator.validateJSONQueryParameters(queryParameters);
@@ -92,7 +92,7 @@ public class FirmwareCampaignResource {
     @GET
     @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response getFirmwareCampaignById(@PathParam("id") long firmwareCampaignId) {
         FirmwareCampaign firmwareCampaign = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId)
@@ -103,7 +103,7 @@ public class FirmwareCampaignResource {
 
     @POST
     @Transactional
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @Consumes(MediaType.APPLICATION_JSON)
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response addFirmwareCampaign(FirmwareCampaignInfo info) {
@@ -114,7 +114,7 @@ public class FirmwareCampaignResource {
     @PUT
     @Transactional
     @Path("/{id}")
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response editFirmwareCampaign(@PathParam("id") long firmwareCampaignId, FirmwareCampaignInfo firmwareCampaignInfo) {
         FirmwareCampaign firmwareCampaign = firmwareCampaignService.findAndLockFirmwareCampaignByIdAndVersion(firmwareCampaignId, firmwareCampaignInfo.version)
@@ -146,7 +146,7 @@ public class FirmwareCampaignResource {
     @GET
     @Transactional
     @Path("/{id}/devices")
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
     public Response getDevicesForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryFilter jsonQueryFilter, @BeanParam JsonQueryParameters queryParameters) {
         List<String> states = jsonQueryFilter.getStringList("status").stream().map(DefaultState::valueOf).map(DefaultState::getKey).collect(Collectors.toList());
@@ -164,11 +164,13 @@ public class FirmwareCampaignResource {
     @GET
     @Transactional
     @Path("/{id}/firmwareversions")
-    @Produces(MediaType.APPLICATION_JSON+ ";charset=UTF-8")
+    @Produces(MediaType.APPLICATION_JSON + ";charset=UTF-8")
     @RolesAllowed({Privileges.Constants.VIEW_FIRMWARE_CAMPAIGN, Privileges.Constants.ADMINISTRATE_FIRMWARE_CAMPAIGN})
-    public Response getFirmwareVersionsForFirmwareCampaign(@PathParam("id") long firmwareCampaignId,@BeanParam JsonQueryParameters queryParameters) {
-        FirmwareCampaign firmwareCampaign = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId).orElseThrow(() -> new IllegalStateException("Firmware campaign by id "+firmwareCampaignId+" not found"));
-        return Response.ok(PagedInfoList.fromCompleteList("firmwareCampaignVersionStateInfos",campaignInfoFactory.getFirmwareCampaignVersionStateInfos(firmwareService.findFirmwareCampaignVersionStateSnapshots(firmwareCampaign)),queryParameters)).build();
+    public Response getFirmwareVersionsForFirmwareCampaign(@PathParam("id") long firmwareCampaignId, @BeanParam JsonQueryParameters queryParameters) {
+        FirmwareCampaign firmwareCampaign = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId)
+                .orElseThrow(() -> new IllegalStateException("Firmware campaign by id " + firmwareCampaignId + " not found"));
+        return Response.ok(PagedInfoList.fromCompleteList("firmwareCampaignVersionStateInfos", campaignInfoFactory.getFirmwareCampaignVersionStateInfos(firmwareService.findFirmwareCampaignVersionStateSnapshots(firmwareCampaign)), queryParameters))
+                .build();
     }
 
     public Long getCurrentCampaignVersion(long id) {

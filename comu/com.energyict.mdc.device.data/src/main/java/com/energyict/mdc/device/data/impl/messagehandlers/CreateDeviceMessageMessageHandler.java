@@ -19,11 +19,13 @@ import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.MessagesTask;
 import com.energyict.mdc.common.tasks.ProtocolTask;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.data.tasks.DeviceMessageQueueMessage;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
 import java.time.Instant;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,11 +36,31 @@ import java.util.logging.Logger;
  */
 public class CreateDeviceMessageMessageHandler implements MessageHandler {
     private static final Logger LOGGER = Logger.getLogger(CreateDeviceMessageMessageHandler.class.getSimpleName());
+
     private JsonService jsonService;
     private DeviceService deviceService;
     private DeviceMessageSpecificationService deviceMessageSpecificationService;
     private ThreadPrincipalService threadPrincipalService;
     private SecurityManagementService securityManagementService;
+    private CommunicationTaskService communicationTaskService;
+    private ConnectionTaskService connectionTaskService;
+
+    public MessageHandler init(JsonService jsonService,
+                               DeviceService deviceService,
+                               DeviceMessageSpecificationService deviceMessageSpecificationService,
+                               ThreadPrincipalService threadPrincipalService,
+                               SecurityManagementService securityManagementService,
+                               CommunicationTaskService communicationTaskService,
+                               ConnectionTaskService connectionTaskService) {
+        this.jsonService = jsonService;
+        this.deviceService = deviceService;
+        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
+        this.threadPrincipalService = threadPrincipalService;
+        this.securityManagementService = securityManagementService;
+        this.communicationTaskService = communicationTaskService;
+        this.connectionTaskService = connectionTaskService;
+        return this;
+    }
 
     @Override
     public void process(Message message) {
@@ -54,8 +76,8 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                 for (PropertySpec propertySpec : deviceMessageSpec.get().getPropertySpecs()) {
                     if (queueMessage.properties.containsKey(propertySpec.getName())) {
                         Object value = queueMessage.properties.get(propertySpec.getName());
-                        if (value instanceof LinkedHashMap && ((LinkedHashMap) value).containsKey("hsmKeyType") && ((LinkedHashMap) value).containsKey("name")) {
-                            String name = ((LinkedHashMap) value).get("name").toString();
+                        if (value instanceof Map && ((Map) value).containsKey("hsmKeyType") && ((Map) value).containsKey("name")) {
+                            String name = ((Map) value).get("name").toString();
                             value = securityManagementService.findSecurityAccessorTypeByName(name).orElseThrow(() -> new RuntimeException("No such security accessor type: " + name));
                         }
                         try {
@@ -63,25 +85,34 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
                             deviceMessageBuilder.addProperty(propertySpec.getName(), marshalPropertyValue);
                             LOGGER.info(String.format("Set property '%s' on device command '%s' to value '%s'", propertySpec.getName(), queueMessage.deviceMessageId, value));
                         } catch (Exception e) {
-                            LOGGER.log(Level.SEVERE, String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s", propertySpec.getName(), queueMessage.deviceMessageId, value, e.getMessage()));
+                            LOGGER.log(Level.SEVERE,
+                                    String.format("Failed to set property '%s' on device command '%s': value '%s' was refused: %s",
+                                            propertySpec.getName(), queueMessage.deviceMessageId, value, e.getMessage()));
                         }
                     }
                 }
                 DeviceMessage deviceMessage = deviceMessageBuilder.add();
                 if (queueMessage.trigger) {
                     Device device = deviceOptional.get();
-                    Optional<ComTaskEnablement> messageEnabledComTaskEnablement = device.getDeviceConfiguration().getComTaskEnablements().stream().filter(comTaskEnablement -> canPerformDeviceCommand(comTaskEnablement, deviceMessage.getDeviceMessageId())).findAny();
+                    Optional<ComTaskEnablement> messageEnabledComTaskEnablement = device.getDeviceConfiguration()
+                            .getComTaskEnablements()
+                            .stream()
+                            .filter(comTaskEnablement -> canPerformDeviceCommand(comTaskEnablement, deviceMessage.getDeviceMessageId()))
+                            .findAny();
                     messageEnabledComTaskEnablement.ifPresent(comTaskEnablement -> {
-                        Optional<ComTaskExecution> messageEnabledComTask = device.getComTaskExecutions().stream().filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId()).findAny();
+                        Optional<ComTaskExecution> messageEnabledComTask = device.getComTaskExecutions()
+                                .stream()
+                                .filter(comTaskExecution -> comTaskExecution.getComTask().getId() == comTaskEnablement.getComTask().getId())
+                                .findAny();
                         if (messageEnabledComTask.isPresent()) {
-                            messageEnabledComTask.get().runNow();
+                            connectionTaskService.findAndLockConnectionTaskById(messageEnabledComTask.get().getConnectionTaskId());
+                            communicationTaskService.findAndLockComTaskExecutionById(messageEnabledComTask.get().getId()).ifPresent(ComTaskExecution::runNow);
                         } else {
                             ComTaskExecution comTaskExecution = device.newAdHocComTaskExecution(comTaskEnablement).add();
-                            comTaskExecution.runNow();
+                            connectionTaskService.findAndLockConnectionTaskById(comTaskExecution.getConnectionTaskId());
+                            communicationTaskService.findAndLockComTaskExecutionById(comTaskExecution.getId()).ifPresent(ComTaskExecution::runNow);
                         }
-                        messageEnabledComTask.ifPresent(ComTaskExecution::runNow);
                     });
-
                 }
                 LOGGER.info(String.format("Added device command '%s' on device '%s'", queueMessage.deviceMessageId, deviceOptional.get().getName()));
             } else {
@@ -94,20 +125,9 @@ public class CreateDeviceMessageMessageHandler implements MessageHandler {
 
     private boolean canPerformDeviceCommand(ComTaskEnablement comTaskExecution, DeviceMessageId deviceMessageId) {
         Optional<ProtocolTask> messagesTask = comTaskExecution.getComTask().getProtocolTasks().stream().filter(protocolTask -> protocolTask instanceof MessagesTask).findAny();
-        return messagesTask.filter(protocolTask -> ((MessagesTask) protocolTask).getDeviceMessageCategories().stream().anyMatch(deviceMessageCategory -> deviceMessageCategory.getMessageSpecifications().stream().anyMatch(deviceMessageSpec -> deviceMessageSpec.getId().equals(deviceMessageId)))).isPresent();
-    }
-
-    @Override
-    public void onMessageDelete(Message message) {
-
-    }
-
-    public MessageHandler init(JsonService jsonService, DeviceService deviceService, DeviceMessageSpecificationService deviceMessageSpecificationService, ThreadPrincipalService threadPrincipalService, SecurityManagementService securityManagementService) {
-        this.jsonService = jsonService;
-        this.deviceService = deviceService;
-        this.deviceMessageSpecificationService = deviceMessageSpecificationService;
-        this.threadPrincipalService = threadPrincipalService;
-        this.securityManagementService = securityManagementService;
-        return this;
+        return messagesTask.filter(protocolTask -> ((MessagesTask) protocolTask).getDeviceMessageCategories()
+                .stream()
+                .anyMatch(deviceMessageCategory -> deviceMessageCategory.getMessageSpecifications().stream().anyMatch(deviceMessageSpec -> deviceMessageSpec.getId().equals(deviceMessageId))))
+                .isPresent();
     }
 }

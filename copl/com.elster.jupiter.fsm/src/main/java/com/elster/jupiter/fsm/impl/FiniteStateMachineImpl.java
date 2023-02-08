@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.fsm.impl;
@@ -10,7 +11,6 @@ import com.elster.jupiter.domain.util.NotEmpty;
 import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.fsm.FiniteStateMachine;
-import com.elster.jupiter.fsm.FiniteStateMachineService;
 import com.elster.jupiter.fsm.FiniteStateMachineUpdater;
 import com.elster.jupiter.fsm.MessageSeeds;
 import com.elster.jupiter.fsm.StageSet;
@@ -48,11 +48,10 @@ import java.util.stream.Stream;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2015-03-02 (15:29)
  */
-@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}", groups = { Save.Create.class, Save.Update.class })
-@AtLeastOneState(groups = { Save.Create.class, Save.Update.class })
-@ExactlyOneInitialState(groups = { Save.Create.class, Save.Update.class })
+@Unique(message = "{" + MessageSeeds.Keys.UNIQUE_FINITE_STATE_MACHINE_NAME + "}", groups = {Save.Create.class, Save.Update.class})
+@AtLeastOneState(groups = {Save.Create.class, Save.Update.class})
+@ExactlyOneInitialState(groups = {Save.Create.class, Save.Update.class})
 public final class FiniteStateMachineImpl implements FiniteStateMachine {
-
     public enum Fields {
         NAME("name"),
         OBSOLETE_TIMESTAMP("obsoleteTimestamp"),
@@ -62,6 +61,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
 
 
         private final String javaFieldName;
+
         Fields(String javaFieldName) {
             this.javaFieldName = javaFieldName;
         }
@@ -199,8 +199,7 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
         Optional<StateImpl> state = this.findInternalState(name);
         if (state.isPresent()) {
             return Optional.of(state.get());
-        }
-        else {
+        } else {
             return Optional.empty();
         }
     }
@@ -255,13 +254,12 @@ public final class FiniteStateMachineImpl implements FiniteStateMachine {
     void removeTransition(StateImpl state, StateTransitionEventType eventType) {
         Optional<StateTransitionImpl> stateTransition = this.transitions
                 .stream()
-                .filter(t -> this.relatesTo(t, state))
+                .filter(t -> t.getFrom().getId() == state.getId())
                 .filter(t -> t.getEventType().getId() == eventType.getId())
                 .findFirst();
         if (stateTransition.isPresent()) {
             this.transitions.remove(stateTransition.get());
-        }
-        else {
+        } else {
             throw new UnsupportedStateTransitionException(this.thesaurus, this, state, eventType);
         }
     }

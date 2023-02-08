@@ -3,6 +3,6 @@
   "local" : false,
   "name" : "com.elster.jupiter.login.app",
   "requires" : [
-    "com.elster.jupiter.unifyingjs@10.9.21"
+    "com.elster.jupiter.unifyingjs@10.9.23"
   ]
 }

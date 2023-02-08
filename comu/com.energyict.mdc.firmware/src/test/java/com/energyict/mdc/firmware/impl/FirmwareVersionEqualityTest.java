@@ -23,7 +23,7 @@ import static org.fest.reflect.core.Reflection.field;
 public class FirmwareVersionEqualityTest extends EqualsContractTest {
 
     private FirmwareVersion firmwareInstance;
-    private long fimwareVersionInstanceId = 132;
+    private final long firmwareVersionInstanceId = 132;
 
     @Mock
     private DataModel dataModel;
@@ -42,19 +42,19 @@ public class FirmwareVersionEqualityTest extends EqualsContractTest {
     @Override
     protected Object getInstanceA() {
         if (firmwareInstance == null) {
-            firmwareInstance = setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), fimwareVersionInstanceId);
+            firmwareInstance = setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), firmwareVersionInstanceId);
         }
         return firmwareInstance;
     }
 
     @Override
     protected Object getInstanceEqualToA() {
-        return setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), fimwareVersionInstanceId);
+        return setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), firmwareVersionInstanceId);
     }
 
     @Override
     protected Iterable<?> getInstancesNotEqualToA() {
-        return Collections.singletonList(setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), fimwareVersionInstanceId+1));
+        return Collections.singletonList(setId(new FirmwareVersionImpl(dataModel, eventService, thesaurus, deviceConfigurationService), firmwareVersionInstanceId + 1));
     }
 
     @Override

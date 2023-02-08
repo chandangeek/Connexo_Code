@@ -1415,7 +1415,7 @@ public class ComTaskExecutionOrganizerTest {
         when(configurationSecurityProperty.getName()).thenReturn(name);
         SecurityAccessor securityAccessor = getPassPhraseKeyAccessor(name, passPhrase);
         when(configurationSecurityProperty.getKeyAccessor()).thenReturn(securityAccessor);
-        SecurityAccessorType securityAccessorType = securityAccessor.getKeyAccessorTypeReference();
+        SecurityAccessorType securityAccessorType = securityAccessor.getSecurityAccessorType();
         when(configurationSecurityProperty.getSecurityAccessorType()).thenReturn(securityAccessorType);
         return configurationSecurityProperty;
     }
@@ -1427,9 +1427,9 @@ public class ComTaskExecutionOrganizerTest {
         SecurityAccessor securityAccessor = mock(SecurityAccessor.class);
         SecurityAccessorType securityAccessorType = mock(SecurityAccessorType.class);
         when(securityAccessorType.getName()).thenReturn(keyAccessorTypeName);
-        when(securityAccessor.getKeyAccessorTypeReference()).thenReturn(securityAccessorType);
+        when(securityAccessor.getSecurityAccessorType()).thenReturn(securityAccessorType);
         when(securityAccessor.getDevice()).thenReturn(mock(Device.class));
-        when(securityAccessor.getActualPassphraseWrapperReference()).thenReturn(Optional.of(plaintextPassphrase));
+        when(securityAccessor.getActualValue()).thenReturn(Optional.of(plaintextPassphrase));
         return securityAccessor;
     }
 

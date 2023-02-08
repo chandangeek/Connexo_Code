@@ -13,7 +13,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
  */
 public enum TranslationKeys implements TranslationKey {
 
-    SERVICE_CALL_SUBSCRIBER(ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME, "Handle service calls"),
+    SERVICE_CALL_SUBSCRIBER(ServiceCallService.SERVICE_CALLS_SUBSCRIBER_NAME, "Handle service calls"),
     SERVICE_CALL_ISSUE_SUBSCRIBER(ServiceCallService.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME, "Handle service call issues"),
 
     DEFAULT_SERVICE_CALL_LIFE_CYCLE_NAME("scs.standard.service.call.life.cycle", "Default service call life cycle"),

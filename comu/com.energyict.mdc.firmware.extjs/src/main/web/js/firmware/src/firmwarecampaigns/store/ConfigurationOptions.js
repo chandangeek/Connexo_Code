@@ -4,7 +4,7 @@
 
 Ext.define('Fwc.firmwarecampaigns.store.ConfigurationOptions', {
     extend: 'Ext.data.Store',
-    model: 'Fwc.firmwarecampaigns.model.FirmvareVersionsOption',
+    model: 'Fwc.firmwarecampaigns.model.FirmwareVersionsOption',
     proxy: {
         type: 'rest',
         urlTpl: '/api/fwc/devicetypes/{deviceTypeId}/firmwaremanagementoptions',

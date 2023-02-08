@@ -950,9 +950,7 @@ public enum DeviceMessageId {
     }
 
     public static DeviceMessageId from(long dbId) {
-        return Arrays.stream(DeviceMessageId.values())
-                .filter(dmi -> dmi.dbValue() == dbId)
-                .findFirst()
+        return find(dbId)
                 .orElseThrow(() -> new IllegalArgumentException(String.format("No DeviceMessageId found having id %d", dbId)));
     }
 

@@ -58,7 +58,7 @@ public class FirmwareCampaignIT extends PersistenceTest {
 
     private static final String imageIdentifier = "imageIdentifier";
     private static CustomPropertySet<ServiceCall, FirmwareCampaignDomainExtension> serviceCallCPS;
-    private static Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
+    private static final Thesaurus thesaurus = NlsModule.FakeThesaurus.INSTANCE;
     private static ServiceCallService serviceCallService;
     private static ServiceCallHandler serviceCallHandler;
     private static FirmwareCampaignServiceImpl firmwareCampaignService;

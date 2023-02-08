@@ -61,7 +61,7 @@ public class BpmProcessResolver {
      */
     public boolean canBeStarted(SecurityAccessor securityAccessor, String renewalBpmProcessDefinitionId) {
         String filter = "?variableid=deviceId&variablevalue=" + securityAccessor.getDevice().getmRID() +
-                "&variableid=accessorType&variablevalue=" + securityAccessor.getKeyAccessorTypeReference().getName();
+                "&variableid=accessorType&variablevalue=" + securityAccessor.getSecurityAccessorType().getName();
         List<ProcessInstanceInfo> processInstanceInfos = bpmService.getRunningProcesses(null, filter)
                 .processes
                 .stream()
@@ -71,7 +71,7 @@ public class BpmProcessResolver {
             logger.log(Level.INFO, "No running processes found");
             return true;
         }
-        logger.log(Level.INFO, "Found running processes for " + securityAccessor.getKeyAccessorTypeReference().getName() + " and " + securityAccessor.getDevice().getName());
+        logger.log(Level.INFO, "Found running processes for " + securityAccessor.getSecurityAccessorType().getName() + " and " + securityAccessor.getDevice().getName());
         return false;
     }
 

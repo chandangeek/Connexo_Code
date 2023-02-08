@@ -62,8 +62,8 @@ public class SecurityAccessorInfoFactory {
         List<PropertySpec> propertySpecs = securityAccessor.getPropertySpecs();
 
         TypedProperties actualTypedProperties = securityAccessorInfoFactory.getPropertiesActualValue(securityAccessor);
-        boolean userHasViewPrivilege = securityAccessor.getKeyAccessorTypeReference().isCurrentUserAllowedToViewProperties("MDC");
-        boolean userHasEditPrivilege = securityAccessor.getKeyAccessorTypeReference().isCurrentUserAllowedToEditProperties("MDC");
+        boolean userHasViewPrivilege = securityAccessor.getSecurityAccessorType().isCurrentUserAllowedToViewProperties("MDC");
+        boolean userHasEditPrivilege = securityAccessor.getSecurityAccessorType().isCurrentUserAllowedToEditProperties("MDC");
 
         MdcPropertyUtils.ValueVisibility valueVisibility = userHasViewPrivilege && userHasEditPrivilege? SHOW_VALUES: HIDE_VALUES;
         MdcPropertyUtils.PrivilegePresence withoutPrivileges = userHasViewPrivilege ? WITH_PRIVILEGES : WITHOUT_PRIVILEGES;
@@ -79,13 +79,13 @@ public class SecurityAccessorInfoFactory {
         List<Group> groups = userService.getGroups();
         for (SecurityAccessor<?> securityAccessor: securityAccessors) {
             SecurityAccessorInfo info = asKey(securityAccessor);
-            Set<SecurityAccessorUserAction> userActions = securityAccessor.getKeyAccessorTypeReference().getUserActions();
+            Set<SecurityAccessorUserAction> userActions = securityAccessor.getSecurityAccessorType().getUserActions();
             info.editLevels = executionLevelInfoFactory.getEditPrivileges(userActions, groups);
             info.viewLevels = executionLevelInfoFactory.getViewPrivileges(userActions, groups);
-            device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessor.getKeyAccessorTypeReference())
+            device.getDeviceType().getDefaultKeyOfSecurityAccessorType(securityAccessor.getSecurityAccessorType())
                     .ifPresent(v -> info.defaultServiceKey = v);
 
-            info.keyType = securityAccessor.getKeyAccessorTypeReference().getKeyType().getName();
+            info.keyType = securityAccessor.getSecurityAccessorType().getKeyType().getName();
 
             securityAccessorInfos.add(info);
         }

@@ -36,7 +36,7 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
                             showImageIdentifierColumn: me.deviceType.get('needsImageIdentifierForFirmware'),
                             router: this.router,
                             scroll: 'vertical',
-                            maxHeight:402,
+                            maxHeight: 402,
                             autoHeight: true,
                             isFirmwareCampaignVersions: me.isFirmwareCampaignVersions
                         },
@@ -61,13 +61,13 @@ Ext.define('Fwc.view.firmware.FirmwareVersions', {
             }
         ];
 
-        if (!me.isFirmwareCampaignVersions){
-             me.content['dockedItems'] = [
-                    {
-                        dock: 'top',
-                        xtype: 'fwc-view-firmware-versions-topfilter'
-                    }
-             ]
+        if (!me.isFirmwareCampaignVersions) {
+            me.content['dockedItems'] = [
+                {
+                    dock: 'top',
+                    xtype: 'fwc-view-firmware-versions-topfilter'
+                }
+            ]
         }
 
         this.callParent(arguments);

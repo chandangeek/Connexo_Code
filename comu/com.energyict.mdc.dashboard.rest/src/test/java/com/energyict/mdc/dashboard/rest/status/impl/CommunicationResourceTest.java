@@ -49,12 +49,10 @@ import javax.ws.rs.core.Response;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
@@ -62,6 +60,7 @@ import org.mockito.Matchers;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyInt;
+import static org.mockito.Matchers.anyLong;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -100,7 +99,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testCurrentStateAddedToFilter() throws Exception {
-
         Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("currentStates", Arrays.asList("Busy", "OnHold", "Retrying")))
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
@@ -110,7 +108,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         ArgumentCaptor<ComTaskExecutionFilterSpecification> captor = ArgumentCaptor.forClass(ComTaskExecutionFilterSpecification.class);
         verify(communicationTaskService).findComTaskExecutionsByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().taskStatuses).contains(TaskStatus.Busy).contains(TaskStatus.OnHold).contains(TaskStatus.Retrying).hasSize(3);
-
     }
 
     @Test
@@ -142,9 +139,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         ArgumentCaptor<ConnectionTaskFilterSpecification> captor = ArgumentCaptor.forClass(ConnectionTaskFilterSpecification.class);
         verify(connectionTaskService).findConnectionTasksByFilter(captor.capture(), anyInt(), anyInt());
         assertThat(captor.getValue().deviceGroups).contains(queryEndDeviceGroup1).contains(queryEndDeviceGroup2).hasSize(2);
-
     }
-
 
     @Test
     public void testComSchedulesAddedToFilter() throws Exception {
@@ -193,7 +188,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
     public void testBadRequestWhenPagingIsMissing() throws Exception {
         Response response = target("/communications").request().get();
         assertThat(response.getStatus()).isEqualTo(Response.Status.BAD_REQUEST.getStatusCode());
-
     }
 
     @Test
@@ -213,7 +207,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testStartIntervalToAddedToFilter() throws Exception {
-
         Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("startIntervalTo", 1407916436000L))
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
@@ -229,7 +222,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testStartAndFinishIntervalFromAndToAddedToFilter() throws Exception {
-
         Map<String, Object> map = target("/communications").queryParam("filter",
                 ExtjsFilter.filter()
                         .property("startIntervalFrom", 1407916436000L).property("startIntervalTo", 1407916784000L)
@@ -261,7 +253,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testEndIntervalToAddedToFilter() throws Exception {
-
         Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter("finishIntervalTo", 1407916436000L))
                 .queryParam("start", 0)
                 .queryParam("limit", 10)
@@ -277,7 +268,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
     @Test
     public void testEndIntervalFromAndToAddedToFilter() throws Exception {
-
         Map<String, Object> map = target("/communications").queryParam("filter", ExtjsFilter.filter()
                 .property("finishIntervalFrom", 1407916436000L)
                 .property("finishIntervalTo", 1407916784000L)
@@ -388,7 +378,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
                 .hasSize(18);
         assertThat((Map) communicationTaskMap.get("device"))
                 .containsKey("location");
-
     }
 
     private ScheduledConnectionTask mockConnectionTask() {
@@ -399,7 +388,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(dialectProperties.getDeviceProtocolDialect()).thenReturn(dialect);
         when(dialectProperties.getDeviceProtocolDialectName()).thenReturn("Device protocol display name");
         ScheduledConnectionTask connectionTask = mock(ScheduledConnectionTask.class);
-        when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Collections.<ConnectionTask>singletonList(connectionTask));
+        when(connectionTaskService.findConnectionTasksByFilter(Matchers.<ConnectionTaskFilterSpecification>anyObject(), anyInt(), anyInt())).thenReturn(Collections.singletonList(connectionTask));
         when(connectionTask.getId()).thenReturn(1234L);
         when(connectionTask.getName()).thenReturn("fancy name");
         PartialScheduledConnectionTask partialConnectionTask = mock(PartialScheduledConnectionTask.class);
@@ -462,7 +451,6 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         return connectionTask;
     }
 
-    @Ignore
     @Test
     public void testRunConnectionsWithFilter() throws Exception {
         mockAppServers(CommunicationTaskService.FILTER_ITEMIZER_QUEUE_DESTINATION, CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION);
@@ -516,7 +504,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(1L, 10L)).thenReturn(Optional.<ComTaskExecution>empty());
         when(communicationTaskService.findComTaskExecution(1L)).thenReturn(Optional.of(comTaskExecution));
-
+        when(connectionTaskService.findAndLockConnectionTaskById(anyLong())).thenReturn(Optional.of(mock(ConnectionTask.class)));
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.id = 1L;
         info.version = 10L;
@@ -533,7 +521,7 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
 
         when(communicationTaskService.findAndLockComTaskExecutionByIdAndVersion(1L, 10L)).thenReturn(Optional.<ComTaskExecution>empty());
         when(communicationTaskService.findComTaskExecution(1L)).thenReturn(Optional.of(comTaskExecution));
-
+        when(connectionTaskService.findAndLockConnectionTaskById(anyLong())).thenReturn(Optional.of(mock(ConnectionTask.class)));
         ComTaskExecutionInfo info = new ComTaskExecutionInfo();
         info.id = 1L;
         info.version = 10L;
@@ -551,5 +539,4 @@ public class CommunicationResourceTest extends DashboardApplicationJerseyTest {
         when(finder.find()).thenReturn(list);
         return finder;
     }
-
 }

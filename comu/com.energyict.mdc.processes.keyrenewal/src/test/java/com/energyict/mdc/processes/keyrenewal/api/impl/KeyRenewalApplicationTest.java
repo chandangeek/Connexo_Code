@@ -4,6 +4,7 @@
 
 package com.energyict.mdc.processes.keyrenewal.api.impl;
 
+import com.elster.jupiter.bpm.BpmService;
 import com.elster.jupiter.cps.CustomPropertySet;
 import com.elster.jupiter.cps.CustomPropertySetService;
 import com.elster.jupiter.devtools.rest.FelixRestApplicationJerseyTest;
@@ -18,6 +19,7 @@ import com.elster.jupiter.servicecall.ServiceCallService;
 import com.elster.jupiter.upgrade.UpgradeService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
 import com.energyict.mdc.processes.keyrenewal.api.impl.servicecall.KeyRenewalCustomPropertySet;
 import com.energyict.mdc.protocol.api.device.messages.DeviceMessageSpecificationService;
 
@@ -62,6 +64,10 @@ public abstract class KeyRenewalApplicationTest extends FelixRestApplicationJers
     SecurityManagementService securityManagementService;
     @Mock
     CaService caService;
+    @Mock
+    CommunicationTaskService communicationTaskService;
+    @Mock
+    BpmService bpmService;
 
     @Override
     protected Application getApplication() {
@@ -83,6 +89,8 @@ public abstract class KeyRenewalApplicationTest extends FelixRestApplicationJers
         application.setCustomPropertySet(keyRenewalCustomPropertySet);
         application.setSecurityManagementService(securityManagementService);
         application.setCaService(caService);
+        application.setCommunicationTaskService(communicationTaskService);
+        application.setBpmService(bpmService);
         return application;
     }
 }

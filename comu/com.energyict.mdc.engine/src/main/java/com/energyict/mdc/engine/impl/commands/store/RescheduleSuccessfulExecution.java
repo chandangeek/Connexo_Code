@@ -16,11 +16,10 @@ import com.energyict.mdc.engine.impl.core.ScheduledJob;
  * @since 2014-10-23 (15:32)
  */
 public class RescheduleSuccessfulExecution extends RescheduleExecutionDeviceCommand {
-
     private final static String DESCRIPTION_TITLE = "Reschedule task";
 
-    public RescheduleSuccessfulExecution(JobExecution scheduledJob) {
-        super(scheduledJob);
+    public RescheduleSuccessfulExecution(JobExecution scheduledJob, ServiceProvider serviceProvider) {
+        super(scheduledJob, serviceProvider);
     }
 
     @Override

@@ -26,8 +26,8 @@ Ext.define('Fwc.firmwarecampaigns.store.FirmwareVersionsList', {
         startParam: false,
         limitParam: false,
 
-        setUrl: function (firmvareCampaignId) {
-            this.url = this.urlTpl.replace('{id}', firmvareCampaignId);
+        setUrl: function (firmwareCampaignId) {
+            this.url = this.urlTpl.replace('{id}', firmwareCampaignId);
         }
     }
 });

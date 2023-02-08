@@ -17,7 +17,6 @@ import com.elster.jupiter.pki.ClientCertificateWrapper;
 import com.elster.jupiter.pki.SecurityAccessor;
 import com.elster.jupiter.pki.SecurityAccessorType;
 import com.elster.jupiter.pki.SecurityManagementService;
-import com.elster.jupiter.pki.TrustStore;
 import com.elster.jupiter.pki.impl.MessageSeeds;
 import com.elster.jupiter.pki.impl.SecurityManagementServiceImpl;
 import com.elster.jupiter.pki.impl.TranslationKeys;
@@ -311,7 +310,7 @@ public class CSRImporterFactory implements FileImporterFactory {
 
     private Predicate<SecurityAccessor> forSignatureCheck() {
         return securityAccessor -> {
-            Optional actual = securityAccessor.getActualPassphraseWrapperReference();
+            Optional actual = securityAccessor.getActualValue();
             if (actual.isPresent()) {
                 Object object = actual.get();
                 if (object instanceof CertificateWrapper) {
@@ -331,7 +330,7 @@ public class CSRImporterFactory implements FileImporterFactory {
     private Predicate<SecurityAccessor> forSigning() {
         return securityAccessor -> {
             try {
-                Optional actual = securityAccessor.getActualPassphraseWrapperReference();
+                Optional actual = securityAccessor.getActualValue();
                 if (actual.isPresent()) {
                     Object object = actual.get();
                     if (object instanceof CertificateWrapper && ((CertificateWrapper) object).hasPrivateKey() && object instanceof ClientCertificateWrapper) {

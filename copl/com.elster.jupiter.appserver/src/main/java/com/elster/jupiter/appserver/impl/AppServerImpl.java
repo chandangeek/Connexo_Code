@@ -24,7 +24,6 @@ import com.elster.jupiter.messaging.SubscriberSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataMapper;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
@@ -474,16 +473,14 @@ class AppServerImpl implements AppServer {
                         Thread.currentThread().interrupt();
                     }
                 }).thenRun(() -> {
-                    try(QueryStream<AppServer> dataStream = dataModel.stream(AppServer.class)){
-                        boolean inUseAgain = dataStream
-                                .filter(where("name").isEqualTo(getName()))
-                                .findAny()
-                                .isPresent();
-                        if (!inUseAgain) {
-                            transactionService.builder()
-                                    .principal(principal)
-                                    .run(AppServerImpl.this::removeMessageQueue);
-                        }
+                    boolean inUseAgain = dataModel.stream(AppServer.class)
+                            .filter(where("name").isEqualTo(getName()))
+                            .findAny()
+                            .isPresent();
+                    if (!inUseAgain) {
+                        transactionService.builder()
+                                .principal(principal)
+                                .run(AppServerImpl.this::removeMessageQueue);
                     }
                 });
             } else {

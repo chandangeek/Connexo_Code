@@ -125,6 +125,8 @@ public class DeviceBuilder {
                     changedDevice = foundDevices.get(0);
                 }
             }
+            changedDevice = deviceService.findAndLockDeviceById(changedDevice.getId())
+                    .orElseThrow(getFaultMessage(meter.getDeviceName(), MessageSeeds.NO_SUCH_DEVICE, changedDevice.getId()));
 
             validateSecurityKeyChangeIsAllowedOnUpdate(changedDevice, meter.getSecurityInfo());
 
@@ -164,7 +166,7 @@ public class DeviceBuilder {
                 batchService.findOrCreateBatch(batch.get()).addDevice(changedDevice);
             }
             if (shipmentDate.isPresent() && shipmentDate.get().isAfter(new Date(0).toInstant())) {
-                    changedDevice.getLifecycleDates().setReceivedDate(shipmentDate.get());
+                changedDevice.getLifecycleDates().setReceivedDate(shipmentDate.get());
             }
             serialNumber.ifPresent(changedDevice::setSerialNumber);
             changedDevice.setModelNumber(modelNumber.orElse(currentModelNumber));

@@ -16,7 +16,6 @@ import com.elster.jupiter.domain.util.Save;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.associations.IsPresent;
 import com.elster.jupiter.orm.associations.Reference;
@@ -463,17 +462,15 @@ public class DeviceTypeImpl extends PersistentNamedObject<DeviceType> implements
     }
 
     private void validateSecurityAccessorTypeRemoval(SecurityAccessorTypeOnDeviceType securityAccessorTypeOnDeviceType) {
-        try(QueryStream<ConfigurationSecurityProperty> confSecurityPropStream = getDataModel().stream(ConfigurationSecurityProperty.class)){
-            if (confSecurityPropStream
-                    .join(SecurityPropertySet.class)
-                    .join(DeviceConfiguration.class)
-                    .filter(Where.where("securityPropertySet.deviceConfiguration.deviceType").isEqualTo(this))
-                    .filter(Where.where("securityPropertySet.deviceConfiguration.active").isEqualTo(true))
-                    .filter(Where.where("keyAccessorType").isEqualTo(securityAccessorTypeOnDeviceType.getSecurityAccessorType()))
-                    .findAny()
-                    .isPresent()) {
-                throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
-            }
+        if (getDataModel().stream(ConfigurationSecurityProperty.class)
+                .join(SecurityPropertySet.class)
+                .join(DeviceConfiguration.class)
+                .filter(Where.where("securityPropertySet.deviceConfiguration.deviceType").isEqualTo(this))
+                .filter(Where.where("securityPropertySet.deviceConfiguration.active").isEqualTo(true))
+                .filter(Where.where("keyAccessorType").isEqualTo(securityAccessorTypeOnDeviceType.getSecurityAccessorType()))
+                .findAny()
+                .isPresent()) {
+            throw new SecurityAccessorTypeCanNotBeDeletedException(getThesaurus());
         }
         getEventService().postEvent(EventType.SECURITY_ACCESSOR_TYPE_VALIDATE_DELETE.topic(), securityAccessorTypeOnDeviceType);
     }

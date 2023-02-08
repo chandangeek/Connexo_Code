@@ -23,10 +23,10 @@ import com.elster.jupiter.servicecall.DefaultState;
 import com.elster.jupiter.servicecall.LogLevel;
 import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallBuilder;
-import com.elster.jupiter.servicecall.ServiceCallCancellationHandler;
 import com.elster.jupiter.servicecall.ServiceCallFilter;
 import com.elster.jupiter.servicecall.ServiceCallLog;
 import com.elster.jupiter.servicecall.ServiceCallType;
+import com.elster.jupiter.util.concurrent.LockUtils;
 import com.elster.jupiter.util.conditions.Where;
 
 import javax.inject.Inject;
@@ -154,7 +154,14 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void requestTransition(DefaultState defaultState) {
-        getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
+        if (defaultState == DefaultState.CANCELLED) {
+            getType().getServiceCallHandler().beforeCancelling(this, getState());
+            if (getState() != DefaultState.CANCELLED) {
+                getType().getServiceCallLifeCycle().triggerTransition(this, DefaultState.CANCELLED);
+            }
+        } else {
+            getType().getServiceCallLifeCycle().triggerTransition(this, defaultState);
+        }
     }
 
     void setState(DefaultState defaultState) {
@@ -200,12 +207,7 @@ public class ServiceCallImpl implements ServiceCall {
 
     @Override
     public void cancel() {
-        Optional<ServiceCallCancellationHandler> optionalServiceCallCancellationHandler = serviceCallService.getServiceCallCancellationHandler(getType());
-        if (optionalServiceCallCancellationHandler.isPresent()) {
-            optionalServiceCallCancellationHandler.get().cancel(this);
-        } else {
-            requestTransition(DefaultState.CANCELLED);
-        }
+        requestTransition(DefaultState.CANCELLED);
     }
 
     @Override
@@ -246,10 +248,8 @@ public class ServiceCallImpl implements ServiceCall {
     @Override
     public void log(String message, Exception exception) {
         LogLevel level = LogLevel.SEVERE;
-        if (type.get().getLogLevel().compareTo(level) > -1) {
-            ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, level, clock.instant(), stackTrace2String(exception));
-            instance.save();
-        }
+        ServiceCallLogImpl instance = ServiceCallLogImpl.from(dataModel, this, message, level, clock.instant(), stackTrace2String(exception));
+        instance.save();
     }
 
     private String stackTrace2String(Exception e) {
@@ -360,12 +360,11 @@ public class ServiceCallImpl implements ServiceCall {
     }
 
     @Override
-    public void transitionWithLockIfPossible(DefaultState state) {
-        if (canTransitionTo(state)) {
-            ServiceCall serviceCall = serviceCallService.lockServiceCall(this.getId()).get();
-            if (serviceCall.canTransitionTo(state)) {
-                serviceCall.requestTransition(state);
-            }
-        }
+    public boolean transitionWithLockIfPossible(DefaultState state) {
+        Optional<ServiceCall> locked = LockUtils.lockWithDoubleCheck(this,
+                serviceCallService::lockServiceCall,
+                sc -> sc.canTransitionTo(state));
+        locked.ifPresent(sc -> sc.requestTransition(state));
+        return locked.isPresent();
     }
 }

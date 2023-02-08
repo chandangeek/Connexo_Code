@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
@@ -330,9 +331,18 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     public void save() {
         isValidDeviceMessageId();
         super.save();
-        if (getId() > 0) {
-            getDataModel().touch(device.get());
-        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o
+                || o instanceof DeviceMessageImpl
+                && getId() == ((DeviceMessageImpl) o).getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId());
     }
 
     private ReleaseDateUpdater getReleaseDateUpdater() {
@@ -376,7 +386,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
     }
 
     public class ReleaseDateUpdater {
-
         private final DeviceMessageStatus status;
         private final Instant initialReleaseDate;
         private Instant newReleaseDate;
@@ -437,7 +446,6 @@ public class DeviceMessageImpl extends PersistentIdObject<ServerDeviceMessage> i
                             .anyMatch(cte -> cte.isExecuting() && cte.getConnectionTask().isPresent() && executingConnectionTasks.contains(cte.getConnectionTask().get().getId()));
         }
     }
-
 
     /**
      * Models a Group used for validating attributes that need

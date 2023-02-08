@@ -19,15 +19,15 @@ import java.lang.annotation.Target;
  * @author Rudi Vankeirsbilck (rudi)
  * @since 2014-03-12 (17:30)
  */
-@Target({ ElementType.TYPE, ElementType.ANNOTATION_TYPE })
+@Target({ElementType.TYPE, ElementType.ANNOTATION_TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = { FirmwareCampaignsAttributesValidator.class })
+@Constraint(validatedBy = {FirmwareCampaignsAttributesValidator.class})
 public @interface HasValidFirmwareCampaignAttributes {
 
     String message() default "";
 
-    Class<?>[] groups() default { };
+    Class<?>[] groups() default {};
 
-    Class<? extends Payload>[] payload() default { };
+    Class<? extends Payload>[] payload() default {};
 
 }

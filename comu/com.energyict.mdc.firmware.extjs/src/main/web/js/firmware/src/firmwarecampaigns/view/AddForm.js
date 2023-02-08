@@ -13,9 +13,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         'Fwc.firmwarecampaigns.store.FirmwareTypes',
         'Fwc.firmwarecampaigns.model.FirmwareManagementOption',
         'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
-        'Fwc.firmwarecampaigns.view.FirmvareVersionsOptions',
+        'Fwc.firmwarecampaigns.view.FirmwareVersionsOptions',
         'Fwc.firmwarecampaigns.store.ComTasksForValidate',
-        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar'
+        'Fwc.firmwarecampaigns.store.FWComTask'
     ],
     alias: 'widget.firmware-campaigns-add-form',
     returnLink: null,
@@ -57,34 +57,34 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 layout: 'hbox',
                 width: 650,
                 items:
-                [
-                    {
-                        xtype: 'combobox',
-                        itemId: 'firmware-campaign-device-type',
-                        name: 'deviceType',
-                        required: true,
-                        allowBlank: false,
-                        store: 'Fwc.store.DeviceTypes',
-                        forceSelection: true,
-                        queryMode: 'local',
-                        displayField: 'localizedValue',
-                        valueField: 'id',
-                        width: 325,
-                        listeners: {
-                            change: {
-                                fn: Ext.bind(me.onDeviceTypeChange, me)
+                    [
+                        {
+                            xtype: 'combobox',
+                            itemId: 'firmware-campaign-device-type',
+                            name: 'deviceType',
+                            required: true,
+                            allowBlank: false,
+                            store: 'Fwc.store.DeviceTypes',
+                            forceSelection: true,
+                            queryMode: 'local',
+                            displayField: 'localizedValue',
+                            valueField: 'id',
+                            width: 325,
+                            listeners: {
+                                change: {
+                                    fn: Ext.bind(me.onDeviceTypeChange, me)
+                                }
                             }
+                        },
+                        {
+                            xtype: 'displayfield',
+                            itemId: 'no-device-type',
+                            hidden: true,
+                            value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceType', 'FWC', 'No device type defined yet.') + '</div>',
+                            htmlEncode: false,
+                            width: 235
                         }
-                    },
-                    {
-                        xtype: 'displayfield',
-                        itemId: 'no-device-type',
-                        hidden: true,
-                        value: '<div style="color: #eb5642">' + Uni.I18n.translate('firmware.campaigns.noDeviceType', 'FWC', 'No device type defined yet.') + '</div>',
-                        htmlEncode: false,
-                        width: 235
-                    }
-                ]
+                    ]
             },
             {
                 xtype: 'fieldcontainer',
@@ -121,7 +121,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                         margin: '0 0 0 10',
                         htmlEncode: false,
                         value: '<span class="icon-info" style="display:inline-block; color:#A9A9A9; font-size:16px;" data-qwidth="400" data-qtitle="' +
-                            Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.header', 'FWC', 'Help - About device group')+'" data-qtip="'
+                            Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.header', 'FWC', 'Help - About device group') + '" data-qtip="'
                             + Ext.htmlEncode(Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.title', 'FWC', 'Only devices that meet the following criteria will be included in the firmware campaign')
                                 + ':<ul class="ul#uni-panel-no-items-found"><li>'
                                 + Uni.I18n.translate('firmware.campaigns.deviceGroupTooltip.reason1', 'FWC', 'Devices with as device type the selected device type')
@@ -233,10 +233,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             {
                 xtype: 'combobox',
                 itemId: 'fwc-campaign-allowed-comtask',
-                name: 'calendarUploadComTask',
-                store: 'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
+                name: 'firmwareUploadComTask',
+                store: 'Fwc.firmwarecampaigns.store.FWComTask',
                 fieldLabel: Uni.I18n.translate(
-                    'general.calendarUploadComTask',
+                    'general.firmwareUploadComTask',
                     'FWC',
                     'Firmware upload communication task'
                 ),
@@ -269,7 +269,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     {
                         xtype: 'combobox',
                         itemId: 'fwc-campaign-send-connection-strategy',
-                        name: 'calendarUploadConnectionStrategy',
+                        name: 'firmwareUploadConnectionStrategy',
                         store: 'Fwc.firmwarecampaigns.store.ConnectionStrategy',
                         queryMode: 'local',
                         displayField: 'name',
@@ -289,8 +289,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-send-connection-strategy-reset',
-                        handler: function() {
-                            this.down('[name=calendarUploadConnectionStrategy]').reset();
+                        handler: function () {
+                            this.down('[name=firmwareUploadConnectionStrategy]').reset();
                             me.down('#fwc-campaign-send-connection-strategy-reset').disable();
                         },
                         scope: me,
@@ -360,7 +360,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     {
                         xtype: 'uni-default-button',
                         itemId: 'fwc-campaign-validation-connection-strategy-reset',
-                        handler: function() {
+                        handler: function () {
                             this.down('[name=validationConnectionStrategy]').reset();
                             me.down('#fwc-campaign-validation-connection-strategy-reset').disable();
                         },
@@ -409,8 +409,8 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
         me.callParent(arguments);
 
-        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function(item){
-           item.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'FWC', 'Restore to default empty value'));
+        Ext.Array.each(Ext.ComponentQuery.query('uni-default-button'), function (item) {
+            item.setTooltip(Uni.I18n.translate('general.restoreDefaultEmptyValue', 'FWC', 'Restore to default empty value'));
         })
     },
 
@@ -434,28 +434,28 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.setLoading();
             }
             Ext.ModelManager.getModel('Fwc.firmwarecampaigns.model.FirmwareManagementOption').getProxy().setUrl(newValue);
-            var firmvareVersionsView = me.down('#firmware-version-options');
-            var firmvareVersionsStore = firmvareVersionsView.store;
+            var firmwareVersionsView = me.down('#firmware-version-options');
+            var firmwareVersionsStore = firmwareVersionsView.store;
             me.updateFirmwareType(newValue, onFieldsUpdate);
             me.updateManagementOptions(newValue, onFieldsUpdate, combo.isDisabled());
             me.updateComTasksComponents(newValue);
         }
     },
 
-    updateComTasksComponents: function(deviceTypeId){
+    updateComTasksComponents: function (deviceTypeId) {
         var me = this;
         var record = me.getRecord();
-        var sendComtaskField = me.down("[name=calendarUploadComTask]");
+        var sendComtaskField = me.down("[name=firmwareUploadComTask]");
         me.down('#fwc-campaign-send-connection-strategy-container').show();
         sendComtaskField.show();
         sendComtaskField.getStore().getProxy().setUrl(deviceTypeId);
-        sendComtaskField.getStore().load(function(){
-            sendComtaskField.setValue(record.get('calendarUploadComTask') && record.get('calendarUploadComTask').id);
+        sendComtaskField.getStore().load(function () {
+            sendComtaskField.setValue(record.get('firmwareUploadComTask') && record.get('firmwareUploadComTask').id);
         });
         var validationComTask = me.down("[name=validationComTask]");
         validationComTask.getStore().getProxy().setUrl(deviceTypeId);
-        validationComTask.getStore().load(function(){
-             validationComTask.setValue(record.get('validationComTask') && record.get('validationComTask').id);
+        validationComTask.getStore().load(function () {
+            validationComTask.setValue(record.get('validationComTask') && record.get('validationComTask').id);
         });
     },
 
@@ -485,11 +485,11 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         firmwareManagementOptions.getProxy().extraParams = {};
         firmwareManagementOptions.load(1, {
             success: function (record) {
-                var firmvareVersionsView = me.down('#firmware-version-options');
-                var firmvareVersionsStore = firmvareVersionsView.store;
-                firmvareVersionsStore.loadRawData([record.data.checkOptions]);
-                firmvareVersionsView.fillChecksAccordingStore();
-                firmvareVersionsView.show();
+                var firmwareVersionsView = me.down('#firmware-version-options');
+                var firmwareVersionsStore = firmwareVersionsView.store;
+                firmwareVersionsStore.loadRawData([record.data.checkOptions]);
+                firmwareVersionsView.fillChecksAccordingStore();
+                firmwareVersionsView.show();
                 me.down('#firmware-management-option').showOptions(record.get('allowedOptions'), {
                     showDescription: true,
                     showOnlyLabelForSingleItem: true,
@@ -510,7 +510,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             if (!me.skipLoadingIndication) {
                 me.setLoading();
             }
-            if (newValue.managementOption === "activate" || newValue.managementOption === "activateOnDate"){
+            if (newValue.managementOption === "activate" || newValue.managementOption === "activateOnDate") {
                 me.down('[name=validationComTask]').show();
 
                 me.down('#fwc-campaign-validation-strategy-container').show();
@@ -518,7 +518,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                     me.down('[name=validationComTask]').setDisabled(false);
                     me.down('#fwc-campaign-validation-strategy-container').setDisabled(false);
                 }
-            }else{
+            } else {
                 me.down('[name=validationComTask]').hide();
                 me.down('[name=validationComTask]').setDisabled(true);
                 me.down('#fwc-campaign-validation-strategy-container').hide();
@@ -529,7 +529,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 success: function (record) {
                     me.down('#property-form').loadRecord(record);
                     periodValues.show();
-                    if(!recurrenceTypeCombo.getValue()){
+                    if (!recurrenceTypeCombo.getValue()) {
                         recurrenceTypeCombo.setValue(recurrenceTypeCombo.store.getAt(1));
                     }
                 },
@@ -555,9 +555,9 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
 
     loadRecord: function (record) {
         var me = this;
-        var calendarUploadComTask = record.get('calendarUploadComTask');
+        var firmwareUploadComTask = record.get('firmwareUploadComTask');
         var validationComTask = record.get('validationComTask');
-        var calendarUploadConnectionStrategy = record.get('calendarUploadConnectionStrategy');
+        var firmwareUploadConnectionStrategy = record.get('firmwareUploadConnectionStrategy');
         var validationConnectionStrategy = record.get('validationConnectionStrategy');
 
 
@@ -565,10 +565,10 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         me.down('property-form').loadRecord(record);
 
         me.getForm().setValues({
-            calendarUploadComTask: calendarUploadComTask && calendarUploadComTask.id,
+            firmwareUploadComTask: firmwareUploadComTask && firmwareUploadComTask.id,
             validationComTask: validationComTask && validationComTask.id,
-            calendarUploadConnectionStrategy: calendarUploadConnectionStrategy
-                ? calendarUploadConnectionStrategy.id
+            firmwareUploadConnectionStrategy: firmwareUploadConnectionStrategy
+                ? firmwareUploadConnectionStrategy.id
                 : me.defaultConnectionStrategy,
             validationConnectionStrategy: validationConnectionStrategy
                 ? validationConnectionStrategy.id
@@ -590,7 +590,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         }
     },
 
-    loadRecordForEdit: function(campaignRecord) {
+    loadRecordForEdit: function (campaignRecord) {
         var me = this,
             taskRunner = new Ext.util.TaskRunner(),
             deviceTypeCombo = me.down('#firmware-campaign-device-type'),
@@ -602,27 +602,27 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
             periodNumber = me.down('#period-number'),
             periodValues = me.down('#period-values'),
             deviceTypeId = campaignRecord.get('deviceType').id,
-            hideDeviceGroupComboAndSetDeviceType = function() {
+            hideDeviceGroupComboAndSetDeviceType = function () {
                 deviceGroupCombo.allowBlank = true;
                 deviceGroupComboContainer.allowBlank = true;
                 deviceGroupComboContainer.hide();
                 deviceTypeCombo.setDisabled(true);
                 deviceTypeCombo.setValue(deviceTypeId);
             },
-            setOptions = function() {
+            setOptions = function () {
                 firmwareTypeRadioGroup.setValue({
-                    firmwareType : campaignRecord.get('firmwareType').id
+                    firmwareType: campaignRecord.get('firmwareType').id
                 });
                 firmwareTypeRadioGroup.setDisabled(true);
                 managementOptionRadioGroup.setValue({
-                    managementOption : campaignRecord.get('managementOption').id
+                    managementOption: campaignRecord.get('managementOption').id
                 });
                 managementOptionRadioGroup.setDisabled(true);
                 periodValues.setDisabled(true);
                 var validationTimeout = campaignRecord.get('validationTimeout');
-                if(validationTimeout){
+                if (validationTimeout) {
                     periodCombo.setRawValue(periodCombo
-                        .getStore().findRecord('name',validationTimeout.timeUnit).get('displayValue'));
+                        .getStore().findRecord('name', validationTimeout.timeUnit).get('displayValue'));
                     periodNumber.setValue(validationTimeout.count);
                 }
 
@@ -630,14 +630,14 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
                 me.down('#fwc-campaign-send-connection-strategy-container').setDisabled(true);
                 me.down('#fwc-campaign-unique-firmware-version-field').setDisabled(true);
 
-                var firmvareVersionsView = me.down('#firmware-version-options');
-                var firmvareVersionsStore = firmvareVersionsView.store;
-                firmvareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
-                firmvareVersionsView.fillChecksAccordingStore();
-                firmvareVersionsView.show();
-                firmvareVersionsView.disable();
+                var firmwareVersionsView = me.down('#firmware-version-options');
+                var firmwareVersionsStore = firmwareVersionsView.store;
+                firmwareVersionsStore.loadRawData([campaignRecord.data.checkOptions]);
+                firmwareVersionsView.fillChecksAccordingStore();
+                firmwareVersionsView.show();
+                firmwareVersionsView.disable();
             },
-            setProperties = function() {
+            setProperties = function () {
                 me.down('#property-form').setPropertiesAndDisable(campaignRecord.propertiesStore.getRange());
                 me.setLoading(false);
                 me.skipLoadingIndication = false;
@@ -653,7 +653,7 @@ Ext.define('Fwc.firmwarecampaigns.view.AddForm', {
         me.campaignRecordBeingEdited = campaignRecord;
         me.skipLoadingIndication = true;
         me.on('fwc-deviceTypeChanged', setOptions);
-        me.on('fwc-propertiesInitialized', function() {
+        me.on('fwc-propertiesInitialized', function () {
             setPropertiesTask.start();
         });
         me.loadRecord(campaignRecord);

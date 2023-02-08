@@ -26,8 +26,8 @@ Ext.theme = {
      */
     _shortcuts: {},
 
-    doRequire : function(xtype) {
-        if(xtype.indexOf("widget.") != 0) {
+    doRequire: function (xtype) {
+        if (xtype.indexOf("widget.") != 0) {
             xtype = "widget." + xtype;
         }
         Ext.require([xtype]);
@@ -36,9 +36,9 @@ Ext.theme = {
     /**
      * Adds one ore more component entries to the theme manifest. These entries will be
      * instantiated by the `Ext.theme.render` method when the page is ready.
-     * 
+     *
      * Usage:
-     * 
+     *
      *      Ext.theme.addManifest({
      *              xtype: 'widget.menu',
      *              folder: 'menu',
@@ -55,35 +55,35 @@ Ext.theme = {
      *          },{
      *              //...
      *          });
-     * 
+     *
      * @param manifest {Object} An object with type of component, slicing information and
      * component configuration. If this parameter is an array, each element is treated as
      * a manifest entry. Otherwise, each argument passed is treated as a manifest entry.
-     * 
+     *
      * @param manifest.xtype {String} The xtype ('grid') or alias ('widget.grid'). This
      * is used to specify the type of component to create as well as a potential key to
      * any `shortcuts` defined for the xtype.
-     * 
+     *
      * @param manifest.config {Object} The component configuration object. The properties
      * of this depend on the `xtype` of the component.
-     * 
+     *
      * @param [manifest.delegate] {String} The DOM query to use to select the element to
      * slice. The default is to slice the primary element of the component.
-     * 
+     *
      * @param [manifest.parentCls] An optional CSS class to add to the parent of the
      * component.
-     * 
+     *
      * @param [manifest.setup] {Function} An optional function to be called to initialize
      * the component.
      * @param manifest.setup.component {Ext.Component} The component instance
      * @param manifest.setup.container {Element} The component's container.
-     * 
+     *
      * @param [manifest.folder] {String} The folder in to which to produce image slices.
      * Only applies to Ext JS 4.1 (removed in 4.2).
-     * 
+     *
      * @param [manifest.filename] {String} The base filename for slices.
      * Only applies to Ext JS 4.1 (removed in 4.2).
-     * 
+     *
      * @param [manifest.reverse] {Boolean} True to position the slices for linear gradient
      * background at then opposite "end" (right or bottom) and apply the stretch to the
      * area before it (left or top). Only applies to Ext JS 4.1 (removed in 4.2).
@@ -92,7 +92,7 @@ Ext.theme = {
         var all = Ext.theme._manifest;
         var add = Ext.isArray(manifest) ? manifest : arguments;
 
-        if(manifest.xtype) {
+        if (manifest.xtype) {
             Ext.theme.doRequire(manifest.xtype);
         }
 
@@ -105,17 +105,17 @@ Ext.theme = {
      * Adds one or more shortcuts to the rendering process. A `shortcut` is an object that
      * looks the same as a `manifest` entry. These are combined by copying the properties
      * from the shortcut over those of the manifest entry. In basic terms:
-     * 
+     *
      *      var config = Ext.apply(Ext.apply({}, manfiest.config), shortcut.config);
      *      var entry = Ext.apply(Ext.apply({}, manfiest), shortcut);
      *      entry.config = config;
-     * 
+     *
      * This is not exactly the process, but the idea is the same. The difference is that
      * the `ui` of the manifest entry is used to replace any `"{ui}"` substrings found in
      * any string properties of the shortcut or its `config` object.
-     * 
+     *
      * Usage:
-     * 
+     *
      *      Ext.theme.addShortcuts({
      *          'widget.foo': [{
      *                  config: {
@@ -132,19 +132,19 @@ Ext.theme = {
         var all = Ext.theme._shortcuts;
 
         for (var key in shortcuts) {
-            
+
             var add = shortcuts[key];
             var xtype = Ext.theme.addWidget(key);
             var existing = all[xtype];
 
             Ext.theme.doRequire(xtype);
-            for(var i=0; i < add.length; i++) {
+            for (var i = 0; i < add.length; i++) {
                 var config = add[i];
-                if(config.xtype) {
+                if (config.xtype) {
                     Ext.theme.doRequire(config.xtype);
                 }
             }
-            
+
             if (!existing) {
                 all[xtype] = existing = [];
             }
@@ -158,7 +158,7 @@ Ext.theme = {
      * @private
      */
     addPrefix: function (prefix, s) {
-        if (!s || (s.length > prefix.length && s.substring(0,prefix.length) === prefix)) {
+        if (!s || (s.length > prefix.length && s.substring(0, prefix.length) === prefix)) {
             return s;
         }
         return prefix + s;
@@ -187,7 +187,7 @@ Ext.theme = {
             config.ui = ui;
         }
         if (shortcut) {
-            var tpl = { ui: ui };
+            var tpl = {ui: ui};
             Ext.theme.copyProps(entry, shortcut, tpl);
             Ext.theme.copyProps(config, shortcut.config, tpl);
         }
@@ -200,7 +200,7 @@ Ext.theme = {
     /**
      * This method copies property from a `src` object to a `dest` object and reaplces
      * `"{foo}"` fragments of any string properties as defined in the `tpl` object.
-     * 
+     *
      *      var obj = Ext.theme.copyProps({}, {
      *                      foo: 'Hello-{ui}'
      *                  }, {
@@ -209,7 +209,7 @@ Ext.theme = {
      *
      *      console.log('obj.foo: ' + obj.foo); // logs "Hello-World"
      *
-     * @return {Object} The `dest` object or a new object (if `dest` was null). 
+     * @return {Object} The `dest` object or a new object (if `dest` was null).
      * @private
      */
     copyProps: function (dest, src, tpl) {
@@ -230,7 +230,7 @@ Ext.theme = {
             for (var key in src) {
                 var val = src[key];
                 if (tpl && typeof val === 'string') {
-                    for (var i = 0; i < replacements.length; ++ i) {
+                    for (var i = 0; i < replacements.length; ++i) {
                         val = val.replace(replacements[i].re, replacements[i].value);
                     }
                 }
@@ -249,12 +249,12 @@ Ext.theme = {
         var entry = Ext.theme.applyShortcut(manifestEntry, shortcut);
         var config = entry.config;
         var widget = Ext.create(entry.xtype, config);
-        var ct = Ext.fly(document.body).createChild({ cls: 'widget-container' });
+        var ct = Ext.fly(document.body).createChild({cls: 'widget-container'});
 
         Ext.theme.currentWidget = widget;
 
         if (widget.floating === true) {
-            widget.floating = { shadow: false };
+            widget.floating = {shadow: false};
         }
         if (widget.floating) {
             widget.focusOnToFront = false;
@@ -396,15 +396,15 @@ Ext.theme = {
      * This used to be `loadExtStylesheet`.
      * @private
      */
-    loadCss: function  (src, callback) {
+    loadCss: function (src, callback) {
         var xhr = new XMLHttpRequest();
 
         xhr.open('GET', src);
 
-        xhr.onload = function() {
+        xhr.onload = function () {
             var css = xhr.responseText,
-            head = document.getElementsByTagName('head')[0],
-            style = document.createElement('style');
+                head = document.getElementsByTagName('head')[0],
+                style = document.createElement('style');
 
             // There's bugginess in the next gradient syntax in WebKit r84622
             // This might be fixed in a later WebKit, but for now we're going to

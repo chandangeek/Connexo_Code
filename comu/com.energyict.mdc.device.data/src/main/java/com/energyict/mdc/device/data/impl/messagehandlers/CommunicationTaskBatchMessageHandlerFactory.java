@@ -10,6 +10,7 @@ import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.OrmService;
 import com.elster.jupiter.util.json.JsonService;
 import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.Module;
@@ -19,19 +20,20 @@ import org.osgi.service.component.annotations.Reference;
 
 @Component(name = "com.energyict.mdc.communicationtask.message.handler.factory",
         service = MessageHandlerFactory.class,
-        property = {"subscriber="+ CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER,
-                "destination="+CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION},
+        property = {"subscriber=" + CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_SUBSCRIBER,
+                "destination=" + CommunicationTaskService.COMMUNICATION_RESCHEDULER_QUEUE_DESTINATION},
         immediate = true)
 public class CommunicationTaskBatchMessageHandlerFactory implements MessageHandlerFactory {
     private volatile JsonService jsonService;
     private volatile DataModel dataModel;
     private volatile CommunicationTaskService communicationTaskService;
+    private volatile ConnectionTaskService connectionTaskService;
 
     @Override
     public MessageHandler newMessageHandler() {
         return dataModel.
                 getInstance(CommunicationTaskBatchMessageHandler.class).
-                init(communicationTaskService, jsonService);
+                init(communicationTaskService, jsonService, connectionTaskService);
     }
 
     @Reference
@@ -40,8 +42,13 @@ public class CommunicationTaskBatchMessageHandlerFactory implements MessageHandl
     }
 
     @Reference
-    public void setConnectionTaskService(CommunicationTaskService communicationTaskService) {
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
         this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Reference

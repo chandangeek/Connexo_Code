@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 abstract class AbstractRescheduleBehavior {
-
     protected final Clock clock;
     private final ComServerDAO comServerDAO;
     private ConnectionTask connectionTask;

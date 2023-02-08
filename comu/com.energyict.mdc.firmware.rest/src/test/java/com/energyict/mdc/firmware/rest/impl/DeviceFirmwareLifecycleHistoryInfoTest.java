@@ -21,7 +21,7 @@ import java.util.Optional;
 import org.junit.Test;
 import org.mockito.Mock;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyVararg;
 import static org.mockito.Mockito.mock;
@@ -33,20 +33,21 @@ public class DeviceFirmwareLifecycleHistoryInfoTest extends BaseFirmwareTest {
     @Mock
     private FirmwareManagementDeviceUtils firmwareManagementDeviceUtils;
     @Mock
-    private FirmwareVersion firmwareVersionFromDevmessage;
+    private FirmwareVersion firmwareVersionFromDevMessage;
     @Mock
     private ComTask firmwareComTask;
     @Mock
     private Thesaurus thesaurus;
-
 
     @Test
     public void testDeviceFirmwareLifecycleHistoryInfoIsCreated() {
         String userName = "root";
         String firmwareVersion = "1.0";
         Instant currentTimestamp = Instant.now();
+        Instant plannedTimestamp = currentTimestamp.minusSeconds(60);
+        Instant activationTimestamp = currentTimestamp.plusSeconds(300);
         Long firmwareComTaskId = 1L;
-        String resultMessage = "Revoked";
+        String resultMessage = "Sent";
 
         when(thesaurus.getFormat(any(DeviceMessageStatusTranslationKeys.class))).thenAnswer(invocation -> {
             NlsMessageFormat messageFormat = mock(NlsMessageFormat.class);
@@ -54,21 +55,23 @@ public class DeviceFirmwareLifecycleHistoryInfoTest extends BaseFirmwareTest {
             return messageFormat;
         });
 
-        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.CANCELED);
+        when(deviceMessage.getStatus()).thenReturn(DeviceMessageStatus.SENT);
         when(firmwareComTask.getId()).thenReturn(firmwareComTaskId);
-        when(firmwareVersionFromDevmessage.getFirmwareVersion()).thenReturn(firmwareVersion);
-        when(deviceMessage.getReleaseDate()).thenReturn(currentTimestamp);
+        when(firmwareVersionFromDevMessage.getFirmwareVersion()).thenReturn(firmwareVersion);
+        when(deviceMessage.getReleaseDate()).thenReturn(plannedTimestamp);
+        when(deviceMessage.getModTime()).thenReturn(currentTimestamp);
         when(deviceMessage.getUser()).thenReturn(userName);
-        when(firmwareManagementDeviceUtils.getFirmwareVersionFromMessage(deviceMessage)).thenReturn(Optional.of(firmwareVersionFromDevmessage));
-        when(firmwareManagementDeviceUtils.getActivationDateFromMessage(deviceMessage)).thenReturn(Optional.of(currentTimestamp));
+        when(firmwareManagementDeviceUtils.getFirmwareVersionFromMessage(deviceMessage)).thenReturn(Optional.of(firmwareVersionFromDevMessage));
+        when(firmwareManagementDeviceUtils.getActivationDateFromMessage(deviceMessage)).thenReturn(Optional.of(activationTimestamp));
         when(firmwareManagementDeviceUtils.getFirmwareTask()).thenReturn(Optional.of(firmwareComTask));
 
         DeviceFirmwareLifecycleHistoryInfo deviceFirmwareLifecycleHistoryInfo = new DeviceFirmwareLifecycleHistoryInfo(deviceMessage, firmwareManagementDeviceUtils, thesaurus);
-        assertEquals(userName, deviceFirmwareLifecycleHistoryInfo.getTriggerdBy());
-        assertEquals(firmwareVersion, deviceFirmwareLifecycleHistoryInfo.getFirmwareVersion());
-        assertEquals(currentTimestamp, deviceFirmwareLifecycleHistoryInfo.getActivationDate());
-        assertEquals(currentTimestamp, deviceFirmwareLifecycleHistoryInfo.getUploadedOn());
-        assertEquals(firmwareComTaskId, deviceFirmwareLifecycleHistoryInfo.getFirmwareTaskId());
-        assertEquals(resultMessage, deviceFirmwareLifecycleHistoryInfo.getResult());
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getTriggeredBy()).isEqualTo(userName);
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getFirmwareVersion()).isEqualTo(firmwareVersion);
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getPlannedDate()).isEqualTo(plannedTimestamp);
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getUploadDate()).isEqualTo(currentTimestamp);
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getActivationDate()).isEqualTo(activationTimestamp);
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getFirmwareTaskId()).isEqualTo(firmwareComTaskId);
+        assertThat(deviceFirmwareLifecycleHistoryInfo.getResult()).isEqualTo(resultMessage);
     }
 }

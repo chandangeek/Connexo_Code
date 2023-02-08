@@ -42,6 +42,6 @@ public class AcudElectricity extends Acud {
 
     @Override
     public String getVersion() {
-        return "$Date: 2022-11-01 $";
+        return "$Date: 2023-01-23 $";
     }
 }

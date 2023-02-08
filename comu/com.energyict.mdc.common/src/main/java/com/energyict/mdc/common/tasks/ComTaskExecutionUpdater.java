@@ -58,6 +58,16 @@ public interface ComTaskExecutionUpdater {
 
     ComTaskExecutionUpdater priority(int plannedPriority);
 
+    /**
+     * Set the boolean isTracing field on the ComTaskExecution
+     * If isTracing is true, bytes that have been read or written to the device
+     * will log to the file defined in the logging.properties
+     *
+     * @param traced the flag to set
+     * @return the current updater
+     */
+    ComTaskExecutionUpdater setTraced(boolean traced);
+
     ComTaskExecutionUpdater ignoreNextExecutionSpecForInbound(boolean ignoreNextExecutionSpecsForInbound);
 
     /**

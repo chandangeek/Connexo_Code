@@ -79,7 +79,7 @@ public class SecurityPropertiesAreValid extends ConsolidatedServerMicroCheck {
     private void checkIfDeviceHasValidKeyAccessorCorrespondingTo(PropertySpec propertySpec, SecurityAccessorType securityAccessorType, Device device) {
         Optional<SecurityAccessor> keyAccessorOptional = device.getSecurityAccessors()
                 .stream()
-                .filter(keyAccessor -> keyAccessor.getKeyAccessorTypeReference().equals(securityAccessorType))
+                .filter(keyAccessor -> keyAccessor.getSecurityAccessorType().equals(securityAccessorType))
                 .findFirst();
         if (keyAccessorOptional.isPresent()) {
             if (!keyAccessorOptional.get().getStatus().equals(KeyAccessorStatus.COMPLETE)) {

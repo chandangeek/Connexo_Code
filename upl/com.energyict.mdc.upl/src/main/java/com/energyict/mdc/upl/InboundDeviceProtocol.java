@@ -191,8 +191,9 @@ public interface InboundDeviceProtocol extends HasDynamicProperties {
         return false;
     }
 
-    /*
-    When true, pending comtasks that are defined with alwaysExecuteForInbound checked, will be executed if the data received on inbound does not contain data for those pending tasks
+    /**
+     * When true, pending comtasks that are defined with alwaysExecuteForInbound checked,
+     * will be executed if the data received on inbound does not contain data for those pending tasks
      */
     boolean hasSupportForRequestsOnInbound();
 

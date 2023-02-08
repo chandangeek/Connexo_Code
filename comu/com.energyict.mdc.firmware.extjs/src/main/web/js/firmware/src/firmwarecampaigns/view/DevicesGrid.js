@@ -17,7 +17,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
     campaignIsOngoing: null,
     manuallyCancelled: null,
     viewConfig: {
-        markDirty:false
+        markDirty: false
     },
 
     initComponent: function () {
@@ -29,7 +29,7 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 dataIndex: 'device',
                 flex: 2,
                 renderer: function (value) {
-                    return value && value.name ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value.name}) +'">' + value.name + '</a>' : '';
+                    return value && value.name ? '<a href="' + me.router.getRoute('devices/device/firmware').buildUrl({deviceId: value.name}) + '">' + value.name + '</a>' : '';
                 }
             },
             {
@@ -40,24 +40,24 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                     var iconCls = '';
                     metaData.tdCls = 'firmware-campaign-status';
                     switch (value.id) {
-                            case 'FAILED':
-                                iconCls = 'icon-cancel-circle';
-                                break;
-                            case 'SUCCESSFUL':
-                                iconCls = 'icon-checkmark-circle';
-                                break;
-                            case 'ONGOING':
-                                iconCls = 'icon-spinner3';
-                                break;
-                            case 'PENDING':
-                                iconCls = 'icon-forward2';
-                                break;
-                            case 'REJECTED':
-                                iconCls = 'icon-notification';
-                                break;
-                            case 'CANCELLED':
-                                iconCls = 'icon-blocked';
-                                break;
+                        case 'FAILED':
+                            iconCls = 'icon-cancel-circle';
+                            break;
+                        case 'SUCCESSFUL':
+                            iconCls = 'icon-checkmark-circle';
+                            break;
+                        case 'ONGOING':
+                            iconCls = 'icon-spinner3';
+                            break;
+                        case 'PENDING':
+                            iconCls = 'icon-forward2';
+                            break;
+                        case 'REJECTED':
+                            iconCls = 'icon-notification';
+                            break;
+                        case 'CANCELLED':
+                            iconCls = 'icon-blocked';
+                            break;
                     }
                     return value ? '<span class="' + iconCls + '"></span>' + value.name : '-';
                 }
@@ -82,12 +82,13 @@ Ext.define('Fwc.firmwarecampaigns.view.DevicesGrid', {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                isDisabled: function (view, rowIndex, colIndex, item, record) {
                     if (!me.campaignIsOngoing || me.manuallyCancelled) {
                         return true;
                     }
                     switch (record.get('status').id) { // current device status
                         case 'PENDING':
+                        case 'ONGOING':
                         case 'CANCELLED':
                         case 'FAILED':
                         case 'REJECTED':

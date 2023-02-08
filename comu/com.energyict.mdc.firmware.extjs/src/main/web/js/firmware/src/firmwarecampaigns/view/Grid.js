@@ -24,7 +24,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 dataIndex: 'name',
                 flex: 2,
                 renderer: function (value, metaData, record) {
-                    return value ? '<a href="' + me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId: record.getId()}) +'">' + Ext.String.htmlEncode(value) + '</a>' : '';
+                    return value ? '<a href="' + me.router.getRoute('workspace/firmwarecampaigns/firmwarecampaign').buildUrl({firmwareCampaignId: record.getId()}) + '">' + Ext.String.htmlEncode(value) + '</a>' : '';
                 }
             },
             {
@@ -111,7 +111,7 @@ Ext.define('Fwc.firmwarecampaigns.view.Grid', {
                 xtype: 'uni-actioncolumn',
                 width: 120,
                 privileges: Fwc.privileges.FirmwareCampaign.administrate,
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                isDisabled: function (view, rowIndex, colIndex, item, record) {
                     return record.get('status').id !== 'ONGOING';
                 },
                 menu: {

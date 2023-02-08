@@ -4,8 +4,6 @@
 
 package com.energyict.mdc.engine.impl.meterdata;
 
-import com.energyict.mdc.common.protocol.DeviceMessage;
-import com.energyict.mdc.device.data.DeviceMessageService;
 import com.energyict.mdc.engine.impl.commands.store.CollectedMessageListDeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.DeviceCommand;
 import com.energyict.mdc.engine.impl.commands.store.MeterDataStoreCommand;
@@ -16,17 +14,14 @@ import com.energyict.mdc.upl.meterdata.identifiers.MessageIdentifier;
 import com.energyict.mdc.upl.tasks.DataCollectionConfiguration;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedMessage> implements CollectedMessageList {
 
     private final List<OfflineDeviceMessage> offlineDeviceMessages;
-    private final DeviceMessageService deviceMessageService;
 
-    public DeviceProtocolMessageList(List<OfflineDeviceMessage> offlineDeviceMessages, DeviceMessageService deviceMessageService) {
+    public DeviceProtocolMessageList(List<OfflineDeviceMessage> offlineDeviceMessages) {
         this.offlineDeviceMessages = offlineDeviceMessages;
-        this.deviceMessageService = deviceMessageService;
     }
 
     @Override
@@ -46,7 +41,7 @@ public class DeviceProtocolMessageList extends CompositeCollectedData<CollectedM
 
     @Override
     public void addCollectedMessages(CollectedMessageList collectedMessages) {
-        collectedMessages.getCollectedMessages().stream().forEach(this::add);
+        collectedMessages.getCollectedMessages().forEach(this::add);
     }
 
     @Override

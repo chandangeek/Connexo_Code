@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FirmwareManagementOptionsInfo {
     public Long id;
     public boolean isAllowed = false;

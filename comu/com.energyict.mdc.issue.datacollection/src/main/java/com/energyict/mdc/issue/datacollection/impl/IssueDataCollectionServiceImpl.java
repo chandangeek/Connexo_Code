@@ -51,6 +51,8 @@ import com.elster.jupiter.util.exception.MessageSeed;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
 import com.energyict.mdc.device.data.DeviceService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.device.lifecycle.config.DeviceLifeCycleConfigurationService;
 import com.energyict.mdc.device.topology.TopologyService;
 import com.energyict.mdc.dynamic.PropertySpecService;
@@ -94,9 +96,11 @@ import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static com.elster.jupiter.orm.Version.version;
 import static com.elster.jupiter.upgrade.InstallIdentifier.identifier;
@@ -124,6 +128,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     private volatile DeviceService deviceService;
     private volatile DataModel dataModel;
     private volatile UpgradeService upgradeService;
+    private volatile CommunicationTaskService communicationTaskService;
+    private volatile ConnectionTaskService connectionTaskService;
     private volatile List<ServiceRegistration> registrations = new ArrayList<>();
 
     // For OSGi framework
@@ -148,7 +154,9 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                                           DeviceLifeCycleConfigurationService deviceLifeCycleConfigurationService,
                                           MeteringTranslationService meteringTranslationService,
                                           Clock clock,
-                                          TaskService taskService) {
+                                          TaskService taskService,
+                                          CommunicationTaskService communicationTaskService,
+                                          ConnectionTaskService connectionTaskService) {
         this();
         setMessageService(messageService);
         setIssueService(issueService);
@@ -166,6 +174,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
         setClock(clock);
         setMeteringTranslationService(meteringTranslationService);
         setTaskService(taskService);
+        setCommunicationTaskService(communicationTaskService);
+        setConnectionTaskService(connectionTaskService);
 
         activate(bundleContext);
     }
@@ -196,6 +206,8 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
                 bind(Clock.class).toInstance(clock);
                 bind(TaskService.class).toInstance(taskService);
                 bind(IssueCreationService.class).toInstance(issueService.getIssueCreationService());
+                bind(CommunicationTaskService.class).toInstance(communicationTaskService);
+                bind(ConnectionTaskService.class).toInstance(connectionTaskService);
             }
         });
 
@@ -322,6 +334,16 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     @Reference
     public final void setDataCollectionActionsFactory(DataCollectionActionsFactory dataCollectionActionsFactory) {
         // to make sure we can also work with actions when this service is up
+    }
+
+    @Reference
+    public void setCommunicationTaskService(CommunicationTaskService communicationTaskService) {
+        this.communicationTaskService = communicationTaskService;
+    }
+
+    @Reference
+    public void setConnectionTaskService(ConnectionTaskService connectionTaskService) {
+        this.connectionTaskService = connectionTaskService;
     }
 
     @Override
@@ -504,6 +526,11 @@ public class IssueDataCollectionServiceImpl implements TranslationKeyProvider, M
     @Override
     public Optional<? extends HistoricalIssue> getHistoricalIssue(HistoricalIssue issue) {
         return issue instanceof HistoricalIssueDataCollection ? Optional.of(issue) : findHistoricalIssue(issue.getId());
+    }
+
+    @Override
+    public Set<String> getIssueTypeIdentifiers() {
+        return Collections.singleton(IssueDataCollectionService.DATA_COLLECTION_ISSUE);
     }
 
     public Thesaurus thesaurus() {

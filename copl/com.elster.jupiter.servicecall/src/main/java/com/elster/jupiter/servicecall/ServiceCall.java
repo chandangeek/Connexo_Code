@@ -86,5 +86,5 @@ public interface ServiceCall extends HasId {
 
     boolean canTransitionTo(DefaultState targetState);
 
-    void transitionWithLockIfPossible(DefaultState state);
+    boolean transitionWithLockIfPossible(DefaultState state);
 }

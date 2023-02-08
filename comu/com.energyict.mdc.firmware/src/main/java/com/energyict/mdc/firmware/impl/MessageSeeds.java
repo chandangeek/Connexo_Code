@@ -66,7 +66,7 @@ public enum MessageSeeds implements MessageSeed {
     VERIFICATION_COMPLETED(4005, "VerificationCompleted", "Verification completed", Level.INFO),
     VERIFICATION_SCHEDULED(4006, "VerificationScheduled", "Verification scheduled", Level.INFO),
     FIRMWARE_INSTALLATION_COMPLETED(4007, "FirmwareInstallationCompleted", "Firmware installation completed.", Level.INFO),
-    VERIFICATION_FAILED_WRONG_FIRMWAREVERSION(4008, "VerificationFailedWrongFirmwareVersion", "Verification failed : wrong firmware version.", Level.WARNING),
+    VERIFICATION_FAILED_WRONG_FIRMWAREVERSION(4008, "VerificationFailedWrongFirmwareVersion", "Verification failed: expected firmware version ''{0}'' but found ''{1}''.", Level.WARNING),
     DEVICE_TYPE_DOES_NOT_ALLOW_FIRMWARE_MANAGEMENT(4009, "DeviceTypeNotAllowFirmwareManagement", "Unable to upgrade firmware version on device ''{0}'' due to check fail: ''Firmware upload is not allowed on the device type ''{1}''", Level.WARNING),
     DEVICE_CONFIGURATION_DOES_NOT_SUPPORT_FIRMWARE_MANAGEMENT(4010, "DeviceConfigurationDoesNotSupportFirmwareManagement", "Unable to upgrade firmware version on device ''{0}'' due to check fail: The firmware management communication task is not present on the device configuration ''{1}''", Level.WARNING),
     FIRMWARE_UPLOAD_CURRENTLY_ONGOING(4011, "FirmwareUploadOfFirmwareIsCurrentlyOngoing", "Unable to upgrade firmware version on device ''{0}'' due to check fail: Firmware upload of firmware is currently ongoing.", Level.WARNING),
@@ -75,12 +75,15 @@ public enum MessageSeeds implements MessageSeed {
     TASK_FOR_VALIDATION_IS_MISSING(4014, "TaskForValidationIsMissing", "Communication task required for validation is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.WARNING),
     TASK_FOR_SENDING_FIRMWARE_IS_MISSING(4015, "TaskForSendingFirmwareIsMissing", "Communication task for sending firmware is missing on the device configuration, doesn''t meet the necessary conditions or is inactive on device/device type level", Level.WARNING),
     CONNECTION_METHOD_DOESNT_MEET_THE_REQUIREMENT(4016, "ConnectionMethodDoesntMeetTheRequirement", "The connection method ''{0}'' set on ''{1}'' doesn''t match the one required on the firmware campaign", Level.WARNING),
-    DEVICE_PART_OF_CAMPAIGN(4017, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign", Level.SEVERE),
+    DEVICE_PART_OF_ANOTHER_CAMPAIGN(4017, "DeviceIsPartOfAnotherCampaign", "Couldn''t restart service call: the device is a part of another campaign.", Level.SEVERE),
+    CANT_RETRY_SERVICE_CALL(4018, "CantRetryServiceCall", "Couldn''t restart service call {0} from state ''{1}''.", Level.SEVERE),
     CAMPAIGN_ALREADY_CANCELLED(4019, "CampaignAlreadyCancelled", "The campaign has already been cancelled.", Level.WARNING),
-    DEVICE_IS_NOT_PENDING_STATE(4020, "DeviceIsNotPendingState", "The device service call isn''t in pending state.", Level.WARNING),
+    CANT_CANCEL_SERVICE_CALL(4020, "CantCancelServiceCall", "The service call {0} is already in state ''{1}'', not allowing cancellation.", Level.SEVERE),
     CAMPAIGN_WITH_DEVICE_CANCELLED(4021, "CampaignWithDeviceCancelled", "The campaign with this device has already been cancelled.", Level.WARNING),
     CONNECTION_METHOD_MISSING_ON_COMTASK(4022, "ConnectionMissingOnComTask", "Communication task ''{0}'' doesn''t refer to any connection method.", Level.WARNING),
     TASK_FOR_VALIDATION_LOST_ACTION(4023, "TaskForValidationLostAction", "Task for validation has been changed and doesn''t have the necessary action.", Level.WARNING),
+    FIRMWARE_UPLOAD_HAS_BEEN_STARTED_CANNOT_BE_CANCELED(4024, "FirmwareUploadHasBeenStartedCannotBeCancelled", "Firmware upload has been started and can''t be cancelled.", Level.SEVERE),
+    FIRMWARE_INSTALLATION_HAS_BEEN_CANCELLED(4025, "FirmwareInstallationHasBeenCancelled", "Firmware installation has been cancelled.", Level.WARNING)
     ;
 
 

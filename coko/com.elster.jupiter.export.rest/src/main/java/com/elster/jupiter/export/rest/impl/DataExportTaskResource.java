@@ -36,7 +36,6 @@ import com.elster.jupiter.metering.rest.ReadingTypeInfo;
 import com.elster.jupiter.nls.LocalizedFieldValidationException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.History;
-import com.elster.jupiter.orm.QueryStream;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.properties.PropertySpec;
 import com.elster.jupiter.properties.rest.PropertyValueInfoService;
@@ -695,15 +694,12 @@ public class DataExportTaskResource {
     @Transactional
     public Response triggerDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
         dataExportService.findExportTask(historyInfo.task.id)
-                .ifPresent(exportTask ->
-                {
-                    try(QueryStream<DataExportOccurrence> dataExportOccurrenceStream = exportTask.getOccurrencesFinder()
-                                .setId(historyId).stream()) {
-                        DataExportOccurrence dataExportOccurrence = dataExportOccurrenceStream
-                                .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
-                        exportTask.retryNow(dataExportOccurrence);
-                    }
+                .ifPresent(exportTask -> {
+                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
+                            .setId(historyId).stream()
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
+                    exportTask.retryNow(dataExportOccurrence);
                 });
         return Response.status(Response.Status.OK).build();
     }
@@ -715,16 +711,12 @@ public class DataExportTaskResource {
     @Transactional
     public Response setToFailedDataExportHistoryTask(@PathParam("historyId") long historyId, DataExportTaskHistoryInfo historyInfo) {
         dataExportService.findExportTask(historyInfo.task.id)
-                .ifPresent(exportTask ->
-                {
-                    try (QueryStream<DataExportOccurrence> dataExportOccurenceStream = exportTask.getOccurrencesFinder()
-                            .setId(historyId).stream()) {
-                        DataExportOccurrence dataExportOccurrence = dataExportOccurenceStream
-                                .findFirst()
-                                .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
-
-                        dataExportOccurrence.setToFailed();
-                    }
+                .ifPresent(exportTask -> {
+                    DataExportOccurrence dataExportOccurrence = exportTask.getOccurrencesFinder()
+                            .setId(historyId).stream()
+                            .findFirst()
+                            .orElseThrow(() -> new IllegalArgumentException("Export history task was not found."));
+                    dataExportOccurrence.setToFailed();
                 });
         return Response.status(Response.Status.OK).build();
     }

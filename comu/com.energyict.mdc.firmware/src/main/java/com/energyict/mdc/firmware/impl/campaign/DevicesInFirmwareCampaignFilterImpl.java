@@ -17,6 +17,7 @@ import com.energyict.mdc.firmware.DevicesInFirmwareCampaignFilter;
 import com.energyict.mdc.firmware.FirmwareCampaignService;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -28,10 +29,10 @@ import java.util.stream.Collectors;
  */
 public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCampaignFilter {
 
-    private FirmwareCampaignService firmwareCampaignService;
-    private DeviceService deviceService;
+    private final FirmwareCampaignService firmwareCampaignService;
+    private final DeviceService deviceService;
 
-    private Optional<Long> firmwareCampaignId = Optional.empty();
+    private Long firmwareCampaignId;
     private Set<Long> deviceIds;
     /**
      * The Set of {@link ComTask} or an empty set
@@ -45,7 +46,7 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
     }
 
     public DevicesInFirmwareCampaignFilterImpl withFirmwareCampaignId(Long firmwareCampaignId) {
-        this.firmwareCampaignId = Optional.of(firmwareCampaignId);
+        this.firmwareCampaignId = firmwareCampaignId;
         return this;
     }
 
@@ -55,7 +56,7 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
         return this;
     }
 
-    public DevicesInFirmwareCampaignFilterImpl withStatus(List<String> firmwareManagementDeviceStatusKeys) {
+    public DevicesInFirmwareCampaignFilterImpl withStatus(Collection<String> firmwareManagementDeviceStatusKeys) {
         this.statusKeys = new HashSet<>();
         this.statusKeys.addAll(firmwareManagementDeviceStatusKeys);
         return this;
@@ -66,14 +67,15 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
     }
 
     private Condition conditionForCampaign() {
-        if (!firmwareCampaignId.isPresent()) {
+        if (firmwareCampaignId == null) {
             return Condition.TRUE;
         }
         if (firmwareCampaignService == null) {
             throw new IllegalStateException("FirmwareService is not set");
         }
-        ServiceCall campaignServiceCall = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId.get())
-                .orElseThrow(() -> new BadFilterException(String.format("Campaign %d not found.", firmwareCampaignId.get()))).getServiceCall();
+        ServiceCall campaignServiceCall = firmwareCampaignService.getFirmwareCampaignById(firmwareCampaignId)
+                .orElseThrow(() -> new BadFilterException(String.format("Campaign %d not found.", firmwareCampaignId)))
+                .getServiceCall();
         return Operator.EQUAL.compare(FirmwareCampaignItemDomainExtension.FieldNames.DOMAIN.javaName() + ".parent", campaignServiceCall);
     }
 
@@ -84,7 +86,7 @@ public class DevicesInFirmwareCampaignFilterImpl implements DevicesInFirmwareCam
         if (deviceService == null) {
             throw new IllegalStateException("DeviceService is not set");
         }
-        List<Optional<Device>> devices = deviceIds.stream().map(deviceId -> deviceService.findDeviceById(deviceId)).collect(Collectors.toList());
+        List<Optional<Device>> devices = deviceIds.stream().map(deviceService::findDeviceById).collect(Collectors.toList());
         if (deviceIds.size() == 1) {
             Long deviceId = new ArrayList<>(deviceIds).get(0);
             if (!devices.get(0).isPresent()) {

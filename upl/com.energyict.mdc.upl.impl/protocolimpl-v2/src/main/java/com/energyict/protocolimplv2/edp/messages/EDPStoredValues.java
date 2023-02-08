@@ -193,7 +193,7 @@ public class EDPStoredValues implements StoredValues {
                         unit = BaseUnit.SECOND;
                     } else {
                         //Normal energy consumption value
-                        value = structure.getInteger(channel);
+                        value = structure.getValue(channel);
                     }
                     intervalValue = new IntervalValue(value, unit, 0);
                     values.add(intervalValue);
@@ -250,7 +250,8 @@ public class EDPStoredValues implements StoredValues {
             }
             channelIndex++;
         }
-        throw new NoSuchRegisterException("Obiscode " + obisCode.toString() + " is not stored in the billing profile");
+        protocol.journal("Base obis code " + obisCode.toString() + " is not stored in the billing profile");
+        throw new NoSuchRegisterException("Base obis code " + obisCode.toString() + " is not stored in the billing profile");
     }
 
     /**

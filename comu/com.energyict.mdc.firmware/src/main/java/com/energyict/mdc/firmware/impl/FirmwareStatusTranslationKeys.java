@@ -16,8 +16,8 @@ public enum FirmwareStatusTranslationKeys implements TranslationKey {
     GHOST(FirmwareStatus.GHOST, "Ghost"),
     DEPRECATED(FirmwareStatus.DEPRECATED, "Deprecated");
 
-    private FirmwareStatus status;
-    private String defaultFormat;
+    private final FirmwareStatus status;
+    private final String defaultFormat;
 
     FirmwareStatusTranslationKeys(FirmwareStatus status, String defaultFormat) {
         this.status = status;

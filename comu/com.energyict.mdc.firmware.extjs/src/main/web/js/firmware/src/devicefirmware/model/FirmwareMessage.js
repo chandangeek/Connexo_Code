@@ -24,7 +24,8 @@ Ext.define('Fwc.devicefirmware.model.FirmwareMessage', {
         }
     },
     associations: [
-        {name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
+        {
+            name: 'properties', type: 'hasMany', model: 'Uni.property.model.Property', associationKey: 'properties', foreignKey: 'properties',
             getTypeDiscriminator: function () {
                 return 'Uni.property.model.Property';
             }

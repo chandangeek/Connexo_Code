@@ -14,7 +14,8 @@ import com.energyict.mdc.common.tasks.ComTask;
 import com.energyict.mdc.common.tasks.ComTaskExecution;
 import com.energyict.mdc.common.tasks.StatusInformationTask;
 import com.energyict.mdc.common.tasks.TaskStatus;
-import com.energyict.mdc.device.data.DeviceMessageService;
+import com.energyict.mdc.device.data.tasks.CommunicationTaskService;
+import com.energyict.mdc.device.data.tasks.ConnectionTaskService;
 import com.energyict.mdc.firmware.ActivatedFirmwareVersion;
 import com.energyict.mdc.firmware.FirmwareManagementDeviceUtils;
 import com.energyict.mdc.firmware.FirmwareService;
@@ -52,23 +53,30 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private final Thesaurus thesaurus;
     private final DeviceMessageSpecificationService deviceMessageSpecificationService;
     private final FirmwareService firmwareService;
-    private final DeviceMessageService deviceMessageService;
     private final TaskService taskService;
+    private final ConnectionTaskService connectionTaskService;
+    private final CommunicationTaskService communicationTaskService;
 
     private Device device;
     private ComTaskExecution firmwareComTaskExecution;
-    private List<DeviceMessage> firmwareMessages;
-    private Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
+    private final List<DeviceMessage> firmwareMessages;
+    private final Map<DeviceMessageId, Optional<ProtocolSupportedFirmwareOptions>> uploadOptionsCache;
 
     @Inject
-    public FirmwareManagementDeviceUtilsImpl(Thesaurus thesaurus, DeviceMessageSpecificationService deviceMessageSpecificationService, FirmwareService firmwareService, TaskService taskService, DeviceMessageService deviceMessageService) {
+    public FirmwareManagementDeviceUtilsImpl(Thesaurus thesaurus,
+                                             DeviceMessageSpecificationService deviceMessageSpecificationService,
+                                             FirmwareService firmwareService,
+                                             TaskService taskService,
+                                             ConnectionTaskService connectionTaskService,
+                                             CommunicationTaskService communicationTaskService) {
         this.thesaurus = thesaurus;
         this.deviceMessageSpecificationService = deviceMessageSpecificationService;
         this.firmwareService = firmwareService;
         this.taskService = taskService;
-        this.deviceMessageService = deviceMessageService;
         this.uploadOptionsCache = new HashMap<>();
         this.firmwareMessages = new ArrayList<>();
+        this.connectionTaskService = connectionTaskService;
+        this.communicationTaskService = communicationTaskService;
     }
 
     public FirmwareManagementDeviceUtils initFor(Device device, boolean onlyLastMessagePerFirmwareType) {
@@ -87,11 +95,8 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     private void initFirmwareMessages() {
         Map<FirmwareType, List<DeviceMessage>> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
-        this.device.getMessages().stream().filter(candidate -> candidate.getSpecification() != null)
-                .filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
-                && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
+        this.device.getFirmwareMessages().forEach(candidate -> {
             if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
-
                 gatherAllUploadMessages(uploadMessages, candidate);
             } else {
                 activationMessages.put(candidate.getTrackingId(), candidate);
@@ -128,15 +133,13 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         Map<FirmwareType, DeviceMessage> uploadMessages = new HashMap<>();
         Map<String, DeviceMessage> activationMessages = new HashMap<>();
         // only firmware upgrade, no revoked messages and only one message for each firmware type
-        this.device.getMessages().stream().filter(candidate -> candidate.getSpecification() != null)
-                .filter(candidate -> candidate.getSpecification().getCategory().getId() == this.deviceMessageSpecificationService.getFirmwareCategory().getId()
-                && !DeviceMessageStatus.CANCELED.equals(candidate.getStatus())).forEach(candidate -> {
-            if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
-                compareAndSwapUploadMessage(uploadMessages, candidate);
-            } else {
-                activationMessages.put(candidate.getTrackingId(), candidate);
-            }
-        });
+        this.device.getFirmwareMessages().forEach(candidate -> {
+                    if (!DeviceMessageId.FIRMWARE_UPGRADE_ACTIVATE.equals(candidate.getDeviceMessageId())) {
+                        compareAndSwapUploadMessage(uploadMessages, candidate);
+                    } else {
+                        activationMessages.put(candidate.getTrackingId(), candidate);
+                    }
+                });
         this.firmwareMessages.addAll(uploadMessages.values());
         this.firmwareMessages.addAll(this.firmwareMessages.stream()
                 .map(message -> activationMessages.get(String.valueOf(message.getId())))
@@ -206,7 +209,6 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
 
     @Override
     public Optional<FirmwareVersion> getFirmwareVersionFromMessage(DeviceMessage message) {
-
         Optional<PropertySpec> firmwareVersionPropertySpec = message.getSpecification().getPropertySpecs()
                 .stream()
                 .filter(propertySpec -> propertySpec.getValueFactory().getValueType().equals(BaseFirmwareVersion.class))
@@ -242,7 +244,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public boolean firmwareUploadTaskIsBusy() {
+    public boolean isFirmwareUploadTaskBusy() {
         return getFirmwareComTaskExecution()
                 .map(ComTaskExecution::getStatus)
                 .map(BUSY_TASK_STATUSES::contains)
@@ -258,7 +260,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
-    public boolean firmwareUploadTaskIsFailed() {
+    public boolean isFirmwareUploadTaskFailed() {
         return getFirmwareComTaskExecution()
                 .map(ComTaskExecution::isLastExecutionFailed)
                 .orElse(false);
@@ -282,23 +284,38 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
     }
 
     @Override
+    public Optional<ComTaskExecution> lockFirmwareComTaskExecution() {
+        if (firmwareComTaskExecution != null) {
+            connectionTaskService.findAndLockConnectionTaskById(this.firmwareComTaskExecution.getConnectionTaskId());
+            firmwareComTaskExecution = communicationTaskService.findAndLockComTaskExecutionById(firmwareComTaskExecution.getId()).orElse(null);
+        }
+        return getFirmwareComTaskExecution();
+    }
+
+    @Override
     public Optional<ComTask> getFirmwareTask() {
         return taskService.findFirmwareComTask();
     }
 
     @Override
     public Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion() {
-        return getComTaskExecutionToCheckTheFirmwareVersion(this.device);
+        return device.getComTaskExecutions().stream()
+                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
+                .findFirst();
     }
 
     @Override
     public Optional<ComTaskEnablement> getComTaskEnablementToCheckTheFirmwareVersion() {
-        return getComTaskEnablementToCheckTheFirmwareVersion(this.device);
+        return device.getDeviceConfiguration().getComTaskEnablements()
+                .stream()
+                .filter(candidate -> candidate.getComTask().getProtocolTasks().stream()
+                        .anyMatch(action -> action instanceof StatusInformationTask))
+                .findFirst();
     }
 
     @Override
     public Optional<ComTask> getFirmwareCheckTask() {
-        return getFirmwareCheckTask(this.device);
+        return getComTaskEnablementToCheckTheFirmwareVersion().map(ComTaskEnablement::getComTask);
     }
 
     @Override
@@ -324,7 +341,7 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
             if (targetFirmwareVersion.isPresent()
                     && firmwareType.equals(targetFirmwareVersion.get().getFirmwareType())
                     && FirmwareManagementDeviceUtilsImpl.PENDING_STATUSES.contains(firmwareMessage.getStatus())) {
-                if (!DeviceMessageStatus.WAITING.equals(firmwareMessage.getStatus()) && firmwareUploadTaskIsBusy()) {
+                if (!DeviceMessageStatus.WAITING.equals(firmwareMessage.getStatus()) && isFirmwareUploadTaskBusy()) {
                     noUpdatesAreOngoing = false;
                 } else {
                     firmwareMessage.revoke();
@@ -360,22 +377,5 @@ public class FirmwareManagementDeviceUtilsImpl implements FirmwareManagementDevi
         return lastReadOut
                 .filter(readOut -> !lastUpgrade.isPresent() || readOut.isAfter(lastUpgrade.get()))
                 .isPresent();
-    }
-
-    private Optional<ComTaskExecution> getComTaskExecutionToCheckTheFirmwareVersion(Device device) {
-        return device.getComTaskExecutions().stream()
-                .filter(ComTaskExecution::isConfiguredToReadStatusInformation)
-                .findFirst();
-    }
-
-    private Optional<ComTaskEnablement> getComTaskEnablementToCheckTheFirmwareVersion(Device device) {
-        return device.getDeviceConfiguration().getComTaskEnablements()
-                .stream()
-                .filter(candidate -> candidate.getComTask().getProtocolTasks().stream().anyMatch(action -> action instanceof StatusInformationTask))
-                .findFirst();
-    }
-
-    private Optional<ComTask> getFirmwareCheckTask(Device device) {
-        return getComTaskEnablementToCheckTheFirmwareVersion(device).map(ComTaskEnablement::getComTask);
     }
 }

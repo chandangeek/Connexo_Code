@@ -28,7 +28,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         'Fwc.store.DeviceGroups',
         'Fwc.firmwarecampaigns.store.DaysWeeksMonths',
         'Fwc.firmwarecampaigns.store.ComTasksForValidate',
-        'Fwc.firmwarecampaigns.store.ComTasksForSendCalendar',
+        'Fwc.firmwarecampaigns.store.FWComTask',
         'Fwc.firmwarecampaigns.store.ConnectionStrategy'
     ],
 
@@ -72,12 +72,12 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
                     firmwareCampaign.set('name', 'FW-CP-' + new Date().getTime());
                     widget.down('firmware-campaigns-add-form').loadRecord(firmwareCampaign);
 
-                    if(me.getStore('Fwc.store.DeviceTypes').getCount() === 0){
+                    if (me.getStore('Fwc.store.DeviceTypes').getCount() === 0) {
                         widget.down('#firmware-campaign-device-type').hide();
                         widget.down('#firmware-campaign-device-type').allowBlank = true;
                         widget.down('#no-device-type').show();
                     }
-                    if(me.getStore('Fwc.store.DeviceGroups').getCount() === 0){
+                    if (me.getStore('Fwc.store.DeviceGroups').getCount() === 0) {
                         widget.down('#firmware-campaign-device-group').hide();
                         widget.down('#device-group-info').hide();
                         widget.down('#firmware-campaign-device-group').allowBlank = true;
@@ -95,8 +95,8 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         });
     },
 
-    convertTimeFormat: function(timeInSec) {
-         return timeInSec * 1000 + new Date().getTimezoneOffset() * 60000;
+    convertTimeFormat: function (timeInSec) {
+        return timeInSec * 1000 + new Date().getTimezoneOffset() * 60000;
     },
 
     addFirmwareCampaign: function () {
@@ -128,38 +128,38 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
         var firmwareVersionsView = form.down('firmware-version-options');
 
 
-        if(record.get('managementOption')){
+        if (record.get('managementOption')) {
             record.set('validationTimeout', {
                 count: periodCount.getValue(),
                 timeUnit: periodCombo.findRecordByDisplay(periodCombo.getRawValue()).get('name')
             });
         }
 
-        if (versionOptions){
+        if (versionOptions) {
             record.set('checkOptions', versionOptions);
         }
 
         record.set('timeBoundaryStart', me.convertTimeFormat(timeBoundaryStart.getValue()));
         record.set('timeBoundaryEnd', me.convertTimeFormat(timeBoundaryEnd.getValue()));
 
-        var sendCalendarComTaskField = form.down('[name=calendarUploadComTask]');
-        var calendarUploadComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
+        var sendCalendarComTaskField = form.down('[name=firmwareUploadComTask]');
+        var firmwareUploadComTask = sendCalendarComTaskField.store.getById(sendCalendarComTaskField.value);
 
-        if (calendarUploadComTask) {
-            record.set('calendarUploadComTask', calendarUploadComTask.getData());
+        if (firmwareUploadComTask) {
+            record.set('firmwareUploadComTask', firmwareUploadComTask.getData());
         }
 
-        var sendCalendarConnectionStrategyField = form.down('[name=calendarUploadConnectionStrategy]');
-        var calendarUploadConnectionStrategy = sendCalendarConnectionStrategyField.store.getById(
-            sendCalendarConnectionStrategyField.value
+        var sendFirmwareConnectionStrategyField = form.down('[name=firmwareUploadConnectionStrategy]');
+        var firmwareUploadConnectionStrategy = sendFirmwareConnectionStrategyField.store.getById(
+            sendFirmwareConnectionStrategyField.value
         );
 
-        if (calendarUploadConnectionStrategy) {
-            record.set('calendarUploadConnectionStrategy', calendarUploadConnectionStrategy.getData());
+        if (firmwareUploadConnectionStrategy) {
+            record.set('firmwareUploadConnectionStrategy', firmwareUploadConnectionStrategy.getData());
         }
 
         if (record.get('managementOption') && (record.get('managementOption').id === "activate"
-        || record.get('managementOption').id === "activateOnDate")) {
+                || record.get('managementOption').id === "activateOnDate")) {
             var validationComTaskField = form.down('[name=validationComTask]');
             var validationComTask = validationComTaskField.store.getById(
                 validationComTaskField.value
@@ -177,8 +177,7 @@ Ext.define('Fwc.firmwarecampaigns.controller.Add', {
             if (validationConnectionStrategy) {
                 record.set('validationConnectionStrategy', validationConnectionStrategy.getData());
             }
-        }
-        else {
+        } else {
             record.set('validationComTask', undefined);
             record.set('validationConnectionStrategy', undefined);
         }

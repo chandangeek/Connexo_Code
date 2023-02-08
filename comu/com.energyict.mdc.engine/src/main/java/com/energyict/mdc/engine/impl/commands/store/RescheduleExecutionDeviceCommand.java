@@ -21,11 +21,10 @@ import com.energyict.mdc.engine.impl.core.ScheduledJob;
  * @since 2014-10-23 (15:32)
  */
 public abstract class RescheduleExecutionDeviceCommand extends DeviceCommandImpl {
-
     private final JobExecution scheduledJob;
 
-    public RescheduleExecutionDeviceCommand(JobExecution scheduledJob) {
-        super(scheduledJob.getComTaskExecutions().stream().findFirst().orElse(null), new NoDeviceCommandServices());
+    public RescheduleExecutionDeviceCommand(JobExecution scheduledJob, ServiceProvider serviceProvider) {
+        super(scheduledJob.getComTaskExecutions().stream().findFirst().orElse(null), serviceProvider);
         this.scheduledJob = scheduledJob;
     }
 

@@ -21,16 +21,11 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
     public static final String VERSION = "v1.0";
     public static final String APPLICATION = "MDC";
 
-    private volatile FirmwareCampaignServiceImpl firmwareCampaignService;
+    private final FirmwareCampaignServiceImpl firmwareCampaignService;
 
     @Inject
     public FirmwareCampaignServiceCallHandler(FirmwareServiceImpl firmwareService) {
         this.firmwareCampaignService = firmwareService.getFirmwareCampaignService();
-    }
-
-    @Override
-    public boolean allowStateChange(ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
-        return true;
     }
 
     @Override
@@ -39,8 +34,6 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
         switch (newState) {
             case PENDING:
                 serviceCall.requestTransition(DefaultState.ONGOING);
-                break;
-            case FAILED:
                 break;
             case ONGOING:
                 if (oldState.isOpen()) {
@@ -51,40 +44,59 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
                 firmwareCampaignService.postEvent(EventType.FIRMWARE_CAMPAIGN_CANCELLED, serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get());
                 break;
             case SUCCESSFUL:
-                serviceCall.log(LogLevel.INFO, "All child service call operations have been executed");
+                serviceCall.log(LogLevel.INFO, "All child service call operations have been executed.");
                 break;
             default:
                 break;
         }
     }
 
+    @Override
     public void onChildStateChange(ServiceCall parent, ServiceCall serviceCall, DefaultState oldState, DefaultState newState) {
         switch (newState) {
             case CANCELLED:
-                firmwareCampaignService.handleFirmwareUploadCancellation(serviceCall);
+                firmwareCampaignService.postEvent(EventType.DEVICE_IN_FIRMWARE_CAMPAIGN_CANCEL, serviceCall.getExtension(FirmwareCampaignItemDomainExtension.class).get());
+                // and intentionally falling through to the following cases
             case FAILED:
             case REJECTED:
             case SUCCESSFUL:
-                complete(parent);
-                parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was " +
-                        newState.getDefaultFormat().toLowerCase(), serviceCall.getId(), serviceCall.getType().getName()));
+                completeIfRequired(parent);
+                parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was {2}.",
+                        serviceCall.getNumber(),
+                        serviceCall.getType().getName(),
+                        newState.getDefaultFormat().toLowerCase()));
                 break;
+            case PENDING:
+                if (!oldState.isOpen()) {
+                    parent.log(LogLevel.INFO, MessageFormat.format("Service call {0} (type={1}) was retried.",
+                            serviceCall.getNumber(),
+                            serviceCall.getType().getName()));
+                }
             default:
                 break;
         }
     }
 
-    private void complete(ServiceCall parent) {
-        if (isLastChild(findChildren(parent))) {
-            if (parent.getState().equals(DefaultState.ONGOING)) {
-                if (isCancelling(parent)) {
-                    FirmwareCampaignDomainExtension firmwareCampaignDomainExtension = parent.getExtension(FirmwareCampaignDomainExtension.class).get();
-                    firmwareCampaignDomainExtension.setManuallyCancelled(true);
-                    parent.update(firmwareCampaignDomainExtension);
-                    parent.requestTransition(DefaultState.CANCELLED);
-                } else {
-                    parent.requestTransition(DefaultState.SUCCESSFUL);
-                }
+    @Override
+    public void beforeCancelling(ServiceCall serviceCall, DefaultState oldState) {
+        serviceCall.getExtension(FirmwareCampaignDomainExtension.class).get().beforeCancelling();
+    }
+
+    private void completeIfRequired(ServiceCall parent) {
+        List<ServiceCall> children = findChildren(parent);
+        if (parent.getState().equals(DefaultState.ONGOING) && areAllClosed(children)) {
+            FirmwareCampaignDomainExtension firmwareCampaignDomainExtension = parent.getExtension(FirmwareCampaignDomainExtension.class).get();
+            if (shouldBeCancelled(firmwareCampaignDomainExtension, children)) {
+                firmwareCampaignDomainExtension.setManuallyCancelled(true);
+                parent.update(firmwareCampaignDomainExtension);
+                // to avoid calling com.energyict.mdc.firmware.impl.campaign.FirmwareCampaignServiceCallHandler.beforeCancelling
+                parent.getType().getServiceCallLifeCycle().triggerTransition(parent, DefaultState.CANCELLED);
+            } else if (children.stream().map(ServiceCall::getState).allMatch(s -> DefaultState.SUCCESSFUL == s || DefaultState.CANCELLED == s)) {
+                parent.requestTransition(DefaultState.SUCCESSFUL);
+            } else if (children.stream().map(ServiceCall::getState).noneMatch(DefaultState.SUCCESSFUL::equals)) {
+                parent.requestTransition(DefaultState.FAILED);
+            } else {
+                parent.requestTransition(DefaultState.PARTIAL_SUCCESS);
             }
         }
     }
@@ -93,19 +105,12 @@ public class FirmwareCampaignServiceCallHandler implements ServiceCallHandler {
         return serviceCall.findChildren().stream().collect(Collectors.toList());
     }
 
-    private boolean isLastChild(List<ServiceCall> serviceCalls) {
-        return serviceCalls
-                .stream()
-                .noneMatch(sc -> sc.getState().equals(DefaultState.ONGOING)
-                        || sc.getState().equals(DefaultState.PENDING));
+    private boolean areAllClosed(List<ServiceCall> serviceCalls) {
+        return serviceCalls.stream()
+                .noneMatch(sc -> sc.getState().isOpen());
     }
 
-    private boolean isCancelling(ServiceCall parent) {
-        return parent.getExtension(FirmwareCampaignDomainExtension.class).get().isManuallyCancelled() ||
-                findChildren(parent)
-                        .stream()
-                        .allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
+    private boolean shouldBeCancelled(FirmwareCampaignDomainExtension firmwareCampaignDomainExtension, List<ServiceCall> children) {
+        return firmwareCampaignDomainExtension.isManuallyCancelled() || children.stream().allMatch(sc -> sc.getState().equals(DefaultState.CANCELLED));
     }
-
-
 }

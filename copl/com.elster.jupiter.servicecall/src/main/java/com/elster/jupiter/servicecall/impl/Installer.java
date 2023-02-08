@@ -66,8 +66,8 @@ public class Installer implements FullInstaller, PrivilegesProvider {
         dataModelUpgrader.upgrade(dataModel, Version.latest());
         QueueTableSpec scQueueTableSpec = createDefaultQueueTableSpecIfNotExist(SC_QUEUE_TABLE_NAME);
         QueueTableSpec issuesQueueTableSpec = createDefaultQueueTableSpecIfNotExist(QUEUE_TABLE_NAME);
-        createMessageHandler(scQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_SUBSCRIBER_NAME,
-                ServiceCallServiceImpl.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
+        createMessageHandler(scQueueTableSpec, ServiceCallService.SERVICE_CALLS_SUBSCRIBER_NAME,
+                ServiceCallService.SERVICE_CALLS_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         createMessageHandler(issuesQueueTableSpec, ServiceCallServiceImpl.SERVICE_CALLS_ISSUE_SUBSCRIBER_NAME,
                 ServiceCallService.SERVICE_CALLS_ISSUE_DESTINATION_NAME, TranslationKeys.SERVICE_CALL_ISSUE_SUBSCRIBER, ServiceCallService.COMPONENT_NAME, logger);
         doTry(

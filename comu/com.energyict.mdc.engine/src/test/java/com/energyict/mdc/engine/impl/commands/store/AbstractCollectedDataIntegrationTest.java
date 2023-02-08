@@ -384,6 +384,11 @@ public abstract class AbstractCollectedDataIntegrationTest {
         public DeviceMessageService deviceMessageService() {
             return null;
         }
+
+        @Override
+        public TransactionService transactionService() {
+            return transactionService;
+        }
     }
 
 }

@@ -20,6 +20,7 @@ import com.energyict.mdc.firmware.FirmwareService;
 import com.energyict.mdc.firmware.FirmwareStatus;
 import com.energyict.mdc.firmware.FirmwareType;
 import com.energyict.mdc.firmware.FirmwareVersion;
+import com.energyict.mdc.upl.messages.DeviceMessageCategory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.ProtocolSupportedFirmwareOptions;
 
@@ -291,11 +292,11 @@ public class FirmwareServiceImplIT extends PersistenceTest {
         DeviceConfiguration deviceConfiguration = deviceType.newConfiguration("FirstDeviceConfiguration").add();
         deviceConfiguration.activate();
         Device device = inMemoryPersistence.getInjector().getInstance(DeviceService.class)
-                .newDevice(deviceConfiguration ,"MyDevice", "mridOfMyDevice", Instant.now() );
+                .newDevice(deviceConfiguration, "MyDevice", "mridOfMyDevice", Instant.now());
 
         FirmwareService firmwareService = inMemoryPersistence.getFirmwareService();
         FirmwareVersion firmwareVersion = firmwareService.newFirmwareVersion(deviceType, "firmwareVersion1", FirmwareStatus.FINAL, FirmwareType.METER, "firmwareVersion1")
-                .initFirmwareFile(new byte[] {11}).create();
+                .initFirmwareFile(new byte[]{11}).create();
 
         assertThat(firmwareService.isFirmwareVersionInUse(firmwareVersion.getId())).isFalse();
 
@@ -329,9 +330,20 @@ public class FirmwareServiceImplIT extends PersistenceTest {
         for (DeviceMessageId deviceMessageId : deviceMessageIds) {
             com.energyict.mdc.upl.messages.DeviceMessageSpec spec = mock(com.energyict.mdc.upl.messages.DeviceMessageSpec.class);
             when(spec.getId()).thenReturn(deviceMessageId.dbValue());
-
+            DeviceMessageCategory category = mock(DeviceMessageCategory.class);
+            when(spec.getCategory()).thenReturn(category);
+            when(category.getId()).thenReturn(getCategoryId(deviceMessageId));
             result.add(spec);
         }
         return result;
+    }
+
+    private int getCategoryId(DeviceMessageId deviceMessageId) {
+        switch ((int) deviceMessageId.dbValue() / 1000) {
+            case 5:
+                return FirmwareServiceImpl.FIRMWARE_DEVICE_MESSAGE_CATEGORY_ID;
+            default:
+                return 1;
+        }
     }
 }

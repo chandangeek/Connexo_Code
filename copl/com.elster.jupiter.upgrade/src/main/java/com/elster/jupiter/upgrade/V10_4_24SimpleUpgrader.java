@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ */
+
 package com.elster.jupiter.upgrade;
 
 import com.elster.jupiter.orm.DataModel;

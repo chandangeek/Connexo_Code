@@ -508,6 +508,11 @@ public class IssueServiceImpl implements IssueService, TranslationKeyProvider, M
         return Collections.unmodifiableList(this.issueProviders);
     }
 
+    @Override
+    public List<IssueProvider> getIssueProviders(String issueTypeIdentifier) {
+        return issueProviders.stream().filter(issueProvider -> issueProvider.getIssueTypeIdentifiers().contains(issueTypeIdentifier)).collect(Collectors.toList());
+    }
+
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addIssueWebServiceClient(IssueWebServiceClient issueWebServiceClient) {
         issueWebServiceClients.add(issueWebServiceClient);

@@ -49,6 +49,24 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskAction
                 section: this.SECTION_EDIT
             },
             {
+                text: Uni.I18n.translate('deviceCommunicationTask.activateTracing', 'MDC', 'Activate tracing'),
+                privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                itemId: 'activateTracingOfDeviceComTask',
+                action: 'activateTracing',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions,
+                order: -1,
+                section: this.SECTION_EDIT
+            },
+            {
+                text: Uni.I18n.translate('deviceCommunicationTask.deactivateTracing', 'MDC', 'Deactivate tracing'),
+                privileges: Mdc.privileges.Device.administrateDeviceCommunication,
+                itemId: 'deactivateTracingOfDeviceComTask',
+                action: 'deactivateTracing',
+                dynamicPrivilege: Mdc.dynamicprivileges.DeviceState.communicationTasksActions,
+                order: -1,
+                section: this.SECTION_EDIT
+            },
+            {
                 text: Uni.I18n.translate('deviceCommunicationTask.activateComTask', 'MDC', 'Activate'),
                 privileges: Mdc.privileges.Device.administrateDeviceCommunication,
                 itemId: 'activateDeviceComTask',
