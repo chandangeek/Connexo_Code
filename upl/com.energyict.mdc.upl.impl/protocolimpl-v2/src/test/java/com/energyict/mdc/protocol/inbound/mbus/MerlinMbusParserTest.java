@@ -1,5 +1,6 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
+import com.energyict.mdc.protocol.inbound.mbus.check.CheckFrameParser;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFactory;
@@ -14,7 +15,6 @@ import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.HourlyProfileFac
 import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.status.CellInfoFactory;
 import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedDataFactory;
-import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedLogBook;
 import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedRegisterList;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
@@ -940,4 +940,57 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("device with serial number 45230144", factory.getDeviceIdentifier().toString());
     }
 
+    @Test
+    public void testCheckFrameGeneric() {
+        String frame = "43 01 424C4F5430303031303230333030 424C4F5430303031303230333030 00000000 0000 3A 00000000 AB CD 020602000100 7601 A0 FA 12 00 78563412 78563412 1896DB63";
+
+        CheckFrameParser parser = new CheckFrameParser(frame);
+
+        assertEquals(0x43, parser.getLength());
+        assertEquals(1, parser.getMagicFixed());
+        assertEquals("BLOT0001020300", parser.getDeviceId());     // 424C4F5430303031303230333030
+        assertEquals("BLOT0001020300", parser.getMechanicalId()); // 424C4F5430303031303230333030
+        assertEquals("00000000", parser.getConfigNumber());
+        assertEquals("0000", parser.getDeviceStatus());
+        assertEquals(0x3A, parser.getTextTxNumber());
+        assertEquals("00000000", parser.getMeterIndex());
+        assertEquals("ABCD", parser.getCRC());
+        assertEquals("262010", parser.getOperatorId());
+        assertEquals(0x0176, parser.getCellId());
+        assertEquals(0xA0, parser.getRSSI());
+        assertEquals(0xFA, parser.getRSRQ());
+        assertEquals(0x12, parser.getTxPower());
+        assertEquals(0x00, parser.getECL());
+        assertEquals("78563412", parser.getLatitude());
+        assertEquals("78563412", parser.getLongitude());
+        assertEquals("1896DB63", parser.getDateTimeUtc());
+
+    }
+
+    @Test
+    public void testCheckFrameRealDavid() {
+        String frame = "4301304B34303232353030303030353030304A32324C413132363234335700000000000008964D0300ABCD020104000100F400C6F980007856341278563412340DDD63";
+        // meter pair W342621AL22J00
+        CheckFrameParser parser = new CheckFrameParser(frame);
+
+        assertEquals(0x43, parser.getLength());
+        assertEquals(1, parser.getMagicFixed());
+        assertEquals("0K402250000050", parser.getDeviceId()); //  304B343032323530303030303530
+        assertEquals("00J22LA126243W", parser.getMechanicalId()); //  30304A32324C4131323632343357
+        assertEquals("00000000", parser.getConfigNumber());
+        assertEquals("0000", parser.getDeviceStatus());
+        assertEquals(0x08, parser.getTextTxNumber());
+        assertEquals("964D0300", parser.getMeterIndex());
+        assertEquals("ABCD", parser.getCRC());
+        assertEquals("214010", parser.getOperatorId());
+        assertEquals(244, parser.getCellId());
+        assertEquals(198, parser.getRSSI());
+        assertEquals(249, parser.getRSRQ());
+        assertEquals(128, parser.getTxPower());
+        assertEquals(0x00, parser.getECL());
+        assertEquals("78563412", parser.getLatitude());
+        assertEquals("78563412", parser.getLongitude());
+        assertEquals("340DDD63", parser.getDateTimeUtc());
+
+    }
 }
