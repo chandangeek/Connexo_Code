@@ -19,6 +19,7 @@ import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDevicesCommand;
 import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
@@ -76,6 +77,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.command.CommandRuleService;
 import com.energyict.mdc.device.config.DeviceConfigurationService;
@@ -113,6 +115,14 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -152,7 +162,8 @@ import java.time.Clock;
         "osgi.command.function=createPowerUser",
         "osgi.command.function=createRegisterDevice",
         "osgi.command.function=createNetworkTopology",
-        "osgi.command.function=createNetworkManagement"
+        "osgi.command.function=createNetworkManagement",
+        "osgi.command.function=createDevices"
 }, immediate = true)
 public class DemoServiceImpl {
     private volatile EngineConfigurationService engineConfigurationService;
@@ -971,6 +982,56 @@ public class DemoServiceImpl {
         command.setSkipFirmwareManagementData(skipFirmwareManagementData);
         command.run();
     }
+
+    @SuppressWarnings("unused")
+    public void createDevices() {
+        System.err.println("Usage: createDevices <number> <deviceType> <deviceConfig> [<-authenticationKey=\"\"> <-encryptionKey=\"\"> <-serialNumberPrefix=\"\"> <-activationDate=yyyy-mm-dd>]");
+        System.err.println("Timezone for activationDate is fetched from the provided configuration");
+    }
+
+    /**
+     * @param deviceNumber
+     * @param deviceType
+     * @param deviceConfig
+     */
+    @SuppressWarnings("unused")
+    public void createDevices(int deviceNumber, String deviceType, String deviceConfig, String... otherOptions) {
+        List<String> optionalParameters = Arrays.asList(otherOptions);
+        Map<String, String> optionalParametersMap = new HashMap<>();
+        optionalParameters.forEach(option -> mapIt.apply(option, optionalParametersMap));
+        final String authenticationKey = "-authenticationKey";
+        final String encryptionKey = "-encryptionKey";
+        final String serialNumberPrefix = "-serialNumberPrefix";
+        final String activationDate = "-activationDate";
+
+        for (int i = 0; i < deviceNumber; i++) {
+            String serialNumber = optionalParametersMap.getOrDefault(serialNumberPrefix, "ELS301") + String.format("%010d", i);
+            CreateDevicesCommand command = injector.getInstance(CreateDevicesCommand.class);
+
+            Optional<DeviceType> deviceTypeOptional = this.deviceConfigurationService.findDeviceTypeByName(deviceType);
+            if (!deviceTypeOptional.isPresent()) {
+                throw new UnableToCreate("Provided device type " + deviceType + " is not defined");
+            }
+            command.setDeviceType(deviceTypeOptional.get());
+            command.setDeviceConfiguration(deviceTypeOptional.get().getConfigurations().stream().filter(config -> config.getName().equals(deviceConfig)).findFirst()
+                    .orElseThrow(() -> new UnableToCreate("Provided device configuration " + deviceConfig + " is not defined on the device type " + deviceType)));
+            command.setSerialNumber(serialNumber);
+            command.withAuthenticationKey(optionalParametersMap.getOrDefault(authenticationKey, "00000000000000000000000000000001"));
+            command.withEncryptionKey(optionalParametersMap.getOrDefault(encryptionKey, "00000000000000000000000000000001"));
+            command.withActivationDate(optionalParametersMap.get(activationDate));
+            command.runInTransaction();
+        }
+    }
+
+    private final BiFunction<String, Map<String, String>, String> mapIt = (option, map) -> {
+        String[] parameter = option.split("=");
+        if (parameter.length == 2) {
+            map.put(parameter[0].trim(), parameter[1].trim());
+        } else {
+            createDevices(); // prints usage
+        }
+        return option;
+    };
 
     @SuppressWarnings("unused")
     public void createMetrologyConfigurations() {
