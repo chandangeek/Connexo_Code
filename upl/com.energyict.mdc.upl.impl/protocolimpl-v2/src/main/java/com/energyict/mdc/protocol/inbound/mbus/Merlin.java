@@ -1,8 +1,10 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.channel.ip.datagrams.DatagramComChannel;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySystemTitle;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelRemoteAddress;
+import com.energyict.mdc.protocol.inbound.mbus.check.CheckFrameParser;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMetaDataExtractor;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
@@ -41,6 +43,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
     private InboundContext inboundContext; // all overhead required
     private MerlinCollectedDataFactory factory;
     private MerlinMetaDataExtractor metaDataFactory;
+    private CheckFrameParser checkFrameParser;
 
 
     @Override
@@ -83,6 +86,10 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
         if (this.metaDataFactory != null) {
             return metaDataFactory.getDeviceIdentifier();
+        }
+
+        if (this.checkFrameParser != null) {
+            return new DeviceIdentifierBySystemTitle(checkFrameParser.getDeviceId());
         }
 
         return null;
@@ -171,6 +178,10 @@ public class Merlin implements BinaryInboundDeviceProtocol {
     }
 
     private void doParse(byte[] payload) {
+        if (canParseAsCheckFrame(payload)) {
+            return;
+        }
+
         // 1. parse only the telegram header to get meta-data
        Telegram encryptedTelegram = getParser().parseHeader(payload);
 
@@ -203,6 +214,17 @@ public class Merlin implements BinaryInboundDeviceProtocol {
             getLogger().error("Cannot parse and extract data from decrypted telegram", ex);
         }
 
+    }
+
+    private boolean canParseAsCheckFrame(byte[] payload) {
+        this.checkFrameParser = new CheckFrameParser(payload);
+        if (!checkFrameParser.isCheckFrame()) {
+            return false;
+        }
+
+        getLogger().info("Check frame: " + checkFrameParser.toString());
+
+        return true;
     }
 
 

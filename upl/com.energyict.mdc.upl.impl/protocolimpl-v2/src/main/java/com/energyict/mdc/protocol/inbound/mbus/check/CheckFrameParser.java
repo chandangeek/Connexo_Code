@@ -7,6 +7,7 @@ package com.energyict.mdc.protocol.inbound.mbus.check;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.time.Instant;
 import java.util.StringJoiner;
 
 /**
@@ -101,8 +102,12 @@ import java.util.StringJoiner;
 public class CheckFrameParser {
     private final String frame;
 
+    public CheckFrameParser(byte[] payload) {
+        this(new String(payload));
+    }
+
     private enum Indexes {
-        PKT_LENGTH          ( 0 ),
+        PKT_LENGTH          ( 0 ),  // is it really length?
         PKT_MAGIC           ( 1 ),
         TEST_NBIOT_DEVID    ( 2 ),
         TEST_NBIOT_MECID    ( 16 ),
@@ -151,7 +156,49 @@ public class CheckFrameParser {
 
 
     public CheckFrameParser(String frame) {
-        this.frame = frame.replace(" ", "");
+        if (frame != null) {
+            this.frame = frame.replace(" ", "");
+        } else {
+            this.frame = "";
+        }
+    }
+
+    public boolean isCheckFrame() {
+        return frame != null
+                && frame.length() == 134
+                && extractInt(Indexes.PKT_LENGTH) == 0x43
+                && extractInt(Indexes.PKT_MAGIC) == 0x01;
+    }
+
+    @Override
+    public String toString() {
+        StringJoiner json = new StringJoiner(",");
+        json.add(jsonElement("deviceId", getDeviceId()));
+        json.add(jsonElement("mechanicalId", getMechanicalId()));
+        json.add(jsonElement("configNr", getConfigNumber()));
+        json.add(jsonElement("deviceStatus", getDeviceStatus()));
+        json.add(jsonElement("txNr", getTextTxNumber()));
+        json.add(jsonElement("meterIndex", getMeterIndex()));
+        json.add(jsonElement("crc", getCRC()));
+        json.add(jsonElement("operatorId", getOperatorId()));
+        json.add(jsonElement("cellId", getCellId()));
+        json.add(jsonElement("signalStrength", getSignalStrength()));
+        json.add(jsonElement("signalQuality", getSignalQuality()));
+        json.add(jsonElement("txPower", getTxPower()));
+        json.add(jsonElement("ecl", getECL()));
+        json.add(jsonElement("lat", getLatitude()));
+        json.add(jsonElement("lng", getLongitude()));
+        json.add(jsonElement("utc", getDateTimeUtc().toString()));
+
+        return "{" + json + "}";
+    }
+
+    private String jsonElement(String name, String value) {
+        return "\"" + name + "\":\"" + value + "\"";
+    }
+
+    private String jsonElement(String name, long value) {
+        return "\"" + name + "\":" + value ;
     }
 
     private String extract(Indexes begin) {
@@ -211,8 +258,8 @@ public class CheckFrameParser {
     }
 
 
-    public String getMeterIndex() {
-        return extract(Indexes.CUR_MET_INDEX);
+    public long getMeterIndex() {
+        return longFromReversedHex(extract(Indexes.CUR_MET_INDEX));
     }
 
     public String getCRC() {
@@ -260,7 +307,23 @@ public class CheckFrameParser {
         return extract(Indexes.LONGITUDE_POS);
     }
 
-    public String getDateTimeUtc() {
-        return extract(Indexes.DATETIME);
+    private String reverseHex(String reversedHex) {
+        byte[] u = ProtocolTools.getBytesFromHexString(reversedHex, 2);
+        for (int i=0; i < u.length / 2; i++) {
+            byte b = u[i];
+            u[i] = u[u.length - i - 1];
+            u[u.length - i -1] = b;
+        }
+        return ProtocolTools.getHexStringFromBytes(u, "");
+    }
+
+    private long longFromReversedHex(String reversedHex) {
+        return Long.parseLong(reverseHex(reversedHex), 16);
+    }
+
+    public Instant getDateTimeUtc() {
+        String utcReversed = extract(Indexes.DATETIME);
+
+        return Instant.ofEpochSecond(longFromReversedHex(utcReversed));
     }
 }

@@ -21,7 +21,9 @@ import com.energyict.mdc.upl.meterdata.identifiers.RegisterIdentifier;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.Arrays;
 
@@ -34,12 +36,19 @@ public class CellInfoFactory extends AbstractMerlinFactory {
     private static final int IDX_CELL_ID_HIGH           = 1;
     private static final int IDX_SIGNAL_STRENGTH        = 2;
     private static final int IDX_SIGNAL_QUALITY         = 3;
-    private static final int IDX_TRANSMISSION_POWER     = 4;
-    private static final int IDX_EXTENDED_CODE_COVERAGE = 5;
-    private static final int IDX_ACCUMULATED_TX_TIME    = 6;
-    private static final int IDX_ACCUMULATED_RX_TIME    = 7;
-    private static final int IDX_RELEASE_ASSIST_ENABLE  = 8;
-    private static final int IDX_PAIRED_METER_ID        = 9;
+
+    private static final int IDX_PAIRED_METER_ID        = 4;
+
+    //private static final int IDX_TRANSMISSION_POWER     = 4;
+    //private static final int IDX_EXTENDED_CODE_COVERAGE = 5;
+    //private static final int IDX_CELL_ID_ASCII_1        = 6;
+    //private static final int IDX_CELL_ID_ASCII_2        = 7;
+    //private static final int IDX_CELL_ID_ASCII_3        = 8;
+    //private static final int IDX_CELL_ID_ASCII_4        = 9;
+    //private static final int IDX_ACCUMULATED_TX_TIME    = 6;
+    //private static final int IDX_ACCUMULATED_RX_TIME    = 7;
+    //private static final int IDX_RELEASE_ASSIST_ENABLE  = 10;
+
 
 
 
@@ -104,6 +113,13 @@ public class CellInfoFactory extends AbstractMerlinFactory {
             register.setCollectedData(quantity);
 
             getInboundContext().getLogger().info("CellInfo/" +  registerMapping.name() + "=" + valueNumeric);
+        } else if (value instanceof String) {
+            register = getCollectedDataFactory().createTextCollectedRegister(registerIdentifier);
+
+            String valueText = (String) value;
+            register.setCollectedData(valueText);
+
+            getInboundContext().getLogger().info("CellInfo/" + registerMapping.name() + "=" + valueText);
         } else {
             register = getCollectedDataFactory().createTextCollectedRegister(registerIdentifier);
 
@@ -131,33 +147,39 @@ public class CellInfoFactory extends AbstractMerlinFactory {
     }
 
     public static int extractTransmissionPower(byte[] data) {
-        return data[IDX_TRANSMISSION_POWER] & 0xFF;
+        return 0; //data[IDX_TRANSMISSION_POWER] & 0xFF;
     }
 
     public static int extractExtendedCodeCoverage(byte[] data) {
-        return data[IDX_EXTENDED_CODE_COVERAGE] & 0xFF;
+        return 0; //data[IDX_EXTENDED_CODE_COVERAGE] & 0xFF;
     }
 
     public static int extractAccumulatedTxTime(byte[] data) {
-        return data[IDX_ACCUMULATED_TX_TIME] & 0xFF;
+        return 0; //return data[IDX_ACCUMULATED_TX_TIME] & 0xFF;
     }
 
     public static int extractAccumulatedRxTime(byte[] data) {
-        return data[IDX_ACCUMULATED_RX_TIME] & 0xFF;
+        return 0; //data[IDX_ACCUMULATED_RX_TIME] & 0xFF;
     }
 
     public static int extractReleaseAssistEnable(byte[] data) {
-        return data[IDX_RELEASE_ASSIST_ENABLE] & 0xFF;
+        return 0; //return data[IDX_RELEASE_ASSIST_ENABLE] & 0xFF;
     }
 
-    public static byte[] extractPairedMeterId(byte[] data) {
-        int len = data.length - IDX_PAIRED_METER_ID;
+    public static String extractPairedMeterId(byte[] data) {
+        int len = 14;
         byte[] meteId = new byte[len];
         int j = 0;
-        for (int i = data.length-1; i >= IDX_PAIRED_METER_ID; i--){
+
+        for (int i = IDX_PAIRED_METER_ID + len - 1; i >= IDX_PAIRED_METER_ID; i--){
             meteId[j++] = data[i];
         }
-        return meteId;
+
+        return reverse(ProtocolTools.getAsciiFromBytes(meteId));
+    }
+
+    public static String reverse(String original) {
+        return new StringBuilder(original).reverse().toString();
     }
 
 
