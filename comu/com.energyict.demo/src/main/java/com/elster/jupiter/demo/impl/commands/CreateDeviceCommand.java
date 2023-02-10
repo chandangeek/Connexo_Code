@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ */
 package com.elster.jupiter.demo.impl.commands;
 
 import com.elster.jupiter.demo.impl.Builders;
@@ -8,7 +11,6 @@ import com.elster.jupiter.demo.impl.builders.device.SetCustomAttributeValuesToDe
 import com.elster.jupiter.demo.impl.commands.devices.KeyAccessorValuePersister;
 import com.elster.jupiter.pki.SecurityManagementService;
 import com.energyict.mdc.common.device.config.DeviceConfiguration;
-import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
 
@@ -16,11 +18,9 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Collections;
-import java.util.TimeZone;
 
-public class CreateDevicesCommand extends CommandWithTransaction {
+public class CreateDeviceCommand extends CommandWithTransaction {
 
     private final DeviceService deviceService;
     private final Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider;
@@ -32,21 +32,19 @@ public class CreateDevicesCommand extends CommandWithTransaction {
     private KeyAccessorValuePersister keyAccessorValuePersister;
     private final SecurityManagementService securityManagementService;
 
-    private DeviceType deviceType;
     private DeviceConfiguration deviceConfiguration;
     private String serialNumber;
-    private String host = "localhost";
     private String authenticationKey = "00000000000000000000000000000001";
     private String encryptionKey = "00000000000000000000000000000001";
-    private LocalDate activationDate;
+    private Instant activationDate;
 
     @Inject
-    public CreateDevicesCommand(DeviceService deviceService, SecurityManagementService securityManagementService,
-                                Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
-                                Provider<ActivateDevicesCommand> activateDevicesCommandProvider,
-                                Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider,
-                                Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
-                                Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider, Clock clock) {
+    public CreateDeviceCommand(DeviceService deviceService, SecurityManagementService securityManagementService,
+                               Provider<ConnectionsDevicePostBuilder> connectionsDevicePostBuilderProvider,
+                               Provider<ActivateDevicesCommand> activateDevicesCommandProvider,
+                               Provider<SetCustomAttributeValuesToDevicePostBuilder> setCustomAttributeValuesToDevicePostBuilderProvider,
+                               Provider<AddLocationInfoToDevicesCommand> addLocationInfoToDevicesCommandProvider,
+                               Provider<CreateUsagePointsForDevicesCommand> createUsagePointsForDevicesCommandProvider, Clock clock) {
         this.deviceService = deviceService;
         this.securityManagementService = securityManagementService;
         this.connectionsDevicePostBuilderProvider = connectionsDevicePostBuilderProvider;
@@ -61,18 +59,7 @@ public class CreateDevicesCommand extends CommandWithTransaction {
         this.serialNumber = serialNumber;
     }
 
-    public void setHost(String host) {
-        this.host = host;
-    }
-
-    public void setDeviceType(DeviceType deviceType) {
-        this.deviceType = deviceType;
-    }
-
     public void setDeviceConfiguration(DeviceConfiguration deviceConfiguration) {
-        if (this.deviceType == null) {
-            throw new UnableToCreate("Please specify the device type first");
-        }
         this.deviceConfiguration = deviceConfiguration;
     }
 
@@ -84,34 +71,25 @@ public class CreateDevicesCommand extends CommandWithTransaction {
         this.encryptionKey = encryptionKey;
     }
 
-    public void withActivationDate(String activationDate) {
-        try {
-            this.activationDate = LocalDate.parse(activationDate);
-        } catch (Exception ex) {
-            throw new UnableToCreate("Please specify the activation date in yyyy-MM-dd format");
-        }
+    public void withActivationDate(Instant activationDate) {
+        this.activationDate = activationDate;
     }
 
     public void run() {
         if (this.serialNumber == null) {
             throw new UnableToCreate("Please specify the serial number for device");
         }
-        if (this.deviceType == null) {
-            throw new UnableToCreate("Please specify the device type");
-        }
         if (this.deviceConfiguration == null) {
-            throw new UnableToCreate("Please specify the device type");
+            throw new UnableToCreate("Please specify the device configuration");
+        }
+        if (this.activationDate == null) {
+            throw new UnableToCreate("Please specify the activation date");
         }
         String name = this.serialNumber;
 
-        TimeZone timeZone = deviceConfiguration.getDeviceProtocolProperties().getTypedProperties().getTypedProperty("TimeZone");
-        Instant activationTime = this.activationDate == null ?
-                LocalDate.now().atStartOfDay(timeZone.toZoneId()).toInstant() :
-                this.activationDate.atStartOfDay(timeZone.toZoneId()).toInstant();
-
         DeviceBuilder deviceBuilder = Builders.from(DeviceBuilder.class)
                 .withName(name)
-                .withShippingDate(activationTime.minusSeconds(60))
+                .withShippingDate(this.activationDate.minusSeconds(60))
                 .withSerialNumber(this.serialNumber)
                 .withDeviceConfiguration(this.deviceConfiguration);
 
@@ -124,7 +102,7 @@ public class CreateDevicesCommand extends CommandWithTransaction {
 
         ActivateDevicesCommand activateDevicesCommand = activateDevicesCommandProvider.get();
         activateDevicesCommand.setDevices(Collections.singletonList(device));
-        activateDevicesCommand.setTransitionDate(activationTime);
+        activateDevicesCommand.setTransitionDate(this.activationDate);
         activateDevicesCommand.run();
     }
 

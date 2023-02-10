@@ -19,7 +19,7 @@ import com.elster.jupiter.demo.impl.commands.CreateDeliverDataSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoDataCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDemoUserCommand;
 import com.elster.jupiter.demo.impl.commands.CreateDeviceTypeCommand;
-import com.elster.jupiter.demo.impl.commands.CreateDevicesCommand;
+import com.elster.jupiter.demo.impl.commands.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.CreateEstimationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.CreateG3DemoBoardCommand;
 import com.elster.jupiter.demo.impl.commands.CreateImporterDirectoriesCommand;
@@ -35,7 +35,6 @@ import com.elster.jupiter.demo.impl.commands.CreateUserManagementCommand;
 import com.elster.jupiter.demo.impl.commands.CreateValidationSetupCommand;
 import com.elster.jupiter.demo.impl.commands.FileImportCommand;
 import com.elster.jupiter.demo.impl.commands.SetupFirmwareManagementCommand;
-import com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3GatewayCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateG3SlaveCommand;
 import com.elster.jupiter.demo.impl.commands.devices.CreateSPEDeviceCommand;
@@ -77,6 +76,7 @@ import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.cron.CronExpressionParser;
 import com.elster.jupiter.validation.ValidationService;
 import com.elster.insight.issue.datavalidation.UsagePointIssueDataValidationService;
+import com.energyict.mdc.common.device.config.DeviceConfiguration;
 import com.energyict.mdc.common.device.config.DeviceType;
 import com.energyict.mdc.device.alarms.DeviceAlarmService;
 import com.energyict.mdc.device.command.CommandRuleService;
@@ -115,14 +115,15 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.security.Principal;
 import java.time.Clock;
-import java.util.ArrayList;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.TimeZone;
+import java.util.stream.Collectors;
 
 @Component(name = "com.elster.jupiter.demo", service = {DemoServiceImpl.class}, property = {
         "osgi.command.scope=demo",
@@ -991,47 +992,50 @@ public class DemoServiceImpl {
 
     /**
      * @param deviceNumber
-     * @param deviceType
-     * @param deviceConfig
+     * @param deviceTypeName
+     * @param deviceConfigName
      */
     @SuppressWarnings("unused")
-    public void createDevices(int deviceNumber, String deviceType, String deviceConfig, String... otherOptions) {
-        List<String> optionalParameters = Arrays.asList(otherOptions);
-        Map<String, String> optionalParametersMap = new HashMap<>();
-        optionalParameters.forEach(option -> mapIt.apply(option, optionalParametersMap));
-        final String authenticationKey = "-authenticationKey";
-        final String encryptionKey = "-encryptionKey";
-        final String serialNumberPrefix = "-serialNumberPrefix";
-        final String activationDate = "-activationDate";
+    public void createDevices(int deviceNumber, String deviceTypeName, String deviceConfigName, String... otherOptions) {
+        Map<String, String> optionalParametersMap = Arrays.stream(otherOptions).map(str -> str.split("=")).collect(Collectors.toMap(option -> option[0], option -> option[1]));
+
+        final String authenticationKey = optionalParametersMap.getOrDefault("-authenticationKey", "00000000000000000000000000000001");
+        final String encryptionKey = optionalParametersMap.getOrDefault("-encryptionKey", "00000000000000000000000000000001");
+        final String serialNumberPrefix = optionalParametersMap.getOrDefault("-serialNumberPrefix", "ELS301");
+
+        DeviceType deviceType = this.deviceConfigurationService
+                .findDeviceTypeByName(deviceTypeName)
+                .orElseThrow(() -> new UnableToCreate("Provided device type " + deviceTypeName + " is not defined"));
+
+        DeviceConfiguration deviceConfiguration = deviceType.getConfigurations()
+                .stream()
+                .filter(config -> config.getName().equals(deviceConfigName))
+                .findFirst()
+                .orElseThrow(() -> new UnableToCreate("Provided device configuration " + deviceConfigName + " is not defined on the device type " + deviceTypeName));
+
+        TimeZone timeZone = deviceConfiguration.getDeviceProtocolProperties().getTypedProperties().getTypedProperty("TimeZone");
+
+        String activationDateString = optionalParametersMap.getOrDefault("-activationDate", LocalDate.now(timeZone.toZoneId()).format(DateTimeFormatter.ISO_LOCAL_DATE));
+        LocalDate activationDateLocalDate = null;
+        try {
+            activationDateLocalDate = LocalDate.parse(activationDateString);
+        } catch (Exception ex) {
+            throw new UnableToCreate("Please specify the activation date in yyyy-MM-dd format");
+        }
+        Instant activationDate = activationDateLocalDate.atStartOfDay(timeZone.toZoneId()).toInstant();
 
         for (int i = 0; i < deviceNumber; i++) {
-            String serialNumber = optionalParametersMap.getOrDefault(serialNumberPrefix, "ELS301") + String.format("%010d", i);
-            CreateDevicesCommand command = injector.getInstance(CreateDevicesCommand.class);
+            String serialNumber = serialNumberPrefix + String.format("%010d", i);
+            CreateDeviceCommand command = injector.getInstance(CreateDeviceCommand.class);
 
-            Optional<DeviceType> deviceTypeOptional = this.deviceConfigurationService.findDeviceTypeByName(deviceType);
-            if (!deviceTypeOptional.isPresent()) {
-                throw new UnableToCreate("Provided device type " + deviceType + " is not defined");
-            }
-            command.setDeviceType(deviceTypeOptional.get());
-            command.setDeviceConfiguration(deviceTypeOptional.get().getConfigurations().stream().filter(config -> config.getName().equals(deviceConfig)).findFirst()
-                    .orElseThrow(() -> new UnableToCreate("Provided device configuration " + deviceConfig + " is not defined on the device type " + deviceType)));
+            command.setDeviceConfiguration(deviceConfiguration);
             command.setSerialNumber(serialNumber);
-            command.withAuthenticationKey(optionalParametersMap.getOrDefault(authenticationKey, "00000000000000000000000000000001"));
-            command.withEncryptionKey(optionalParametersMap.getOrDefault(encryptionKey, "00000000000000000000000000000001"));
-            command.withActivationDate(optionalParametersMap.get(activationDate));
+            command.withAuthenticationKey(authenticationKey);
+            command.withEncryptionKey(encryptionKey);
+            command.withActivationDate(activationDate);
             command.runInTransaction();
         }
     }
-
-    private final BiFunction<String, Map<String, String>, String> mapIt = (option, map) -> {
-        String[] parameter = option.split("=");
-        if (parameter.length == 2) {
-            map.put(parameter[0].trim(), parameter[1].trim());
-        } else {
-            createDevices(); // prints usage
-        }
-        return option;
-    };
 
     @SuppressWarnings("unused")
     public void createMetrologyConfigurations() {
@@ -1101,7 +1105,7 @@ public class DemoServiceImpl {
     @SuppressWarnings("unused")
     public void createMockedDataDevice(String serialNumber) {
         executeTransaction(() -> {
-            CreateDeviceCommand command = injector.getInstance(CreateDeviceCommand.class);
+            com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand command = injector.getInstance(com.elster.jupiter.demo.impl.commands.devices.CreateDeviceCommand.class);
             command.setSerialNumber(serialNumber);
             command.setDeviceNamePrefix(Constants.Device.MOCKED_REALISTIC_DEVICE);
             command.run();
