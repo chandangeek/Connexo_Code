@@ -3,6 +3,7 @@ package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.header;
 
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
+import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -29,18 +30,27 @@ public class  TelegramHeader {
     public void createTelegramHeader(String[] header) {
         this.setLField(header[0]);
         this.setCField(header[1]);
-        this.setMField(Arrays.copyOfRange(header, 2, 4));
-        this.setAField(Arrays.copyOfRange(header, 4, 10));
+        this.setMField(Arrays.copyOfRange(header, 2, 5));
+        this.setAField(Arrays.copyOfRange(header, 5, 10));
         if(header.length == TelegramHeader.headerLengthCRC) {
             this.setCRCField(Arrays.copyOfRange(header, 10, 11));
         }
     }
 
+    /**
+     * Information from Sameer
+     *                  AN  AN  AN  AN  Numeric ...
+     *                  --  --  --  --  --  --  --  --  --  --  --  --  --  --
+     * 14 bytes buffer  1   2   3   4   5   6   7   8   9   10  11  12  13  14
+     * wWBus DLL            1   2   3   4       5       6       7       8
+     *                      ~~~~~~~~~   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     *                        ASCII     HEX String
+     */
     public String getSerialNr() {
         try {
-            String serialNr = this.getaField().getFieldParts().get(3) + this.getaField().getFieldParts().get(2) +
-                    this.getaField().getFieldParts().get(1) + this.getaField().getFieldParts().get(0);
-            return serialNr;
+            String asciiPart = ProtocolTools.getAsciiFromBytes(mField.getFieldAsByteArray());
+            String hexPart = ProtocolTools.getHexStringFromBytes(this.aField.getFieldAsByteArray(),"");
+            return asciiPart + hexPart;
         } catch (Exception ex) {
             return null;
         }
@@ -138,7 +148,7 @@ public class  TelegramHeader {
             joiner.add("A-Field: ");
             joiner.add("\tSerialNumber: " + serialNr);
             joiner.add("\tVersion: " + this.aField.getFieldParts().get(4));
-            joiner.add("\tType: " + this.aField.getFieldParts().get(5));
+            //joiner.add("\tType: " + this.aField.getFieldParts().get(5));
         }
         if(this.crcField != null) {
             joiner.add("CRC: " + this.crcField.getFieldParts().get(0) + " " +

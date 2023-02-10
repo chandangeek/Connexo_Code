@@ -238,7 +238,13 @@ public class CheckFrameParser {
     }
 
     public String getDeviceId() {
-        return new String(ProtocolTools.getBCDFromHexString(extract(Indexes.TEST_NBIOT_DEVID),2));
+        String zeroPadded = new String(ProtocolTools.getBCDFromHexString(extract(Indexes.TEST_NBIOT_DEVID),2));
+        if (zeroPadded.length() > 1) {
+            if (zeroPadded.getBytes()[0] == '0') {
+                return zeroPadded.substring(1);
+            }
+        }
+        return zeroPadded;
     }
 
     public String getMechanicalId() {

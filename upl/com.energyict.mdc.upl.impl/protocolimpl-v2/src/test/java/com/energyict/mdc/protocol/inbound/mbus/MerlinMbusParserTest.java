@@ -58,6 +58,7 @@ public class MerlinMbusParserTest extends TestCase {
     private static final byte[] DAILY_FRAME_ENCRYPTED4_REAL_DATA = ProtocolTools.getBytesFromHexString("AF 44 42 43 44 01 23 45 44 44 7A 1D 0A 0A 25 EA D2 52 8F B4 2D 09 75 42 CD EE 09 58 28 DD BD F2 B3 64 4E 4D E4 2B 37 95 37 AE 94 27 F2 20 A4 B6 AE AF FA 75 2D C0 8B 51 63 97 31 76 1A ED 00 93 F3 23 C1 4A 76 39 DA 16 45 8E DE A4 22 DA C7 2A 77 A9 02 AF 61 9B 8C 78 D9 AE 5A 2C F1 A7 8A B2 04 FE E2 F3 9A 78 1F D2 94 14 41 1A EA 80 BA 63 5E D6 56 A6 1C 33 67 39 A0 74 50 BE 15 6B D5 85 1B 42 A4 17 CE A1 F8 B1 C1 CA B9 50 7A C9 E2 A2 35 DA 09 03 74 F6 95 AC C0 73 20 60 79 50 AA 60 86 0B 26 53 75 3C 18 BE 30 EA 05 C7 2E CA 5B".replace(" ", ""), 2);
 
     private static final byte[] DAILY_FRAME_DAVID_1 = ProtocolTools.getBytesFromHexString("FF 44 4B 34 30 22 50 00 00 50 7A 0F C6 0F 25 61 C1 3A AC 32 13 01 BF 87 19 F4 1B 36 56 32 E4 08 03 53 6F 0E 99 DD 5F 7F 52 FD AF 51 A6 F5 6D 9D F3 BB 3D EC B8 A8 CC 10 E0 F5 B2 0A 91 2D 76 5A AF 60 CE 49 1E B4 10 DD F5 E6 00 BC 95 5F E9 4E 5F AF 0A A9 F1 4C 0A 3F AC 37 D6 71 DB 1E E9 5C 1A E4 35 4F 70 38 9C 03 17 8E C9 01 C4 4B E5 0F E4 17 2F 19 57 31 5F 58 07 E7 1E 95 45 18 53 AE 2C 52 B7 45 DF 5E F2 02 2E 49 FD 78 C8 B8 B9 E7 55 C0 1C 13 68 D1 E6 DA BD E5 A5 16 12 02 CB 39 5D 9D 5F BD 63 A5 1E 1E 4D 5F FD D2 9C 0A D4 AE 2C 52 B7 45 DF 5E F2 02 2E 49 FD 78 C8 B8 B9 05 C0 36 F6 06 42 66 FA A8 62 BF 2B 2A D7 0B 98 0F E4 17 2F 19 57 31 5F 58 07 E7 1E 95 45 18 53 11 00 F9 4D 39 49 7F 75 BD 11 F0 F7 C6 A6 30 A5 BA B5 4B 67 0C B7 0E BD B9 CF 6F 4C 81 32 D7 B3".replace(" ", ""), 2);
+    private static final byte[] DAILY_FRAME_DAVID_2_REPROGRAMED = ProtocolTools.getBytesFromHexString("AF444B343022500000507A17C50A25F57DC4F1C54AF0F75D5744646161424E0838C35E74E28AB147D486392C64FFC13D068245D42A9785950076446E1FFC933668624E0C4C8BAD7990913DAABAFDCD711D634D257FE2E0A50473588C3DFB121839CFF33E51FF63ADA7EC02011F1308E5FF1343EFCE316021990B57837BAD4B2FF7669931B3DF16E6DE1563B1C3FD3E9D15094E5F43735FD754DB23663ACD93AB2737472569C3F0798C7DAA815BE53E".replace(" ", ""), 2);
 
     private static final byte[] DAILY_FRAME_DECRYPTED = ProtocolTools.getBytesFromHexString("AF4407070777700000007A26B80A252F2F860D6DE500A0201220041354BF00008D04931F33E201000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000123B0000223B000004933C1200000003FD971D041300041354BF00008D04931F15D20F00000000000000000000000000000000000002FD7401000F0100B8FB0A001700000070707070707070707070707070891000F7E8D2", "");
 
@@ -125,8 +126,8 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parse();
 
 
-        assertEquals("FDB07736", parser.getTelegram().getSerialNr());
-        assertEquals("7F2D", Converter.convertListToString(parser.getTelegram().getHeader().getmField().getFieldParts()));
+        assertEquals("\u007F-677B0FDD7EA", parser.getTelegram().getSerialNr());
+        assertEquals("7F2D36", Converter.convertListToString(parser.getTelegram().getHeader().getmField().getFieldParts()));
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
         assertEquals("00" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
 
@@ -171,7 +172,7 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setEncryptionKey(key1);
         parser.parse();
 
-        assertEquals("00707707", parser.getTelegram().getSerialNr());
+        assertEquals("...7770000000", parser.getTelegram().getSerialNr());
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
         assertEquals("26" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
 
@@ -212,7 +213,7 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setEncryptionKey(key1);
         parser.parse();
 
-        assertEquals("00707707", parser.getTelegram().getSerialNr());
+        assertEquals("...7770000000", parser.getTelegram().getSerialNr());
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
         assertEquals("AF" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
         // date
@@ -235,7 +236,7 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setEncryptionKey(key1);
         parser.parse();
 
-        assertEquals("00707707", parser.getTelegram().getSerialNr());
+        assertEquals("...7770000000", parser.getTelegram().getSerialNr());
         assertEquals("44" , parser.getTelegram().getHeader().getcField().getFieldParts().get(0));
         assertEquals("50" , parser.getTelegram().getBody().getBodyHeader().getAccessNumber());
 
@@ -936,9 +937,11 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
         MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
 
-        parser.parseHeader(DAILY_FRAME_DAVID_1);
+        parser.parseHeader(DAILY_FRAME_DAVID_2_REPROGRAMED);
         inboundContext.setEncryptionKey(key2);
         parser.parse();
+
+        assertEquals("K402250000050", parser.getTelegram().getSerialNr());
 
         MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
 
@@ -946,9 +949,6 @@ public class MerlinMbusParserTest extends TestCase {
 
         CollectedRegisterList collectedRegisters = (CollectedRegisterList) collectedData.stream().filter(c -> c instanceof CollectedRegisterList).findFirst().get();
 
-        //         W342621 AL22J00
-        //f4 00 16 22 30 30 4a 32 32 4c 41 31 32 36 32 34 33 57 66 94 74 4f 15
-        // 00J22LA126243W 00J22LA126243W
         assertEquals("00J22LA126243W", collectedRegisters.getCollectedRegisters().stream()
                 .filter(r -> CellInfoMapping.PAIRED_METER_ID.getObisCode().equals(r.getRegisterIdentifier().getRegisterObisCode()))
                 .findFirst()
@@ -969,7 +969,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
 
-        assertEquals("device with serial number 45230144", factory.getDeviceIdentifier().toString());
+        assertEquals("device with serial number BCD0123454444", factory.getDeviceIdentifier().toString());
     }
 
     @Test
@@ -1013,7 +1013,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(0x43, parser.getLength());
         assertEquals(1, parser.getMagicFixed());
-        assertEquals("0K402250000050", parser.getDeviceId()); //  304B343032323530303030303530
+        assertEquals("K402250000050", parser.getDeviceId()); //  304B343032323530303030303530
         assertEquals("00J22LA126243W", parser.getMechanicalId()); //  30304A32324C4131323632343357
         assertEquals("00000000", parser.getConfigNumber());
         assertEquals("0000", parser.getDeviceStatus());
@@ -1030,6 +1030,6 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("78563412", parser.getLongitude());
         assertEquals(Instant.parse("2023-02-03T13:33:40.00Z"), parser.getDateTimeUtc());
 
-        assertEquals("{\"deviceId\":\"0K402250000050\",\"mechanicalId\":\"00J22LA126243W\",\"configNr\":\"00000000\",\"deviceStatus\":\"0000\",\"txNr\":8,\"meterIndex\":216470,\"crc\":\"ABCD\",\"operatorId\":\"214010\",\"cellId\":244,\"signalStrength\":198,\"signalQuality\":249,\"txPower\":128,\"ecl\":0,\"lat\":\"78563412\",\"lng\":\"78563412\",\"utc\":\"2023-02-03T13:33:40Z\"}", parser.toString());
+        assertEquals("{\"deviceId\":\"K402250000050\",\"mechanicalId\":\"00J22LA126243W\",\"configNr\":\"00000000\",\"deviceStatus\":\"0000\",\"txNr\":8,\"meterIndex\":216470,\"crc\":\"ABCD\",\"operatorId\":\"214010\",\"cellId\":244,\"signalStrength\":198,\"signalQuality\":249,\"txPower\":128,\"ecl\":0,\"lat\":\"78563412\",\"lng\":\"78563412\",\"utc\":\"2023-02-03T13:33:40Z\"}", parser.toString());
     }
 }

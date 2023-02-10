@@ -36,18 +36,19 @@ public class CellInfoFactory extends AbstractMerlinFactory {
     private static final int IDX_CELL_ID_HIGH           = 1;
     private static final int IDX_SIGNAL_STRENGTH        = 2;
     private static final int IDX_SIGNAL_QUALITY         = 3;
+    private static final int IDX_TRANSMISSION_POWER     = 4;
+    private static final int IDX_EXTENDED_CODE_COVERAGE = 5;
+    private static final int IDX_CELL_ID_ASCII_1        = 6;
+    private static final int IDX_CELL_ID_ASCII_2        = 7;
+    private static final int IDX_CELL_ID_ASCII_3        = 8;
+    private static final int IDX_CELL_ID_ASCII_4        = 9;
+    private static final int IDX_RELEASE_ASSIST_ENABLE  = 10;
+    private static final int IDX_PAIRED_METER_ID        = 11;
 
-    private static final int IDX_PAIRED_METER_ID        = 4;
+    // private static final int IDX_PAIRED_METER_ID        = 4;
 
-    //private static final int IDX_TRANSMISSION_POWER     = 4;
-    //private static final int IDX_EXTENDED_CODE_COVERAGE = 5;
-    //private static final int IDX_CELL_ID_ASCII_1        = 6;
-    //private static final int IDX_CELL_ID_ASCII_2        = 7;
-    //private static final int IDX_CELL_ID_ASCII_3        = 8;
-    //private static final int IDX_CELL_ID_ASCII_4        = 9;
     //private static final int IDX_ACCUMULATED_TX_TIME    = 6;
     //private static final int IDX_ACCUMULATED_RX_TIME    = 7;
-    //private static final int IDX_RELEASE_ASSIST_ENABLE  = 10;
 
 
 
@@ -147,11 +148,11 @@ public class CellInfoFactory extends AbstractMerlinFactory {
     }
 
     public static int extractTransmissionPower(byte[] data) {
-        return 0; //data[IDX_TRANSMISSION_POWER] & 0xFF;
+        return data[IDX_TRANSMISSION_POWER] & 0xFF;
     }
 
     public static int extractExtendedCodeCoverage(byte[] data) {
-        return 0; //data[IDX_EXTENDED_CODE_COVERAGE] & 0xFF;
+        return data[IDX_EXTENDED_CODE_COVERAGE] & 0xFF;
     }
 
     public static int extractAccumulatedTxTime(byte[] data) {
@@ -167,7 +168,7 @@ public class CellInfoFactory extends AbstractMerlinFactory {
     }
 
     public static String extractPairedMeterId(byte[] data) {
-        int len = 14;
+        int len = Math.min(14, data.length - IDX_PAIRED_METER_ID ) ;
         byte[] meteId = new byte[len];
         int j = 0;
 

@@ -1,6 +1,7 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.channel.ip.datagrams.DatagramComChannel;
+import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySystemTitle;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.protocol.ComChannelRemoteAddress;
@@ -89,7 +90,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         }
 
         if (this.checkFrameParser != null) {
-            return new DeviceIdentifierBySystemTitle(checkFrameParser.getDeviceId());
+            return new DeviceIdentifierBySerialNumber(checkFrameParser.getDeviceId());
         }
 
         return null;
