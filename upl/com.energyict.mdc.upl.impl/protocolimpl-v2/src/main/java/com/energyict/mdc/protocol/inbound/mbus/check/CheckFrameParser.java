@@ -9,6 +9,8 @@ import com.energyict.protocolimpl.utils.ProtocolTools;
 
 import java.time.Instant;
 import java.util.StringJoiner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implements the parse used to test the connectivity.
@@ -103,7 +105,7 @@ public class CheckFrameParser {
     private final String frame;
 
     public CheckFrameParser(byte[] payload) {
-        this(new String(payload));
+        this(ProtocolTools.getHexStringFromBytes(payload, ""));
     }
 
     private enum Indexes {
@@ -165,7 +167,7 @@ public class CheckFrameParser {
 
     public boolean isCheckFrame() {
         return frame != null
-                && frame.length() == 134
+                && frame.length() >= 0x43
                 && extractInt(Indexes.PKT_LENGTH) == 0x43
                 && extractInt(Indexes.PKT_MAGIC) == 0x01;
     }
@@ -173,18 +175,18 @@ public class CheckFrameParser {
     @Override
     public String toString() {
         StringJoiner json = new StringJoiner(",");
-        json.add(jsonElement("deviceId", getDeviceId()));
-        json.add(jsonElement("mechanicalId", getMechanicalId()));
-        json.add(jsonElement("configNr", getConfigNumber()));
-        json.add(jsonElement("deviceStatus", getDeviceStatus()));
+        json.add(jsonElement("dID", getDeviceId()));
+        json.add(jsonElement("mID", getMechanicalId()));
+        json.add(jsonElement("cNr", getConfigNumber()));
+        json.add(jsonElement("st", getDeviceStatus()));
         json.add(jsonElement("txNr", getTextTxNumber()));
-        json.add(jsonElement("meterIndex", getMeterIndex()));
+        json.add(jsonElement("idx", getMeterIndex()));
         json.add(jsonElement("crc", getCRC()));
-        json.add(jsonElement("operatorId", getOperatorId()));
-        json.add(jsonElement("cellId", getCellId()));
-        json.add(jsonElement("signalStrength", getSignalStrength()));
-        json.add(jsonElement("signalQuality", getSignalQuality()));
-        json.add(jsonElement("txPower", getTxPower()));
+        json.add(jsonElement("oID", getOperatorId()));
+        json.add(jsonElement("cId", getCellId()));
+        json.add(jsonElement("rssi", getSignalStrength()));
+        json.add(jsonElement("rsrq", getSignalQuality()));
+        json.add(jsonElement("txP", getTxPower()));
         json.add(jsonElement("ecl", getECL()));
         json.add(jsonElement("lat", getLatitude()));
         json.add(jsonElement("lng", getLongitude()));
@@ -238,13 +240,20 @@ public class CheckFrameParser {
     }
 
     public String getDeviceId() {
-        String zeroPadded = new String(ProtocolTools.getBCDFromHexString(extract(Indexes.TEST_NBIOT_DEVID),2));
-        if (zeroPadded.length() > 1) {
-            if (zeroPadded.getBytes()[0] == '0') {
-                return zeroPadded.substring(1);
+        String hexString = extract(Indexes.TEST_NBIOT_DEVID);
+        try {
+            String zeroPadded = new String(ProtocolTools.getBytesFromHexString(hexString, 2));
+            if (zeroPadded.length() > 1) {
+                if (zeroPadded.getBytes()[0] == '0') {
+                    return zeroPadded.substring(1);
+                }
             }
+            return zeroPadded;
+        } catch (Exception ex) {
+            Logger.getAnonymousLogger().log(Level.WARNING, "Cannot decode device ID", ex);
         }
-        return zeroPadded;
+
+        return hexString;
     }
 
     public String getMechanicalId() {

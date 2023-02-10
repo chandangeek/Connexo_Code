@@ -1,8 +1,9 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
+import com.energyict.mdc.protocol.inbound.mbus.check.CheckFrameDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.check.CheckFrameParser;
 import com.energyict.mdc.protocol.inbound.mbus.factory.AbstractMerlinFactory;
-import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMBusCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.ErrorFlagsEventsFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.events.StatusEventsFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.mappings.CellInfoMapping;
@@ -35,6 +36,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -786,7 +788,7 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setEncryptionKey(key2);
         parser.parse();
 
-        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+        MerlinMBusCollectedDataFactory factory = new MerlinMBusCollectedDataFactory(parser.getTelegram(),inboundContext);
 
         assertEquals(3, factory.getCollectedData().size());
     }
@@ -801,7 +803,7 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setEncryptionKey(key1);
         parser.parse();
 
-        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+        MerlinMBusCollectedDataFactory factory = new MerlinMBusCollectedDataFactory(parser.getTelegram(),inboundContext);
 
         List<CollectedData> collectedData = factory.getCollectedData();
 
@@ -861,7 +863,7 @@ public class MerlinMbusParserTest extends TestCase {
         String meterId = CellInfoFactory.extractPairedMeterId(data);
       //  assertEquals(PAIRED_METER_ID_NO_ZEROS, meterId);
 
-        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+        MerlinMBusCollectedDataFactory factory = new MerlinMBusCollectedDataFactory(parser.getTelegram(),inboundContext);
 
         List<CollectedData> collectedData = factory.getCollectedData();
 
@@ -894,7 +896,7 @@ public class MerlinMbusParserTest extends TestCase {
         parser.parse();
 
 
-        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+        MerlinMBusCollectedDataFactory factory = new MerlinMBusCollectedDataFactory(parser.getTelegram(),inboundContext);
 
         List<CollectedData> collectedData = factory.getCollectedData();
 
@@ -943,7 +945,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals("K402250000050", parser.getTelegram().getSerialNr());
 
-        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+        MerlinMBusCollectedDataFactory factory = new MerlinMBusCollectedDataFactory(parser.getTelegram(),inboundContext);
 
         List<CollectedData> collectedData = factory.getCollectedData();
 
@@ -967,7 +969,7 @@ public class MerlinMbusParserTest extends TestCase {
         inboundContext.setEncryptionKey(key1); //incorrect key
         parser.parse();
 
-        MerlinCollectedDataFactory factory = new MerlinCollectedDataFactory(parser.getTelegram(),inboundContext);
+        MerlinMBusCollectedDataFactory factory = new MerlinMBusCollectedDataFactory(parser.getTelegram(),inboundContext);
 
         assertEquals("device with serial number BCD0123454444", factory.getDeviceIdentifier().toString());
     }
@@ -1007,10 +1009,12 @@ public class MerlinMbusParserTest extends TestCase {
      */
     @Test
     public void testCheckFrameRealDavid() {
+        InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         String frame = "4301304B34303232353030303030353030304A32324C413132363234335700000000000008964D0300ABCD020104000100F400C6F980007856341278563412340DDD63";
         // meter pair W342621AL22J00
-        CheckFrameParser parser = new CheckFrameParser(frame);
+        CheckFrameParser parser = new CheckFrameParser(ProtocolTools.getBytesFromHexString(frame,2));
 
+        assertTrue(parser.isCheckFrame());
         assertEquals(0x43, parser.getLength());
         assertEquals(1, parser.getMagicFixed());
         assertEquals("K402250000050", parser.getDeviceId()); //  304B343032323530303030303530
@@ -1030,6 +1034,22 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals("78563412", parser.getLongitude());
         assertEquals(Instant.parse("2023-02-03T13:33:40.00Z"), parser.getDateTimeUtc());
 
-        assertEquals("{\"deviceId\":\"K402250000050\",\"mechanicalId\":\"00J22LA126243W\",\"configNr\":\"00000000\",\"deviceStatus\":\"0000\",\"txNr\":8,\"meterIndex\":216470,\"crc\":\"ABCD\",\"operatorId\":\"214010\",\"cellId\":244,\"signalStrength\":198,\"signalQuality\":249,\"txPower\":128,\"ecl\":0,\"lat\":\"78563412\",\"lng\":\"78563412\",\"utc\":\"2023-02-03T13:33:40Z\"}", parser.toString());
+        assertEquals("{\"dID\":\"K402250000050\",\"mID\":\"00J22LA126243W\",\"cNr\":\"00000000\",\"st\":\"0000\",\"txNr\":8,\"idx\":216470,\"crc\":\"ABCD\",\"oID\":\"214010\",\"cId\":244,\"rssi\":198,\"rsrq\":249,\"txP\":128,\"ecl\":0,\"lat\":\"78563412\",\"lng\":\"78563412\",\"utc\":\"2023-02-03T13:33:40Z\"}", parser.toString());
+
+        assertTrue(parser.toString().length() < 256);
+
+        CheckFrameDataFactory factory = new CheckFrameDataFactory(parser, inboundContext);
+        List<CollectedData> collectedData = factory.getCollectedData();
+
+        assertEquals("device with serial number K402250000050", factory.getDeviceIdentifier().toString());
+
+        CollectedRegisterList collectedRegisters = (CollectedRegisterList) collectedData.stream().filter(c -> c instanceof CollectedRegisterList).findFirst().get();
+
+        assertEquals("00J22LA126243W", collectedRegisters.getCollectedRegisters().stream()
+                .filter(r -> CellInfoMapping.PAIRED_METER_ID.getObisCode().equals(r.getRegisterIdentifier().getRegisterObisCode()))
+                .findFirst()
+                .get()
+                .getText());
+
     }
 }

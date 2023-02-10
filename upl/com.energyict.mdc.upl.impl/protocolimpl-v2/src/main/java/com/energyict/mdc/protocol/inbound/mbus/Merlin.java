@@ -1,12 +1,11 @@
 package com.energyict.mdc.protocol.inbound.mbus;
 
-import com.energyict.mdc.channel.ip.datagrams.DatagramComChannel;
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
-import com.energyict.mdc.identifiers.DeviceIdentifierBySystemTitle;
 import com.energyict.mdc.protocol.ComChannel;
-import com.energyict.mdc.protocol.ComChannelRemoteAddress;
+import com.energyict.mdc.protocol.inbound.mbus.check.CheckFrameDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.check.CheckFrameParser;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
+import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMBusCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMetaDataExtractor;
 import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
@@ -19,9 +18,6 @@ import com.energyict.mdc.upl.meterdata.identifiers.DeviceIdentifier;
 import com.energyict.mdc.upl.properties.PropertySpec;
 import com.energyict.mdc.upl.properties.PropertyValidationException;
 import com.energyict.mdc.upl.properties.TypedProperties;
-import com.energyict.protocol.exception.CommunicationException;
-import com.energyict.protocol.exception.DataEncryptionException;
-import com.energyict.protocol.exception.ProtocolExceptionMessageSeeds;
 
 import java.util.Collections;
 import java.util.List;
@@ -180,6 +176,8 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
     private void doParse(byte[] payload) {
         if (canParseAsCheckFrame(payload)) {
+            // simple communication test frame (non-MBus), will use dedicated factory
+            this.factory = new CheckFrameDataFactory(checkFrameParser, getInboundContext());
             return;
         }
 
@@ -210,7 +208,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
         try {
             // 4. Collect the actual data
-            this.factory = new MerlinCollectedDataFactory(decodedTelegram, getInboundContext());
+            this.factory = new MerlinMBusCollectedDataFactory(decodedTelegram, getInboundContext());
         } catch (Exception ex) {
             getLogger().error("Cannot parse and extract data from decrypted telegram", ex);
         }
