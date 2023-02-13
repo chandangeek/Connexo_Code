@@ -3,6 +3,8 @@ package com.elster.jupiter.soap.whiteboard.cxf.impl;
 import com.elster.jupiter.domain.util.DefaultFinder;
 import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Save;
+import com.elster.jupiter.nls.LocalizedException;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
@@ -32,6 +34,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,6 +47,7 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     private final TransactionService transactionService;
     private final WebServicesService webServicesService;
     private final ThreadPrincipalService threadPrincipalService;
+    private final Thesaurus thesaurus;
 
     private long id;
     private Reference<EndPointConfiguration> endPointConfiguration = Reference.empty();
@@ -81,11 +85,12 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     public WebServiceCallOccurrenceImpl(DataModel dataModel,
                                         TransactionService transactionService,
                                         WebServicesService webServicesService,
-                                        ThreadPrincipalService threadPrincipalService) {
+                                        ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
         this.webServicesService = webServicesService;
         this.threadPrincipalService  = threadPrincipalService;
+        this.thesaurus = thesaurus;
     }
 
     public WebServiceCallOccurrenceImpl init(Instant startTime,
@@ -260,8 +265,9 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             return;
         }
 
-        List<WebServiceCallRelatedAttributeBindingImpl> relatedAttributeBindingList = new ArrayList<>();
+        validateValues(values);
 
+        List<WebServiceCallRelatedAttributeBindingImpl> relatedAttributeBindingList = new ArrayList<>();
         Optional<Condition> condition = values.entries().stream()
                 .filter(entry -> !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
                 .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.fieldName()).isEqualTo(entry.getKey())
@@ -312,6 +318,16 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
                 dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedAttributeBindingList);
             });
+        }
+    }
+
+    private void validateValues(SetMultimap<String, String> values) {
+        values.entries().forEach(this::validateEntry);
+    }
+
+    private void validateEntry(Entry<String, String> entry) {
+        if (entry.getValue().length() > 80) {
+            throw new LocalizedException(thesaurus, MessageSeeds.FIELD_IS_TOO_LONG, entry.getKey()) {};
         }
     }
 

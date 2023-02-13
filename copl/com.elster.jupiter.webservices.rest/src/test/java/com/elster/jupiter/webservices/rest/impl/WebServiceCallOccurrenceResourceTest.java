@@ -6,6 +6,7 @@ package com.elster.jupiter.webservices.rest.impl;
 
 import com.elster.jupiter.devtools.tests.FakeBuilder;
 import com.elster.jupiter.domain.util.Finder;
+import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.soap.whiteboard.cxf.ApplicationSpecific;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointAuthentication;
@@ -50,6 +51,9 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
     @Mock
     DataModel dataModel;
+
+    @Mock
+    Thesaurus thesaurus;
 
     @Override
     @Before
@@ -351,7 +355,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
 
     private WebServiceCallOccurrence createOccurrence(Instant time, String request, String application, EndPointConfiguration endPointConfiguration) {
-        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService, threadPrincipalService)
+        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService, threadPrincipalService, thesaurus)
                 .init(time, request, application, endPointConfiguration);
     }
 }

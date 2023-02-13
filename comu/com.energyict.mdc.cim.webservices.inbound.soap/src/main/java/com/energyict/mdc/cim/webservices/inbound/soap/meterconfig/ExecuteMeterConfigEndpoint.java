@@ -6,7 +6,6 @@
 package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 
 import com.elster.jupiter.domain.util.FieldMaxLengthException;
-import com.elster.jupiter.domain.util.FieldMaxLengthValidator;
 import com.elster.jupiter.domain.util.VerboseConstraintViolationException;
 import com.elster.jupiter.metering.CimAttributeNames;
 import com.elster.jupiter.nls.LocalizedException;
@@ -124,20 +123,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-                SetMultimap<String, String> values = HashMultimap.create();
-                for (Meter meter : meterConfig.getMeter()) {
-                    FieldMaxLengthValidator.validate(meter);
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                    if (meter.getSerialNumber() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
-                    }
-                }
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
@@ -213,21 +199,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
             String meterName = null;
             try {
                 MeterConfig meterConfig = requestMessage.getPayload().getMeterConfig();
-
-                SetMultimap<String, String> values = HashMultimap.create();
-                for (Meter meter : meterConfig.getMeter()) {
-                    FieldMaxLengthValidator.validate(meter);
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                    if (meter.getSerialNumber() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
-                    }
-                }
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
                 if (Boolean.TRUE.equals(requestMessage.getHeader().isAsyncReplyFlag())) {
                     // call asynchronously
@@ -379,18 +351,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return runInTransactionWithOccurrence(() -> {
             try {
                 MeterConfig meterConfig = deleteMeterConfigRequestMessageType.getPayload().getMeterConfig();
-                SetMultimap<String, String> values = HashMultimap.create();
-
-                for (Meter meter : meterConfig.getMeter()) {
-                    FieldMaxLengthValidator.validate(meter);
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                }
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(deleteMeterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
@@ -437,21 +398,7 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
         return runInTransactionWithOccurrence(() -> {
             try {
                 MeterConfig meterConfig = meterConfigRequestMessageType.getPayload().getMeterConfig();
-                SetMultimap<String, String> values = HashMultimap.create();
-
-                for (Meter meter : meterConfig.getMeter()) {
-                    FieldMaxLengthValidator.validate(meter);
-                    if (!meter.getNames().isEmpty()) {
-                        values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
-                    }
-                    if (meter.getMRID() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
-                    }
-                    if (meter.getSerialNumber() != null) {
-                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
-                    }
-                }
-                saveRelatedAttributes(values);
+                saveRelatedAttributesFromRequest(meterConfig);
 
                 //get mrid or name of device
                 if (Boolean.TRUE.equals(meterConfigRequestMessageType.getHeader().isAsyncReplyFlag())) {
@@ -562,6 +509,23 @@ public class ExecuteMeterConfigEndpoint extends AbstractInboundEndPoint implemen
                 //.filter(endPointConfiguration -> endPointConfiguration.getUrl().equals(url))
                 .findFirst();
 
+    }
+
+    private void saveRelatedAttributesFromRequest(MeterConfig meterConfig) throws FieldMaxLengthException {
+        SetMultimap<String, String> values = HashMultimap.create();
+
+        for (Meter meter : meterConfig.getMeter()) {
+            if (!meter.getNames().isEmpty()) {
+                values.put(CimAttributeNames.CIM_DEVICE_NAME.getAttributeName(), meter.getNames().get(0).getName());
+            }
+            if (meter.getMRID() != null) {
+                values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), meter.getMRID());
+            }
+            if (meter.getSerialNumber() != null) {
+                values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), meter.getSerialNumber());
+            }
+        }
+        saveRelatedAttributes(values);
     }
 
     @Override
