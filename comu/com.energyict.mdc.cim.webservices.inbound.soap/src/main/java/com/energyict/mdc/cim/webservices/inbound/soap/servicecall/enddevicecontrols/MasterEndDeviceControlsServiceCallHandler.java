@@ -144,12 +144,15 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                 if (childExtension.getError() != null) {
                     String name;
                     String mrid;
+                    String serialNumber;
                     if (device.isPresent()) {
                         name = device.get().getName();
                         mrid = device.get().getmRID();
+                        serialNumber = device.get().getSerialNumber();
                     } else {
                         name = childExtension.getDeviceName();
                         mrid = childExtension.getDeviceMrid();
+                        serialNumber = childExtension.getDeviceSerialNumber();
                     }
                     errorTypes.add(replyTypeFactory.errorType(name, mrid, childExtension.getError(),
                             MessageSeeds.END_DEVICE_ERROR.getErrorCode(), MessageSeeds.END_DEVICE_ERROR.getErrorTypeLevel()));
@@ -158,7 +161,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                     if (device.isPresent()) {
                         asset = createAsset(device.get());
                     } else {
-                        asset = createAsset(childExtension.getDeviceMrid(), childExtension.getDeviceName());
+                        asset = createAsset(childExtension.getDeviceMrid(), childExtension.getDeviceName(), childExtension.getDeviceSerialNumber());
                     }
                     endDeviceEvent.setAssets(asset);
                     endDeviceEvent.setCreatedDateTime(clock.instant());
@@ -263,13 +266,16 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
     }
 
     private Asset createAsset(Device device) {
-        return createAsset(device.getmRID(), device.getName());
+        return createAsset(device.getmRID(), device.getName(), device.getSerialNumber());
     }
 
-    private Asset createAsset(String deviceMrid, String deviceName) {
+    private Asset createAsset(String deviceMrid, String deviceName, String deviceSerialNumber) {
         Asset asset = new Asset();
         if (deviceMrid != null) {
             asset.setMRID(deviceMrid);
+        }
+        if (deviceSerialNumber != null) {
+            asset.setMRID(deviceSerialNumber);
         }
         if (deviceName != null) {
             asset.getNames().add(createName(deviceName));

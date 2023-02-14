@@ -9,6 +9,8 @@ import java.time.Instant;
 public class EndDeviceMessage {
     private String deviceName;
     private String deviceMrid;
+
+    private String deviceSerialNumber;
     private Instant releaseDate;
 
     public String getDeviceName() {
@@ -25,6 +27,14 @@ public class EndDeviceMessage {
 
     public void setDeviceMrid(String deviceMrid) {
         this.deviceMrid = deviceMrid;
+    }
+
+    public String getDeviceSerialNumber() {
+        return deviceSerialNumber;
+    }
+
+    public void setDeviceSerialNumber(String deviceSerialNumber) {
+        this.deviceSerialNumber = deviceSerialNumber;
     }
 
     public Instant getReleaseDate() {

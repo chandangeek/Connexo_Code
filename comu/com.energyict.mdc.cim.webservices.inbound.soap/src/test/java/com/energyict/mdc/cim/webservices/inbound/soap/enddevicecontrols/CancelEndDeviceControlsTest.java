@@ -112,7 +112,7 @@ public class CancelEndDeviceControlsTest extends AbstractMockEndDeviceControls {
         endDeviceControl.getEndDevices().add(endDevice);
 
         codeToMessageMap.remove(MessageSeeds.END_DEVICES_MISSING.getErrorCode());
-        codeToMessageMap.put(MessageSeeds.MISSING_MRID_OR_NAME_FOR_END_DEVICE_CONTROL.getErrorCode(),
+        codeToMessageMap.put(MessageSeeds.MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_END_DEVICE_CONTROL.getErrorCode(),
                 "Either element 'mRID' or 'Names' is required under EndDeviceControl[0].EndDevices[0] for identification purpose.");
         assertFaultMessages(() -> executeEndDeviceControlsEndpoint.cancelEndDeviceControls(requestMessage), codeToMessageMap);
     }

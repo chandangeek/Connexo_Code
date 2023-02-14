@@ -188,8 +188,8 @@ public enum MessageSeeds implements MessageSeed {
     UNABLE_TO_CHANGE_END_DEVICE_CONTROLS(8002, "UnableToChangeEndDeviceControls", "Unable to change end device controls."),
     END_DEVICES_MISSING(8003, "EndDevicesMissing", "End devices are missing under EndDeviceControl[{0}]."),
     COMMAND_CODE_MISSING(8004, "CommandCodeMissing", "The command CIM code is missing under EndDeviceControl[{0}]."),
-    MISSING_MRID_OR_NAME_FOR_END_DEVICE_CONTROL(8005, "MissingMridOrNameForEndDeviceControl",
-            "Either element ''mRID'' or ''Names'' is required under EndDeviceControl[{0}].EndDevices[{1}] for identification purpose."),
+    MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_END_DEVICE_CONTROL(8005, "MissingMridOrNameOrSerialNumberForEndDeviceControl",
+            "Either element ''mRID'' or ''Names'' or ''serialNumber'' is required under EndDeviceControl[{0}].EndDevices[{1}] for identification purpose."),
     RELEASE_DATE_MISSING(8006, "ReleaseDateMissing", "The release date is missing under EndDeviceControl[{0}]."),
     NO_SUCH_END_DEVICE_CONTROL_TYPE_WITH_CIM(8007, "NoSuchEndDeviceControlTypeWithCim", "No end device control type with CIM code ''{0}''."),
     UNSUPPORTED_END_DEVICE_CONTROL_TYPE(8008, "UnsupportedEndDeviceControlType", "End device control type with CIM code ''{0}'' isn''t supported."),
@@ -207,6 +207,7 @@ public enum MessageSeeds implements MessageSeed {
     END_DEVICE_ERROR(8019, "EndDeviceError", "For device {0}: {1}"),
     EDC_SCHEDULE_STRATEGY_NOT_SUPPORTED(8020, "edcScheduleStrategyNotSupported",
             "Schedule strategy ''{0}'' isn''t supported under EndDeviceControl[{1}]. The possible values are: ''Run now'' and ''Run with priority''."),
+    NO_SERVICE_CALL_WITH_DEVICE_SERIAL_NUMBER(8021, "NoServiceCallWithDeviceSerialNumber", "No service call found for device with serial number ''{0}''."),
     ;
 
     private final int number;

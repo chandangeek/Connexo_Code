@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.elster.jupiter.orm.Version.version;
+
 @Component(name = "com.energyict.mdc.cim.webservices.inbound.soap.EndDeviceControlsPropertySet",
         service = CustomPropertySet.class,
         property = "name=" + EndDeviceControlsPropertySet.CUSTOM_PROPERTY_SET_NAME,
@@ -127,6 +129,11 @@ public class EndDeviceControlsPropertySet implements CustomPropertySet<ServiceCa
                         .fromThesaurus(thesaurus)
                         .finish(),
                 this.propertySpecService
+                        .stringSpec()
+                        .named(EndDeviceControlsDomainExtension.FieldNames.DEVICE_SERIAL_NUMBER.javaName(), TranslationKeys.DEVICE_SERIAL_NUMBER)
+                        .fromThesaurus(thesaurus)
+                        .finish(),
+                this.propertySpecService
                         .specForValuesOf(new InstantFactory())
                         .named(EndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.javaName(), TranslationKeys.TRIGGER_DATE)
                         .fromThesaurus(thesaurus)
@@ -193,6 +200,12 @@ public class EndDeviceControlsPropertySet implements CustomPropertySet<ServiceCa
             table.column(EndDeviceControlsDomainExtension.FieldNames.DEVICE_MRID.databaseName())
                     .varChar()
                     .map(EndDeviceControlsDomainExtension.FieldNames.DEVICE_MRID.javaName())
+                    .add();
+            table.column(EndDeviceControlsDomainExtension.FieldNames.DEVICE_SERIAL_NUMBER.databaseName())
+                    .varChar()
+                    .map(EndDeviceControlsDomainExtension.FieldNames.DEVICE_SERIAL_NUMBER.javaName())
+                    .installValue("'-'")
+                    .since(version(10, 9, 24))
                     .add();
             table.column(EndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.databaseName())
                     .number()
