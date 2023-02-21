@@ -154,7 +154,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
                         mrid = childExtension.getDeviceMrid();
                         serialNumber = childExtension.getDeviceSerialNumber();
                     }
-                    errorTypes.add(replyTypeFactory.errorType(name, mrid, childExtension.getError(),
+                    errorTypes.add(replyTypeFactory.errorType(name, mrid, serialNumber, childExtension.getError(),
                             MessageSeeds.END_DEVICE_ERROR.getErrorCode(), MessageSeeds.END_DEVICE_ERROR.getErrorTypeLevel()));
                 } else {
                     Asset asset;

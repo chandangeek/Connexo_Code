@@ -86,8 +86,8 @@ public class ReplyTypeFactory {
         return errorType;
     }
 
-    public ErrorType errorType(String deviceName, String deviceMrid, String translatedMessage, String errorCode, ErrorType.Level level) {
-        ErrorType errorType = errorType(translatedMessage, errorCode, deviceName, level);
+    public ErrorType errorType(String deviceName, String deviceMrid, String deviceSerialNumber, String translatedMessage, String errorCode, ErrorType.Level level) {
+        ErrorType errorType = errorType(translatedMessage, errorCode, deviceName, deviceSerialNumber, level);
         if (deviceMrid != null) {
             ObjectType objectType = errorType.getObject();
             if (objectType == null) {
@@ -96,6 +96,20 @@ public class ReplyTypeFactory {
                 errorType.setObject(objectType);
             }
             objectType.setMRID(deviceMrid);
+        }
+        return errorType;
+    }
+
+    public ErrorType errorType(String translatedMessage, String errorCode, String deviceName, String deviceSerialNumber, ErrorType.Level level) {
+        ErrorType errorType = errorType(translatedMessage, errorCode, deviceName, level);
+        if (deviceSerialNumber != null) {
+            ObjectType objectType = errorType.getObject();
+            if (objectType == null) {
+                objectType = new ObjectType();
+                objectType.setObjectType("EndDevice");
+                errorType.setObject(objectType);
+            }
+            objectType.setSerialNumber(deviceSerialNumber);
         }
         return errorType;
     }
