@@ -204,7 +204,6 @@ public class EndDeviceControlsPropertySet implements CustomPropertySet<ServiceCa
             table.column(EndDeviceControlsDomainExtension.FieldNames.DEVICE_SERIAL_NUMBER.databaseName())
                     .varChar()
                     .map(EndDeviceControlsDomainExtension.FieldNames.DEVICE_SERIAL_NUMBER.javaName())
-                    .installValue("'-'")
                     .since(version(10, 9, 24))
                     .add();
             table.column(EndDeviceControlsDomainExtension.FieldNames.TRIGGER_DATE.databaseName())

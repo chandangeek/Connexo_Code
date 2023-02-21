@@ -275,7 +275,7 @@ public class MasterEndDeviceControlsServiceCallHandler implements ServiceCallHan
             asset.setMRID(deviceMrid);
         }
         if (deviceSerialNumber != null) {
-            asset.setMRID(deviceSerialNumber);
+            asset.setSerialNumber(deviceSerialNumber);
         }
         if (deviceName != null) {
             asset.getNames().add(createName(deviceName));

@@ -84,16 +84,16 @@ public class EndDeviceControlsDomainExtension extends AbstractPersistentDomainEx
         return deviceMrid;
     }
 
-    public void setDeviceMrid(String endDevice) {
-        this.deviceMrid = endDevice;
+    public void setDeviceMrid(String deviceMrid) {
+        this.deviceMrid = deviceMrid;
     }
 
     public String getDeviceSerialNumber() {
         return deviceSerialNumber;
     }
 
-    public void setDeviceSerialNumber(String endDevice) {
-        this.deviceSerialNumber = endDevice;
+    public void setDeviceSerialNumber(String deviceSerialNumber) {
+        this.deviceSerialNumber = deviceSerialNumber;
     }
 
     public CancellationReason getCancellationReason() {

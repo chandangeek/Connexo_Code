@@ -89,7 +89,13 @@ public class EndDeviceControlsServiceCallHandler implements ServiceCallHandler {
                     return;
                 }
             } else if (extension.getDeviceSerialNumber() != null) {
-                optionalDevice = deviceService.findDevicesBySerialNumber(extension.getDeviceSerialNumber()).stream().findFirst();
+                List<Device> devices = deviceService.findDevicesBySerialNumber(extension.getDeviceSerialNumber());
+                if (devices.size()>1){
+                    failServiceCall(serviceCall, extension, MessageSeeds.MORE_DEVICES_WITH_SAME_SERIAL_NUMBER, extension.getDeviceSerialNumber());
+                    return;
+                }
+                // return the one and only device
+                optionalDevice = devices.stream().findFirst();
                 if (!optionalDevice.isPresent()) {
                     failServiceCall(serviceCall, extension, MessageSeeds.NO_DEVICE_WITH_SERIAL_NUMBER, extension.getDeviceSerialNumber());
                     return;
