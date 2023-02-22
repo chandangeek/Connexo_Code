@@ -828,6 +828,7 @@ public class ServiceCallCommands {
         EndDeviceControlsDomainExtension domainExtension = new EndDeviceControlsDomainExtension();
         domainExtension.setDeviceMrid(endDeviceMessage.getDeviceMrid());
         domainExtension.setDeviceName(endDeviceMessage.getDeviceName());
+        domainExtension.setDeviceSerialNumber(endDeviceMessage.getDeviceSerialNumber());
         domainExtension.setTriggerDate(endDeviceMessage.getReleaseDate());
 
         subParentServiceCall.newChildCall(serviceCallType)
@@ -885,6 +886,8 @@ public class ServiceCallCommands {
                     .filter(s -> {
                         if (endDeviceMessage.getDeviceMrid() != null) {
                             return endDeviceMessage.getDeviceMrid().equals(s.getDeviceMrid());
+                        } else if (endDeviceMessage.getDeviceSerialNumber() != null) {
+                            return endDeviceMessage.getDeviceSerialNumber().equals(s.getDeviceSerialNumber());
                         } else {
                             return endDeviceMessage.getDeviceName().equals(s.getDeviceName());
                         }
@@ -899,6 +902,9 @@ public class ServiceCallCommands {
                 if (endDeviceMessage.getDeviceMrid() != null) {
                     errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
                             MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_MRID.translate(thesaurus, endDeviceMessage.getDeviceMrid())));
+                } else if (endDeviceMessage.getDeviceSerialNumber() != null) {
+                    errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
+                            MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_SERIAL_NUMBER.translate(thesaurus, endDeviceMessage.getDeviceSerialNumber())));
                 } else {
                     errorTypes.add(replyTypeFactory.errorType(MessageSeeds.END_DEVICE_SYNC_ERROR, null, endDeviceControlIndex, i,
                             MessageSeeds.NO_SERVICE_CALL_WITH_DEVICE_NAME.translate(thesaurus, endDeviceMessage.getDeviceName())));

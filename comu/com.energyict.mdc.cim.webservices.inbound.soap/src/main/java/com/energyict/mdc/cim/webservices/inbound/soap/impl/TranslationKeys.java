@@ -64,6 +64,7 @@ public enum TranslationKeys implements TranslationKey {
     COMMAND_ATTRIBUTES("commandAttributes", "Command attributes"),
     DEVICE_NAME("deviceName", "Device name"),
     DEVICE_MRID("deviceMrid", "Device MRID"),
+    DEVICE_SERIAL_NUMBER("deviceSerialNumber", "Device serial number"),
     CANCELLATION_REASON("cancellationReason", "Cancellation reason"),
     ERROR("error", "Error"),
     MAX_EXEC_TIME("maxExecTime", "Maximum execution time"),

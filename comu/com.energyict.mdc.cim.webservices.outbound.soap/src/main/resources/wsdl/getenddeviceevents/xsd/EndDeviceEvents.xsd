@@ -28,7 +28,11 @@
                     <xs:documentation>For CIMXML data files the mRID is mapped to rdf:ID or rdf:about attributes that identifies CIM object elements.</xs:documentation>
                 </xs:annotation>
             </xs:element>
-
+            <xs:element name="serialNumber" minOccurs="0" maxOccurs="1" type="xs:string" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.serialNumber">
+                <xs:annotation>
+                    <xs:documentation>A serial number of this identified object.</xs:documentation>
+                </xs:annotation>
+            </xs:element>
             <xs:element name="Names" minOccurs="0" maxOccurs="unbounded" type="m:Name" sawsdl:modelReference="http://iec.ch/TC57/2010/CIM-schema-cim15#IdentifiedObject.Names">
                 <xs:annotation>
                     <xs:documentation>All names of this identified object.</xs:documentation>
