@@ -51,6 +51,7 @@ import org.osgi.service.event.EventAdmin;
 
 import java.security.Principal;
 import java.sql.SQLException;
+import java.time.Clock;
 import java.util.Optional;
 
 import static org.mockito.Matchers.anyString;
@@ -96,6 +97,7 @@ public class InMemoryPersistence {
     private DataVaultService dataVaultService;
     private LicenseService licenseService;
     private HsmProtocolService hsmProtocolService;
+    private Clock clock;
 
     private ProtocolPluggableServiceImpl protocolPluggableService;
     private InMemoryBootstrapModule bootstrapModule;
@@ -168,6 +170,7 @@ public class InMemoryPersistence {
         this.userService = mock(UserService.class);
         this.meteringService = mock(MeteringService.class);
         this.hsmProtocolService = mock(HsmProtocolService.class);
+        this.clock = mock(Clock.class);
 
         when(licenseService.getLicenseForApplication(anyString())).thenReturn(Optional.empty());
     }
@@ -192,7 +195,8 @@ public class InMemoryPersistence {
                         this.dataVaultService,
                         this.transactionService,
                         UpgradeModule.FakeUpgradeService.getInstance(),
-                        this.hsmProtocolService
+                        this.hsmProtocolService,
+                        this.clock
                 );
         this.protocolPluggableService.addInboundDeviceProtocolService(this.inboundDeviceProtocolService);
         this.protocolPluggableService.addConnectionTypeService(this.connectionTypeService);
@@ -266,6 +270,7 @@ public class InMemoryPersistence {
             bind(DataModel.class).toProvider(() -> dataModel);
             bind(UpgradeService.class).toInstance(UpgradeModule.FakeUpgradeService.getInstance());
             bind(HsmProtocolService.class).to(UPLHsmProtocolServiceImpl.class).in(Scopes.SINGLETON);
+            bind(Clock.class).toInstance(clock);
         }
 
     }

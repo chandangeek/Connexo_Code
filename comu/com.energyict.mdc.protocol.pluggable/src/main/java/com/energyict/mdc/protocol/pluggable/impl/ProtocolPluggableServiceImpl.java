@@ -137,6 +137,7 @@ import javax.inject.Inject;
 import javax.validation.MessageInterpolator;
 import java.security.Principal;
 import java.security.cert.X509Certificate;
+import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -191,6 +192,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
     private volatile DataVaultService dataVaultService;
     private volatile UpgradeService upgradeService;
     private volatile HsmProtocolService hsmProtocolService;
+    private volatile Clock clock;
 
     private volatile boolean installed = false;
     private volatile List<ProtocolDeploymentListenerRegistrationImpl> registrations = new CopyOnWriteArrayList<>();
@@ -220,7 +222,8 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
             DataVaultService dataVaultService,
             TransactionService transactionService,
             UpgradeService upgradeService,
-            HsmProtocolService hsmProtocolService
+            HsmProtocolService hsmProtocolService,
+            Clock clock
     ) {
         this();
         setOrmService(ormService);
@@ -241,6 +244,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         setTransactionService(transactionService);
         setUpgradeService(upgradeService);
         setHsmProtocolService(hsmProtocolService);
+        setClock(clock);
         activate();
     }
 
@@ -687,6 +691,11 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
         this.hsmProtocolService = hsmProtocolService;
     }
 
+    @Reference
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
     @Override
     @Reference(cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addDeviceProtocolService(DeviceProtocolService deviceProtocolService) {
@@ -962,6 +971,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 bind(MeteringService.class).toInstance(meteringService);
                 bind(DataVaultService.class).toInstance(dataVaultService);
                 bind(HsmProtocolService.class).toInstance(hsmProtocolService);
+                bind(Clock.class).toInstance(clock);
                 bind(CollectedDataFactory.class).toInstance(new CompositeCollectedDataFactory());
                 bind(MessageAdapterMappingFactory.class).to(MessageAdapterMappingFactoryImpl.class).in(Singleton.class);
                 bind(SecuritySupportAdapterMappingFactory.class).to(SecuritySupportAdapterMappingFactoryImpl.class).in(Singleton.class);
@@ -983,6 +993,7 @@ public class ProtocolPluggableServiceImpl implements ServerProtocolPluggableServ
                 Installer.class,
                 ImmutableMap.<Version, Class<? extends Upgrader>>builder()
                         .put(Version.version(10, 3), UpgraderV10_3.class)
+                        .put(Version.version(10, 9, 25), UpgraderV10_9_25.class)
                         .build());
         this.installed = true;
         this.registerAllPluggableClasses();

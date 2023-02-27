@@ -1,5 +1,18 @@
 package com.energyict.protocolimplv2.dlms.acud.messages;
 
+import com.energyict.mdc.upl.ProtocolException;
+import com.energyict.mdc.upl.issue.IssueFactory;
+import com.energyict.mdc.upl.messages.DeviceMessageStatus;
+import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
+import com.energyict.mdc.upl.meterdata.BreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
+import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
+import com.energyict.mdc.upl.meterdata.CollectedMessage;
+import com.energyict.mdc.upl.meterdata.CollectedMessageList;
+import com.energyict.mdc.upl.meterdata.CollectedRegister;
+import com.energyict.mdc.upl.meterdata.ResultType;
+
 import com.energyict.cbo.Quantity;
 import com.energyict.cbo.Unit;
 import com.energyict.dlms.axrdencoding.Array;
@@ -24,26 +37,14 @@ import com.energyict.dlms.cosem.attributes.DataAttributes;
 import com.energyict.dlms.cosem.methods.ChargeSetupMethods;
 import com.energyict.dlms.cosem.methods.CreditSetupMethods;
 import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
-import com.energyict.mdc.upl.ProtocolException;
-import com.energyict.mdc.upl.issue.IssueFactory;
-import com.energyict.mdc.upl.messages.DeviceMessageStatus;
-import com.energyict.mdc.upl.messages.OfflineDeviceMessage;
-import com.energyict.mdc.upl.meterdata.BreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
-import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
-import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
-import com.energyict.mdc.upl.meterdata.CollectedMessage;
-import com.energyict.mdc.upl.meterdata.CollectedMessageList;
-import com.energyict.mdc.upl.meterdata.CollectedRegister;
-import com.energyict.mdc.upl.meterdata.ResultType;
 import com.energyict.obis.ObisCode;
 import com.energyict.protocol.Register;
 import com.energyict.protocol.RegisterValue;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 import com.energyict.protocolimpl.utils.TempFileLoader;
-import com.energyict.protocolimplv2.common.DisconnectControlState;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.acud.AcudCreditUtils;
+import com.energyict.protocolimplv2.dlms.acud.AcudGateway;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -55,6 +56,9 @@ import com.energyict.protocolimplv2.messages.convertor.MessageConverterTools;
 import com.energyict.protocolimplv2.nta.abstractnta.messages.AbstractMessageExecutor;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,7 +71,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 
 import static com.energyict.cbo.BaseUnit.COUNT;
-import static com.energyict.cbo.BaseUnit.UNITLESS;
+import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.gatewayConfigurationJson;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysDayIdAttributeName;
 import static com.energyict.protocolimplv2.messages.DeviceMessageConstants.specialDaysFormatDatesAttributeName;
 
@@ -176,6 +180,8 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
             writeSpecialDays(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.SPECIAL_DAY_CSV_STRING)) {
             writeSpecialDaysCsv(pendingMessage);
+        }  else if (pendingMessage.getSpecification().equals(ConfigurationChangeDeviceMessage.WRITE_CONFIGURATION_TEXT)) {
+            postGatewayConfigurationJson(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_OPEN)) {
             collectedMessage = remoteDisconnect(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(ContactorDeviceMessage.CONTACTOR_CLOSE)) {
@@ -590,5 +596,41 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
         //Use polling to check the result of the image verification
         imageTransfer.setUsePollingVerifyAndActivate(true);
         imageTransfer.upgrade(binaryImage, false, id, false);
+    }
+
+    private void postGatewayConfigurationJson(OfflineDeviceMessage pendingMessage)  throws IOException {
+        HttpURLConnection httpConnection = null;
+        String hostAddress = ((AcudGateway) getProtocol()).getHostAddress();
+        int portNumber = ((AcudGateway) getProtocol()).getPortNumber();
+
+        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + "/config";
+        getProtocol().journal("Posting gateway configuration to " + urlConnection);
+
+        try {
+            URL connexoUrl = new URL(urlConnection);
+            httpConnection = (HttpURLConnection) connexoUrl.openConnection();
+            httpConnection.setRequestMethod("POST");
+            httpConnection.setRequestProperty("Accept", "application/json");
+            httpConnection.setDoOutput(true);
+            httpConnection.setReadTimeout(30000);
+
+            final String jsonInputString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, gatewayConfigurationJson).getValue();
+
+            try(OutputStream os = httpConnection.getOutputStream()) {
+                byte[] input = jsonInputString.getBytes("utf-8");
+                os.write(input, 0, input.length);
+            }
+
+            int responseCode = httpConnection.getResponseCode();
+            if (responseCode != HttpURLConnection.HTTP_OK) {
+                throw new ProtocolException("Configuration change is not applied. Gateway response code is: " + responseCode);
+            }
+        } catch (Exception e) {
+            throw new ProtocolException(e);
+        } finally {
+            if (httpConnection != null) {
+                httpConnection.disconnect();
+            }
+        }
     }
 }
