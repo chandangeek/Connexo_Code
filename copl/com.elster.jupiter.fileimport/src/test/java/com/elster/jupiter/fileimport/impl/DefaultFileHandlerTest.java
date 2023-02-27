@@ -5,6 +5,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.messaging.MessageBuilder;
 import com.elster.jupiter.transaction.TransactionService;
@@ -29,6 +30,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -43,7 +45,7 @@ public class DefaultFileHandlerTest {
     private ServerFileImportOccurrence fileImportOccurrence;
     @Mock
     private DestinationSpec destination;
-    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
+    private final TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     @Mock
     private JsonService jsonService;
     @Mock
@@ -74,10 +76,23 @@ public class DefaultFileHandlerTest {
     }
 
     @Test
-    public void testHandleCreatesFileImport() {
+    public void testHandleCreatesFileImportAndPostsMessage() {
+        when(fileImportOccurrence.getStatus()).thenReturn(Status.PROCESSING);
         Path file = testFileSystem.getPath("./test.txt");
         fileHandler.handle(file);
+
         verify(importSchedule).createFileImportOccurrence(file, clock);
         verify(messageBuilder).send();
+    }
+
+    @Test
+    public void testFailedBeforeProcessing() {
+        when(fileImportOccurrence.getStatus()).thenReturn(Status.FAILURE);
+
+        Path file = testFileSystem.getPath("./test.txt");
+        fileHandler.handle(file);
+
+        verify(importSchedule).createFileImportOccurrence(file, clock);
+        verify(messageBuilder, never()).send();
     }
 }

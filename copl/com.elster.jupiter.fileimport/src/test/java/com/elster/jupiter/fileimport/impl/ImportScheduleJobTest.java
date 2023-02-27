@@ -5,6 +5,7 @@
 package com.elster.jupiter.fileimport.impl;
 
 import com.elster.jupiter.fileimport.FileImportService;
+import com.elster.jupiter.fileimport.Status;
 import com.elster.jupiter.messaging.DestinationSpec;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.transaction.TransactionService;
@@ -54,7 +55,7 @@ public class ImportScheduleJobTest {
     private FileUtils fileUtils;
     @Mock
     private DirectoryStream<Path> directoryStream;
-    private TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
+    private final TransactionService transactionService = TransactionModule.FakeTransactionService.INSTANCE;
     @Mock
     private CronExpressionParser cronExpressionParser;
     @Mock
@@ -109,11 +110,12 @@ public class ImportScheduleJobTest {
     @Test
     public void testRun() throws Exception {
         doAnswer(invocationOnMock -> {
-            Consumer consumer = (Consumer) invocationOnMock.getArguments()[0];
+            Consumer<? super Path> consumer = (Consumer<? super Path>) invocationOnMock.getArguments()[0];
             consumer.accept(path);
             return Void.TYPE;
         }).when(directoryStream).forEach(Matchers.any());
         when(importSchedule.createFileImportOccurrence(path, clock)).thenReturn(fileImportOccurrence);
+        when(fileImportOccurrence.getStatus()).thenReturn(Status.PROCESSING);
         when(importSchedule.isActive()).thenReturn(true);
         when(jsonService.serialize(any())).thenReturn(SERIALIZED);
         when(importSchedule.getDestination()).thenReturn(destination);
