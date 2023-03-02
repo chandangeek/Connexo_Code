@@ -301,6 +301,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Optional<EndDevice> findEndDeviceBySerialNumber(String serialNumber) {
+        return dataModel.mapper(EndDevice.class).getUnique("serialNumber", serialNumber);
+    }
+
+    @Override
     public Optional<Meter> findMeterByName(String name) {
         return dataModel.mapper(Meter.class).getUnique("name", name, "obsoleteTime", null);
     }

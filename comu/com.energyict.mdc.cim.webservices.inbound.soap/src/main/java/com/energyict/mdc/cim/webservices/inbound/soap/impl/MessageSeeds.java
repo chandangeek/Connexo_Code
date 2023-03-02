@@ -29,6 +29,7 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_TOO_LONG(12, Keys.FIELD_TOO_LONG, "Field length must not exceed {max} characters"),
     MISSING_ENDPOINT(13, "MissingEndpoint", "Endpoint for {0} isn''t found by URL ''{1}''."),
     UNSUPPORTED_VALUE_GENERAL(14, "UnsupportedValueGeneral", "Unsupported value for ''{0}''."),
+    MISSING_MRID_OR_NAME_OR_SERIALNUMBER_FOR_ELEMENT(15, "MissingMridOrNameOrSerialNumberForElement", "Either element ''mRID'' or ''Names'' or ''serialNumber'' is required under ''{0}'' for identification purpose."),
 
     // meter config
     UNABLE_TO_CREATE_DEVICE(1001, "UnableToCreateDevice", "Unable to create device"),

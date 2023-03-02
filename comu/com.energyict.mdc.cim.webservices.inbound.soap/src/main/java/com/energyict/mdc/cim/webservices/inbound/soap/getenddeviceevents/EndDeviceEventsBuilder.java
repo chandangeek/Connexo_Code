@@ -96,8 +96,9 @@ public class EndDeviceEventsBuilder {
     }
 
     /*
-     * Filtering by end device identifier - mRID or name.
-     * If mRID is specified, find end device by mRid (name is skipped and is not validated).
+     * Filtering by end device identifier - mRID or name or serial number.
+     * If mRID is specified, find end device by mRid (name and serial number is skipped and is not validated).
+     * If serial number is specified, find end device by serial number.
      * If name is specified, find end device by name.
      * Otherwise, this meter tag is skipped.
      */
@@ -105,9 +106,12 @@ public class EndDeviceEventsBuilder {
         Set<String> identifiers = new HashSet<>();
         meters.forEach(meter -> {
             Optional<String> mRID = extractMrid(meter);
+            Optional<String> serialNumber = extractName(meter);
             Optional<String> name = extractName(meter);
             if (mRID.isPresent()) {
                 identifiers.add(mRID.get());
+            } else if (serialNumber.isPresent()) {
+                identifiers.add(serialNumber.get());
             } else if (name.isPresent()) {
                 identifiers.add(name.get());
             }

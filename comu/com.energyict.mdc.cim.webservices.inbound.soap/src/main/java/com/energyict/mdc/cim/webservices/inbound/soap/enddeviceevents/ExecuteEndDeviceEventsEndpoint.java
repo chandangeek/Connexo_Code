@@ -75,6 +75,9 @@ public class ExecuteEndDeviceEventsEndpoint extends AbstractInboundEndPoint impl
                     if (event.getAssets().getMRID() != null) {
                         values.put(CimAttributeNames.CIM_DEVICE_MR_ID.getAttributeName(), event.getAssets().getMRID());
                     }
+                    if (event.getAssets().getSerialNumber() != null) {
+                        values.put(CimAttributeNames.CIM_DEVICE_SERIAL_NUMBER.getAttributeName(), event.getAssets().getSerialNumber());
+                    }
                     if(event.getUsagePoint() != null) {
                         if (!event.getUsagePoint().getNames().isEmpty() ) {
                             values.put(CimUsagePointAttributeNames.CIM_USAGE_POINT_NAME.getAttributeName(), event.getUsagePoint().getNames().get(0).getName());
