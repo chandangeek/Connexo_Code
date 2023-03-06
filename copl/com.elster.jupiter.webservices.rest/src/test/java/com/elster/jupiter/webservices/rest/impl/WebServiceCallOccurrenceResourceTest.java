@@ -355,7 +355,7 @@ public class WebServiceCallOccurrenceResourceTest extends WebServicesApplication
 
 
     private WebServiceCallOccurrence createOccurrence(Instant time, String request, String application, EndPointConfiguration endPointConfiguration) {
-        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServicesService, threadPrincipalService, thesaurus)
+        return new WebServiceCallOccurrenceImpl(dataModel, transactionService, webServiceCallOccurrenceService, webServicesService, threadPrincipalService, thesaurus)
                 .init(time, request, application, endPointConfiguration);
     }
 }

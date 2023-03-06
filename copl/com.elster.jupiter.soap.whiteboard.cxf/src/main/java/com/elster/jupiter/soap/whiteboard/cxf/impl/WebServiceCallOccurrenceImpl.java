@@ -7,6 +7,7 @@ import com.elster.jupiter.nls.LocalizedException;
 import com.elster.jupiter.nls.Thesaurus;
 import com.elster.jupiter.orm.DataModel;
 import com.elster.jupiter.orm.LiteralSql;
+import com.elster.jupiter.orm.Table;
 import com.elster.jupiter.orm.UnderlyingSQLFailedException;
 import com.elster.jupiter.orm.associations.Reference;
 import com.elster.jupiter.security.thread.ThreadPrincipalService;
@@ -16,6 +17,7 @@ import com.elster.jupiter.soap.whiteboard.cxf.EndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.LogLevel;
 import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointProvider;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrence;
+import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceService;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServiceCallOccurrenceStatus;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.transaction.TransactionService;
@@ -31,6 +33,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,6 +48,7 @@ import static com.elster.jupiter.util.conditions.Where.where;
 public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, HasId {
     private final DataModel dataModel;
     private final TransactionService transactionService;
+    private final WebServiceCallOccurrenceService webServiceCallOccurrenceService;
     private final WebServicesService webServicesService;
     private final ThreadPrincipalService threadPrincipalService;
     private final Thesaurus thesaurus;
@@ -84,12 +88,13 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     @Inject
     public WebServiceCallOccurrenceImpl(DataModel dataModel,
                                         TransactionService transactionService,
-                                        WebServicesService webServicesService,
+                                        WebServiceCallOccurrenceService webServiceCallOccurrenceService, WebServicesService webServicesService,
                                         ThreadPrincipalService threadPrincipalService, Thesaurus thesaurus) {
         this.dataModel = dataModel;
         this.transactionService = transactionService;
+        this.webServiceCallOccurrenceService = webServiceCallOccurrenceService;
         this.webServicesService = webServicesService;
-        this.threadPrincipalService  = threadPrincipalService;
+        this.threadPrincipalService = threadPrincipalService;
         this.thesaurus = thesaurus;
     }
 
@@ -233,6 +238,9 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
     @Override
     public void saveRelatedAttribute(String key, String value) {
+
+        validateEntry(new AbstractMap.SimpleEntry<>(key, value));
+
         if (key != null && !Checks.is(value).emptyOrOnlyWhiteSpace()) {
             transactionService.runInIndependentTransaction(() -> {
                 String valueToSave = value.trim();
@@ -326,8 +334,8 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
     }
 
     private void validateEntry(Entry<String, String> entry) {
-        if (entry.getValue().length() > 80) {
-            throw new LocalizedException(thesaurus, MessageSeeds.FIELD_IS_TOO_LONG, entry.getKey()) {};
+        if (entry.getValue().length() > Table.NAME_LENGTH) {
+            throw new LocalizedException(thesaurus, MessageSeeds.FIELD_IS_TOO_LONG, webServiceCallOccurrenceService.translateAttributeType(entry.getKey())) {};
         }
     }
 
