@@ -17,7 +17,7 @@ import com.energyict.mdc.protocol.inbound.mbus.factory.registers.RegisterFactory
 import com.energyict.mdc.protocol.inbound.mbus.factory.status.CellInfoFactory;
 import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.mocks.MockCollectedRegisterList;
-import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
+import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMBusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.TelegramVariableDataRecord;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
@@ -35,9 +35,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
@@ -49,7 +46,7 @@ import static org.mockito.Mockito.when;
 @RunWith(MockitoJUnitRunner.class)
 public class MerlinMbusParserTest extends TestCase {
 
-    private byte[] genericMbus = ProtocolTools.getBytesFromHexString("6887876808087278563412B43401050010000004174D370000053E00000000040764E20000052E00000000041F59000000055300000000055B00004C43055F0000D64205630000C242056BCA9B39404568F8BD17BE37FD1700020000000000000421EA8600000C6D20092A220CFD0C110202104C6D0000C181441700000000440700000000441F000000003816", 2);
+    private final byte[] genericMbus = ProtocolTools.getBytesFromHexString("6887876808087278563412B43401050010000004174D370000053E00000000040764E20000052E00000000041F59000000055300000000055B00004C43055F0000D64205630000C242056BCA9B39404568F8BD17BE37FD1700020000000000000421EA8600000C6D20092A220CFD0C110202104C6D0000C181441700000000440700000000441F000000003816", 2);
 
     private static final byte[] DAILY_FRAME_ENCRYPTED1 = ProtocolTools.getBytesFromHexString("AF447F2D3677B0FDD7EA7A000A0A25A26FC62003678CC6CFE83A23471E8D560ABC3A039A1024F0638D1BF1ECB42BC1DDFBEA7DDB6D876F5D492B46B07B7931DDFBEA7DDB6D876F5D492B46B07B793159A3C770AE0B23BA00E2F495497E7885E8801478E5A5AEFE4E94B8F9C901A194153EF17AE142774AD546B336B8D9ECB747D74F23D5A56D34DA66ACC54A034154979300A47BDD23DC68028E75DEECA20A96CCAE13CB7C36B71134F753410CCCA9", "");
 
@@ -73,25 +70,16 @@ public class MerlinMbusParserTest extends TestCase {
     private static final byte[] NRT_FRAME_ENCRYPTED = ProtocolTools.getBytesFromHexString("2F4407070777700000007A50972025445F85D4621E087B3B3E5D3B4BD1EF6B43A25EA1C90387A941B1DBF816CF9853","");
     private static final byte[] NRT_FRAME_DECRYPTED = ProtocolTools.getBytesFromHexString("2F4407070777700000007A509720252F2F84046D130BD428123B0000223B00000493C31200000003FD971D041300F0","");
 
-    private static String key1 = "4F A7 0B 24 46 5F 81 4A 66 76 31 77 3A 39 76 44"; //ProtocolTools.getBytesFromHexString("4FA70B24465F814A667631773A397644", "");
+    private static final String key1 = "4F A7 0B 24 46 5F 81 4A 66 76 31 77 3A 39 76 44"; //ProtocolTools.getBytesFromHexString("4FA70B24465F814A667631773A397644", "");
 
-    private static String key2 = "01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01"; //ProtocolTools.getBytesFromHexString("4FA70B24465F814A667631773A397644", "");
+    private static final String key2 = "01 01 01 01 01 01 01 01 01 01 01 01 01 01 01 01"; //ProtocolTools.getBytesFromHexString("4FA70B24465F814A667631773A397644", "");
 
-    private static byte[] iv = ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
+    private static final byte[] iv = ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
 
     @Mock
     private InboundDiscoveryContext inboundDiscoveryContext;
 
     private final CollectedDataFactory collectedDataFactory = new MockCollectedDataFactory();
-
-    /* TODO: add unencrypted
-    @Test
-    public void testGenericMbus() throws IOException, SQLException {
-        MerlinMbusParser parser = new MerlinMbusParser(new InboundContext(new MerlinLogger(Logger.getAnonymousLogger())));
-
-        parser.parse(genericMbus);
-    }
-    */
 
     @Before
     public void setUp(){
@@ -119,9 +107,9 @@ public class MerlinMbusParserTest extends TestCase {
 
 
     @Test
-    public void testDailyFrameEncrypted1() throws IOException, SQLException {
+    public void testDailyFrameEncrypted1() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED1);
         inboundContext.setEncryptionKey(key1);
@@ -138,17 +126,17 @@ public class MerlinMbusParserTest extends TestCase {
 
         // snapshot value
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
-        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
+        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
 
         // snapshot value
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getDataField().getParsedValue());
-        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getmUnit().getValue());
+        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
 
         // battery data
         assertEquals("1" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getDataField().getParsedValue());
-        assertEquals("none", parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getVif().getmUnit().getValue());
+        assertEquals("none", parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getVif().getMeasureUnit().getValue());
         assertEquals(0, parser.getTelegram().getBody().getBodyPayload().getRecords().get(11).getVif().getMultiplier());
 
         // profile
@@ -166,9 +154,9 @@ public class MerlinMbusParserTest extends TestCase {
 
 
     @Test
-    public void testDailyFrameEncrypted2() throws IOException, SQLException {
+    public void testDailyFrameEncrypted2() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED2);
         inboundContext.setEncryptionKey(key1);
@@ -183,19 +171,17 @@ public class MerlinMbusParserTest extends TestCase {
 
         // snapshot value
         assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
-        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
+        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
-
-        // profile data - todo
 
         // max flow data
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getDataField().getParsedValue());
-        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getmUnit().getValue());
+        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
 
         // min flow data
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getDataField().getParsedValue());
-        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getmUnit().getValue());
+        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(6).getVif().getMultiplier());
 
 
@@ -207,9 +193,9 @@ public class MerlinMbusParserTest extends TestCase {
 
 
     @Test
-    public void testWeeklyFrameEncrypted() throws IOException, SQLException {
+    public void testWeeklyFrameEncrypted() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(WEEKLY_FRAME_ENCRYPTED);
         inboundContext.setEncryptionKey(key1);
@@ -223,16 +209,16 @@ public class MerlinMbusParserTest extends TestCase {
 
         // snapshot value
         assertEquals("48980" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
-        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
+        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
 
     }
 
 
     @Test
-    public void testNTRFrameEncrypted() throws IOException, SQLException {
+    public void testNTRFrameEncrypted() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(NRT_FRAME_ENCRYPTED);
         inboundContext.setEncryptionKey(key1);
@@ -247,17 +233,17 @@ public class MerlinMbusParserTest extends TestCase {
 
         // max flow data
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getDataField().getParsedValue());
-        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getmUnit().getValue());
+        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(3).getVif().getMultiplier());
 
         // min flow data
         assertEquals("0" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getDataField().getParsedValue());
-        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getVif().getmUnit().getValue());
+        assertEquals("m3/h", parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(4).getVif().getMultiplier());
 
         // back flow
         assertEquals("18" , parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getDataField().getParsedValue());
-        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getmUnit().getValue());
+        assertEquals("m3", parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMeasureUnit().getValue());
         assertEquals(-3, parser.getTelegram().getBody().getBodyPayload().getRecords().get(5).getVif().getMultiplier());
 
         // error flags
@@ -268,7 +254,7 @@ public class MerlinMbusParserTest extends TestCase {
     @Test
     public void testRegisterParserDaily(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED2);
         inboundContext.setEncryptionKey(key1);
@@ -294,7 +280,7 @@ public class MerlinMbusParserTest extends TestCase {
     @Test
     public void testRegisterParserWeekly(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(WEEKLY_FRAME_ENCRYPTED);
         inboundContext.setEncryptionKey(key1);
@@ -313,7 +299,7 @@ public class MerlinMbusParserTest extends TestCase {
     @Test
     public void testRegisterParserNTR() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(NRT_FRAME_ENCRYPTED);
         inboundContext.setEncryptionKey(key1);
@@ -338,7 +324,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testLoadProfileParser(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED2);
         inboundContext.setEncryptionKey(key1);
@@ -367,7 +353,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(48980, startIndex);
 
-        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+        CollectedLoadProfile lp = factory.getCollectedLoadProfile();
 
         assertEquals(24, lp.getCollectedIntervalData().size());
     }
@@ -391,7 +377,9 @@ public class MerlinMbusParserTest extends TestCase {
     }
 
     private String pad(String s, int length) {
-        while (s.length() < length) s = s + ' ';
+        StringBuilder sBuilder = new StringBuilder(s);
+        while (sBuilder.length() < length) sBuilder.append(' ');
+        s = sBuilder.toString();
         return s;
     }
 
@@ -409,7 +397,7 @@ public class MerlinMbusParserTest extends TestCase {
 
     private void dump(byte[] frame, String name, String key) {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(frame);
         inboundContext.setEncryptionKey(key);
@@ -441,12 +429,12 @@ public class MerlinMbusParserTest extends TestCase {
                 if (r.getVif().getType() != null) {
                     System.out.print(pad(r.getVif().getType().toString(), 20));
                     System.out.print(SEP);
-                    System.out.print(pad(r.getVif().getmUnit().toString(), 10));
+                    System.out.print(pad(r.getVif().getMeasureUnit().toString(), 10));
                     System.out.print(SEP);
                     if (r.getDataField().getFieldParts().size() == 3) {
-                        System.out.print(r.getDataField().getFieldParts().get(1).toString()); // SCB
+                        System.out.print(r.getDataField().getFieldParts().get(1)); // SCB
                         System.out.print(SEP);
-                        System.out.print(r.getDataField().getFieldParts().get(2).toString()); // SPACING
+                        System.out.print(r.getDataField().getFieldParts().get(2)); // SPACING
                     } else {
                         System.out.print("--");
                         System.out.print(SEP);
@@ -477,7 +465,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testLoadProfileParserDailyLP(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(WEEKLY_FRAME_ENCRYPTED);
         inboundContext.setEncryptionKey(key1);
@@ -506,7 +494,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(48980, startIndex);
 
-        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+        CollectedLoadProfile lp = factory.getCollectedLoadProfile();
 
         assertEquals(14, lp.getCollectedIntervalData().size());
     }
@@ -515,7 +503,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testStatusEvents(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED1);
         inboundContext.setEncryptionKey(key1);
@@ -533,7 +521,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testEventFlagsDaily1() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED1);
         inboundContext.setEncryptionKey(key1);
@@ -557,7 +545,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testEventFlagsDaily2() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED2);
         inboundContext.setEncryptionKey(key1);
@@ -572,7 +560,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(4, standardLogBook.getCollectedMeterEvents().size());
         assertEquals("Stuck meter (no consumption)", standardLogBook.getCollectedMeterEvents().get(0).getMessage());
-        assertEquals("Actual Removal", standardLogBook.getCollectedMeterEvents().get(1).getMessage());
+        assertEquals("Actual removal", standardLogBook.getCollectedMeterEvents().get(1).getMessage());
         assertEquals("High temp", standardLogBook.getCollectedMeterEvents().get(2).getMessage());
         assertEquals("Battery usage indicator above or critical", standardLogBook.getCollectedMeterEvents().get(3).getMessage());
 
@@ -584,7 +572,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testEventFlagsNTR() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(NRT_FRAME_ENCRYPTED);
         inboundContext.setEncryptionKey(key1);
@@ -599,7 +587,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(4, standardLogBook.getCollectedMeterEvents().size());
         assertEquals("Stuck meter (no consumption)", standardLogBook.getCollectedMeterEvents().get(0).getMessage());
-        assertEquals("Actual Removal", standardLogBook.getCollectedMeterEvents().get(1).getMessage());
+        assertEquals("Actual removal", standardLogBook.getCollectedMeterEvents().get(1).getMessage());
         assertEquals("High temp", standardLogBook.getCollectedMeterEvents().get(2).getMessage());
         assertEquals("Battery usage indicator above or critical", standardLogBook.getCollectedMeterEvents().get(3).getMessage());
 
@@ -612,7 +600,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testDailyFrame3(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED3_REAL_DATA);
         inboundContext.setEncryptionKey(key2);
@@ -643,7 +631,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(42088, startIndex);
 
-        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+        CollectedLoadProfile lp = factory.getCollectedLoadProfile();
 
         assertEquals(96, lp.getCollectedIntervalData().size());
         assertEquals(42088, lp.getCollectedIntervalData().get(0).getIntervalValues().get(0).getNumber().intValue());
@@ -655,8 +643,6 @@ public class MerlinMbusParserTest extends TestCase {
         CollectedLogBook standardLogBook = eventFactory.extractEventsFromStatus();
         assertEquals(7, standardLogBook.getCollectedMeterEvents().size());
 
-        //FIX me: why we have this discrepancy, to check with R&D
-        //assertEquals("Abnormal condition", events.getCollectedMeterEvents().get(0).getMessage());
         assertEquals(StatusEventMapping.POWER_LOW.getMessage(), standardLogBook.getCollectedMeterEvents().get(1).getMessage());
         assertEquals(StatusEventMapping.PERMANENT_ERROR_NO.getMessage(), standardLogBook.getCollectedMeterEvents().get(2).getMessage());
         assertEquals(StatusEventMapping.TEMPORARY_ERROR.getMessage(), standardLogBook.getCollectedMeterEvents().get(3).getMessage());
@@ -668,7 +654,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testWeeklyFrame2Real(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(WEEKLY_FRAME_ENCRYPTED_2_REAL);
         inboundContext.setEncryptionKey(key2);
@@ -699,7 +685,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(26953, startIndex);
 
-        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+        CollectedLoadProfile lp = factory.getCollectedLoadProfile();
 
         assertEquals(14, lp.getCollectedIntervalData().size());
 
@@ -714,7 +700,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testDailyFrame4(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED4_REAL_DATA);
         inboundContext.setEncryptionKey(key2);
@@ -745,7 +731,7 @@ public class MerlinMbusParserTest extends TestCase {
 
         assertEquals(649952, startIndex);
 
-        CollectedLoadProfile lp = (CollectedLoadProfile) factory.getCollectedLoadProfile();
+        CollectedLoadProfile lp = factory.getCollectedLoadProfile();
 
         assertEquals(24, lp.getCollectedIntervalData().size());
         assertEquals(649952, lp.getCollectedIntervalData().get(0).getIntervalValues().get(0).getNumber().intValue());
@@ -753,19 +739,16 @@ public class MerlinMbusParserTest extends TestCase {
         assertEquals(649952 , lp.getCollectedIntervalData().get(2).getIntervalValues().get(0).getNumber().intValue());
 
         // status events
-        /*
         StatusEventsFactory eventFactory = new StatusEventsFactory(parser.getTelegram(), inboundContext);
-
 
         CollectedLogBook events = eventFactory.extractEventsFromStatus();
 
         assertEquals(7, events.getCollectedMeterEvents().size());
 
-        //FIXME: why different?
-        //assertEquals("Abnormal condition", events.getCollectedMeterEvents().get(0).getMessage());
+        assertEquals("Application Error", events.getCollectedMeterEvents().get(0).getMessage());
         assertEquals("Power OK", events.getCollectedMeterEvents().get(1).getMessage());
         assertEquals("Permanent error", events.getCollectedMeterEvents().get(2).getMessage());
-        */
+
 
         // error flags
         TelegramVariableDataRecord eventRecord = parser.getTelegram().getBody().getBodyPayload().getRecords().get(8);
@@ -782,7 +765,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testDailyFrame3Factory(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED3_REAL_DATA);
         inboundContext.setEncryptionKey(key2);
@@ -797,7 +780,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testDailyFrame1Factory(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED1);
         inboundContext.setEncryptionKey(key1);
@@ -822,7 +805,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testCellIdDailyFrame1(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED1);
         inboundContext.setEncryptionKey(key1);
@@ -889,7 +872,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testCellIdDailyFrame3(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED3_REAL_DATA);
         inboundContext.setEncryptionKey(key2);
@@ -937,7 +920,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testRealPushFromDavidMeter() {
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_DAVID_2_REPROGRAMED);
         inboundContext.setEncryptionKey(key2);
@@ -963,7 +946,7 @@ public class MerlinMbusParserTest extends TestCase {
     public void testInvalidDecryption(){
         InboundContext inboundContext = new InboundContext(new MerlinLogger(Logger.getAnonymousLogger()), getContext());
         inboundContext.setTimeZone(ZoneId.of("Europe/Athens"));
-        MerlinMbusParser parser = new MerlinMbusParser(inboundContext);
+        MerlinMBusParser parser = new MerlinMBusParser(inboundContext);
 
         parser.parseHeader(DAILY_FRAME_ENCRYPTED3_REAL_DATA);
         inboundContext.setEncryptionKey(key1); //incorrect key

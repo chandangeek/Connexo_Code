@@ -8,14 +8,14 @@ import java.util.List;
 public class Converter {
 
     public static String convertByteArrayToString(byte[] byteArr) {
-        StringBuffer hexString = new StringBuffer();
-        for (int i = 0; i < byteArr.length; i++) {
-            String hex = Integer.toHexString(0xFF & byteArr[i]);
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : byteArr) {
+            String hex = Integer.toHexString(0xFF & b);
             if (hex.length() == 1) {
                 // could use a for loop, but we're only dealing with a single byte
                 hexString.append('0');
             }
-            hexString.append(hex + " ");
+            hexString.append(hex).append(" ");
         }
         return hexString.toString();
     }
@@ -58,7 +58,7 @@ public class Converter {
             // thus we have to check which part of the result we have to use
             byte[] byteArrTemp = new BigInteger(inputStr.get(i), 16).toByteArray();
             fByteArr[i] = byteArrTemp[0];
-            if(byteArrTemp.length > 1) {
+            if (byteArrTemp.length > 1) {
                 fByteArr[i] = byteArrTemp[1];
             }
         }
@@ -67,8 +67,8 @@ public class Converter {
 
     public static String convertListToString(List<String> inputStr) {
         String retString = "";
-        for(int i = 0; i < inputStr.size(); i++) {
-            retString = retString + inputStr.get(i);
+        for (String s : inputStr) {
+            retString = retString + s;
         }
         return retString;
     }

@@ -1,13 +1,15 @@
-package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 
+package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 public class TelegramVariableDataRecord {
 
@@ -44,8 +46,8 @@ public class TelegramVariableDataRecord {
     }
 
     public void addDifes(List<DIFETelegramField> difes) {
-        if(this.difes == null) {
-            this.difes = new ArrayList<DIFETelegramField>();
+        if (this.difes == null) {
+            this.difes = new ArrayList<>();
             this.difes.addAll(difes);
         }
     }
@@ -67,8 +69,8 @@ public class TelegramVariableDataRecord {
     }
 
     public void addVifes(List<VIFETelegramField> vifes) {
-        if(this.vifes == null) {
-            this.vifes = new ArrayList<VIFETelegramField>();
+        if (this.vifes == null) {
+            this.vifes = new ArrayList<>();
             this.vifes.addAll(vifes);
         }
     }
@@ -87,27 +89,27 @@ public class TelegramVariableDataRecord {
 
     public void debugOutput(StringJoiner joiner) {
         joiner.add("VARIABLE DATA RECORD: ");
-        if(this.dif != null) {
+        if (this.dif != null) {
             this.dif.debugOutput(joiner);
         }
 
-        if(this.difes != null) {
-            for(int i = 0; i < this.difes.size(); i++) {
-                this.difes.get(i).debugOutput(joiner);
+        if (this.difes != null) {
+            for (DIFETelegramField dife : this.difes) {
+                dife.debugOutput(joiner);
             }
         }
 
-        if(this.vif != null) {
+        if (this.vif != null) {
             this.vif.debugOutput();
         }
 
-        if(this.vifes != null) {
-            for(int i = 0; i < this.vifes.size(); i++) {
-                this.vifes.get(i).debugOutput(joiner);
+        if (this.vifes != null) {
+            for (VIFETelegramField vife : this.vifes) {
+                vife.debugOutput(joiner);
             }
         }
 
-        if(this.dataField != null) {
+        if (this.dataField != null) {
             this.dataField.debugOutput(joiner);
         }
         joiner.add("==================================================");

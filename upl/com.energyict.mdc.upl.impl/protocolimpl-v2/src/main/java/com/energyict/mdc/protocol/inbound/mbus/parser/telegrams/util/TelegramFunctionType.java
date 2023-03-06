@@ -10,9 +10,9 @@ public enum TelegramFunctionType {
     SPECIAL_FUNCTION_FILL_BYTE(5),
     USER_DEFINED_CELL_ID(6);
 
-    private int value;
+    private final int value;
 
-    private TelegramFunctionType(int value) {
+    TelegramFunctionType(int value) {
         this.value = value;
     }
 

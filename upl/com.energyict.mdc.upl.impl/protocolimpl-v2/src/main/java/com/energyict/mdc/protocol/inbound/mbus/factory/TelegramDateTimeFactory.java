@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory;
 
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
@@ -9,10 +14,10 @@ import java.util.Optional;
 public class TelegramDateTimeFactory {
 
     public static Instant from(Telegram telegram, InboundContext inboundContext) {
-        if (telegram.getBody().getBodyPayload().getRecords().size() >= 2){
+        if (telegram.getBody().getBodyPayload().getRecords().size() > 2){
             Optional<Instant> parsedTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getTimeValue();
             if (parsedTime.isPresent()) {
-                inboundContext.getLogger().info("Proper telegram date-time extracted: " + parsedTime.get().toString());
+                inboundContext.getLogger().info("Proper telegram date-time extracted: " + parsedTime.get());
                 return parsedTime.get();
             } else {
                 String dateTime = telegram.getBody().getBodyPayload().getRecords().get(2).getDataField().getParsedValue();

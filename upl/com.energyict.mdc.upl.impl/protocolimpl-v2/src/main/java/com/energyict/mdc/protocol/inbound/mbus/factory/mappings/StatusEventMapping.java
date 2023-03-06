@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 package com.energyict.mdc.protocol.inbound.mbus.factory.mappings;
 
 import com.energyict.protocol.MeterEvent;
@@ -33,6 +37,7 @@ import com.energyict.protocol.MeterEvent;
  *      0b1 :a removal (or cable cut) detected
  * ---------------------------------------------------
  */
+
 public enum StatusEventMapping {
 
     APPLICATION_OK          (false,0x03, 0,0 , "Application OK", MeterEvent.WATER_APPLICATION_OK),

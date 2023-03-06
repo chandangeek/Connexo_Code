@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory;
 
 import com.energyict.cbo.Unit;
@@ -8,16 +13,15 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.MeasureUnit
 public class UnitFactory {
 
     public static Unit findConnexoUnitFor(String unitName, int unitScale) {
-        Unit unit = Unit.get(unitName, unitScale);
-        return unit;
+        return Unit.get(unitName, unitScale);
     }
 
     public static Unit from(TelegramVariableDataRecord record, InboundContext inboundContext) {
-        if (MeasureUnit.NONE.equals(record.getVif().getmUnit())){
+        if (MeasureUnit.NONE.equals(record.getVif().getMeasureUnit())){
             return Unit.getUndefined();
         }
 
-        String unitName = record.getVif().getmUnit().getValue();
+        String unitName = record.getVif().getMeasureUnit().getValue();
         int unitScale = record.getVif().getMultiplier();
 
         try {

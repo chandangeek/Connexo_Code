@@ -26,9 +26,9 @@ public enum MeasureUnit {
     NONE("none"),
     EPOCH_TIME("epoch time"),;
 
-    private String value;
+    private final String value;
 
-    private MeasureUnit(String value) {
+    MeasureUnit(String value) {
         this.value = value;
     }
 

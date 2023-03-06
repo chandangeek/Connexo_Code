@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory;
 
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
@@ -29,7 +34,6 @@ public class MerlinMBusCollectedDataFactory implements MerlinCollectedDataFactor
     private List<CollectedData> collectedDataList;
 
     private CollectedLoadProfile dailyLoadProfile;
-    private List<CollectedLogBook> collectedLogBooks;
     private CollectedLoadProfile nightLineProfile;
 
     public MerlinMBusCollectedDataFactory(Telegram telegram, InboundContext inboundContext) {
@@ -106,15 +110,10 @@ public class MerlinMBusCollectedDataFactory implements MerlinCollectedDataFactor
             collectedDataList.add(nightLineProfile);
         }
 
-        if (collectedLogBooks.size() > 0) {
-            collectedDataList.addAll(collectedLogBooks);
-        }
-
         return collectedDataList;
     }
 
     private void createCollectionContainers() {
-        collectedLogBooks = new ArrayList<>();
         CollectedDataFactory factory = inboundContext.getInboundDiscoveryContext().getCollectedDataFactory();
         collectedRegisterList = factory.createCollectedRegisterList(getDeviceIdentifier());
     }
@@ -173,7 +172,7 @@ public class MerlinMBusCollectedDataFactory implements MerlinCollectedDataFactor
                 inboundContext.getLogger().error("Exception while extracting hourly profile", ex);
             }
 
-            // check if can be decoded as weekly profile
+            // check if can be decoded as daily profile
             try {
                 CollectedLoadProfile tentative = dailyProfileFactory.extractLoadProfile(profileRecord, indexRecord);
                 if (tentative != null) {

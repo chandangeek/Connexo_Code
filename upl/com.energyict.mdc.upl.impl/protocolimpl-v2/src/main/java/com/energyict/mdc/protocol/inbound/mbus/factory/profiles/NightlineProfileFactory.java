@@ -13,7 +13,7 @@ import com.energyict.obis.ObisCode;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
-public class NightlineProfileFactory extends AbstractProfileFactory{
+public class NightlineProfileFactory extends AbstractProfileFactory {
 
     /* for now use 4am in the morning as default, but this can be configured */
     /* FW R&D will implement a parameter */

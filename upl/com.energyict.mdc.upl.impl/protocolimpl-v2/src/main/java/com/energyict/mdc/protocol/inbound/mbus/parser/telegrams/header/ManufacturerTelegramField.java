@@ -1,5 +1,9 @@
-package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.header;
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 
+package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.header;
 
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
@@ -7,8 +11,8 @@ import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.util.Converter;
 
 public class ManufacturerTelegramField extends TelegramField {
 
-    private static int MASK_5_BIT = 0x1F; 		// FIRST 5-BIT-MASK
-    private static int MASK_10_BIT = 0x3FF; 	// FIRST 10-BIT-MASK
+    private static final int MASK_5_BIT = 0x1F; 		// FIRST 5-BIT-MASK
+    private static final int MASK_10_BIT = 0x3FF; 	// FIRST 10-BIT-MASK
 
     public ManufacturerTelegramField(MerlinLogger logger) {
         super(logger);

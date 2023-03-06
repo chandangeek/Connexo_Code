@@ -7,10 +7,10 @@ public enum TelegramDateMasks {
     EXT_TIME(0x03, "Extended Date"),				// 0011 Type J
     EXT_DATE_TIME(0x06, "Extended Date and Time");	// 0110 Type I
 
-    private int value;
-    private String desc;
+    private final int value;
+    private final String desc;
 
-    private TelegramDateMasks(int value, String desc) {
+    TelegramDateMasks(int value, String desc) {
         this.value = value;
         this.desc = desc;
     }

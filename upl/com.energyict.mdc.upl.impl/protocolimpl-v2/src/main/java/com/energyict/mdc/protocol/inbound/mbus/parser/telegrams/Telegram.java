@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams;
 
 
@@ -32,9 +37,9 @@ public class Telegram {
     }
 
     public void createTelegram(String[] telegram, boolean crc) {
-        int headerLength = TelegramHeader.headerLengthCRC;
+        int headerLength = TelegramHeader.HEADER_LENGTH_CRC;
         if (!crc) {
-            headerLength = TelegramHeader.headerLengthNoCRC;
+            headerLength = TelegramHeader.HEADER_LENGTH_NO_CRC;
         }
 
         String[] headerPart = Arrays.copyOfRange(telegram, 0, headerLength + 1);
@@ -61,7 +66,7 @@ public class Telegram {
     }
 
     public boolean decryptTelegram(String aesKey) {
-        if(aesKey == null){
+        if (aesKey == null){
             this.getBody().getBodyPayload().setDecryptedTelegramBodyPayload(this.getBody().getBodyPayload().getEncryptedPayload());
             return false;
         }
@@ -78,7 +83,6 @@ public class Telegram {
             while (start <= length - BLOCK_SIZE) {
                 byte[] payloadArr = Converter.convertStringListToByteArray(this.getBody().getBodyPayload().getPayloadAsList().subList(start, start+BLOCK_SIZE));
 
-                //logger.debug("\t EB: " + Converter.convertByteArrayToString(payloadArr).replace(" ",""));
                 byte[] result = AESEncrypt.decrypt(payloadArr, keyArr, initCTRVArr);
 
                 System.arraycopy(result, 0, decryptedResult, start, BLOCK_SIZE);
@@ -95,7 +99,6 @@ public class Telegram {
                 logger.error("Cannot decrypt telegram! Decrypted payload is: [" + decryptedPayload + "]");
             }
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Error decrypting telegram", e);
             return false;
         }
@@ -118,12 +121,14 @@ public class Telegram {
 
 
     public byte[] getAESCBCInitVector() {
-        byte[] properInitVector = this.generateAESCBCInitVector();
+        //byte[] properInitVector = this.generateAESCBCInitVector();
         byte[] dummyInitVector = ProtocolTools.getBytesFromHexString("00000000000000000000000000000000", "");
-        //logger.debug("Proper init-vector: " + Converter.convertByteArrayToString(properInitVector).replace(" ",""));
         return dummyInitVector;
     }
 
+    /**
+     * The standard AES-CBC Initialization vector
+     */
     private byte[] generateAESCBCInitVector() {
         byte[] aesCbcInitVector = new byte[16];
         byte[] aesCbcInitVectorHeaderPart = this.header.getAESCBCInitVectorPart();
@@ -136,10 +141,10 @@ public class Telegram {
 
     public String debugOutput() {
         StringJoiner joiner = new StringJoiner("\n");
-        if(this.header != null) {
+        if (this.header != null) {
             this.header.debugOutput(joiner);
         }
-        if(this.body != null) {
+        if (this.body != null) {
             this.body.debugOutput(joiner);
         }
         return joiner.toString();

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.mdc.identifiers.DeviceIdentifierBySerialNumber;
@@ -7,7 +12,7 @@ import com.energyict.mdc.protocol.inbound.mbus.check.CheckFrameParser;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMBusCollectedDataFactory;
 import com.energyict.mdc.protocol.inbound.mbus.factory.MerlinMetaDataExtractor;
-import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMbusParser;
+import com.energyict.mdc.protocol.inbound.mbus.parser.MerlinMBusParser;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.upl.BinaryInboundDeviceProtocol;
 import com.energyict.mdc.upl.InboundDiscoveryContext;
@@ -34,9 +39,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
     protected ComChannel comChannel;
     protected CollectedLogBook collectedLogBook;
 
-    private List<CollectedDeviceInfo> collectedDeviceInfoList;
-    private List<CollectedData> collectedDataList;
-    private MerlinMbusParser parser; // delegate parsing to dedicated class for ease of testing
+    private MerlinMBusParser parser; // delegate parsing to dedicated class for ease of testing
     private InboundContext inboundContext; // all overhead required
     private MerlinCollectedDataFactory factory;
     private MerlinMetaDataExtractor metaDataFactory;
@@ -126,9 +129,9 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         return DiscoverResultType.DATA;
     }
 
-    private MerlinMbusParser getParser() {
+    private MerlinMBusParser getParser() {
         if (this.parser == null){
-            this.parser = new MerlinMbusParser(getInboundContext());
+            this.parser = new MerlinMBusParser(getInboundContext());
         }
 
         return this.parser;
@@ -162,7 +165,6 @@ public class Merlin implements BinaryInboundDeviceProtocol {
             getLogger().info("WARN: buffer overflow detected, will consider only the first " + BUFFER_SIZE + " bytes");
             payload = new byte[BUFFER_SIZE];
             System.arraycopy(buffer, 0, payload, 0, BUFFER_SIZE);
-            //TODO: keep reading ?
         }
 
         doParse(payload);
@@ -170,7 +172,7 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
     private String getSourceAddress() {
         return "n/a";
-       // ((com.energyict.mdc.channel.ip.datagrams.DatagramComChannel)comChannel).getRemoteAddress()
+        // ((com.energyict.mdc.channel.ip.datagrams.DatagramComChannel)comChannel).getRemoteAddress()
         //return getComChannel().getRemoteAddress().orElse("n/a");
     }
 

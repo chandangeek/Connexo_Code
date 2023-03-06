@@ -178,7 +178,7 @@ public class MerlinOutboundProtocol implements DeviceProtocol, SerialNumberSuppo
 
     @Override
     public List<PropertySpec> getUPLPropertySpecs() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 timeZonePropertySpec()
         );
     }
@@ -191,6 +191,7 @@ public class MerlinOutboundProtocol implements DeviceProtocol, SerialNumberSuppo
                 .named(PropertyTranslationKeys.V2_ELSTER_TIMEZONE.getKey(), PropertyTranslationKeys.V2_ELSTER_TIMEZONE)
                 .describedAs(PropertyTranslationKeys.V2_ELSTER_TIMEZONE_DESCRIPTION)
                 .addValues(timeZones)
+                .markExhaustive()
                 .setDefaultValue(TimeZone.getTimeZone("UTC"))
                 .markEditable()
                 .finish();

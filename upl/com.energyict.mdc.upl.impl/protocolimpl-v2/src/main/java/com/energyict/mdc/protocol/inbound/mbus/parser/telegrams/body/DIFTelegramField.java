@@ -1,5 +1,9 @@
-package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 
+package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
@@ -11,10 +15,10 @@ import java.util.StringJoiner;
 
 public class DIFTelegramField extends TelegramField {
 
-    private static int EXTENSION_BIT = 0x80; // 1000 0000
-    private static int LSB_SAVE_NUMBER_BIT = 0x40; // 0100 0000
-    private static int FUNCTION_MASK = 0x30; // 0011 0000
-    private static int DATA_FIELD_MASK = 0x0F; // 0000 1111
+    private static final int EXTENSION_BIT = 0x80; // 1000 0000
+    private static final int LSB_SAVE_NUMBER_BIT = 0x40; // 0100 0000
+    private static final int FUNCTION_MASK = 0x30; // 0011 0000
+    private static final int DATA_FIELD_MASK = 0x0F; // 0000 1111
 
     private static final int FILL_BYTES_MASK = 0x2F;
 
@@ -95,11 +99,12 @@ public class DIFTelegramField extends TelegramField {
                 return;
         }
 
-        if((iDifField & DIFTelegramField.EXTENSION_BIT) == DIFTelegramField.EXTENSION_BIT) {
+        if ((iDifField & DIFTelegramField.EXTENSION_BIT) == DIFTelegramField.EXTENSION_BIT) {
             logger.debug("\t - extension = true");
             this.extensionBit = true;
         }
-        if((iDifField & DIFTelegramField.LSB_SAVE_NUMBER_BIT) == DIFTelegramField.LSB_SAVE_NUMBER_BIT) {
+
+        if ((iDifField & DIFTelegramField.LSB_SAVE_NUMBER_BIT) == DIFTelegramField.LSB_SAVE_NUMBER_BIT) {
             this.saveNumberBit = true;
         }
 
@@ -156,7 +161,7 @@ public class DIFTelegramField extends TelegramField {
                 this.dataFieldEncoding = TelegramEncoding.ENCODING_BCD;
                 break;
             case 13:
-                this.dataFieldLength = 3; // FIXME -> 4 or 3?! TODO
+                this.dataFieldLength = 3; // Careful, can be 4 depending on variable length
                 this.dataFieldEncoding = TelegramEncoding.ENCODING_VARIABLE_LENGTH;
                 break;
             case 14:

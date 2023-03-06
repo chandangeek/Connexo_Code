@@ -1,11 +1,13 @@
-package com.energyict.mdc.protocol.inbound.mbus.parser;
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 
-import org.bouncycastle.util.Strings;
+package com.energyict.mdc.protocol.inbound.mbus.parser;
 
 public class AesVerification implements PacketParser {
     private byte byte1;
     private byte byte2;
-
 
     @Override
     public int parse(byte[] buffer, int startIndex) {

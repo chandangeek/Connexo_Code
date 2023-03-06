@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser;
 
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
@@ -5,12 +10,12 @@ import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.protocolimpl.utils.ProtocolTools;
 
-public class MerlinMbusParser {
+public class MerlinMBusParser {
     private Telegram telegram;
 
     private final InboundContext inboundContext;
 
-    public MerlinMbusParser(InboundContext inboundContext) {
+    public MerlinMBusParser(InboundContext inboundContext) {
         this.inboundContext = inboundContext;
     }
 

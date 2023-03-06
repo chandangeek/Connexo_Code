@@ -24,8 +24,8 @@ public class MerlinSecuritySupport extends AbstractSecuritySupport implements Le
 
     private static final String SECURITY_LEVEL_PROPERTY_NAME = "SecurityLevel";
     private static final String DATA_TRANSPORT_ENCRYPTION_KEY_LEGACY_PROPERTY_NAME = "DataTransportEncryptionKey";
-    private static final String authenticationTranslationKeyConstant = "MerlinSecuritySupport.authenticationlevel.";
-    private static final String encryptionTranslationKeyConstant = "MerlinSecuritySupport.encryptionlevel.";
+    private static final String AUTHENTICATION_TRANSLATION_KEY = "MerlinSecuritySupport.authenticationlevel.";
+    private static final String ENCRYPTION_TRANSLATION_KEY = "MerlinSecuritySupport.encryptionlevel.";
 
     public MerlinSecuritySupport(PropertySpecService propertySpecService) {
         super(propertySpecService);
@@ -115,8 +115,6 @@ public class MerlinSecuritySupport extends AbstractSecuritySupport implements Le
 
         final TypedProperties result = TypedProperties.empty();
         result.setAllProperties(LegacyPropertiesExtractor.getSecurityRelatedProperties(oldTypedProperties, encryptionLevel, getEncryptionAccessLevels()));
-
-        //Add properties that have a new key name or format (compared to EIServer 8.x)
 
         if (oldTypedProperties.hasValueFor(getDataTransportEncryptionKeyLegacyPropertyName()) && isRequiredOnThisLevel(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), encryptionLevel)) {
             result.setProperty(SecurityPropertySpecTranslationKeys.ENCRYPTION_KEY.toString(), oldTypedProperties.getStringProperty(getDataTransportEncryptionKeyLegacyPropertyName()));
@@ -225,7 +223,7 @@ public class MerlinSecuritySupport extends AbstractSecuritySupport implements Le
 
         @Override
         public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+            return ENCRYPTION_TRANSLATION_KEY + getId();
         }
 
         @Override
@@ -252,7 +250,7 @@ public class MerlinSecuritySupport extends AbstractSecuritySupport implements Le
 
         @Override
         public String getTranslationKey() {
-            return encryptionTranslationKeyConstant + getId();
+            return ENCRYPTION_TRANSLATION_KEY + getId();
         }
 
         @Override
@@ -282,7 +280,7 @@ public class MerlinSecuritySupport extends AbstractSecuritySupport implements Le
 
         @Override
         public String getTranslationKey() {
-            return authenticationTranslationKeyConstant + getId();
+            return AUTHENTICATION_TRANSLATION_KEY + getId();
         }
 
         @Override

@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory.registers;
 
 import com.energyict.cbo.Quantity;
@@ -20,7 +25,7 @@ import java.util.Optional;
 
 public class RegisterFactory extends AbstractMerlinFactory {
 
-    private CollectedRegisterList collectedRegisterList;
+    private final CollectedRegisterList collectedRegisterList;
 
     public RegisterFactory(Telegram telegram, InboundContext inboundContext, CollectedRegisterList collectedRegisterList) {
         super(telegram, inboundContext);

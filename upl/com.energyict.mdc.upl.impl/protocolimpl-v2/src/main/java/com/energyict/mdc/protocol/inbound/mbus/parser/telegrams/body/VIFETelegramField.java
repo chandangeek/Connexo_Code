@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
@@ -24,6 +29,5 @@ public class VIFETelegramField extends TelegramField {
     public void debugOutput(StringJoiner joiner) {
         joiner.add("VIFE-Field: ");
         joiner.add("\tExtension-Bit: \t" + this.extensionBit);
-        // TODO: finish
     }
 }

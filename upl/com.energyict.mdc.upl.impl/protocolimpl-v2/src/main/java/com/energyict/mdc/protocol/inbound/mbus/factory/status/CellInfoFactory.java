@@ -45,14 +45,6 @@ public class CellInfoFactory extends AbstractMerlinFactory {
     private static final int IDX_RELEASE_ASSIST_ENABLE  = 10;
     private static final int IDX_PAIRED_METER_ID        = 11;
 
-    // private static final int IDX_PAIRED_METER_ID        = 4;
-
-    //private static final int IDX_ACCUMULATED_TX_TIME    = 6;
-    //private static final int IDX_ACCUMULATED_RX_TIME    = 7;
-
-
-
-
     public CellInfoFactory(Telegram telegram, InboundContext inboundContext) {
         super(telegram, inboundContext);
     }
@@ -61,7 +53,6 @@ public class CellInfoFactory extends AbstractMerlinFactory {
     public ObisCode getObisCode() {
         return null; // not applicable
     }
-
 
     public TelegramFunctionType applicableFunctionType() {
         return TelegramFunctionType.USER_DEFINED_CELL_ID;

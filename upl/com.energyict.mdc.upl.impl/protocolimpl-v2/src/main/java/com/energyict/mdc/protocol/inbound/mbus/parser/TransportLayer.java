@@ -1,9 +1,14 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser;
 
 public class TransportLayer implements PacketParser{
     private byte header;
     private byte tplAccessNumber;
-    private byte meterState; // TODO: enum here
+    private byte meterState;
     private int configField;
 
 
@@ -21,13 +26,11 @@ public class TransportLayer implements PacketParser{
     @Override
     public String toString() {
         final String SEP = ", ";
-        StringBuilder sb = new StringBuilder();
-        sb.append("TransportLayer: ");
-        sb.append("header=").append(String.format("%02X", getHeader())).append("h").append(SEP);
-        sb.append("TPL access number=").append(String.format("%02X", getTplAccessNumber())).append("h").append(SEP);
-        sb.append("Meter State=").append(String.format("%8s",  Integer.toBinaryString(getMeterState() & 0xFF)).replace(' ', '0')).append("").append(SEP);
-        sb.append("Config field=").append(String.format("%02X", getConfigField())).append("h").append(SEP);
-        return sb.toString();
+        return "TransportLayer: " +
+                "header=" + String.format("%02X", getHeader()) + "h" + SEP +
+                "TPL access number=" + String.format("%02X", getTplAccessNumber()) + "h" + SEP +
+                "Meter State=" + String.format("%8s", Integer.toBinaryString(getMeterState() & 0xFF)).replace(' ', '0') + SEP +
+                "Config field=" + String.format("%02X", getConfigField()) + "h" + SEP;
     }
 
     public byte getHeader() {

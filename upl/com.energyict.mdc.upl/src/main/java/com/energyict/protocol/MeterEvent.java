@@ -1950,11 +1950,11 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
             case WATER_APPLICATION_OK:
                 return "Application OK";
             case WATER_APPLICATION_BUSY:
-                return "Application Busy";
+                return "Application busy";
             case WATER_APPLICATION_ERROR:
-                return "Application Error";
+                return "Application error";
             case WATER_ABNORMAL_SITUATION:
-                return "Abnormal Situation";
+                return "Abnormal situation";
             case WATER_POWER_OK:
                 return "Power OK";
             case WATER_POWER_LOW:
@@ -1996,13 +1996,13 @@ public class MeterEvent implements Serializable, Comparable<MeterEvent> {
             case WATER_FROST_RISK:
                 return "Frost risk";
             case WATER_ACTUAL_REMOVAL:
-                return "Actual Removal";
+                return "Actual removal";
             case WATER_HIGH_TEMP:
                 return "High temp";
             case WATER_CLOCK_SYNC:
                 return "Clock sync";
             case WATER_MAGNETIC_FIELD_FLAG:
-                return "Actual Magnetic field flag";
+                return "Actual magnetic field flag";
             case WATER_BATTERY_USAGE_INDICATOR:
                 return "Battery usage indicator above or critical";
             case WATER_ACTUAL_BURST:

@@ -41,9 +41,9 @@ public enum VIFUnitMultiplierMasks {
     ANY_VIF(0x7E),		// E111 1110
     MANUFACTURER_SPEC(0x7F);	// E111 1111
 
-    private int value;
+    private final int value;
 
-    private VIFUnitMultiplierMasks(int value) {
+    VIFUnitMultiplierMasks(int value) {
         this.value = value;
     }
 

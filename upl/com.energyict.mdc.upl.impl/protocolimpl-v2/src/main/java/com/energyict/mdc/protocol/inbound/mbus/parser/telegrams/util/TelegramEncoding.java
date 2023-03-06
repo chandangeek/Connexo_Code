@@ -9,9 +9,9 @@ public enum TelegramEncoding {
     ENCODING_VARIABLE_LENGTH(4),
     ENCODING_USER_DEFINED_CELL_ID(5);
 
-    private int value;
+    private final int value;
 
-    private TelegramEncoding(int value) {
+    TelegramEncoding(int value) {
         this.value = value;
     }
 

@@ -1,7 +1,11 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory.profiles;
 
 import com.energyict.mdc.protocol.inbound.mbus.InboundContext;
-import com.energyict.mdc.protocol.inbound.mbus.factory.profiles.AbstractProfileFactory;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.Telegram;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body.SpacingControlByte;
 import com.energyict.obis.ObisCode;

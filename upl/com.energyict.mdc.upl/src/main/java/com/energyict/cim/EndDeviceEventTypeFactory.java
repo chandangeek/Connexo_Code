@@ -2433,7 +2433,7 @@ public class EndDeviceEventTypeFactory {
         return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.MAGNETICSWITCH, EndDeviceEventOrAction.INVALID);
     }
 
-    public static EndDeviceEventType getWaterEventTypeBaterryUsageIndicator() {
+    public static EndDeviceEventType getWaterEventTypeBatteryUsageIndicator() {
         return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.BATTERY, EndDeviceSubdomain.USAGE, EndDeviceEventOrAction.ERROR);
     }
 

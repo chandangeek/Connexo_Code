@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
@@ -69,7 +74,7 @@ public class TelegramDataVariableField extends TelegramDataField{
                 length = lVar - 0xE0;
                 //logger.debug("LVAR = " + lVar + ": floating point number according to IEEE 754, length=" + length);
             } else {
-                //System.err.println("Don't know how to interpret LVAR=" + String.format("%02x", lVar));
+                logger.warn("Don't know how to interpret LVAR=" + String.format("%02x", lVar));
             }
         }
     }
@@ -79,7 +84,6 @@ public class TelegramDataVariableField extends TelegramDataField{
      * With data field = ‘1101b´ several data types with variable length can be used. The length of the data is given
      * after the DRH with the first byte of real data, which is here called LVAR (e.g. LVAR = 02h: ASCII string with
      * two characters follows).
-     * @return
      */
     public int getVariableLengthFieldLength(String hexlVar) {
         this.lVar = Converter.hexToInt(hexlVar);
@@ -147,7 +151,7 @@ public class TelegramDataVariableField extends TelegramDataField{
         parsedValues.append("\t * spacing value: ").append(spacingValue).append(" = ").append(String.format("%02x", spacingValue)).append("\n");
 
         int size = 3; // weekly
-        if (spacingControl == 0xe2 || spacingControl == 0xd2) { // hourly and nightline - TODO check what's the rule here
+        if (spacingControl == 0xe2 || spacingControl == 0xd2) { // hourly and nightline - special for Merlin
             size = 2;
         }
 

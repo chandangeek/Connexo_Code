@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser;
 
 public class DataLinkLayer implements PacketParser {
@@ -25,15 +30,14 @@ public class DataLinkLayer implements PacketParser {
     @Override
     public String toString() {
         final String SEP = ", ";
-        StringBuilder sb = new StringBuilder();
-        sb.append("DLL: ");
-        sb.append("Length of data=").append(String.format("%02X", getLength())).append("h").append(SEP);
-        sb.append("Send-No Reply=").append(String.format("%02X", getSendNoReply())).append("h").append(SEP);
-        sb.append("FabMan=").append(String.format("%04X", getFabMan())).append("h").append(SEP);
-        sb.append("FabId=").append(getFabId()).append(SEP);
-        sb.append("FabVersion").append(String.format("%02X", getFabVersion())).append("h").append(SEP);
-        sb.append("FabDevType").append(String.format("%02X", getFabDevType())).append("h");
-        return sb.toString();
+        String sb = "DLL: " +
+                "Length of data=" + String.format("%02X", getLength()) + "h" + SEP +
+                "Send-No Reply=" + String.format("%02X", getSendNoReply()) + "h" + SEP +
+                "FabMan=" + String.format("%04X", getFabMan()) + "h" + SEP +
+                "FabId=" + getFabId() + SEP +
+                "FabVersion" + String.format("%02X", getFabVersion()) + "h" + SEP +
+                "FabDevType" + String.format("%02X", getFabDevType()) + "h";
+        return sb;
     }
 
 

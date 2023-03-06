@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus;
 
 import com.energyict.protocolimpl.utils.ProtocolTools;
@@ -61,7 +66,6 @@ public class MerlinLogger {
     public void debug(String message) {
         if (getLogger().isLoggable(Level.FINEST)) {
             getLogger().finest(logPrefix + message);
-            //System.out.println(message);
         }
     }
 

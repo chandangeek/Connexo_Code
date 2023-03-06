@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory.events;
 
 import com.energyict.mdc.identifiers.LogBookIdentifierByDeviceAndObisCode;
@@ -46,16 +51,16 @@ public class StatusEventsFactory extends AbstractMerlinFactory {
     }
 
     private MeterProtocolEvent extractMapping(StatusEventMapping mapping, int status) {
-        if( ((status & mapping.getMask()) >> mapping.getShift()) != mapping.getExpectedValue()) {
+        if ( ((status & mapping.getMask()) >> mapping.getShift()) != mapping.getExpectedValue()) {
             return null;
         }
 
         if (!mapping.isError()) {
             // just an info
-            getInboundContext().getLogger().info("Status event info " + mapping.toString());
+            getInboundContext().getLogger().info("Status event info " + mapping);
         } else {
             // normal event
-            getInboundContext().getLogger().info("Status event: " + mapping.toString());
+            getInboundContext().getLogger().info("Status event: " + mapping);
         }
 
 

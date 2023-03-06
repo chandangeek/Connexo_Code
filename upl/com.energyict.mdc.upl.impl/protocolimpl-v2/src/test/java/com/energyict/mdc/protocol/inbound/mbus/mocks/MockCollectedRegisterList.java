@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MockCollectedRegisterList implements CollectedRegisterList {
-    private List<CollectedRegister> collectedRegisters = new ArrayList<>();
+    private final List<CollectedRegister> collectedRegisters = new ArrayList<>();
 
     @Override
     public void addCollectedRegister(CollectedRegister collectedRegister) {

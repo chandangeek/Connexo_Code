@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory.mappings;
 
 import com.energyict.protocol.MeterEvent;
@@ -37,10 +42,10 @@ public enum ErrorFlagsMapping {
     FROST_RISK              (1, 7, "Frost risk", MeterEvent.WATER_FROST_RISK),
 
     // second error-field (EF2) bits
-    ACTUAL_REMOVAL          (2, 0, "Actual Removal", MeterEvent.WATER_ACTUAL_REMOVAL),
+    ACTUAL_REMOVAL          (2, 0, "Actual removal", MeterEvent.WATER_ACTUAL_REMOVAL),
     HIGH_TEMP               (2, 1, "High temp", MeterEvent.WATER_HIGH_TEMP),
     CLOCK_SYNC              (2, 2, "Clock sync", MeterEvent.WATER_CLOCK_SYNC),
-    MAGNETIC_FIELD_FLAG     (2, 3, "Actual Magnetic field flag", MeterEvent.WATER_MAGNETIC_FIELD_FLAG),
+    MAGNETIC_FIELD_FLAG     (2, 3, "Actual magnetic field flag", MeterEvent.WATER_MAGNETIC_FIELD_FLAG),
     BATTERY_USAGE_INDICATOR (2, 4, "Battery usage indicator above or critical", MeterEvent.WATER_BATTERY_USAGE_INDICATOR),
     ACTUAL_BURST            (2, 5, "Actual burst", MeterEvent.WATER_ACTUAL_BURST),
     REVERSED_METER          (2, 6, "Reversed meter", MeterEvent.WATER_REVERSED_METER),

@@ -1,5 +1,9 @@
-package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
 
+package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.body;
 
 import com.energyict.mdc.protocol.inbound.mbus.MerlinLogger;
 import com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.TelegramField;
@@ -20,7 +24,6 @@ public class TelegramBodyHeader {
     }
 
     public void createTelegramBodyHeader(String[] bodyHeader) {
-        // TODO: check CI-Field for correct Header length
         this.setCiField(bodyHeader[0]);
         this.setAccNrField(bodyHeader[1]);
         this.setStatusField(bodyHeader[2]);
@@ -74,16 +77,15 @@ public class TelegramBodyHeader {
     }
 
     public void debugOutput(StringJoiner joiner) {
-        if(this.ciField != null) {
+        if (this.ciField != null) {
             joiner.add("Type of TelegramBodyHeader: " + getTelegramType());
         }
 
-        if(this.accNrField != null) {
+        if (this.accNrField != null) {
             joiner.add("AccessNumber: " + getAccessNumber());
         }
 
-        if(this.statusField != null) {
-            // TODO: parse Status-Field
+        if (this.statusField != null) {
             joiner.add("StatusField: " + this.getStatusField());
             int status = Integer.parseInt(this.getStatusField(), 16);
             switch ((status & 0x03)) {
@@ -159,8 +161,7 @@ public class TelegramBodyHeader {
 
         }
 
-        if(this.sigField != null) {
-            // TODO: parse Sig-Field
+        if (this.sigField != null) {
             joiner.add("Sig-Field1: " + this.sigField.getFieldParts().get(0));
             joiner.add("Sig-Field2: " + this.sigField.getFieldParts().get(1));
         }

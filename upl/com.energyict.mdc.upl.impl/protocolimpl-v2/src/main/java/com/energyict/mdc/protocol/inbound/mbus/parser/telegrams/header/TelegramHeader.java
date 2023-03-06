@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams.header;
 
 
@@ -16,8 +21,8 @@ public class  TelegramHeader {
     private TelegramField mField;
     private TelegramField aField;
     private TelegramField crcField;
-    public static int headerLengthCRC = 11;
-    public static int headerLengthNoCRC = 9;
+    public static final int HEADER_LENGTH_CRC = 11;
+    public static final int HEADER_LENGTH_NO_CRC = 9;
 
     public TelegramHeader(MerlinLogger logger) {
         this.logger = logger;
@@ -32,7 +37,7 @@ public class  TelegramHeader {
         this.setCField(header[1]);
         this.setMField(Arrays.copyOfRange(header, 2, 5));
         this.setAField(Arrays.copyOfRange(header, 5, 10));
-        if(header.length == TelegramHeader.headerLengthCRC) {
+        if (header.length == TelegramHeader.HEADER_LENGTH_CRC) {
             this.setCRCField(Arrays.copyOfRange(header, 10, 11));
         }
     }
@@ -132,17 +137,17 @@ public class  TelegramHeader {
     }
 
     public void debugOutput(StringJoiner joiner) {
-        if(this.lField != null) {
+        if (this.lField != null) {
             joiner.add("Length of Telegram: " + this.lField.getFieldParts().get(0));
         }
-        if(this.cField != null) {
+        if (this.cField != null) {
             joiner.add("C-Field (mode): " + this.cField.getFieldParts().get(0));
         }
-        if(this.mField != null) {
+        if (this.mField != null) {
             String manufacturer =  this.mField.getFieldParts().get(0) + this.mField.getFieldParts().get(1);
             joiner.add("M-Field (manufacturer): " + manufacturer);
         }
-        if(this.aField != null) {
+        if (this.aField != null) {
             String serialNr =  this.aField.getFieldParts().get(3) + this.aField.getFieldParts().get(2) +
                     this.aField.getFieldParts().get(1) + this.aField.getFieldParts().get(0);
             joiner.add("A-Field: ");
@@ -150,7 +155,7 @@ public class  TelegramHeader {
             joiner.add("\tVersion: " + this.aField.getFieldParts().get(4));
             //joiner.add("\tType: " + this.aField.getFieldParts().get(5));
         }
-        if(this.crcField != null) {
+        if (this.crcField != null) {
             joiner.add("CRC: " + this.crcField.getFieldParts().get(0) + " " +
                     "" + this.crcField.getFieldParts().get(1));
         }

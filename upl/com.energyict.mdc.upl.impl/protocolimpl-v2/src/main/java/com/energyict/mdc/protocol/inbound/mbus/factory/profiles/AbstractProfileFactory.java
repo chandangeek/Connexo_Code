@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.factory.profiles;
 
 import com.energyict.cbo.Unit;
@@ -44,7 +49,6 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     private ArrayList<ChannelInfo> loadProfileChannels;
     private List<IntervalData> collectedIntervalData;
 
-
     public AbstractProfileFactory(Telegram telegram, InboundContext inboundContext) {
         super(telegram, inboundContext);
     }
@@ -57,7 +61,6 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
     private Duration getLoadProfileInterval() {
         return Duration.of(applicableSpacingControlByte().getTimeAmount(), applicableSpacingControlByte().getChronoUnit());
     }
-
 
     public boolean appliesFor(TelegramVariableDataRecord record) {
         try {
@@ -80,7 +83,7 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
         return TelegramFunctionType.INSTANTANEOUS_VALUE.equals(indexRecord.getDif().getFunctionType())
                 && TelegramEncoding.ENCODING_INTEGER.equals(indexRecord.getDif().getDataFieldEncoding())
                 && getFieldType().equals(indexRecord.getVif().getType())
-                && getMeasureUnit().equals(indexRecord.getVif().getmUnit());
+                && getMeasureUnit().equals(indexRecord.getVif().getMeasureUnit());
     }
 
     public TelegramEncoding applicableDataFieldEncoding() {
@@ -91,45 +94,50 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
         return TelegramFunctionType.INSTANTANEOUS_VALUE;
     }
 
-    private void setMultiplier(int multiplier) {
-        this.multiplier = multiplier;
-    }
-
-    private void setMeasureUnit(MeasureUnit measureUnit) {
-        this.measureUnit = measureUnit;
+    public VIFUnitMultiplierMasks getFieldType() {
+        return fieldType;
     }
 
     private void setFieldType(VIFUnitMultiplierMasks type) {
         this.fieldType = type;
     }
 
-    public VIFUnitMultiplierMasks getFieldType() {
-        return fieldType;
-    }
-
     public MeasureUnit getMeasureUnit() {
         return measureUnit;
+    }
+
+    private void setMeasureUnit(MeasureUnit measureUnit) {
+        this.measureUnit = measureUnit;
     }
 
     public int getMultiplier() {
         return multiplier;
     }
 
+    private void setMultiplier(int multiplier) {
+        this.multiplier = multiplier;
+    }
+
     public long getStartIndex() {
         return startIndex;
     }
 
-    public CollectedLoadProfile getCollectedLoadProfile(){
+    private void setStartIndex(TelegramVariableDataRecord indexRecord) {
+        this.startIndex = Long.parseLong(indexRecord.getDataField().getParsedValue());
+        this.midnight = toMidnightWithTimeZone(getTelegramDateTime(), getTimeZone());
+        getInboundContext().getLogger().info(this.getClass().getSimpleName() + " Starting load profile calculation backwards from midnight: " + midnight + ", in time-zone " + getTimeZone());
+    }
+
+    public CollectedLoadProfile getCollectedLoadProfile() {
         return this.loadProfile;
     }
 
     public void extractProfileMetaData(TelegramVariableDataRecord record) {
         setFieldType(record.getVif().getType());
-        setMeasureUnit(record.getVif().getmUnit());
+        setMeasureUnit(record.getVif().getMeasureUnit());
         setMultiplier(record.getVif().getMultiplier());
         extractTelegramDateTime();
     }
-
 
     public CollectedLoadProfile extractLoadProfile(TelegramVariableDataRecord profileRecord, final TelegramVariableDataRecord indexRecord) {
         if (!appliesFor(profileRecord)) {
@@ -177,14 +185,6 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
 
     }
 
-
-
-    private void setStartIndex(TelegramVariableDataRecord indexRecord) {
-        this.startIndex = Long.parseLong(indexRecord.getDataField().getParsedValue());
-        this.midnight = toMidnightWithTimeZone(getTelegramDateTime(), getTimeZone());
-        getInboundContext().getLogger().info(this.getClass().getSimpleName() + " Starting load profile calculation backwards from midnight: " + midnight + ", in time-zone " + getTimeZone()) ;
-    }
-
     private ZoneId getTimeZone() {
         return getInboundContext().getTimeZone();
     }
@@ -194,17 +194,14 @@ public abstract class AbstractProfileFactory extends AbstractMerlinFactory {
         startCalculation(getStartIndex(), getStartReferenceTimeStamp());
 
         Map<Integer, Long> intervals = record.getDataField().getParsedIntervals();
-        intervals.keySet()
-                .forEach(id -> {
-                    Long value = intervals.get(id);
-                    calculateInterval(value);
-                });
+        intervals.forEach((key, value) -> calculateInterval(value));
 
         endCalculation();
-
     }
 
-    /** From where to start the load profile calculations */
+    /**
+     * From where to start the load profile calculations
+     */
     protected Instant getStartReferenceTimeStamp() {
         return getMidnight();
     }

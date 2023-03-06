@@ -1,3 +1,8 @@
+/*
+ * Copyright (c) 2023 by Honeywell International Inc. All Rights Reserved
+ *
+ */
+
 package com.energyict.mdc.protocol.inbound.mbus.parser.telegrams;
 
 
@@ -19,7 +24,7 @@ public class TelegramField {
     protected Map<Integer, Long> parsedIntervals;
 
     public TelegramField(MerlinLogger logger) {
-        this.fieldParts = new ArrayList<String>();
+        this.fieldParts = new ArrayList<>();
         this.logger = logger;
     }
 
@@ -28,8 +33,8 @@ public class TelegramField {
     }
 
     public void addFieldParts(String[] values) {
-        for(int i = 0; i < values.length; i++) {
-            this.addFieldPart(values[i]);
+        for (String value : values) {
+            this.addFieldPart(value);
         }
     }
 
@@ -42,20 +47,11 @@ public class TelegramField {
     }
 
     public String[] getFieldPartsAsArray() {
-        return this.fieldParts.toArray(new String[this.fieldParts.size()]);
+        return this.fieldParts.toArray(new String[0]);
     }
 
     public String getFieldPartsAsString() {
-        String retString = new String();
-        for(int i = 0; i < fieldParts.size(); i++) {
-            if(i+1 == fieldParts.size()) {
-                retString += fieldParts.get(i);
-            }
-            else {
-                retString += fieldParts.get(i) + " ";
-            }
-        }
-        return retString;
+        return String.join(" ", fieldParts);
     }
 
     public byte[] getFieldAsByteArray() {
