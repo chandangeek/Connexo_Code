@@ -238,10 +238,8 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
 
     @Override
     public void saveRelatedAttribute(String key, String value) {
-
-        validateEntry(new AbstractMap.SimpleEntry<>(key, value));
-
         if (key != null && !Checks.is(value).emptyOrOnlyWhiteSpace()) {
+            validateEntry(new AbstractMap.SimpleEntry<>(key, value));
             transactionService.runInIndependentTransaction(() -> {
                 String valueToSave = value.trim();
                 String[] fieldNames = {WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.fieldName(), WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName()};
@@ -273,11 +271,10 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
             return;
         }
 
-        validateValues(values);
-
         List<WebServiceCallRelatedAttributeBindingImpl> relatedAttributeBindingList = new ArrayList<>();
         Optional<Condition> condition = values.entries().stream()
                 .filter(entry -> !Checks.is(entry.getValue()).emptyOrOnlyWhiteSpace() && entry.getKey() != null)
+                .peek(this::validateEntry)
                 .map(entry -> where(WebServiceCallRelatedAttributeImpl.Fields.ATTR_KEY.fieldName()).isEqualTo(entry.getKey())
                         .and(where(WebServiceCallRelatedAttributeImpl.Fields.ATTR_VALUE.fieldName()).isEqualTo(entry.getValue().trim())))
                 .reduce(Condition::or);
@@ -327,10 +324,6 @@ public class WebServiceCallOccurrenceImpl implements WebServiceCallOccurrence, H
                 dataModel.mapper(WebServiceCallRelatedAttributeBindingImpl.class).persist(relatedAttributeBindingList);
             });
         }
-    }
-
-    private void validateValues(SetMultimap<String, String> values) {
-        values.entries().forEach(this::validateEntry);
     }
 
     private void validateEntry(Entry<String, String> entry) {
