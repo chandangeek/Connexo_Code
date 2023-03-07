@@ -378,9 +378,10 @@ public class MerlinMbusParserTest extends TestCase {
 
     private String pad(String s, int length) {
         StringBuilder sBuilder = new StringBuilder(s);
-        while (sBuilder.length() < length) sBuilder.append(' ');
-        s = sBuilder.toString();
-        return s;
+        while (sBuilder.length() < length) {
+            sBuilder.append(' ');
+        }
+        return sBuilder.toString();
     }
 
     @Test

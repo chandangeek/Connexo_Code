@@ -46,7 +46,7 @@ public class DateCalculator {
                 .toInstant();
     }
 
-    public static Instant getDate(String dayValue, String monthValue, boolean calcHundertYear) {
+    public static Instant getDate(String dayValue, String monthValue) {
         int day = DateCalculator.getDay(Converter.hexToInt(dayValue));
         int month = DateCalculator.getMonth(Converter.hexToInt(monthValue));
         int year = DateCalculator.getYear(Converter.hexToInt(dayValue), Converter.hexToInt(monthValue), 0, false);
@@ -62,8 +62,8 @@ public class DateCalculator {
                 .toInstant();
     }
 
-    public static Instant getDateTime(String minuteValue, String hourValue, String dayValue, String monthValue, boolean calcHundertYear) {
-        Instant dateInstant = DateCalculator.getDate(dayValue, monthValue, calcHundertYear);
+    public static Instant getDateTime(String minuteValue, String hourValue, String dayValue, String monthValue) {
+        Instant dateInstant = DateCalculator.getDate(dayValue, monthValue);
 
         Instant timeInstant = DateCalculator.getTime(minuteValue, hourValue);
         LocalDateTime time = LocalDateTime.ofInstant(timeInstant, ZoneId.of("UTC"));
@@ -76,8 +76,8 @@ public class DateCalculator {
 
     }
 
-    public static Instant getDateTimeWithSeconds(String seconds, String minuteValue, String hourValue, String dayValue, String monthValue, boolean calcHundertYear) {
-        Instant dateInstant = DateCalculator.getDate(dayValue, monthValue, calcHundertYear);
+    public static Instant getDateTimeWithSeconds(String seconds, String minuteValue, String hourValue, String dayValue, String monthValue) {
+        Instant dateInstant = DateCalculator.getDate(dayValue, monthValue);
 
         Instant timeInstant = DateCalculator.getTimeWithSeconds(seconds, minuteValue, hourValue);
         LocalDateTime time = LocalDateTime.ofInstant(timeInstant, ZoneId.of("UTC"));
@@ -109,7 +109,7 @@ public class DateCalculator {
         return monthValue & DateCalculator.MONTH_MASK;
     }
 
-    public static int getYear(int yearValue1, int yearValue2, int hundertYearValue, boolean calcHundertYear) {
+    public static int getYear(int yearValue1, int yearValue2, int hundredYearValue, boolean calcHundredYear) {
         int year1 = yearValue1 & DateCalculator.YEAR_MASK;
         int year2 = yearValue2 & DateCalculator.YEAR_MASK_2;
         int hundredYear;
@@ -127,9 +127,9 @@ public class DateCalculator {
         // from a third value the hundred year is generated and calculated
         // the year is then calculated according to following formula:
         // year = 1900 + 100 * hundredYear + year;
-        if (calcHundertYear) {
+        if (calcHundredYear) {
             // We have to load the hundred-year format as well
-            hundredYear = (hundertYearValue & DateCalculator.HUNDRED_YEAR_MASK) >> 6;
+            hundredYear = (hundredYearValue & DateCalculator.HUNDRED_YEAR_MASK) >> 6;
             year = 1900 + (100 * hundredYear) + year;
         } else {
             if (year < 81) {

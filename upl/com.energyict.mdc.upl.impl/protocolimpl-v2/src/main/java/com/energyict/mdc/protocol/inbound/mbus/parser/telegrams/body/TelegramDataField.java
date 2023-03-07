@@ -100,14 +100,14 @@ public class TelegramDataField extends TelegramField {
         switch (dateType) {
             case DATE:
                 // Type G: Day.Month.Year
-                this.timeValue = DateCalculator.getDate(this.fieldParts.get(0), this.fieldParts.get(1), false);
+                this.timeValue = DateCalculator.getDate(this.fieldParts.get(0), this.fieldParts.get(1));
                 this.parsedValue = formatter.format(this.timeValue);
                 break;
 
             /* Used by NTR frame */
             case DATE_TIME:
                 // Type F: Day.Month.Year Hour:Minute
-                this.timeValue = DateCalculator.getDateTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), false);
+                this.timeValue = DateCalculator.getDateTime(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3));
                 this.parsedValue = formatter.format(this.timeValue);
                 break;
             case TIME:
@@ -160,7 +160,7 @@ public class TelegramDataField extends TelegramField {
                 int year2       = Converter.hexToInt(this.fieldParts.get(4)) & 0xF0 ;
                 int year        = (year1 >> 5) + (year2 >> 3);
 
-                this.timeValue = DateCalculator.getDateTimeWithSeconds(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4), false);
+                this.timeValue = DateCalculator.getDateTimeWithSeconds(this.fieldParts.get(0), this.fieldParts.get(1), this.fieldParts.get(2), this.fieldParts.get(3), this.fieldParts.get(4));
                 this.parsedValue = formatter.format(this.timeValue);
                 break;
             case EPOCH_TIME:
