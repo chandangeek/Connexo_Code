@@ -405,7 +405,7 @@ public class GetMeterConfigTest extends AbstractMockMeterConfig {
 
         try {
             // Business method
-            executeMeterConfigEndpoint.createMeterConfig(meterConfigRequest);
+            executeMeterConfigEndpoint.getMeterConfig(meterConfigRequest);
             fail("FaultMessage must be thrown");
         } catch (FaultMessage faultMessage) {
         }
