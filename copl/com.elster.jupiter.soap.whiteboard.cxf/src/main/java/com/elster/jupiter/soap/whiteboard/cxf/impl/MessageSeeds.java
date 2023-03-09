@@ -19,6 +19,7 @@ public enum MessageSeeds implements MessageSeed {
     FIELD_NOT_UNIQUE(3, Keys.FIELD_MUST_BE_UNIQUE, "This field must be unique"),
     INVALID_FILE_NAME(4, Keys.INVALID_FILE_NAME, "Invalid file name"),
     INVALID_PATH(5, Keys.INVALID_PATH, "Invalid path"),
+    FIELD_IS_TOO_LONG(6, Keys.FIELD_IS_TOO_LONG, "''{0}'' value is too long."),
 
     NO_WEB_SERVICE_ENDPOINT(100, "NoWebServiceEndpoint", "Can''t send request to web service endpoint ''{0}'': it isn''t available."),
     INACTIVE_WEB_SERVICE_ENDPOINT(101, "InactiveWebServiceEndpoint", "Can''t send request to web service endpoint ''{0}'': it is deactivated."),
@@ -71,6 +72,7 @@ public enum MessageSeeds implements MessageSeed {
     public static interface Keys {
         String FIELD_REQUIRED = "field.required";
         String FIELD_TOO_LONG = "ThisFieldIsTooLong";
+        String FIELD_IS_TOO_LONG = "FieldIsTooLong";
         String FIELD_MUST_BE_UNIQUE = "FieldMustBeUnique";
         String INVALID_FILE_NAME = "InvalidFileName";
         String INVALID_PATH = "InvalidPath";
