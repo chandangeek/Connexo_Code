@@ -17,8 +17,9 @@ public class InboundContext {
     private ZoneId timeZone;
     private String encryptionKey;
 
-    public InboundContext(MerlinLogger logger, InboundDiscoveryContext context) {
-        setLogger(logger);
+    public InboundContext(MerlinLogger merlinLogger, InboundDiscoveryContext context) {
+        merlinLogger.setLogger(context.getLogger()); // set the logger coming from ComServer
+        setLogger(merlinLogger);
         setInboundDiscoveryContext(context);
     }
 

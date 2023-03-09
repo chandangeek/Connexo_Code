@@ -71,8 +71,6 @@ public class Merlin implements BinaryInboundDeviceProtocol {
         return context;
     }
 
-
-
     @Override
     public void provideResponse(DiscoverResponseType responseType) {
         // Nothing to do here, nothing expected back
@@ -94,8 +92,6 @@ public class Merlin implements BinaryInboundDeviceProtocol {
 
         return null;
     }
-
-
 
     @Override
     public List<CollectedData> getCollectedData() {

@@ -18,7 +18,7 @@ import static com.energyict.mdc.protocol.inbound.mbus.Merlin.BUFFER_SIZE;
 public class MerlinLogger {
 
     public String logPrefix = "[Merlin] ";
-    private final Logger logger;
+    private Logger logger;
 
     public MerlinLogger(Logger logger) {
         this.logger = logger;
@@ -27,6 +27,12 @@ public class MerlinLogger {
 
     public Logger getLogger() {
         return logger;
+    }
+
+    public void setLogger(Logger logger) {
+        if (logger != null) {
+            this.logger = logger;
+        }
     }
 
     public void info(String message) {
