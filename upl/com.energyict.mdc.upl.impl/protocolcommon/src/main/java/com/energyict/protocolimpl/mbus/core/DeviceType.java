@@ -57,11 +57,6 @@ public class DeviceType {
 
         INSTANCES.add(new DeviceType("Unknown MET (0x78)",0x78,255));
         INSTANCES.add(new DeviceType("Unknown ABB (0x35)",0x35,255));
-
-        INSTANCES.add(new DeviceType("Unknown ABB (0x35)",67,255));
-
-        INSTANCES.add(new DeviceType("Wireless MBus Encrypted",123,255));
-        INSTANCES.add(new DeviceType("Wireless MBus Encrypted",132,255));
     }
 
     private String description;
