@@ -50,7 +50,7 @@ public class ConstraintImpl implements ExistingConstraint {
 
     @Override
     public String getReferencedTableName() {
-        if (Type.R.equals(type)) {
+        if (isForeignKey()) {
             Matcher matcher = REF_PATTERN.matcher(sql);
             if (matcher.matches()) {
                 return matcher.group(1);
@@ -84,7 +84,7 @@ public class ConstraintImpl implements ExistingConstraint {
     }
 
     public void addTo(Table table) {
-        type.buildOn(table, this);
+        type().buildOn(table, this);
     }
 
     private String getVariableName(String name) {
