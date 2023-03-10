@@ -45,7 +45,6 @@ import com.elster.jupiter.upgrade.impl.UpgradeModule;
 import com.elster.jupiter.users.User;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.task.FutureComTaskExecutionHandlerFactory;
 import com.energyict.mdc.cim.webservices.outbound.soap.EndDeviceEventsServiceProvider;
 import com.energyict.mdc.cim.webservices.outbound.soap.MeterConfigFactory;
@@ -71,11 +70,9 @@ import java.lang.reflect.Field;
 import java.time.Clock;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.Before;
 import org.junit.runner.RunWith;
-
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
@@ -190,8 +187,6 @@ public abstract class AbstractMockActivator {
     protected EngineConfigurationService engineConfigurationService;
     @Mock
     protected PriorityComTaskService priorityComTaskService;
-    @Mock
-    protected Finder<EndPointConfiguration> endPointConfigs;
 
     private InboundSoapEndpointsActivator activator;
 
@@ -205,8 +200,6 @@ public abstract class AbstractMockActivator {
         when(nlsService.getThesaurus(InboundSoapEndpointsActivator.COMPONENT_NAME, Layer.SOAP)).thenReturn(thesaurus);
         when(transactionService.getContext()).thenReturn(transactionContext);
         when(threadPrincipalService.getPrincipal()).thenReturn(user);
-        when(endPointConfigs.stream()).thenReturn(Stream.empty());
-        when(endPointConfigurationService.findEndPointConfigurations()).thenReturn(endPointConfigs);
         when(serviceCallService.findServiceCallType(anyString(), anyString())).thenReturn(Optional.of(serviceCallType));
         mockWebServices(true);
 
@@ -244,21 +237,17 @@ public abstract class AbstractMockActivator {
         activator.setPropertySpecService(propertySpecService);
         activator.setPropertyValueInfoService(propertyValueInfoService);
         activator.setLogBookService(logBookService);
-        activator.setEndPointConfigurationService(endPointConfigurationService);
         activator.setDeviceAlarmService(deviceAlarmService);
         activator.setIssueService(issueService);
         activator.setBatchService(batchService);
-        activator.setJsonService(jsonService);
         activator.setCustomPropertySetService(customPropertySetService);
         activator.setHsmEnergyService(hsmEnergyService);
         activator.setSecurityManagementService(securityManagementService);
         activator.setServiceCallService(serviceCallService);
-        activator.setWebServicesService(webServicesService);
         activator.setDeviceLifeCycleConfigurationService(deviceLifeCycleConfigurationService);
         activator.setMetrologyConfigurationService(metrologyConfigurationService);
         activator.setEndPointConfigurationService(endPointConfigurationService);
         activator.setWebServicesService(webServicesService);
-        activator.setServiceCallService(serviceCallService);
         activator.setMessageService(messageService);
         activator.setJsonService(jsonService);
         activator.setSendMeterReadingsProvider(sendMeterReadingsProvider);
@@ -276,7 +265,6 @@ public abstract class AbstractMockActivator {
         activator.setReplyMasterDataLinkageConfigWebService(replyMasterDataLinkageConfigWebService);
         activator.setEngineConfigurationService(engineConfigurationService);
         activator.setPriorityComTaskService(priorityComTaskService);
-        activator.setEndPointConfigurationService(endPointConfigurationService);
         activator.activate(mock(BundleContext.class));
     }
 
