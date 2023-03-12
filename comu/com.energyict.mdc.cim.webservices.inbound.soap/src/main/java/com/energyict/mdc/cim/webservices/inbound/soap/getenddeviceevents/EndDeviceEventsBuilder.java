@@ -106,7 +106,7 @@ public class EndDeviceEventsBuilder {
         Set<String> identifiers = new HashSet<>();
         meters.forEach(meter -> {
             Optional<String> mRID = extractMrid(meter);
-            Optional<String> serialNumber = extractName(meter);
+            Optional<String> serialNumber = extractSerialNumber(meter);
             Optional<String> name = extractName(meter);
             if (mRID.isPresent()) {
                 identifiers.add(mRID.get());
@@ -199,6 +199,10 @@ public class EndDeviceEventsBuilder {
         return Optional.ofNullable(meter.getMRID()).filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
     }
 
+    private static Optional<String> extractSerialNumber(Meter meter) {
+        return Optional.ofNullable(meter.getSerialNumber()).filter(serialNumber -> !Checks.is(serialNumber).emptyOrOnlyWhiteSpace());
+    }
+
     private static Optional<String> extractName(Meter meter) {
         return meter.getNames().stream().map(Name::getName).filter(name -> !Checks.is(name).emptyOrOnlyWhiteSpace()).findFirst();
     }
@@ -285,6 +289,7 @@ public class EndDeviceEventsBuilder {
     private Asset createAsset(EndDevice endDevice) {
         Asset asset = payloadObjectFactory.createAsset();
         asset.setMRID(endDevice.getMRID());
+        asset.setSerialNumber(endDevice.getSerialNumber());
         asset.getNames().add(createName(endDevice));
         return asset;
     }

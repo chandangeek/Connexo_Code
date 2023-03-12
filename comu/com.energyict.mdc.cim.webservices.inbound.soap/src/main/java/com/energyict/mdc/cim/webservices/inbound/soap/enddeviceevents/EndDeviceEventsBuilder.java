@@ -115,7 +115,7 @@ public class EndDeviceEventsBuilder {
         Optional<String> mrid = extractMrid(endDeviceEvent);
         Instant createdDate = extractCreatedDateOrThrowException(endDeviceEvent);
         String eventTypeCode = extractEndDeviceFunctionRefOrThrowException(endDeviceEvent);
-        Optional<String> serialNumber = extractName(endDeviceEvent);
+        Optional<String> serialNumber = extractSerialNumber(endDeviceEvent);
         Optional<String> name = extractName(endDeviceEvent);
         Optional<Status> status = extractStatus(endDeviceEvent);
         Optional<String> reason = extractReason(endDeviceEvent);
@@ -247,6 +247,11 @@ public class EndDeviceEventsBuilder {
                 .filter(mrid -> !Checks.is(mrid).emptyOrOnlyWhiteSpace());
     }
 
+    private Optional<String> extractSerialNumber(EndDeviceEvent endDeviceEvent) throws FaultMessage {
+        return Optional.ofNullable(endDeviceEvent.getSerialNumber())
+                .filter(serialNumber -> !Checks.is(serialNumber).emptyOrOnlyWhiteSpace());
+    }
+
     private Optional<String> extractName(EndDeviceEvent endDeviceEvent) throws FaultMessage {
         return Optional.ofNullable(endDeviceEvent.getNames())
                 .map(names -> names.stream().map(Name::getName))
@@ -335,8 +340,12 @@ public class EndDeviceEventsBuilder {
                         logBookObisCode, endDevice.getId()));
     }
 
-    private Device findDeviceForEndDevice(EndDevice endDevice) {
+    private Device findDeviceForEndDevice(EndDevice endDevice) throws FaultMessage {
         long deviceId = Long.parseLong(endDevice.getAmrId());
+        List<Device> foundDevices = deviceService.findDevicesBySerialNumber(endDevice.getSerialNumber());
+        if (foundDevices.size() > 1) {
+            throw faultMessageFactory.endDeviceEventsFaultMessageSupplier(MessageSeeds.NAME_MUST_BE_UNIQUE, END_DEVICE_EVENT_ITEM).get();
+        }
         return deviceService.findDeviceById(deviceId).orElseThrow(NoSuchElementException.deviceWithIdNotFound(thesaurus, deviceId));
     }
 
