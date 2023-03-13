@@ -20,6 +20,8 @@ public interface EndDeviceEventRecordBuilder {
 
     EndDeviceEventRecordBuilder setmRID(String mRID);
 
+    EndDeviceEventRecordBuilder setSerialNumber(String serialNumber);
+
     EndDeviceEventRecordBuilder setName(String name);
 
     EndDeviceEventRecordBuilder setProcessingFlags(long processingFlags);

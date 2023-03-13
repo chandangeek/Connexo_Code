@@ -95,6 +95,8 @@ public interface MeteringService {
 
     Optional<EndDevice> findEndDeviceByMRID(String mRID);
 
+    Optional<EndDevice> findEndDeviceBySerialNumber(String mRID);
+
     Optional<EndDevice> findEndDeviceByName(String name);
 
     /**

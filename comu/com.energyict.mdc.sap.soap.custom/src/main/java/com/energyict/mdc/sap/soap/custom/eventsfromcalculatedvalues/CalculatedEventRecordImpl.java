@@ -91,6 +91,11 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
     }
 
     @Override
+    public void setSerialNumber(String serialNumber) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setName(String name) {
         throw new UnsupportedOperationException();
     }
@@ -232,6 +237,11 @@ public final class CalculatedEventRecordImpl implements EndDeviceEventRecord {
 
     @Override
     public String getMRID() {
+        return null;
+    }
+
+    @Override
+    public String getSerialNumber() {
         return null;
     }
 

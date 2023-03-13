@@ -301,6 +301,11 @@ public class MeteringServiceImpl implements ServerMeteringService {
     }
 
     @Override
+    public Optional<EndDevice> findEndDeviceBySerialNumber(String serialNumber) {
+        return dataModel.mapper(EndDevice.class).getUnique("serialNumber", serialNumber);
+    }
+
+    @Override
     public Optional<Meter> findMeterByName(String name) {
         return dataModel.mapper(Meter.class).getUnique("name", name, "obsoleteTime", null);
     }
@@ -313,7 +318,7 @@ public class MeteringServiceImpl implements ServerMeteringService {
     @Override
     public List<EndDevice> findEndDevices(Set<String> ids) {
         List<String> identifiers = ids.stream().collect(Collectors.toList());
-        return dataModel.mapper(EndDevice.class).select(Where.where("mRID").in(identifiers).or(Where.where("name").in(identifiers)));
+        return dataModel.mapper(EndDevice.class).select(Where.where("mRID").in(identifiers).or(Where.where("serialNumber").in(identifiers)).or(Where.where("name").in(identifiers)));
     }
 
     @Override

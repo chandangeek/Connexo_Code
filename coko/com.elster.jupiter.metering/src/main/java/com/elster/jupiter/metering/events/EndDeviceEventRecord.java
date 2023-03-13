@@ -32,6 +32,8 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
 
     EndDeviceEventType getEventType();
 
+    String getSerialNumber();
+
     void setAliasName(String aliasName);
 
     void setDescription(String description);
@@ -43,6 +45,8 @@ public interface EndDeviceEventRecord extends EndDeviceEvent {
     void setLogBookPosition(int logBookPosition);
 
     void setmRID(String mRID);
+
+    void setSerialNumber(String serialNumber);
 
     void setName(String name);
 
