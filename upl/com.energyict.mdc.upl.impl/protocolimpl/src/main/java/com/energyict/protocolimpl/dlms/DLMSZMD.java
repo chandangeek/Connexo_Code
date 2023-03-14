@@ -37,6 +37,7 @@ import com.energyict.protocol.ProfileData;
 import com.energyict.protocol.RegisterInfo;
 import com.energyict.protocol.RegisterProtocol;
 import com.energyict.protocol.RegisterValue;
+import com.energyict.protocolimpl.dlms.common.DlmsProtocolProperties;
 import com.energyict.protocolimpl.dlms.siemenszmd.LogBookReader;
 import com.energyict.protocolimpl.dlms.siemenszmd.ObisCodeMapper;
 import com.energyict.protocolimpl.dlms.siemenszmd.ZMDSecurityProvider;
@@ -96,9 +97,12 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
     private static final long EV_POWER_DOWN = 0x00000080;
     private static final long EV_EVENT_LOG_CLEARED = 0x00002000;
     private static final long EV_LOAD_PROFILE_CLEARED = 0x00004000;
+    private static final long DEFAULT_CONFORMANCE_BLOCK_VALUE = 1573408L;
     private static final String PROPNAME_EVENT_ID_INDEX = "EventIdIndex";
     private final MessageProtocol messageProtocol;
     private int eventIdIndex;
+
+    private long conformanceBlockValue;
 
     public DLMSZMD(PropertySpecService propertySpecService, DeviceMessageFileFinder messageFileFinder, DeviceMessageFileExtractor deviceMessageFileExtractor, NlsService nlsService) {
         super(propertySpecService, nlsService);
@@ -128,7 +132,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
 
     @Override
     public String getProtocolVersion() {
-        return "$Date: 2015-11-26 15:24:25 +0200 (Thu, 26 Nov 2015)$";
+        return "2023-03-10";
     }
 
     @Override
@@ -153,10 +157,10 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
      */
     @Override
     protected ConformanceBlock configureConformanceBlock() {
-        return new ConformanceBlock(1573408L);
+        return new ConformanceBlock(conformanceBlockValue);
     }
 
-    @Override
+        @Override
     protected void buildProfileData(byte bNROfChannels, ProfileData profileData, ScalerUnit[] scalerunit, UniversalObject[] intervalList) throws IOException {
         Calendar stdCalendar;
         Calendar dstCalendar;
@@ -379,6 +383,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
     public List<PropertySpec> getUPLPropertySpecs() {
         List<PropertySpec> propertySpecs = new ArrayList<>(super.getUPLPropertySpecs());
         propertySpecs.add(this.integerSpec(PROPNAME_EVENT_ID_INDEX, PropertyTranslationKeys.DLMS_EVENT_ID_INDEX));
+        propertySpecs.add(this.longSpec(DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE, PropertyTranslationKeys.DLMS_CONFORMANCE_BLOCK_VALUE));
         return propertySpecs;
     }
 
@@ -389,6 +394,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
         this.setServerUpperMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_UPPER_MAC_ADDRESS, "1").trim()));
         this.setServerLowerMacAddress(Integer.parseInt(properties.getTypedProperty(PROPNAME_SERVER_LOWER_MAC_ADDRESS, "0").trim()));
         eventIdIndex = Integer.parseInt(properties.getTypedProperty(PROPNAME_EVENT_ID_INDEX, "-1").trim()); // ZMD=1, ZMQ=2
+        conformanceBlockValue = properties.getTypedProperty(DlmsProtocolProperties.CONFORMANCE_BLOCK_VALUE, DEFAULT_CONFORMANCE_BLOCK_VALUE);
     }
 
     @Override

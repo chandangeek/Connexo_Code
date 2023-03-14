@@ -712,6 +712,10 @@ abstract class DLMSSN extends PluggableMeterProtocol implements HHUEnabler, Prot
         return this.spec(name, translationKey, this.propertySpecService::integerSpec);
     }
 
+    protected PropertySpec longSpec(String name, TranslationKey translationKey) {
+        return this.spec(name, translationKey, this.propertySpecService::longSpec);
+    }
+
     @Override
     public void setUPLProperties(TypedProperties properties) throws PropertyValidationException {
         try {
