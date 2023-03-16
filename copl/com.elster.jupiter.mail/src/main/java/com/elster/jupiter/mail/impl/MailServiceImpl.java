@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mail.impl;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.mail.InvalidAddressException;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.mail.MailMessageBuilder;
@@ -48,6 +49,7 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
     private static final String MAIL_USER_PROPERTY = "mail.user";
     private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
     private static final String MAIL_FROM_PROPERTY = "mail.from";
+    private static final String KEY_FILE_PROPERTY = "com.elster.jupiter.datasource.keyfile";
 
     private static final Logger LOGGER = Logger.getLogger(MailServiceImpl.class.getName());
 
@@ -60,9 +62,17 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
     private String password;
     private String smtpPort;
 
+    private PasswordDecryptService passwordDecryptService;
+
     @Inject
-    public MailServiceImpl() {
+    public MailServiceImpl(PasswordDecryptService passwordDecryptService) {
+        this.passwordDecryptService = passwordDecryptService;
     }
+
+    public MailServiceImpl(){
+
+    }
+
 
     @Override
     public MailMessageBuilder messageBuilder(MailAddress first, MailAddress... other) {
@@ -102,7 +112,7 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
             LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
-        password = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        password = passwordDecryptService.getDecryptPassword(bundleContext.getProperty(MAIL_PASSWORD_PROPERTY), bundleContext.getProperty(KEY_FILE_PROPERTY));
     }
 
     private String getSmtpHost() {

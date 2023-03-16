@@ -4,6 +4,7 @@
 
 package com.elster.jupiter.mail.impl;
 
+import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.mail.MailAddress;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.MessageSeedProvider;
@@ -50,6 +51,9 @@ public class MailServiceImplTest {
     private NlsService nlsService;
     @Mock
     private Thesaurus thesaurus;
+
+    @Mock
+    private PasswordDecryptService passwordDecryptService;
 
     @Before
     public void setUp() {
@@ -112,7 +116,7 @@ public class MailServiceImplTest {
     }
 
     private MailServiceImpl getMailService() {
-        MailServiceImpl mailService = new MailServiceImpl();
+        MailServiceImpl mailService = new MailServiceImpl(passwordDecryptService);
         mailService.setNlsService(nlsService);
         mailService.activate(bundleContext);
         return mailService;
