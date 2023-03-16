@@ -41,7 +41,7 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     private static final String POST = "POST";
     private static final String PUT = "PUT";
     private static final String DELETE = "DELETE";
-    private static final String FLOW_CSRF_HEADER= "BFlowProcess";
+    private static final String FLOW_CSRF_HEADER = "BFlowProcess";
     private static final String FLOW_PROCESS_KEY = "BPMconnexoflowProcess";
 
     private static final String[] RESOURCES_THAT_ARE_EXCLUDED_FROM_CSRF_FILTER = {
@@ -51,21 +51,22 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
     private volatile CSRFService csrfService;
 
-    public CSRFFilterServiceImpl(){
+    public CSRFFilterServiceImpl() {
     }
 
     @Inject
-    public CSRFFilterServiceImpl(CSRFService csrfService){
+    public CSRFFilterServiceImpl(CSRFService csrfService) {
         super();
         setCSRFService(csrfService);
         activate();
     }
 
     @Activate
-    public void activate(){ }
+    public void activate() {
+    }
 
     @Reference
-    public void setCSRFService(CSRFService csrfService){
+    public void setCSRFService(CSRFService csrfService) {
         this.csrfService = csrfService;
     }
 
@@ -87,7 +88,7 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
     @Override
     public boolean handleCSRFSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if(Arrays.stream(RESOURCES_THAT_ARE_EXCLUDED_FROM_CSRF_FILTER).anyMatch(request.getRequestURI()::contains)){
+        if (Arrays.stream(RESOURCES_THAT_ARE_EXCLUDED_FROM_CSRF_FILTER).anyMatch(request.getRequestURI()::contains)) {
             return true;
         }
         if (isFormSubmitRequest(request) && !validCSRFRequest(request)) {
@@ -97,24 +98,24 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
         return true;
     }
 
-    private boolean isFormSubmitRequest(HttpServletRequest request){
+    private boolean isFormSubmitRequest(HttpServletRequest request) {
         return Stream.of(POST, PUT, DELETE).anyMatch(request.getMethod()::equalsIgnoreCase);
     }
 
     private boolean validCSRFRequest(HttpServletRequest request) {
         // assumption that these requests are automated and will trigger very frequently.
-        if(null != request.getHeader(FLOW_CSRF_HEADER) &&
+        if (null != request.getHeader(FLOW_CSRF_HEADER) &&
                 FLOW_PROCESS_KEY.equals(new String(Base64.getDecoder().decode(request.getHeader(FLOW_CSRF_HEADER))))) {
             return true;
         }
-        Optional<Cookie> sessionId =  getCookie(request, USER_SESSIONID);
-        if(sessionId.isPresent()){
+        Optional<Cookie> sessionId = getCookie(request, USER_SESSIONID);
+        if (sessionId.isPresent()) {
             String csrfToken = request.getHeader(X_CSRF_TOKEN);
-            if(null == csrfToken && request.getContentType().contains("multipart/form-data")) {
+            if (null == csrfToken && request.getContentType().contains("multipart/form-data")) {
                 csrfToken = request.getParameter(X_CSRF_TOKEN);
             }
-            if(null != csrfToken){
-                boolean valid =  csrfToken.equals(getCSRFToken(sessionId.get().getValue()));
+            if (null != csrfToken) {
+                boolean valid = csrfToken.equals(getCSRFToken(sessionId.get().getValue()));
                 createCSRFToken(sessionId.get().getValue());
                 return valid;
             }
@@ -147,8 +148,8 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     }
 
     private void invalidateSessionCookie(HttpServletRequest request, HttpServletResponse response) {
-        Optional<Cookie> sessionCookie = getCookie(request,USER_SESSIONID);
-        if(sessionCookie.isPresent()) {
+        Optional<Cookie> sessionCookie = getCookie(request, USER_SESSIONID);
+        if (sessionCookie.isPresent()) {
             csrfService.removeToken(sessionCookie.get().getValue());
             clearCookie(response, sessionCookie.get().getName());
         }
