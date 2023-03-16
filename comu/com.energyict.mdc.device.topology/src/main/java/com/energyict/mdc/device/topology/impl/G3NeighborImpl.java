@@ -242,7 +242,7 @@ public class G3NeighborImpl extends PLCNeighborImpl implements G3Neighbor {
             this.setShortAddress(g3Neighbor.getShortAddress());
         }
 
-        if (!g3Neighbor.getState().equals(G3NodeState.UNKNOWN)) {
+        if (g3Neighbor.getState() != null && !g3Neighbor.getState().equals(G3NodeState.UNKNOWN)) {
             this.setState(g3Neighbor.getState());
         }
 
