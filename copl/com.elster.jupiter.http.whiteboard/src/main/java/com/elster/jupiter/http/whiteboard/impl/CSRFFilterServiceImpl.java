@@ -103,11 +103,6 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
         return true;
     }
 
-    @Override
-    public String getBlackListedCharecters() {
-        return bundleContext.getProperty("blackListedCharecters");
-    }
-
     private boolean isFormSubmitRequest(HttpServletRequest request) {
         return Stream.of(POST, PUT, DELETE).anyMatch(request.getMethod()::equalsIgnoreCase);
     }

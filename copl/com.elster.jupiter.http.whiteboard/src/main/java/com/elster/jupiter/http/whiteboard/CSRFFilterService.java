@@ -27,5 +27,4 @@ public interface CSRFFilterService {
 
     public boolean handleCSRFSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException;
 
-    public String getBlackListedCharecters();
 }
