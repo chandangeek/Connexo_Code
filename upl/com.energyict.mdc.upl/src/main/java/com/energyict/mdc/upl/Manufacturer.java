@@ -27,6 +27,10 @@ public enum Manufacturer {
     LandisAndGyr {
         @Override
         public Set<LandisAndGyrModel> getModels() { return EnumSet.allOf(LandisAndGyrModel.class); }
+    },
+    ItronModel {
+        @Override
+        public Set<ItronModel> getModels() { return EnumSet.allOf(ItronModel.class); }
     };
 
     abstract public Set<? extends Model> getModels();
