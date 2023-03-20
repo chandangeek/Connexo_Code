@@ -45,6 +45,7 @@ import com.energyict.protocolimpl.utils.TempFileLoader;
 import com.energyict.protocolimplv2.dlms.AbstractDlmsProtocol;
 import com.energyict.protocolimplv2.dlms.acud.AcudCreditUtils;
 import com.energyict.protocolimplv2.dlms.acud.AcudGateway;
+import com.energyict.protocolimplv2.dlms.acud.properties.AcudDlmsProperties;
 import com.energyict.protocolimplv2.messages.ActivityCalendarDeviceMessage;
 import com.energyict.protocolimplv2.messages.ChargeDeviceMessage;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
@@ -142,6 +143,8 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     protected CollectedMessage executeMessage(OfflineDeviceMessage pendingMessage, CollectedMessage collectedMessage) throws IOException {
         if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER)) {
             upgradeFirmware(pendingMessage);
+        } else if (pendingMessage.getSpecification().equals(FirmwareDeviceMessage.UPGRADE_FIRMWARE_URL)) {
+            upgradeGatewayFirmware(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_MONEY_CREDIT_THRESHOLD)) {
             updateMoneyCreditThreshold(pendingMessage);
         } else if (pendingMessage.getSpecification().equals(CreditDeviceMessage.UPDATE_CONSUMPTION_CREDIT_THRESHOLD)) {
@@ -599,31 +602,51 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
     }
 
     private void postGatewayConfigurationJson(OfflineDeviceMessage pendingMessage)  throws IOException {
-        HttpURLConnection httpConnection = null;
         String hostAddress = ((AcudGateway) getProtocol()).getHostAddress();
         int portNumber = ((AcudGateway) getProtocol()).getPortNumber();
 
-        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + "/config";
-        getProtocol().journal("Posting gateway configuration to " + urlConnection);
+        AcudDlmsProperties properties = (AcudDlmsProperties)getProtocol().getDlmsSessionProperties();
+        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + properties.getGatewayConfigUrl();
 
+        final String jsonInputString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, gatewayConfigurationJson).getValue();
+        byte[] input = jsonInputString.getBytes("utf-8");
+
+        doPost(urlConnection, input, true);
+    }
+
+    private void upgradeGatewayFirmware(OfflineDeviceMessage pendingMessage)  throws IOException {
+        String hostAddress = ((AcudGateway) getProtocol()).getHostAddress();
+        int portNumber = ((AcudGateway) getProtocol()).getPortNumber();
+
+        AcudDlmsProperties properties = (AcudDlmsProperties)getProtocol().getDlmsSessionProperties();
+        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + properties.getGatewayFirmwareUrl();
+
+        String path = getDeviceMessageAttributeValue(pendingMessage, DeviceMessageConstants.firmwareUpdateFileAttributeName);
+        byte[] binaryImage = TempFileLoader.loadTempFile(path);
+        doPost(urlConnection, binaryImage, false);
+    }
+
+    private void doPost(String urlConnection, byte[] binary, boolean isJson) throws IOException {
+        HttpURLConnection httpConnection = null;
+        getProtocol().journal("Posting to " + urlConnection);
         try {
             URL connexoUrl = new URL(urlConnection);
             httpConnection = (HttpURLConnection) connexoUrl.openConnection();
             httpConnection.setRequestMethod("POST");
-            httpConnection.setRequestProperty("Accept", "application/json");
+            if (isJson) {
+                httpConnection.setRequestProperty("Content-Type", "application/json");
+            }
             httpConnection.setDoOutput(true);
             httpConnection.setReadTimeout(30000);
 
-            final String jsonInputString = MessageConverterTools.getDeviceMessageAttribute(pendingMessage, gatewayConfigurationJson).getValue();
-
             try(OutputStream os = httpConnection.getOutputStream()) {
-                byte[] input = jsonInputString.getBytes("utf-8");
-                os.write(input, 0, input.length);
+                os.write(binary, 0, binary.length);
+                os.flush();
             }
 
             int responseCode = httpConnection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
-                throw new ProtocolException("Configuration change is not applied. Gateway response code is: " + responseCode);
+                throw new ProtocolException("Change is not applied. Gateway response code is: " + responseCode);
             }
         } catch (Exception e) {
             throw new ProtocolException(e);
@@ -632,5 +655,6 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
                 httpConnection.disconnect();
             }
         }
+
     }
 }

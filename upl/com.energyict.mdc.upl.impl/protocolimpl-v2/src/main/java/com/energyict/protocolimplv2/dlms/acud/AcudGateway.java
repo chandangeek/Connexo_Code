@@ -1,6 +1,5 @@
 package com.energyict.protocolimplv2.dlms.acud;
 
-import com.energyict.cim.EndDeviceType;
 import com.energyict.mdc.channels.ip.InboundIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundWebServiceConnectionType;
@@ -22,16 +21,28 @@ import com.energyict.mdc.upl.nls.NlsService;
 import com.energyict.mdc.upl.offline.OfflineDevice;
 import com.energyict.mdc.upl.offline.OfflineRegister;
 import com.energyict.mdc.upl.properties.Converter;
+import com.energyict.mdc.upl.properties.HasDynamicProperties;
 import com.energyict.mdc.upl.properties.PropertySpecService;
+
+import com.energyict.cim.EndDeviceType;
+import com.energyict.dlms.exceptionhandler.DLMSIOExceptionHandler;
 import com.energyict.protocol.LoadProfileReader;
 import com.energyict.protocolimplv2.dialects.NoParamsDeviceProtocolDialect;
+import com.energyict.protocolimplv2.dlms.acud.properties.AcudGatewayConfigurationSupport;
 import com.energyict.protocolimplv2.messages.ConfigurationChangeDeviceMessage;
 import com.energyict.protocolimplv2.messages.FirmwareDeviceMessage;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static com.google.common.net.HttpHeaders.USER_AGENT;
 
 public class AcudGateway extends Acud {
 
@@ -88,8 +99,16 @@ public class AcudGateway extends Acud {
     @Override
     public List<DeviceMessageSpec> getSupportedMessages() {
         return Arrays.asList(
-                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE_AND_ACTIVATE_AND_IMAGE_IDENTIFIER.get(getPropertySpecService(), getNlsService(), getConverter()),
+                FirmwareDeviceMessage.UPGRADE_FIRMWARE_WITH_USER_FILE.get(getPropertySpecService(), getNlsService(), getConverter()),
                 ConfigurationChangeDeviceMessage.WRITE_CONFIGURATION_TEXT.get(getPropertySpecService(), getNlsService(), getConverter()));
+    }
+
+    @Override
+    protected HasDynamicProperties getDlmsConfigurationSupport() {
+        if (dlmsConfigurationSupport == null) {
+            dlmsConfigurationSupport = new AcudGatewayConfigurationSupport(getPropertySpecService());
+        }
+        return dlmsConfigurationSupport;
     }
 
     public EndDeviceType getTypeMeter() {
@@ -103,7 +122,7 @@ public class AcudGateway extends Acud {
 
     @Override
     public String getVersion() {
-        return "$Date: 2023-02-23 $";
+        return "$Date: 2023-03-20 $";
     }
 
     @Override
@@ -122,5 +141,45 @@ public class AcudGateway extends Acud {
 
     public int getPortNumber() {
         return portNumber;
+    }
+
+    @Override
+    public String getFirmwareVersion() {
+        String hostAddress = this.getHostAddress();
+        int portNumber = this.getPortNumber();
+
+        String urlConnection = "http://" + hostAddress.trim() + ":" + portNumber + getDlmsSessionProperties().getGatewayFirmwareVersionUrl();
+        try {
+            return sendGetFirmwareVersion(urlConnection);
+        } catch (IOException e) {
+            throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
+        }
+
+    }
+
+    private String sendGetFirmwareVersion(String urlConnection) throws IOException {
+        journal("Getting firmware version from " + urlConnection);
+        URL obj = new URL(urlConnection);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", USER_AGENT);
+        int responseCode = con.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) { // success
+            try(BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()))) {
+                String inputLine;
+                StringBuilder response = new StringBuilder();
+
+                while ((inputLine = in.readLine()) != null) {
+                    response.append(inputLine);
+                }
+                in.close();
+                journal("Received firmware version: " + response.toString());
+                return response.toString();
+            }
+        } else {
+            journal("Getting firmware version from " + urlConnection + "failed with response code: " + responseCode);
+            throw new IOException("Getting firmware version from " + urlConnection + "failed with response code: " + responseCode);
+        }
     }
 }

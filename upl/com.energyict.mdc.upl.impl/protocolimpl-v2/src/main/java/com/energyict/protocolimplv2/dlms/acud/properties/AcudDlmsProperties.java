@@ -12,6 +12,10 @@ public class AcudDlmsProperties extends DlmsProperties {
 
     public static final String OVERWRITE_SERVER_LOWER_MAC_ADDRESS = "OverwriteServerLowerMacAddress";
 
+    public static final String POST_GATEWAY_CONFIG_URL = "PostGatewayConfigUrl";
+    public static final String POST_GATEWAY_FIRMWARE_URL = "PostGatewayFirmwareUrl";
+    public static final String GET_GATEWAY_FIRMWARE_VERSION_URL = "GetGatewayFirmwareVersionUrl";
+
     @Override
     public byte[] getSystemIdentifier() {
         return null;
@@ -41,5 +45,17 @@ public class AcudDlmsProperties extends DlmsProperties {
 
     public boolean isOverwriteServerLowerMacAddress() {
         return getProperties().<Boolean>getTypedProperty(OVERWRITE_SERVER_LOWER_MAC_ADDRESS, false);
+    }
+
+    public String getGatewayConfigUrl() {
+        return getProperties().getTypedProperty(POST_GATEWAY_CONFIG_URL, "");
+    }
+
+    public String getGatewayFirmwareUrl() {
+        return getProperties().getTypedProperty(POST_GATEWAY_FIRMWARE_URL, "");
+    }
+
+    public String getGatewayFirmwareVersionUrl() {
+        return getProperties().getTypedProperty(GET_GATEWAY_FIRMWARE_VERSION_URL, "");
     }
 }
