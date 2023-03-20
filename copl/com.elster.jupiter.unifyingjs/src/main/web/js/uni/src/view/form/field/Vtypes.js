@@ -204,12 +204,6 @@ Ext.define('Uni.view.form.field.Vtypes', {
     },
 
     checkLength: function (val) {
-        var tokens = val.split(".");
-        if (tokens.length == 2) {
-            return true
-        } else if (tokens.length == 3) {
-            return tokens[2] === 'signed';
-        }
-        return false;
+       return true;
     }
 });
