@@ -4,6 +4,9 @@
 
 package com.elster.jupiter.mail.impl;
 
+import static com.elster.jupiter.bootstrap.BootstrapService.KEY_FILE;
+
+import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.mail.InvalidAddressException;
 import com.elster.jupiter.mail.MailAddress;
@@ -41,6 +44,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
 @Component(name = "com.elster.jupiter.mail", service = {MailService.class, MessageSeedProvider.class}, property = "name=" + MailService.COMPONENT_NAME, immediate = true)
 public class MailServiceImpl implements IMailService, MessageSeedProvider {
 
@@ -63,16 +67,17 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
     private String smtpPort;
 
     private PasswordDecryptService passwordDecryptService;
+    private BootstrapService bootstrapService;
 
+    //this constructor is for testing
     @Inject
     public MailServiceImpl(PasswordDecryptService passwordDecryptService) {
         this.passwordDecryptService = passwordDecryptService;
     }
 
-    public MailServiceImpl(){
-
+    public MailServiceImpl() {
+        // this constructor is for OSGI purpose
     }
-
 
     @Override
     public MailMessageBuilder messageBuilder(MailAddress first, MailAddress... other) {
@@ -112,7 +117,13 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
             LOGGER.log(Level.SEVERE, e.getMessage() == null ? e.toString() : e.getMessage(), e);
         }
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
-        password = passwordDecryptService.getDecryptPassword(bundleContext.getProperty(MAIL_PASSWORD_PROPERTY), bundleContext.getProperty(KEY_FILE_PROPERTY));
+        String encryptedPassword = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
+        if (encryptedPassword != null) {
+            password = passwordDecryptService.getDecryptPassword(encryptedPassword, bundleContext.getProperty(KEY_FILE));
+        } else {
+            password = encryptedPassword;
+        }
+
     }
 
     private String getSmtpHost() {
@@ -130,9 +141,9 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         Properties properties = new Properties();
         properties.setProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost());
         properties.setProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort());
-        if(user != null && !user.isEmpty())
+        if (user != null && !user.isEmpty())
             properties.setProperty("mail.smtp.user", user);
-        if(password != null && !password.isEmpty())
+        if (password != null && !password.isEmpty())
             properties.setProperty("mail.smtp.password", password);
         final Session session = Session.getInstance(properties);
         return new MailSession() {
@@ -146,12 +157,11 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
                 Transport transport = null;
                 MessagingException rootException = null;
                 try {
-                    if(user != null && !user.isEmpty() && password != null && !password.isEmpty()) {
+                    if (user != null && !user.isEmpty() && password != null && !password.isEmpty()) {
                         transport = session.getTransport("smtp");
                         transport.connect(smtpHost, user, password);
                         transport.sendMessage(message, message.getAllRecipients());
-                    }
-                    else
+                    } else
                         Transport.send(message, message.getAllRecipients());
                 } catch (MessagingException e) {
                     rootException = e;
@@ -179,7 +189,7 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         return smtpPort;
     }
 
-    private void validateMailProperties(){
+    private void validateMailProperties() {
         List<String> badProperties = new ArrayList<>();
         validateMailProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost(), badProperties);
         validateMailProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort(), badProperties);
@@ -187,13 +197,13 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         validateMailProperty(MAIL_USER_PROPERTY, this.user, badProperties);
         validateMailProperty(MAIL_PASSWORD_PROPERTY, this.password, badProperties);
         */
-        if (!badProperties.isEmpty()){
+        if (!badProperties.isEmpty()) {
             throw new IncompleteMailConfigException(this.thesaurus, badProperties.toArray(new String[badProperties.size()]));
         }
     }
 
-    private void validateMailProperty(String propertyName, String value, List<String> badPropertiesCollector){
-        if (value == null){
+    private void validateMailProperty(String propertyName, String value, List<String> badPropertiesCollector) {
+        if (value == null) {
             badPropertiesCollector.add(propertyName);
         }
     }
@@ -209,7 +219,17 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
     }
 
     @Reference
-    public void setNlsService(NlsService nlsService){
+    public void setNlsService(NlsService nlsService) {
         this.thesaurus = nlsService.getThesaurus(COMPONENT_NAME, getLayer());
+    }
+
+    @Reference
+    public void setPasswordDecryptService(PasswordDecryptService passwordDecryptService) {
+        this.passwordDecryptService = passwordDecryptService;
+    }
+
+    @Reference
+    public void setBootstrapService(BootstrapService bootstrapService) {
+        this.bootstrapService = bootstrapService;
     }
 }

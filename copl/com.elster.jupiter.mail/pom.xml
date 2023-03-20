@@ -45,6 +45,10 @@
             <groupId>com.elster.jupiter</groupId>
             <artifactId>util</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.elster.jupiter</groupId>
+            <artifactId>bootstrap</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -62,11 +66,6 @@
             <artifactId>subethasmtp</artifactId>
             <version>3.1.7</version>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.elster.jupiter</groupId>
-            <artifactId>bootstrap</artifactId>
-            <scope>compile</scope>
         </dependency>
     </dependencies>
 

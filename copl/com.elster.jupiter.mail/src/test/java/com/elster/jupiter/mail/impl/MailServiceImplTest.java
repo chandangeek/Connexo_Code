@@ -65,7 +65,7 @@ public class MailServiceImplTest {
 
         when(nlsService.getThesaurus(anyString(), anyObject())).thenReturn(thesaurus);
         when(thesaurus.getString(anyString(), anyString()))
-                .thenAnswer(invocation->this.getTranslationByKey((String)invocation.getArguments()[0], (String)invocation.getArguments()[1]));
+                .thenAnswer(invocation -> this.getTranslationByKey((String) invocation.getArguments()[0], (String) invocation.getArguments()[1]));
         when(thesaurus.getFormat(any(MessageSeed.class)))
                 .thenAnswer(invocation -> new SimpleNlsMessageFormat((MessageSeed) invocation.getArguments()[0]));
     }
