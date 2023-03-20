@@ -1,27 +1,31 @@
 package com.energyict.mdc.engine.offline.gui.windows;
 
-import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.impl.core.offline.OfflineComServerProperties;
+import com.energyict.mdc.engine.impl.core.remote.RemoteProperties;
 import com.energyict.mdc.engine.offline.core.OfflinePropertiesProvider;
 import com.energyict.mdc.engine.offline.core.TranslatorProvider;
 import com.energyict.mdc.engine.offline.gui.UiHelper;
-import com.energyict.mdc.engine.offline.gui.beans.TableBuilder;
 import com.energyict.mdc.engine.offline.gui.decorators.TableBubbleSortDecorator;
-import com.energyict.mdc.engine.offline.gui.models.AspectTableModel;
 import com.energyict.mdc.engine.offline.gui.util.EisIcons;
-import com.energyict.protocol.CustomerVersion;
+
 import com.jidesoft.swing.JideSwingUtilities;
 
-import javax.swing.*;
-import javax.swing.table.TableModel;
-import java.awt.*;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.font.TextAttribute;
-import java.util.ArrayList;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Map;
 
 public class AboutBoxPnl extends JPanel {
@@ -42,7 +46,6 @@ public class AboutBoxPnl extends JPanel {
     private javax.swing.JLabel mailLabel2;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JLabel pictureLabel;
-    private javax.swing.JLabel protocolVersionLabel;
     private javax.swing.JLabel telephoneLabel;
     private javax.swing.JLabel telephoneLabel2;
     private javax.swing.JScrollPane theScrollPane;
@@ -67,15 +70,6 @@ public class AboutBoxPnl extends JPanel {
         version = version == null ? "" : version + " ";
         protocolTesterLabel.setText(applicationName + " " + version);
         buildLabel.setText("(Build " + version + ")");
-
-        CustomerVersion protocolVersion = getProtocolVersion();
-        if (protocolVersion == null) {
-            versionPanel.remove(protocolVersionLabel);
-        } else {
-            String tmp = TranslatorProvider.instance.get().getTranslator().getTranslation("protocolVersion");
-            tmp += " " + protocolVersion.getVersion();
-            protocolVersionLabel.setText(tmp);
-        }
 
         initDetailsPanel();
     }
@@ -115,37 +109,6 @@ public class AboutBoxPnl extends JPanel {
         editorPane.setText(htmlText.toString());
     }
 
-    private TableModel getTableModel() {
-        String strCol[] = {"title", "specifiedBy", "implementedBy", "version", "minimumVersion"};
-        TableBuilder tblBuilder = new TableBuilder(getTableData(), strCol);
-        AspectTableModel tableModel = tblBuilder.getTableModel();
-        if (tableDecorator != null) {
-            tableDecorator.removeMouseListenersFromHeaderInTable();
-        }
-        tableDecorator = new TableBubbleSortDecorator(tableModel);
-        tableDecorator.sortInitially(0, true); // order by title
-        return tableDecorator;
-    }
-
-    private List getTableData() {
-//        final MdwComponentFactory factory = MeteringWarehouse.getCurrent().getMdwComponentFactory();
-//
-//        final List<ComponentDecorator> decos = new ArrayList<ComponentDecorator>();
-//
-//        final List<MdwComponent> registeredComponents = (List<MdwComponent>) factory.findAll();
-//
-//        for (final MdwComponent registeredComponent : registeredComponents) {
-//            // Check if the component is available through the classpath. If it is, we add a decorator. If not we would otherwise
-//            // get an empty line, so we don't add it.
-//            if (registeredComponent.isAvailable()) {
-//                decos.add(new ComponentDecorator(registeredComponent));
-//            }
-//        }
-//
-//        return decos;
-        return new ArrayList();
-    }
-
     private void initComponents() {
         GridBagConstraints gridBagConstraints;
 
@@ -155,7 +118,6 @@ public class AboutBoxPnl extends JPanel {
         versionPanel = new javax.swing.JPanel();
         protocolTesterLabel = new JLabel();
         buildLabel = new javax.swing.JLabel();
-        protocolVersionLabel = new javax.swing.JLabel();
         mainPanel = new javax.swing.JPanel();
         infoPanel = new javax.swing.JPanel();
         copyrightLabel = new javax.swing.JLabel();
@@ -207,14 +169,6 @@ public class AboutBoxPnl extends JPanel {
         gridBagConstraints.gridy = 1;
         gridBagConstraints.insets = new Insets(2, 2, 2, 2);
         versionPanel.add(buildLabel, gridBagConstraints);
-
-        protocolVersionLabel.setFont(new Font("Dialog", 0, 12));
-        protocolVersionLabel.setText("protocol version");
-        gridBagConstraints = new GridBagConstraints();
-        gridBagConstraints.gridx = 0;
-        gridBagConstraints.gridy = 2;
-        gridBagConstraints.insets = new Insets(12, 2, 2, 2);
-        versionPanel.add(protocolVersionLabel, gridBagConstraints);
 
         contentPanel.add(versionPanel, BorderLayout.CENTER);
 
@@ -406,18 +360,5 @@ public class AboutBoxPnl extends JPanel {
         JDialog parentDialog = (JDialog) (getRootPane().getParent());
         parentDialog.setVisible(false);
         parentDialog.dispose();
-    }
-
-    public CustomerVersion getProtocolVersion() {
-        try {
-            Class cls = Class.forName("com.energyict.protocolimpl.base.ProtocolVersionImpl");
-            return (CustomerVersion) cls.newInstance();
-        } catch (ClassNotFoundException ex) {
-            return null;
-        } catch (InstantiationException ex) {
-            return null;
-        } catch (IllegalAccessException ex) {
-            return null;
-        }
     }
 }

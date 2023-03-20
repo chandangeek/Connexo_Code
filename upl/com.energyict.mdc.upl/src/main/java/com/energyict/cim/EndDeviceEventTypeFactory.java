@@ -2319,4 +2319,133 @@ public class EndDeviceEventTypeFactory {
     public static EndDeviceEventType getBrokenCaseSwitch() {
         return new EndDeviceEventType("4.2.29.13");
     }
+
+    public static EndDeviceEventType getWaterEventTypeApplicationOk() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.NORMAL);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeApplicationBusy() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.FULL);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeApplicationError() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.ERROR);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeAbnormalSituation() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.CORRUPTED);
+    }
+
+
+    public static EndDeviceEventType getWaterEventTypePowerOk() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.BATTERY, EndDeviceSubdomain.VOLTAGE, EndDeviceEventOrAction.NORMAL);
+    }
+
+    public static EndDeviceEventType getWaterEventTypePowerLow() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.BATTERY, EndDeviceSubdomain.VOLTAGE, EndDeviceEventOrAction.LIMITREACHED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypePermanentErrorNo() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.CONFIRMED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypePermanentError() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.INVALID);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeTemporaryErrorNo() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.NORMAL);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeTemporaryError() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.FIRMWARE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.FAILED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeLeakageAlarmCleared() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.NORMAL);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeLeakageAlarm() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.INVALID);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeOverconsumptionCleared() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.SWELLSTOPPED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeOverconsumption() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.SWELLSTARTED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeDevicePaired() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.COMMUNICATION, EndDeviceSubdomain.PARENTDEVICE, EndDeviceEventOrAction.CONNECTED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeDeviceRemoved() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.COMMUNICATION, EndDeviceSubdomain.PARENTDEVICE, EndDeviceEventOrAction.RELEASED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeMemorizedBackflow() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.REVERSED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeWaterLeakage() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.LOSSDETECTED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeStuckMeter() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.COMMUNICATION, EndDeviceSubdomain.PARENTDEVICE, EndDeviceEventOrAction.STOPPED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeUnderflow() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.UNSTABLE);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeOverflow() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.WATERSUPPLY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.OVERFLOW);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeMagneticFraud() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.MAGNETICSWITCH, EndDeviceEventOrAction.ERROR);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeUnclipping() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.COMMUNICATION, EndDeviceSubdomain.PARENTDEVICE, EndDeviceEventOrAction.DISABLED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeFrostRisk() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.TEMPERATURE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.MINLIMITREACHED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeActualRemoval() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.COMMUNICATION, EndDeviceSubdomain.PARENTDEVICE, EndDeviceEventOrAction.REMOVED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeHighTemp() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.TEMPERATURE, EndDeviceSubdomain.STATUS, EndDeviceEventOrAction.MAXLIMITREACHED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeClockSync() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.CLOCK, EndDeviceSubdomain.TIMESYNC, EndDeviceEventOrAction.CONFIRMED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeMagneticFlag() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.MAGNETICSWITCH, EndDeviceEventOrAction.INVALID);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeBatteryUsageIndicator() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.BATTERY, EndDeviceSubdomain.USAGE, EndDeviceEventOrAction.ERROR);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeActualBurst() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.COMMUNICATION, EndDeviceSubdomain.BUFFER, EndDeviceEventOrAction.ERROR);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeReversedMeter() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.PARENTDEVICE, EndDeviceEventOrAction.REVERSED);
+    }
+
+    public static EndDeviceEventType getWaterEventTypeActualBackflow() {
+        return new EndDeviceEventType(EndDeviceType.WATERMETER, EndDeviceDomain.METROLOGY, EndDeviceSubdomain.FLOW, EndDeviceEventOrAction.REVERSED);
+    }
 }

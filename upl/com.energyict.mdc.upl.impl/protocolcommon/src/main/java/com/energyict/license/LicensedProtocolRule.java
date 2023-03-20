@@ -425,6 +425,8 @@ public enum LicensedProtocolRule implements LicensedProtocol {
     HONEYWELL_V200_MBUS(351, "com.energyict.protocolimplv2.dlms.idis.mbus.water.HoneywellWaterMBusV200Residential"),
     CREST_SENSOR(352, "com.energyict.protocolimplv2.coap.crest.CrestSensor"),
 
+    MERLIN_WATER_OUTBOUND(353, "com.energyict.protocolimplv2.water.merlin.MerlinOutboundProtocol"),
+
     // Deprecated
     FERRANTI(10001, "com.energyict.protocolimpl.iec1107.ferranti.Ferranti"),
     DLMS_Z3_MESSAGING(10002, "com.energyict.protocolimpl.dlms.Z3.DLMSZ3Messaging"),

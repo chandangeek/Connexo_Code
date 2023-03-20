@@ -4,6 +4,8 @@
 
 package com.energyict.cim;
 
+import com.energyict.protocol.MeterEvent;
+
 import java.util.Objects;
 
 /**
@@ -602,7 +604,40 @@ public enum EndDeviceEventTypeMapping {
     PROTOCOL_LOG_CLEARED                    (100128, EndDeviceEventTypeFactory.getProtocolLogClearedEventType()),
     METER_CLOCK_INVALID                     (100129, EndDeviceEventTypeFactory.getMeterClockInvalidEventType()),
     HEART_BEAT                              (100130, EndDeviceEventTypeFactory.getHeartBeatEventType()),
-    CLEAR_NODE_LIST                         (100131, EndDeviceEventTypeFactory.getClearNodeListEventType());
+    CLEAR_NODE_LIST                         (100131, EndDeviceEventTypeFactory.getClearNodeListEventType()),
+    WATER_APPLICATION_OK                    (MeterEvent.WATER_APPLICATION_OK, EndDeviceEventTypeFactory.getWaterEventTypeApplicationOk()),
+    WATER_APPLICATION_BUSY                  (MeterEvent.WATER_APPLICATION_BUSY, EndDeviceEventTypeFactory.getWaterEventTypeApplicationBusy()),
+    WATER_APPLICATION_ERROR                 (MeterEvent.WATER_APPLICATION_ERROR, EndDeviceEventTypeFactory.getWaterEventTypeApplicationError()),
+    WATER_ABNORMAL_SITUATION                (MeterEvent.WATER_ABNORMAL_SITUATION, EndDeviceEventTypeFactory.getWaterEventTypeAbnormalSituation()),
+    WATER_POWER_OK                          (MeterEvent.WATER_POWER_OK, EndDeviceEventTypeFactory.getWaterEventTypePowerOk()),
+    WATER_POWER_LOW                         (MeterEvent.WATER_POWER_LOW, EndDeviceEventTypeFactory.getWaterEventTypePowerLow()),
+    WATER_PERMANENT_ERROR_NO                (MeterEvent.WATER_PERMANENT_ERROR_NO, EndDeviceEventTypeFactory.getWaterEventTypePermanentErrorNo()),
+    WATER_PERMANENT_ERROR                   (MeterEvent.WATER_PERMANENT_ERROR, EndDeviceEventTypeFactory.getWaterEventTypePermanentError()),
+    WATER_TEMPORARY_ERROR_NO                (MeterEvent.WATER_TEMPORARY_ERROR_NO, EndDeviceEventTypeFactory.getWaterEventTypeTemporaryErrorNo()),
+    WATER_TEMPORARY_ERROR                   (MeterEvent.WATER_TEMPORARY_ERROR, EndDeviceEventTypeFactory.getWaterEventTypeTemporaryError()),
+    WATER_LEAKAGE_ALARM_CLEARED             (MeterEvent.WATER_LEAKAGE_ALARM_CLEARED, EndDeviceEventTypeFactory.getWaterEventTypeLeakageAlarmCleared()),
+    WATER_LEAKAGE_ALARM                     (MeterEvent.WATER_LEAKAGE_ALARM, EndDeviceEventTypeFactory.getWaterEventTypeLeakageAlarm()),
+    WATER_OVERCONSUMPTION_CLEARED           (MeterEvent.WATER_OVERCONSUMPTION_CLEARED, EndDeviceEventTypeFactory.getWaterEventTypeOverconsumptionCleared()),
+    WATER_OVERCONSUMPTION                   (MeterEvent.WATER_OVERCONSUMPTION, EndDeviceEventTypeFactory.getWaterEventTypeOverconsumption()),
+    WATER_DEVICE_PAIRED                     (MeterEvent.WATER_DEVICE_PAIRED, EndDeviceEventTypeFactory.getWaterEventTypeDevicePaired()),
+    WATER_DEVICE_REMOVAL                    (MeterEvent.WATER_DEVICE_REMOVAL, EndDeviceEventTypeFactory.getWaterEventTypeDeviceRemoved()),
+    WATER_MEMORIZED_BACKFLOW                (MeterEvent.WATER_MEMORIZED_BACKFLOW, EndDeviceEventTypeFactory.getWaterEventTypeMemorizedBackflow()),
+    WATER_LEAKAGE                           (MeterEvent.WATER_LEAKAGE, EndDeviceEventTypeFactory.getWaterEventTypeWaterLeakage()),
+    WATER_STUCK_METER                       (MeterEvent.WATER_STUCK_METER, EndDeviceEventTypeFactory.getWaterEventTypeStuckMeter()),
+    WATER_UNDERFLOW                         (MeterEvent.WATER_UNDERFLOW, EndDeviceEventTypeFactory.getWaterEventTypeUnderflow()),
+    WATER_OVERFLOW                          (MeterEvent.WATER_OVERFLOW, EndDeviceEventTypeFactory.getWaterEventTypeOverflow()),
+    WATER_MAGNETIC_FRAUD                    (MeterEvent.WATER_MAGNETIC_FRAUD, EndDeviceEventTypeFactory.getWaterEventTypeMagneticFraud()),
+    WATER_UNCLIPPING                        (MeterEvent.WATER_UNCLIPPING, EndDeviceEventTypeFactory.getWaterEventTypeUnclipping()),
+    WATER_FROST_RISK                        (MeterEvent.WATER_FROST_RISK, EndDeviceEventTypeFactory.getWaterEventTypeFrostRisk()),
+    WATER_ACTUAL_REMOVAL                    (MeterEvent.WATER_ACTUAL_REMOVAL, EndDeviceEventTypeFactory.getWaterEventTypeActualRemoval()),
+    WATER_HIGH_TEMP                         (MeterEvent.WATER_HIGH_TEMP, EndDeviceEventTypeFactory.getWaterEventTypeHighTemp()),
+    WATER_CLOCK_SYNC                        (MeterEvent.WATER_CLOCK_SYNC, EndDeviceEventTypeFactory.getWaterEventTypeClockSync()),
+    WATER_MAGNETIC_FIELD_FLAG               (MeterEvent.WATER_MAGNETIC_FIELD_FLAG, EndDeviceEventTypeFactory.getWaterEventTypeMagneticFlag()),
+    WATER_BATTERY_USAGE_INDICATOR           (MeterEvent.WATER_BATTERY_USAGE_INDICATOR, EndDeviceEventTypeFactory.getWaterEventTypeBatteryUsageIndicator()),
+    WATER_ACTUAL_BURST                      (MeterEvent.WATER_ACTUAL_BURST, EndDeviceEventTypeFactory.getWaterEventTypeActualBurst()),
+    WATER_REVERSED_METER                    (MeterEvent.WATER_REVERSED_METER, EndDeviceEventTypeFactory.getWaterEventTypeReversedMeter()),
+    WATER_ACTUAL_BACKFLOW                   (MeterEvent.WATER_ACTUAL_BACKFLOW, EndDeviceEventTypeFactory.getWaterEventTypeActualBackflow())
+    ;
 
     private final int eisCode;
     private final EndDeviceEventType eventType;

@@ -8,17 +8,13 @@ package com.energyict.mdc.cim.webservices.inbound.soap.meterconfig;
 import com.elster.jupiter.domain.util.FieldMaxLengthException;
 import com.elster.jupiter.domain.util.FieldMaxLengthValidator;
 import com.elster.jupiter.util.Checks;
-import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-
 import com.elster.jupiter.util.streams.Functions;
-
 import com.energyict.mdc.cim.webservices.inbound.soap.MeterInfo;
-import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityInfo;
 import com.energyict.mdc.cim.webservices.inbound.soap.impl.SecurityKeyInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.customattributeset.CasInfo;
+import com.energyict.mdc.cim.webservices.outbound.soap.OperationEnum;
 
 import ch.iec.tc57._2011.executemeterconfig.FaultMessage;
 import ch.iec.tc57._2011.meterconfig.ConfigurationEvent;
@@ -31,19 +27,16 @@ import ch.iec.tc57._2011.meterconfig.ProductAssetModel;
 import ch.iec.tc57._2011.meterconfig.SimpleEndDeviceFunction;
 import ch.iec.tc57._2011.meterconfig.Status;
 import ch.iec.tc57._2011.meterconfig.Zone;
-
 import com.elster.connexo._2017.schema.customattributes.CustomAttributeSet;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKey;
 import com.elster.connexo._2018.schema.securitykeys.SecurityKeys;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -75,7 +68,7 @@ public class MeterConfigParser {
     }
 
     public MeterInfo asMeterInfo(Meter meter, List<SimpleEndDeviceFunction> endDeviceFunctions,
-                                 OperationEnum operationEnum) throws FaultMessage, FieldMaxLengthException {
+                                 OperationEnum operationEnum, boolean failOnExistentDevice) throws FaultMessage, FieldMaxLengthException {
         MeterInfo meterInfo = new MeterInfo();
         meterInfo.setSerialNumber(extractSerialNumber(meter).orElse(null));
 
@@ -85,6 +78,7 @@ public class MeterConfigParser {
                 meterInfo.setDeviceType(extractDeviceTypeName(meter));
                 meterInfo.setZones(extractDeviceZones(meter, endDeviceFunctions));
                 meterInfo.setShipmentDate(extractShipmentDate(meter));
+                meterInfo.setFailOnExistentDevice(failOnExistentDevice);
                 break;
             case UPDATE:
                 meterInfo.setDeviceName(extractDeviceNameForUpdate(meter));
@@ -109,7 +103,6 @@ public class MeterConfigParser {
                 break;
             default:
                 break;
-
         }
         meterInfo.setBatch(extractBatch(meter).orElse(null));
         meterInfo.setManufacturer(extractManufacturer(meter).orElse(null));

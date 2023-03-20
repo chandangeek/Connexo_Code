@@ -299,7 +299,7 @@ public class DeviceBuilderTest {
             fail("Exception should be thrown");
         } catch (FaultMessage e) {
         }
-        verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NAME_MUST_BE_UNIQUE);
+        verify(faultMessageFactory).meterConfigFaultMessageSupplier(DEVICE_NAME, MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE);
     }
 
     @Test
@@ -529,7 +529,7 @@ public class DeviceBuilderTest {
             fail("Exception should be thrown");
         } catch (FaultMessage e) {
         }
-        verify(faultMessageFactory).meterConfigFaultMessageSupplier(null, MessageSeeds.NAME_MUST_BE_UNIQUE);
+        verify(faultMessageFactory).meterConfigFaultMessageSupplier(null, MessageSeeds.NAME_AND_SERIAL_MUST_BE_UNIQUE);
     }
 
     @Test
