@@ -86,8 +86,6 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     private volatile TokenService<UserJWT> tokenService;
     private volatile SAMLSingleLogoutService samlSingleLogoutService;
 
-    private volatile BlackListTokenService blackListTokenService;
-
     private final Object registrationLock = new Object();
 
     private AtomicReference<EventAdmin> eventAdminHolder = new AtomicReference<>();
@@ -172,11 +170,6 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
         this.samlSingleLogoutService = samlSingleLogoutService;
     }
 
-    @Reference
-    public void setBlackListTokenService(BlackListTokenService blackListTokenService) {
-        this.blackListTokenService = blackListTokenService;
-    }
-
     @Reference(name = "ZResource", cardinality = ReferenceCardinality.MULTIPLE, policy = ReferencePolicy.DYNAMIC)
     public void addResource(HttpResource resource) {
         String alias = getAlias(resource.getAlias());
@@ -259,7 +252,6 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
                 bind(bundleContext).to(BundleContext.class);
                 bind(samlResponseService).to(SamlResponseService.class);
                 bind(WhiteBoardImpl.this).to(WhiteBoardImpl.class);
-                bind(blackListTokenService).to(BlackListTokenService.class);
                 bind(thesaurus).to(Thesaurus.class);
                 bind(thesaurus).to(MessageInterpolator.class);
                 bind(samlSingleLogoutService).to(SAMLSingleLogoutService.class);

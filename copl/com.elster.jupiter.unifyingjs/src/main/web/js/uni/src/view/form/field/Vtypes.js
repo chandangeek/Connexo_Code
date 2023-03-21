@@ -20,53 +20,9 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateReadingtype();
         this.validateImageFileExtension();
         this.validateFirmwareFileExtension();
-        this.validateDoubleExtension();
         this.validateCertificateFile();
         this.validateImportFileExtension();
         this.validateForBlacklistCharacters();
-    },
-
-    validateCertificateFile: function () {
-        var me = this;
-        Ext.apply(Ext.form.VTypes, {
-            certificateFileUpload: function (val, field) {
-                var fileName = /^.*\.(pem|cer)$/i;
-                return fileName.test(val) && me.checkLength(val);
-            },
-            certificateFileUploadText: Uni.I18n.translate('general.certficateValidationFailed.msg', 'UNI', 'File must be "pem" or "cert" format, with a single extension')
-        });
-    },
-
-    validateDoubleExtension: function () {
-        var me = this;
-        Ext.apply(Ext.form.VTypes, {
-            fileUpload: function (val, field) {
-                return me.checkLength(val);
-            },
-            fileUploadText: Uni.I18n.translate('general.doubleExtensionValidationFailed.msg', 'UNI', 'File name should contain one and only one extension.')
-        });
-    },
-
-    validateImportFileExtension: function () {
-        var me = this;
-        Ext.apply(Ext.form.VTypes, {
-            importFileUpload: function (val, field) {
-                var fileName = /^.*\.(csv|txt|xlsx|zip\.signed|xls|xml|zip)$/i;
-                return fileName.test(val) && me.checkLength(val);
-            },
-            importFileUploadText: Uni.I18n.translate('general.importValidationFailed.msg', 'UNI', 'File must be "csv", "txt", "xlsx" "xls", "xml", or "zip" format, with a single extension')
-        });
-    },
-
-    validateFirmwareFileExtension: function () {
-        var me = this;
-        Ext.apply(Ext.form.VTypes, {
-            firmwareFileUpload: function (val, field) {
-                var fileName = /^.*\.(bin|dat)$/i;
-                return fileName.test(val) && me.checkLength(val);
-            },
-            firmwareFileUploadText: Uni.I18n.translate('general.firmwareValidationFailed.msg', 'UNI', 'File must be "bin" or "dat" format, with a single extension')
-        });
     },
 
     validateForBlacklistCharacters: function () {
@@ -99,7 +55,7 @@ Ext.define('Uni.view.form.field.Vtypes', {
             image: function (v) {
                 return /^.*\.(jpg|JPG|png|PNG)$/.test(v);
             },
-            imageText: Uni.I18n.translate('validation.invalidFileFormat', 'UNI', 'Invalid file format')
+            imageText: Uni.I18n.translate('validation.invalidFileFormat', 'UNI', 'Invalid file format.')
         });
     },
 
@@ -201,9 +157,5 @@ Ext.define('Uni.view.form.field.Vtypes', {
         }
         var next10 = (((sum - 1) / 10) + 1) * 10;
         return next10 - sum;
-    },
-
-    checkLength: function (val) {
-       return true;
     }
 });
