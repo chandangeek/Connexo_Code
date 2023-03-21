@@ -152,7 +152,7 @@ Ext.define('Mdc.view.setup.devicecommunicationtask.DeviceCommunicationTaskPrevie
                                 },
                                 {
                                     xtype: 'displayfield',
-                                    name: 'isTracing',
+                                    name: 'traced',
                                     fieldLabel: Uni.I18n.translate('deviceCommunicationTask.tracing', 'MDC', 'Tracing'),
                                     renderer: function (value) {
                                         if (value === true) {
