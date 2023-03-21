@@ -43,4 +43,6 @@ public interface DeviceInFirmwareCampaign {
     Optional<ComTaskExecution> findOrCreateVerificationComTaskExecution();
 
     void delete();
+
+    boolean isPresent();
 }

@@ -549,4 +549,9 @@ public class FirmwareCampaignItemDomainExtension extends AbstractPersistentDomai
     public void delete() {
         getServiceCall().delete();
     }
+
+    @Override
+    public boolean isPresent() {
+        return false;
+    }
 }
