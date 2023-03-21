@@ -302,9 +302,11 @@ public class DeviceFirmwareMessagesResource {
         if (firmwareItem.isPresent()) {
             deviceMessage = firmwareItem.get().getDeviceMessage().get();
             firmwareItem.get().cancel();
-        }else {
-             deviceMessage = deviceMessageService.findAndLockDeviceMessageById(msgId)
-                    .filter(message -> device.equals(message.getDevice())).orElseThrow(conflictFactory.contextDependentConflictOn(name)
+        } else {
+            deviceMessage = deviceMessageService.findAndLockDeviceMessageById(msgId).filter(message ->
+                            device.equals(message.getDevice())).filter(message -> message.getStatus().isPredecessorOf(DeviceMessageStatus.CANCELED))
+                    .orElseThrow(conflictFactory.contextDependentConflictOn(name)
+                            .withMessageTitle(MessageSeeds.CANCEL_FIRMWARE_MESSAGE_CONCURRENT_FAIL_TITLE)
                             .withMessageTitle(MessageSeeds.CANCEL_FIRMWARE_MESSAGE_CONCURRENT_FAIL_TITLE)
                             .supplier());
             if (deviceMessage.getStatus() == DeviceMessageStatus.WAITING || deviceMessage.getStatus() == DeviceMessageStatus.PENDING && !firmwareService.hasRunningFirmwareTask(device)) {
