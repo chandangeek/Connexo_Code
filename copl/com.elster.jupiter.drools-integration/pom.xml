@@ -19,7 +19,7 @@
     <name>[Jupiter] com.elster.jupiter.drools-integration</name>
 
     <properties>
-        <drools.version>6.2.0.Final</drools.version>
+        <drools.version>6.5.0.Final</drools.version>
     </properties>
 
     <dependencyManagement>
