@@ -153,10 +153,10 @@ public class InstallerV10_8_1Impl implements FullInstaller {
     }
 
     private String getRefreshConTaskDashboardJobStatement() {
-        return dataModel.getRefreshJobStatement("REF_CONTASK_DASHBOARD", "CONNECTION_TASK_STATUS();", 5);
+        return dataModel.getRefreshJobStatement("REF_CONTASK_DASHBOARD", "CONNECTION_TASK_STATUS();", 1);
     }
 
     private String getRefreshComTaskDashboardJobStatement() {
-        return dataModel.getRefreshJobStatement("REF_COMTASK_DASHBOARD", "COMMUNICATION_TASK_STATUS();", 5);
+        return dataModel.getRefreshJobStatement("REF_COMTASK_DASHBOARD", "COMMUNICATION_TASK_STATUS();", 1);
     }
 }
