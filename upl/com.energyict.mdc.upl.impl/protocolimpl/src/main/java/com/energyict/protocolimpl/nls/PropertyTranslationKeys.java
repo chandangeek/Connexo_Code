@@ -54,7 +54,7 @@ public enum PropertyTranslationKeys implements TranslationKey {
     DLMS_MAXIMUM_NUMBER_OF_CLOCKSET_TRIES_DESCRIPTION("upl.property.dlms.maximumNumberOfClockSetTries.description", "Maximum number of clockset tries"),
     DLMS_CLOCKSET_ROUDTRIP_CORRECTION_TRESHOLD("upl.property.dlms.clocksetRoundTripCorrectionTreshold", "Clockset roundtrip correction treshold"),
     DLMS_CLOCKSET_ROUDTRIP_CORRECTION_TRESHOLD_DESCRIPTION("upl.property.dlms.clocksetRoundTripCorrectionTreshold.description", "Clockset roundtrip correction treshold"),
-    DLMS_CONFORMANCE_BLOCK_VALUE("upl.property.dlms.clocksetRoundTripCorrectionTreshold", "ConformanceBlockValue"),
+    DLMS_CONFORMANCE_BLOCK_VALUE("upl.property.dlms.conformanceBlockValue", "ConformanceBlockValue"),
     DLMS_MAX_REC_PDU_SIZE("upl.property.dlms.maxRecPduSize", "Maximum rec pdu size"),
     DLMS_MAX_REC_PDU_SIZE_DESCRIPTION("upl.property.dlms.maxRecPduSize.description", "Maximum rec pdu size"),
     DLMS_ISKRA_WRAPPER("upl.property.dlms.iskra.wrapper", "ISKRA wrapper"),

@@ -160,7 +160,7 @@ public class DLMSZMD extends DLMSSN implements RegisterProtocol, MessageProtocol
         return new ConformanceBlock(conformanceBlockValue);
     }
 
-        @Override
+    @Override
     protected void buildProfileData(byte bNROfChannels, ProfileData profileData, ScalerUnit[] scalerunit, UniversalObject[] intervalList) throws IOException {
         Calendar stdCalendar;
         Calendar dstCalendar;
