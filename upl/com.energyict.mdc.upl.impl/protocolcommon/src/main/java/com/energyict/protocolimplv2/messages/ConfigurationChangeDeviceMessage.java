@@ -984,8 +984,7 @@ public enum ConfigurationChangeDeviceMessage implements DeviceMessageSpecSupplie
     WRITE_CONFIGURATION_TEXT(31100, "Write configuration as text") {
         @Override
         public List<PropertySpec> getPropertySpecs(PropertySpecService service) {
-            return Collections.singletonList(/*this.stringSpecBuilder(service, gatewayConfigurationUrl, gatewayConfigurationUrlDefaultTranslation).setDefaultValue("http://192.168.5.120:8000/").finish(),*/
-                    this.stringTextareaSpec(service, gatewayConfigurationJson, gatewayConfigurationJsonDefaultTranslation));
+            return Collections.singletonList(this.stringTextareaSpec(service, gatewayConfigurationJson, gatewayConfigurationJsonDefaultTranslation));
         }
     };
 
