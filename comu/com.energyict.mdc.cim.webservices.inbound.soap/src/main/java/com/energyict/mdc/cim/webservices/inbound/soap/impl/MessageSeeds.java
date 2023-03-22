@@ -104,7 +104,7 @@ public enum MessageSeeds implements MessageSeed {
     NO_PUBLISHED_END_POINT_WITH_URL(4005, "NoPublishedEndPointConfiguredWithURL", "No published end point configuration is found by URL ''{0}''."),
     SYNC_MODE_NOT_SUPPORTED_GENERAL(4006, "SyncModeNotSupportedGeneral", "Synchronous mode isn''t supported."),
 
-    NAME_MUST_BE_UNIQUE(5001, "NameMustBeUnique", "Name and serial number must be unique."),
+    NAME_AND_SERIAL_MUST_BE_UNIQUE(5001, "NameAndSerialMustBeUnique", "Name and serial number must be unique."),
     ELEMENT_BY_REFERENCE_NOT_FOUND_OR_EMPTY(5002, "ElementByRefNotFoundOrEmpty", "Element by reference ''{0}'' not found or has an empty value"),
     IS_NOT_ALLOWED_TO_HAVE_DUPLICATED_ZONE_TYPES(5003, "DuplicatedZoneType", "Is not allowed to send the same zone type more than once, a device can be assigned to only one zone from a zone type"),
     NO_CONNECTION_METHOD_WITH_NAME(5004, "NoConnectionMethodWithName", "No connection method ''{0}''."),
