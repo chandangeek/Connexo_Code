@@ -6,7 +6,6 @@ package com.elster.jupiter.mail.impl;
 
 import static com.elster.jupiter.bootstrap.BootstrapService.KEY_FILE;
 
-import com.elster.jupiter.bootstrap.BootstrapService;
 import com.elster.jupiter.bootstrap.PasswordDecryptService;
 import com.elster.jupiter.mail.InvalidAddressException;
 import com.elster.jupiter.mail.MailAddress;
@@ -53,7 +52,6 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
     private static final String MAIL_USER_PROPERTY = "mail.user";
     private static final String MAIL_PASSWORD_PROPERTY = "mail.password";
     private static final String MAIL_FROM_PROPERTY = "mail.from";
-    private static final String KEY_FILE_PROPERTY = "com.elster.jupiter.datasource.keyfile";
 
     private static final Logger LOGGER = Logger.getLogger(MailServiceImpl.class.getName());
 
@@ -67,7 +65,6 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
     private String smtpPort;
 
     private PasswordDecryptService passwordDecryptService;
-    private BootstrapService bootstrapService;
 
     //this constructor is for testing
     @Inject
@@ -118,7 +115,7 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         }
         user = bundleContext.getProperty(MAIL_USER_PROPERTY);
         String encryptedPassword = bundleContext.getProperty(MAIL_PASSWORD_PROPERTY);
-        if (encryptedPassword != null) {
+        if (encryptedPassword != null && !encryptedPassword.isEmpty()) {
             password = passwordDecryptService.getDecryptPassword(encryptedPassword, bundleContext.getProperty(KEY_FILE));
         } else {
             password = encryptedPassword;
@@ -228,8 +225,4 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         this.passwordDecryptService = passwordDecryptService;
     }
 
-    @Reference
-    public void setBootstrapService(BootstrapService bootstrapService) {
-        this.bootstrapService = bootstrapService;
-    }
 }
