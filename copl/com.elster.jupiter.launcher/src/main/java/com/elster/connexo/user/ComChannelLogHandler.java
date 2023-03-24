@@ -22,7 +22,7 @@ public class ComChannelLogHandler extends FileHandler {
     private static class ComChannelLogFormatter extends Formatter {
 
         @Override
-        public String format(LogRecord record) {
+        public synchronized String format(LogRecord record) {
             return extractInfo(record);
         }
 
@@ -46,8 +46,6 @@ public class ComChannelLogHandler extends FileHandler {
                 return messageInRecord;
             }
         }
-
-
     }
 
 }
