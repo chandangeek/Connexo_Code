@@ -138,10 +138,12 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
         Properties properties = new Properties();
         properties.setProperty(MAIL_SMTP_HOST_PROPERTY, getSmtpHost());
         properties.setProperty(MAIL_SMTP_PORT_PROPERTY, getSmtpPort());
-        if (user != null && !user.isEmpty())
+        if (user != null && !user.isEmpty()) {
             properties.setProperty("mail.smtp.user", user);
-        if (password != null && !password.isEmpty())
+        }
+        if (password != null && !password.isEmpty()) {
             properties.setProperty("mail.smtp.password", password);
+        }
         final Session session = Session.getInstance(properties);
         return new MailSession() {
             @Override
@@ -158,8 +160,9 @@ public class MailServiceImpl implements IMailService, MessageSeedProvider {
                         transport = session.getTransport("smtp");
                         transport.connect(smtpHost, user, password);
                         transport.sendMessage(message, message.getAllRecipients());
-                    } else
+                    } else {
                         Transport.send(message, message.getAllRecipients());
+                    }
                 } catch (MessagingException e) {
                     rootException = e;
                     // TODO
