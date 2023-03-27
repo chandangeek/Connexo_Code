@@ -18,7 +18,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <jetty-server.version>9.4.28.v20200408</jetty-server.version>
+        <jetty-server.version>9.4.31.v20200723</jetty-server.version>
         <serialio.version>10.0.4.2</serialio.version>
         <org.rxtx.version>2.2pre2</org.rxtx.version>
         <jackson.version>2.10.3</jackson.version>
