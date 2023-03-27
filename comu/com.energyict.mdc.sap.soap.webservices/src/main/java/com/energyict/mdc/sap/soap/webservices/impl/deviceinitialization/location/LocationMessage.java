@@ -3,13 +3,21 @@
  */
 package com.energyict.mdc.sap.soap.webservices.impl.deviceinitialization.location;
 
+import com.elster.jupiter.nls.Thesaurus;
+import com.elster.jupiter.nls.TranslationKey;
 import com.elster.jupiter.util.Checks;
 import com.energyict.mdc.sap.soap.webservices.impl.AbstractSapMessage;
+import com.energyict.mdc.sap.soap.webservices.impl.TranslationKeys;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class LocationMessage extends AbstractSapMessage {
     private static final String LOCATION_ID_XML_NAME = "InstallationPointID";
+
+    private final Thesaurus thesaurus;
 
     private String deviceId;
     private String locationId;
@@ -19,7 +27,8 @@ public class LocationMessage extends AbstractSapMessage {
     private String locationIdInformation;
     private String modificationInformation;
 
-    private LocationMessage() {
+    private LocationMessage(Thesaurus thesaurus) {
+        this.thesaurus = thesaurus;
     }
 
     public String getDeviceId() {
@@ -50,8 +59,8 @@ public class LocationMessage extends AbstractSapMessage {
         return modificationInformation;
     }
 
-    static LocationMessage.Builder builder() {
-        return new LocationMessage().new Builder();
+    static LocationMessage.Builder builder(Thesaurus thesaurus) {
+        return new LocationMessage(thesaurus).new Builder();
     }
 
     public class Builder {
@@ -168,8 +177,17 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointAddressInformation)
-                    .map(information -> String.format("Region code =  %s\n,Country code =  %s\n,City name = %s\n,Street postal code = %s\n,Street name = %s\n,Houde id = %s\n", information.getRegionCode()
-                            .getValue(), information.getCountryCode(), information.getCityName(), information.getStreetPostalCode(), information.getStreetName(), information.getHouseID()))
+                    .map(information -> {
+                        Map<TranslationKey, String> map = new LinkedHashMap<>();
+                        map.put(TranslationKeys.REGION_CODE, information.getRegionCode().getValue());
+                        map.put(TranslationKeys.COUNTRY_CODE, information.getCountryCode());
+                        map.put(TranslationKeys.CITY_NAME, information.getCityName());
+                        map.put(TranslationKeys.STREET_POSTAL_CODE, information.getStreetPostalCode());
+                        map.put(TranslationKeys.STREET_NAME, information.getStreetName());
+                        map.put(TranslationKeys.HOUSE_ID, information.getHouseID());
+                        return map;
+                    })
+                    .map(this::stringifyAttributes)
                     .orElse(null);
         }
 
@@ -177,8 +195,15 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationnotification.UtilsDvceERPSmrtMtrLocNotifLoc::getModificationInformation)
-                    .map(information -> String.format("Installation date =  %s ,Installation time =  %s ,Remove date = %s ,Remove time = %s ", information.getInstallationDate(), information.getInstallationTime(), information
-                            .getRemoveDate(), information.getRemoveTime()))
+                    .map(information -> {
+                        Map<TranslationKey, Object> map = new LinkedHashMap<>();
+                        map.put(TranslationKeys.INSTALLATION_DATE, information.getInstallationDate());
+                        map.put(TranslationKeys.INSTALLATION_TIME, information.getInstallationTime());
+                        map.put(TranslationKeys.REMOVE_DATE, information.getRemoveDate());
+                        map.put(TranslationKeys.REMOVE_TIME, information.getRemoveTime());
+                        return map;
+                    })
+                    .map(this::stringifyAttributes)
                     .orElse(null);
         }
 
@@ -225,8 +250,17 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getInstallationPointAddressInformation)
-                    .map(information -> String.format("Region code =  %s\n,Country code =  %s\n,City name = %s\n,Street postal code = %s\n,Street name = %s\n,Houde id = %s\n", information.getRegionCode()
-                            .getValue(), information.getCountryCode(), information.getCityName(), information.getStreetPostalCode(), information.getStreetName(), information.getHouseID()))
+                    .map(information -> {
+                        Map<TranslationKey, String> map = new LinkedHashMap<>();
+                        map.put(TranslationKeys.REGION_CODE, information.getRegionCode().getValue());
+                        map.put(TranslationKeys.COUNTRY_CODE, information.getCountryCode());
+                        map.put(TranslationKeys.CITY_NAME, information.getCityName());
+                        map.put(TranslationKeys.STREET_POSTAL_CODE, information.getStreetPostalCode());
+                        map.put(TranslationKeys.STREET_NAME, information.getStreetName());
+                        map.put(TranslationKeys.HOUSE_ID, information.getHouseID());
+                        return map;
+                    })
+                    .map(this::stringifyAttributes)
                     .orElse(null);
         }
 
@@ -234,10 +268,22 @@ public class LocationMessage extends AbstractSapMessage {
             return Optional.ofNullable(utilitiesDevice.getLocation())
                     .flatMap(location -> location.stream().findFirst())
                     .map(com.energyict.mdc.sap.soap.wsdl.webservices.utilitiesdevicelocationbulknotification.UtilsDvceERPSmrtMtrLocNotifLoc::getModificationInformation)
-                    .map(information -> String.format("Installation date =  %s ,Installation time =  %s ,Removal date = %s ,Removal time = %s ", information.getInstallationDate(), information.getInstallationTime(), information
-                            .getRemoveDate(), information.getRemoveTime()))
+                    .map(information -> {
+                        Map<TranslationKey, Object> map = new LinkedHashMap<>();
+                        map.put(TranslationKeys.INSTALLATION_DATE, information.getInstallationDate());
+                        map.put(TranslationKeys.INSTALLATION_TIME, information.getInstallationTime());
+                        map.put(TranslationKeys.REMOVE_DATE, information.getRemoveDate());
+                        map.put(TranslationKeys.REMOVE_TIME, information.getRemoveTime());
+                        return map;
+                    })
+                    .map(this::stringifyAttributes)
                     .orElse(null);
         }
 
+        private String stringifyAttributes(Map<? extends TranslationKey, ?> attributes) {
+            return attributes.entrySet().stream()
+                    .map(attribute -> thesaurus.getFormat(attribute.getKey()).format() + " = " + attribute.getValue())
+                    .collect(Collectors.joining(", "));
+        }
     }
 }
