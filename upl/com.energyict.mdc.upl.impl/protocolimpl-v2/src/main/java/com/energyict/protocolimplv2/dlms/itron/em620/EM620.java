@@ -125,7 +125,7 @@ public class EM620 extends AbstractDlmsProtocol {
 
     @Override
     public ManufacturerInformation getManufacturerInformation() {
-        return new ManufacturerInformation(Manufacturer.ItronModel);
+        return null;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.energyict.protocolimplv2.dlms.itron.em620.properties;
 
+import com.energyict.dlms.InvokeIdAndPriorityHandler;
+import com.energyict.dlms.NonIncrementalInvokeIdAndPriorityHandler;
 import com.energyict.protocolimplv2.dlms.idis.hs3300.properties.HS3300ConfigurationSupport;
 import com.energyict.protocolimplv2.nta.dsmr23.DlmsProperties;
 
@@ -17,7 +19,7 @@ public class EM620Properties extends DlmsProperties {
 
     private static final int PUBLIC_CLIENT_MAC_ADDRESS = 16;
 
-
+    private InvokeIdAndPriorityHandler invokeIdAndPriorityHandler = null;
 
     public boolean isReadCache() {
         return getProperties().<Boolean>getTypedProperty(READCACHE_PROPERTY, false);
@@ -53,6 +55,14 @@ public class EM620Properties extends DlmsProperties {
 
     public int getStatusFlagChannel() {
         return getProperties().getTypedProperty(FRAME_COUNTER_RECOVERY_STEP, 0);
+    }
+
+    @Override
+    public InvokeIdAndPriorityHandler getInvokeIdAndPriorityHandler() {
+        if (invokeIdAndPriorityHandler == null) {
+            invokeIdAndPriorityHandler = new NonIncrementalInvokeIdAndPriorityHandler();
+        }
+        return invokeIdAndPriorityHandler;
     }
 
 }
