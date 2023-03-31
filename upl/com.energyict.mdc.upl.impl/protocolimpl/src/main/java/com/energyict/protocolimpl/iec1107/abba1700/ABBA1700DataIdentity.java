@@ -167,7 +167,7 @@ public class ABBA1700DataIdentity {
             getABBA1700DataIdentityFactory().getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ1,strbuff.toString().getBytes());
             byte[] ba = getABBA1700DataIdentityFactory().getProtocolLink().getFlagIEC1107Connection().receiveData();
 
-            if (dataID.equalsIgnoreCase(ABBA1700RegisterFactory.loadProfileKey)) {
+            if (ABBA1700RegisterFactory.loadProfileKey.equalsIgnoreCase(dataID)) {
                 if (isCurrentReceivedDataDuplicate(previousReceivedLoadProfileBytes, ba)) {
                     throw new ProtocolException("Received the same data twice, unrecoverable error!");
                 } else {
@@ -200,12 +200,12 @@ public class ABBA1700DataIdentity {
     private static boolean isCurrentReceivedDataDuplicate(byte[] previousReceivedBytes, byte[] currentReceivedBytes) {
         return currentReceivedBytes.length == previousReceivedBytes.length &&
                 Arrays.equals(currentReceivedBytes, previousReceivedBytes) &&
-                !containsOnlyHexFF(currentReceivedBytes);
+                !containsOnlyAsciiF(currentReceivedBytes);
     }
 
-    private static boolean containsOnlyHexFF(byte[] inputBytes) {
+    private static boolean containsOnlyAsciiF(byte[] inputBytes) {
         for (byte item : inputBytes) {
-            if (item != -1) {
+            if (item != (byte) 0x46) {
                 return false;
             }
         }
