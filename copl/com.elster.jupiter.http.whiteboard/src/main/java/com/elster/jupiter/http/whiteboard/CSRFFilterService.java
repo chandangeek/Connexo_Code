@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2020 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 
@@ -22,5 +23,7 @@ public interface CSRFFilterService {
     public void createCSRFToken(String sessionId);
     public void removeUserSession(String sessionId);
     public String getCSRFToken(String sessionId);
+
     public boolean handleCSRFSecurity(HttpServletRequest request, HttpServletResponse response) throws IOException;
+
 }

@@ -5896,6 +5896,7 @@ UNI;REST;Uni.property.selectionGrid.noItemsDefined;Es wurden noch keine Elemente
 UNI;REST;uni.requiredField;Dieses Feld ist erforderlich.
 UNI;REST;usage.point.micro.action.description.CancelAllServiceCalls;Löst eine Anforderung zum Abbruch aller aktiven Dienstaufrufe an der angegebenen Verwendungsstelle aus.
 UNI;REST;validation.activeRules;Aktive Regeln
+UNI;REST;validation.blackListCharacters;Ungültige Zeichen
 UNI;REST;validation.inactiveRules;Inaktive Regeln
 UNI;REST;validation.invalidFileFormat;Ungültiges Dateiformat
 UNI;REST;validation.ruleSetName;Validierungsregelsatz

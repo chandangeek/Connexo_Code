@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 package com.elster.jupiter.http.whiteboard.impl;
@@ -13,9 +14,9 @@ import com.elster.jupiter.http.whiteboard.SAMLSingleLogoutService;
 import com.elster.jupiter.http.whiteboard.SamlResponseService;
 import com.elster.jupiter.http.whiteboard.TokenService;
 import com.elster.jupiter.http.whiteboard.UnderlyingNetworkException;
+import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.http.whiteboard.impl.saml.slo.SLOResource;
 import com.elster.jupiter.http.whiteboard.impl.saml.sso.AssertionConsumerServiceResource;
-import com.elster.jupiter.http.whiteboard.UserJWT;
 import com.elster.jupiter.license.LicenseService;
 import com.elster.jupiter.nls.Layer;
 import com.elster.jupiter.nls.NlsService;
@@ -26,6 +27,7 @@ import com.elster.jupiter.rest.util.BinderProvider;
 import com.elster.jupiter.transaction.TransactionService;
 import com.elster.jupiter.users.UserService;
 import com.elster.jupiter.util.json.JsonService;
+
 import com.google.common.collect.ImmutableSet;
 import org.glassfish.hk2.utilities.Binder;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -269,8 +271,8 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
-                Arrays.stream(TranslationKeys.values()))
+                        Arrays.stream(MessageSeeds.values()),
+                        Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }

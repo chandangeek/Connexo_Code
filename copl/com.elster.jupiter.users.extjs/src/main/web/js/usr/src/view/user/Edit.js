@@ -68,7 +68,8 @@ Ext.define('Usr.view.user.Edit', {
                                         field.focus(false, 200);
                                     }
                                 },
-                                width: 650
+                                width: 650,
+                                vtype: 'checkForBlacklistCharacters',
                             },
                             {
                                 name: 'domain',

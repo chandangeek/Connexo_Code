@@ -5,8 +5,7 @@
 Ext.define('Usr.controller.UserEdit', {
     extend: 'Ext.app.Controller',
 
-    requires: [
-    ],
+    requires: [],
 
     stores: [
         'Usr.store.UserGroups',
@@ -88,7 +87,7 @@ Ext.define('Usr.controller.UserEdit', {
 
                     Ext.ModelManager.getModel('Usr.model.UserDirectory').load(user.get('domain'), {
                         callback: function (domain) {
-                            if (!domain.get('manageGroupsInternal')|| me.isLocalAdmin(user)) {
+                            if (!domain.get('manageGroupsInternal') || me.isLocalAdmin(user)) {
                                 panel.down('[itemId=selectRoles]').disable();
                             }
 
@@ -112,32 +111,36 @@ Ext.define('Usr.controller.UserEdit', {
             language = me.getStore('Usr.store.Locales').getById(form.down('[name=language]').getValue()),
             formErrorsPanel = form.down('[name=form-errors]');
 
-        formErrorsPanel.hide();
-        form.down('#rolesError').hide();
-        form.updateRecord(record);
-        if (language) {
-            record.set('language', language.getData());
-        }
-        record.save({
-            backUrl: '#/administration/users',
-            success: function (record) {
-                me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('user.saved', 'USR', 'User saved'));
-                location.href = '#/administration/users';
-            },
-            failure: function (record, operation) {
-                if (operation.response.status === 400) {
-                    var json = Ext.decode(operation.response.responseText);
-                    if (json && json.errors) {
-                        if(json.errors.length > 0) {
-                            if(json.errors[0].id === 'roles') {
-                                form.down('#rolesError').setText(json.errors[0].msg);
-                                form.down('#rolesError').show();
-                                formErrorsPanel.show();
+        if (form.isValid()) {
+            formErrorsPanel.hide();
+            form.down('#rolesError').hide();
+            form.updateRecord(record);
+            if (language) {
+                record.set('language', language.getData());
+            }
+            record.save({
+                backUrl: '#/administration/users',
+                success: function (record) {
+                    me.getApplication().fireEvent('acknowledge', Uni.I18n.translate('user.saved', 'USR', 'User saved'));
+                    location.href = '#/administration/users';
+                },
+                failure: function (record, operation) {
+                    if (operation.response.status === 400) {
+                        var json = Ext.decode(operation.response.responseText);
+                        if (json && json.errors) {
+                            if (json.errors.length > 0) {
+                                if (json.errors[0].id === 'roles') {
+                                    form.down('#rolesError').setText(json.errors[0].msg);
+                                    form.down('#rolesError').show();
+                                    formErrorsPanel.show();
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            formErrorsPanel.show();
+        }
     }
 });

@@ -91,7 +91,8 @@ Ext.define('Mdc.view.setup.devicetype.DeviceTypeEdit', {
                         itemId: 'editDeviceTypeNameField',
                         maxLength: 80,
                         enforceMaxLength: true,
-                        width: 600
+                        width: 600,
+                        vtype: 'checkForBlacklistCharacters'
                     },
                     {
                         xtype: 'fieldcontainer',

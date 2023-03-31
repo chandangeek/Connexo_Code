@@ -42,7 +42,8 @@ Ext.define('Mtr.view.bulk.Step3', {
                     required: true,
                     allowBlank: false,
                     itemId: 'new-alias',
-                    name: 'fullAlias'
+                    name: 'fullAlias',
+                    vtype: 'checkForBlacklistCharacters'
                 }
             ]
         }

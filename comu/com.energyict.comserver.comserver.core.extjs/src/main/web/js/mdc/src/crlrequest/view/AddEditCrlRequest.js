@@ -48,7 +48,8 @@ Ext.define('Mdc.crlrequest.view.AddEditCrlRequest', {
                 itemId: 'crl-caName',
                 required: true,
                 allowBlank: false,
-                fieldLabel: Uni.I18n.translate('crlrequest.caName', 'MDC', 'CA name')
+                fieldLabel: Uni.I18n.translate('crlrequest.caName', 'MDC', 'CA name'),
+                vtype: 'checkForBlacklistCharacters',
             },
             {
                 xtype: 'combobox',

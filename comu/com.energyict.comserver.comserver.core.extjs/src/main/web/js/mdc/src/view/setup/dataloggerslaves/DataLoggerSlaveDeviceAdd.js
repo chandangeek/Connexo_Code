@@ -42,7 +42,8 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
                 maxLength: 80,
                 enforceMaxLength: true,
                 validateOnBlur: false,
-                validateOnChange: false
+                validateOnChange: false,
+                vtype: 'checkForBlacklistCharacters'
             },
             {
                 xtype:'container',
@@ -55,37 +56,41 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
                 defaults: me.defaults,
                 items: [
                     {
-                         xtype: 'textfield',
-                         name: 'serialNumber',
-                         itemId: 'dataLoggerSlaveSerial',
-                         fieldLabel: Uni.I18n.translate('deviceAdd.serialNumber', 'MDC', 'Serial number'),
-                         maxLength: 80,
-                         enforceMaxLength: true
-                     },
-                     {
-                         xtype: 'textfield',
-                         name: 'manufacturer',
-                         itemId: 'dataLoggerSlaveManufacturer',
-                         fieldLabel: Uni.I18n.translate('deviceAdd.manufacturer', 'MDC', 'Manufacturer'),
-                         maxLength: 80,
-                         enforceMaxLength: true
-                     },
-                     {
-                         xtype: 'textfield',
-                         name: 'modelNbr',
-                         itemId: 'dataLoggerSlaveModelNumber',
-                         fieldLabel: Uni.I18n.translate('deviceAdd.modelNumber', 'MDC', 'Model number'),
-                         maxLength: 80,
-                         enforceMaxLength: true
-                     },
-                     {
-                         xtype: 'textfield',
-                         name: 'modelVersion',
-                         itemId: 'dataLoggerSlaveModelVersion',
-                         fieldLabel: Uni.I18n.translate('deviceAdd.modelVersion', 'MDC', 'Model version'),
-                         maxLength: 80,
-                         enforceMaxLength: true
-                     },
+                        xtype: 'textfield',
+                        name: 'serialNumber',
+                        itemId: 'dataLoggerSlaveSerial',
+                        fieldLabel: Uni.I18n.translate('deviceAdd.serialNumber', 'MDC', 'Serial number'),
+                        maxLength: 80,
+                        enforceMaxLength: true,
+                        vtype: 'checkForBlacklistCharacters'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'manufacturer',
+                        itemId: 'dataLoggerSlaveManufacturer',
+                        fieldLabel: Uni.I18n.translate('deviceAdd.manufacturer', 'MDC', 'Manufacturer'),
+                        maxLength: 80,
+                        enforceMaxLength: true,
+                        vtype: 'checkForBlacklistCharacters'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'modelNbr',
+                        itemId: 'dataLoggerSlaveModelNumber',
+                        fieldLabel: Uni.I18n.translate('deviceAdd.modelNumber', 'MDC', 'Model number'),
+                        maxLength: 80,
+                        enforceMaxLength: true,
+                        vtype: 'checkForBlacklistCharacters'
+                    },
+                    {
+                        xtype: 'textfield',
+                        name: 'modelVersion',
+                        itemId: 'dataLoggerSlaveModelVersion',
+                        fieldLabel: Uni.I18n.translate('deviceAdd.modelVersion', 'MDC', 'Model version'),
+                        maxLength: 80,
+                        enforceMaxLength: true,
+                        vtype: 'checkForBlacklistCharacters'
+                    },
                      {
                          xtype: 'datefield',
                          itemId: 'dataLoggerSlaveShipmentDate',
@@ -129,14 +134,15 @@ Ext.define('Mdc.view.setup.dataloggerslaves.DataLoggerSlaveDeviceAdd', {
                              }
                          }
                      },
-                     {
-                         xtype: 'textfield',
-                         name: 'batch',
-                         itemId: 'dataLoggerSlaveBatch',
-                         fieldLabel: Uni.I18n.translate('deviceAdd.batch', 'MDC', 'Batch'),
-                         maxLength: 80,
-                         enforceMaxLength: true
-                     }
+                    {
+                        xtype: 'textfield',
+                        name: 'batch',
+                        itemId: 'dataLoggerSlaveBatch',
+                        fieldLabel: Uni.I18n.translate('deviceAdd.batch', 'MDC', 'Batch'),
+                        maxLength: 80,
+                        enforceMaxLength: true,
+                        vtype: 'checkForBlacklistCharacters'
+                    }
 
                 ]
             }

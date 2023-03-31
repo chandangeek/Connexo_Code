@@ -21,13 +21,15 @@ Ext.define('Mdc.view.setup.securitysettings.SecuritySettingSideFilter', {
                     xtype: 'textfield',
                     name: 'LoadProfileType',
                     fieldLabel: 'Load profile type',
-                    labelAlign: 'top'
+                    labelAlign: 'top',
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'textfield',
                     name: 'obis',
                     fieldLabel: 'OBIS code',
-                    labelAlign: 'top'
+                    labelAlign: 'top',
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'button',

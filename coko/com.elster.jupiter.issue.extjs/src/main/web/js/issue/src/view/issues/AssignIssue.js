@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 Ext.define('Isu.view.issues.AssignIssue', {
@@ -80,7 +81,9 @@ Ext.define('Isu.view.issues.AssignIssue', {
                         name: 'comment',
                         fieldLabel: Uni.I18n.translate('general.comment', 'ISU', 'Comment'),
                         emptyText: Uni.I18n.translate('general.provideComment', 'ISU', 'Provide a comment (optionally)'),
-                        height: 160
+                        height: 160,
+                        vtype: 'checkForBlacklistCharacters',
+                        msgTarget: 'under',
                     },
                     {
                         xtype: 'fieldcontainer',

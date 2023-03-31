@@ -45,12 +45,13 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'name',
-                                fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
+                                fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
                                 listeners: {
                                     afterrender: function (field) {
                                         field.focus(false, 200);
                                     }
-                                }
+                                },
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'combobox',
@@ -64,7 +65,8 @@ Ext.define('Mdc.view.setup.comport.OutboundComPortEdit', {
                             {
                                 xtype: 'textfield',
                                 name: 'description',
-                                fieldLabel: Uni.I18n.translate('general.description','MDC','Description')
+                                fieldLabel: Uni.I18n.translate('general.description', 'MDC', 'Description'),
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'numberfield',

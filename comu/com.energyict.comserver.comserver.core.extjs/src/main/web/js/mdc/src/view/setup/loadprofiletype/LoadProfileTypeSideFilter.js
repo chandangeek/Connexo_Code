@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
@@ -18,8 +19,9 @@ Ext.define('Mdc.view.setup.loadprofiletype.LoadProfileTypeSideFilter', {
                         {
                             xtype: 'textfield',
                             name: 'name',
-                            fieldLabel: Uni.I18n.translate('general.name','MDC','Name'),
-                            labelAlign: 'top'
+                            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+                            labelAlign: 'top',
+                            vtype: 'checkForBlacklistCharacters'
                         },
                         {
                             xtype: 'textfield',

@@ -52,7 +52,8 @@ Ext.define('Isu.view.issues.AssignForm', {
                     fieldLabel: Uni.I18n.translate('general.comment','ISU','Comment'),
                     name: 'comment',
                     emptyText: Uni.I18n.translate('issues.provideComment','ISU','Provide a comment \r\n(optionally)'),
-                    height: 150
+                    height: 150,
+                    vtype: 'checkForBlacklistCharacters'
                 }
             ]
         }

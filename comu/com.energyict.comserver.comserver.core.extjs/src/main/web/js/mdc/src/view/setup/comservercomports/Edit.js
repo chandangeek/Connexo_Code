@@ -45,10 +45,11 @@ Ext.define('Mdc.view.setup.comservercomports.Edit', {
                     allowBlank: false,
                     name: 'name',
                     listeners: {
-                        afterrender: function(field) {
+                        afterrender: function (field) {
                             field.focus(false, 200);
                         }
-                    }
+                    },
+                    vtype: 'checkForBlacklistCharacters'
                 },
                 {
                     xtype: 'displayfield',

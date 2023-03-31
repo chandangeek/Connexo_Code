@@ -123,37 +123,41 @@ Ext.define('Dal.controller.CreationRuleEdit', {
             formErrorsPanel = me.getRuleForm().down('[name=form-errors]'),
             page = me.getPage();
 
-        basicForm.clearInvalid();
-        formErrorsPanel.hide();
-        page.setLoading();
-        form.updateRecord();
-        form.getRecord().save({
-            backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/alarmcreationrules').buildUrl(),
-            callback: function (record, operation, success) {
-                var messageText,
-                    json;
+        if (basicForm.isValid()) {
+            basicForm.clearInvalid();
+            formErrorsPanel.hide();
+            page.setLoading();
+            form.updateRecord();
+            form.getRecord().save({
+                backUrl: me.getController('Uni.controller.history.Router').getRoute('administration/alarmcreationrules').buildUrl(),
+                callback: function (record, operation, success) {
+                    var messageText,
+                        json;
 
-                page.setLoading(false);
-                if (success) {
-                    switch (operation.action) {
-                        case 'create':
-                            messageText = Uni.I18n.translate('administration.alarmCreationRules.createSuccess.msg', 'DAL', 'Alarm creation rule added');
-                            break;
-                        case 'update':
-                            messageText = Uni.I18n.translate('administration.alarmCreationRules.updateSuccess.msg', 'DAL', 'Alarm creation rule updated');
-                            break;
-                    }
-                    me.getApplication().fireEvent('acknowledge', messageText);
-                    me.getController('Uni.controller.history.Router').getRoute('administration/alarmcreationrules').forward();
-                } else {
-                    json = Ext.decode(operation.response.responseText, true);
-                    if (json && json.errors) {
-                        basicForm.markInvalid(json.errors);
-                        formErrorsPanel.show();
+                    page.setLoading(false);
+                    if (success) {
+                        switch (operation.action) {
+                            case 'create':
+                                messageText = Uni.I18n.translate('administration.alarmCreationRules.createSuccess.msg', 'DAL', 'Alarm creation rule added');
+                                break;
+                            case 'update':
+                                messageText = Uni.I18n.translate('administration.alarmCreationRules.updateSuccess.msg', 'DAL', 'Alarm creation rule updated');
+                                break;
+                        }
+                        me.getApplication().fireEvent('acknowledge', messageText);
+                        me.getController('Uni.controller.history.Router').getRoute('administration/alarmcreationrules').forward();
+                    } else {
+                        json = Ext.decode(operation.response.responseText, true);
+                        if (json && json.errors) {
+                            basicForm.markInvalid(json.errors);
+                            formErrorsPanel.show();
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            formErrorsPanel.show();
+        }
     },
 
     addAction: function () {

@@ -70,7 +70,8 @@ Ext.define('Mdc.view.setup.logbooktype.LogbookTypeEdit', {
                                             afterrender: function (field) {
                                                 field.focus(false, 200);
                                             }
-                                        }
+                                        },
+                                        vtype: 'checkForBlacklistCharacters'
                                     },
                                     {
                                         xtype: 'obis-field',

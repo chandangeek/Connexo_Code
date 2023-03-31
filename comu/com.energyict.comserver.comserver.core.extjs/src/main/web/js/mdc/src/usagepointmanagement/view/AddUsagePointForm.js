@@ -21,7 +21,8 @@ Ext.define('Mdc.usagepointmanagement.view.AddUsagePointForm', {
             itemId: 'fld-up-name',
             required: true,
             width: 600,
-            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name')
+            fieldLabel: Uni.I18n.translate('general.name', 'MDC', 'Name'),
+            vtype: 'checkForBlacklistCharacters',
         },
         {
             xtype: 'combobox',

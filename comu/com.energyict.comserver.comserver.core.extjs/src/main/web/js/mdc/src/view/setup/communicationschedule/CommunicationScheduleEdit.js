@@ -65,10 +65,11 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 maxLength: 80,
                                 enforceMaxLength: true,
                                 listeners: {
-                                    afterrender: function(field) {
+                                    afterrender: function (field) {
                                         field.focus(false, 200);
                                     }
-                                }
+                                },
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'textfield',
@@ -77,7 +78,8 @@ Ext.define('Mdc.view.setup.communicationschedule.CommunicationScheduleEdit', {
                                 fieldLabel: Uni.I18n.translate('communicationschedule.MRID', 'MDC', 'MRID'),
                                 itemId: 'editConnectionMethodMRIDField',
                                 maxLength: 80,
-                                enforceMaxLength: true
+                                enforceMaxLength: true,
+                                vtype: 'checkForBlacklistCharacters'
                             },
                             {
                                 xtype: 'fieldcontainer',

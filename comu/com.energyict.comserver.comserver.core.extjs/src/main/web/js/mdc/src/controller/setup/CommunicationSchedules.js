@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2017 by Honeywell International Inc. All Rights Reserved
+ * Copyright (c) 2021 by Honeywell International Inc. All Rights Reserved
+ *
  */
 
 Ext.define('Mdc.controller.setup.CommunicationSchedules', {
@@ -224,7 +225,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
             backUrl = router.getRoute('administration/communicationschedules').buildUrl();
 
 
-        if (this.record) {
+        if (this.record && this.getCommunicationScheduleEditForm().getForm().isValid()) {
             this.record.set(values);
             me.getCommunicationScheduleEditForm().getForm().clearInvalid();
             me.hideErrorPanel();
@@ -262,8 +263,9 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
                     editView.setLoading(false);
                 }
             });
+        } else {
+            me.showErrorPanel();
         }
-
     },
 
     addCommunicationTask: function () {
@@ -376,7 +378,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         me.record.set('mRID', null)
         me.mode = 'clone';
         me.getApplication().fireEvent('loadCommunicationSchedule', me.cloneRecord);
-        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
+        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
         widget.down('#communicationScheduleEditForm').loadRecord(me.record);
         widget.down('#noComTasksSelectedMsg').hide();
         widget.down('#comTasksOnForm').show();
