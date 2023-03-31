@@ -9,7 +9,6 @@ package com.elster.jupiter.http.whiteboard.impl;
 import com.elster.jupiter.http.whiteboard.CSRFFilterService;
 import com.elster.jupiter.users.CSRFService;
 
-import org.osgi.framework.BundleContext;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Reference;

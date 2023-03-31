@@ -5491,7 +5491,6 @@ UNI;REST;general.displayMsgItems;{0} - {1} von {2} Elementen
 UNI;REST;general.displayMsgMoreItems;{0} - {1} von mehr als {2} Elementen
 UNI;REST;general.done;Abgeschlossen
 UNI;REST;general.dontApply;Nicht anwenden
-UNI;REST;general.doubleExtensionValidationFailed.msg;Der Dateiname sollte nur eine einzige Erweiterung enthalten.
 UNI;REST;general.download;Herunterladen
 UNI;REST;general.duration;Dauer
 UNI;REST;general.edit;Bearbeiten
@@ -5538,7 +5537,6 @@ UNI;REST;general.expiresWithinThreeMonths;Läuft innerhalb von 3 Monaten ab
 UNI;REST;general.export.startRowTooltip;Der Export startet mit der Zeile, die auf die ausgewählte Nummer folgt. Wählen Sie „0“, um mit der ersten Zeile oben auf der ersten Seite zu starten.
 UNI;REST;general.exportTable;Tabelle exportieren
 UNI;REST;general.filters;Filter
-UNI;REST;general.firmwareValidationFailed.msg;"Die Datei muss im ""bin""- oder ""dat""-Format vorliegen, mit einer einzigen Erweiterung"
 UNI;REST;general.firstPage;Erste Seite
 UNI;REST;general.formErrors;Diese Seite enthält Fehler, die Ihre Aufmerksamkeit erfordern.
 UNI;REST;general.from;Von
@@ -5549,7 +5547,6 @@ UNI;REST;general.highlight.downstream;Nachgelagertes hervorheben
 UNI;REST;general.highlight.upstream;Vorgelagertes hervorheben
 UNI;REST;general.hsm.jss.keytype;Schlüsselsubtyp
 UNI;REST;general.importCapability;Importfunktionalität
-UNI;REST;general.importValidationFailed.msg;"Die Datei muss im ""csv""-, ""txt""-, ""xlsx""-, ""xls""-, ""xml""- oder ""zip""-Format vorliegen, mit einer einzigen Erweiterung"
 UNI;REST;general.inactive;Inaktiv
 UNI;REST;general.informatives;Informative Werte
 UNI;REST;general.interval;Intervall
