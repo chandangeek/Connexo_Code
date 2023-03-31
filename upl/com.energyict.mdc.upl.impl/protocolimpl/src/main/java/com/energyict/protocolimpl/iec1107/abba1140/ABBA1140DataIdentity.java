@@ -1,11 +1,13 @@
 package com.energyict.protocolimpl.iec1107.abba1140;
 
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107Connection;
 import com.energyict.protocolimpl.iec1107.FlagIEC1107ConnectionException;
 import com.energyict.protocolimpl.utils.ProtocolUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**@author fbo */
 
@@ -142,6 +144,7 @@ public class ABBA1140DataIdentity {
         ByteArrayOutputStream data = new ByteArrayOutputStream();
         int packetid = ((dataLen/64) + ((dataLen%64)==0?0:1)) * set + 1; // calculate packetid
         int dataLength=dataLen;
+        byte[] previousReceivedLoadProfileBytes = new byte[] {};
         while (dataLength > 0) {
             int len = ((dataLength/64)>0) ? 64: dataLength%64;
             dataLength-=64;
@@ -153,6 +156,14 @@ public class ABBA1140DataIdentity {
             strbuff.append(')');
             dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().sendRawCommandFrame(FlagIEC1107Connection.READ1,strbuff.toString().getBytes());
             byte[] ba = dataIdentityFactory.getProtocolLink().getFlagIEC1107Connection().receiveData();
+
+            if (dataId.equalsIgnoreCase(ABBA1140RegisterFactory.loadProfileKey)) {
+                if (isCurrentReceivedDataDuplicate(previousReceivedLoadProfileBytes, ba)) {
+                    throw new ProtocolException("Received the same data twice, unrecoverable error!");
+                } else {
+                    previousReceivedLoadProfileBytes = ba;
+                }
+            }
             
             if (ba.length != (len*2))
                 throw new FlagIEC1107ConnectionException("ABBA1140DataIdentity, doReadRawRegister, data length received ("+ba.length+") is different from data length requested ("+(len*2)+") !");
@@ -172,6 +183,21 @@ public class ABBA1140DataIdentity {
         } // while (dataLength > 0)
         dataBlock = ProtocolUtils.convert2ascii(data.toByteArray());
         return dataBlock;
+    }
+
+    private static boolean isCurrentReceivedDataDuplicate(byte[] previousReceivedBytes, byte[] currentReceivedBytes) {
+        return currentReceivedBytes.length == previousReceivedBytes.length &&
+                Arrays.equals(currentReceivedBytes, previousReceivedBytes) &&
+                !containsOnlyHexFF(currentReceivedBytes);
+    }
+
+    private static boolean containsOnlyHexFF(byte[] inputBytes) {
+        for (byte item : inputBytes) {
+            if (item != -1) {
+                return false;
+            }
+        }
+        return true;
     }
     
     private String buildPacketID(int packetID,int length) {
