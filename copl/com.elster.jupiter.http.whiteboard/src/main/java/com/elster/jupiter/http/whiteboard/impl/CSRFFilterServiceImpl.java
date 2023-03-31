@@ -53,8 +53,6 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
 
     private volatile CSRFService csrfService;
 
-    private BundleContext bundleContext;
-
     public CSRFFilterServiceImpl() {
     }
 
@@ -62,12 +60,12 @@ public final class CSRFFilterServiceImpl implements CSRFFilterService {
     public CSRFFilterServiceImpl(CSRFService csrfService) {
         super();
         setCSRFService(csrfService);
-        activate(null);
+        activate();
     }
 
     @Activate
-    public void activate(BundleContext context) {
-        this.bundleContext = context;
+    public void activate() {
+
     }
 
     @Reference

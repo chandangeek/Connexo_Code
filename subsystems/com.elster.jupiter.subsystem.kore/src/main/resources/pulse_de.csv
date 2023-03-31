@@ -5452,7 +5452,6 @@ UNI;REST;general.calendar;Kalender
 UNI;REST;general.calendar.type.empty;Nutzungszeitkalender auswählen...
 UNI;REST;general.canBeOverridden;Der Wert kann überschrieben werden.
 UNI;REST;general.cancel;Abbrechen
-UNI;REST;general.certficateValidationFailed.msg;"Die Datei muss im ""pem""- oder ""cer""-Format vorliegen, mit einer einzigen Erweiterung"
 UNI;REST;general.checkAll;Alle überprüfen
 UNI;REST;general.clear;Löschen
 UNI;REST;general.clearAll;Alle löschen
@@ -5902,7 +5901,7 @@ UNI;REST;usage.point.micro.action.description.CancelAllServiceCalls;Löst eine A
 UNI;REST;validation.activeRules;Aktive Regeln
 UNI;REST;validation.blackListCharacters;Ungültige Zeichen
 UNI;REST;validation.inactiveRules;Inaktive Regeln
-UNI;REST;validation.invalidFileFormat;Ungültiges Dateiformat oder doppelte Erweiterung im Dateinamen
+UNI;REST;validation.invalidFileFormat;Ungültiges Dateiformat
 UNI;REST;validation.ruleSetName;Validierungsregelsatz
 UNI;REST;validationResults.last.days[0];{0} Tage
 UNI;REST;validationResults.last.days[1];{0} Tag

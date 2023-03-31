@@ -124,7 +124,6 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
         this.jsonService = jsonService;
     }
 
-
     @Reference
     public void setLicenseService(LicenseService licenseService) {
         this.licenseService = licenseService;
@@ -273,8 +272,8 @@ public final class WhiteBoardImpl extends Application implements BinderProvider,
     @Override
     public List<TranslationKey> getKeys() {
         return Stream.of(
-                Arrays.stream(MessageSeeds.values()),
-                Arrays.stream(TranslationKeys.values()))
+                        Arrays.stream(MessageSeeds.values()),
+                        Arrays.stream(TranslationKeys.values()))
                 .flatMap(Function.identity())
                 .collect(Collectors.toList());
     }
