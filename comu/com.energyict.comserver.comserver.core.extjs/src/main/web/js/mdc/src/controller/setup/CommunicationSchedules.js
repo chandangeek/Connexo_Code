@@ -378,7 +378,7 @@ Ext.define('Mdc.controller.setup.CommunicationSchedules', {
         me.record.set('mRID', null)
         me.mode = 'clone';
         me.getApplication().fireEvent('loadCommunicationSchedule', me.cloneRecord);
-        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.cloneX', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
+        widget.down('#communicationScheduleEditForm').setTitle(Uni.I18n.translate('general.clonex', 'MDC', "Clone '{0}'", me.cloneRecord.get('name')));
         widget.down('#communicationScheduleEditForm').loadRecord(me.record);
         widget.down('#noComTasksSelectedMsg').hide();
         widget.down('#comTasksOnForm').show();
