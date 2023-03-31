@@ -19,9 +19,6 @@ Ext.define('Uni.view.form.field.Vtypes', {
         this.validateEan18String();
         this.validateReadingtype();
         this.validateImageFileExtension();
-        this.validateFirmwareFileExtension();
-        this.validateCertificateFile();
-        this.validateImportFileExtension();
         this.validateForBlacklistCharacters();
     },
 
