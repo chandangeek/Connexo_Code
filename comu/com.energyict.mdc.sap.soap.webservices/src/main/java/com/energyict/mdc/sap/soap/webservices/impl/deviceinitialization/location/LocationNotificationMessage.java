@@ -17,9 +17,9 @@ public class LocationNotificationMessage extends AbstractSapMessage {
     private String requestId;
     private String uuid;
     private boolean bulk;
-    private List<LocationMessage> locationMessages = new ArrayList<>();
+    private final List<LocationMessage> locationMessages = new ArrayList<>();
 
-    private Thesaurus thesaurus;
+    private final Thesaurus thesaurus;
 
     private LocationNotificationMessage(Thesaurus thesaurus) {
         this.thesaurus = thesaurus;
@@ -59,7 +59,7 @@ public class LocationNotificationMessage extends AbstractSapMessage {
                     });
 
             locationMessages.add(LocationMessage
-                    .builder()
+                    .builder(thesaurus)
                     .from(locNotifMsg)
                     .build());
             return this;
@@ -75,7 +75,7 @@ public class LocationNotificationMessage extends AbstractSapMessage {
 
             locNotifMsg.getUtilitiesDeviceERPSmartMeterLocationNotificationMessage()
                     .forEach(message -> locationMessages.add(LocationMessage
-                            .builder()
+                            .builder(thesaurus)
                             .from(message)
                             .build())
                     );
