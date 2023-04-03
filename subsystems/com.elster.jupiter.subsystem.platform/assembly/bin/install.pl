@@ -757,7 +757,11 @@ sub install_tomcat {
 
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
+            open(my $FH, "> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
+            print $FH "export CATALINA_OPTS=\"" . $ENV{CATALINA_OPTS} . " -Xmx512M \"\n";
+            close($FH);
+
+            system("service.bat install ConnexoTomcat$SERVICE_VERSION");
             system("tomcat9.exe //US//ConnexoTomcat$SERVICE_VERSION --JvmMx=512");
 		} else {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
@@ -1067,7 +1071,7 @@ sub install_facts {
             print "    $CONNEXO_DIR/partners/facts/facts.filter.jar -> $FACTS_DIR/WEB-INF/lib/facts.filter.jar\n";
 		    copy("$CONNEXO_DIR/partners/facts/facts.filter.jar","$FACTS_DIR/WEB-INF/lib/facts.filter.jar");
         }
-        replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", qq(<!ENTITY jsps SYSTEM "file:/$FACTS_BASE/appserver/webapps/ROOT/WEB-INF/web-jsps.xml">), qq(<!ENTITY jsps SYSTEM "file:///$CATALINA_BASE/webapps/facts/WEB-INF/web-jsps.xml">));
+        replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", qq(<!ENTITY jsps SYSTEM "file:/$FACTS_BASE/appserver/webapps/ROOT/WEB-INF/web-jsps.xml">), qq(<!ENTITY jsps SYSTEM "web-jsps.xml">));
         #set system identifier in the header
         if ("$SYSTEM_IDENTIFIER" ne "") {
             replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
