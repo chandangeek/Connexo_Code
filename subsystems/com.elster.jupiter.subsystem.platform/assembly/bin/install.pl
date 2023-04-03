@@ -64,7 +64,7 @@ my $FLOW_JDBC_URL, my $FLOW_DB_USER, my $FLOW_DB_PASSWORD;
 
 my $TOMCAT_DIR="tomcat";
 my $TOMCAT_BASE="$CONNEXO_DIR/partners";
-my $TOMCAT_ZIP="tomcat-9.0.34";
+my $TOMCAT_ZIP="tomcat-9.0.52";
 my $CATALINA_BASE="$TOMCAT_BASE/$TOMCAT_DIR";
 my $CATALINA_HOME=$CATALINA_BASE;
 $ENV{"CATALINA_HOME"}=$CATALINA_HOME;
@@ -724,14 +724,17 @@ sub install_tomcat {
         if (-e "$TOMCAT_BASE/log4j.xml") {
             copy("$TOMCAT_BASE/log4j.xml","$TOMCAT_BASE/tomcat/lib/log4j.xml");
         }
-        if (-e "$TOMCAT_BASE/log4j-1.2.17.jar") {
-            copy("$TOMCAT_BASE/log4j-1.2.17.jar","$TOMCAT_BASE/tomcat/lib/log4j-1.2.17.jar");
+        if (-e "$TOMCAT_BASE/log4j-api-2.20.0.jar") {
+            copy("$TOMCAT_BASE/log4j-api-2.20.0.jar","$TOMCAT_BASE/tomcat/lib/log4j-api-2.20.0.jar");
         }
         if (-e "$TOMCAT_BASE/slf4j-log4j12-1.7.5.jar") {
             copy("$TOMCAT_BASE/slf4j-log4j12-1.7.5.jar","$TOMCAT_BASE/tomcat/lib/slf4j-log4j12-1.7.5.jar");
         }
-        if (-e "$TOMCAT_BASE/apache-log4j-extras-1.2.17.jar") {
-            copy("$TOMCAT_BASE/apache-log4j-extras-1.2.17.jar","$TOMCAT_BASE/tomcat/lib/apache-log4j-extras-1.2.17.jar");
+        if (-e "$TOMCAT_BASE/log4j-core-2.20.0.jar") {
+            copy("$TOMCAT_BASE/log4j-core-2.20.0.jar","$TOMCAT_BASE/tomcat/lib/log4j-core-2.20.0.jar");
+        }
+        if (-e "$TOMCAT_BASE/log4j-1.2-api-2.20.0.jar") {
+            copy("$TOMCAT_BASE/log4j-1.2-api-2.20.0.jar","$TOMCAT_BASE/tomcat/lib/log4j-1.2-api-2.20.0.jar");
         }
         # Removing examples directory
         if (-d "$TOMCAT_DIR/webapps/examples") { rmtree("$TOMCAT_DIR/webapps/examples"); }
@@ -754,11 +757,8 @@ sub install_tomcat {
 
 		print "Installing Apache Tomcat For Connexo as service ...\n";
 		if ("$OS" eq "MSWin32" || "$OS" eq "MSWin64") {
-			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.bat") or die "Could not open $TOMCAT_DIR/bin/setenv.bat: $!";
-			        print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M \"\n";
-			close($FH);
-
 			system("service.bat install ConnexoTomcat$SERVICE_VERSION");
+            system("tomcat9.exe //US//ConnexoTomcat$SERVICE_VERSION --JvmMx=512");
 		} else {
 			open(my $FH,"> $TOMCAT_BASE/$TOMCAT_DIR/bin/setenv.sh") or die "Could not open $TOMCAT_DIR/bin/setenv.sh: $!";
 			            print $FH "export CATALINA_OPTS=\"".$ENV{CATALINA_OPTS}." -Xmx512M \"\n";
@@ -1067,6 +1067,7 @@ sub install_facts {
             print "    $CONNEXO_DIR/partners/facts/facts.filter.jar -> $FACTS_DIR/WEB-INF/lib/facts.filter.jar\n";
 		    copy("$CONNEXO_DIR/partners/facts/facts.filter.jar","$FACTS_DIR/WEB-INF/lib/facts.filter.jar");
         }
+        replace_in_file("$CATALINA_BASE/webapps/facts/WEB-INF/web.xml", qq(<!ENTITY jsps SYSTEM "file:/$FACTS_BASE/appserver/webapps/ROOT/WEB-INF/web-jsps.xml">), qq(<!ENTITY jsps SYSTEM "file:///$CATALINA_BASE/webapps/facts/WEB-INF/web-jsps.xml">));
         #set system identifier in the header
         if ("$SYSTEM_IDENTIFIER" ne "") {
             replace_in_file("$FACTS_DIR/header.jsp", "Connexo Facts", "Connexo Facts<span style=\"color:$SYSTEM_IDENTIFIER_COLOR;\"> - $SYSTEM_IDENTIFIER</span>");
