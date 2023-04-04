@@ -11,11 +11,7 @@ import com.elster.jupiter.domain.util.Finder;
 import com.elster.jupiter.domain.util.Query;
 import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
-import com.elster.jupiter.issue.share.CreationRuleTemplate;
-import com.elster.jupiter.issue.share.IssueEvent;
-import com.elster.jupiter.issue.share.IssueGroupFilter;
-import com.elster.jupiter.issue.share.IssueProvider;
-import com.elster.jupiter.issue.share.IssueWebServiceClient;
+import com.elster.jupiter.issue.share.*;
 import com.elster.jupiter.issue.share.entity.CreationRule;
 import com.elster.jupiter.issue.share.entity.DueDateRange;
 import com.elster.jupiter.issue.share.entity.Entity;
@@ -346,9 +342,20 @@ public class DeviceAlarmServiceImpl implements TranslationKeyProvider, MessageSe
     public Optional<? extends DeviceAlarm> findAlarm(long id) {
         Optional<OpenDeviceAlarm> issue = findOpenAlarm(id);
         if (issue.isPresent()) {
-            return issue;
+            OpenDeviceAlarm openDeviceAlarm = issue.get();
+            Priority priority = Priority.get(openDeviceAlarm.getPriority().getUrgency(), openDeviceAlarm.getPriority().getImpact());
+            openDeviceAlarm.setPriority(priority);
+            return Optional.of(openDeviceAlarm);
+        } else {
+            Optional<HistoricalDeviceAlarm> historicalAlarmIssue = findHistoricalAlarm(id);
+            if (historicalAlarmIssue.isPresent()) {
+                HistoricalDeviceAlarm historicalDeviceAlarm = historicalAlarmIssue.get();
+                Priority priority = Priority.get(historicalDeviceAlarm.getPriority().getUrgency(), historicalDeviceAlarm.getPriority().getImpact());
+                historicalDeviceAlarm.setPriority(priority);
+                return Optional.of(historicalDeviceAlarm);
+            }
+            return historicalAlarmIssue;
         }
-        return findHistoricalAlarm(id);
     }
 
     @Override

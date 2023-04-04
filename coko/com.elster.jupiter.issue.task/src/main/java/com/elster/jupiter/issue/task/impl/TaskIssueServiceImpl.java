@@ -12,6 +12,7 @@ import com.elster.jupiter.domain.util.QueryService;
 import com.elster.jupiter.events.EventService;
 import com.elster.jupiter.issue.share.IssueEvent;
 import com.elster.jupiter.issue.share.IssueProvider;
+import com.elster.jupiter.issue.share.Priority;
 import com.elster.jupiter.issue.share.entity.Entity;
 import com.elster.jupiter.issue.share.entity.HistoricalIssue;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -196,9 +197,20 @@ public class TaskIssueServiceImpl implements TranslationKeyProvider, MessageSeed
     public Optional<? extends TaskIssue> findIssue(long id) {
         Optional<OpenTaskIssue> issue = findOpenIssue(id);
         if (issue.isPresent()) {
-            return issue;
+            OpenTaskIssue openTaskIssue = issue.get();
+            Priority priority = Priority.get(openTaskIssue.getPriority().getUrgency(), openTaskIssue.getPriority().getImpact());
+            openTaskIssue.setPriority(priority);
+            return Optional.of(openTaskIssue);
+        } else {
+            Optional<HistoricalTaskIssue> historicalTaskIssueOptional = findHistoricalIssue(id);
+            if (historicalTaskIssueOptional.isPresent()) {
+                HistoricalTaskIssue historicalTaskIssue = historicalTaskIssueOptional.get();
+                Priority priority = Priority.get(historicalTaskIssue.getPriority().getUrgency(), historicalTaskIssue.getPriority().getImpact());
+                historicalTaskIssue.setPriority(priority);
+                return Optional.of(historicalTaskIssue);
+            }
+            return historicalTaskIssueOptional;
         }
-        return findHistoricalIssue(id);
     }
 
     @Override
