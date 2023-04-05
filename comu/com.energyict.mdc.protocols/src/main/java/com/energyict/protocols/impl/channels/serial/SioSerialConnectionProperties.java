@@ -131,7 +131,7 @@ public class SioSerialConnectionProperties extends AbstractVersionedPersistentDo
         Object propertyValue = propertyValues.getProperty(SerialPortConfiguration.NR_OF_STOP_BITS_NAME);
         // The PropertySpec is actually using BigDecimalFactory so generic clients will use BigDecimal values
         if (propertyValue instanceof BigDecimal) {
-            this.numberOfStopBits = NrOfStopBits.values()[((BigDecimal) propertyValue).intValue()];
+            this.numberOfStopBits = NrOfStopBits.valueFor((BigDecimal) propertyValue);
         } else {
             this.numberOfStopBits = (NrOfStopBits) propertyValue;
         }
