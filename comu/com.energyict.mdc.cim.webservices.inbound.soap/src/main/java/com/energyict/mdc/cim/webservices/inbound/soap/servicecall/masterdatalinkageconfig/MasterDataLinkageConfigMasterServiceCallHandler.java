@@ -4,12 +4,6 @@
 
 package com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig;
 
-import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
-import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
-import com.energyict.mdc.common.device.data.Device;
-import com.energyict.mdc.device.data.DeviceService;
 import com.elster.jupiter.cim.webservices.outbound.soap.FailedLinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.LinkageOperation;
 import com.elster.jupiter.cim.webservices.outbound.soap.ReplyMasterDataLinkageConfigWebService;
@@ -23,11 +17,17 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 import com.elster.jupiter.util.json.JsonService;
+import com.energyict.mdc.cim.webservices.inbound.soap.impl.MessageSeeds;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.EndDeviceInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.MeterInfo;
+import com.energyict.mdc.cim.webservices.inbound.soap.servicecall.masterdatalinkageconfig.bean.UsagePointInfo;
+import com.energyict.mdc.common.device.data.Device;
+import com.energyict.mdc.device.data.DeviceService;
 
 import javax.inject.Inject;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -109,10 +109,8 @@ public class MasterDataLinkageConfigMasterServiceCallHandler implements ServiceC
             logErrorAboutMissingEndpoint(serviceCall, extension);
             return;
         }
-        Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
-                .findEndPointConfigurations().find().stream().filter(EndPointConfiguration::isActive)
-                .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extension.getCallbackURL()))
-                .findAny();
+        Optional<OutboundEndPointConfiguration> endPointConfiguration = endPointConfigurationService.getOutboundEndpointConfigurationByUrl(extension.getCallbackURL())
+                .filter(EndPointConfiguration::isActive);
         if (!endPointConfiguration.isPresent()) {
             logErrorAboutMissingEndpoint(serviceCall, extension);
             return;

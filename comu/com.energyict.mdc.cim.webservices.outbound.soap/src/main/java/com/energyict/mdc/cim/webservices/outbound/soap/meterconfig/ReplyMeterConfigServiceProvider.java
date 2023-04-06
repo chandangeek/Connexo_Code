@@ -5,19 +5,6 @@
 
 package com.energyict.mdc.cim.webservices.outbound.soap.meterconfig;
 
-import ch.iec.tc57._2011.meterconfig.MeterConfig;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
-import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
-import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
-import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
-import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
-import ch.iec.tc57._2011.schema.message.ErrorType;
-import ch.iec.tc57._2011.schema.message.HeaderType;
-import ch.iec.tc57._2011.schema.message.Name;
-import ch.iec.tc57._2011.schema.message.ObjectType;
-import ch.iec.tc57._2011.schema.message.ReplyType;
-
 import com.elster.jupiter.fsm.StateTransitionWebServiceClient;
 import com.elster.jupiter.issue.share.IssueWebServiceClient;
 import com.elster.jupiter.issue.share.entity.Issue;
@@ -38,6 +25,19 @@ import com.energyict.mdc.cim.webservices.outbound.soap.PingResult;
 import com.energyict.mdc.cim.webservices.outbound.soap.ReplyMeterConfigWebService;
 import com.energyict.mdc.common.device.data.Device;
 import com.energyict.mdc.device.data.DeviceService;
+
+import ch.iec.tc57._2011.meterconfig.MeterConfig;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigEventMessageType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigPayloadType;
+import ch.iec.tc57._2011.meterconfigmessage.MeterConfigResponseMessageType;
+import ch.iec.tc57._2011.replymeterconfig.FaultMessage;
+import ch.iec.tc57._2011.replymeterconfig.MeterConfigPort;
+import ch.iec.tc57._2011.replymeterconfig.ReplyMeterConfig;
+import ch.iec.tc57._2011.schema.message.ErrorType;
+import ch.iec.tc57._2011.schema.message.HeaderType;
+import ch.iec.tc57._2011.schema.message.Name;
+import ch.iec.tc57._2011.schema.message.ObjectType;
+import ch.iec.tc57._2011.schema.message.ReplyType;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 import org.osgi.service.component.annotations.Component;
@@ -66,7 +66,7 @@ import java.util.stream.Collectors;
         service = {IssueWebServiceClient.class, ReplyMeterConfigWebService.class, OutboundSoapEndPointProvider.class, StateTransitionWebServiceClient.class},
         immediate = true,
         property = {"name=" + ReplyMeterConfigWebService.NAME})
-public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort> implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific, StateTransitionWebServiceClient{
+public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointProvider<MeterConfigPort> implements IssueWebServiceClient, ReplyMeterConfigWebService, OutboundSoapEndPointProvider, ApplicationSpecific, StateTransitionWebServiceClient {
 
     private static final String NOUN = "MeterConfig";
     private static final String RESOURCE_WSDL = "/wsdl/meterconfig/ReplyMeterConfig.wsdl";
@@ -92,7 +92,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     public ReplyMeterConfigServiceProvider(DeviceService deviceService,
                                            WebServicesService webServicesService,
                                            EndPointConfigurationService endPointConfigurationService,
-                                           MeteringService  meteringService) {
+                                           MeteringService meteringService) {
         this();
         setDeviceService(deviceService);
         setMeterConfigFactory(meterConfigFactory);
@@ -176,6 +176,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     protected String getName() {
         return ReplyMeterConfigWebService.NAME;
     }
+
     private List<EndPointConfiguration> getEndPointConfigurationByIds(List<Long> endPointConfigurationIds) {
         return endPointConfigurationIds.stream()
                 .map(id -> endPointConfigurationService.getEndPointConfiguration(id))
@@ -184,12 +185,14 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                 .collect(Collectors.toList());
     }
 
-    /** StateTransitionWebServiceClient implementation */
+    /**
+     * StateTransitionWebServiceClient implementation
+     */
     @Override
     public void call(long id, List<Long> endPointConfigurationIds, String state, Instant effectiveDate) {
         Optional<Device> device = deviceService.findDeviceByMeterId(id);
-        if (device.isPresent()){
-            logger.info("Handling notifications for ReplyMeterConfig called by StateTransition for device "+device.get().getSerialNumber()+" and state="+state);
+        if (device.isPresent()) {
+            logger.info("Handling notifications for ReplyMeterConfig called by StateTransition for device " + device.get().getSerialNumber() + " and state=" + state);
 
             getEndPointConfigurationByIds(endPointConfigurationIds)
                     .stream()
@@ -198,7 +201,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                             callStateTransition(device.get(), endPointConfiguration, state, effectiveDate)
                     );
         } else {
-            logger.warning("Could not call ReplyMeterConfig due to state-transition: device with meter-id="+id+" was not found!");
+            logger.warning("Could not call ReplyMeterConfig due to state-transition: device with meter-id=" + id + " was not found!");
         }
     }
 
@@ -276,14 +279,14 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
             Optional.ofNullable(getMeterConfigPorts().get(endPointConfiguration.getUrl()))
                     .ifPresent(meterConfigPortService -> {
                         MeterConfigPort replyMeterConfigPort = setReplyAddress(meterConfigPortService, endPointConfiguration.getUrl());
-                        logger.info("Calling changed(MeterConfig) on "+
-                                ((BindingProvider)replyMeterConfigPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY));
+                        logger.info("Calling changed(MeterConfig) on " +
+                                ((BindingProvider) replyMeterConfigPort).getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY));
                         try {
                             MeterConfigEventMessageType responseMessage = createInfoResponseMessage(createMeterConfig(Collections
-                                    .singletonList(device)), HeaderType.Verb.CHANGED,null);
+                                    .singletonList(device)), HeaderType.Verb.CHANGED, null);
 
                             // we're not replying to a request, it's a pushed state-change notification
-                            if (!isReply){
+                            if (!isReply) {
                                 responseMessage.setReply(null);
                             }
 
@@ -292,7 +295,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                             checkReplyMessage(endPointConfiguration, replyMessage);
                         } catch (FaultMessage faultMessage) {
                             String error = faultMessage.getLocalizedMessage();
-                            if (faultMessage.getCause() != null){
+                            if (faultMessage.getCause() != null) {
                                 error += " " + faultMessage.getCause().getLocalizedMessage();
                             }
                             logger.severe(error);
@@ -301,43 +304,44 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
                     });
         } catch (RuntimeException ex) {
             String error = ex.getLocalizedMessage();
-            if (ex.getCause() != null){
+            if (ex.getCause() != null) {
                 error += " " + ex.getCause().getLocalizedMessage();
             }
             logger.severe(error);
-            endPointConfiguration.log(LogLevel.SEVERE, error); }
+            endPointConfiguration.log(LogLevel.SEVERE, error);
+        }
 
     }
 
     private void checkReplyMessage(EndPointConfiguration endPointConfiguration, MeterConfigResponseMessageType replyMessage) {
-        if (replyMessage==null) {
+        if (replyMessage == null) {
             logger.info("Empty response received");
-            endPointConfiguration.log(LogLevel.FINE,"Empty response received");
+            endPointConfiguration.log(LogLevel.FINE, "Empty response received");
             return;
         }
 
-        if (replyMessage.getReply() == null){
+        if (replyMessage.getReply() == null) {
             logger.info("Empty <Reply> block received");
-            endPointConfiguration.log(LogLevel.FINE,"Empty reply information received");
+            endPointConfiguration.log(LogLevel.FINE, "Empty reply information received");
             return;
         }
 
-        if (replyMessage.getReply().getResult()==null){
+        if (replyMessage.getReply().getResult() == null) {
             logger.info("Empty or un-parsable <Result> block received");
-            endPointConfiguration.log(LogLevel.FINE,"Empty reply result received");
+            endPointConfiguration.log(LogLevel.FINE, "Empty reply result received");
             return;
 
         }
 
-        logger.info("Result is "+replyMessage.getReply().getResult().toString());
-        switch (replyMessage.getReply().getResult()){
+        logger.info("Result is " + replyMessage.getReply().getResult().toString());
+        switch (replyMessage.getReply().getResult()) {
             case OK:
-                endPointConfiguration.log(LogLevel.INFO,"Reply response is OK");
+                endPointConfiguration.log(LogLevel.INFO, "Reply response is OK");
                 return;
             case PARTIAL:
             case FAILED:
                 String error = extractErrors(replyMessage.getReply().getError());
-                String message = "Reply response is " + replyMessage.getReply().getResult().toString()+" "+error;
+                String message = "Reply response is " + replyMessage.getReply().getResult().toString() + " " + error;
                 logger.severe(message);
                 throw new WebServiceException(message);
         }
@@ -347,7 +351,7 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
     private String extractErrors(List<ErrorType> error) {
         StringBuilder message = new StringBuilder();
 
-        if (error!=null) {
+        if (error != null) {
             for (ErrorType err : error) {
                 message.append(err.getCode()).append(" ");
                 message.append(err.getDetails()).append("; ");
@@ -458,14 +462,14 @@ public class ReplyMeterConfigServiceProvider extends AbstractOutboundEndPointPro
 
             String endPointAddress = (String) bindingProvider.getRequestContext().get(BindingProvider.ENDPOINT_ADDRESS_PROPERTY);
 
-            if (urlAddress.equals(endPointAddress)){
+            if (urlAddress.equals(endPointAddress)) {
                 logger.fine("Endpoint validated.");
             } else {
-                logger.fine("Setting response URL to: "+ wsdlUrl.toExternalForm());
+                logger.fine("Setting response URL to: " + wsdlUrl.toExternalForm());
                 bindingProvider.getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, wsdlUrl.toExternalForm());
             }
         } catch (MalformedURLException e) {
-            logger.warning("URL " + urlAddress+" is malformed: "+e.getMessage());
+            logger.warning("URL " + urlAddress + " is malformed: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException(e);
         }

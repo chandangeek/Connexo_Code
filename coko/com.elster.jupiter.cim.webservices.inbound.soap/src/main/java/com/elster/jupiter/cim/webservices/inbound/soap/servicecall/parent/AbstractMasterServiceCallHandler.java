@@ -12,6 +12,7 @@ import com.elster.jupiter.servicecall.ServiceCall;
 import com.elster.jupiter.servicecall.ServiceCallHandler;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.EndPointConfigurationService;
+import com.elster.jupiter.soap.whiteboard.cxf.OutboundEndPointConfiguration;
 import com.elster.jupiter.soap.whiteboard.cxf.WebServicesService;
 
 import java.math.BigDecimal;
@@ -104,10 +105,8 @@ public abstract class AbstractMasterServiceCallHandler<T extends AbstractMasterD
             logErrorAboutMissingEndpoint(serviceCall, extension);
             return;
         }
-        Optional<EndPointConfiguration> endPointConfiguration = endPointConfigurationService
-                .findEndPointConfigurations().find().stream().filter(EndPointConfiguration::isActive)
-                .filter(epc -> !epc.isInbound()).filter(epc -> epc.getUrl().equals(extension.getCallbackURL()))
-                .findAny();
+        Optional<OutboundEndPointConfiguration> endPointConfiguration = endPointConfigurationService.getOutboundEndpointConfigurationByUrl(extension.getCallbackURL())
+                .filter(EndPointConfiguration::isActive);
         if (!endPointConfiguration.isPresent()) {
             logErrorAboutMissingEndpoint(serviceCall, extension);
             return;
