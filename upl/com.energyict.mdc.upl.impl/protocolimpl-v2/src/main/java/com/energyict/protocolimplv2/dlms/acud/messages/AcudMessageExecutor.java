@@ -646,9 +646,11 @@ public class AcudMessageExecutor extends AbstractMessageExecutor {
 
             int responseCode = httpConnection.getResponseCode();
             if (responseCode != HttpURLConnection.HTTP_OK) {
+                getProtocol().journal("Change is not applied. Gateway response code is: " + responseCode);
                 throw new ProtocolException("Change is not applied. Gateway response code is: " + responseCode);
             }
         } catch (Exception e) {
+            getProtocol().journal("[EXCEPTION] " + e.getMessage());
             throw new ProtocolException(e);
         } finally {
             if (httpConnection != null) {

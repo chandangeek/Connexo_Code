@@ -5,14 +5,18 @@ import com.energyict.mdc.channels.ip.socket.OutboundTcpIpConnectionType;
 import com.energyict.mdc.channels.ip.socket.OutboundWebServiceConnectionType;
 import com.energyict.mdc.channels.serial.optical.rxtx.RxTxOpticalConnectionType;
 import com.energyict.mdc.channels.serial.optical.serialio.SioOpticalConnectionType;
+import com.energyict.mdc.identifiers.DeviceIdentifierById;
 import com.energyict.mdc.protocol.ComChannel;
 import com.energyict.mdc.upl.DeviceProtocolCapabilities;
 import com.energyict.mdc.upl.DeviceProtocolDialect;
+import com.energyict.mdc.upl.ProtocolException;
 import com.energyict.mdc.upl.io.ConnectionType;
 import com.energyict.mdc.upl.issue.IssueFactory;
 import com.energyict.mdc.upl.messages.DeviceMessageSpec;
 import com.energyict.mdc.upl.messages.legacy.DeviceMessageFileExtractor;
 import com.energyict.mdc.upl.messages.legacy.TariffCalendarExtractor;
+import com.energyict.mdc.upl.meterdata.CollectedBreakerStatus;
+import com.energyict.mdc.upl.meterdata.CollectedCreditAmount;
 import com.energyict.mdc.upl.meterdata.CollectedDataFactory;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfile;
 import com.energyict.mdc.upl.meterdata.CollectedLoadProfileConfiguration;
@@ -38,6 +42,7 @@ import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -152,9 +157,20 @@ public class AcudGateway extends Acud {
         try {
             return sendGetFirmwareVersion(urlConnection);
         } catch (IOException e) {
+            journal("[EXCEPTION] " + e.getMessage());
             throw DLMSIOExceptionHandler.handle(e, getDlmsSession().getProperties().getRetries() + 1);
         }
+    }
 
+    @Override
+    public CollectedBreakerStatus getBreakerStatus() {
+        // need it to pass the verify status information, but gateway doesn't have a breaker
+        return this.getCollectedDataFactory().createBreakerStatusCollectedData(new DeviceIdentifierById(offlineDevice.getId()));
+    }
+
+    @Override
+    public List<CollectedCreditAmount> getCreditAmounts() {
+        return new ArrayList<>();
     }
 
     private String sendGetFirmwareVersion(String urlConnection) throws IOException {
