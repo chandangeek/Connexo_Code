@@ -58,9 +58,10 @@ class DefaultFileHandler implements FileHandler {
         ServerFileImportOccurrence fileImportOccurrence = importSchedule.createFileImportOccurrence(file, clock);
         fileImportOccurrence.prepareProcessing();
 
-        DestinationSpec destination = importSchedule.getDestination();
-
-        String json = jsonService.serialize(new FileImportMessage(fileImportOccurrence, fileImportService.getAppServerName().orElse(null)));
-        destination.message(json).send();
+        if (!fileImportOccurrence.getStatus().isFinal()) {
+            DestinationSpec destination = importSchedule.getDestination();
+            String json = jsonService.serialize(new FileImportMessage(fileImportOccurrence, fileImportService.getAppServerName().orElse(null)));
+            destination.message(json).send();
+        }
     }
 }

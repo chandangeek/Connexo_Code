@@ -9,7 +9,7 @@
     <parent>
         <groupId>com.elster.jupiter</groupId>
         <artifactId>platform</artifactId>
-        <version>19.1.1-Kratos-SNAPSHOT</version>
+        <version>19.2.0-Kratos-SNAPSHOT</version>
     </parent>
     <artifactId>audit</artifactId>
     <packaging>bundle</packaging>

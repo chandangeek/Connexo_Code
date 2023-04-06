@@ -93,8 +93,14 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
 
         MessageSeeds.FILE_IMPORT_STARTED.log(getLogger(), thesaurus);
         this.setStartDate(clock.instant());
-        moveFile();
-        save();
+        try {
+            moveFile();
+            save();
+        } catch (Exception exception) {
+            getLogger().log(Level.SEVERE, exception.getMessage(), exception);
+            // can't proceed with the import
+            markFailure(exception.getMessage());
+        }
     }
 
     @Override
@@ -104,7 +110,12 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         this.message = message;
         this.endDate = clock.instant();
         ensureStreamClosed();
-        moveFile();
+        try {
+            moveFile();
+        } catch (Exception exception) {
+            status = Status.FAILURE;
+            getLogger().log(Level.SEVERE, exception.getMessage(), exception);
+        }
         save();
         MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(), thesaurus);
     }
@@ -116,7 +127,12 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         this.message = message;
         this.endDate = clock.instant();
         ensureStreamClosed();
-        moveFile();
+        try {
+            moveFile();
+        } catch (Exception exception) {
+            status = Status.FAILURE;
+            getLogger().log(Level.SEVERE, exception.getMessage(), exception);
+        }
         save();
         MessageSeeds.FILE_IMPORT_FINISHED.log(getLogger(), thesaurus);
     }
@@ -128,22 +144,22 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
         this.endDate = clock.instant();
         status = Status.FAILURE;
         ensureStreamClosed();
-        moveFile();
+        try {
+            moveFile();
+        } catch (Exception exception) {
+            status = Status.FAILURE;
+            getLogger().log(Level.SEVERE, exception.getMessage(), exception);
+        }
         save();
     }
 
     private void moveFile() {
-        try {
-            Path filePath = fileImportService.getBasePath().resolve(path);
-            if (Files.exists(filePath)) {
-                Path target = targetPath(filePath);
-                getLogger().log(Level.FINE, "FileImportOccurrenceImpl :: moveFile :: moving file from source: " + filePath + "to target: " + target);
-                fileUtils.move(filePath, target);
-                path = fileImportService.getBasePath().relativize(target);
-            }
-        } catch (Exception exception) {
-            status = Status.FAILURE;
-            getLogger().log(Level.SEVERE, exception.getMessage(), exception);
+        Path filePath = fileImportService.getBasePath().resolve(path);
+        if (Files.exists(filePath)) {
+            Path target = targetPath(filePath);
+            getLogger().log(Level.FINE, "FileImportOccurrenceImpl :: moveFile :: moving file from source: " + filePath + "to target: " + target);
+            fileUtils.move(filePath, target);
+            path = fileImportService.getBasePath().relativize(target);
         }
     }
 
@@ -266,13 +282,12 @@ final class FileImportOccurrenceImpl implements ServerFileImportOccurrence {
     }
 
     private void ensureStreamClosed() {
-        if (inputStream == null) {
-            return;
-        }
-        try {
-            inputStream.close();
-        } catch (IOException e) {
-            throw new FileIOException(path, e, thesaurus);
+        if (inputStream != null) {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                throw new FileIOException(path, e, thesaurus);
+            }
         }
     }
 
